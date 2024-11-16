@@ -12,7 +12,7 @@ ms.reviewer: micflan
 
 # FinOps toolkit contribution guide
 
-The FinOps Toolkit project welcomes contributions from the community. Welcome to the FinOps toolkit. As an open-source initiative, our success hinges on the collective effort of the community. Your contributions play a vital role in enhancing and expanding the toolkit's capabilities, making it more valuable and effective.
+Welcome to the FinOps toolkit. As an open-source initiative, our success hinges on the collective effort of the community. Your contributions play a vital role in enhancing and expanding the toolkit's capabilities, making it more valuable and effective for everyone.
 
 There are several ways you can contribute to the FinOps toolkit:
 
