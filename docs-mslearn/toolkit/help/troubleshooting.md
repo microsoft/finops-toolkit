@@ -170,10 +170,6 @@ If you're facing an error not listed above or need more help, file a [support re
 -->
 ## Related content
 
-Related products:
-
-- [Cost Management](/azure/cost-management-billing/costs/)
-
 Related solutions:
 
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
