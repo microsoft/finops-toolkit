@@ -86,7 +86,7 @@ Here are the parameters for the scheduled action modules:
 
 ## Examples
 
-The following examples  help you send an email on a schedule or when an anomaly is detected.
+The following examples help you send an email on a schedule or when an anomaly is detected.
 
 ### Schedule an email for a built-in view
 
