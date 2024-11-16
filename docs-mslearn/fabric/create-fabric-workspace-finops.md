@@ -54,7 +54,7 @@ For the following example, we used the following Data Lake Gen 2 storage account
 
 Since we're creating a workspace optimized for FinOps, we export cost data using the FinOps Open Cost and Usage Specification (FOCUS), a provider-agnostic data format for cost details. All our examples use FOCUS but you can also use existing actual or amortized cost exports that have file overwriting enabled.
 
-For more information about FOCUS and its benefits, see [About FOCUS](../focus/what-is-focus.md). The FinOps Foundation also offers a free [Introduction to FOCUS course](https://learn.finops.org/introduction-to-focus). Microsoft’s Power BI solutions for FinOps are aligned to FOCUS.
+For more information about FOCUS and its benefits, see [What is FOCUS](../focus/what-is-focus.md). The FinOps Foundation also offers a free [Introduction to FOCUS course](https://learn.finops.org/introduction-to-focus). Microsoft’s Power BI solutions for FinOps are aligned to FOCUS.
 
 To create an export, see [Create exports](/azure/cost-management-billing/costs/tutorial-improved-exports#create-exports).
 
