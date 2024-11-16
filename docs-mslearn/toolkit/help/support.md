@@ -49,14 +49,3 @@ If you run into an issue, we recommend taking the following actions:
 We try to respond to issues and discussions within two business days but there can sometimes be unanticipated delays. If you completed all of the preceding steps and the issue wasn't resolved within a week, we should set up a Teams call for you. Then you can share your screen so we can troubleshoot the issue together.
 
 <br>
-
-## Related content
-
-Related products:
-
-- [Cost Management](/azure/cost-management-billing/costs/)
-
-Related solutions:
-
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
