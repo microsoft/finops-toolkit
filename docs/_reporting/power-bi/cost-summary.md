@@ -26,8 +26,6 @@ Common breakdowns of your cost to identify top contributors, review changes over
 - [Resources](#resources)
 - [Regions](#regions)
 - [Inventory](#inventory)
-- [Commitments](#commitments)
-- [Hybrid Benefit](#hybrid-benefit)
 - [Prices](#prices)
 - [Purchases](#purchases)
 - [Charge breakdown](#charge-breakdown)
@@ -149,51 +147,9 @@ The **Inventory** page includes a list of resource types with the count, total c
 
 <br>
 
-## Commitments
-
-<!-- NOTE: This page is duplicated in the rate-optimization.md. Please keep both updated at the same time. -->
-
-The **Commitments** page serves 3 primary purposes:
-
-1. Determine if there are any under-utilized commitments.
-2. Facilitate chargeback at a subscription, resource group, or resource level.
-3. Summarize cost savings obtained from commitment discounts.
-
-This page uses the standard layout with a breakdown of commitment discounts in the chart and table.
-
-In addition to cost and savings KPIs, there is also a utilization KPI for the amount of commitment discounts that have been utilized during the period. Low utilization will result in lost savings potential, so this number is one of the most important KPIs on the page.
-
-The chart breaks down the cost of used (utilized) vs. unused charges. Unused charges are split out by commitment type (e.g., reservation, savings plan).
-
-The table shows resource usage against commitment discounts with columns for resource name, resource group, subscription, and commitment. Use the table for chargeback and savings calculations.
-
-This page filters usage down to only show charges related to commitment discounts, which means the total cost on the Commitments page won't match other pages, which aren't filtered by default.
-
-![Screenshot of the Commitment discounts page](https://github.com/microsoft/finops-toolkit/assets/399533/ecd6b673-35ba-4b51-a633-efaf6fe7cc8c)
-
-<br>
-
-## Hybrid Benefit
-
-The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs).
-
-KPIs show how many VMs are using Azure Hybrid Benefit and how many vCPUs are used.
-
-There are 3 charts on the page:
-
-1. SKU names and number of VMs currently using less than 8 vCPUs. These are under-utilizing AHB.
-2. SKU names and number of VMs with 8+ vCPUs that are not currently using AHB.
-3. Daily breakdown of AHB and non-AHB usage (excluding those where AHB is not supported).
-
-The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
-
-![Screenshot of the Hybrid Benefit page](https://github.com/microsoft/finops-toolkit/assets/399533/6b94a7af-6cfe-4310-babf-8e8d2fe331ac)
-
-<br>
-
 ## Prices
 
-<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
+<!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
 The **Prices** page shows the prices for all products that were used during the period.
 
@@ -204,6 +160,8 @@ The chart shows a summary of the meters that were used the most.
 <br>
 
 ## Purchases
+
+<!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
 The **Purchases** page shows a list of products that were purchased during the period.
 
@@ -234,7 +192,7 @@ The **Charge breakdown** page shows a breakdown of all charges using the followi
 
 ## Raw data
 
-The **Raw data** page shows a table with most columns to help you explore FOCUS columns.
+The **Raw data** page shows a table with most columns to help you explore FOCUS columns. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 > ![Screenshot of the Raw data page](https://github.com/microsoft/finops-toolkit/assets/399533/3c74bceb-202f-4830-99f6-f02d1e831340)
 
@@ -242,7 +200,7 @@ The **Raw data** page shows a table with most columns to help you explore FOCUS 
 
 ## DQ
 
-The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions.
+The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 > ![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/e4d52402-5b3c-48ea-816c-934b29b8fdc6)
 

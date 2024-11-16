@@ -103,13 +103,13 @@ percentstring(num: double, total: double = 1.0, places: int = 9)
 with (docstring = 'Convert an array to a comma-delimited string', folder = 'Common')
 arraystring(arr: dynamic)
 {
-    replace_string(replace_string(replace_string(replace_string(replace_string(replace_string(
+    replace_string(replace_regex(replace_regex(replace_regex(replace_regex(replace_regex(
         tostring(arr)
+        , @'^\["', '')
+        , @'"\]$', '')
         , @'^, ', '')
         , @', $', '')
-        , @'\[\]', '')
-        , @'\["', '')
-        , @'"\]', '')
+        , @'^\[]$', '')
         , '","', ', ')
 }
 
