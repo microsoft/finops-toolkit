@@ -10,7 +10,7 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn how to contribute to the FinOps toolkit by fixing bugs, suggesting new features, reviewing pull requests, and updating documentation.
 ---
 
-# FinOps contribution guide
+# FinOps toolkit contribution guide
 
 The FinOps Toolkit project welcomes contributions from the community. Welcome to the FinOps toolkit. As an open-source initiative, our success hinges on the collective effort of the community. Your contributions play a vital role in enhancing and expanding the toolkit's capabilities, making it more valuable and effective.
 
