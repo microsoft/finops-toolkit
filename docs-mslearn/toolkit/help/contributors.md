@@ -107,14 +107,3 @@ This project adopted the [Microsoft Open Source Code of Conduct](https://opensou
 For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/)
 or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any other questions or comments.
 
-## Related content
-
-Related products:
-
-- [Cost Management](/azure/cost-management-billing/costs/)
-
-Related solutions:
-
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
-
