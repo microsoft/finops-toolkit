@@ -1180,7 +1180,6 @@ CommitmentDiscountUsage_transform_v1_0()
     ResourceName:                   string,    // Advisor
     x_ResourceType:                 string,    // Advisor
     x_RecommendationCategory:       string,    // Advisor
-    x_RecommendationProvider:       string,    // Advisor
     x_RecommendationId:             string,    // Advisor
     x_RecommendationDescription:    string,    // Advisor
     x_RecommendationSolution:       string,    // Advisor
@@ -1219,12 +1218,12 @@ Recommendations_transform_v1_0()
     Recommendations_raw
     //
     // Set ProviderName
-    | extend ProviderName = coalesce(x_RecommendationProvider, 'Microsoft')
+    | extend ProviderName = 'Microsoft'
     //
     // Set source columns
     | extend x_SourceName     = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName))
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
-    | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', iif(ProviderName in ('Microsoft.Advisor','Microsoft.FinOpsToolkit'), 'Recommendations', '')))
+    | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
     //
     // Build recommendation details
@@ -1243,7 +1242,7 @@ Recommendations_transform_v1_0()
         'SkuSize', coalesce(SKU, SkuName),
         'SkuTerm', isoMonths(Term)
       ),
-      x_SourceType == 'Recommendations', bag_pack(
+      x_SourceType endswith 'Recommendations', bag_pack(
         'ResourceId', ResourceId,
         'ResourceName', ResourceName,
         'ResourceGroupName', x_ResourceGroupName,
@@ -1263,7 +1262,7 @@ Recommendations_transform_v1_0()
     // Sort columns and apply final transforms
     | project
       // TODO: Should we include ChargePeriodEnd?
-      ChargePeriodStart = coalesce(FirstUsageDate, x_RecommendationDate),
+      ChargePeriodStart = FirstUsageDate,
       ProviderName,
       SubAccountId      = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
       // TODO: SubAccountName,
@@ -1281,7 +1280,8 @@ Recommendations_transform_v1_0()
       x_SourceType,
       x_SourceVersion,
       SubAccountName,
-      x_RecommendationDescription
+      x_RecommendationDescription,
+      x_RecommendationDate
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1302,7 +1302,8 @@ Recommendations_transform_v1_0()
     x_SourceType:                string,
     x_SourceVersion:             string,
     SubAccountName:              string,
-    x_RecommendationDescription: string
+    x_RecommendationDescription: string,
+    x_RecommendationDate:        datetime
 )
 
 //----------------------------------------------------------------------------------------------------------------------

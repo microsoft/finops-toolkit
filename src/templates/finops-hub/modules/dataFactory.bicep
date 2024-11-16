@@ -5192,7 +5192,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
                   requestInterval: '00.00:00:00.050'
                   requestMethod: 'POST'
                   requestBody: {
-                    value: '@concat(\'{\n  "query": "\', item().query, \'" \n}\')'
+                    value: '@concat(\'{ "query": "\', item().query, \' | extend x_SourceName=\\"\', item().source, \'\\", x_SourceType=\\"\', item().type, \'\\", x_SourceProvider=\\"\', item().provider, \'\\", x_SourceVersion=\\"\', item().version, \'\\"" }\')'
                     type: 'Expression'
                   }
                   additionalHeaders: {
@@ -5228,7 +5228,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
                   type: 'DatasetReference'
                   parameters: {
                     blobPath: {
-                      value: '@concat(variables(\'blobBasePath\'), item().name, \'.parquet\')'
+                      value: '@concat(variables(\'blobBasePath\'), item().type, \'.parquet\')'
                       type: 'Expression'
                     }
                   }
