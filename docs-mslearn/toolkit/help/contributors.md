@@ -23,7 +23,7 @@ There are several ways you can contribute to the FinOps toolkit:
 - **Answer questions:** Being actively involved in answering questions and providing assistance to community members is an invaluable contribution to the project.
 - **Update documentation:** Documentation serves as a crucial resource for users, developers, and contributors alike. We strive to keep documentation accurate, comprehensive, and up to date. It's essential for the success of the toolkit.
 
-We appreciate your interest in contributing to the FinOps Toolkit project!
+We appreciate your interest in contributing to the FinOps toolkit!
 
 <br>
 
