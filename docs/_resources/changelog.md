@@ -188,6 +188,29 @@ Legend:
 >   1. On the Database tab, removed the idle SQL databases query.
 >      - This query will be re-evaluated and added again in a future release.
 
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 50 new Microsoft.AWSConnector resource types.
+>   1. Added 8 new Microsoft.Compute resource types.
+>   1. Added 3 new Microsoft.ContainerInstance resource types.
+>   1. Added 3 new Microsoft.DatabaseFleetManager resource types.
+>   1. Added 4 new Microsoft.Fabric resource types.
+>   1. Added 5 new Microsoft.OpenLogisticsPlatform resource types.
+>   1. Added 3 new Microsoft.Sovereign resource types.
+>   1. Added 14 other new resource types: arizeai.observabilityeval/organizations, lambdatest.hyperexecute/organizations, microsoft.azurestackhci/edgedevices/jobs, microsoft.clouddeviceplatform/delegatedidentities, microsoft.compute/capacityreservationgroupscomputehub, microsoft.compute/galleries/imagescomputehub, microsoft.compute/hostgroupscomputehub, microsoft.hybridcompute/machinessoftwareassurance, microsoft.machinelearning/workspaces, microsoft.resources/deletedresources, microsoft.security/defenderforstoragesettings/malwarescans, microsoft.weightsandbiases/instances, neon.postgres/organizations, pinecone.vectordb/organizations.
+> - [Services](../_reporting/data/README.md#-services)
+>   1. Added 3 resource types to existing services: microsoft.hardwaresecuritymodules/cloudhsmclusters, microsoft.healthdataaiservices/deidservices, microsoft.insights/datacollectionrules.
+>
+> ✏️ Changed:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Updated 17 new Microsoft.ComputeHub resource types.
+>   1. Updated 9 other resource type: microsoft.appsecurity/policies, microsoft.compute/virtualmachines/providers/guestconfigurationassignments, microsoft.dbforpostgresql/flexibleservers, microsoft.deviceregistry/billingcontainers, microsoft.durabletask/namespaces, microsoft.durabletask/namespaces/taskhubs, microsoft.edge/configurations, microsoft.hybridcompute/machines/providers/guestconfigurationassignments, microsoft.securitycopilot/capacities.
+
 <br>
 
 ## 🪛 v0.6 Update 1
