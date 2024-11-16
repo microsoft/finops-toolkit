@@ -3878,16 +3878,6 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
   parent: dataFactory
   properties: {
     activities: [
-      { // Wait
-        name: 'Wait'
-        description: 'Files may not be available immediately after being created.'
-        type: 'Wait'
-        dependsOn: []
-        userProperties: []
-        typeProperties: {
-          waitTimeInSeconds: 60
-        }
-      }
       { // Set Container Folder Path
         name: 'Set Container Folder Path'
         type: 'SetVariable'
@@ -3910,12 +3900,6 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         description: 'Run the ADX ETL pipeline.'
         type: 'ExecutePipeline'
         dependsOn: [
-          {
-            activity: 'Wait'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
           {
             activity: 'Set Container Folder Path'
             dependencyConditions: [
@@ -3994,10 +3978,27 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
   properties: {
     // concurrency: 8  // sanity check
     activities: [
+      { // Wait
+        name: 'Wait'
+        description: 'Files may not be available immediately after being created.'
+        type: 'Wait'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          waitTimeInSeconds: 60
+        }
+      }
       { // Read Column Names
         name: 'Read Column Names'
         type: 'Lookup'
-        dependsOn: []
+        dependsOn: [
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
         policy: {
           timeout: '0.12:00:00'
           retry: 0
@@ -4093,7 +4094,14 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
         name: 'Read Hub Config'
         description: 'Read the hub config to determine how long data should be retained.'
         type: 'Lookup'
-        dependsOn: []
+        dependsOn: [
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
         policy: {
           timeout: '0.12:00:00'
           retry: 0
