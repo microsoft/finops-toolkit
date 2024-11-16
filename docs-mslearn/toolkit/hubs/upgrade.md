@@ -3,7 +3,7 @@ title: Upgrade your FinOps hubs
 description: Learn how to upgrade your existing FinOps hub instance to the latest version, including necessary steps and considerations.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/10/2024
+ms.date: 10/30/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan

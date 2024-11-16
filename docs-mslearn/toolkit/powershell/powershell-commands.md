@@ -1,10 +1,10 @@
 ---
 title: FinOps toolkit PowerShell module
-description: Automate and scale your FinOps efforts.
+description: Automate and scale your FinOps efforts using the FinOps toolkit PowerShell module, which includes commands to manage FinOps solutions.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what PowerShell commands are available in the FinOpsToolkit module.
@@ -21,30 +21,32 @@ The FinOps toolkit PowerShell module is a collection of commands to automate and
 
 The FinOps toolkit module requires PowerShell 7, which is built into [Azure Cloud Shell](https://portal.azure.com/#cloudshell) and supported on all major operating systems. 
 
-Azure Cloud Shell comes with PowerShell 7 and Azure PowerShell pre-installed. If you are not using Azure Cloud Shell, you will need to [Install PowerShell](/powershell/scripting/install/installing-powershell) first and then run the following commands to install Azure PowerShell:
+Azure Cloud Shell comes with PowerShell 7 and Azure PowerShell preinstalled. If you aren't using Azure Cloud Shell, you need to [Install PowerShell](/powershell/scripting/install/installing-powershell) first and then run the following commands to install Azure PowerShell:
 
 ```powershell
 Install-Module -Name Az.Accounts
 Install-Module -Name Az.Resources
 ```
 
-To install the FinOps toolkit module, run the following in either Azure Cloud Shell or a PowerShell client:
+To install the FinOps toolkit module, run the following command in either Azure Cloud Shell or a PowerShell client:
 
 ```powershell
 Install-Module -Name FinOpsToolkit
 ```
 
-If this is the first time using Azure PowerShell, you will also need to sign into your account and select a default subscription:
+If it's the first time using Azure PowerShell, you also need to sign into your account and select a default subscription:
 
 ```powershell
 Connect-AzAccount
 ```
 
-This will show a popup window to sign in to your account. If you do not see the window, it may be on a different screen.
+It shows a popup window to sign in to your account. If you don't see the window, it might be on a different screen.
 
 <br>
 
 ## Commands
+
+The FinOps toolkit PowerShell module includes commands to manage FinOps solutions. Here are the available commands:
 
 ### General toolkit commands
 
@@ -76,7 +78,7 @@ This will show a popup window to sign in to your account. If you do not see the 
 
 ## Looking for more?
 
-We'd love to hear about any commands or scripts you're looking for. Vote up (👍) existing ideas or create a new issue to suggest a new idea in the [FinOps toolkit issues list](https://aka.ms/ftk/ideas). We'll focus on ideas with the most votes.
+We'd love to hear about any commands or scripts you're looking for. To suggest a new idea in the [FinOps toolkit issues list](https://aka.ms/ftk/ideas), vote up existing ideas or create a new issue. We focus on ideas with the most votes.
 
 <br>
 
@@ -90,7 +92,7 @@ Related products:
 Related solutions:
 
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [Optimization engine](../optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../optimization-engine/overview.md)
 - [Bicep Registry modules](../bicep-registry/modules.md)
 - [FinOps toolkit open data](../open-data.md)
 

@@ -3,7 +3,7 @@ title: Choose a Power BI data source
 description: Learn about different ways to connect Power BI to your data to analyze and report on cloud costs, including connectors and exports.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/10/2024
+ms.date: 11/01/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -73,7 +73,7 @@ In general, we recommend starting with the Cost Management connector when gettin
 [about-workspaces]: ../../fabric/create-fabric-workspace-finops.md
 [hubs-template]: ../hubs/template.md
 
-_¹ Microsoft Fabric can connect to either raw exports or FinOps hubs. FinOps toolkit reports don't support Microsoft Fabric yet.._
+_¹ Microsoft Fabric can connect to either raw exports or FinOps hubs. FinOps toolkit reports don't support Microsoft Fabric yet._
 
 _² Power BI constraints are based on data size and processing time. Monitored spend estimations are for reference only. You might see different limits based on services you use and other datasets you ingest._
 

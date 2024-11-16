@@ -1,9 +1,9 @@
 ---
 title: Governance workbook
-description: Azure Monitor workbook focused on governance.
+description: Azure Monitor workbook focused on governance, providing an overview of your Azure environment's governance posture and compliance.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 11/01/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -13,11 +13,11 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Governance workbook
 
-The governance workbook is an Azure Monitor workbook that provides a comprehensive overview of the governance posture of your Azure environment. It includes the standard metrics aligned with the Cloud Adoption Framework for all disciplines and has the capability to identify and apply recommendations to address non-compliant resources.
+The governance workbook is an Azure Monitor workbook that provides a comprehensive overview of the governance posture of your Azure environment. It includes the standard metrics aligned with the Cloud Adoption Framework for all disciplines and has the capability to identify and apply recommendations to address noncompliant resources.
 
-:::image type="content" source="../../media/workbooks/governance.png" border="true" alt-text="Screenshot of the Governance workbook" lightbox="../../media/workbooks/governance.png":::
+:::image type="content" source="./media/governance/overview-governance.png" border="true" alt-text="Screenshot showing the Governance workbook overview page." lightbox="./media/governance/overview-governance.png":::
 
-This page details the tabs and information you'll find within the workbook.
+This article details the tabs and information you find within the workbook.
 
 > [!NOTE]
 > Azure Resource Graph queries are limited to 10,000 results. If you receive an error for too many rows, try selecting a smaller management group or reducing the number of subscriptions.
@@ -40,7 +40,7 @@ The **overview** tab provides general information about your environment, includ
 The **Virtual machine** tab is focused on Compute resources to get more information about the resource count and configuration:
 
 - Virtual machine count by OS type
-- Virtual machines by type/size (e.g., D2ms, D2v3)
+- Virtual machines by type/size (for example, D2ms, D2v3)
 - Virtual machine scale set capacity and size
 - Compute disks (OS & data disk attached, OS & data disk size, OS disk SKU)
 - Compute networking (NIC, private IP, public IP attached)
@@ -50,9 +50,7 @@ The **Virtual machine** tab is focused on Compute resources to get more informat
   - Orphaned disks
   - Orphaned NICs
   - Current VM status (Creating, Starting, Running, Stopping, Stopped, Deallocating, Deallocated)
-    <blockquote class="note" markdown="1">
-      _For more information about each power state, please refer to [Azure VM states and billing status](https://learn.microsoft.com/azure/virtual-machines/states-billing)._
-    </blockquote>
+    - For more information about each power state, see [Azure VM states and billing status](/azure/virtual-machines/states-billing).
   - Virtual machine list filtered by power state
 
 <br>
@@ -67,9 +65,8 @@ The **Storage + backup** tab is focused on storage and backup resources:
   - Overview
   - Capacity
 - Backup details
-  <blockquote class="important" markdown="1">
-    _Vault diagnostic setting needs configured in Log Analytics Workspaces in order to see backup details._
-  </blockquote>
+  > [!IMPORTANT]
+  > Vault diagnostic setting needs configured in Log Analytics Workspaces in order to see backup details.
 
 <br>
 
@@ -156,7 +153,7 @@ The **Resource age** tab shows information about the creation and last change da
 
 ## Tag explorer
 
-The **Tag explorer** tab helps you to filter/sort your resources by tag. You can list and identify resources with or without a specified tag name and with or without a value. Each result can be filtered by resource type.
+The **Tag explorer** tab helps you to filter/sort your resources by tag. You can list and identify resources with or without a specified tag name and with or without a value. You can filter each result by resource type.
 
 You can also get general information on subscriptions and resource groups.
 
@@ -170,9 +167,14 @@ The **Cost Management** tab shows high level information about your cost and can
 
 ## Usage + limits
 
-Many Azure services have quotas, which are the assigned number of resources for your Azure subscription. Each quota represents a specific countable resource, such as the number of virtual machines you can create, the number of storage accounts you can use concurrently, the number of networking resources you can consume, or the number of API calls to a particular service you can make.
+Many Azure services have quotas, which are the assigned number of resources for your Azure subscription. Each quota represents a specific countable resource, such as:
 
-The **Usage & limits** tab shows resource this information about your subscriptions. To learn more about quotas, see [Quotas overview](https://learn.microsoft.com/azure/quotas/quotas-overview).
+- The number of virtual machines you can create
+- The number of storage accounts you can use concurrently
+- The number of networking resources you can consume
+- The number of API calls to a particular service you can make
+
+The **Usage & limits** tab shows resource this information about your subscriptions. To learn more about quotas, see [Quotas overview](/azure/quotas/quotas-overview).
 
 <br>
 
@@ -184,15 +186,15 @@ The **Compliance** tab helps you monitor policy compliance, the number of failur
 
 ## Governance
 
-Microsoft Defender for Cloud continuously assesses your hybrid and multi-cloud workloads and provides you with recommendations to harden your assets and enhance your security posture.
+Microsoft Defender for Cloud continuously assesses your hybrid and multicloud workloads and provides you with recommendations to harden your assets and enhance your security posture.
 
 Central security teams often experience challenges when driving the personnel within their organizations to implement recommendations. The organizations' security posture can suffer as a result.
 
 We're introducing a brand-new, built-in governance experience to set ownership and expected remediation timeframes to resolve recommendations.
 
-Pre-requisite: To use this governance report, you need to create security governance rules.
+Prerequisite: To use this governance report, you need to create security governance rules.
 
-To learn more, refer to [Driving your organization to remediate security issues with recommendation governance in Microsoft Defender for Cloud](https://learn.microsoft.com/azure/defender-for-cloud/governance-rules).
+For more information, see [Driving your organization to remediate security issues with recommendation governance in Microsoft Defender for Cloud](/azure/defender-for-cloud/governance-rules).
 
 <br>
 
@@ -210,7 +212,7 @@ Related products:
 
 Related solutions:
 
-- [Optimization engine](../optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../optimization-engine/overview.md)
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 

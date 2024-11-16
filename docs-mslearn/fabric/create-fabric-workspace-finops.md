@@ -1,12 +1,13 @@
 ---
 title: Create a Fabric workspace for FinOps
-description: This article walks you through creating and configuring a Microsoft Fabric workspace for FinOps.
+description: This article guides you through creating and configuring a Microsoft Fabric workspace for FinOps. When completed, you can use Power BI to build reports.
 author: bandersmsft
 ms.author: banders
-ms.date: 08/13/2024
+ms.date: 10/29/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with web services.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -38,7 +39,7 @@ Microsoft Fabric is optimized to work with storage accounts with hierarchical na
 - Option 2: To enable hierarchical namespace on an existing storage account, see [Upgrade Azure Blob Storage with Azure Data Lake Storage Gen2 capabilities](/azure/storage/blobs/upgrade-to-data-lake-storage-gen2-how-to?tabs=azure-portal).
 
 >[!TIP]
->If you deployed [FinOps hubs](../toolkit/hubs), you can use the storage account created as part of the hub resource group.
+>If you deployed [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md), you can use the storage account created as part of the hub resource group.
 
 For the following example, we used the following Data Lake Gen 2 storage account. You use your own storage account and subscription details.
 
@@ -53,7 +54,7 @@ For the following example, we used the following Data Lake Gen 2 storage account
 
 Since we're creating a workspace optimized for FinOps, we export cost data using the FinOps Open Cost and Usage Specification (FOCUS), a provider-agnostic data format for cost details. All our examples use FOCUS but you can also use existing actual or amortized cost exports that have file overwriting enabled.
 
-To learn more about FOCUS and its benefits, see [About FOCUS](../focus). The FinOps Foundation also offers a free [Introduction to FOCUS course](https://learn.finops.org/introduction-to-focus). Microsoft’s Power BI solutions for FinOps are aligned to FOCUS.
+For more information about FOCUS and its benefits, see [What is FOCUS](../focus/what-is-focus.md). The FinOps Foundation also offers a free [Introduction to FOCUS course](https://learn.finops.org/introduction-to-focus). Microsoft’s Power BI solutions for FinOps are aligned to FOCUS.
 
 To create an export, see [Create exports](/azure/cost-management-billing/costs/tutorial-improved-exports#create-exports).
 
@@ -83,7 +84,7 @@ Ensure that your export completed and that the file is available before moving t
 
 If you want to automate export creation, consider using the [New-FinOpsCostExport command](https://microsoft.github.io/finops-toolkit/powershell/cost/New-FinOpsCostExport) in the FinOps toolkit PowerShell module.
 
-If you deployed [FinOps hubs](../toolkit/hubs/finops-hubs-overview.d), you can skip this step and use the processed data in hub storage.
+If you deployed [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md), you can skip this step and use the processed data in hub storage.
 
 <br>
 
@@ -178,7 +179,7 @@ After the shortcut gets created, you can view the FOCUS cost data inside **Files
 
 For more information, see [Lakehouse Load to Delta Lake tables](/fabric/data-engineering/load-to-tables).
 
-This process creates a table based on the CSV/Parquet file. For an automated process to ingest data using notebooks, see the Automate data ingestion tab.
+This process creates a table based on the CSV/Parquet file. For an automated process to ingest data using notebooks, see the **Automate data ingestion** tab.
 
 Here’s an example screenshot showing data in the Lakehouse table.
 

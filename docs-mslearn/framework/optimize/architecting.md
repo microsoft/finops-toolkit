@@ -3,7 +3,7 @@ title: Architecting for cloud
 description: This article helps you understand the architecting for cloud capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/14/2024
+ms.date: 10/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -41,7 +41,7 @@ The "Architecting for Cloud" capability within the FinOps Framework helps custom
 
 - **Educate stakeholders:** Conduct training sessions or workshops to educate stakeholders about the benefits and principles of cloud architecture, emphasizing cost optimization, scalability, and resilience.
 - **Implement architectural principles:** Establish architectural principles and design guidelines based on [WAF pillars](/azure/well-architected/workloads): operational excellence, security, reliability, performance efficiency, and cost optimization.
-- **Leverage Enterprise App Patterns for Web Apps:** Get started with the [Reliable Web App pattern](aka.ms/eap/rwa). Enterprise App Patterns are built on top of the principles laid out in the WAF and provide implementation techniques to optimize your .NET or Java web app's move to the cloud.
+- **Leverage Enterprise App Patterns for Web Apps:** Get started with the [Reliable Web App pattern](/azure/architecture/web-apps/guides/enterprise-app-patterns/overview). Enterprise App Patterns are built on top of the principles laid out in the WAF and provide implementation techniques to optimize your .NET or Java web app's move to the cloud.
 - **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](/assessments/azure-architecture-review/) for workloads deployed in Azure. To identify areas for improvement, evaluate workloads against the five pillars of WAF.
 - **Implement cost management practices:** Incorporate the Cloud Adoption Framework's [cost management practices](/azure/cloud-adoption-framework/get-started/manage-costs) into your architectural designs. This effort includes right-sizing resources, using [commitment discounts](./rates.md), and implementing [cost allocation mechanisms](../understand/allocation.md).
 - **Establish governance and compliance:** Establish [governance mechanisms](/azure/cloud-adoption-framework/govern/monitor-cloud-governance) and compliance controls to ensure adherence to organizational policies, regulatory requirements, and industry standards. Use Azure Governance and Azure Blueprints for policy enforcement and compliance automation.
@@ -55,7 +55,7 @@ At this point, you should have a clear architectural guidance. As you move beyon
 - **Advanced Architectural Patterns:** Review and explore the [Azure Architecture Center](/azure/architecture/browse/) for advanced architectural patterns and design principles specific to Azure. They include microservices, serverless computing, event-driven architectures, and distributed systems.
 - **Cloud-native Technologies:** Use managed services to simplify architecture, improve scalability, and reduce operational overhead. Embrace cloud-native technologies and services offered by Azure, such as [Azure Kubernetes Service (AKS)](/azure/well-architected/service-guides/azure-kubernetes-service), [Azure Functions](/azure/well-architected/service-guides/azure-functions-security), Azure Logic Apps, and Azure Event Grid. 
 - **Multi-Cloud and Hybrid Architectures:** Extend cloud architectures to embrace multicloud and hybrid cloud scenarios, using [Azure Arc](/azure/azure-arc/overview) for managing resources across on-premises, multicloud, and edge environments. Implement cloud bursting and disaster recovery strategies for resilience and flexibility.
-- **Security and Compliance Automation:**  Use Azure Policy, Azure Security Center, and Azure Sentinel to automate security and compliance practices, including threat detection, incident response, and compliance reporting. Implement DevSecOps practices to embed security throughout the development lifecycle.
+- **Security and Compliance Automation:**  Use Azure Policy, Azure Security Center, and Microsoft Sentinel to automate security and compliance practices, including threat detection, incident response, and compliance reporting. Implement DevSecOps practices to embed security throughout the development lifecycle.
 - **Data Management and Analytics:** Enhance data management and analytics capabilities by using Azure Data Services, such as Azure Synapse Analytics, Azure Databricks, and Azure Data Lake Storage. Implement advanced analytics, machine learning, and AI solutions for data-driven insights.
 - **DevOps and CI/CD Automation:** Improve DevOps practices by automating CI/CD pipelines, infrastructure provisioning, and testing using Azure DevOps services, GitHub Actions, or Azure Automation. Implement Infrastructure as Code (IaC) with Azure Resource Manager (ARM) templates or Azure Bicep for consistency and repeatability.
 - **Advanced Monitoring and Observability:** Implement advanced monitoring and observability solutions using tools such as the [Azure Monitor Baseline Alerts (AMBA)](https://azure.github.io/azure-monitor-baseline-alerts/welcome/).

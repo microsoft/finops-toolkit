@@ -3,7 +3,7 @@ title: Set up Power BI reports
 description: Learn how to set up Power BI FinOps reports using the FinOps toolkit, customize visuals, and connect to your cost data for detailed analysis.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/03/2024
+ms.date: 11/01/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -174,7 +174,7 @@ If using exports or FinOps hubs, you use the Azure Data Lake Storage Gen2 connec
 6. Select **Combine**.
 7. Select **OK**.
 
-For more information about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop).
+For more information about connecting to Azure Data Lake Storage Gen2, see [Connect to Azure Data Lake Storage Gen2 from Power Query Desktop](/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop).
 
 <!-- TODO: Uncomment when files are added
 For details about the columns available in storage, refer to the [data dictionary](../../_resources/data-dictionary.md).

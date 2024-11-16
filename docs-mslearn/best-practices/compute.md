@@ -1,33 +1,35 @@
 ---
-title: FinOps best practices for Compute
-description: This article outlines a collection of proven FinOps practices for compute services.
+title: FinOps best practices for compute
+description: This article provides FinOps best practices for compute services, including cost optimization, efficiency improvements, and insights into Azure resources.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/24/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: arclares
-#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with compute services. 
+#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with compute services.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# FinOps best practices for Compute
+# FinOps best practices for compute
 
-This article outlines a collection of proven FinOps practices for compute services.
+This article outlines a collection of proven FinOps practices for compute services. It provides guidance on optimizing costs, improving efficiency, and gaining insights into your compute resources in Azure. The practices are categorized based on the type of compute service, such as virtual machines (VM), Azure Kubernetes Service (AKS), and Azure Functions.
 
 <br>
 
 ## Azure Kubernetes Service
 
-### Query: AKS Cluster
+The following section provides an Azure Resource Graph (ARG) query for AKS clusters. The query helps you gain insights into your VMs.
 
-This Azure Resource Graph (ARG) query retrieves detailed information about Azure Kubernetes Service (AKS) clusters within your Azure environment.
+### Query - AKS cluster
 
-<h4>Category</h4>
+This ARG query retrieves detailed information about AKS clusters in your Azure environment.
+
+**Category**
 
 Resource management
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -56,15 +58,17 @@ resources
 
 ## Virtual machines
 
-### Query: List Virtual Machines stopped (and not deallocated)
+The following sections provide ARG queries for VMs. These queries help you optimize costs, improve efficiency, and gain insights into your VMs.
 
-This Azure Resource Graph (ARG) query identifies Virtual Machines (VMs) in your Azure environment that are not in the 'deallocated' or 'running' state. It retrieves details about their power state, location, resource group, and subscription ID.
+### Query - List virtual machines stopped (and not deallocated)
 
-<h4>Category</h4>
+This ARG query identifies VMs that don't have the `deallocated` or `running` state. It retrieves details about their power state, location, resource group, and subscription ID.
+
+**Category**
 
 Waste reduction
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -78,15 +82,15 @@ resources
 | project id, PowerState, VMLocation, resourceGroup, subscriptionId
 ```
 
-### Query: Virtual machine scale set details
+### Query - Virtual machine scale set details
 
-This query analyzes Virtual Machine Scale Sets (VMSS) in your Azure environment based on their SKU, spot VM priority, and priority mix policy. It provides insights for cost optimization and resource management strategies.
+This query analyzes Virtual Machine Scale Sets in your Azure environment based on their SKU, spot VM priority, and priority mix policy. It provides insights for cost optimization and resource management strategies.
 
-<h4>Category</h4>
+**Category**
 
 Resource management
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -98,15 +102,15 @@ resources
 | project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
 ```
 
-### Query: Virtual Machine processor type analysis
+### Query - Virtual machine processor type analysis
 
-This query identifies the processor type (ARM, AMD, or Intel) used by Virtual Machines (VMs) in your Azure environment. It helps in understanding the distribution of VMs across different processor architectures, which is useful for optimizing workload performance and cost efficiency.
+This query identifies the processor type (ARM, AMD, or Intel) used by VMs in your Azure environment. It helps in understanding the distribution of VMs across different processor architectures, which is useful for optimizing workload performance and cost efficiency.
 
-<h4>Category</h4>
+**Category**
 
 Resource management
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -165,6 +169,6 @@ Related solutions:
 - [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
 - [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/overview.md)
 
 <br>

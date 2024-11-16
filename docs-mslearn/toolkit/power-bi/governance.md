@@ -3,7 +3,7 @@ title: Governance report
 description: Summarize cloud governance posture including areas like compliance, security, operations, and resource management in Power BI.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/10/2024
+ms.date: 11/01/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan

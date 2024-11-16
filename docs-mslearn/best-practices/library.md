@@ -3,7 +3,7 @@ title: FinOps best practices library
 description: Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/29/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: arclares
@@ -13,13 +13,13 @@ ms.reviewer: arclares
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices library
 
-The FinOps best practices library is a collection of essential proven practices to manage and optimize cost, usage, and carbon efficiency across your Microsoft Cloud environment. Guidance is organized by service category. Use the categories below to explore FinOps practices for different services.
+The FinOps best practices library is a collection of essential proven practices to manage and optimize cost, usage, and carbon efficiency across your Microsoft Cloud environment. Guidance is organized using the service category. Use the following categories to explore FinOps practices for different services.
 
 <!-- Sort list alphabetically for findability -->
 
-- [General](general.md)
-- [Compute](compute/compute.md)
+- [Compute](compute.md)
 - [Databases](databases.md)
+- [General](general.md)
 - [Networking](networking.md)
 - [Storage](storage.md)
 - [Web](web.md)
@@ -43,6 +43,6 @@ Related solutions:
 - [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
 - [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/overview.md)
 
 <br>

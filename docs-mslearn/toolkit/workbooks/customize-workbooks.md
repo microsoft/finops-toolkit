@@ -1,12 +1,13 @@
 ---
-title: Use and customize the Cost optimization workbook
-description: How to install and edit the Cost optimization workbook.
+title: Use and customize FinOps workbooks
+description: Learn how to install and customize FinOps workbooks to achieve FinOps goals, including cost recommendations, idle resource identification, and more.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
+ms.date: 11/01/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: arclares
+#customer intent: As a FinOps user, I want to learn how to install and customize FinOps workbooks to achieve cost optimization and other FinOps goals.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -39,7 +40,7 @@ The Cost optimization workbook is in the Azure Advisor's workbook gallery, and d
 
 ### Deploy FinOps workbooks to Azure
 
-If you want to make modifications to the Cost optimization workbook workbook or use other FinOps workbooks, deploy the FinOps workbooks template from the FinOps toolkit.
+If you want to make modifications to the Cost optimization workbook or use other FinOps workbooks, deploy the FinOps workbooks template from the FinOps toolkit.
 
 First, confirm you have the following least-privileged roles to deploy and use the workbook.
 
@@ -68,14 +69,14 @@ After the deployment completes, you can view and copy the workbook URL on the **
 
 If you want to edit or include more queries in the workbook, you can edit the template for your needs.
 
-Workbooks are primarily based on Azure Resource Graph queries. However, workbooks support many different sources. They include KQL, Azure Resource Manager, Azure Monitor, Azure Data Explorer, custom endpoints, and others.
+Workbooks are primarily based on Azure Resource Graph queries. However, workbooks support many different sources. They include Kusto Query Language (KQL), Azure Resource Manager, Azure Monitor, Azure Data Explorer, custom endpoints, and others.
 
 You can also merge data from different sources to enhance your insights experience. Azure Monitor has several correlatable data sources that are often critical to your triage and diagnostic workflow. You can merge or join data to provide rich insights using the merge control.
 
-Here's how to create and add a query to the Azure Hybrid benefit tab in the Cost optimization workbook. For this example, you add code from the [Code example](#code-example) section to help you identify which Azure Stack HCI clusters aren't using Azure Hybrid Benefit.
+Here's how to create and add a query to the Azure Hybrid benefit tab in the Cost optimization workbook. For this example, you add code from the [Code example](#code-example) section to help you identify which Azure Stack hyperconverged infrastructure (HCI) clusters aren't using Azure Hybrid Benefit.
 
 1. Open the Workbook and select **Edit**.
-2. Select the **Rate optimization tab** , which shows virtual machines using Azure Hybrid Benefit.
+2. Select the **Rate optimization tab**. It shows virtual machines using Azure Hybrid Benefit.
 3. At the bottom of the page on the right side, to the right of the last **Edit** option, select the ellipsis (**…**) symbol and then select **Add**. This action adds a new item after the last group.
 4. Select **Add query**.
 5. Change the **Data source** to **Azure Resource Graph**. Leave the Resource type as **Subscriptions**.
@@ -147,11 +148,11 @@ ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where t
 
 ## Learn more about workbooks
 
-To learn more about Azure Monitor workbooks, see the [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](/training/modules/visualize-data-workbooks/) training module.
+For more information about Azure Monitor workbooks, see the [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](/training/modules/visualize-data-workbooks/) training module.
 
 <br>
 
-## Next steps
+## Related content
 
 To learn more about other FinOps workbook, see the [FinOps workbooks overview](finops-workbooks-overview.md).
 

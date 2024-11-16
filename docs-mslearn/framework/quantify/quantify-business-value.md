@@ -3,7 +3,7 @@ title: Quantify business value
 description: Learn about the FinOps capabilities that help you measure product and cloud performance and map to organizational KPIs so you can make data-driven decisions with increased accuracy and velocity.
 author: bandersmsft
 ms.author: banders
-ms.date: 08/15/2024
+ms.date: 10/30/2024
 ms.topic: conceptual
 ms.service: finops
 ms.reviewer: micflan

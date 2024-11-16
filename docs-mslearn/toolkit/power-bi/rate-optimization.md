@@ -3,7 +3,7 @@ title: Rate optimization report
 description: Learn about the Rate Optimization Report in Power BI, which summarizes savings from commitment discounts like reservations and savings plans.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/10/2024
+ms.date: 11/01/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -72,7 +72,7 @@ The chart breaks down the cost of used (utilized) vs. unused charges. The commit
 
 ## Savings
 
-The **Savings** page summarizes cost savings obtained from commitment discounts. Commitments are grouped by program and service.
+The **Savings** page summarizes cost savings obtained from commitment discounts. Commitments get grouped by program and service.
 
 The chart shows total cost savings for the period split out by commitment type (for example, reservation and savings plan).
 

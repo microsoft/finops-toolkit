@@ -27,7 +27,7 @@ highlightedContent:
     # Card
     - title: FinOps blog
       itemType: whats-new
-      url: https://aka.ms/finops/blog
+      url: https://techcommunity.microsoft.com/category/azure/blog/finopsblog
     # Card
     - title: FinOps with Azure e-book
       itemType: download
@@ -165,7 +165,7 @@ tools:
       url: /fabric/get-started/microsoft-fabric-overview
     - title: Azure FinOps guide
       imageSrc: ./media/tutorial.svg
-      url: https://techcommunity.microsoft.com/t5/fasttrack-for-azure/the-azure-finops-guide/ba-p/3704132
+      url: https://techcommunity.microsoft.com/blog/fasttrackforazureblog/the-azure-finops-guide/3704132
 
 additionalContent:
   sections:

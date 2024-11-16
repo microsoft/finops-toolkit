@@ -1,10 +1,10 @@
 ---
 title: Get-FinOpsToolkitVersion command
-description: Gets available versions from published FinOps toolkit releases.
+description: Get available versions from published FinOps toolkit releases using the Get-FinOpsToolkitVersion command.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsToolkitVersion PowerShell command.
@@ -39,6 +39,8 @@ Get-FinOpsToolkitVersion `
 
 ## Examples
 
+The following examples demonstrate how to use the Get-FinOpsToolkitVersion command to retrieve available versions from published FinOps toolkit releases.
+
 ### Get stable release versions
 
 ```powershell
@@ -62,5 +64,14 @@ Get-FinOpsToolkitVersion -Preview
 ```
 
 Returns all release versions, including preview releases.
+
+<br>
+
+## Related content
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../../power-bi/reports.md)
+- [FinOps hubs](../../hubs/finops-hubs-overview.md)
 
 <br>

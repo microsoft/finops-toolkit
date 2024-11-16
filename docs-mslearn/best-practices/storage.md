@@ -1,33 +1,35 @@
 ---
 title: FinOps best practices for Storage
-description: This article outlines a collection of proven FinOps practices for storage services.
+description: This article outlines proven FinOps practices for storage services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/29/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: arclares
-#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with storage services. 
+#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with storage services.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for Storage
 
-This article outlines a collection of proven FinOps practices for storage services.
+This article outlines a collection of proven FinOps practices for storage services. It provides strategies for optimizing costs, improving efficiency, and using Azure Resource Graph (ARG) queries to gain insights into your storage resources. By following these practices, you can ensure that your storage services are cost-effective and aligned with your organization's financial goals.
 
 <br>
 
 ## Backup
 
+The following sections provide ARG queries for backup services. These queries help you gain insights into your backup resources and ensure they're configured with the appropriate settings. By analyzing backup items and identifying idle backups, you can optimize your backup services for cost efficiency.
+
 ### Query: Idle backups
 
-This Azure Resource Graph (ARG) query analyzes backup items within Azure Recovery Services Vaults and identifies those that have not had a backup for over 90 days.
+This ARG query analyzes backup items within Azure Recovery Services Vaults and identifies any that weren't backed up for over 90 days.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 recoveryservicesresources
@@ -48,11 +50,11 @@ recoveryservicesresources
 
 This Azure Resource Graph (ARG) query retrieves details of Azure Recovery Services Vaults. The query also includes information on the SKU tier, redundancy settings, and other relevant metadata.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -70,15 +72,17 @@ resources
 
 ## Disks
 
+The following sections provide ARG queries for disk services. These queries help you gain insights into your disk resources and ensure they're configured with the appropriate settings. By analyzing disk snapshots and identifying idle disks, you can optimize your disk services for cost efficiency.
+
 ### Query: Idle disks
 
-This Azure Resource Graph (ARG) query identifies idle or unattached managed disks within your Azure environment.
+This ARG query identifies idle or unattached managed disks within your Azure environment.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -95,13 +99,13 @@ resources
 
 ### Query: Disk snapshot older than 30 days
 
-This Azure Resource Graph (ARG) query identifies disk snapshots that are older than 30 days.
+This ARG query identifies disk snapshots that are older than 30 days.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -115,13 +119,13 @@ resources
 
 ### Query: Snapshot using premium storage
 
-This Azure Resource Graph (ARG) query identifies disk snapshots that are utilizing premium storage.
+This ARG query identifies disk snapshots that are utilizing premium storage.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -138,15 +142,17 @@ resources
 
 ## Storage accounts
 
+The following section provides an ARG query for storage accounts. It helps you gain insights into your storage resources and ensure they're configured with the appropriate settings. By analyzing storage accounts and identifying legacy storage account types, you can optimize your storage services for cost efficiency.
+
 ### Query: Storage account v1
 
-This Azure Resource Graph (ARG) query identifies storage accounts that are still using the legacy v1 kind, which may not provide the same features and efficiencies as newer storage account types.
+This ARG query identifies storage accounts that are still using the legacy v1 kind, which might not provide the same features and efficiencies as newer storage account types.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -186,13 +192,13 @@ Did we miss anything? Would you like to see something added? We'd love to hear a
 
 Related resources:
 
-- [FinOps Framework](../../../docs-mslearn/framework/finops-framework.md)
+- [FinOps Framework](../framework/finops-framework.md)
 
 Related solutions:
 
 - [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
 - [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/overview.md)
 
 <br>

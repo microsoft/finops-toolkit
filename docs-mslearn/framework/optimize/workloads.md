@@ -3,7 +3,7 @@ title: Workload optimization
 description: This article helps you understand the Workload optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/14/2024
+ms.date: 10/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan

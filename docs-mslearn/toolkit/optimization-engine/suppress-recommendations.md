@@ -1,10 +1,9 @@
 ---
-parent: Optimization engine
 title: Suppress recommendations
-description: 'Adjust the recommendations results to your environment characteristics.'
+description: Learn how to adjust the Azure Optimization Engine recommendation results for your environment characteristics by suppressing irrelevant recommendations.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/31/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: hepint
@@ -14,18 +13,18 @@ ms.reviewer: hepint
 <!-- markdownlint-disable-next-line MD025 -->
 # Suppress recommendations
 
-When working on the recommendations provided by AOE, you may find some cases where the recommendation does not apply for some reason. For example, AOE is suggesting high availability recommendations that do not apply to Dev/Test Virtual Machines, or recommending enabling Azure Backup for non-critical VMs. You can suppress recommendations in two ways:
+When working on the recommendations provided by the Azure Optimization Engine (AOE), you might find some cases where the recommendation doesn't apply. For example, AOE might suggest high availability recommendations that don't apply to Dev/Test virtual machines (VM), or recommend enabling Azure Backup for noncritical VMs. You can suppress recommendations in two ways:
 
-- If recommendations are originated from Azure Advisor, you can simply go to the Azure Portal and [dismiss/postpone the recommendation](https://learn.microsoft.com/azure/advisor/view-recommendations#dismissing-and-postponing-recommendations).
-- If recommendations are custom to AOE or using the Azure Advisor interface is not viable, you can suppress them in AOE using the `Suppress-Recommendation.ps1` helper script (available in the [AOE root folder](https://aka.ms/AzureOptimizationEngine/code) - see instructions below).
+- If recommendations are originated from Azure Advisor, you can go to the Azure portal and [dismiss/postpone the recommendation](/azure/advisor/view-recommendations#dismiss-and-postpone-recommendations).
+- If recommendations are custom to AOE or using the Azure Advisor interface isn't viable, you can suppress them in AOE using the `Suppress-Recommendation.ps1` helper scrsuppressipt. The script is available in the [AOE root folder](https://aka.ms/AzureOptimizationEngine/code). See the following instructions.
 
 <br>
 
-## Identify the recommendation to suppress
+## Identify recommendations to suppress
 
-In the Power BI report, if you drill through the details of a recommendation (Rec. Details page), you will find the Recommendation Id in the header. Copy this Id, by using the "Copy value" right-click menu option. You'll need this ID to call the `Suppress-Recommendation.ps1` script.
+In the Power BI report, if you drill through the details of a recommendation (Recommendation Details page), you see the Recommendation ID in the header. Copy the ID, by using the **Copy value** right-select menu option. You need the ID to call the `Suppress-Recommendation.ps1` script.
 
-:::image type="content" source="../../media/optimization-engine/powerbi-recdetails-recommendationid.jpg" border="true" alt-text="Copying the Recommendation Id value from the Recommendation Details page in the Power BI report" lightbox="../../media/optimization-engine/powerbi-recdetails-recommendationid.jpg":::
+:::image type="content" source="./media/suppress-recommendations/power-bi-recommendation-details-recommendation-id.png" border="true" alt-text="Screenshot showing copy the recommendation ID value on the Recommendation Details page." lightbox="./media/suppress-recommendations/power-bi-recommendation-details-recommendation-id.png":::
 
 <br>
 
@@ -41,12 +40,32 @@ From a PowerShell prompt, call the `Suppress-Recommendation.ps1` script as follo
 ./Suppress-Recommendation.ps1 -RecommendationId A2824017-602C-47DF-860D-B0B5A8CA7768
 ```
 
-The script will ask you for the Azure SQL Server hostname, database and user credentials. After successfully finding the recommendation in the AOE database, it will ask you about the type of suppression:
+The script asks you for the Azure SQL Server hostname, database, and user credentials. After it successfully finds the recommendation in the AOE database, it asks you about the type of suppression:
 
-- **Exclude** - this recommendation type will be completely excluded from the engine and will no longer be generated for any resource
-- **Dismiss** - this recommendation will be dismissed for the scope to be chosen next (instance, resource group or subscription)
-- **Snooze** - this recommendation will be postponed for the duration (in days) and scope to be chosen next (instance, resource group or subscription)
+- **Exclude** - this recommendation type is excluded from the engine and no longer gets generated for any resource
+- **Dismiss** - this recommendation is dismissed for the scope that gets chosen next (instance, resource group, or subscription)
+- **Snooze** - this recommendation is postponed for the duration (in days) and scope that gets chosen next (instance, resource group, or subscription)
 
-Depending on the type of suppression chosen, you can be asked to provide the suppression scope (subscription, resource group or resource instance) or the suppression duration (for Snooze suppressions). Finally, you should identify the author and the reason for the suppression.
+Depending on the type of suppression chosen, you might get asked to provide the suppression scope (subscription, resource group, or resource instance) or the suppression duration (for Snooze suppressions). Finally, you should identify the author and the reason for the suppression.
 
 <br>
+
+## Related content
+
+Related FinOps capabilities:
+
+- [Data ingestion](../../framework/understand/ingestion.md)
+- [Reporting and analytics](../../framework/understand/reporting.md)
+- [Rate optimization](../../framework/optimize/rates.md)
+- [Workload optimization](../../framework/optimize/workloads.md)
+
+Related products:
+
+- [Azure Advisor](/azure/advisor/)
+- [Azure Resource Graph](/azure/governance/resource-graph/)
+
+Related solutions:
+
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)

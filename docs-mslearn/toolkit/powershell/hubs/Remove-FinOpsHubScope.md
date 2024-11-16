@@ -1,10 +1,10 @@
 ---
 title: Remove-FinOpsHubScope command
-description: Stops monitoring a scope within a FinOps hub instance.
+description: Stops monitoring a scope within a FinOps hub instance and optionally remove the data using the Remove-FinOpsHubScope command in the FinOpsToolkit module.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the Remove-FinOpsHubScope PowerShell command.
@@ -42,6 +42,8 @@ Remove-FinOpsHubScope `
 
 ## Examples
 
+The following examples demonstrate how to use the Remove-FinOpsHubScope command to stop monitoring a scope and optionally remove data.
+
 ### Remove billing account and keep data
 
 ```powershell
@@ -64,7 +66,8 @@ Removes the exports configured to use the FooHub hub instance and removes data f
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](../../power-bi/reports.md)
+- [FinOps hubs](../../hubs/finops-hubs-overview.md)
+
 
 <br>

@@ -1,19 +1,19 @@
 ---
-title: Bicep Registry
-description: This article summarizes the bicep modules available from the FinOps toolkit.
+title: Bicep registry
+description: This article summarizes the Bicep modules available from the FinOps toolkit and provides guidance on how to reference them in your templates.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
-#customer intent: As a FinOps user, I want to understand what Bicep Registry modules are available from the FinOps toolkit.
+#customer intent: As a FinOps user, I want to understand what Bicep registry modules are available from the FinOps toolkit.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Bicep Registry modules
+# Bicep registry modules
 
-Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules are not included directly in the toolkit release.
+Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules aren't included directly in the toolkit release.
 
 <br>
 
@@ -30,7 +30,7 @@ module <name> 'br/public:cost/<scope>-<type>:<version>' {
 }
 ```
 
-For details about the parameters for each module, see the module details below.
+For details about the parameters for each module, see the following module details.
 
 <br>
 
@@ -46,7 +46,7 @@ For details about the parameters for each module, see the module details below.
 
 ## Looking for more?
 
-We'd love to hear about any modules or templates you're looking for. Vote up (👍) existing ideas or create a new issue to suggest a new idea. We'll focus on ideas with the most votes.
+We'd love to hear about any modules or templates you're looking for. To suggest a new idea, vote up existing ideas or create a new issue. We focus on ideas with the most votes.
 
 [Vote on ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Solution%3A+Bicep+Registry%22+sort%3Areactions-%2B1-desc) &nbsp; [Suggest an idea](https://aka.ms/ftk/ideas)
 
@@ -68,6 +68,6 @@ Related solutions:
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../optimization-engine/overview.md)
 
 <br>

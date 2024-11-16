@@ -3,7 +3,7 @@ title: Compatibility guide
 description: Learn which Power BI report versions are compatible with each FinOps hubs version to ensure seamless upgrades and data integrity.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/08/2024
+ms.date: 10/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -42,9 +42,9 @@ The Power BI version refers to the Power BI reports made available within that s
 | Actual or Amortized costs (not both)      | 0.1 - 0.1.1 | {path}/{yyyyMM}/{dataset}      | 0.0.1 - 0.1.1 | Enterprise Agreement and Microsoft Customer Agreement                                                                                    |
 | Actual or Amortized costs (not both)      | 0.0.1       | {path}/{yyyyMM}/{dataset}      | 0.0.1 - 0.1.1 | Enterprise Agreement                                                                                                                     |
 
-¹ When storage paths update, there is a risk that re-exported data will land in a new place and might cause duplicate data. To resolve, remove the old folders in the **ingestion** container.<br>
+¹ When storage paths update, there's a risk that re-exported data lands in a new place and might cause duplicate data. To resolve, remove the old folders in the **ingestion** container.<br>
 
-² Older Power BI reports will not work with this combination of FinOps hubs version and exported datasets.<br>
+² Older Power BI reports don't work with this combination of FinOps hubs version and exported datasets.<br>
 
 <br>
 

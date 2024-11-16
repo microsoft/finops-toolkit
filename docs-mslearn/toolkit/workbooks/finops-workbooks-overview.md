@@ -1,10 +1,10 @@
 ---
-title: FinOps workbooks
-description: 'Azure Monitor workbooks that help you implement FinOps capabilities.'
+title: Deploy FinOps workbooks
+description: FinOps workbooks are Azure Monitor workbooks that help you implement FinOps capabilities, including optimization and governance, to achieve your FinOps goals.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps workbooks are and how they can help me accomplish my goals.
@@ -24,7 +24,7 @@ This template includes the following workbooks:
 
 ## Deploy the workbooks
 
-1. Confirm you have the following least-privileged roles to deploy and use the workbook:
+1. To deploy and use the workbook, confirm you have the following least-privileged roles:
 
    - **Workbook Contributor** allows you to deploy the workbook.
    - **Reader** view all of the workbook tabs.
@@ -32,7 +32,7 @@ This template includes the following workbooks:
    > [!NOTE]
    > If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs.
 
-2. Deploy the **finops-workbooks** template. [Learn more](../help/deploy.md).
+2. Deploy the **finops-workbooks** template.
 
    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true" /></a>
    &nbsp;
@@ -67,7 +67,7 @@ Related products:
 
 Related solutions:
 
-- [Optimization engine](../optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../optimization-engine/overview.md)
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 
