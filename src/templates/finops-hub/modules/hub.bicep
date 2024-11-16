@@ -127,8 +127,8 @@ param remoteHubStorageUri string = ''
 @secure()
 param remoteHubStorageKey string = ''
 
-@description('Optional. Address space for the workload. A /27 is required for the workload. Default: "10.20.30.0/27".')
-param virtualNetworkAddressPrefix string = '10.20.30.0/27'
+@description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
+param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
@@ -163,8 +163,10 @@ var dataFactoryName = replace(
 
 // Do not reference the dataExplorer deployment directly or indirectly to avoid a DeploymentNotFound error
 var deployDataExplorer = !empty(dataExplorerName)
-var dataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
-var dataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
+var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clusterName
+var safeDataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
+var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
+var safeDataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
 // var eventGridSuffix = '-${uniqueSuffix}'
@@ -276,6 +278,9 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
+    virtualNetworkId: vnet.outputs.vNetId
+    privateEndpointSubnetId: vnet.outputs.dataExplorerSubnetId
+    enablePublicAccess: enablePublicAccess
     // eventGridLocation: finalEventGridLocation
     // storageAccountName: storage.outputs.name
     // storageContainerName: storage.outputs.ingestionContainer
@@ -313,10 +318,13 @@ module dataFactoryResources 'dataFactory.bicep' = {
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
-    dataExplorerUri: dataExplorerUri
-    dataExplorerIngestionDatabase: dataExplorerIngestionDb
+    dataExplorerName: safeDataExplorerName
+    dataExplorerIngestionDatabase: safeDataExplorerIngestionDb
+    dataExplorerUri: safeDataExplorerUri
+    dataExplorerId: safeDataExplorerId
     keyVaultName: keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
+    enablePublicAccess: enablePublicAccess
   }
 }
 

@@ -9,8 +9,8 @@
 @description('Required. Name of the hub. Used to ensure unique resource names.')
 param hubName string
 
-@description('Address space for the workload.  A /27 is required for the workload.')
-param virtualNetworkAddressPrefix string = '10.20.30.0/27'
+@description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
+param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
@@ -24,7 +24,7 @@ var vNetName = '${safeHubName}-vnet-${location}'
 var nsgName = '${vNetName}-nsg'
 var subnets = [
   {
-    name: 'finops-hub-subnet'
+    name: 'private-endpoint-subnet'
     properties: {
       addressPrefix: cidrSubnet(virtualNetworkAddressPrefix, 28, 0)
       networkSecurityGroup: {
@@ -57,6 +57,15 @@ var subnets = [
           service: 'Microsoft.Storage'
         }
       ]
+    }
+  }
+  {
+    name: 'dataExplorer-subnet'
+    properties: {
+      addressPrefix: cidrSubnet(virtualNetworkAddressPrefix, 27, 1)
+      networkSecurityGroup: {
+        id: nsg.id
+      }
     }
   }
 ]
@@ -173,3 +182,4 @@ output vNetAddressSpace array = vNet.properties.addressSpace.addressPrefixes
 output vNetSubnets array = vNet.properties.subnets
 output finopsHubSubnetId string = vNet.properties.subnets[0].id
 output scriptSubnetId string = vNet.properties.subnets[1].id
+output dataExplorerSubnetId string = vNet.properties.subnets[2].id

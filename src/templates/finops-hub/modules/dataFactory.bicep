@@ -26,6 +26,12 @@ param ingestionContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param configContainerName string
 
+@description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+param dataExplorerName string = ''
+
+@description('Optional. Resource ID of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+param dataExplorerId string = ''
+
 @description('Optional. URI of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
 param dataExplorerUri string = ''
 
@@ -44,6 +50,9 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
+@description('Optional. Enable public access.')
+param enablePublicAccess bool
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -51,11 +60,12 @@ param tagsByResource object = {}
 var focusSchemaVersion = '1.0'
 var ftkVersion = loadTextContent('ftkver.txt')
 var exportApiVersion = '2023-07-01-preview'
+var hubDataExplorerName = 'hubDataExplorer'
 
 // Function to generate the body for a Cost Management export
 func getExportBody(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
 
-var deployDataExplorer = !empty(dataExplorerUri)
+var deployDataExplorer = !empty(dataExplorerId)
 
 var datasetPropsDefault = {
     location: {
@@ -75,7 +85,6 @@ var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 var managedVnetName = 'default'
-var managedIntegrationRuntimeName = 'AutoResolveIntegrationRuntime'
 
 // Separator used to separate ingestion ID from file name for ingested files
 var ingestionIdFileNameSeparator = '__'
@@ -135,14 +144,14 @@ module azuretimezones 'azuretimezones.bicep' = {
   }
 }
 
-resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNetworks@2018-06-01' = {
+resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNetworks@2018-06-01' = if (!enablePublicAccess) {
   name: managedVnetName
   parent: dataFactory
   properties: {}
 }
 
-resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = {
-  name: managedIntegrationRuntimeName
+resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = if (!enablePublicAccess) {
+  name: 'ManagedIntegrationRuntime'
   parent: dataFactory
   properties: {
     type: 'Managed'
@@ -152,7 +161,23 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
     }
     typeProperties: {
       computeProperties: {
-        location: 'AutoResolve'
+        location: location
+        dataFlowProperties: {
+            computeType: 'General'
+            coreCount: 8
+            timeToLive: 10
+            cleanup: false
+            customProperties: []
+        }
+        copyComputeScaleProperties: {
+            dataIntegrationUnit: 256
+            timeToLive: 30
+        }
+        pipelineExternalComputeScaleProperties: {
+            timeToLive: 30
+            numberOfPipelineNodes: 10
+            numberOfExternalNodes: 10
+        }
       }
     }
   }
@@ -161,7 +186,7 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
   ]
 }
 
-resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (!enablePublicAccess) {
   name: storageAccount.name
   parent: managedVirtualNetwork
   properties: {
@@ -174,7 +199,7 @@ resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedV
   }
 }
 
-module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
+module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'GetStoragePrivateEndpointConnections'
   dependsOn: [
     storageManagedPrivateEndpoint
@@ -184,7 +209,7 @@ module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
   }
 }
 
-module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
+module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'ApproveStoragePrivateEndpointConnections'
   dependsOn: [
     getStoragePrivateEndpointConnections
@@ -195,7 +220,7 @@ module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
   }
 }
 
-resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (!enablePublicAccess) {
   name: keyVault.name
   parent: managedVirtualNetwork
   properties: {
@@ -208,7 +233,7 @@ resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managed
   }
 }
 
-module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'GetKeyVaultPrivateEndpointConnections'
   dependsOn: [
     keyVaultManagedPrivateEndpoint
@@ -218,7 +243,7 @@ module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
   }
 }
 
-module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'ApproveKeyVaultPrivateEndpointConnections'
   dependsOn: [
     getKeyVaultPrivateEndpointConnections
@@ -226,6 +251,40 @@ module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
   params: {
     keyVaultName: keyVault.name
     privateEndpointConnections: getKeyVaultPrivateEndpointConnections.outputs.privateEndpointConnections
+  }
+}
+
+resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (deployDataExplorer && !enablePublicAccess) {
+  name: hubDataExplorerName
+  parent: managedVirtualNetwork
+  properties: {
+    name: hubDataExplorerName
+    groupId: 'cluster'
+    privateLinkResourceId: dataExplorerId
+    fqdns: [
+      dataExplorerUri
+    ]
+  }
+}
+
+module getDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer && !enablePublicAccess) {
+  name: 'GetDataExplorerPrivateEndpointConnections'
+  dependsOn: [
+    dataExplorerManagedPrivateEndpoint
+  ]
+  params: {
+    dataExplorerName: dataExplorerName
+  }
+}
+
+module approveDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer && !enablePublicAccess) {
+  name: 'ApproveDataExplorerPrivateEndpointConnections'
+  dependsOn: [
+    getDataExplorerPrivateEndpointConnections
+  ]
+  params: {
+    dataExplorerName: dataExplorerName
+    privateEndpointConnections: getDataExplorerPrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
 
@@ -239,6 +298,7 @@ resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentitie
   location: location
   tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
 }
+
 resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
   name: guid(dataFactory.id, role, triggerManagerIdentity.id)
   scope: dataFactory
@@ -353,6 +413,7 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: keyVault.name
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -360,12 +421,17 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
     typeProperties: {
       baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
+    }
   }
 }
 
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: storageAccount.name
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -373,7 +439,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
     }
-    connectVia: {
+    connectVia: enablePublicAccess ? null : { 
       referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
@@ -381,8 +447,9 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
 }
 
 resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (deployDataExplorer) {
-  name: 'hubDataExplorer'
+  name: hubDataExplorerName
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     type: 'AzureDataExplorer'
     parameters: {
@@ -397,12 +464,17 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
       tenant: dataFactory.identity.tenantId
       servicePrincipalId: dataFactory.identity.principalId
     }
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
+    }
   }
 }
 
 resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: 'remoteHubStorage'
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -418,12 +490,17 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
         secretName: '${toLower(hubName)}-storage-key'
       }
     }
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
+    }
   }
 }
 
 resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'ftkRepo'
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     parameters: {
       filePath: {
@@ -436,6 +513,10 @@ resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2
       url: '@concat(\'https://github.com/microsoft/finops-toolkit/\', linkedService().filePath)'
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
+    }
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
     }
   }
 }
@@ -649,7 +730,7 @@ resource dataset_ingestion_files 'Microsoft.DataFactory/factories/datasets@2018-
 }
 
 resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-01' = if (deployDataExplorer) {
-  name: 'hubDataExplorer'
+  name: hubDataExplorerName
   parent: dataFactory
   properties: {
     type: 'AzureDataExplorerTable'
@@ -1104,7 +1185,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1135,7 +1216,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1166,7 +1247,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1197,7 +1278,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1228,7 +1309,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -3911,6 +3992,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
   name: '${safeIngestionContainerName}_ETL_dataExplorer'
   parent: dataFactory
   properties: {
+    // concurrency: 8  // sanity check
     activities: [
       { // Read Column Names
         name: 'Read Column Names'
