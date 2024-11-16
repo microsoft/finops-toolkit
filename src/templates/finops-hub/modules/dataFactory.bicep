@@ -85,7 +85,6 @@ var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 var managedVnetName = 'default'
-var managedIntegrationRuntimeName = 'ManagedIntegrationRuntime' //'AutoResolveIntegrationRuntime'
 
 // Separator used to separate ingestion ID from file name for ingested files
 var ingestionIdFileNameSeparator = '__'
@@ -152,7 +151,7 @@ resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNe
 }
 
 resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = if (!enablePublicAccess) {
-  name: managedIntegrationRuntimeName
+  name: 'ManagedIntegrationRuntime'
   parent: dataFactory
   properties: {
     type: 'Managed'
@@ -423,7 +422,7 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
       baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
     connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntimeName
+      referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -441,7 +440,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
     }
     connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntimeName
+      referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -466,7 +465,7 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
       servicePrincipalId: dataFactory.identity.principalId
     }
     connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntimeName
+      referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -492,7 +491,7 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
       }
     }
     connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntimeName
+      referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -516,7 +515,7 @@ resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2
       authenticationType: 'Anonymous'
     }
     connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntimeName
+      referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -733,17 +732,13 @@ resource dataset_ingestion_files 'Microsoft.DataFactory/factories/datasets@2018-
 resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-01' = if (deployDataExplorer) {
   name: hubDataExplorerName
   parent: dataFactory
-  dependsOn: [
-    linkedService_dataExplorer
-    //approveDataExplorerPrivateEndpointConnections
-  ]
   properties: {
     type: 'AzureDataExplorerTable'
     linkedServiceName: {
       parameters: {
         database: '@dataset().database'
       }
-      referenceName: hubDataExplorerName
+      referenceName: linkedService_dataExplorer.name
       type: 'LinkedServiceReference'
     }
     parameters: {
@@ -1113,7 +1108,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                 commandTimeout: '00:20:00'
               }
               linkedServiceName: {
-                referenceName: hubDataExplorerName
+                referenceName: linkedService_dataExplorer.name
                 type: 'LinkedServiceReference'
                 parameters: {
                   database: dataExplorerIngestionDatabase
@@ -1190,7 +1185,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1221,7 +1216,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1252,7 +1247,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1283,7 +1278,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1314,7 +1309,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4195,7 +4190,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                 commandTimeout: '00:20:00'
               }
               linkedServiceName: {
-                referenceName: hubDataExplorerName
+                referenceName: linkedService_dataExplorer.name
                 type: 'LinkedServiceReference'
               }
             }
@@ -4269,7 +4264,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4320,7 +4315,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4430,7 +4425,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4464,7 +4459,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: hubDataExplorerName
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
