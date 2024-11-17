@@ -640,10 +640,10 @@ Costs_transform_v1_0()
         PricingUnit == PricingUnit1 and x_PricingBlockSize == x_PricingBlockSize1, ContractedUnitPrice1 * x_BillingExchangeRate,
         // If prices are the same unit but not the same scale, use the new one but correct the scale
         PricingUnit == PricingUnit1 and x_PricingBlockSize != x_PricingBlockSize1 and isnotempty(x_PricingBlockSize) and isnotempty(x_PricingBlockSize1), ContractedUnitPrice1 * x_BillingExchangeRate / x_PricingBlockSize1 * x_PricingBlockSize,
-        // If prices use different units, assume the effective price is the same as contracted price to support aggregations
-        PricingUnit != PricingUnit1, x_EffectiveUnitPrice,
-        // Otherwise (should never get here)
-        ContractedUnitPrice
+        // If billed price is available, assume the billed price is the same as contracted price to support aggregations
+        isnotempty(x_BilledUnitPrice) and x_BilledUnitPrice != 0, x_EffectiveUnitPrice,
+        // Otherwise, assume the effective price is the same as contracted price to support aggregations
+        x_EffectiveUnitPrice
     )
     | extend ListUnitPrice = case(
         // If price is already correct, keep that
@@ -652,10 +652,8 @@ Costs_transform_v1_0()
         PricingUnit == PricingUnit1 and x_PricingBlockSize == x_PricingBlockSize1, ListUnitPrice1 * x_BillingExchangeRate,
         // If prices are the same unit but not the same scale, use the new one but correct the scale
         PricingUnit == PricingUnit1 and x_PricingBlockSize != x_PricingBlockSize1 and isnotempty(x_PricingBlockSize) and isnotempty(x_PricingBlockSize1), ListUnitPrice1 * x_BillingExchangeRate / x_PricingBlockSize1 * x_PricingBlockSize,
-        // If prices use different units, assume the contracted price is the same as list price to support aggregations
-        PricingUnit != PricingUnit1, ContractedUnitPrice,
-        // Otherwise (should never get here)
-        ListUnitPrice
+        // Otherwise, assume the contracted price is the same as list price to support aggregations
+        ContractedUnitPrice
     )
     // Calculate missing costs based on new prices -- If cost is already correct, keep that; if not and price is available, recalculate the cost; otherwise, keep the existing cost
     | extend ListCost = case(ListCost != 0 or EffectiveCost == 0, ListCost, ListUnitPrice != 0, ListUnitPrice * PricingQuantity, ListCost)
