@@ -4291,7 +4291,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     typeProperties: {
                       variableName: 'ordinalMappingName'
                       value: {
-                        value: '@concat(pipeline().parameters.table, \'_mapping_\', utcNow(\'yyyyMMdd_HHmmss\'))'
+                        value: '@concat(pipeline().parameters.table, \'_mapping_\', replace(replace(pipeline().parameters.originalFileName, \'.snappy\', \'\'), \'.parquet\', \'\'), \'_\', utcNow(\'yyyyMMdd_HHmmss\'))'
                         type: 'Expression'
                       }
                     }
