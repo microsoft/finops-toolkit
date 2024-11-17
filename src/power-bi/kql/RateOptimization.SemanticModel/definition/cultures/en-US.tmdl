@@ -18978,48 +18978,6 @@ cultureInfo en-US
 			          }
 			        }
 			      ]
-			    },
-			    "costdetails.commitmentdiscounttype": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "CommitmentDiscountType"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
-			    },
-			    "costdetails.commitmentdiscountname": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "CommitmentDiscountName"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
 			    }
 			  },
 			  "Relationships": {
