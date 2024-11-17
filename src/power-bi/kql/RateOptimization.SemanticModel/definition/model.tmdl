@@ -1,0 +1,40 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup '🛠️ Setup'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup Functions
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 'Data Explorer'
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup 'Open data'
+
+	annotation PBI_QueryGroupOrder = 3
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBIDesktopVersion = 2.138.530.0 (24.11)
+
+annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URI","RangeStart","RangeEnd","Number of Months","Daily or Monthly","CommitmentDiscountCosts","HybridBenefitCosts","ReservationRecommendations","InstanceSizeFlexibility","SkuPrices"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table CommitmentDiscountCosts
+ref table ReservationRecommendations
+ref table InstanceSizeFlexibility
+ref table SkuPrices
+ref table HybridBenefitCosts
+
+ref cultureInfo en-US
+

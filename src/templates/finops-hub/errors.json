@@ -7,6 +7,54 @@
       "mitigation": "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs."
     },
     {
+      "code": "DataExplorerIngestionFailed",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion failed. The new data will not be available for reporting.",
+      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerIngestionMappingFailed",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion mapping could not be created for the specified table.",
+      "mitigation": "Please fix the error and rerun ingestion for the specified folder path. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerIngestionTimeout",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion timed out after 2 hours while waiting for available capacity.",
+      "mitigation": "Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerPostIngestionDropFailed",
+      "severity": "Critical",
+      "message": "Data Explorer post-ingestion cleanup (drop extents from the final table) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.",
+      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerPreIngestionDropFailed",
+      "severity": "Critical",
+      "message": "Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. Ingestion was not completed.",
+      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "ExportDataNotFound",
+      "severity": "Critical",
+      "message": "Exports were not found in the specified storage path.",
+      "mitigation": "Confirm that a Cost Management export was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, please correct the storage URL to point to the 'ingestion' container. Refer to the 'storageUrlForPowerBI' output from the FinOps hub deployment for the full URL."
+    },
+    {
+      "code": "HubDataNotFound",
+      "severity": "Critical",
+      "message": "FinOps hub data was not found in the specified storage account.",
+      "mitigation": "Confirm the storage URL matches the 'StorageUrlForPowerBI' from your FinOps hub deployment, Cost Management exports are pointing to the 'msexports' container and have successfully exported data, and that FinOps hub data factory triggers are started and pipelines are running successfully. Leverage the Data ingestion report and the troubleshooting guide (https://aka.ms/finops/hubs/troubleshoot) to validate your deployment."
+    },
+    {
+      "code": "InvalidEffectiveCost",
+      "severity": "Major",
+      "message": "This file looks like it may be exported from Cost Management but it is not in the correct container.",
+      "mitigation": "Update your Cost Management export to point to the 'msexports' storage container. The 'ingestion' container is only used for querying ingested cost data."
+    },
+    {
       "code": "InvalidExportContainer",
       "severity": "Critical",
       "message": "This file looks like it may be exported from Cost Management but it is not in the correct container.",
@@ -31,16 +79,10 @@
       "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
     },
     {
-      "code": "ExportDataNotFound",
-      "severity": "Critical",
-      "message": "Exports were not found in the specified storage path.",
-      "mitigation": "Confirm that a Cost Management export was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, please correct the storage URL to point to the 'ingestion' container. Refer to the 'storageUrlForPowerBI' output from the FinOps hub deployment for the full URL."
-    },
-    {
-      "code": "HubDataNotFound",
-      "severity": "Critical",
-      "message": "FinOps hub data was not found in the specified storage account.",
-      "mitigation": "Confirm the storage URL matches the 'StorageUrlForPowerBI' from your FinOps hub deployment, Cost Management exports are pointing to the 'msexports' container and have successfully exported data, and that FinOps hub data factory triggers are started and pipelines are running successfully. Leverage the Data ingestion report and the troubleshooting guide (https://aka.ms/finops/hubs/troubleshoot) to validate your deployment."
+      "code": "LegacyFocusVersion",
+      "severity": "Informational",
+      "message": "This error code is shown in the `x_SourceChanges` column when the ingested data uses an older version of FOCUS. FinOps hubs converts data to the latest FOCUS version so this should not cause an issue; however, the modernization transform cannot account for all scenarios and may result in unexpected results in some cases. Refer to documentation for known issues.",
+      "mitigation": "Update configured exports to use the latest FOCUS version. If the latest FOCUS version is not supported by the provider, please request official support for the latest FOCUS version."
     },
     {
       "code": "ManifestReadFailed",
@@ -54,21 +96,18 @@
       "message": "This error code is shown in the `x_DatasetChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.",
       "mitigation": "As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings will not be available for these records. To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873)."
     },
-
     {
       "code": "MissingContractedUnitPrice",
       "severity": "Informational",
       "message": "This error code is shown in the `x_DatasetChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.",
       "mitigation": "As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings will not be available for these records. To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873)."
     },
-
     {
       "code": "MissingListCost",
       "severity": "Informational",
       "message": "This error code is shown in the `x_DatasetChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ListCost` for the specified rows, which means savings cannot be calculated.",
       "mitigation": "As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings will not be available for these records. To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873)."
     },
-
     {
       "code": "MissingListUnitPrice",
       "severity": "Informational",
@@ -76,10 +115,22 @@
       "mitigation": "As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings will not be available for these records. To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873)."
     },
     {
+      "code": "MissingProviderName",
+      "severity": "Informational",
+      "message": "This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (e.g., Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.",
+      "mitigation": "As a workaround to the missing data, FinOps toolkit reports attempt to identify the provider based on the available columns."
+    },
+    {
       "code": "NoDataIngested",
       "severity": "Critical",
       "message": "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.",
       "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
+    },
+    {
+      "code": "RerunFilesNotFound",
+      "severity": "Critical",
+      "message": "Unable to locate previously ingested parquet files in the specified folder path.",
+      "mitigation": "Confirm the folder path is the full path, including the 'ingestion' container and not starting with or ending with a slash ('/'). Copy the path from the last successful ingestion_ExecuteETL pipeline run."
     },
     {
       "code": "SchemaLoadFailed",
@@ -100,10 +151,22 @@
       "mitigation": "The 'msexports' container is intended for Cost Management exports only. Please move other files in another storage container."
     },
     {
+      "code": "UnknownFocusVersion",
+      "severity": "Informational",
+      "message": "This error code is shown in the `x_SourceChanges` column when a FOCUS version could not be identified.",
+      "mitigation": "Validate that the FOCUS dataset is using a supported FOCUS version. Report this issue with an anonymized sample of the data at https://aka.ms/ftk/ideas to investigate further."
+    },
+    {
       "code": "UnknownHubVersion",
       "severity": "Critical",
       "message": "Unable to identify the version of FinOps hubs from the settings file. Please verify settings are correct. FinOps hubs 0.1.1 and earlier does not work with this Power BI report.",
       "mitigation": "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1."
+    },
+    {
+      "code": "UnsupportedExportFileType",
+      "severity": "Critical",
+      "message": "Unable to ingest the specified export file because the file type is not supported.",
+      "mitigation": "Either convert the file to a supported file format before adding to the msexports container or add support for converting the new file type to the msexports_ETL_ingestion pipeline."
     },
     {
       "code": "UnsupportedExportType",

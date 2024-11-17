@@ -1,0 +1,425 @@
+/// Cost summarized by resource
+table PurchaseCosts
+	lineageTag: e0527c7b-a49e-4d86-b047-db9bfde7714d
+
+	column BilledCost
+		dataType: double
+		lineageTag: d9ae9505-362f-490c-972e-7955b4b19009
+		summarizeBy: sum
+		sourceColumn: BilledCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BillingAccountId
+		dataType: string
+		lineageTag: 3cf18474-d3cf-4220-9755-5aea53835591
+		summarizeBy: none
+		sourceColumn: BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingAccountName
+		dataType: string
+		lineageTag: af9e1fc9-7ddf-432d-bf79-0b9a23451477
+		summarizeBy: none
+		sourceColumn: BillingAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingCurrency
+		dataType: string
+		lineageTag: 8774fef2-9ba3-4eae-a3af-63681c772f19
+		summarizeBy: none
+		sourceColumn: BillingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingPeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 30fe32c5-9481-495d-98e6-9d7c520eb454
+		summarizeBy: none
+		sourceColumn: BillingPeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingPeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 88dc3577-327b-4881-be60-be034bcec891
+		summarizeBy: none
+		sourceColumn: BillingPeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeClass
+		dataType: string
+		lineageTag: da46c105-44b0-4fbd-8589-600b087dc2be
+		summarizeBy: none
+		sourceColumn: ChargeClass
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeFrequency
+		dataType: string
+		lineageTag: b153e602-c32e-421b-af0d-f25de20876f0
+		summarizeBy: none
+		sourceColumn: ChargeFrequency
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 7b2fbfc8-4657-44bd-b178-e970c671f9ca
+		summarizeBy: none
+		sourceColumn: ChargePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: fd0dfc11-37ad-40f2-bd12-f2e4ee5547c5
+		summarizeBy: none
+		sourceColumn: ChargePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractedCost
+		dataType: double
+		lineageTag: a329e912-3ca8-4aba-9678-93d5bb8a6309
+		summarizeBy: sum
+		sourceColumn: ContractedCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ContractedUnitPrice
+		dataType: double
+		lineageTag: 0a4bcfd1-8d6d-47bd-aaa9-a60a7d3b413d
+		summarizeBy: sum
+		sourceColumn: ContractedUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column EffectiveCost
+		dataType: double
+		lineageTag: 17b82347-cf40-4061-8f7d-88d78ae2b929
+		summarizeBy: sum
+		sourceColumn: EffectiveCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ListCost
+		dataType: double
+		lineageTag: 8f8d6923-61e6-43c0-b1af-7fd5d93264f4
+		summarizeBy: sum
+		sourceColumn: ListCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ListUnitPrice
+		dataType: double
+		lineageTag: 6476e429-3c20-4948-a303-55615fc3a811
+		summarizeBy: sum
+		sourceColumn: ListUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PricingCategory
+		dataType: string
+		lineageTag: b1a21acd-b38e-4a76-a258-8425cad446ed
+		summarizeBy: none
+		sourceColumn: PricingCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column PricingQuantity
+		dataType: double
+		lineageTag: a6eec8f6-f43f-4603-b6df-b475b62b7cec
+		summarizeBy: sum
+		sourceColumn: PricingQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PricingUnit
+		dataType: string
+		lineageTag: 28f61e45-1ae1-4aa0-8fcd-d38da994d1f7
+		summarizeBy: none
+		sourceColumn: PricingUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProviderName
+		dataType: string
+		lineageTag: a9e6bfc1-65ce-487c-9106-23c369a84451
+		summarizeBy: none
+		sourceColumn: ProviderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column PublisherName
+		dataType: string
+		lineageTag: 33de6e57-d12a-4537-bab9-c2686f443ada
+		summarizeBy: none
+		sourceColumn: PublisherName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuId
+		dataType: string
+		lineageTag: c0b2bb51-d311-455c-9df0-841366355c32
+		summarizeBy: none
+		sourceColumn: SkuId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuPriceId
+		dataType: string
+		lineageTag: 8f87d3c0-c99d-4cc9-bb36-78e9ee2bbfa3
+		summarizeBy: none
+		sourceColumn: SkuPriceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountId
+		dataType: string
+		lineageTag: acba0807-5ae1-40f2-b337-41f2b9938b90
+		summarizeBy: none
+		sourceColumn: SubAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountName
+		dataType: string
+		lineageTag: c8aeb398-2cf2-4116-abeb-ec4443babf74
+		summarizeBy: none
+		sourceColumn: SubAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_EffectiveUnitPrice
+		dataType: double
+		lineageTag: d93c03c3-d717-4d31-bbc5-3476b711c685
+		summarizeBy: sum
+		sourceColumn: x_EffectiveUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_Operation
+		dataType: string
+		lineageTag: e26a07ba-bc7c-4b3e-b14b-0c4147238380
+		summarizeBy: none
+		sourceColumn: x_Operation
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingBlockSize
+		dataType: double
+		formatString: 0
+		lineageTag: 6e620b18-16d4-4ac1-affa-007547514f45
+		summarizeBy: none
+		sourceColumn: x_PricingBlockSize
+
+		annotation SummarizationSetBy = User
+
+	column x_PricingUnitDescription
+		dataType: string
+		lineageTag: b64e9eb1-8977-4607-ac86-1f6782b186a3
+		summarizeBy: none
+		sourceColumn: x_PricingUnitDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PublisherCategory
+		dataType: string
+		lineageTag: a64d60e7-7cad-4640-b514-1bd35f2cdde2
+		summarizeBy: none
+		sourceColumn: x_PublisherCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PublisherId
+		dataType: string
+		lineageTag: f9299da0-61ba-4d3e-a7d2-0cd51f483c46
+		summarizeBy: none
+		sourceColumn: x_PublisherId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ServicePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: edabbd65-1be6-4590-a035-c0db55271b3e
+		summarizeBy: none
+		sourceColumn: x_ServicePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ServicePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f7403884-2ac7-462e-8889-45bde88c5d06
+		summarizeBy: none
+		sourceColumn: x_ServicePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuDescription
+		dataType: string
+		lineageTag: 3b33fcbc-701d-4c13-a43d-c4d3e7286336
+		summarizeBy: none
+		sourceColumn: x_SkuDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOrderId
+		dataType: string
+		lineageTag: 6f753856-2c0a-4e88-80b3-d6fc3c0877ee
+		summarizeBy: none
+		sourceColumn: x_SkuOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOrderName
+		dataType: string
+		lineageTag: b66032fb-8c15-4ab3-b7d6-07cc3db41161
+		summarizeBy: none
+		sourceColumn: x_SkuOrderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTerm
+		dataType: int64
+		formatString: 0
+		lineageTag: 9e75f5c4-271c-4e55-903f-b3ae38492104
+		summarizeBy: sum
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_UsageType
+		dataType: string
+		lineageTag: 9965ad3e-e913-4154-a074-ca75f18c5616
+		summarizeBy: none
+		sourceColumn: x_UsageType
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: 2b19b6be-6742-4892-a502-7ee7479a4fdc
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: f7454564-17ff-4b55-97e3-6e323b1afd5e
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PurchaseCosts = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+				    Costs_v1_0
+				    | where ChargePeriodStart >= monthsago(" & lookback & ")
+				    //
+				    // Filter out cost allocation changes
+				    | where isempty(x_CostAllocationRuleName)
+				    //
+				    // Fix missing costs
+				    | extend ContractedCost = iff(isempty(ContractedCost) or ContractedCost == 0, EffectiveCost, ContractedCost)
+				    | extend ListCost = iff(isempty(ListCost) or ListCost == 0, ContractedCost, ListCost)
+				    //
+				    | where ChargeCategory == 'Purchase'
+				    | project
+				        BilledCost,
+				        BillingAccountId,
+				        BillingAccountName,
+				        BillingCurrency,
+				        BillingPeriodEnd,
+				        BillingPeriodStart,
+				        ChargeClass,
+				        // ChargeDescription,
+				        ChargeFrequency,
+				        ChargePeriodEnd,
+				        ChargePeriodStart,
+				        CommitmentDiscountCategory,
+				        // CommitmentDiscountId,
+				        // CommitmentDiscountName,
+				        CommitmentDiscountType,
+				        ContractedCost,
+				        ContractedUnitPrice,
+				        EffectiveCost,
+				        ListCost,
+				        ListUnitPrice,
+				        PricingCategory,
+				        PricingQuantity,
+				        PricingUnit,
+				        ProviderName,
+				        PublisherName,
+				        // ServiceCategory,
+				        // ServiceName,
+				        SkuId,
+				        SkuPriceId,
+				        SubAccountId,
+				        SubAccountName,
+				        // x_BillingAccountAgreement,
+				        // x_BillingAccountId,
+				        // x_BillingAccountName,
+				        // x_BillingProfileId,
+				        // x_BillingProfileName,
+				        x_EffectiveUnitPrice,
+				        x_Operation,
+				        x_PricingBlockSize,
+				        x_PricingUnitDescription,
+				        x_PublisherCategory,
+				        x_PublisherId,
+				        x_ServicePeriodEnd,
+				        x_ServicePeriodStart,
+				        x_SkuDescription,
+				        // x_SkuDetails,
+				        // x_SkuIsCreditEligible,
+				        // x_SkuMeterCategory,
+				        // x_SkuMeterId,
+				        // x_SkuMeterName,
+				        // x_SkuMeterSubcategory,
+				        x_SkuOrderId,
+				        x_SkuOrderName,
+				        // x_SkuServiceFamily,
+				        x_SkuTerm,
+				        x_UsageType
+				
+				    ", [MaxRows=null, MaxSize=null, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-Resources-PurchaseCosts"])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
