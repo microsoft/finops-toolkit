@@ -2619,6 +2619,31 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
+      { // Set Has No Rows
+        name: 'Set Has No Rows'
+        description: 'Check the row count '
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Read Manifest'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'hasNoRows'
+          value: {
+            value: '@or(equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, null), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0))'
+            type: 'Expression'
+          }
+        }
+      }
       { // Set Export Dataset Type
         name: 'Set Export Dataset Type'
         description: 'Save the dataset type from the export manifest.'
@@ -2700,6 +2725,12 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         type: 'Switch'
         dependsOn: [
           {
+            activity: 'Set Has No Rows'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
             activity: 'Set MCA Column'
             dependencyConditions: [
               'Succeeded'
@@ -2715,11 +2746,11 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         userProperties: []
         typeProperties: {
           on: {
-            value: '@if(empty(variables(\'mcaColumnToCheck\')), \'ignore\', last(array(split(activity(\'Read Manifest\').output.firstRow.blobs[0].blobName, \'.\'))))'
+            value: '@if(or(empty(variables(\'mcaColumnToCheck\')), variables(\'hasNoRows\')), \'ignore\', last(array(split(activity(\'Read Manifest\').output.firstRow.blobs[0].blobName, \'.\'))))'
             type: 'Expression'
           }
           cases: [
-            {
+            { // csv
               value: 'csv'
               activities: [
                 {
@@ -2778,14 +2809,14 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                   typeProperties: {
                     variableName: 'schemaFile'
                     value: {
-                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(contains(activity(\'Check for MCA Column in CSV\').output.firstRow, variables(\'mcaColumnToCheck\')), \'_mca\', \'_ea\'), \'.json\'))'
+                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(and(contains(activity(\'Check for MCA Column in CSV\').output, \'firstRow\'), contains(activity(\'Check for MCA Column in CSV\').output.firstRow, variables(\'mcaColumnToCheck\'))), \'_mca\', \'_ea\'), \'.json\'))'
                       type: 'Expression'
                     }
                   }
                 }
               ]
             }
-            {
+            { // gz
               value: 'gz'
               activities: [
                 {
@@ -2844,14 +2875,14 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                   typeProperties: {
                     variableName: 'schemaFile'
                     value: {
-                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(contains(activity(\'Check for MCA Column in Gzip CSV\').output.firstRow, variables(\'mcaColumnToCheck\')), \'_mca\', \'_ea\'), \'.json\'))'
+                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(and(contains(activity(\'Check for MCA Column in Gzip CSV\').output, \'firstRow, ontains(activity(\'Check for MCA Column in Gzip CSV\').output.firstRow, variables(\'mcaColumnToChec)k\')), \'_mca\', \'_ea\'), \'.json\'))'
                       type: 'Expression'
                     }
                   }
                 }
               ]
             }
-            {
+            { // parquet
               value: 'parquet'
               activities: [
                 {
@@ -2910,7 +2941,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                   typeProperties: {
                     variableName: 'schemaFile'
                     value: {
-                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(contains(activity(\'Check for MCA Column in Parquet\').output.firstRow, variables(\'mcaColumnToCheck\')), \'_mca\', \'_ea\'), \'.json\'))'
+                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(and(contains(activity(\'Check for MCA Column in Parquet\').output, \'firstRow\'), contains(activity(\'Check for MCA Column in Parquet\').output.firstRow, variables(\'mcaColumnToCheck\'))), \'_mca\', \'_ea\'), \'.json\'))'
                       type: 'Expression'
                     }
                   }
@@ -3145,7 +3176,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Read Manifest\').output.firstRow.blobs'
+            value: '@if(variables(\'hasNoRows\'), json(\'[]\'), @activity(\'Read Manifest\').output.firstRow.blobs)'
             type: 'Expression'
           }
           isSequential: false
