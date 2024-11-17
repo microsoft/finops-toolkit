@@ -434,6 +434,14 @@ table CommitmentDiscountCosts
 
 		annotation SummarizationSetBy = Automatic
 
+	column ProviderName
+		dataType: string
+		lineageTag: 0abfa1f2-8fad-480d-91af-3af2dc7b9804
+		summarizeBy: none
+		sourceColumn: ProviderName
+
+		annotation SummarizationSetBy = Automatic
+
 	partition CommitmentDiscountCosts = m
 		mode: import
 		queryGroup: 'Data Explorer'
@@ -555,12 +563,17 @@ table CommitmentDiscountCosts
 				        PricingCategory,
 				        PricingQuantity,
 				        PricingUnit,
+				        ProviderName,
 				        RegionName,
 				        SubAccountId,
 				        SubAccountName,
 				        x_CommitmentDiscountKey,
-				        x_CommitmentDiscountServiceCategory = iff(isempty(x_CommitmentDiscountServiceCategory), 'Other', x_CommitmentDiscountServiceCategory),
-				        x_CommitmentDiscountServiceName,
+				        x_CommitmentDiscountServiceCategory = case(
+				            ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute',
+				            isempty(x_CommitmentDiscountServiceCategory), 'Other',
+				            x_CommitmentDiscountServiceCategory
+				        ),
+				        x_CommitmentDiscountServiceName = iff(ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute', x_CommitmentDiscountServiceName),
 				        x_CommitmentDiscountUtilizationAmount,
 				        x_CommitmentDiscountUtilizationPotential,
 				        x_ChargePeriodMonth,
