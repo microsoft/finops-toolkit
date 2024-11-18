@@ -82,14 +82,7 @@ function Deploy-FinOpsHub
 
     try
     {
-        $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction 'SilentlyContinue'
-        if (-not $resourceGroupObject)
-        {
-            if (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'CreateResourceGroup')
-            {
-                $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroupName -Location $Location
-            }
-        }
+        New-ResourceGroup -Name $ResourceGroupName -Location $Location -Tags $Tags -WhatIf:$WhatIfPreference
 
         $toolkitPath = Join-Path $env:temp -ChildPath 'FinOpsToolkit'
         if (Test-ShouldProcess $PSCmdlet $toolkitPath 'CreateTempDirectory')
