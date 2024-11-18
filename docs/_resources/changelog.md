@@ -17,6 +17,8 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.7](#-v07)
+- [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
 - [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
@@ -60,10 +62,16 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
+> 5. Private endpoints support.
+>    - Added private endpoints for storage account, Azure Data Explorer & Keyvault.
+>    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
+>    - All data processing now happens within a vNet.
+>    - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
+>    - Added param to specify subnet range of vnet - minumum size = /26
+> 6. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -79,12 +87,174 @@ Legend:
 > ➕ Added:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
+>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Added Enterprise App Patterns links resources to the architecting for the cloud section.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
+> 1. Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
 
 <br><a name="latest"></a>
 
+## 🚚 v0.7
+
+<sup>Released November 2024</sup>
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - General
+>   1. Added partial support for OneLake URLs.
+>      - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
+>   1. Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
+> - [Cost summary](../_reporting/power-bi/cost-summary.md)
+>   1. Added KQL-based version that connects to FinOps hubs with Azure Data Explorer.
+> - [Rate optimization](../_reporting/power-bi/rate-optimization.md)
+>   1. Added KQL-based version that connects to FinOps hubs with Azure Data Explorer.
+>
+> ✏️ Changed:
+>
+> - General
+>   1. Consolidated the **Hub Storage URL** and **Export Storage URL** parameters into a single **Storage URL**.
+>      - This means all datasets will either need to be raw exports outside of FinOps hubs or be processed through hubs. This release no longer supports some data from hubs and some from raw exports.
+>      - If you have existing exports that are not running through hubs data pipelines, simply change the exports to point to the hub **msexports** container.
+>      - This change was made to simplify the setup process and avoid errors in Power BI service configuration (e.g., incremental refresh).
+>   2. Renamed the following columns:
+>      - x_DatasetChanges is now `x_SourceChanges`
+>      - x_DatasetType is now `x_SourceType`
+>      - x_DatasetVersion is now `x_SourceVersion`
+>      - x_AccountType is now `x_BillingAccountAgreement`
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+> 
+> 1. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
+
+<small>**Breaking change**</small>
+{: .label .label-red .pt-0 .pl-3 .pr-3 .m-0 }
+
+> ➕ Added:
+>
+> 1. Option to ingest data into an Azure Data Explorer cluster.
+> 1. Set missing reservation list and contracted prices/cost columns for EA and MCA accounts (Data Explorer only).
+>    - Requires the price sheet export to be configured.
+> 12. Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
+>    - The same fix was applied to Power BI reports for those not using Data Explorer. The underlying data has not changed however.
+> 3. Support for FOCUS 1.0r2 exports.
+>    - The 1.0r2 dataset only differs in date formatting. There are no functional differences compared to 1.0.
+>    - The 1.0r2 dataset is only needed when ingesting data into a system that requires date/time values to include seconds (for example, "2024-01-01T00:00:00Z" where the last "00" is seconds).
+
+>
+> ✏️ Changed:
+>
+> 1. Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
+>    <blockquote class="important" markdown="1">
+>       _This change requires removing previously ingested data for the current month to avoid data duplication. You do not need to re-export historical data for storage-based Power BI reports; however, historical data DOES need to be re-exported to ingest into Azure Data Explorer._
+>    </blockquote>
+>    - For FOCUS cost data, use "Costs".
+>    - For price sheet data, use "Prices".
+>    - For reservation details, use "CommitmentDiscountUsage".
+>    - For reservation recommendations, use "Recommendations".
+>    - For reservation transactions, use "Transactions".
+> 1. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Storagetab, included the **RSVaultBackup** tag in the list of non-idle disks.
+>
+> 🛠️ Fixed:
+>
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Commitment discounts tab, fixed RI ROWS Limited.
+>   2. On the Compute tab, fixed incorrect VM processor in processors query.
+>
+> 🗑️ Removed:
+>
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Database tab, removed the idle SQL databases query.
+>      - This query will be re-evaluated and added again in a future release.
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 50 new Microsoft.AWSConnector resource types.
+>   1. Added 8 new Microsoft.Compute resource types.
+>   1. Added 3 new Microsoft.ContainerInstance resource types.
+>   1. Added 3 new Microsoft.DatabaseFleetManager resource types.
+>   1. Added 4 new Microsoft.Fabric resource types.
+>   1. Added 5 new Microsoft.OpenLogisticsPlatform resource types.
+>   1. Added 3 new Microsoft.Sovereign resource types.
+>   1. Added 14 other new resource types: arizeai.observabilityeval/organizations, lambdatest.hyperexecute/organizations, microsoft.azurestackhci/edgedevices/jobs, microsoft.clouddeviceplatform/delegatedidentities, microsoft.compute/capacityreservationgroupscomputehub, microsoft.compute/galleries/imagescomputehub, microsoft.compute/hostgroupscomputehub, microsoft.hybridcompute/machinessoftwareassurance, microsoft.machinelearning/workspaces, microsoft.resources/deletedresources, microsoft.security/defenderforstoragesettings/malwarescans, microsoft.weightsandbiases/instances, neon.postgres/organizations, pinecone.vectordb/organizations.
+> - [Services](../_reporting/data/README.md#-services)
+>   1. Added 3 resource types to existing services: microsoft.hardwaresecuritymodules/cloudhsmclusters, microsoft.healthdataaiservices/deidservices, microsoft.insights/datacollectionrules.
+>
+> ✏️ Changed:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Updated 17 new Microsoft.ComputeHub resource types.
+>   1. Updated 9 other resource type: microsoft.appsecurity/policies, microsoft.compute/virtualmachines/providers/guestconfigurationassignments, microsoft.dbforpostgresql/flexibleservers, microsoft.deviceregistry/billingcontainers, microsoft.durabletask/namespaces, microsoft.durabletask/namespaces/taskhubs, microsoft.edge/configurations, microsoft.hybridcompute/machines/providers/guestconfigurationassignments, microsoft.securitycopilot/capacities.
+
+<br>
+
+## 🪛 v0.6 Update 1
+
+<sup>Released October 5, 2024</sup>
+
+This release is a minor patch to update documentation and fix Rate optimization and Data ingestion Power BI files. These files were updated in the existing 0.6 release. We are documenting this as a new patch release for transparency. If you downloaded these files between October 2-4, 2024, please update to the latest version.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Documented the need to configure both **Hub Storage URL** and **Export Storage URL** when publishing reports to the Power BI service ([#1033](https://github.com/microsoft/finops-toolkit/issues/1033)).
+>
+> 🛠️ Fixed:
+>
+> 1. Updated the Data ingestion report to account for storage path changes ([#1043](https://github.com/microsoft/finops-toolkit/issues/1043)).
+> 2. Updated the Rate optimization report to remove the sensitivity level ([#1041](https://github.com/microsoft/finops-toolkit/issues/1041)).
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added [compatibility guide](../_reporting/hubs/compatibility.md) to identify when changes are compatible with older Power BI reports.
+>
+> ✏️ Changed:
+>
+> 1. Updated the [upgrade guide](../_reporting/hubs/upgrade.md) to account for changes in 0.5 and 0.6.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed the reservation details mapping file.
+
+<br>
+
 ## 🚚 v0.6
 
-<sup>Released September 2024</sup>
+<sup>Released October 2, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -92,8 +262,6 @@ Legend:
 > ➕ Added:
 >
 > 1. Started a FinOps best practices library using Azure Resource Graph (ARG) queries from the Cost optimization workbook.
-> 2. Documented [how to use storage account SAS tokens to setup the reports](../_reporting/power-bi/setup.md).
-> 3. Documented how to [preview reports with sample data using Power BI Desktop](../_reporting/hubs/README.md).
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -102,6 +270,8 @@ Legend:
 >
 > - General
 >   1. Add sample tags to promote to separate `tag_*` columns
+>   2. Documented [how to connect to Power BI reports using storage account SAS tokens](../_reporting/power-bi/setup.md).
+>   3. Documented [how to preview reports with sample data using Power BI Desktop](../_reporting/hubs/README.md).
 > - [Governance](../_reporting/power-bi/governance.md)
 >   1. Added Policy compliance.
 >   2. Added Virtual machines and managed disks.
@@ -114,7 +284,7 @@ Legend:
 > ✏️ Changed:
 >
 > - General
->   1. Renamed Prices ChargePeriodStart/End to x_EffectivePeriodStart/End.
+>   1. Renamed Prices `ChargePeriodStart`/`*End` to `x_EffectivePeriodStart`/`*End`.
 >   2. Removed auto-created date tables.
 >
 > 🛠️ Fixed:
@@ -122,7 +292,7 @@ Legend:
 > - General
 >   1. Improved import performance by using parquet metadata to filter files by date (if configured).
 >   2. Improved performance of column updates in CostDetails and Prices queries.
->   3. Fixed bug where SkuID was not merged into x_SkuId.
+>   3. In the Prices query, fixed bug where `SkuID` was not merged into `x_SkuId`.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -131,7 +301,8 @@ Legend:
 >
 > 1. Support for Cost Management parquet and GZip CSV exports.
 > 2. Support for ingesting price, reservation recommendation, reservation detail, and reservation transaction datasets via Cost Management exports.
-> 3. New UnsupportedExportFileType error when the exported file type is not supported.
+> 3. Compatibility guide to explain what versions of hubs and Power BI reports work together.
+> 4. New UnsupportedExportFileType error when the exported file type is not supported.
 >
 > ✏️ Changed:
 >
@@ -151,6 +322,14 @@ Legend:
 >
 > 1. Removed the temporary Event Grid resource from the template.
 
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Created an option to deploy all [general-purpose FinOps toolkit workbooks](../_optimize/workbooks/README.md) together.
+>    - Does not include workbooks specific to Optimization Engine.
+
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -164,7 +343,7 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> 1. Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014))
+> 1. Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014)).
 >
 > 🚫 Deprecated:
 >
@@ -212,6 +391,9 @@ Legend:
 <sup>Released September 7, 2024</sup>
 
 This release is a minor patch to Power BI files. These files were updated in the existing 0.5 release. We are documenting this as a new patch release for transparency.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > 🛠️ Fixed:
 >
@@ -281,9 +463,6 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 > ➕ Added:
 >
-> - [FinOps workbooks](../_optimize/workbooks/README.md):
->   1. Created an option to deploy all general-purpose FinOps toolkit workbooks together.
->      - Does not include workbooks specific to Optimization Engine.
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. New compute query to identify VMs per processor architecture type
 >   2. New database query to identify SQL Pool instances with 0 databases

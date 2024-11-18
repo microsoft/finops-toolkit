@@ -161,7 +161,7 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
                 $global:ftkDeployment
             }
 
-            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
+            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup/deployments"
 
         }
         "subscription"

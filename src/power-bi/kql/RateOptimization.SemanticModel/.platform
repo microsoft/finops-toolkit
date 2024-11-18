@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "RateOptimization"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "d7addd6d-35fd-4b2b-8805-9c58671305b2"
+  }
+}

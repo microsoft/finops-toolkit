@@ -1,0 +1,612 @@
+table CommitmentDiscountCosts
+	lineageTag: ba46a180-95d6-41f0-8672-e32d61a24a24
+
+	measure x_CommitmentDiscountUtilization = IFERROR(SUM([x_CommitmentDiscountUtilizationAmount]) / SUM([x_CommitmentDiscountUtilizationPotential]), "")
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 85f4528d-366b-4ca4-8122-29ad14c36204
+
+	measure ChargePeriod = FORMAT(MIN([ChargePeriodStart]), IF(AND(FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(UTCTODAY(), "yyyy"), FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "yyyy")), "Mmm dd", "Mmm dd, yyyy")) & IF(FORMAT(MIN([ChargePeriodStart]), "Mmm dd, yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "Mmm dd, yyyy"), "", "-" & FORMAT(MAX([ChargePeriodEnd]), IF(AND(FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(UTCTODAY(), "yyyy"), FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "yyyy")), "Mmm dd", "Mmm dd, yyyy")))
+		lineageTag: aeb362f4-8c0b-49da-a679-5e9d4c251322
+
+	column BilledCost
+		dataType: double
+		lineageTag: 3ac3674c-cd65-4199-984a-c8ab3468b1db
+		summarizeBy: sum
+		sourceColumn: BilledCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BillingCurrency
+		dataType: string
+		lineageTag: bbdb5186-3d4a-40ec-81e2-4bb65fb0d461
+		summarizeBy: none
+		sourceColumn: BillingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 2a9e2013-0527-49d3-9315-8a0f66fff051
+		summarizeBy: none
+		sourceColumn: ChargePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 91235da0-9cbf-465c-be0c-a4d8afa1d1ae
+		summarizeBy: none
+		sourceColumn: ChargePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: 506c97a4-8429-4768-bb0e-985cce71f6b2
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountId
+		dataType: string
+		lineageTag: adb0471f-0096-43bd-9aea-08c455afcfb5
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountName
+		dataType: string
+		lineageTag: 8297ba0c-694c-4fbd-a2e6-34488f13ca5b
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: 15de8779-1319-4dc0-a141-ef738ad14688
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountStatus
+		dataType: string
+		lineageTag: e5ebff41-277a-42ec-a244-b564024c0f69
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractedCost
+		dataType: double
+		lineageTag: 7969cd2c-a5fa-4f4a-b6aa-d34ca67599bc
+		summarizeBy: sum
+		sourceColumn: ContractedCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column EffectiveCost
+		dataType: double
+		lineageTag: 93d787c4-27f3-4471-9229-b91a2cdf8085
+		summarizeBy: sum
+		sourceColumn: EffectiveCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ListCost
+		dataType: double
+		lineageTag: 4865f310-9b36-44f1-8d00-9ef3ceb17245
+		summarizeBy: sum
+		sourceColumn: ListCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_ChargePeriodMonth
+		dataType: dateTime
+		formatString: Mmm yyyy
+		lineageTag: d12b2164-b544-435f-9a56-5cfbc21ac28a
+		summarizeBy: none
+		sourceColumn: x_ChargePeriodMonth
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_CommitmentDiscountSavings
+		dataType: double
+		lineageTag: 7eeeafa0-f89a-4141-a3cf-8eb9e48d95e0
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_NegotiatedDiscountSavings
+		dataType: double
+		lineageTag: dcbd8a24-3a6b-4b80-9742-40764f7895f9
+		summarizeBy: sum
+		sourceColumn: x_NegotiatedDiscountSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_ReportingDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a19df116-9703-4d6a-8dcc-2ac1e500ff4e
+		summarizeBy: none
+		sourceColumn: x_ReportingDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 81b67eb5-b658-4a15-80df-64787eef8c9d
+		summarizeBy: sum
+		sourceColumn: x_ResourceCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_TotalSavings
+		dataType: double
+		lineageTag: 09ac70d7-ae22-4659-94ef-b10c8a897a0d
+		summarizeBy: sum
+		sourceColumn: x_TotalSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountServiceCategory
+		dataType: string
+		lineageTag: 2ffa9e79-361b-442d-98ec-f16eca8f8014
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountServiceCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountServiceName
+		dataType: string
+		lineageTag: ae213c89-6ecb-4a52-a1c4-51b5458e156f
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountServiceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountUtilizationPotential
+		dataType: double
+		lineageTag: 86fc1b27-31bc-425a-9c3c-cdac3c827fd7
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountUtilizationPotential
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountUtilizationAmount
+		dataType: double
+		lineageTag: 5f676fa7-d43d-4335-a323-948bd1e1c4c7
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountUtilizationAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountKey
+		dataType: string
+		lineageTag: df5832f0-1793-429a-a3af-7f9f9aca69f3
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountId
+		dataType: string
+		lineageTag: aa36fd1c-263e-4485-a9a8-bb5449d009a5
+		summarizeBy: none
+		sourceColumn: SubAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountName
+		dataType: string
+		lineageTag: 22796a83-7957-4b84-8050-151b98088338
+		summarizeBy: none
+		sourceColumn: SubAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceGroupName
+		dataType: string
+		lineageTag: c59d7080-5094-4808-a664-50e1d2fe4a03
+		summarizeBy: none
+		sourceColumn: x_ResourceGroupName
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionName
+		dataType: string
+		lineageTag: 5ca2b468-cef4-4ca3-9231-0ed78ae8640d
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterSubcategory
+		dataType: string
+		lineageTag: 86019568-815e-4288-b14a-e53901f22b8d
+		summarizeBy: none
+		sourceColumn: x_SkuMeterSubcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_UsageCPUHours
+		dataType: double
+		lineageTag: 8fff1453-5472-4972-b8e8-79b565654470
+		summarizeBy: sum
+		sourceColumn: x_UsageCPUHours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_PricingSubcategory
+		dataType: string
+		lineageTag: 3bf628c5-653f-4bc3-8106-d5da64fc5ba3
+		summarizeBy: none
+		sourceColumn: x_PricingSubcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterCategory
+		dataType: string
+		lineageTag: 3a73edcf-ce29-483d-a703-0120e533954e
+		summarizeBy: none
+		sourceColumn: x_SkuMeterCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeCategory
+		dataType: string
+		lineageTag: a9293e46-3200-4f3e-8b19-b241a5a887fd
+		summarizeBy: none
+		sourceColumn: ChargeCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOrderId
+		dataType: string
+		lineageTag: eed831fc-eeb1-425a-8f1e-fdb4cd5e8bd1
+		summarizeBy: none
+		sourceColumn: x_SkuOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOrderName
+		dataType: string
+		lineageTag: 92a018a4-786a-4288-b4f0-59eba4fd31a2
+		summarizeBy: none
+		sourceColumn: x_SkuOrderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTerm
+		dataType: int64
+		formatString: 0
+		lineageTag: 0adb5a06-d91d-4ee0-87f3-ce2251973f51
+		summarizeBy: sum
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTermLabel
+		dataType: string
+		lineageTag: fec67c7f-9fe5-4d9d-93e0-5f432385c979
+		summarizeBy: none
+		sourceColumn: x_SkuTermLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuDescription
+		dataType: string
+		lineageTag: aa17712e-4342-4d52-b831-1dd83e89db69
+		summarizeBy: none
+		sourceColumn: x_SkuDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeFrequency
+		dataType: string
+		lineageTag: f62f68eb-05a7-4403-9924-2140178ea3c6
+		summarizeBy: none
+		sourceColumn: ChargeFrequency
+
+		annotation SummarizationSetBy = Automatic
+
+	column PricingQuantity
+		dataType: double
+		lineageTag: e3ef6241-89e1-4138-a338-671bad5333b9
+		summarizeBy: sum
+		sourceColumn: PricingQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PricingUnit
+		dataType: string
+		lineageTag: 4de3b7d1-10f7-423b-a534-5ce6edd19283
+		summarizeBy: none
+		sourceColumn: PricingUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column ConsumedQuantity
+		dataType: double
+		lineageTag: fc2f2204-e574-4576-93d8-10b944bba769
+		summarizeBy: sum
+		sourceColumn: ConsumedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ConsumedUnit
+		dataType: string
+		lineageTag: 9509b097-20d6-407b-9e3d-260ab1fda472
+		summarizeBy: none
+		sourceColumn: ConsumedUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterName
+		dataType: string
+		lineageTag: 10bfaf1a-f164-4da9-8132-494f4cde9f40
+		summarizeBy: none
+		sourceColumn: x_SkuMeterName
+
+		annotation SummarizationSetBy = Automatic
+
+	column PricingCategory
+		dataType: string
+		lineageTag: b78285fb-4e84-4666-a0be-ae65a541786d
+		summarizeBy: none
+		sourceColumn: PricingCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuCPUs
+		dataType: int64
+		formatString: 0
+		lineageTag: d22d2d36-93c0-48bb-b1b5-e452b88db4b3
+		summarizeBy: sum
+		sourceColumn: x_SkuCPUs
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuImageType
+		dataType: string
+		lineageTag: a87e2e0a-cfe0-4847-8e44-962fa812855a
+		summarizeBy: none
+		sourceColumn: x_SkuImageType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuLicenseCPUs
+		dataType: int64
+		formatString: 0
+		lineageTag: 318a0b53-d357-4f61-8770-c039c92a410a
+		summarizeBy: sum
+		sourceColumn: x_SkuLicenseCPUs
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuLicenseStatus
+		dataType: string
+		lineageTag: 1e3c5d5e-7f01-4fca-983d-cda8297dae9c
+		summarizeBy: none
+		sourceColumn: x_SkuLicenseStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuType
+		dataType: string
+		lineageTag: 7f7f14cf-56a2-4de7-94ac-64b197e2071d
+		summarizeBy: none
+		sourceColumn: x_SkuType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProviderName
+		dataType: string
+		lineageTag: 0abfa1f2-8fad-480d-91af-3af2dc7b9804
+		summarizeBy: none
+		sourceColumn: ProviderName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CommitmentDiscountCosts = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+				    let numberOfMonths = " & lookback & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Daily") & ";
+				    let allowCostManagementAllocationRules = false;
+				    Costs_v1_0
+				    | where ChargePeriodStart >= monthsago(numberOfMonths)
+				    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
+				    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
+				    | extend x_ReportingDate = iff(monthlyGranularity, x_ChargePeriodMonth, startofday(ChargePeriodStart))
+				    //
+				    // Create a flag to remove unnecessary values to keep row count down
+				    | extend tmp_isVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'
+				    //
+				//| where isnotempty(CommitmentDiscountId)
+				    | extend x_SkuCPUs       = iff(tmp_isVMUsage, toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores)), toint(''))
+				    | extend x_UsageCPUHours = iff(tmp_isVMUsage and isnotempty(x_SkuCPUs), x_SkuCPUs * ConsumedQuantity, todecimal(''))
+				    //
+				    // | extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)
+				    | extend x_SkuImageType = iff(tmp_isVMUsage, tostring(x_SkuDetails.ImageType), '')
+				    | extend x_SkuType      = iff(tmp_isVMUsage, tostring(x_SkuDetails.ServiceType), '')  // Remove other values to keep row count down
+				    // | extend x_ResourceMachineName = tostring(x_SkuDetails.VMName)
+				    // | extend x_SkuVMProperties = tostring(x_SkuDetails.VMProperties)
+				    // | extend tmp_AddlReservationOrderId = tostring(x_SkuDetails.ReservationOrderId)
+				    // | extend tmp_AddlReservationId = tostring(x_SkuDetails.ReservationId)
+				    // | extend x_CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
+				    | extend tmp_IsSQLAHB = tolower(x_SkuDetails.AHB) == 'true'
+				    | extend x_SkuLicenseStatus = case(
+				        (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Windows') or not(tmp_IsSQLAHB), 'Not enabled',
+				        (isnotempty(x_SkuImageType) and x_SkuImageType contains 'Windows Server BYOL') or tmp_IsSQLAHB or (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Azure Hybrid Benefit'), 'Enabled',
+				        ''
+				    )
+				    | extend x_SkuLicenseCPUs = case(
+				        isempty(x_SkuCPUs), toint(''),
+				        x_SkuCPUs <= 8, 8,
+				        x_SkuCPUs <= 16, 16,
+				        x_SkuCPUs == 20, 24,
+				        x_SkuCPUs > 20, x_SkuCPUs,
+				        toint('')
+				    )
+				    // Remove other values to keep row count down
+				    | extend x_CommitmentDiscountKey = iff(tmp_isVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
+				    //
+				    | summarize
+				        BilledCost = sum(BilledCost),
+				        ChargePeriodEnd = max(ChargePeriodEnd), ChargePeriodStart = min(ChargePeriodStart),
+				        ConsumedQuantity = sum(ConsumedQuantity),
+				        ContractedCost = sum(ContractedCost),
+				        EffectiveCost = sum(EffectiveCost),
+				        ListCost = sum(ListCost),
+				        PricingQuantity = sum(PricingQuantity),
+				        x_CommitmentDiscountServiceCategory = arraystring(make_set_if(ServiceCategory, ServiceCategory != 'Other')),
+				        x_CommitmentDiscountServiceName = arraystring(make_set(ServiceName)),
+				        x_ResourceCount = dcountif(ResourceId, x_ResourceType !startswith 'microsoft.billingbenefits' and x_ResourceType !startswith 'microsoft.capacity/reservation'),
+				        x_UsageCPUHours = sum(x_UsageCPUHours)
+				        by
+				            BillingCurrency,
+				            ChargeCategory,
+				            ChargeFrequency,
+				            CommitmentDiscountCategory,
+				            CommitmentDiscountId,
+				            CommitmentDiscountName,
+				            CommitmentDiscountType,
+				            CommitmentDiscountStatus,
+				            ConsumedUnit,
+				            PricingCategory,
+				            PricingUnit,
+				            ProviderName,
+				            RegionName,
+				            SubAccountId,
+				            SubAccountName,
+				            x_ChargePeriodMonth,
+				            x_CommitmentDiscountKey,
+				            x_PricingSubcategory,
+				            x_ReportingDate,
+				            x_ResourceGroupName,
+				            x_SkuCPUs,
+				            x_SkuDescription      = iff(PricingCategory == 'Committed', x_SkuDescription, ''), // Remove other values to keep row count down
+				            x_SkuImageType,
+				            x_SkuLicenseCPUs,
+				            x_SkuLicenseStatus,
+				            x_SkuMeterCategory    = iff(tmp_isVMUsage, x_SkuMeterCategory, ''),    // Remove other values to keep row count down
+				            x_SkuMeterName        = iff(tmp_isVMUsage, x_SkuMeterName, ''),        // Remove other values to keep row count down
+				            x_SkuMeterSubcategory = iff(tmp_isVMUsage, x_SkuMeterSubcategory, ''), // Remove other values to keep row count down
+				            x_SkuOrderId,
+				            x_SkuOrderName,
+				            x_SkuTerm,
+				            x_SkuType
+				    | extend x_CommitmentDiscountUtilizationPotential = case(
+				        ProviderName == 'Microsoft', EffectiveCost,
+				        CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
+				        CommitmentDiscountCategory == 'Spend', EffectiveCost,
+				        decimal(0)
+				    )
+				    | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, decimal(0))
+				    | project
+				        BilledCost,
+				        BillingCurrency,
+				        ChargeCategory,
+				        ChargeFrequency,
+				        ChargePeriodEnd,
+				        ChargePeriodStart,
+				        CommitmentDiscountCategory,
+				        CommitmentDiscountId,
+				        CommitmentDiscountName,
+				        CommitmentDiscountType,
+				        CommitmentDiscountStatus,
+				        ConsumedQuantity,
+				        ConsumedUnit,
+				        ContractedCost,
+				        EffectiveCost,
+				        ListCost,
+				        PricingCategory,
+				        PricingQuantity,
+				        PricingUnit,
+				        ProviderName,
+				        RegionName,
+				        SubAccountId,
+				        SubAccountName,
+				        x_CommitmentDiscountKey,
+				        x_CommitmentDiscountServiceCategory = case(
+				            ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute',
+				            isempty(x_CommitmentDiscountServiceCategory), 'Other',
+				            x_CommitmentDiscountServiceCategory
+				        ),
+				        x_CommitmentDiscountServiceName = iff(ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute', x_CommitmentDiscountServiceName),
+				        x_CommitmentDiscountUtilizationAmount,
+				        x_CommitmentDiscountUtilizationPotential,
+				        x_ChargePeriodMonth,
+				        x_CommitmentDiscountSavings = ContractedCost - EffectiveCost,
+				        x_NegotiatedDiscountSavings = ListCost - ContractedCost,
+				        x_PricingSubcategory,
+				        x_ReportingDate,
+				        x_ResourceCount,
+				        x_ResourceGroupName,
+				        x_SkuCPUs,
+				        x_SkuDescription,
+				        x_SkuImageType,
+				        x_SkuLicenseCPUs,
+				        x_SkuLicenseStatus,
+				        x_SkuMeterCategory,
+				        x_SkuMeterName,
+				        x_SkuMeterSubcategory,
+				        x_SkuOrderId,
+				        x_SkuOrderName,
+				        x_SkuTerm,
+				        x_SkuTermLabel = case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))),
+				        x_SkuType,
+				        x_TotalSavings = ListCost - EffectiveCost,
+				        x_UsageCPUHours
+				    | extend x_NegotiatedDiscountSavings = iff(x_NegotiatedDiscountSavings < 0.0001, decimal(0), x_NegotiatedDiscountSavings)
+				    | extend x_CommitmentDiscountSavings = iff(x_CommitmentDiscountSavings < 0.0001, decimal(0), x_CommitmentDiscountSavings)
+				    | extend x_TotalSavings = iff(x_TotalSavings < 0.0001, decimal(0), x_TotalSavings)
+				
+				    ", [MaxRows=null, MaxSize=100000000000, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-CommitmentDiscountCosts"])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

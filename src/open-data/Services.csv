@@ -82,6 +82,7 @@ microsoft.cognitiveservices,microsoft.cognitiveservices/accounts,Azure AI Servic
 microsoft.communication,microsoft.communication/communicationservices,Azure Communication Services,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.community,microsoft.community/communitytrainings,Community Training,Business Applications,Other (Business Applications),Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.compute,microsoft.compute/capacityreservationgroups,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
+microsoft.compute,microsoft.compute/capacityreservationgroups/capacityreservations,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.compute,microsoft.compute/cloudservices,Cloud Services,Compute,Serverless Compute,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.compute,microsoft.compute/disks,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.compute,microsoft.compute/galleries,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
@@ -170,6 +171,7 @@ microsoft.graph,microsoft.graph/accounts,Microsoft Graph,Integration,API Managem
 microsoft.graph,microsoft.graph/azureadapplications,Microsoft Graph Data Connect,Integration,API Management,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.graphservices,microsoft.graphservices/accounts,Microsoft Graph,Integration,API Management,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.hanaonazure,microsoft.hanaonazure/hanainstances,SAP on Azure,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.hardwaresecuritymodules,microsoft.hardwaresecuritymodules/cloudhsmclusters,Azure Dedicated HSM,Security,Secret Management,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.hardwaresecuritymodules,microsoft.hardwaresecuritymodules/dedicatedhsms,Azure Dedicated HSM,Security,Secret Management,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.hdinsight,microsoft.hdinsight/clusterpools,HDInsight,Analytics,Data Processing,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.hdinsight,microsoft.hdinsight/clusters,HDInsight,Analytics,Data Processing,Microsoft,Cloud Provider,Cloud,PaaS
@@ -177,12 +179,14 @@ microsoft.hdinsightfairfax,microsoft.hdinsightfairfax/clusters,HDInsight,Analyti
 microsoft.healthbot,microsoft.healthbot/healthbots,Health Bot,AI and Machine Learning,Bots,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.healthcareapis,microsoft.healthcareapis/services,Azure Health Data Services,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.healthcareapis,microsoft.healthcareapis/workspaces,Azure Health Data Services,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.healthdataaiservices,microsoft.healthdataaiservices/deidservices,Azure Health Data Services,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.hybridcompute,microsoft.hybridcompute/licenses,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.hybridcompute,microsoft.hybridcompute/machines,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.hybridcontainerservice,microsoft.kubernetes/connectedclusters,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.importexport,microsoft.importexport/jobs,Azure Import/Export,Migration,Data Migration,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.insights,microsoft.insights/actiongroups,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.insights,microsoft.insights/components,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.insights,microsoft.insights/datacollectionrules,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.insights,microsoft.insights/metricalerts,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.insights,microsoft.insights/pricings,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.insights,microsoft.insights/scheduledqueryrules,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
@@ -292,6 +296,7 @@ microsoft.sql,microsoft.sql/longtermretentionservers,Azure SQL Database,Database
 microsoft.sql,microsoft.sql/managedinstances,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.sql,microsoft.sql/servers,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.sql,microsoft.sql/servers/databases,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.sql,microsoft.sql/servers/elasticpools,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.storage,microsoft.storage/storageaccounts,Storage Accounts,Storage,Storage Platforms,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.storagecache,microsoft.storagecache/amlfilesystems,Azure HPC Cache,Storage,Storage Platforms,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.storagecache,microsoft.storagecache/caches,Azure HPC Cache,Storage,Storage Platforms,Microsoft,Cloud Provider,Hybrid,IaaS
