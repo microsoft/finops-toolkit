@@ -91,13 +91,13 @@ var ingestionIdFileNameSeparator = '__'
 
 // All hub triggers (used to auto-start)
 var exportManifestAddedTriggerName = '${safeExportContainerName}_ManifestAdded'
-var ingesitonDataFileAddedTriggerName = '${safeIngestionContainerName}_DataFileAdded'
+var ingesitonManifestAddedTriggerName = '${safeIngestionContainerName}_ManifestAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
   exportManifestAddedTriggerName
-  ingesitonDataFileAddedTriggerName
+  ingesitonManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
   monthlyTriggerName
@@ -830,8 +830,8 @@ resource trigger_ExportManifestAdded 'Microsoft.DataFactory/factories/triggers@2
   }
 }
 
-resource trigger_IngestionDataFileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (deployDataExplorer) {
-  name: ingesitonDataFileAddedTriggerName
+resource trigger_IngestionManifestAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (deployDataExplorer) {
+  name: ingesitonManifestAddedTriggerName
   parent: dataFactory
   dependsOn: [
     stopTriggers
@@ -846,14 +846,13 @@ resource trigger_IngestionDataFileAdded 'Microsoft.DataFactory/factories/trigger
         }
         parameters: {
           folderPath: '@triggerBody().folderPath'
-          fileName: '@triggerBody().fileName'
         }
       }
     ]
     type: 'BlobEventsTrigger'
     typeProperties: {
       blobPathBeginsWith: '/${ingestionContainerName}/blobs/'
-      blobPathEndsWith: '.parquet'
+      blobPathEndsWith: 'manifest.json'
       ignoreEmptyBlobs: true
       scope: storageAccount.id
       events: [
@@ -3904,7 +3903,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
 // Triggered by ingestion_DataFileAdded
 //------------------------------------------------------------------------------
 @description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits.')
-resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+resource pipeline_ExecuteIngestionETL_old 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
   name: '${safeIngestionContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
@@ -4755,11 +4754,11 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
 }
 
 //------------------------------------------------------------------------------
-// ingestion_RerunETL pipeline
-// Triggered manually
+// ingestion_ETL_dataExplorer pipeline
+// Triggered by Ingestion_ManifestAdded
 //------------------------------------------------------------------------------
 @description('Safely reruns the ingestion_ETL_dataExplorer pipeline avoiding data duplication by.')
-resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
   name: '${safeIngestionContainerName}_RerunETL'
   parent: dataFactory
   properties: {
@@ -5003,7 +5002,7 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     triggerManagerRoleAssignments
     trigger_ExportManifestAdded
-    trigger_IngestionDataFileAdded
+    trigger_IngestionManifestAdded
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule
