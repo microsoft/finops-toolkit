@@ -108,11 +108,11 @@ param dataFactoryName string
 @description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
 param rawRetentionInDays int = 0
 
-// @description('Required. Name of the storage account to use for data ingestion.')
-// param storageAccountName string
+@description('Required. Name of the storage account to use for data ingestion.')
+param storageAccountName string
 
-// @description('Required. Name of storage container to monitor for data ingestion.')
-// param storageContainerName string
+@description('Required. Name of storage container to monitor for data ingestion.')
+param storageContainerName string
 
 @description('Required. Resource ID of the virtual network for private endpoints.')
 param virtualNetworkId string
@@ -157,17 +157,17 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' exis
   name: 'privatelink.table.${environment().suffixes.storage}'
 }
 
-// resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-//   name: storageAccountName
+resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: storageAccountName
 
-//   resource blobServices 'blobServices' = {
-//     name: 'default'
+  resource blobServices 'blobServices' = {
+    name: 'default'
 
-//     resource landingContainer 'containers' = {
-//       name: storageContainerName
-//     }
-//   }
-// }
+    resource landingContainer 'containers' = {
+      name: storageContainerName
+    }
+  }
+}
 
 //------------------------------------------------------------------------------
 // Cluster + databases
@@ -269,21 +269,21 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
 }
 
-// //  Authorize Kusto Cluster to read storage
-// resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-//   name: guid(cluster.name, storageContainerName, 'Storage Blob Data Contributor')
-//   scope: storage::blobServices
-//   properties: {
-//     description: 'Give "Storage Blob Data Contributor" to the cluster'
-//     principalId: cluster.identity.principalId
-//     // Required in case principal not ready when deploying the assignment
-//     principalType: 'ServicePrincipal'
-//     roleDefinitionId: subscriptionResourceId(
-//       'Microsoft.Authorization/roleDefinitions',
-//       'ba92f5b4-2d11-453d-a403-e96b0029c9fe'  // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage
-//     )
-//   }
-// }
+//  Authorize Kusto Cluster to read storage
+resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(cluster.name, storageContainerName, 'Storage Blob Data Contributor')
+  scope: storage::blobServices
+  properties: {
+    description: 'Give "Storage Blob Data Contributor" to the cluster'
+    principalId: cluster.identity.principalId
+    // Required in case principal not ready when deploying the assignment
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'ba92f5b4-2d11-453d-a403-e96b0029c9fe'  // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage
+    )
+  }
+}
 
 // DNS zone
 resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {

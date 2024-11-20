@@ -279,6 +279,8 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     virtualNetworkId: vnet.outputs.vNetId
     privateEndpointSubnetId: vnet.outputs.dataExplorerSubnetId
     enablePublicAccess: enablePublicAccess
+    storageAccountName: storage.outputs.name
+    storageContainerName: storage.outputs.ingestionContainer
   }
 }
 
