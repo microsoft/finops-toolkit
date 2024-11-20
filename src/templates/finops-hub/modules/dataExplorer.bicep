@@ -223,7 +223,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       name: 'SetupScript'
       dependsOn: [ ]
       properties: {
-        scriptContent: replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
+        scriptContent: replace(replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
+          '$$adxPrincipalId$$', cluster.identity.principalId),
           '$$adfPrincipalId$$', dataFactory.identity.principalId),
           '$$adfTenantId$$', dataFactory.identity.tenantId),
           '$$ftkOpenDataFolder$$', empty(ftkBranch) ? 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}' : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/${ftkBranch}/src/open-data'),

@@ -1786,3 +1786,7 @@ Transactions_transform_v1_0()
     "PropagateIngestionProperties": true
 }]
 ```
+
+//===| Ingestion Policy |===============================================================================================
+
+.alter-merge database Ingestion policy managed_identity "[ { 'ObjectId' : '$$adxPrincipalId$$', 'AllowedUsages' : 'NativeIngestion' }]"
