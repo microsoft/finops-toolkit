@@ -4445,7 +4445,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
 // ingestion_ExecuteETL pipeline
 // Triggered by ingestion_ManifestAdded trigger
 //------------------------------------------------------------------------------
-@description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits..')
+@description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits.')
 resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
   name: '${safeIngestionContainerName}_ExecuteETL'
   parent: dataFactory
@@ -4659,17 +4659,17 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
             type: 'Expression'
           }
           ifTrueActivities: [
-            { // Error: RerunFilesNotFound
+            { // Error: IngestionFilesNotFound
               name: 'Files Not Found'
               type: 'Fail'
               dependsOn: []
               userProperties: []
               typeProperties: {
                 message: {
-                  value: '@concat(\'Unable to locate previously ingested parquet files in the \', pipeline().parameters.folderPath, \' path. Please confirm the folder path is the full path, including the "ingestion" container and not starting with or ending with a slash ("/").\')'
+                  value: '@concat(\'Unable to locate parquet files to ingest from the \', pipeline().parameters.folderPath, \' path. Please confirm the folder path is the full path, including the "ingestion" container and not starting with or ending with a slash ("/").\')'
                   type: 'Expression'
                 }
-                errorCode: 'RerunFilesNotFound'
+                errorCode: 'IngestionFilesNotFound'
               }
             }
           ]
