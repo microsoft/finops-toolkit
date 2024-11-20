@@ -268,8 +268,6 @@ module storage 'storage.bicep' = {
 module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
   name: 'dataExplorer'
   params: {
-    // hubName: hubName
-    // uniqueSuffix: uniqueSuffix
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
@@ -281,9 +279,6 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     virtualNetworkId: vnet.outputs.vNetId
     privateEndpointSubnetId: vnet.outputs.dataExplorerSubnetId
     enablePublicAccess: enablePublicAccess
-    // eventGridLocation: finalEventGridLocation
-    // storageAccountName: storage.outputs.name
-    // storageContainerName: storage.outputs.ingestionContainer
   }
 }
 

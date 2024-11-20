@@ -192,6 +192,16 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
   }
 
+  resource adfClusterAdmin 'principalAssignments' = {
+    name: 'adf-mi-cluster-admin'
+    properties: {
+      principalType: 'App'
+      principalId: dataFactory.identity.principalId
+      tenantId: dataFactory.identity.tenantId
+      role: 'AllDatabasesAdmin'
+    }
+  }
+
   resource ingestionDb 'databases' = {
     name: 'Ingestion'
     location: location
