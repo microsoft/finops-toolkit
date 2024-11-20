@@ -4612,7 +4612,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
                   referenceName: pipeline_ToDataExplorer.name
                   type: 'PipelineReference'
                 }
-                waitOnCompletion: false
+                waitOnCompletion: true
                 parameters: {
                   folderPath: {
                     value: '@variables(\'containerFolderPath\')'
