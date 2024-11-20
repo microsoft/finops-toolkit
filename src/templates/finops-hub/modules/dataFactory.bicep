@@ -3154,10 +3154,9 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // For Each Blob
-        name: 'For Each Blob'
-        description: 'Loop thru each exported file listed in the manifest.'
-        type: 'ForEach'
+      { // Set Destination Folder
+        name: 'Set Destination Folder'
+        type: 'SetVariable'
         dependsOn: [
           {
             activity: 'Check Schema'
@@ -3167,6 +3166,31 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
           {
             activity: 'Set Hub Dataset'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'destinationFolder'
+          value: {
+            value: '@replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',toLower(variables(\'scope\'))),\'//\',\'/\')'
+            type: 'Expression'
+          }
+        }
+      }
+      { // For Each Blob
+        name: 'For Each Blob'
+        description: 'Loop thru each exported file listed in the manifest.'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Set Destination Folder'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -3201,7 +3225,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                     type: 'Expression'
                   }
                   destinationFolder: {
-                    value: '@replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',toLower(variables(\'scope\'))),\'//\',\'/\')'
+                    value: '@variables(\'destinationFolder\')'
                     type: 'Expression'
                   }
                   destinationFile: {
@@ -3230,6 +3254,76 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           ]
         }
       }
+      { // Copy Manifest
+        name: 'Copy Manifest'
+        description: 'Copy the manifest to the ingestion container to trigger ADX ingestion'
+        type: 'Copy'
+        dependsOn: [
+          {
+            activity: 'For Each Blob'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          sink: {
+            type: 'JsonSink'
+            storeSettings: {
+              type: 'AzureBlobFSWriteSettings'
+            }
+            formatSettings: {
+              type: 'JsonWriteSettings'
+            }
+          }
+          enableStaging: false
+        }
+        inputs: [
+          {
+            referenceName: dataset_manifest.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'manifest.json'
+              folderPath: {
+                value: '@pipeline().parameters.folderPath'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+        outputs: [
+          {
+            referenceName: dataset_manifest.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'manifest.json'
+              folderPath: {
+                value: '@concat(\'${ingestionContainerName}/\', variables(\'destinationFolder\'))'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+      }
     ]
     parameters: {
       folderPath: {
@@ -3241,6 +3335,9 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
     }
     variables: {
       date: {
+        type: 'String'
+      }
+      destinationFolder: {
         type: 'String'
       }
       exportDatasetType: {
