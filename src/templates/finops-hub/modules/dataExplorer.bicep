@@ -197,7 +197,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     location: location
     kind: 'ReadWrite'
 
-    resource ingestionCommonScript 'scripts' = {
+    resource commonScript 'scripts' = {
       name: 'CommonFunctions'
       properties: {
         scriptContent: loadTextContent('scripts/Common.kql')
@@ -206,8 +206,11 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       }
     }
 
-    resource ingestionSetupScript 'scripts' = {
+    resource setupScript 'scripts' = {
       name: 'SetupScript'
+      dependsOn: [
+        ingestionDb::commonScript
+      ]
       properties: {
         scriptContent: replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
           '$$adfPrincipalId$$', dataFactory.identity.principalId),
@@ -228,7 +231,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       ingestionDb
     ]
 
-    resource ingestionCommonScript 'scripts' = {
+    resource commonScript 'scripts' = {
       name: 'CommonFunctions'
       properties: {
         scriptContent: loadTextContent('scripts/Common.kql')
@@ -237,10 +240,11 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       }
     }
 
-    resource hubSetupScript 'scripts' = {
+    resource setupScript 'scripts' = {
       name: 'SetupScript'
       dependsOn: [
-        ingestionDb::ingestionSetupScript
+        ingestionDb::setupScript
+        hubDb::commonScript
       ]
       properties: {
         scriptContent: replace(replace(loadTextContent('scripts/HubSetup.kql'),
