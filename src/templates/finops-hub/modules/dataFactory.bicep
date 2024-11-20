@@ -4238,10 +4238,10 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '01:00:00'
                     }
                     linkedServiceName: {
-                      referenceName: 'hubDataExplorer'
+                      referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: 'Ingestion'
+                        database: dataExplorerIngestionDatabase
                       }
                     }
                   }
