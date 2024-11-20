@@ -91,13 +91,13 @@ var ingestionIdFileNameSeparator = '__'
 
 // All hub triggers (used to auto-start)
 var exportManifestAddedTriggerName = '${safeExportContainerName}_ManifestAdded'
-var ingesitonDataFileAddedTriggerName = '${safeIngestionContainerName}_DataFileAdded'
+var ingestionManifestAddedTriggerName = '${safeIngestionContainerName}_ManifestAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
   exportManifestAddedTriggerName
-  ingesitonDataFileAddedTriggerName
+  ingestionManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
   monthlyTriggerName
@@ -830,8 +830,8 @@ resource trigger_ExportManifestAdded 'Microsoft.DataFactory/factories/triggers@2
   }
 }
 
-resource trigger_IngestionDataFileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (deployDataExplorer) {
-  name: ingesitonDataFileAddedTriggerName
+resource trigger_IngestionManifestAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (deployDataExplorer) {
+  name: ingestionManifestAddedTriggerName
   parent: dataFactory
   dependsOn: [
     stopTriggers
@@ -846,15 +846,14 @@ resource trigger_IngestionDataFileAdded 'Microsoft.DataFactory/factories/trigger
         }
         parameters: {
           folderPath: '@triggerBody().folderPath'
-          fileName: '@triggerBody().fileName'
         }
       }
     ]
     type: 'BlobEventsTrigger'
     typeProperties: {
       blobPathBeginsWith: '/${ingestionContainerName}/blobs/'
-      blobPathEndsWith: '.parquet'
-      ignoreEmptyBlobs: true
+      blobPathEndsWith: 'manifest.json'
+      ignoreEmptyBlobs: false
       scope: storageAccount.id
       events: [
         'Microsoft.Storage.BlobCreated'
@@ -3904,105 +3903,6 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
 
 //------------------------------------------------------------------------------
 // ingestion_ETL_dataExplorer pipeline
-// Triggered by ingestion_DataFileAdded
-//------------------------------------------------------------------------------
-@description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits.')
-resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
-  name: '${safeIngestionContainerName}_ExecuteETL'
-  parent: dataFactory
-  properties: {
-    activities: [
-      { // Set Container Folder Path
-        name: 'Set Container Folder Path'
-        type: 'SetVariable'
-        dependsOn: []
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'containerFolderPath'
-          value: {
-            value: '@join(skip(array(split(pipeline().parameters.folderPath, \'/\')), 1), \'/\')'
-            type: 'Expression'
-          }
-        }
-      }
-      { // Execute
-        name: 'Execute'
-        description: 'Run the ADX ETL pipeline.'
-        type: 'ExecutePipeline'
-        dependsOn: [
-          {
-            activity: 'Set Container Folder Path'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        policy: {
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          pipeline: {
-            referenceName: pipeline_ToDataExplorer.name
-            type: 'PipelineReference'
-          }
-          waitOnCompletion: false
-          parameters: {
-            folderPath: {
-              value: '@variables(\'containerFolderPath\')'
-              type: 'Expression'
-            }
-            fileName: {
-              value: '@pipeline().parameters.fileName'
-              type: 'Expression'
-            }
-            originalFileName: {
-              value: '@last(split(pipeline().parameters.fileName, \'${ingestionIdFileNameSeparator}\'))'
-              type: 'Expression'
-            }
-            ingestionId: {
-              value: '@first(split(pipeline().parameters.fileName, \'${ingestionIdFileNameSeparator}\'))'
-              type: 'Expression'
-            }
-            table: {
-              value: '@concat(first(split(variables(\'containerFolderPath\'), \'/\')), \'_raw\')'
-              type: 'Expression'
-            }
-          }
-        }
-      }
-    ]
-    parameters: {
-      folderPath: {
-        type: 'string'
-      }
-      fileName: {
-        type: 'string'
-      }
-    }
-    variables: {
-      containerFolderPath: {
-        type: 'String'
-      }
-      dataset: {
-        type: 'String'
-      }
-      ingestionId: {
-        type: 'String'
-      }
-    }
-    annotations: [
-      'New ingestion'
-    ]
-  }
-}
-
-//------------------------------------------------------------------------------
-// ingestion_ETL_dataExplorer pipeline
 // Triggered by ingestion_ExecuteETL
 //------------------------------------------------------------------------------
 @description('Ingests parquet data into an Azure Data Explorer cluster.')
@@ -4012,27 +3912,11 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
   properties: {
     // concurrency: 8  // sanity check
     activities: [
-      { // Wait
-        name: 'Wait'
-        description: 'Files may not be available immediately after being created.'
-        type: 'Wait'
-        dependsOn: []
-        userProperties: []
-        typeProperties: {
-          waitTimeInSeconds: 60
-        }
-      }
       { // Read Hub Config
         name: 'Read Hub Config'
         description: 'Read the hub config to determine how long data should be retained.'
         type: 'Lookup'
         dependsOn: [
-          {
-            activity: 'Wait'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
         ]
         policy: {
           timeout: '0.12:00:00'
@@ -4092,12 +3976,6 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
         name: 'Until Capacity Is Available'
         type: 'Until'
         dependsOn: [
-          {
-            activity: 'Loop thru Columns'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
           {
             activity: 'Set Final Retention Months'
             dependencyConditions: [
@@ -4467,19 +4345,36 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
 }
 
 //------------------------------------------------------------------------------
-// ingestion_RerunETL pipeline
-// Triggered manually
+// ingestion_ExecuteETL pipeline
+// Triggered by ingestion_ManifestAdded trigger
 //------------------------------------------------------------------------------
-@description('Safely reruns the ingestion_ETL_dataExplorer pipeline avoiding data duplication by.')
-resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
-  name: '${safeIngestionContainerName}_RerunETL'
+@description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits..')
+resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+  name: '${safeIngestionContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
     activities: [
+      { // Wait
+            name: 'Wait'
+            description: 'Files may not be available immediately after being created.'
+            type: 'Wait'
+            dependsOn: []
+            userProperties: []
+            typeProperties: {
+              waitTimeInSeconds: 60
+            }
+      }
       { // Set Container Folder Path
         name: 'Set Container Folder Path'
         type: 'SetVariable'
-        dependsOn: []
+        dependsOn: [
+            {
+                activity: 'Wait'
+                dependencyConditions: [
+                  'Succeeded'
+                ]
+              }
+        ]
         policy: {
           secureOutput: false
           secureInput: false
@@ -4533,9 +4428,9 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
           }
         }
       }
-      { // Filter Out Folders
+      { // Filter Out Folders and manifest files
         name: 'Filter Out Folders'
-        description: 'Remove any folders.'
+        description: 'Remove any folders or manifest files.'
         type: 'Filter'
         dependsOn: [
           {
@@ -4552,7 +4447,7 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
             type: 'Expression'
           }
           condition: {
-            value: '@equals(item().type, \'File\')'
+            value: '@and(equals(item().type, \'File\'), not(contains(toLower(item().name), \'manifest.json\')))'
             type: 'Expression'
           }
         }
@@ -4560,7 +4455,14 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
       { // Set Ingestion Timestamp
         name: 'Set Ingestion Timestamp'
         type: 'SetVariable'
-        dependsOn: []
+        dependsOn: [
+            {
+                activity: 'Wait'
+                dependencyConditions: [
+                  'Succeeded'
+                ]
+            }
+        ]
         policy: {
           secureOutput: false
           secureInput: false
@@ -4715,7 +4617,7 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     triggerManagerRoleAssignments
     trigger_ExportManifestAdded
-    trigger_IngestionDataFileAdded
+    trigger_IngestionManifestAdded
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule
