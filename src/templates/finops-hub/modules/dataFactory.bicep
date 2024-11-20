@@ -4007,7 +4007,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
   name: '${safeIngestionContainerName}_ETL_dataExplorer'
   parent: dataFactory
   properties: {
-    // concurrency: 8  // sanity check
+    concurrency: 8  // sanity check
     activities: [
       { // Read Hub Config
         name: 'Read Hub Config'
