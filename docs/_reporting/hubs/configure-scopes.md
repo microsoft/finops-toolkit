@@ -43,7 +43,7 @@ If you cannot grant permissions for your scope, you can create Cost Management e
 1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
 
    - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
-   - **Dataset version** = `1.0`<sup>2</sup>
+   - **Dataset version** = `1.0` or `1.0r2`<sup>2</sup>
    - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
@@ -77,7 +77,7 @@ If you cannot grant permissions for your scope, you can create Cost Management e
 5. Repeat steps 1-4 for each scope you want to monitor.
 
 _<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
-_<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
+_<sup>2) FinOps hubs 0.4 supports FOCUS 1.0r2, 1.0, 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3. The only difference in FOCUS 1.0r2 is the inclusion of seconds in date columns.</sup>_
 _<sup>3) Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</sup>_
 _<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
 _<sup>5) Export paths can be any value but must be unique per scope. We recommended using a path that identifies the source scope (e.g., subscription or billing account). If 2 scopes share the same path, there could be ingestion errors.</sup>_
