@@ -4345,10 +4345,10 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
 }
 
 //------------------------------------------------------------------------------
-// ingestion_ETL_dataExplorer pipeline
-// Queues ingestion_ETL_dataExplorer pipeline for each file in the container.
+// ingestion_ExecuteETL pipeline
+// Triggered by ingestion_ManifestAdded trigger
 //------------------------------------------------------------------------------
-@description('Queues the ingestion_ETL_dataExplorer pipeline.')
+@description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits..')
 resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
   name: '${safeIngestionContainerName}_ExecuteETL'
   parent: dataFactory
