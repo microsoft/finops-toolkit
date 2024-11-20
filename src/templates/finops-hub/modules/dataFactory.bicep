@@ -38,6 +38,9 @@ param dataExplorerUri string = ''
 @description('Optional. Name of the Azure Data Explorer ingestion database. Default: "ingestion".')
 param dataExplorerIngestionDatabase string = 'Ingestion'
 
+@description('Optional. Azure Data Explorer ingestion capacity.  Increase for non-dev SKUs. Default: 1')
+param dataExplorerIngestionCapacity int = 1
+
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
 
@@ -4198,7 +4201,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     ]
                     policy: {
                       timeout: '0.12:00:00'
-                      retry: 3
+                      retry: 8
                       retryIntervalInSeconds: 120
                       secureOutput: false
                       secureInput: false
@@ -4592,7 +4595,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         ]
         userProperties: []
         typeProperties: {
-          batchCount: 8 // Concurrency limit
+          batchCount: dataExplorerIngestionCapacity // Concurrency limit
           items: {
             value: '@activity(\'Filter Out Folders\').output.Value'
             type: 'Expression'
