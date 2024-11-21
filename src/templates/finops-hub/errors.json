@@ -49,6 +49,12 @@
       "mitigation": "Confirm the storage URL matches the 'StorageUrlForPowerBI' from your FinOps hub deployment, Cost Management exports are pointing to the 'msexports' container and have successfully exported data, and that FinOps hub data factory triggers are started and pipelines are running successfully. Leverage the Data ingestion report and the troubleshooting guide (https://aka.ms/finops/hubs/troubleshoot) to validate your deployment."
     },
     {
+      "code": "IngestionFilesNotFound",
+      "severity": "Critical",
+      "message": "Unable to locate parquet files to ingest from the specified folder path.",
+      "mitigation": "Confirm the folder path is the full path, including the 'ingestion' container and not starting with or ending with a slash ('/'). Copy the path from the last successful ingestion_ExecuteETL pipeline run."
+    },
+    {
       "code": "InvalidEffectiveCost",
       "severity": "Major",
       "message": "This file looks like it may be exported from Cost Management but it is not in the correct container.",
@@ -125,12 +131,6 @@
       "severity": "Critical",
       "message": "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.",
       "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
-    },
-    {
-      "code": "RerunFilesNotFound",
-      "severity": "Critical",
-      "message": "Unable to locate previously ingested parquet files in the specified folder path.",
-      "mitigation": "Confirm the folder path is the full path, including the 'ingestion' container and not starting with or ending with a slash ('/'). Copy the path from the last successful ingestion_ExecuteETL pipeline run."
     },
     {
       "code": "SchemaLoadFailed",

@@ -63,7 +63,8 @@ The following depicts the end-to-end data ingestion process within FinOps hubs:
 3. The **msexports_ExecuteETL** pipeline queues the extract-transform-load (ETL) pipeline when files are added to the **msexports** container.
 4. The **msexports_ETL_ingestion** pipeline transforms the data to parquet format and moves it to the **ingestion** container using a scalable file structure. [Learn more](#ℹ️-about-the-ingestion-container).
 5. (Optional) If using Azure Data Explorer:
-   1. The **ingestion_ExecuteETL** pipeline queues the Data Explorer ingestion pipeline when files are added to the **ingestion** container.
+   1. The **ingestion_ExecuteETL** pipeline queues the Data Explorer ingestion pipeline when **manifest.json** files are added to the **ingestion** container.
+      - If ingesting custom datasets outside of Cost Management exports, create an empty **manifest.json** file in the target ingestion folder after all other files are completely ready (do not add this file when files are still uploading). The **manifest.json** file is not parsed and can be empty. The sole purpose is to indicate that all files for this ingestion job have been added.
    2. The **ingestion_ETL_dataExplorer** pipeline ingests data into the `{dataset}_raw` table in the Data Explorer.
       - The dataset name is the first folder in the **ingestion** container.
       - All raw tables are in the **Ingestion** database in Data Explorer.
@@ -97,7 +98,7 @@ Supported datasets:
 
 - Microsoft FocusCost: `1.0r2`, `1.0`, `1.0-preview(v1)`
 
-The following datasets were accounted for in the design, but have not been tested. To ingest these datasets, create a data pipeline (or external process) that pushes parquet files into the `ingests/Costs/yyyy/mm/{scope-path}` folder in storage.
+The following datasets were accounted for in the design, but have not been tested. To ingest these datasets, create a data pipeline (or external process) that pushes parquet files into the `ingestion/Costs/yyyy/mm/{scope-path}` folder in storage. The `{scope-path}` can be any unique path, like `aws/123` or `gcp/projects/foo`. The only requirement is to ensure each scope is in a separate folder. After copying external content, also create a **manifest.json** file to trigger Data Explorer ingestion.
 
 - AWS FOCUS 1.0
 - GCP FOCUS 1.0
