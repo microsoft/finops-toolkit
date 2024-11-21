@@ -317,6 +317,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     ingestionContainerName: storage.outputs.ingestionContainer
     dataExplorerName: safeDataExplorerName
     dataExplorerIngestionDatabase: safeDataExplorerIngestionDb
+    dataExplorerIngestionCapacity: dataExplorer.outputs.clusterIngestionCapacity
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
     keyVaultName: keyVault.outputs.name
