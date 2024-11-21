@@ -18,6 +18,9 @@
 
 // For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
 
+// Managed identity ingestion policy
+.alter-merge database Ingestion policy managed_identity "[ { 'ObjectId' : '$$adxPrincipalId$$', 'AllowedUsages' : 'NativeIngestion' }]"
+
 
 //===| Settings |=======================================================================================================
 
@@ -80,6 +83,21 @@ HubScopes()
     IconUri:                  string
 )
 
+// Services
+.create-merge table Services(
+    x_ConsumedService:        string,
+    x_ResourceType:           string,
+    ServiceName:              string,
+    ServiceCategory:          string,
+    ServiceSubcategory:       string,
+    PublisherName:            string,
+    x_PublisherCategory:      string,
+    x_Environment:            string,
+    x_ServiceModel:           string
+)
+
+//----------------------------------------------------------------------------------------------------------------------
+
 // parse_resourceid
 .create-or-alter function 
 with (docstring = 'Parses an Azure resource ID to extract resource attributes like the name, type, resource group, and subaccount ID.', folder = 'Common')
@@ -103,20 +121,6 @@ parse_resourceid(resourceId: string) {
     let ResourceType = iff(array_length(types) < 2, '', split(types[1], '||')[0]);
     bag_pack('ResourceId', ResourceId, 'ResourceName', ResourceName, 'ResourceType', coalesce(ResourceType, xRT), 'SubAccountId', SubAccountId, 'x_ResourceGroupName', x_ResourceGroupName, 'x_ResourceProvider', x_ResourceProvider, 'x_ResourceType', xRT)
 }
-
-
-// Services
-.create-merge table Services(
-    x_ConsumedService:        string,
-    x_ResourceType:           string,
-    ServiceName:              string,
-    ServiceCategory:          string,
-    ServiceSubcategory:       string,
-    PublisherName:            string,
-    x_PublisherCategory:      string,
-    x_Environment:            string,
-    x_ServiceModel:           string
-)
 
 
 //===| Prices |=========================================================================================================
@@ -1786,7 +1790,3 @@ Transactions_transform_v1_0()
     "PropagateIngestionProperties": true
 }]
 ```
-
-//===| Ingestion Policy |===============================================================================================
-
-.alter-merge database Ingestion policy managed_identity "[ { 'ObjectId' : '$$adxPrincipalId$$', 'AllowedUsages' : 'NativeIngestion' }]"
