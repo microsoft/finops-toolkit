@@ -32,6 +32,9 @@ param dataExplorerName string = ''
 @description('Optional. Resource ID of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
 param dataExplorerId string = ''
 
+@description('Optional. ID of the Azure Data Explorer cluster system assigned managed identity, if applicable.')
+param dataExplorerPrincipalId string = ''
+
 @description('Optional. URI of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
 param dataExplorerUri string = ''
 
@@ -856,7 +859,7 @@ resource trigger_IngestionManifestAdded 'Microsoft.DataFactory/factories/trigger
     typeProperties: {
       blobPathBeginsWith: '/${ingestionContainerName}/blobs/'
       blobPathEndsWith: 'manifest.json'
-      ignoreEmptyBlobs: false
+      ignoreEmptyBlobs: true
       scope: storageAccount.id
       events: [
         'Microsoft.Storage.BlobCreated'
@@ -1167,10 +1170,44 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                   }
                 ]
                 ifTrueActivities: [
+                  { // Save ingestion policy in ADX
+                    name: 'Set ingestion policy in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: []
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: {
+                        value: '.alter-merge database Ingestion policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
                   { // Save Hub Settings in ADX
                     name: 'Save Hub Settings in ADX'
                     type: 'AzureDataExplorerCommand'
-                    dependsOn: []
+                    dependsOn: [
+                      {
+                        activity: 'Set ingestion policy in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
                     policy: {
                       timeout: '0.12:00:00'
                       retry: 0
@@ -2641,7 +2678,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         typeProperties: {
           variableName: 'hasNoRows'
           value: {
-            value: '@or(equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, null), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0))'
+            value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0))'
             type: 'Expression'
           }
         }
