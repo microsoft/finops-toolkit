@@ -111,9 +111,6 @@ param rawRetentionInDays int = 0
 @description('Required. Name of the storage account to use for data ingestion.')
 param storageAccountName string
 
-@description('Required. Name of storage container to monitor for data ingestion.')
-param storageContainerName string
-
 @description('Required. Resource ID of the virtual network for private endpoints.')
 param virtualNetworkId string
 
@@ -227,14 +224,6 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' exis
 
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: storageAccountName
-
-  resource blobServices 'blobServices' = {
-    name: 'default'
-
-    resource landingContainer 'containers' = {
-      name: storageContainerName
-    }
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -290,8 +279,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
         ingestionDb::commonScript
       ]
       properties: {
-        scriptContent: replace(replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
-          '$$adxPrincipalId$$', cluster.identity.principalId),
+        scriptContent: replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
           '$$adfPrincipalId$$', dataFactory.identity.principalId),
           '$$adfTenantId$$', dataFactory.identity.tenantId),
           '$$ftkOpenDataFolder$$', empty(ftkBranch) ? 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}' : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/${ftkBranch}/src/open-data'),
@@ -337,8 +325,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
 
 //  Authorize Kusto Cluster to read storage
 resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(cluster.name, storageContainerName, 'Storage Blob Data Contributor')
-  scope: storage::blobServices
+  name: guid(cluster.name, subscription().id, 'Storage Blob Data Contributor')
+  scope: storage
   properties: {
     description: 'Give "Storage Blob Data Contributor" to the cluster'
     principalId: cluster.identity.principalId
@@ -431,6 +419,9 @@ resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/pri
 
 @description('The resource ID of the cluster.')
 output clusterId string = cluster.id
+
+@description('The ID of the cluster system assigned managed identity.')
+output principalId string = cluster.identity.principalId
 
 @description('The name of the cluster.')
 output clusterName string = cluster.name
