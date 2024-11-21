@@ -18,10 +18,6 @@
 
 // For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
 
-// Managed identity ingestion policy
-.alter-merge database Ingestion policy managed_identity "[ { 'ObjectId' : '$$adxPrincipalId$$', 'AllowedUsages' : 'NativeIngestion' }]"
-
-
 //===| Settings |=======================================================================================================
 
 .create-merge table HubSettingsLog (
