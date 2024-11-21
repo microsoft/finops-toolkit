@@ -4452,6 +4452,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
   name: '${safeIngestionContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
+    concurrency: 1
     activities: [
       { // Wait
             name: 'Wait'
