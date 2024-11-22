@@ -95,6 +95,7 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Added Enterprise App Patterns links resources to the architecting for the cloud section.
+> 1. Update cost and unit of measuring handling in the [FOCUS conversion instructions](../_docs/focus/convert.md).
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
