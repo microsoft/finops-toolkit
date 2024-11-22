@@ -4239,7 +4239,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     ]
                     policy: {
                       timeout: '0.12:00:00'
-                      retry: 8
+                      retry: 3
                       retryIntervalInSeconds: 120
                       secureOutput: false
                       secureInput: false
