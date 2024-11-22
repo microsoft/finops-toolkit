@@ -234,6 +234,8 @@ module vnet 'vnet.bicep' = {
     hubName: hubName
     location: location
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    tags: resourceTags
+    tagsByResource: tagsByResource
   }
 }
 

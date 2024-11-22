@@ -151,24 +151,28 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' =  
 resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: 'privatelink.blob.${environment().suffixes.storage}'
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/privateDnsZones') ? tagsByResource['Microsoft.Storage/privateDnsZones'] : {})
   properties: {}
 }
 
 resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: 'privatelink.dfs.${environment().suffixes.storage}'
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/privateDnsZones') ? tagsByResource['Microsoft.Storage/privateDnsZones'] : {})
   properties: {}
 }
 
 resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: 'privatelink.queue.${environment().suffixes.storage}'
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/privateDnsZones') ? tagsByResource['Microsoft.Storage/privateDnsZones'] : {})
   properties: {}
 }
 
 resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: 'privatelink.table.${environment().suffixes.storage}'
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/privateDnsZones') ? tagsByResource['Microsoft.Storage/privateDnsZones'] : {})
   properties: {}
 }
 
@@ -176,6 +180,7 @@ resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwor
   parent: blobPrivateDnsZone
   name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -188,6 +193,7 @@ resource dfsPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwork
   parent: dfsPrivateDnsZone
   name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -200,6 +206,7 @@ resource queuePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwo
   parent: queuePrivateDnsZone
   name: '${replace(queuePrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -212,6 +219,7 @@ resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwo
   parent: tablePrivateDnsZone
   name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -223,6 +231,7 @@ resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwo
 resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   name: '${storageAccount.name}-blob-ep'
   location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId
@@ -242,6 +251,7 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
 resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   name: '${scriptStorageAccount.name}-blob-ep'
   location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId
@@ -261,6 +271,7 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
 resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   name: '${storageAccount.name}-dfs-ep'
   location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId
