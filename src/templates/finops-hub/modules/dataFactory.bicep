@@ -176,13 +176,13 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
             customProperties: []
         }
         copyComputeScaleProperties: {
-            dataIntegrationUnit: 256
+            dataIntegrationUnit: 16
             timeToLive: 30
         }
         pipelineExternalComputeScaleProperties: {
             timeToLive: 30
-            numberOfPipelineNodes: 10
-            numberOfExternalNodes: 10
+            numberOfPipelineNodes: 1
+            numberOfExternalNodes: 1
         }
       }
     }
