@@ -32,11 +32,17 @@ param dataExplorerName string = ''
 @description('Optional. Resource ID of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
 param dataExplorerId string = ''
 
+@description('Optional. ID of the Azure Data Explorer cluster system assigned managed identity, if applicable.')
+param dataExplorerPrincipalId string = ''
+
 @description('Optional. URI of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
 param dataExplorerUri string = ''
 
 @description('Optional. Name of the Azure Data Explorer ingestion database. Default: "ingestion".')
 param dataExplorerIngestionDatabase string = 'Ingestion'
+
+@description('Optional. Azure Data Explorer ingestion capacity.  Increase for non-dev SKUs. Default: 1')
+param dataExplorerIngestionCapacity int = 1
 
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
@@ -170,13 +176,13 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
             customProperties: []
         }
         copyComputeScaleProperties: {
-            dataIntegrationUnit: 256
+            dataIntegrationUnit: 16
             timeToLive: 30
         }
         pipelineExternalComputeScaleProperties: {
             timeToLive: 30
-            numberOfPipelineNodes: 10
-            numberOfExternalNodes: 10
+            numberOfPipelineNodes: 1
+            numberOfExternalNodes: 1
         }
       }
     }
@@ -853,7 +859,7 @@ resource trigger_IngestionManifestAdded 'Microsoft.DataFactory/factories/trigger
     typeProperties: {
       blobPathBeginsWith: '/${ingestionContainerName}/blobs/'
       blobPathEndsWith: 'manifest.json'
-      ignoreEmptyBlobs: false
+      ignoreEmptyBlobs: true
       scope: storageAccount.id
       events: [
         'Microsoft.Storage.BlobCreated'
@@ -1164,10 +1170,44 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                   }
                 ]
                 ifTrueActivities: [
+                  { // Save ingestion policy in ADX
+                    name: 'Set ingestion policy in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: []
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: {
+                        value: '.alter-merge database ${dataExplorerIngestionDatabase} policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
                   { // Save Hub Settings in ADX
                     name: 'Save Hub Settings in ADX'
                     type: 'AzureDataExplorerCommand'
-                    dependsOn: []
+                    dependsOn: [
+                      {
+                        activity: 'Set ingestion policy in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
                     policy: {
                       timeout: '0.12:00:00'
                       retry: 0
@@ -2638,7 +2678,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         typeProperties: {
           variableName: 'hasNoRows'
           value: {
-            value: '@or(equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, null), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0))'
+            value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0))'
             type: 'Expression'
           }
         }
@@ -3202,6 +3242,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
             value: '@if(variables(\'hasNoRows\'), json(\'[]\'), activity(\'Read Manifest\').output.firstRow.blobs)'
             type: 'Expression'
           }
+          batchCount: enablePublicAccess ? 30 : 4 // so we don't overload the managed runtime
           isSequential: false
           activities: [
             { // Execute
@@ -4007,7 +4048,6 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
   name: '${safeIngestionContainerName}_ETL_dataExplorer'
   parent: dataFactory
   properties: {
-    // concurrency: 8  // sanity check
     activities: [
       { // Read Hub Config
         name: 'Read Hub Config'
@@ -4199,15 +4239,15 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     ]
                     policy: {
                       timeout: '0.12:00:00'
-                      retry: 0
-                      retryIntervalInSeconds: 30
+                      retry: 3
+                      retryIntervalInSeconds: 120
                       secureOutput: false
                       secureInput: false
                     }
                     userProperties: []
                     typeProperties: {
                       command: {
-                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("${storageAccount.properties.primaryEndpoints.dfs}/${ingestionContainerName}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \'") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]")\')'
+                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("abfss://${ingestionContainerName}@${storageAccount.name}.dfs.${environment().suffixes.storage}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \';managed_identity=system") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"); print Success = assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")\')'
                         type: 'Expression'
                       }
                       commandTimeout: '01:00:00'
@@ -4450,6 +4490,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
   name: '${safeIngestionContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
+    concurrency: 1
     activities: [
       { // Wait
             name: 'Wait'
@@ -4593,6 +4634,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         ]
         userProperties: []
         typeProperties: {
+          batchCount: dataExplorerIngestionCapacity // Concurrency limit
           items: {
             value: '@activity(\'Filter Out Folders\').output.Value'
             type: 'Expression'
@@ -4612,7 +4654,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
                   referenceName: pipeline_ToDataExplorer.name
                   type: 'PipelineReference'
                 }
-                waitOnCompletion: false
+                waitOnCompletion: true
                 parameters: {
                   folderPath: {
                     value: '@variables(\'containerFolderPath\')'

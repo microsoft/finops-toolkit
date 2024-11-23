@@ -112,6 +112,7 @@ resource keyVault_secret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!e
 resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: keyVaultPrivateDnsZoneName
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.KeyVault/privateDnsZones') ? tagsByResource['Microsoft.KeyVault/privateDnsZones'] : {})
   properties: {}
 }
 
@@ -119,6 +120,7 @@ resource keyVaultPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNe
   name: '${replace(keyVaultPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   parent: keyVaultPrivateDnsZone
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
   properties: {
     virtualNetwork: {
       id: virtualNetworkId
@@ -130,6 +132,7 @@ resource keyVaultPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNe
 resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   name: '${keyVault.name}-ep'
   location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId

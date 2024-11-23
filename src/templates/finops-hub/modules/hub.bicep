@@ -167,6 +167,8 @@ var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clust
 var safeDataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
 var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
 var safeDataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
+var safeDataExplorerIngestionCapacity =  !deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity
+var safeDataExplorerPrincipalId =  !deployDataExplorer ? '' : dataExplorer.outputs.principalId
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
 // var eventGridSuffix = '-${uniqueSuffix}'
@@ -232,6 +234,8 @@ module vnet 'vnet.bicep' = {
     hubName: hubName
     location: location
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    tags: resourceTags
+    tagsByResource: tagsByResource
   }
 }
 
@@ -279,6 +283,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     virtualNetworkId: vnet.outputs.vNetId
     privateEndpointSubnetId: vnet.outputs.dataExplorerSubnetId
     enablePublicAccess: enablePublicAccess
+    storageAccountName: storage.outputs.name
   }
 }
 
@@ -314,7 +319,9 @@ module dataFactoryResources 'dataFactory.bicep' = {
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
     dataExplorerName: safeDataExplorerName
+    dataExplorerPrincipalId: safeDataExplorerPrincipalId
     dataExplorerIngestionDatabase: safeDataExplorerIngestionDb
+    dataExplorerIngestionCapacity: safeDataExplorerIngestionCapacity
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
     keyVaultName: keyVault.outputs.name
