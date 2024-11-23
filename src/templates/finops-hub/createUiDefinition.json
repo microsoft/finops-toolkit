@@ -13,6 +13,9 @@
             "Microsoft.KeyVault/vaults",
             "Microsoft.Kusto/clusters",
             "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "Microsoft.Network/privateDnsZones",
+            "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "Microsoft.Network/privateEndpoints",
             "Microsoft.Resources/deploymentScripts",
             "Microsoft.Storage/storageAccounts"
           ]
@@ -24,6 +27,9 @@
       "Microsoft.KeyVault/vaults",
       "Microsoft.Kusto/clusters",
       "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "Microsoft.Network/privateDnsZones",
+      "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "Microsoft.Network/privateEndpoints",
       "Microsoft.Resources/deploymentScripts",
       "Microsoft.Storage/storageAccounts"
     ],
@@ -572,6 +578,9 @@
               "Microsoft.KeyVault/vaults",
               "Microsoft.Kusto/clusters",
               "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "Microsoft.Network/privateDnsZones",
+              "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "Microsoft.Network/privateEndpoints",
               "Microsoft.Resources/deploymentScripts",
               "Microsoft.Storage/storageAccounts"
             ]
