@@ -1184,7 +1184,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     userProperties: []
                     typeProperties: {
                       command: {
-                        value: '.alter-merge database Ingestion policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
+                        value: '.alter-merge database ${dataExplorerIngestionDatabase} policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'
