@@ -81,12 +81,14 @@ table PurchaseCosts
 
 	column ChargePeriodStart
 		dataType: dateTime
-		formatString: General Date
+		formatString: Mmm d
 		lineageTag: fd0dfc11-37ad-40f2-bd12-f2e4ee5547c5
 		summarizeBy: none
 		sourceColumn: ChargePeriodStart
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
 
 	column ContractedCost
 		dataType: double
