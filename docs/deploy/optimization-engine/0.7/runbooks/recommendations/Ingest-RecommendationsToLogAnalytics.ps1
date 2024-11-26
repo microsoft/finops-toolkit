@@ -1,8 +1,3 @@
-param(
-    [Parameter(Mandatory = $true)]
-    [string] $StorageSinkContainer
-)
-
 $ErrorActionPreference = "Stop"
 
 $cloudEnvironment = Get-AutomationVariable -Name "AzureOptimization_CloudEnvironment" -ErrorAction SilentlyContinue # AzureCloud|AzureChinaCloud
@@ -38,30 +33,21 @@ if ([string]::IsNullOrEmpty($lognamePrefix))
 {
     $lognamePrefix = "AzureOptimization"
 }
-$storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
-
-
-$storageAccountSinkContainer = $StorageSinkContainer
-$StorageBlobsPageSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_StorageBlobsPageSize" -ErrorAction SilentlyContinue)
-if (-not($StorageBlobsPageSize -gt 0))
-{
-    $StorageBlobsPageSize = 1000
-}
 
 $SqlTimeout = 120
 $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 
-"Logging in to Azure with $authenticationOption..."
+$storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
-switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
-        break
-    }
-    Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
-        break
-    }
+
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
+if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
+    $storageAccountSinkContainer = "recommendationsexports"
+}
+$StorageBlobsPageSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_StorageBlobsPageSize" -ErrorAction SilentlyContinue)
+if (-not($StorageBlobsPageSize -gt 0))
+{
+    $StorageBlobsPageSize = 1000
 }
 
 #region Functions
@@ -137,16 +123,31 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
 }
 #endregion Functions
 
+
+"Logging in to Azure with $authenticationOption..."
+
+switch ($authenticationOption) {
+    "UserAssignedManagedIdentity" { 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
+        break
+    }
+    Default { #ManagedIdentity
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        break
+    }
+}
+
 $cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
 $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 
 # get reference to storage sink
-Write-Output "Getting blobs list from $storageAccountSink storage account ($storageAccountSinkContainer container)..."
+Write-Output "Getting reference to $storageAccountSink storage account (recommendations exports sink)"
 
 $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 
 $allblobs = @()
 
+Write-Output "Getting blobs list..."
 $continuationToken = $null
 do
 {
@@ -210,10 +211,10 @@ $newProcessedTime = $null
 $unprocessedBlobs = @()
 
 foreach ($blob in $allblobs) {
-	$blobLastModified = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
+    $blobLastModified = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     if ($lastProcessedDateTime -lt $blobLastModified -or `
         ($lastProcessedDateTime -eq $blobLastModified -and $lastProcessedLine -gt 0)) {
-		Write-Output "$($blob.Name) found (modified on $blobLastModified)"
+        Write-Output "$($blob.Name) found (modified on $blobLastModified)"
         $unprocessedBlobs += $blob
     }
 }
@@ -224,121 +225,101 @@ Write-Output "Found $($unprocessedBlobs.Count) new blobs to process..."
 
 foreach ($blob in $unprocessedBlobs) {
     $newProcessedTime = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-    Write-Output "About to process $($blob.Name) ($($blob.Length) bytes)..."
-    $blobFilePath = "$env:TEMP\$($blob.Name)"
-    Get-AzStorageBlobContent -CloudBlob $blob.ICloudBlob -Context $saCtx -Force -Destination $blobFilePath | Out-Null
+    Write-Output "About to process $($blob.Name)..."
+    Get-AzStorageBlobContent -CloudBlob $blob.ICloudBlob -Context $saCtx -Force
+    $jsonObject = Get-Content -Path $blob.Name | ConvertFrom-Json
+    Write-Output "Blob contains $($jsonObject.Count) results..."
 
-    $r = [IO.File]::OpenText($blobFilePath)
+    if ($null -eq $jsonObject)
+    {
+        $recCount = 0
+    }
+    elseif ($null -eq $jsonObject.Count)
+    {
+        $recCount = 1
+    }
+    else
+    {
+        $recCount = $jsonObject.Count    
+    }
 
     $linesProcessed = 0
-    $lineCounter = 0
-    $chunkLines = @()
+    $jsonObjectSplitted = @()
 
-    while ($r.Peek() -ge 0) 
+    if ($recCount -gt 1)
     {
-        $line = $r.ReadLine()
-        if ($lineCounter -eq 0)
-        {
-            $header = $line
-            $chunkLines += $line
+        for ($i = 0; $i -lt $recCount; $i += $LogAnalyticsChunkSize) {
+            $jsonObjectSplitted += , @($jsonObject[$i..($i + ($LogAnalyticsChunkSize - 1))]);
         }
-        else
+    }
+    else
+    {
+        $jsonObjectArray = @()
+        $jsonObjectArray += $jsonObject
+        $jsonObjectSplitted += , $jsonObjectArray   
+    }
+    
+    for ($j = 0; $j -lt $jsonObjectSplitted.Count; $j++)
+    {
+        if ($jsonObjectSplitted[$j])
         {
-            $linesProcessed++    
-        }
-        if ($lastProcessedLine -lt $linesProcessed -and $lineCounter -gt 0)
-        {
-            $chunkLines += $line
-        }
-        if (($lineCounter -eq $LogAnalyticsChunkSize -or $r.Peek() -lt 0) -and $linesProcessed -gt 0)
-        {
-            $csvObject = $chunkLines | ConvertFrom-Csv
-            $jsonObject = ConvertTo-Json -InputObject $csvObject
-
-            if ($null -ne $jsonObject)
+            $currentObjectLines = $jsonObjectSplitted[$j].Count
+            if ($lastProcessedLine -lt $linesProcessed)
             {
-                $res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($jsonObject)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
-                
-                if ($res -ge 200 -and $res -lt 300) 
+                for ($i = 0; $i -lt $jsonObjectSplitted[$j].Count; $i++)
                 {
-                    Write-Output "Succesfully uploaded $lineCounter $LogAnalyticsSuffix rows to Log Analytics"    
+                    $jsonObjectSplitted[$j][$i].RecommendationDescription = $jsonObjectSplitted[$j][$i].RecommendationDescription.Replace("'", "")
+                    $jsonObjectSplitted[$j][$i].RecommendationAction = $jsonObjectSplitted[$j][$i].RecommendationAction.Replace("'", "")            
+                    $jsonObjectSplitted[$j][$i].AdditionalInfo = $jsonObjectSplitted[$j][$i].AdditionalInfo | ConvertTo-Json -Compress
+                    $jsonObjectSplitted[$j][$i].Tags = $jsonObjectSplitted[$j][$i].Tags | ConvertTo-Json -Compress
                 }
-                else 
-                {
-                    Write-Warning "Failed to upload $lineCounter $LogAnalyticsSuffix rows. Error code: $res"
-                    $r.Dispose()
-                    Remove-Item -Path $blobFilePath -Force
+                    
+                $jsonObject = ConvertTo-Json -InputObject $jsonObjectSplitted[$j]                
+                $res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($jsonObject)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
+                If ($res -ge 200 -and $res -lt 300) {
+                    Write-Output "Succesfully uploaded $currentObjectLines $LogAnalyticsSuffix rows to Log Analytics"    
+                    $linesProcessed += $currentObjectLines
+                    if ($j -eq ($jsonObjectSplitted.Count - 1)) {
+                        $lastProcessedLine = -1    
+                    }
+                    else {
+                        $lastProcessedLine = $linesProcessed - 1   
+                    }
+                    
+                    $updatedLastProcessedLine = $lastProcessedLine
+                    $updatedLastProcessedDateTime = $lastProcessedDateTime
+                    if ($j -eq ($jsonObjectSplitted.Count - 1)) {
+                        $updatedLastProcessedDateTime = $newProcessedTime
+                    }
+                    $lastProcessedDateTime = $updatedLastProcessedDateTime
+                    Write-Output "Updating last processed time / line to $($updatedLastProcessedDateTime) / $updatedLastProcessedLine"
+                    $sqlStatement = "UPDATE [$LogAnalyticsIngestControlTable] SET LastProcessedLine = $updatedLastProcessedLine, LastProcessedDateTime = '$updatedLastProcessedDateTime' WHERE StorageContainerName = '$storageAccountSinkContainer'"
+                    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+                    $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+                    $Conn.AccessToken = $dbToken.Token
+                    $Conn.Open() 
+                    $Cmd=new-object system.Data.SqlClient.SqlCommand
+                    $Cmd.Connection = $Conn
+                    $Cmd.CommandText = $sqlStatement
+                    $Cmd.CommandTimeout = $SqlTimeout
+                    $Cmd.ExecuteReader()
+                    $Conn.Close()    
+                    $Conn.Dispose()            
+                }
+                Else {
+                    $linesProcessed += $currentObjectLines
+                    Write-Warning "Failed to upload $currentObjectLines $LogAnalyticsSuffix rows. Error code: $res"
                     throw
                 }
             }
             else
             {
-                Write-Warning "Skipped uploading $lineCounter $LogAnalyticsSuffix rows. Null JSON object."
-            }
-
-            if ($r.Peek() -lt 0) {
-                $lastProcessedLine = -1    
-            }
-            else {
-                $lastProcessedLine = $linesProcessed - 1   
-            }
-            
-            $updatedLastProcessedLine = $lastProcessedLine
-            $updatedLastProcessedDateTime = $lastProcessedDateTime
-            if ($r.Peek() -lt 0) {
-                $updatedLastProcessedDateTime = $newProcessedTime
-            }
-            $lastProcessedDateTime = $updatedLastProcessedDateTime
-            Write-Output "Updating last processed time / line to $($updatedLastProcessedDateTime) / $updatedLastProcessedLine"
-            $sqlStatement = "UPDATE [$LogAnalyticsIngestControlTable] SET LastProcessedLine = $updatedLastProcessedLine, LastProcessedDateTime = '$updatedLastProcessedDateTime' WHERE StorageContainerName = '$storageAccountSinkContainer'"
-            $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
-            $Conn.Open() 
-            $Cmd=new-object system.Data.SqlClient.SqlCommand
-            $Cmd.Connection = $Conn
-            $Cmd.CommandText = $sqlStatement
-            $Cmd.CommandTimeout = $SqlTimeout
-            $Cmd.ExecuteReader()
-            $Conn.Close()    
-            $Conn.Dispose()            
-
-            $chunkLines = @()
-            $chunkLines += $header
-            $lineCounter = 1
+                $linesProcessed += $currentObjectLines  
+            }        
         }
-        else
-        {
-            $lineCounter++
-        }        
     }
-    $r.Dispose()
 
-    if ($linesProcessed -eq 0)
-    {
-        Write-Output "No rows found"
-        $updatedLastProcessedLine = -1 
-        $updatedLastProcessedDateTime = $newProcessedTime
-        Write-Output "Updating last processed time / line to $($updatedLastProcessedDateTime) / $updatedLastProcessedLine"
-        $sqlStatement = "UPDATE [$LogAnalyticsIngestControlTable] SET LastProcessedLine = $updatedLastProcessedLine, LastProcessedDateTime = '$updatedLastProcessedDateTime' WHERE StorageContainerName = '$storageAccountSinkContainer'"
-        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-        $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
-        $Cmd=new-object system.Data.SqlClient.SqlCommand
-        $Cmd.Connection = $Conn
-        $Cmd.CommandText = $sqlStatement
-        $Cmd.CommandTimeout = $SqlTimeout
-        $Cmd.ExecuteReader()
-        $Conn.Close()    
-        $Conn.Dispose()            
-    }
-    else
-    {
-        Write-Output "Processed $linesProcessed row(s) in total."  
-    }
-    
-    Remove-Item -Path $blobFilePath -Force
+    Remove-Item -Path $blob.Name -Force
 }
 
 Write-Output "DONE"
