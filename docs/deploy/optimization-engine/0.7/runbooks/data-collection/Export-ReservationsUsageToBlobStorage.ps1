@@ -15,7 +15,13 @@ param(
     [string] $externalTenantId,
 
     [Parameter(Mandatory = $false)]
-    [string] $externalCredentialName
+    [string] $externalCredentialName,
+
+    [Parameter(Mandatory = $false)] 
+    [string] $targetStartDate, # YYYY-MM-DD format
+
+    [Parameter(Mandatory = $false)] 
+    [string] $targetEndDate # YYYY-MM-DD format
 )
 
 $ErrorActionPreference = "Stop"
@@ -51,10 +57,10 @@ if ($storageAccountSinkKeyCred)
     $storageAccountSinkKey = $storageAccountSinkKeyCred.GetNetworkCredential().Password
 }
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_SavingsPlansContainer" -ErrorAction SilentlyContinue
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_ReservationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer))
 {
-    $storageAccountSinkContainer = "savingsplansexports"
+    $storageAccountSinkContainer = "reservationsexports"
 }
 
 $BillingAccountIDVar = Get-AutomationVariable -Name  "AzureOptimization_BillingAccountID" -ErrorAction SilentlyContinue
@@ -64,6 +70,8 @@ if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     $externalCredential = Get-AutomationPSCredential -Name $externalCredentialName
 }
+
+$consumptionOffsetDays = [int] (Get-AutomationVariable -Name  "AzureOptimization_ConsumptionOffsetDays")
 
 if ([string]::IsNullOrEmpty($BillingAccountID) -and -not([string]::IsNullOrEmpty($BillingAccountIDVar)))
 {
@@ -112,6 +120,14 @@ if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 
 $tenantId = (Get-AzContext).Tenant.Id
 
+# compute start+end dates
+
+if ([string]::IsNullOrEmpty($targetStartDate) -or [string]::IsNullOrEmpty($targetEndDate))
+{
+    $targetStartDate = (Get-Date).Date.AddDays($consumptionOffsetDays * -1).ToString("yyyy-MM-dd")
+    $targetEndDate = $targetStartDate    
+}
+
 if (-not([string]::IsNullOrEmpty($TargetScope)))
 {
     $scope = $TargetScope
@@ -132,8 +148,7 @@ else
         {
             throw "Billing Profile ID does not follow pattern for MCA: ([A-Za-z0-9]+(-[A-Za-z0-9]+)+)"
         }
-        #$scope = "/providers/Microsoft.BillingBenefits"
-        $scope = "/providers/Microsoft.Billing/billingaccounts/$BillingAccountID"
+        $scope = "/providers/Microsoft.Billing/billingaccounts/$BillingAccountID/billingProfiles/$BillingProfileID"
     }
     else
     {
@@ -142,99 +157,125 @@ else
 }
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Starting savings plans export process for scope $scope..."
+Write-Output "[$now] Starting reservations export process from $targetStartDate to $targetEndDate for scope $scope..."
 
-$savingsPlansUsage = @()
+# get reservations details
+
+$reservationsDetailsResponse = $null
+$reservationsDetails = @()
+$reservationsDetailsPath = "$scope/reservations?api-version=2020-05-01&&refreshSummary=true"
+
+do
+{
+    if (-not([string]::IsNullOrEmpty($reservationsDetailsResponse.nextLink)))
+    {
+        $reservationsDetailsPath = $reservationsDetailsResponse.nextLink.Substring($reservationsDetailsResponse.nextLink.IndexOf("/providers/"))
+    }
+
+    $result = Invoke-AzRestMethod -Path $reservationsDetailsPath -Method GET
+
+    if (-not($result.StatusCode -in (200, 201, 202)))
+    {
+        throw "Error while getting reservations details: $($result.Content)"
+    }
+
+    $reservationsDetailsResponse = $result.Content | ConvertFrom-Json
+    if ($reservationsDetailsResponse.value)
+    {
+        $reservationsDetails += $reservationsDetailsResponse.value
+    }
+}
+while (-not([string]::IsNullOrEmpty($reservationsDetailsResponse.nextLink)))
+
+$now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
+Write-Output "[$now] Found $($reservationsDetails.Count) reservation details."
+
+# get reservations usage
+
+$reservationsUsage = @()
 if ($BillingAccountID -match $mcaBillingAccountIdRegex)
 {
-    #$savingsPlansUsagePath = "$scope/savingsPlans?api-version=2022-11-01&refreshsummary=true&take=100"
-    $savingsPlansUsagePath = "$scope/savingsPlans?api-version=2022-10-01-privatepreview&refreshsummary=true&take=100&`$filter=(properties/billingProfileId eq '/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingProfiles/$BillingProfileID')"
+    $reservationsUsagePath = "$scope/providers/Microsoft.Consumption/reservationSummaries?api-version=2023-05-01&startDate=$targetStartDate&endDate=$targetEndDate&grain=daily"
 }
 else
 {
-    $savingsPlansUsagePath = "$scope/savingsPlans?api-version=2020-12-15-privatepreview&refreshsummary=true&take=100"
+    $reservationsUsagePath = "$scope/providers/Microsoft.Consumption/reservationSummaries?api-version=2023-05-01&`$filter=properties/UsageDate ge $targetStartDate and properties/UsageDate le $targetEndDate&grain=daily"
 }
 
-$result = Invoke-AzRestMethod -Path $savingsPlansUsagePath -Method GET
+$result = Invoke-AzRestMethod -Path $reservationsUsagePath -Method GET
 
 if (-not($result.StatusCode -in (200, 201, 202)))
 {
-    throw "Error while getting savings plans usage: $($result.Content)"
+    throw "Error while getting reservations usage: $($result.Content)"
 }
 
-$savingsPlansUsageResponse = $result.Content | ConvertFrom-Json
-if ($savingsPlansUsageResponse.value)
+$reservationsUsageResponse = $result.Content | ConvertFrom-Json
+if ($reservationsUsageResponse.value)
 {
-    $savingsPlansUsage += $savingsPlansUsageResponse.value
+    $reservationsUsage += $reservationsUsageResponse.value
 }
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Found $($savingsPlansUsage.Count) savings plans usages."
+Write-Output "[$now] Found $($reservationsUsage.Count) reservation usages."
 
 $datetime = (get-date).ToUniversalTime()
 $timestamp = $datetime.ToString("yyyy-MM-ddTHH:mm:00.000Z")
 
-$savingsPlans = @()
+$reservations = @()
 
-foreach ($usage in $savingsPlansUsage)
+foreach ($usage in $reservationsUsage)
 {
-    $purchaseDate = $usage.properties.purchaseDateTime
-    if ([string]::IsNullOrEmpty($purchaseDate) -and -not([string]::IsNullOrEmpty($usage.properties.purchaseDate)))
-    {
-        $purchaseDate = (Get-Date -Date $usage.properties.purchaseDate).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-    }
-    $expiryDate = $usage.properties.expiryDateTime
-    if ([string]::IsNullOrEmpty($expiryDate) -and -not([string]::IsNullOrEmpty($usage.properties.expiryDate)))
-    {
-        $expiryDate = (Get-Date -Date $usage.properties.expiryDate).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-    }
-
-    $savingsPlanEntry = New-Object PSObject -Property @{
-        SavingsPlanResourceId = $usage.id
-        SavingsPlanOrderId = $usage.id.Substring(0,$usage.id.IndexOf("/savingsPlans/"))
-        SavingsPlanId = $usage.id.Split("/")[-1]
-        DisplayName = $usage.properties.displayName
-        SKUName = $usage.sku.name
-        Term = $usage.properties.term
-        ProvisioningState = $usage.properties.displayProvisioningState
-        AppliedScopeType = $usage.properties.userFriendlyAppliedScopeType
-        RenewState = $usage.properties.renew
-        PurchaseDate = $purchaseDate
-        BenefitStart = $usage.properties.benefitStartTime
-        ExpiryDate = $expiryDate
-        EffectiveDate = $usage.properties.effectiveDateTime
-        BillingScopeId = $usage.properties.billingScopeId
-        BillingAccountId = $usage.properties.billingAccountId
-        BillingProfileId = $usage.properties.billingProfileId
-        BillingPlan = $usage.properties.billingPlan
-        CommitmentGrain = $usage.properties.commitment.grain
-        CommitmentCurrencyCode = $usage.properties.commitment.currencyCode
-        CommitmentAmount = $usage.properties.commitment.amount
-        UtilTrend = $usage.properties.utilization.trend
-        Util1Days = ($usage.properties.utilization.aggregates | Where-Object { $_.grain -eq 1 }).value
-        Util7Days = ($usage.properties.utilization.aggregates | Where-Object { $_.grain -eq 7 }).value
-        Util30Days = ($usage.properties.utilization.aggregates | Where-Object { $_.grain -eq 30 }).value
+    $reservationResourceId = "/providers/microsoft.capacity/reservationorders/$($usage.properties.reservationOrderId)/reservations/$($usage.properties.reservationId)"
+    $reservationDetail = $reservationsDetails | Where-Object { $_.id -eq $reservationResourceId }
+    $reservationEntry = New-Object PSObject -Property @{
+        ReservationResourceId = $reservationResourceId
+        ReservationOrderId = $usage.properties.reservationOrderId
+        ReservationId = $usage.properties.reservationId
+        DisplayName = $reservationDetail.properties.displayName
+        SKUName = $usage.properties.skuName
+        Location = $reservationDetail.location
+        ResourceType = $reservationDetail.properties.reservedResourceType
+        AppliedScopeType = $reservationDetail.properties.userFriendlyAppliedScopeType
+        Term = $reservationDetail.properties.term
+        ProvisioningState = $reservationDetail.properties.displayProvisioningState
+        RenewState = $reservationDetail.properties.userFriendlyRenewState
+        PurchaseDate = $reservationDetail.properties.purchaseDate
+        ExpiryDate = $reservationDetail.properties.expiryDate
+        Archived = $reservationDetail.properties.archived
+        ReservedHours = $usage.properties.reservedHours
+        UsedHours = $usage.properties.usedHours
+        UsageDate = $usage.properties.usageDate
+        MinUtilPercentage = $usage.properties.minUtilizationPercentage
+        AvgUtilPercentage = $usage.properties.avgUtilizationPercentage
+        MaxUtilPercentage = $usage.properties.maxUtilizationPercentage
+        PurchasedQuantity = $usage.properties.purchasedQuantity
+        RemainingQuantity = $usage.properties.remainingQuantity
+        TotalReservedQuantity = $usage.properties.totalReservedQuantity
+        UsedQuantity = $usage.properties.usedQuantity
+        UtilizedPercentage = $usage.properties.utilizedPercentage
+        UtilTrend = $reservationDetail.properties.utilization.trend
+        Util1Days = ($reservationDetail.properties.utilization.aggregates | Where-Object { $_.grain -eq 1 }).value
+        Util7Days = ($reservationDetail.properties.utilization.aggregates | Where-Object { $_.grain -eq 7 }).value
+        Util30Days = ($reservationDetail.properties.utilization.aggregates | Where-Object { $_.grain -eq 30 }).value
         Scope = $scope
         TenantGuid = $tenantId
         Cloud = $cloudEnvironment
         CollectedDate = $timestamp
         Timestamp = $timestamp
     }
-    $savingsPlans += $savingsPlanEntry
+    $reservations += $reservationEntry
 }
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Generated $($savingsPlans.Count) entries..."
-
-$targetDate = $datetime.ToString("yyyy-MM-dd")
+Write-Output "[$now] Generated $($reservations.Count) entries..."
 
 if ($BillingAccountID -match $mcaBillingAccountIdRegex)
 {
-    $csvExportPath = "$targetDate-$BillingProfileID.csv"   
+    $csvExportPath = "$targetStartDate-$BillingProfileID.csv"   
 }
 else
 {
-    $csvExportPath = "$targetDate-$BillingAccountID.csv"
+    $csvExportPath = "$targetStartDate-$BillingAccountID-$($scope.Split('/')[-1]).csv"
 }
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
@@ -248,7 +289,7 @@ if ($ci.NumberFormat.NumberDecimalSeparator -ne '.')
     [System.Threading.Thread]::CurrentThread.CurrentCulture = $ci
 }
 
-$savingsPlans | Export-Csv -Path $csvExportPath -NoTypeInformation
+$reservations | Export-Csv -Path $csvExportPath -NoTypeInformation
 
 $csvBlobName = $csvExportPath
 $csvProperties = @{"ContentType" = "text/csv"};
