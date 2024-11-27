@@ -451,7 +451,7 @@ table CommitmentDiscountCosts
 				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
 				    let numberOfMonths = " & lookback & ";
-				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Daily") & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
 				    let allowCostManagementAllocationRules = false;
 				    Costs_v1_0
 				    | where ChargePeriodStart >= monthsago(numberOfMonths)
@@ -493,7 +493,8 @@ table CommitmentDiscountCosts
 				    //
 				    | summarize
 				        BilledCost = sum(BilledCost),
-				        ChargePeriodEnd = max(ChargePeriodEnd), ChargePeriodStart = min(ChargePeriodStart),
+				        ChargePeriodEnd = max(ChargePeriodEnd),
+                        ChargePeriodStart = min(ChargePeriodStart),
 				        ConsumedQuantity = sum(ConsumedQuantity),
 				        ContractedCost = sum(ContractedCost),
 				        EffectiveCost = sum(EffectiveCost),
