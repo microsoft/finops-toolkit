@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "15149846432123046016"
+      "templateHash": "17278268849840246279"
     }
   },
   "parameters": {
@@ -196,7 +196,7 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-        "description": "Optional. Enable public access to the data lake.  Default: true."
+        "description": "Optional. Enable public access to FinOps hubs resources.  Default: true."
       }
     },
     "virtualNetworkAddressPrefix": {
@@ -280,7 +280,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "13005675979575153668"
+              "templateHash": "7901236895958691821"
             }
           },
           "parameters": {
@@ -567,7 +567,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "10538456778286562270"
+                      "templateHash": "6928837763288466791"
                     }
                   },
                   "parameters": {
@@ -612,7 +612,7 @@
                     "nsgName": "[format('{0}-nsg', variables('vNetName'))]",
                     "subnets": [
                       {
-                        "name": "finops-hub-subnet",
+                        "name": "private-endpoint-subnet",
                         "properties": {
                           "addressPrefix": "[cidrSubnet(parameters('virtualNetworkAddressPrefix'), 28, 0)]",
                           "networkSecurityGroup": {
