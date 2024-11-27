@@ -57,7 +57,7 @@ The advisory council consists of the following representative seats:
   - Customer Success Unit - Infrastructure
   - Customer Success Unit - Data & AI
   - Azure Customer Experience - ISV & Digital Natives
-  - Commerce - Support/FastTrack
+  - Commerce - FastTrack
   - Developer Relations
   - Customer Support Services  
 - Any FinOps Certified Professional (no limit on number)
