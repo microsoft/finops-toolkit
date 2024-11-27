@@ -241,38 +241,6 @@ table HybridBenefitCosts
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column CommitmentDiscountCategory
-		dataType: string
-		lineageTag: 25cbf510-e4d3-4008-98c4-885f1b911b7c
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountCategory
-
-		annotation SummarizationSetBy = Automatic
-
-	column CommitmentDiscountId
-		dataType: string
-		lineageTag: 6435baca-523e-4d78-bcef-17b48d924435
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountId
-
-		annotation SummarizationSetBy = Automatic
-
-	column CommitmentDiscountName
-		dataType: string
-		lineageTag: 3af72152-b962-4de8-8a94-da1c11211ee4
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountName
-
-		annotation SummarizationSetBy = Automatic
-
-	column CommitmentDiscountType
-		dataType: string
-		lineageTag: 17217b93-8afe-4166-9c3c-b51a97fe9c99
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountType
-
-		annotation SummarizationSetBy = Automatic
-
 	column ServiceCategory
 		dataType: string
 		lineageTag: 2af9dff2-66af-411a-9b2e-64c4056317cf
@@ -289,6 +257,38 @@ table HybridBenefitCosts
 
 		annotation SummarizationSetBy = Automatic
 
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: 7f8cb766-0add-42e5-8d00-5e6473c56f33
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountId
+		dataType: string
+		lineageTag: f9dc9c56-1d5f-4626-808b-0e9cd897fa9d
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountName
+		dataType: string
+		lineageTag: af9ca87a-44dc-42ed-bb1b-9cdecd346512
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: bb0d3c63-33d7-4d3b-b62d-abe28e5c8a38
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
 	partition HybridBenefitCosts = m
 		mode: import
 		queryGroup: 'Data Explorer'
@@ -298,9 +298,10 @@ table HybridBenefitCosts
 				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
 				    let numberOfMonths = " & lookback & ";
-				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Daily") & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
 				    let allowCostManagementAllocationRules = false;
 				    Costs_v1_0
+				    | where ProviderName == 'Microsoft'
 				    | where ChargePeriodStart >= monthsago(numberOfMonths)
 				    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
 				    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
@@ -348,7 +349,6 @@ table HybridBenefitCosts
 				            CommitmentDiscountName,
 				            CommitmentDiscountType,
 				            ConsumedUnit,
-				            ProviderName,
 				            ResourceId,
 				            ResourceName,
 				            ServiceCategory,
