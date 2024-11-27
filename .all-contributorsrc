@@ -569,6 +569,17 @@
       "contributions": [
         "security"
       ]
+    },
+    {
+      "login": "brianwyka",
+      "name": "Brian Wyka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/46069296?v=4",
+      "profile": "https://brianwyka.github.io/",
+      "contributions": [
+        "doc",
+        "review",
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
