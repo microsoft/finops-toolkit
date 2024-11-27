@@ -299,22 +299,19 @@ resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZ
           privateDnsZoneId: blobPrivateDnsZone.id
         }
       }
+    ]
+  }
+}
+
+resource dfsPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+  name: 'dfs-endpoint-zone'
+  parent: dfsEndpoint
+  properties: {
+    privateDnsZoneConfigs: [
       {
         name: dfsPrivateDnsZone.name
         properties: {
           privateDnsZoneId: dfsPrivateDnsZone.id
-        }
-      }
-      {
-        name: tablePrivateDnsZone.name
-        properties: {
-          privateDnsZoneId: tablePrivateDnsZone.id
-        }
-      }
-      {
-        name: queuePrivateDnsZone.name
-        properties: {
-          privateDnsZoneId: queuePrivateDnsZone.id
         }
       }
     ]
