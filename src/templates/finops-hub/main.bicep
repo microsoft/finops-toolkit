@@ -132,7 +132,7 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
-@description('Optional. Enable public access to the data lake.  Default: true.')
+@description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
 
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
