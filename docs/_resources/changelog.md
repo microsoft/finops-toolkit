@@ -126,6 +126,7 @@ Legend:
 >      - x_DatasetType is now `x_SourceType`
 >      - x_DatasetVersion is now `x_SourceVersion`
 >      - x_AccountType is now `x_BillingAccountAgreement`
+>   3. Updated supported spend estimates in the Power BI documentation.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -148,9 +149,9 @@ Legend:
 > 1. Support for private endpoints via an optional template parameter.
 >    - Added private endpoints for storage account, Azure Data Explorer & Keyvault.
 >    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
->    - All data processing now happens within a vNet.
+>    - All data processing now happens within a virtual network.
 >    - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
->    - Added param to specify subnet range of vnet - minumum size = /26
+>    - Added param to specify subnet range of virtual network - minimum size = /26
 > 1. Support for storage account infrastructure encryption.
 >
 > ✏️ Changed:
