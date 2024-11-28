@@ -69,7 +69,9 @@ At this point, you have automated alerts configured and ideally views and report
 
 ## KPIs and metrics
 
-| **Category** | **Definition** | **KPI** |
+For robust anomaly detection across the Azure environment, the following KPIs offer a framework for identifying and addressing irregularities in data and resource usage, helping to maintain optimal performance and cost management.
+
+| **KPI** | **Definition** | **Formula** |
 |--------------|----------------|---------|
 | Anomaly alert coverage | Measures the extent to which anomaly alerts are enabled across all workloads. | Percentage of workloads/subscriptions with anomaly alerts enabled. |
 | Time to alert awareness | Measures the average time taken from the occurrence of an anomaly to the alert being raised and the resource owner being made aware. | Average length of time from anomaly detection to alert/resource owner awareness. |

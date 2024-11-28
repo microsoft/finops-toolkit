@@ -127,7 +127,9 @@ At this point, you have an allocation strategy with detailed cloud management an
 
 ## KPIs and metrics
 
-| **Category** | **Definition** | **KPI** |
+To ensure effective resource allocation across the Azure environment, these KPIs provide a framework for evaluating the efficiency and accuracy of resource distribution.
+
+| **KPI** | **Definition** | **Formula** |
 |--------------|----------------|---------|
 | Cost allocated | Evaluates the extent to which cloud costs are allocated among organizational units.| Percentage of cloud cost allocated. |
 | Allocation granularity | Assesses the level of detail in cost allocation, from department to project scope. | Percentage of cost allocation defined across various scope levels (department, subscription, resource group, project, application). |

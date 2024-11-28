@@ -131,7 +131,9 @@ At this point, you're likely utilizing the native reporting and analysis solutio
 
 ## KPIs and metrics
 
-| **Category** | **Definition** | **KPI** |
+To enhance reporting across the Azure environment, thes following KPIs establish a framework for evaluating the accuracy, timeliness, and comprehensiveness of reports, supporting informed decision-making.
+
+| **KPI** | **Definition** | **Formula** |
 |--------------|----------------|---------|
 | Reporting needs | Measures the identification of stakeholders and their reporting  needs. | Percentage of stakeholders with defined reporting needs. |
 | Report coverage | Measures the number of teams with comprehensive reports available. | Number of teams with reports for all personas. |
