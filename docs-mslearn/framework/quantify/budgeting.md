@@ -63,7 +63,7 @@ So far, you defined granular and targeted cost alerts for each scope and applica
 
 To ensure effective budget management for workloads deployed into Azure, these metrics provide a clear and measurable framework for assessing the implementation of budgeting efforts.
 
-| **Category** | **Definition** | **KPI** |
+| **KPI** | **Definition** | **Formula** |
 |--------------|----------------|---------|
 | Budget coverage | Measures the percentage of workloads that have budgets enabled. | Percentage of workloads with budgets enabled. |
 | Budget alert coverage | Measures the percentage of workloads that have budget alerts enabled and workload owners defined. | Percentage of workloads with budget alerts enabled and owners defined. |
