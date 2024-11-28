@@ -18426,42 +18426,138 @@ cultureInfo en-US
 			          }
 			        }
 			      ]
+			    },
+			    "commitment_discount_usage.provider_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CommitmentDiscountCosts",
+			          "ConceptualProperty": "ProviderName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "provider name": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ProviderName": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "provider": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "provider nickname": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "provider title": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "provider label": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "provider tag": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "breadwinner": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "earner": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "worker": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "benefactor": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "wage-earner": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "supplier": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.466
+			          }
+			        }
+			      ]
 			    }
 			  },
 			  "Relationships": {
-			    "hybrid_benefit_cost_has_x_negotiated_discount_savings": {
-			      "Binding": {
-			        "ConceptualEntity": "HybridBenefitCosts"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "hybrid_benefit_cost": {
-			          "Target": {
-			            "Entity": "hybrid_benefit_cost"
-			          }
-			        },
-			        "hybrid_benefit_cost.x_negotiated_discount_savings": {
-			          "Target": {
-			            "Entity": "hybrid_benefit_cost.x_negotiated_discount_savings"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "hybrid_benefit_cost"
-			            },
-			            "Object": {
-			              "Role": "hybrid_benefit_cost.x_negotiated_discount_savings"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "hybrid_benefit_costs_have_x_negotiated_discount_savings"
-			        }
-			      ]
-			    },
 			    "hybrid_benefit_cost_has_x_commitment_discount_savings": {
 			      "Binding": {
 			        "ConceptualEntity": "HybridBenefitCosts"
@@ -23325,6 +23421,105 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "hybrid_benefit_costs_have_x_sku_license_statuses"
+			        }
+			      ]
+			    },
+			    "commitment_discount_usage_provider_name_provide_commitment_discount_usage": {
+			      "Binding": {
+			        "ConceptualEntity": "CommitmentDiscountCosts"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "commitment_discount_usage.provider_name": {
+			          "Target": {
+			            "Entity": "commitment_discount_usage.provider_name"
+			          }
+			        },
+			        "commitment_discount_usage": {
+			          "Target": {
+			            "Entity": "commitment_discount_usage"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Verb": {
+			            "Subject": {
+			              "Role": "commitment_discount_usage.provider_name"
+			            },
+			            "Verbs": [
+			              {
+			                "provide": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Object": {
+			              "Role": "commitment_discount_usage"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.75,
+			          "ID": "provider_names_provide_commitment_discount_costs"
+			        },
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "commitment_discount_usage.provider_name"
+			            },
+			            "Object": {
+			              "Role": "commitment_discount_usage"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "provider_names_have_commitment_discount_costs"
+			        },
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "commitment_discount_usage"
+			            },
+			            "Object": {
+			              "Role": "commitment_discount_usage.provider_name"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "commitment_discount_costs_have_provider_names"
+			        }
+			      ]
+			    },
+			    "hybrid_benefit_cost_has_x_negotiated_discount_savings": {
+			      "Binding": {
+			        "ConceptualEntity": "HybridBenefitCosts"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "hybrid_benefit_cost": {
+			          "Target": {
+			            "Entity": "hybrid_benefit_cost"
+			          }
+			        },
+			        "hybrid_benefit_cost.x_negotiated_discount_savings": {
+			          "Target": {
+			            "Entity": "hybrid_benefit_cost.x_negotiated_discount_savings"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "hybrid_benefit_cost"
+			            },
+			            "Object": {
+			              "Role": "hybrid_benefit_cost.x_negotiated_discount_savings"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "hybrid_benefit_costs_have_x_negotiated_discount_savings"
 			        }
 			      ]
 			    },
