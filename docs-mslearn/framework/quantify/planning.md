@@ -80,7 +80,7 @@ With these insights, you can make more accurate cost predictions and manage your
 
 To ensure effective planning and estimating of workloads deployed into Azure, these metrics provide a clear and measurable framework for assessing the quality and effectiveness of planning resource usage and cost estimation efforts.
 
-| **Category** | **Definition** | **KPI** |
+| **KPI** | **Definition** | **Formula** |
 |--------------|----------------|---------|
 | Standardization quality | Evaluates the criteria of planning and cost estimates to ensure alignment with stakeholders' needs and request, and secures acknowledgment for all core personas involved. | Level of completeness, clarity, and stakeholder alignment of criteria across all evaluated workloads. |
 | Workload compliance | Measures whether planning and estimating is conducted for all workloads prior to deployment.  | Percentage of workloads that have conducted planning and estimating prior to deployments.  |
