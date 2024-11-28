@@ -131,10 +131,8 @@ table ReservationRecomendations
 		annotation SummarizationSetBy = Automatic
 
 	column TermLabel = IF([x_SKuTerm] = 12, "1 year", IF([x_SKuTerm] = 36, "3 year", IF([x_SKuTerm] = 60, "5 year", FORMAT([x_SKuTerm], ""))))
-		dataType: string
 		lineageTag: e04a711d-dd85-44b4-9f88-aff1e84e5499
 		summarizeBy: none
-		isDataTypeInferred
 
 		annotation SummarizationSetBy = Automatic
 
@@ -155,18 +153,14 @@ table ReservationRecomendations
 		annotation SummarizationSetBy = Automatic
 
 	column x_CommitmentDiscountKey = CONCATENATE([x_SkuTypeNormalized], [x_SkuMeterId])
-		dataType: string
 		lineageTag: 1bcc33e3-2946-461c-a99d-31f6d228dc80
 		summarizeBy: none
-		isDataTypeInferred
 
 		annotation SummarizationSetBy = Automatic
 
 	column x_CommitmentDiscountKeyNormalized = [x_SkuTypeNormalized] & [x_SkuMeterId]
-		dataType: string
 		lineageTag: f752702c-e8c3-4687-909d-bad72fd0250d
 		summarizeBy: none
-		isDataTypeInferred
 
 		annotation SummarizationSetBy = Automatic
 

@@ -273,35 +273,11 @@ table Prices
 
 		annotation SummarizationSetBy = Automatic
 
-	column BillingAccountName
-		dataType: string
-		lineageTag: 24ef666f-89e9-484a-bc3d-17503ca58eff
-		summarizeBy: none
-		sourceColumn: BillingAccountName
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_BillingAccountAgreement
 		dataType: string
 		lineageTag: 4368fe70-6efa-49a8-9df7-abb859926de7
 		summarizeBy: none
 		sourceColumn: x_BillingAccountAgreement
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_BillingProfileName
-		dataType: string
-		lineageTag: 30971e71-71dd-4d4f-9dd0-92eb7a9b8827
-		summarizeBy: none
-		sourceColumn: x_BillingProfileName
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_SkuTierMinimum
-		dataType: string
-		lineageTag: ee6d677c-6bef-42c9-84f5-842b0cc6dadd
-		summarizeBy: none
-		sourceColumn: x_SkuTierMinimum
 
 		annotation SummarizationSetBy = Automatic
 
