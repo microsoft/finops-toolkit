@@ -110,14 +110,16 @@ At this point, you have a data pipeline and are ingesting data into a central da
 
 ## KPIs and metrics
 
-| **Category** | **Definition** | **KPI** |
+To ensure effective data ingestion in Azure, these KPIs provide a framework for evaluating key aspects such as completeness and quality.
+
+| **KPI** | **Definition** | **Formula** |
 |----------|-----------|-----|
 | Data completeness | Measures the extent to which all required data fields are present in the dataset and tracks the overall data completeness trend over a specified period.| Percentage of data fields that are complete and the overall data completeness over time. |
 | Data quality | Measures the percentage of successful data quality checks and the total number of data quality checks conducted within a specified period. | Number of data quality checks conducted and the percentage of successful data quality checks . |
 |Data ingestion frequency | Measures how often data is ingested into the system. | Number of data ingestion events per unit of time (daily, weekly, monthly, quarterly, annually). |
 | Data size | Measures the total volume of data ingested into the repository. | Total volume of data ingested into the repository.  |
 | Growth rate | Measure the rate at which the volume of data ingested is increasing over time. | Percentage increase of total data volume in repository per unit of time. |
-| Ingestion Latency | Measures the average time taken for data to be ingested into the repository and tracks the trend of this latency over a specified period. | Mean time of data ingestion latency and the latency trend over a specified period. |
+| Ingestion latency | Measures the average time taken for data to be ingested into the repository. | Average time of data ingestion latency per dataset. |
 | Historical data availability | Measures the lookback period of data that is ingested and available for analysis. | Span of historical data ingested. |
 | Investigation time to resolution | Measures the time taken to investigate and resolve data quality or availability issues and tracks the trend of this resolution time over a specified period. | Mean time to investigate and resolve data quality or availability issues, and the trend over time. |
 
