@@ -25,11 +25,9 @@ table 'Compliance calculation'
 		lineageTag: 9becaa14-5807-417b-bd27-11ab94040ea7
 
 	column id
-		dataType: string
 		lineageTag: 35d1b525-0b41-4d94-b4ec-364fa486a1d2
 		summarizeBy: none
 		isNameInferred
-		isDataTypeInferred
 		sourceColumn: PolicyAssignments[id]
 
 		annotation SummarizationSetBy = Automatic
