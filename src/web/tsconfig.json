@@ -11,7 +11,6 @@
     "jsx": "react-jsx", // or "react" for older versions of React
     "module": "esnext",
     "moduleResolution": "node",
-
   },
   "include": ["src"],
   "files": [],
@@ -19,5 +18,5 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
-  
+}
 }
