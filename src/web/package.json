@@ -20,6 +20,7 @@
     "react-router-dom": "^6.27.0",
     "react-router-hash-link": "^2.4.3",
     "styled-components": "^6.1.13"
+    "react-router-hash-link": "^2.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
