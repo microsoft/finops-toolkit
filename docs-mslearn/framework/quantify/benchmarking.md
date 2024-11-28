@@ -60,7 +60,7 @@ At this point, you implemented best practices based on cross-company benchmarks 
 
 To ensure effective benchmarking of workloads deployed into Azure, these KPIs provide a framework for comparing unit metrics across workloads helping in identifying performance gaps.
 
-| **Category** | **Definition** | **KPI** |
+| **KPI** | **Definition** | **Formula** |
 |--------------|----------------|---------|
 | Metrics definition and alignment | Measures whether the necessary metrics have been defined to align with stakeholder needs. | The number of defined metrics versus the total number of required metrics. |
 | Metrics tracking across workloads | Measures whether all metrics are being tracked across all workloads for comparison. | The percentage of workloads with all metrics tracked versus the total number of workloads. |
