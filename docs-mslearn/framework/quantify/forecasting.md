@@ -112,7 +112,7 @@ At this point, you have a manual process for generating a forecast. As you move 
 
 To ensure effective cost forecasting for workloads deployed into Azure, these metrics provide a clear and measurable framework for assessing the quality, accuracy, and responsiveness of cost forecasting efforts.
 
-| **Category** | **Definition** | **KPI** |
+| **KPI** | **Definition** | **Formula** |
 |--------------|----------------|---------|
 | Forecast accuracy | Measures how closely the forecasted cloud spend matches the actual cloud spend for a specified scope or workload. | Percentage difference between the forecasted amount and the actual cloud spend for the specified scope or workload (e.g., 20% for crawl, 15% for walk, 12% for run). |
 | Forecast alert coverage | Measures the proportion of workloads that have forecast alerts enabled and have designated owners. | Percentage of workloads with forecast alerts enabled and owners defined. |
