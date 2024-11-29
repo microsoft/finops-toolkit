@@ -48,7 +48,7 @@
         "visible": true
       },
       {
-        "name": "dataExplorerNameSection",
+        "name": "dataExplorer",
         "type": "Microsoft.Common.Section",
         "label": "Azure Data Explorer (optional)",
         "elements": [
@@ -652,6 +652,7 @@
       "hubName": "[basics('hubName')]",
       "location": "[location()]",
       "storageSku": "[steps('pricing').storage.storageSku]",
+      "dataExplorerName": "[basics('dataExplorer').dataExplorerName]",
       "enableInfrastructureEncryption": "[steps('advanced').storage.enableInfrastructureEncryption]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
