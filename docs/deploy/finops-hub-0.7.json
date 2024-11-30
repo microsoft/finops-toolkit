@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "17278268849840246279"
+      "templateHash": "17613145791432772933"
     }
   },
   "parameters": {
@@ -280,7 +280,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "7901236895958691821"
+              "templateHash": "8625046668927457222"
             }
           },
           "parameters": {
@@ -866,7 +866,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "13651337592717993484"
+                      "templateHash": "11825572491650981768"
                     }
                   },
                   "parameters": {
@@ -1242,33 +1242,31 @@
                             "properties": {
                               "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.blob.{0}', environment().suffixes.storage))]"
                             }
-                          },
-                          {
-                            "name": "[format('privatelink.dfs.{0}', environment().suffixes.storage)]",
-                            "properties": {
-                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.dfs.{0}', environment().suffixes.storage))]"
-                            }
-                          },
-                          {
-                            "name": "[format('privatelink.table.{0}', environment().suffixes.storage)]",
-                            "properties": {
-                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.table.{0}', environment().suffixes.storage))]"
-                            }
-                          },
-                          {
-                            "name": "[format('privatelink.queue.{0}', environment().suffixes.storage)]",
-                            "properties": {
-                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.queue.{0}', environment().suffixes.storage))]"
-                            }
                           }
                         ]
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-blob-ep', variables('storageAccountName')))]",
-                        "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.blob.{0}', environment().suffixes.storage))]",
-                        "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.dfs.{0}', environment().suffixes.storage))]",
-                        "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.queue.{0}', environment().suffixes.storage))]",
-                        "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.table.{0}', environment().suffixes.storage))]"
+                        "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.blob.{0}', environment().suffixes.storage))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                      "apiVersion": "2023-11-01",
+                      "name": "[format('{0}/{1}', format('{0}-dfs-ep', variables('storageAccountName')), 'dfs-endpoint-zone')]",
+                      "properties": {
+                        "privateDnsZoneConfigs": [
+                          {
+                            "name": "[format('privatelink.dfs.{0}', environment().suffixes.storage)]",
+                            "properties": {
+                              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.dfs.{0}', environment().suffixes.storage))]"
+                            }
+                          }
+                        ]
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-dfs-ep', variables('storageAccountName')))]",
+                        "[resourceId('Microsoft.Network/privateDnsZones', format('privatelink.dfs.{0}', environment().suffixes.storage))]"
                       ]
                     },
                     {
