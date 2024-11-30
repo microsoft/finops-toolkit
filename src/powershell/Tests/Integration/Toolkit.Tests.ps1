@@ -36,9 +36,10 @@ Describe 'Get-FinOpsToolkitVersion' {
 
                 # Templates
                 CheckFile "finops-hub-v$verStr.zip"             $null $null
-                CheckFile "governance-workbook-v$verStr.zip"    '0.1' $null
+                CheckFile "finops-workbooks-v$verStr.zip"       '0.6' $null
+                CheckFile "governance-workbook-v$verStr.zip"    '0.1' '0.5'
                 CheckFile "optimization-engine-v$verStr.zip"    '0.4' $null
-                CheckFile "optimization-workbook-v$verStr.zip"  $null $null
+                CheckFile "optimization-workbook-v$verStr.zip"  $null '0.5'
             
                 # Power BI
                 CheckFile "CostManagementConnector.pbix"        '0.2' $null
@@ -47,8 +48,12 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "CostSummary.pbix"                    $null $null
                 CheckFile "DataIngestion.pbit"                  '0.3' $null
                 CheckFile "DataIngestion.pbix"                  '0.3' $null
+                CheckFile "Governance.pbit"                     '0.6' $null
+                CheckFile "Governance.pbix"                     '0.6' $null
                 CheckFile "RateOptimization.pbit"               '0.4' $null
                 CheckFile "RateOptimization.pbix"               '0.4' $null
+                CheckFile "WorkloadOptimization.pbit"           '0.6' $null
+                CheckFile "WorkloadOptimization.pbix"           '0.6' $null
             
                 # Open data
                 CheckFile "dataset-examples.zip"                '0.4' $null
