@@ -436,10 +436,8 @@ table NetworkSecurityGroups
 			    ), "False" 
 			)
 			```
-		dataType: string
 		lineageTag: 5fb590a3-057d-487e-af26-3e6686be93fe
 		summarizeBy: none
-		isDataTypeInferred
 
 		annotation SummarizationSetBy = Automatic
 

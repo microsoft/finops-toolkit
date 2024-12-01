@@ -34,11 +34,16 @@ This document provides guidance for converting Cost Management actual and amorti
 
 ## ➡️ How to convert Cost Management data to FOCUS
 
-The following mapping is assuming you have all amortized cost rows and only commitment purchases and refunds from the actual cost dataset.
+In order to convert cost and usage data to FOCUS, you will need both the actual and amortized cost datasets:
+
+1. Keep all rows from the amortized cost data.
+2. Filter the actual cost data to only include rows where ChargeType == "Purchase" or "Refund" and PricingModel == "Reservation" or "SavingsPlan".
+
+Apply the following logic to all of the rows:
 
 | FOCUS column               | Cost Management column                              | Transform                                                                                                                                                             |
 | -------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BilledCost                 | CostInBillingCurrency                               | Use `0` for amortized commitment usage<sup>1</sup>                                                                                                                    |
+| BilledCost                 | CostInBillingCurrency                               | If ChargeType == "Usage" and PricingModel == "Reservation" or "SavingsPlan", then `0`; otherwise, use CostInBillingCurrency                                           |
 | BillingAccountId           | EA: BillingAccountId<br>MCA: BillingProfileId       | None                                                                                                                                                                  |
 | BillingAccountName         | EA: BillingAccountName<br>MCA: BillingProfileName   | None                                                                                                                                                                  |
 | BillingCurrency            | EA: BillingCurrencyCode<br>MCA: BillingCurrency     | None                                                                                                                                                                  |
@@ -57,35 +62,33 @@ The following mapping is assuming you have all amortized cost rows and only comm
 | CommitmentDiscountType     | BenefitId                                           | If BenefitId contains "/microsoft.capacity/" (case-insensitive), `Reservation`; if contains "/microsoft.billingbenefits/", `Savings Plan`; otherwise, null            |
 | ConsumedQuantity           | Quantity                                            | If ChargeType == "Usage", then Quantity; otherwise, null                                                                                                              |
 | ConsumedUnit               | UnitOfMeasure                                       | If ChargeType == "Usage", then map using [Pricing units data file](../../_reporting/data/README.md#-pricing-units); otherwise, null                                   |
-| ContractedCost             | UnitPrice * Quantity                                | Map UnitOfMeasure using [Pricing units data file](../../_reporting/data/README.md#-pricing-units) and divide Quantity by the PricingBlockSize                         |
+| ContractedCost             | UnitPrice * Quantity / focus:x_PricingBlockSize | Note that x_PricingBlockSize requires a mapping. See column notes for details. |
 | ContractedUnitPrice        | UnitPrice                                           | None                                                                                                                                                                  |
-| EffectiveCost              | CostInBillingCurrency                               | Use `0` for commitment purchases and refunds<sup>1</sup>.                                                                                                             |
-| InvoiceIssuerName          | PartnerName                                         | If PartnerName is empty, use `Microsoft`.                                                                                                                             |
+| EffectiveCost              | CostInBillingCurrency                               | If ChargeType == "Purchase" or "Refund" and PricingModel == "Reservation" or "SavingsPlan", then `0`; otherwise, use CostInBillingCurrency                            |
+| InvoiceIssuerName          | PartnerName                                         | If PartnerName is empty, use `Microsoft`                                                                                                                              |
 | ListCost                   | EA: Not available<br>MCA: PaygCostInBillingCurrency | None                                                                                                                                                                  |
 | ListUnitPrice              | EA: PayGPrice<br>MCA: PayGPrice \* ExchangeRate     | None                                                                                                                                                                  |
 | PricingCategory            | PricingModel                                        | If "OnDemand", then `Standard`; if "Spot", then `Dynamic`; if "Reservation" or "Savings Plan", then `Committed`; otherwise, null                                      |
-| PricingQuantity            | Quantity                                            | Map UnitOfMeasure using [Pricing units data file](../../_reporting/data/README.md#-pricing-units) and divide Quantity by the PricingBlockSize<sup>2</sup>             |
-| PricingUnit                | UnitOfMeasure                                       | Map using [Pricing units data file](../../_reporting/data/README.md#-pricing-units)                                                                                   |
+| PricingQuantity            | Quantity / focus:x_PricingBlockSize | Note that x_PricingBlockSize requires a mapping. See column notes for details. |
+| PricingUnit                | DistinctUnits (lookup)                              | Map UnitOfMeasure to DistinctUnits using [Pricing units data file](../../_reporting/data/README.md#-pricing-units)                                                    |
 | ProviderName               | `Microsoft`                                         | None                                                                                                                                                                  |
 | PublisherName              | PublisherName                                       | None                                                                                                                                                                  |
 | RegionId                   | focus:RegionName                                    | Lowercase and remove spaces                                                                                                                                           |
-| RegionName                 | ResourceLocation                                    | Map using [Regions data file](../../_reporting/data/README.md#-regions)<sup>3</sup>                                                                                   |
+| RegionName                 | ResourceLocation                                    | Map ResourceLocation (OriginalValue) to RegionName using [Regions data file](../../_reporting/data/README.md#-regions)<sup>2</sup> |
 | ResourceId                 | ResourceId                                          | None                                                                                                                                                                  |
-| ResourceName               | ResourceName                                        | None                                                                                                                                                                  |
-| ResourceType               | ResourceType                                        | Map using [Resource types data file](../../_reporting/data/README.md#-resource-types)                                                                                 |
-| ServiceCategory            | ResourceType                                        | Map using [Services data file](../../_reporting/data/README.md#-services)                                                                                             |
-| ServiceName                | ResourceType                                        | Map using [Services data file](../../_reporting/data/README.md#-services)                                                                                             |
+| ResourceName               | EA: ResourceName<br>MCA: last(split(ResourceId, "/")) | Azure resource names include multiple levels (e.g., "SqlServerName/SqlDbName"), which requires more processing. This is a simplified approach to only use the last, most-specific segment. |
+| ResourceType               | SingularDisplayName (lookup)                        | Map ResourceType to SingularDisplayName using [Resource types data file](../../_reporting/data/README.md#-resource-types)                                             |
+| ServiceCategory            | ServiceCategory (lookup)                            | Map ConsumedService and ResourceType to SerivceCategory using [Services data file](../../_reporting/data/README.md#-services)                                         |
+| ServiceName                | ServiceName (lookup)                                | Map ConsumedService and ResourceType to SerivceName using [Services data file](../../_reporting/data/README.md#-services)                                             |
 | SkuId                      | EA: Not available<br>MCA: ProductId                 | None                                                                                                                                                                  |
 | SkuPriceId                 | Not available                                       | None                                                                                                                                                                  |
 | SubAccountId               | SubscriptionId                                      | None                                                                                                                                                                  |
 | SubAccountName             | SubscriptionName                                    | None                                                                                                                                                                  |
 | Tags                       | Tags                                                | Wrap in `{` and `}` if needed                                                                                                                                         |
 
-_<sup>1. BilledCost should copy cost from all rows **except** commitment usage that has a PricingModel of "Reservation" or "SavingsPlan" which should be `0`. EffectiveCost should copy cost from all amortized dataset rows; commitment purchases and refunds from the actual cost dataset should be `0`.</sup>_
+_<sup>1. Quantity in Cost Management is the consumed (usage) quantity.</sup>_
 
-_<sup>2. Quantity in Cost Management is the consumed (usage) quantity.</sup>_
-
-_<sup>3. While RegionName is a direct mapping of ResourceLocation, Cost Management and FinOps toolkit reports do additional data cleansing to ensure consistency in values based on the [Regions data file](../../_reporting/data/README.md#-regions).</sup>_
+_<sup>2. While RegionName is a direct mapping of ResourceLocation, Cost Management and FinOps toolkit reports do additional data cleansing to ensure consistency in values based on the [Regions data file](../../_reporting/data/README.md#-regions).</sup>_
 
 <br>
 

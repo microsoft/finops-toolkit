@@ -16,9 +16,7 @@
 // 5. Update HubSetup.kql to read from the new *_final_vX_Y tables
 //======================================================================================================================
 
-
-//===| Grant ADF identity access to the cluster |=======================================================================
-.add database Ingestion admins ('aadapp=$$adfPrincipalId$$;$$adfTenantId$$')
+// For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
 
 //===| Settings |=======================================================================================================
 
@@ -94,6 +92,32 @@ HubScopes()
     x_ServiceModel:           string
 )
 
+//----------------------------------------------------------------------------------------------------------------------
+
+// parse_resourceid
+.create-or-alter function 
+with (docstring = 'Parses an Azure resource ID to extract resource attributes like the name, type, resource group, and subaccount ID.', folder = 'Common')
+parse_resourceid(resourceId: string) {
+    let ResourceId = tolower(resourceId);
+    // let ResourceId = tolower('/providers/Microsoft.BillingBenefits/savingsPlanOrders/2d2e284b-0638-427e-b8c6-1b874d4f17c8/sp/xxx');
+    let SubAccountId = tostring(extract('/subscriptions/[^/]+', 1, ResourceId));
+    let x_ResourceGroupName = tostring(extract('/resourcegroups/[^/]+', 1, ResourceId));
+    let providerPath = iff(ResourceId !contains '/providers/', '', split(iff(ResourceId startswith '/subscriptions/', strcat('/providers/microsoft.resources/', ResourceId), ResourceId), '/providers/')[-1]);
+    let x_ResourceProvider = iff(isempty(providerPath), '', split(providerPath, '/')[0]);
+    let tmp_ResourceProviderPath = iff(isempty(providerPath), '', substring(providerPath, strlen(x_ResourceProvider) + 1));
+    let segments = split(tmp_ResourceProviderPath, '/');
+    let ResourceName = trim(@'/+', replace_string(strcat_array(array_iff(
+        dynamic([false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true]),
+        segments, dynamic([])), '/'), '//', '/'));
+    let x_ResourceTypePath = trim(@'/+', replace_string(strcat_array(array_iff(
+        dynamic([true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]),
+        segments, dynamic([])), '/'), '//', '/'));
+    let xRT = iff(isempty(x_ResourceProvider) or isempty(x_ResourceTypePath), '', strcat(x_ResourceProvider, '/', x_ResourceTypePath));
+    let types = split(toscalar(database('Ingestion').ResourceTypes | summarize types = make_set(strcat(x_ResourceType, '=', SingularDisplayName)) | extend types = strcat('||', strcat_array(types, '||')), '||'), strcat('||', xRT, '='));
+    let ResourceType = iff(array_length(types) < 2, '', split(types[1], '||')[0]);
+    bag_pack('ResourceId', ResourceId, 'ResourceName', ResourceName, 'ResourceType', coalesce(ResourceType, xRT), 'SubAccountId', SubAccountId, 'x_ResourceGroupName', x_ResourceGroupName, 'x_ResourceProvider', x_ResourceProvider, 'x_ResourceType', xRT)
+}
+
 
 //===| Prices |=========================================================================================================
 // NOTE: Must be before cost details.
@@ -144,7 +168,51 @@ HubScopes()
     x_SourceVersion:    string    // Hubs add-on
 )
 
-// Set Prices_raw retention policy
+// Prices_raw ingestion mapping
+.create-or-alter table Prices_raw ingestion parquet mapping "Prices_raw_mapping"
+```
+[
+    { "Column": "BasePrice",          "Properties": { "Field": "BasePrice" } },
+    { "Column": "BillingAccountId",   "Properties": { "Field": "BillingAccountId" } },
+    { "Column": "BillingAccountName", "Properties": { "Field": "BillingAccountName" } },
+    { "Column": "BillingCurrency",    "Properties": { "Field": "BillingCurrency" } },
+    { "Column": "BillingProfileId",   "Properties": { "Field": "BillingProfileId" } },
+    { "Column": "BillingProfileName", "Properties": { "Field": "BillingProfileName" } },
+    { "Column": "Currency",           "Properties": { "Field": "Currency" } },
+    { "Column": "CurrencyCode",       "Properties": { "Field": "CurrencyCode" } },
+    { "Column": "EffectiveEndDate",   "Properties": { "Field": "EffectiveEndDate" } },
+    { "Column": "EffectiveStartDate", "Properties": { "Field": "EffectiveStartDate" } },
+    { "Column": "EnrollmentNumber",   "Properties": { "Field": "EnrollmentNumber" } },
+    { "Column": "IncludedQuantity",   "Properties": { "Field": "IncludedQuantity" } },
+    { "Column": "MarketPrice",        "Properties": { "Field": "MarketPrice" } },
+    { "Column": "MeterCategory",      "Properties": { "Field": "MeterCategory" } },
+    { "Column": "MeterId",            "Properties": { "Field": "MeterId" } },
+    { "Column": "MeterID",            "Properties": { "Field": "MeterID" } },
+    { "Column": "MeterName",          "Properties": { "Field": "MeterName" } },
+    { "Column": "MeterRegion",        "Properties": { "Field": "MeterRegion" } },
+    { "Column": "MeterSubCategory",   "Properties": { "Field": "MeterSubCategory" } },
+    { "Column": "MeterType",          "Properties": { "Field": "MeterType" } },
+    { "Column": "OfferID",            "Properties": { "Field": "OfferID" } },
+    { "Column": "PartNumber",         "Properties": { "Field": "PartNumber" } },
+    { "Column": "PriceType",          "Properties": { "Field": "PriceType" } },
+    { "Column": "Product",            "Properties": { "Field": "Product" } },
+    { "Column": "ProductId",          "Properties": { "Field": "ProductId" } },
+    { "Column": "ProductID",          "Properties": { "Field": "ProductID" } },
+    { "Column": "ServiceFamily",      "Properties": { "Field": "ServiceFamily" } },
+    { "Column": "SkuId",              "Properties": { "Field": "SkuId" } },
+    { "Column": "SkuID",              "Properties": { "Field": "SkuID" } },
+    { "Column": "Term",               "Properties": { "Field": "Term" } },
+    { "Column": "TierMinimumUnits",   "Properties": { "Field": "TierMinimumUnits" } },
+    { "Column": "UnitOfMeasure",      "Properties": { "Field": "UnitOfMeasure" } },
+    { "Column": "UnitPrice",          "Properties": { "Field": "UnitPrice" } },
+    { "Column": "x_SourceName",       "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",   "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",       "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",    "Properties": { "Field": "x_SourceVersion" } }
+]
+```
+
+// Prices_raw retention policy
 .alter-merge table Prices_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -407,53 +475,53 @@ Prices_transform_v1_0()
 
 // Costs_raw table
 .create-merge table Costs_raw (
-    AvailabilityZone:           string,
-    BilledCost:                 decimal,
-    BillingAccountId:           string,
-    BillingAccountName:         string,
+    AvailabilityZone:           string,    // FOCUS 0.5+
+    BilledCost:                 decimal,   // FOCUS 0.5+
+    BillingAccountId:           string,    // FOCUS 0.5+
+    BillingAccountName:         string,    // FOCUS 0.5+
     BillingAccountType:         string,    // Azure 1.0-preview(v1)+
-    BillingCurrency:            string,
-    BillingPeriodEnd:           datetime,
-    BillingPeriodStart:         datetime,
-    ChargeCategory:             string,
-    ChargeClass:                string,
-    ChargeDescription:          string,
-    ChargeFrequency:            string,
-    ChargePeriodEnd:            datetime,
-    ChargePeriodStart:          datetime,
-    ChargeSubcategory:          string,
-    CommitmentDiscountCategory: string,    // FOCUS 1.0-preview only
-    CommitmentDiscountId:       string,
-    CommitmentDiscountName:     string,
-    CommitmentDiscountStatus:   string,
-    CommitmentDiscountType:     string,
-    ConsumedQuantity:           decimal,
-    ConsumedUnit:               string,
-    ContractedCost:             decimal,
-    ContractedUnitPrice:        decimal,
-    EffectiveCost:              decimal,
-    InvoiceIssuerName:          string,
-    ListCost:                   decimal,
-    ListUnitPrice:              decimal,
-    PricingCategory:            string,
-    PricingQuantity:            decimal,
-    PricingUnit:                string,
-    ProviderName:               string,
-    PublisherName:              string,
-    Region:                     string,    // FOCUS 1.0-preview only
-    RegionId:                   string,
-    RegionName:                 string,
-    ResourceId:                 string,
-    ResourceName:               string,
-    ResourceType:               string,
-    ServiceCategory:            string,
-    ServiceName:                string,
-    SkuId:                      string,
-    SkuPriceId:                 string,
-    SubAccountId:               string,
-    SubAccountName:             string,
-    SubAccountType:             string,
-    Tags:                       string,
+    BillingCurrency:            string,    // FOCUS 0.5+
+    BillingPeriodEnd:           datetime,  // FOCUS 0.5+
+    BillingPeriodStart:         datetime,  // FOCUS 0.5+
+    ChargeCategory:             string,    // FOCUS 1.0-preview+
+    ChargeClass:                string,    // FOCUS 1.0+
+    ChargeDescription:          string,    // FOCUS 1.0+
+    ChargeFrequency:            string,    // FOCUS 1.0+
+    ChargePeriodEnd:            datetime,  // FOCUS 0.5+
+    ChargePeriodStart:          datetime,  // FOCUS 0.5+
+    ChargeSubcategory:          string,    // FOCUS 1.0-preview only
+    CommitmentDiscountCategory: string,    // FOCUS 1.0-preview+
+    CommitmentDiscountId:       string,    // FOCUS 1.0-preview+
+    CommitmentDiscountName:     string,    // FOCUS 1.0-preview+
+    CommitmentDiscountStatus:   string,    // FOCUS 1.0+
+    CommitmentDiscountType:     string,    // FOCUS 1.0-preview+
+    ConsumedQuantity:           decimal,   // FOCUS 1.0+
+    ConsumedUnit:               string,    // FOCUS 1.0+
+    ContractedCost:             decimal,   // FOCUS 1.0+
+    ContractedUnitPrice:        decimal,   // FOCUS 1.0+
+    EffectiveCost:              decimal,   // FOCUS 1.0-preview+
+    InvoiceIssuerName:          string,    // FOCUS 0.5+
+    ListCost:                   decimal,   // FOCUS 1.0-preview+
+    ListUnitPrice:              decimal,   // FOCUS 1.0-preview+
+    PricingCategory:            string,    // FOCUS 1.0-preview+
+    PricingQuantity:            decimal,   // FOCUS 1.0-preview+
+    PricingUnit:                string,    // FOCUS 1.0-preview+
+    ProviderName:               string,    // FOCUS 0.5+
+    PublisherName:              string,    // FOCUS 0.5+
+    Region:                     string,    // FOCUS 0.5-1.0-preview (deprecated)
+    RegionId:                   string,    // FOCUS 1.0+
+    RegionName:                 string,    // FOCUS 1.0+
+    ResourceId:                 string,    // FOCUS 0.5+
+    ResourceName:               string,    // FOCUS 0.5+
+    ResourceType:               string,    // FOCUS 1.0-preview+
+    ServiceCategory:            string,    // FOCUS 0.5+
+    ServiceName:                string,    // FOCUS 0.5+
+    SkuId:                      string,    // FOCUS 1.0-preview+
+    SkuPriceId:                 string,    // FOCUS 1.0-preview+
+    SubAccountId:               string,    // FOCUS 0.5+
+    SubAccountName:             string,    // FOCUS 0.5+
+    SubAccountType:             string,    // Azure 1.0-preview(v1)+
+    Tags:                       string,    // FOCUS 1.0-preview+
     UsageAmount:                decimal,   // GCP Jan 2024 -- Removed Mar 2024 (UsageQuantity)
     UsageQuantity:              decimal,   // FOCUS 1.0-preview only
     UsageUnit:                  string,    // FOCUS 1.0-preview only
@@ -532,7 +600,137 @@ Prices_transform_v1_0()
     x_UsageType:                string     // AWS 1.0
 )
 
-// Set Costs_raw retention policy
+// Costs_raw ingestion mapping
+.create-or-alter table Costs_raw ingestion parquet mapping "Costs_raw_mapping"
+```
+[
+    { "Column": "AvailabilityZone",           "Properties": { "Field": "AvailabilityZone" } },
+    { "Column": "BilledCost",                 "Properties": { "Field": "BilledCost" } },
+    { "Column": "BillingAccountId",           "Properties": { "Field": "BillingAccountId" } },
+    { "Column": "BillingAccountName",         "Properties": { "Field": "BillingAccountName" } },
+    { "Column": "BillingAccountType",         "Properties": { "Field": "BillingAccountType" } },
+    { "Column": "BillingCurrency",            "Properties": { "Field": "BillingCurrency" } },
+    { "Column": "BillingPeriodEnd",           "Properties": { "Field": "BillingPeriodEnd" } },
+    { "Column": "BillingPeriodStart",         "Properties": { "Field": "BillingPeriodStart" } },
+    { "Column": "ChargeCategory",             "Properties": { "Field": "ChargeCategory" } },
+    { "Column": "ChargeClass",                "Properties": { "Field": "ChargeClass" } },
+    { "Column": "ChargeDescription",          "Properties": { "Field": "ChargeDescription" } },
+    { "Column": "ChargeFrequency",            "Properties": { "Field": "ChargeFrequency" } },
+    { "Column": "ChargePeriodEnd",            "Properties": { "Field": "ChargePeriodEnd" } },
+    { "Column": "ChargePeriodStart",          "Properties": { "Field": "ChargePeriodStart" } },
+    { "Column": "ChargeSubcategory",          "Properties": { "Field": "ChargeSubcategory" } },
+    { "Column": "CommitmentDiscountCategory", "Properties": { "Field": "CommitmentDiscountCategory" } },
+    { "Column": "CommitmentDiscountId",       "Properties": { "Field": "CommitmentDiscountId" } },
+    { "Column": "CommitmentDiscountName",     "Properties": { "Field": "CommitmentDiscountName" } },
+    { "Column": "CommitmentDiscountStatus",   "Properties": { "Field": "CommitmentDiscountStatus" } },
+    { "Column": "CommitmentDiscountType",     "Properties": { "Field": "CommitmentDiscountType" } },
+    { "Column": "ConsumedQuantity",           "Properties": { "Field": "ConsumedQuantity" } },
+    { "Column": "ConsumedUnit",               "Properties": { "Field": "ConsumedUnit" } },
+    { "Column": "ContractedCost",             "Properties": { "Field": "ContractedCost" } },
+    { "Column": "ContractedUnitPrice",        "Properties": { "Field": "ContractedUnitPrice" } },
+    { "Column": "EffectiveCost",              "Properties": { "Field": "EffectiveCost" } },
+    { "Column": "InvoiceIssuerName",          "Properties": { "Field": "InvoiceIssuerName" } },
+    { "Column": "ListCost",                   "Properties": { "Field": "ListCost" } },
+    { "Column": "ListUnitPrice",              "Properties": { "Field": "ListUnitPrice" } },
+    { "Column": "PricingCategory",            "Properties": { "Field": "PricingCategory" } },
+    { "Column": "PricingQuantity",            "Properties": { "Field": "PricingQuantity" } },
+    { "Column": "PricingUnit",                "Properties": { "Field": "PricingUnit" } },
+    { "Column": "ProviderName",               "Properties": { "Field": "ProviderName" } },
+    { "Column": "PublisherName",              "Properties": { "Field": "PublisherName" } },
+    { "Column": "Region",                     "Properties": { "Field": "Region" } },
+    { "Column": "RegionId",                   "Properties": { "Field": "RegionId" } },
+    { "Column": "RegionName",                 "Properties": { "Field": "RegionName" } },
+    { "Column": "ResourceId",                 "Properties": { "Field": "ResourceId" } },
+    { "Column": "ResourceName",               "Properties": { "Field": "ResourceName" } },
+    { "Column": "ResourceType",               "Properties": { "Field": "ResourceType" } },
+    { "Column": "ServiceCategory",            "Properties": { "Field": "ServiceCategory" } },
+    { "Column": "ServiceName",                "Properties": { "Field": "ServiceName" } },
+    { "Column": "SkuId",                      "Properties": { "Field": "SkuId" } },
+    { "Column": "SkuPriceId",                 "Properties": { "Field": "SkuPriceId" } },
+    { "Column": "SubAccountId",               "Properties": { "Field": "SubAccountId" } },
+    { "Column": "SubAccountName",             "Properties": { "Field": "SubAccountName" } },
+    { "Column": "SubAccountType",             "Properties": { "Field": "SubAccountType" } },
+    { "Column": "Tags",                       "Properties": { "Field": "Tags" } },
+    { "Column": "UsageAmount",                "Properties": { "Field": "UsageAmount" } },
+    { "Column": "UsageQuantity",              "Properties": { "Field": "UsageQuantity" } },
+    { "Column": "UsageUnit",                  "Properties": { "Field": "UsageUnit" } },
+    { "Column": "x_AccountId",                "Properties": { "Field": "x_AccountId" } },
+    { "Column": "x_AccountName",              "Properties": { "Field": "x_AccountName" } },
+    { "Column": "x_AccountOwnerId",           "Properties": { "Field": "x_AccountOwnerId" } },
+    { "Column": "x_BilledCostInUsd",          "Properties": { "Field": "x_BilledCostInUsd" } },
+    { "Column": "x_BilledUnitPrice",          "Properties": { "Field": "x_BilledUnitPrice" } },
+    { "Column": "x_BillingAccountId",         "Properties": { "Field": "x_BillingAccountId" } },
+    { "Column": "x_BillingAccountName",       "Properties": { "Field": "x_BillingAccountName" } },
+    { "Column": "x_BillingExchangeRate",      "Properties": { "Field": "x_BillingExchangeRate" } },
+    { "Column": "x_BillingExchangeRateDate",  "Properties": { "Field": "x_BillingExchangeRateDate" } },
+    { "Column": "x_BillingProfileId",         "Properties": { "Field": "x_BillingProfileId" } },
+    { "Column": "x_BillingProfileName",       "Properties": { "Field": "x_BillingProfileName" } },
+    { "Column": "x_ChargeId",                 "Properties": { "Field": "x_ChargeId" } },
+    { "Column": "x_ContractedCostInUsd",      "Properties": { "Field": "x_ContractedCostInUsd" } },
+    { "Column": "x_Cost",                     "Properties": { "Field": "x_Cost" } },
+    { "Column": "x_CostAllocationRuleName",   "Properties": { "Field": "x_CostAllocationRuleName" } },
+    { "Column": "x_CostCategories",           "Properties": { "Field": "x_CostCategories" } },
+    { "Column": "x_CostCenter",               "Properties": { "Field": "x_CostCenter" } },
+    { "Column": "x_Credits",                  "Properties": { "Field": "x_Credits" } },
+    { "Column": "x_CostType",                 "Properties": { "Field": "x_CostType" } },
+    { "Column": "x_CurrencyConversionRate",   "Properties": { "Field": "x_CurrencyConversionRate" } },
+    { "Column": "x_CustomerId",               "Properties": { "Field": "x_CustomerId" } },
+    { "Column": "x_CustomerName",             "Properties": { "Field": "x_CustomerName" } },
+    { "Column": "x_Discount",                 "Properties": { "Field": "x_Discount" } },
+    { "Column": "x_EffectiveCostInUsd",       "Properties": { "Field": "x_EffectiveCostInUsd" } },
+    { "Column": "x_EffectiveUnitPrice",       "Properties": { "Field": "x_EffectiveUnitPrice" } },
+    { "Column": "x_ExportTime",               "Properties": { "Field": "x_ExportTime" } },
+    { "Column": "x_InvoiceId",                "Properties": { "Field": "x_InvoiceId" } },
+    { "Column": "x_InvoiceIssuerId",          "Properties": { "Field": "x_InvoiceIssuerId" } },
+    { "Column": "x_InvoiceSectionId",         "Properties": { "Field": "x_InvoiceSectionId" } },
+    { "Column": "x_InvoiceSectionName",       "Properties": { "Field": "x_InvoiceSectionName" } },
+    { "Column": "x_ListCostInUsd",            "Properties": { "Field": "x_ListCostInUsd" } },
+    { "Column": "x_Location",                 "Properties": { "Field": "x_Location" } },
+    { "Column": "x_OnDemandCost",             "Properties": { "Field": "x_OnDemandCost" } },
+    { "Column": "x_OnDemandCostInUsd",        "Properties": { "Field": "x_OnDemandCostInUsd" } },
+    { "Column": "x_OnDemandUnitPrice",        "Properties": { "Field": "x_OnDemandUnitPrice" } },
+    { "Column": "x_Operation",                "Properties": { "Field": "x_Operation" } },
+    { "Column": "x_PartnerCreditApplied",     "Properties": { "Field": "x_PartnerCreditApplied" } },
+    { "Column": "x_PartnerCreditRate",        "Properties": { "Field": "x_PartnerCreditRate" } },
+    { "Column": "x_PricingBlockSize",         "Properties": { "Field": "x_PricingBlockSize" } },
+    { "Column": "x_PricingCurrency",          "Properties": { "Field": "x_PricingCurrency" } },
+    { "Column": "x_PricingSubcategory",       "Properties": { "Field": "x_PricingSubcategory" } },
+    { "Column": "x_PricingUnitDescription",   "Properties": { "Field": "x_PricingUnitDescription" } },
+    { "Column": "x_Project",                  "Properties": { "Field": "x_Project" } },
+    { "Column": "x_PublisherCategory",        "Properties": { "Field": "x_PublisherCategory" } },
+    { "Column": "x_PublisherId",              "Properties": { "Field": "x_PublisherId" } },
+    { "Column": "x_ResellerId",               "Properties": { "Field": "x_ResellerId" } },
+    { "Column": "x_ResellerName",             "Properties": { "Field": "x_ResellerName" } },
+    { "Column": "x_ResourceGroupName",        "Properties": { "Field": "x_ResourceGroupName" } },
+    { "Column": "x_ResourceType",             "Properties": { "Field": "x_ResourceType" } },
+    { "Column": "x_ServiceCode",              "Properties": { "Field": "x_ServiceCode" } },
+    { "Column": "x_ServiceId",                "Properties": { "Field": "x_ServiceId" } },
+    { "Column": "x_ServicePeriodEnd",         "Properties": { "Field": "x_ServicePeriodEnd" } },
+    { "Column": "x_ServicePeriodStart",       "Properties": { "Field": "x_ServicePeriodStart" } },
+    { "Column": "x_SkuDescription",           "Properties": { "Field": "x_SkuDescription" } },
+    { "Column": "x_SkuDetails",               "Properties": { "Field": "x_SkuDetails" } },
+    { "Column": "x_SkuIsCreditEligible",      "Properties": { "Field": "x_SkuIsCreditEligible" } },
+    { "Column": "x_SkuMeterCategory",         "Properties": { "Field": "x_SkuMeterCategory" } },
+    { "Column": "x_SkuMeterId",               "Properties": { "Field": "x_SkuMeterId" } },
+    { "Column": "x_SkuMeterName",             "Properties": { "Field": "x_SkuMeterName" } },
+    { "Column": "x_SkuMeterSubcategory",      "Properties": { "Field": "x_SkuMeterSubcategory" } },
+    { "Column": "x_SkuOfferId",               "Properties": { "Field": "x_SkuOfferId" } },
+    { "Column": "x_SkuOrderId",               "Properties": { "Field": "x_SkuOrderId" } },
+    { "Column": "x_SkuOrderName",             "Properties": { "Field": "x_SkuOrderName" } },
+    { "Column": "x_SkuPartNumber",            "Properties": { "Field": "x_SkuPartNumber" } },
+    { "Column": "x_SkuRegion",                "Properties": { "Field": "x_SkuRegion" } },
+    { "Column": "x_SkuServiceFamily",         "Properties": { "Field": "x_SkuServiceFamily" } },
+    { "Column": "x_SkuTerm",                  "Properties": { "Field": "x_SkuTerm" } },
+    { "Column": "x_SkuTier",                  "Properties": { "Field": "x_SkuTier" } },
+    { "Column": "x_SourceName",               "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",           "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",               "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",            "Properties": { "Field": "x_SourceVersion" } },
+    { "Column": "x_UsageType",                "Properties": { "Field": "x_UsageType" } }
+]
+```
+
+// Costs_raw retention policy
 .alter-merge table Costs_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1007,7 +1205,29 @@ Costs_transform_v1_0()
     x_SourceVersion:          string     // Hubs add-on
 )
 
-// Set CommitmentDiscountUsage_raw retention policy
+// CommitmentDiscountUsage_raw ingestion mapping
+.create-or-alter table CommitmentDiscountUsage_raw ingestion parquet mapping "CommitmentDiscountUsage_raw_mapping"
+```
+[
+    { "Column": "InstanceFlexibilityGroup", "Properties": { "Field": "InstanceFlexibilityGroup" } },
+    { "Column": "InstanceFlexibilityRatio", "Properties": { "Field": "InstanceFlexibilityRatio" } },
+    { "Column": "InstanceId",               "Properties": { "Field": "InstanceId" } },
+    { "Column": "Kind",                     "Properties": { "Field": "Kind" } },
+    { "Column": "ReservationId",            "Properties": { "Field": "ReservationId" } },
+    { "Column": "ReservationOrderId",       "Properties": { "Field": "ReservationOrderId" } },
+    { "Column": "ReservedHours",            "Properties": { "Field": "ReservedHours" } },
+    { "Column": "SkuName",                  "Properties": { "Field": "SkuName" } },
+    { "Column": "TotalReservedQuantity",    "Properties": { "Field": "TotalReservedQuantity" } },
+    { "Column": "UsageDate",                "Properties": { "Field": "UsageDate" } },
+    { "Column": "UsedHours",                "Properties": { "Field": "UsedHours" } },
+    { "Column": "x_SourceName",             "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",         "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",             "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",          "Properties": { "Field": "x_SourceVersion" } }
+]
+```
+
+// CommitmentDiscountUsage_raw retention policy
 .alter-merge table CommitmentDiscountUsage_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1131,34 +1351,86 @@ CommitmentDiscountUsage_transform_v1_0()
 
 // Recommendations_raw table
 .create-merge table Recommendations_raw (
-    CostWithNoReservedInstances:    decimal,   // MS CM EA+MCA resv reco 2024-05-01
-    FirstUsageDate:                 datetime,  // MS CM EA+MCA resv reco 2024-05-01
-    InstanceFlexibilityGroup:       string,    // MS CM EA+MCA resv reco 2024-05-01
-    InstanceFlexibilityRatio:       decimal,   // MS CM EA+MCA resv reco 2024-05-01
-    Location:                       string,    // MS CM EA+MCA resv reco 2024-05-01
-    LookBackPeriod:                 string,    // MS CM EA+MCA resv reco 2024-05-01
-    MeterId:                        string,    // MS CM EA resv reco 2024-05-01
-    MeterID:                        string,    // MS CM MCA resv reco 2024-05-01
-    NetSavings:                     decimal,   // MS CM EA+MCA resv reco 2024-05-01
-    NormalizedSize:                 string,    // MS CM EA+MCA resv reco 2024-05-01
-    RecommendedQuantity:            decimal,   // MS CM EA+MCA resv reco 2024-05-01
-    RecommendedQuantityNormalized:  decimal,   // MS CM EA+MCA resv reco 2024-05-01
-    ResourceType:                   string,    // MS CM EA+MCA resv reco 2024-05-01
-    Scope:                          string,    // MS CM EA resv reco 2024-05-01
-    scope:                          string,    // MS CM MCA resv reco 2024-05-01
-    SKU:                            string,    // MS CM EA resv reco 2024-05-01
-    SkuName:                        string,    // MS CM MCA resv reco 2024-05-01
-    SkuProperties:                  string,    // MS CM EA+MCA resv reco 2024-05-01
-    SubscriptionId:                 string,    // MS CM EA+MCA resv reco 2024-05-01
-    Term:                           string,    // MS CM EA+MCA resv reco 2024-05-01
-    TotalCostWithReservedInstances: decimal,   // MS CM EA+MCA resv reco 2024-05-01
-    x_SourceName:                   string,    // Hubs add-on
-    x_SourceProvider:               string,    // Hubs add-on
-    x_SourceType:                   string,    // Hubs add-on
-    x_SourceVersion:                string     // Hubs add-on
+    CostWithNoReservedInstances:     decimal,   // MS CM EA resv reco 2024-05-01
+    CostWithNoReservedInstances2:    decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    FirstUsageDate:                  datetime,  // MS CM EA resv reco 2024-05-01
+    FirstUsageDate2:                 datetime,  // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    InstanceFlexibilityGroup:        string,    // MS CM EA resv reco 2024-05-01
+    InstanceFlexibilityGroup2:       string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    InstanceFlexibilityRatio:        decimal,   // MS CM EA resv reco 2024-05-01
+    InstanceFlexibilityRatio2:       decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    Location:                        string,    // MS CM EA+MCA resv reco 2024-05-01
+    LookBackPeriod:                  string,    // MS CM EA+MCA resv reco 2024-05-01
+    MeterId:                         string,    // MS CM EA resv reco 2024-05-01
+    MeterID:                         string,    // MS CM MCA resv reco 2024-05-01
+    NetSavings:                      decimal,   // MS CM EA resv reco 2024-05-01
+    NetSavings2:                     decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    NormalizedSize:                  string,    // MS CM EA resv reco 2024-05-01
+    NormalizedSize2:                 string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    RecommendedQuantity:             decimal,   // MS CM EA resv reco 2024-05-01
+    RecommendedQuantity2:            decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    RecommendedQuantityNormalized:   decimal,   // MS CM EA resv reco 2024-05-01
+    RecommendedQuantityNormalized2:  decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    ResourceType:                    string,    // MS CM EA+MCA resv reco 2024-05-01
+    Scope:                           string,    // MS CM EA resv reco 2024-05-01
+    scope:                           string,    // MS CM MCA resv reco 2024-05-01
+    SKU:                             string,    // MS CM EA resv reco 2024-05-01
+    SkuName:                         string,    // MS CM MCA resv reco 2024-05-01
+    SkuProperties:                   string,    // MS CM EA resv reco 2024-05-01
+    SkuProperties2:                  string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    SubscriptionId:                  string,    // MS CM EA+MCA resv reco 2024-05-01
+    Term:                            string,    // MS CM EA+MCA resv reco 2024-05-01
+    TotalCostWithReservedInstances:  decimal,   // MS CM EA resv reco 2024-05-01
+    TotalCostWithReservedInstances2: decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    x_SourceName:                    string,    // Hubs add-on
+    x_SourceProvider:                string,    // Hubs add-on
+    x_SourceType:                    string,    // Hubs add-on
+    x_SourceVersion:                 string     // Hubs add-on
 )
 
-// Set Recommendations_raw retention policy
+// Recommendations_raw ingestion mapping
+.create-or-alter table Recommendations_raw ingestion parquet mapping "Recommendations_raw_mapping"
+```
+[
+    { "Column": "CostWithNoReservedInstances",     "Properties": { "Field": "CostWithNoReservedInstances" } },
+    { "Column": "CostWithNoReservedInstances2",    "Properties": { "Field": "Cost With No ReservedInstances" } },
+    { "Column": "FirstUsageDate",                  "Properties": { "Field": "FirstUsageDate" } },
+    { "Column": "FirstUsageDate2",                 "Properties": { "Field": "First UsageDate" } },
+    { "Column": "InstanceFlexibilityGroup",        "Properties": { "Field": "InstanceFlexibilityGroup" } },
+    { "Column": "InstanceFlexibilityGroup2",       "Properties": { "Field": "Instance Flexibility Group" } },
+    { "Column": "InstanceFlexibilityRatio",        "Properties": { "Field": "InstanceFlexibilityRatio" } },
+    { "Column": "InstanceFlexibilityRatio2",       "Properties": { "Field": "Instance Flexibility Ratio" } },
+    { "Column": "Location",                        "Properties": { "Field": "Location" } },
+    { "Column": "LookBackPeriod",                  "Properties": { "Field": "LookBackPeriod" } },
+    { "Column": "MeterId",                         "Properties": { "Field": "MeterId" } },
+    { "Column": "MeterID",                         "Properties": { "Field": "MeterID" } },
+    { "Column": "NetSavings",                      "Properties": { "Field": "NetSavings" } },
+    { "Column": "NetSavings2",                     "Properties": { "Field": "Net Savings" } },
+    { "Column": "NormalizedSize",                  "Properties": { "Field": "NormalizedSize" } },
+    { "Column": "NormalizedSize2",                 "Properties": { "Field": "Normalized Size" } },
+    { "Column": "RecommendedQuantity",             "Properties": { "Field": "RecommendedQuantity" } },
+    { "Column": "RecommendedQuantity2",            "Properties": { "Field": "Recommended Quantity" } },
+    { "Column": "RecommendedQuantityNormalized",   "Properties": { "Field": "RecommendedQuantityNormalized" } },
+    { "Column": "RecommendedQuantityNormalized2",  "Properties": { "Field": "Recommended Quantity Normalized" } },
+    { "Column": "ResourceType",                    "Properties": { "Field": "ResourceType" } },
+    { "Column": "Scope",                           "Properties": { "Field": "Scope" } },
+    { "Column": "scope",                           "Properties": { "Field": "scope" } },
+    { "Column": "SKU",                             "Properties": { "Field": "SKU" } },
+    { "Column": "SkuName",                         "Properties": { "Field": "SkuName" } },
+    { "Column": "SkuProperties",                   "Properties": { "Field": "SkuProperties" } },
+    { "Column": "SkuProperties2",                  "Properties": { "Field": "Sku Properties" } },
+    { "Column": "SubscriptionId",                  "Properties": { "Field": "SubscriptionId" } },
+    { "Column": "Term",                            "Properties": { "Field": "Term" } },
+    { "Column": "TotalCostWithReservedInstances",  "Properties": { "Field": "TotalCostWithReservedInstances" } },
+    { "Column": "TotalCostWithReservedInstances2", "Properties": { "Field": "Total Cost With ReservedInstances" } },
+    { "Column": "x_SourceName",                    "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",                "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",                    "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",                 "Properties": { "Field": "x_SourceVersion" } }
+]
+```
+
+// Recommendations_raw retention policy
 .alter-merge table Recommendations_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1188,6 +1460,18 @@ Recommendations_transform_v1_0()
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
     | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
+    //
+    // Handle duplicated columns with spaces
+    | extend CostWithNoReservedInstances =    coalesce(CostWithNoReservedInstances, CostWithNoReservedInstances2)
+    | extend FirstUsageDate =                 coalesce(FirstUsageDate, FirstUsageDate2)
+    | extend InstanceFlexibilityGroup =       coalesce(InstanceFlexibilityGroup, InstanceFlexibilityGroup2)
+    | extend InstanceFlexibilityRatio =       coalesce(InstanceFlexibilityRatio, InstanceFlexibilityRatio2)
+    | extend NetSavings =                     coalesce(NetSavings, NetSavings2)
+    | extend NormalizedSize =                 coalesce(NormalizedSize, NormalizedSize2)
+    | extend RecommendedQuantity =            coalesce(RecommendedQuantity, RecommendedQuantity2)
+    | extend RecommendedQuantityNormalized =  coalesce(RecommendedQuantityNormalized, RecommendedQuantityNormalized2)
+    | extend SkuProperties =                  coalesce(SkuProperties, SkuProperties2)
+    | extend TotalCostWithReservedInstances = coalesce(TotalCostWithReservedInstances, TotalCostWithReservedInstances2)
     //
     // Build recommendation details
     | lookup kind=leftouter (database('Ingestion').Regions | distinct Location = RegionId, RegionName) on Location
@@ -1308,7 +1592,47 @@ Recommendations_transform_v1_0()
     x_SourceVersion:                string     // Hubs add-on
 )
 
-// Set Transactions_raw retention policy
+// Transactions_raw ingestion mapping
+.create-or-alter table Transactions_raw ingestion parquet mapping "Transactions_raw_mapping"
+```
+[
+    { "Column": "AccountName",                "Properties": { "Field": "AccountName" } },
+    { "Column": "AccountOwnerEmail",          "Properties": { "Field": "AccountOwnerEmail" } },
+    { "Column": "Amount",                     "Properties": { "Field": "Amount" } },
+    { "Column": "ArmSkuName",                 "Properties": { "Field": "ArmSkuName" } },
+    { "Column": "BillingFrequency",           "Properties": { "Field": "BillingFrequency" } },
+    { "Column": "BillingMonth",               "Properties": { "Field": "BillingMonth" } },
+    { "Column": "BillingProfileId",           "Properties": { "Field": "BillingProfileId" } },
+    { "Column": "BillingProfileName",         "Properties": { "Field": "BillingProfileName" } },
+    { "Column": "CostCenter",                 "Properties": { "Field": "CostCenter" } },
+    { "Column": "Currency",                   "Properties": { "Field": "Currency" } },
+    { "Column": "CurrentEnrollmentId",        "Properties": { "Field": "CurrentEnrollmentId" } },
+    { "Column": "DepartmentName",             "Properties": { "Field": "DepartmentName" } },
+    { "Column": "Description",                "Properties": { "Field": "Description" } },
+    { "Column": "EventDate",                  "Properties": { "Field": "EventDate" } },
+    { "Column": "EventType",                  "Properties": { "Field": "EventType" } },
+    { "Column": "Invoice",                    "Properties": { "Field": "Invoice" } },
+    { "Column": "InvoiceId",                  "Properties": { "Field": "InvoiceId" } },
+    { "Column": "InvoiceSectionId",           "Properties": { "Field": "InvoiceSectionId" } },
+    { "Column": "InvoiceSectionName",         "Properties": { "Field": "InvoiceSectionName" } },
+    { "Column": "MonetaryCommitment",         "Properties": { "Field": "MonetaryCommitment" } },
+    { "Column": "Overage",                    "Properties": { "Field": "Overage" } },
+    { "Column": "PurchasingEnrollment",       "Properties": { "Field": "PurchasingEnrollment" } },
+    { "Column": "PurchasingSubscriptionGuid", "Properties": { "Field": "PurchasingSubscriptionGuid" } },
+    { "Column": "PurchasingSubscriptionName", "Properties": { "Field": "PurchasingSubscriptionName" } },
+    { "Column": "Quantity",                   "Properties": { "Field": "Quantity" } },
+    { "Column": "Region",                     "Properties": { "Field": "Region" } },
+    { "Column": "ReservationOrderId",         "Properties": { "Field": "ReservationOrderId" } },
+    { "Column": "ReservationOrderName",       "Properties": { "Field": "ReservationOrderName" } },
+    { "Column": "Term",                       "Properties": { "Field": "Term" } },
+    { "Column": "x_SourceName",               "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",           "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",               "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",            "Properties": { "Field": "x_SourceVersion" } }
+]
+```
+
+// Transactions_raw retention policy
 .alter-merge table Transactions_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -5,17 +5,18 @@
       "ordinal": 0,
       "scrollPosition": {
         "x": 0,
-        "y": 33.5287866683784
+        "y": 295.71428571428572
       },
       "nodes": [
         {
           "location": {
-            "x": 6402.7763294224005,
-            "y": 480.76858364676713
+            "x": 6311.34775799383,
+            "y": 897.91144078962429
           },
           "nodeIndex": "CostDetails",
+          "nodeLineageTag": "4b9830c4-e7c7-43ee-823c-d6b15359c25f",
           "size": {
-            "height": 337,
+            "height": 381.28571428571433,
             "width": 234
           },
           "zIndex": 2
@@ -215,8 +216,8 @@
         },
         {
           "location": {
-            "x": 1674.5585338073536,
-            "y": 963.81622791977316
+            "x": 1663.129962378782,
+            "y": 1158.1019422054874
           },
           "nodeIndex": "Advisor for disks",
           "nodeLineageTag": "98ceee9a-da76-4d64-9d74-1165ec1b28c4",

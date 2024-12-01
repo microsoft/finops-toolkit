@@ -68,14 +68,6 @@ table TagCosts
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column Tags
-		dataType: string
-		lineageTag: 1d040e0e-7534-4760-a493-8be211cb8344
-		summarizeBy: none
-		sourceColumn: Tags
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_CommitmentDiscountSavings
 		dataType: double
 		lineageTag: 81651eba-c48f-44b1-9d81-a2c4d2b7b910
@@ -187,6 +179,64 @@ table TagCosts
 
 		annotation SummarizationSetBy = Automatic
 
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: ee9e68f8-6449-4d7b-addb-fe74fdd7cc2b
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountId
+		dataType: string
+		lineageTag: 05f9fe5a-b12d-4692-b6ce-87f0a7608369
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountName
+		dataType: string
+		lineageTag: dc924f77-d8ec-4f55-834a-440b08a9f25c
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: 2183563b-f74d-4fe0-aa42-ae6553eecb5a
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ChargePeriodMonth
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 5d26fbf1-9c38-4e6e-a4be-7006dcb6d83d
+		summarizeBy: none
+		sourceColumn: x_ChargePeriodMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Untagged
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: c35e42aa-281b-4852-9c77-e37a23ab671c
+		summarizeBy: none
+		sourceColumn: tag_Untagged
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Product
+		dataType: string
+		lineageTag: 693b17fa-35c6-4aa5-b63f-0c75f5fc184c
+		summarizeBy: none
+		sourceColumn: tag_Product
+
+		annotation SummarizationSetBy = Automatic
+
 	partition TagCosts = m
 		mode: import
 		queryGroup: 'Data Explorer'
@@ -195,6 +245,11 @@ table TagCosts
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
 				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
+				    let numberOfMonths = " & lookback & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
+				    let allowCostManagementAllocationRules = false;
+				    let summarizeAfterRowCount = 400000;
+				    //
 				    // Set the tags you want to promote as 'tag_*' columns in this array
 				    let promotedTags = dynamic(['Application', 'BusinessUnit', 'CostCenter', 'Department', 'Division', 'Env', 'Owner', 'Product', 'Project', 'Purpose', 'Service']);
 				    //
@@ -209,87 +264,68 @@ table TagCosts
 				        iff(toscalar(tagColumn | count) > 0, toscalar(tagColumn | limit 1), '')
 				    };
 				    Costs_v1_0
-				    | where ChargePeriodStart >= monthsago(" & lookback & ")
-				    // | where isnotempty(Tags)
+				    | where ChargePeriodStart >= monthsago(numberOfMonths)
+				    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
+				    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
+				    | extend x_ReportingDate = iff(monthlyGranularity, x_ChargePeriodMonth, startofday(ChargePeriodStart))
 				    //
-				    // Filter out cost allocation changes
-				    | where isempty(x_CostAllocationRuleName)
-				    //
-				    // Fix missing costs
-				    | extend ContractedCost = iff(isempty(ContractedCost) or ContractedCost == 0, EffectiveCost, ContractedCost)
-				    | extend ListCost = iff(isempty(ListCost) or ListCost == 0, ContractedCost, ListCost)
-				    //
+				    | extend Tags = tostring(Tags)
 				    | summarize
 				        BilledCost = sum(BilledCost),
-				        // BillingAccountName = take_any(BillingAccountName),
-				        " & (if #"Daily or Monthly" = "Daily" then "" else "ChargePeriodEnd = max(ChargePeriodEnd), ChargePeriodStart = min(ChargePeriodStart),") & "
+				        ChargePeriodEnd = max(ChargePeriodEnd),
+				        ChargePeriodStart = min(ChargePeriodStart),
 				        ContractedCost = sum(ContractedCost),
 				        EffectiveCost = sum(EffectiveCost),
 				        ListCost = sum(ListCost)
-				        // ProviderName = take_any(ProviderName),
-				        // SubAccountName = take_any(SubAccountName),
 				        by
-				            // BillingAccountId,
 				            BillingCurrency,
-				            " & (if #"Daily or Monthly" = "Daily" then "ChargePeriodEnd, ChargePeriodStart," else "") & "
 				            CommitmentDiscountCategory,
 				            CommitmentDiscountId,
 				            CommitmentDiscountName,
 				            CommitmentDiscountType,
-				            CommitmentDiscountStatus,
-				            ResourceId,
-				            // SubAccountId
-				            Tags = tostring(Tags),
-				            // x_BillingAccountId,
-				            // x_BillingAccountName,
-				            // x_BillingProfileId,
-				            // x_BillingProfileName,
-				            x_ChargePeriodMonth = startofmonth(ChargePeriodStart),
+				            Tags,
+				            x_ChargePeriodMonth,
 				            x_CostCategories = tostring(x_CostCategories),
-				            x_CostCenter
-				            // x_InvoiceSectionId,
-				            // x_InvoiceSectionName,
-				            // x_Project
-				    | project
-				        BilledCost,
-				        // BillingAccountId,
-				        // BillingAccountName,
-				        BillingCurrency,
-				        ChargePeriodEnd,
-				        ChargePeriodStart,
-				        ContractedCost,
-				        EffectiveCost,
-				        ListCost,
-				        // SubAccountId,
-				        // SubAccountName,
-				        Tags,
-				        // x_BillingAccountId,
-				        // x_BillingAccountName,
-				        // x_BillingProfileId,
-				        // x_BillingProfileName,
-				        x_CommitmentDiscountSavings = ContractedCost - EffectiveCost,
-				        x_CostCategories,
-				        x_CostCenter,
-				        // x_InvoiceSectionId,
-				        // x_InvoiceSectionName,
-				        // x_Project
-				        x_NegotiatedDiscountSavings = ListCost - ContractedCost,
-				        x_ReportingDate = " & (if #"Daily or Monthly" = "Daily" then "startofday(ChargePeriodStart)" else "x_ChargePeriodMonth") & ",
-				        x_TotalSavings = ListCost - EffectiveCost
+				            x_CostCenter,
+				            x_ReportingDate,
+				            tag_Untagged = isempty(Tags) or Tags == '{}'
 				    //
 				    // Extract tags
-				    | extend tmp_Tags = parse_json(Tags)
-				    | mv-apply tmp_Tags on (
-				        extend TagName = tostring(bag_keys(tmp_Tags)[0])
+				    | extend Tags = parse_json(Tags)
+				    | mv-apply Tags on (
+				        extend TagName = tostring(bag_keys(Tags)[0])
 				        | extend cleanTagName = iff(trimSpaces, trim(' ', TagName), TagName)
 				        | where cleanTagName in (promotedTags) or (caseInsensitive and cleanTagName in~ (promotedTags))
 				        | extend tagColumn = strcat('tag_', promotedTags[array_index_of(parse_json(tolower(promotedTags)), tolower(cleanTagName))])
 				        | where isnotempty(tagColumn)
-				        | summarize tmp_Tags = make_bag(bag_pack(tagColumn, tostring(tmp_Tags[TagName])))
+				        | summarize Tags = make_bag(bag_pack(tagColumn, tostring(Tags[TagName])))
 				    )
-				    | evaluate bag_unpack(tmp_Tags)
+				    | extend x_CommitmentDiscountSavings = ContractedCost - EffectiveCost
+				    | extend x_NegotiatedDiscountSavings = ListCost - ContractedCost
+				    | extend x_TotalSavings = ListCost - EffectiveCost
+				    | evaluate bag_unpack(Tags)
+				    | project-reorder
+				        BilledCost,
+				        BillingCurrency,
+				        ChargePeriodEnd,
+				        ChargePeriodStart,
+				        CommitmentDiscountCategory,
+				        CommitmentDiscountId,
+				        CommitmentDiscountName,
+				        CommitmentDiscountType,
+				        ContractedCost,
+				        EffectiveCost,
+				        ListCost,
+				        x_ChargePeriodMonth,
+				        x_CommitmentDiscountSavings,
+				        x_CostCategories,
+				        x_CostCenter,
+				        x_NegotiatedDiscountSavings,
+				        x_ReportingDate,
+				        x_TotalSavings,
+				        tag_Untagged
 				
-				    ", [MaxRows=null, MaxSize=null, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-Resources-TagCosts"])
+				    ", [MaxRows=null, MaxSize=1073741824, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-CostSummary-TagCosts"])
 				in
 				    Source
 

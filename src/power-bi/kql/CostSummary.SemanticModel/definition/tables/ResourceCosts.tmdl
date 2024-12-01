@@ -307,21 +307,22 @@ table ResourceCosts
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
 				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
+				    let numberOfMonths = " & lookback & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
+				    let allowCostManagementAllocationRules = false;
+				    let summarizeAfterRowCount = 400000;
 				    Costs_v1_0
-				    | where ChargePeriodStart >= monthsago(" & lookback & ")
-				    //
-				    // Filter out cost allocation changes
-				    | where isempty(x_CostAllocationRuleName)
-				    //
-				    // Fix missing costs
-				    | extend ContractedCost = iff(isempty(ContractedCost) or ContractedCost == 0, EffectiveCost, ContractedCost)
-				    | extend ListCost = iff(isempty(ListCost) or ListCost == 0, ContractedCost, ListCost)
+				    | where ChargePeriodStart >= monthsago(numberOfMonths)
+				    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
+				    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
+				    | extend x_ReportingDate = iff(monthlyGranularity, x_ChargePeriodMonth, startofday(ChargePeriodStart))
 				    //
 				    | summarize
 				        AvailabilityZone = take_any(AvailabilityZone),
 				        BilledCost = sum(BilledCost),
 				        BillingAccountName = take_any(BillingAccountName),
-				        " & (if #"Daily or Monthly" = "Daily" then "" else "ChargePeriodEnd = max(ChargePeriodEnd), ChargePeriodStart = min(ChargePeriodStart),") & "
+				        ChargePeriodEnd = max(ChargePeriodEnd),
+				        ChargePeriodStart = min(ChargePeriodStart),
 				        ContractedCost = sum(ContractedCost),
 				        EffectiveCost = sum(EffectiveCost),
 				        ListCost = sum(ListCost),
@@ -338,18 +339,15 @@ table ResourceCosts
 				        by
 				            BillingAccountId,
 				            BillingCurrency,
-				            " & (if #"Daily or Monthly" = "Daily" then "ChargePeriodEnd, ChargePeriodStart," else "") & "
-				            x_ChargePeriodMonth = startofmonth(ChargePeriodStart),
 				            CommitmentDiscountCategory,
 				            CommitmentDiscountId,
 				            CommitmentDiscountName,
 				            CommitmentDiscountType,
 				            CommitmentDiscountStatus,
 				            ResourceId,
-				            SubAccountId
-				            // Tags,
-				            // x_CostCategories,
-				            // x_CostCenter
+				            SubAccountId,
+				            x_ChargePeriodMonth,
+				            x_ReportingDate
 				    | project
 				        AvailabilityZone,
 				        BilledCost,
@@ -382,12 +380,52 @@ table ResourceCosts
 				        // x_CostCategories,
 				        // x_CostCenter
 				        x_NegotiatedDiscountSavings = ListCost - ContractedCost,
-				        x_ReportingDate = " & (if #"Daily or Monthly" = "Daily" then "startofday(ChargePeriodStart)" else "x_ChargePeriodMonth") & ",
+				        x_ReportingDate,
 				        x_ResourceGroupName,
 				        x_ResourceType,
 				        x_TotalSavings = ListCost - EffectiveCost
+				    | serialize
+				    | extend ROW = row_number()
+				    | as allData
+				    | limit summarizeAfterRowCount
+				    | union (
+				        allData
+				        | where ROW > summarizeAfterRowCount
+				        | summarize
+				        BilledCost = sum(BilledCost),
+				        ChargePeriodEnd = max(ChargePeriodEnd),
+				        ChargePeriodStart = min(ChargePeriodStart),
+				        ContractedCost = sum(ContractedCost),
+				        EffectiveCost = sum(EffectiveCost),
+				        ListCost = sum(ListCost)
+				        by
+				            AvailabilityZone = '(multiple)',
+				            BillingAccountId,
+				            BillingAccountName,
+				            BillingCurrency,
+				            CommitmentDiscountCategory,
+				            CommitmentDiscountId = '(multiple)',
+				            CommitmentDiscountName = '(multiple)',
+				            CommitmentDiscountType,
+				            CommitmentDiscountStatus,
+				            ProviderName,
+				            RegionId = '(multiple)',
+				            RegionName = '(multiple)',
+				            ResourceId = '(multiple)',
+				            ResourceName = '(multiple)',
+				            ResourceType = '(multiple)',
+				            ServiceCategory = '(multiple)',
+				            ServiceName = '(multiple)',
+				            SubAccountName = '(multiple)',
+				            SubAccountId = '(multiple)',
+				            x_ChargePeriodMonth,
+				            x_ReportingDate,
+				            x_ResourceGroupName = '(multiple)',
+				            x_ResourceType = '(multiple)'
+				    )
+				    | project-away ROW
 				
-				    ", [MaxRows=null, MaxSize=null, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-Resources-ResourceCosts"])
+				    ", [MaxRows=null, MaxSize=1073741824, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-CostSummary-ResourceCosts"])
 				in
 				    Source
 

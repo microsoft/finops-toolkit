@@ -288,7 +288,7 @@ table SkuPrices
 				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
 				    let numberOfMonths = " & lookback & ";
-				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Daily") & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
 				    let allowCostManagementAllocationRules = false;
 				    let usageOnly = false;
 				    let committedOnly = false;
@@ -360,7 +360,7 @@ table SkuPrices
 				        x_SkuTermLabel,
 				        x_TotalSavings = ListCost - EffectiveCost
 				
-				    ", [MaxRows=null, MaxSize=null, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-Resources-SkuPrices"])
+				    ", [MaxRows=null, MaxSize=1073741824, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-CostSummary-SkuPrices"])
 				in
 				    Source
 

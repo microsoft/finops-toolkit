@@ -1,0 +1,433 @@
+table ToolkitCosts
+	lineageTag: 33cc1d36-56d3-4d0f-a2fb-321ab834f6e8
+
+	column AvailabilityZone
+		dataType: string
+		lineageTag: 78bb8eb2-496e-4d2b-81dc-53e95812ae3c
+		summarizeBy: none
+		sourceColumn: AvailabilityZone
+
+		annotation SummarizationSetBy = Automatic
+
+	column BilledCost
+		dataType: double
+		lineageTag: cf92548b-3458-40ca-8fd0-52ed67ad8a0e
+		summarizeBy: sum
+		sourceColumn: BilledCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BillingAccountId
+		dataType: string
+		lineageTag: 8a780e8d-8016-4371-bbeb-fda3ed73536d
+		summarizeBy: none
+		sourceColumn: BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingAccountName
+		dataType: string
+		lineageTag: 63b402e6-63f6-4056-ae98-3d7779b6ba09
+		summarizeBy: none
+		sourceColumn: BillingAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingCurrency
+		dataType: string
+		lineageTag: f6152bdc-c280-4e93-806d-acd51aa821a9
+		summarizeBy: none
+		sourceColumn: BillingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: bbd2d287-c214-40d6-9b7f-90dd955f39a4
+		summarizeBy: none
+		sourceColumn: ChargePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: aa31dcd2-b9dc-4c5a-8c31-1896bdd3df42
+		summarizeBy: none
+		sourceColumn: ChargePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: 2c458c00-32c5-4544-a2f5-ea40c6e84ddc
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountId
+		dataType: string
+		lineageTag: ce8a7d40-d071-4c67-8706-ad5ac5b9db0e
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountName
+		dataType: string
+		lineageTag: c0be8159-ab19-4035-b07f-1d0d774ec169
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: f87bd80b-1a6b-4f1b-8344-f7fe2570ca5b
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountStatus
+		dataType: string
+		lineageTag: 152cd8b3-cdea-4ac6-b94a-44db45a83fbb
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractedCost
+		dataType: double
+		lineageTag: 489d50ab-273c-4a7d-b89f-5f0f0eb2c643
+		summarizeBy: sum
+		sourceColumn: ContractedCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column EffectiveCost
+		dataType: double
+		lineageTag: f5c59d5f-7610-4a0e-9e5f-d986c9e0c2d3
+		summarizeBy: sum
+		sourceColumn: EffectiveCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ListCost
+		dataType: double
+		lineageTag: 1135cf23-acb5-4985-9625-a9a7f4f54c41
+		summarizeBy: sum
+		sourceColumn: ListCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ProviderName
+		dataType: string
+		lineageTag: a97409ef-3c0c-4ee8-89dc-c911a99b7436
+		summarizeBy: none
+		sourceColumn: ProviderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionId
+		dataType: string
+		lineageTag: bbd8f899-4aa6-4c99-a65b-c33d958bc037
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionName
+		dataType: string
+		lineageTag: 19b5105a-735b-4c42-a277-2bf09f01721f
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceId
+		dataType: string
+		lineageTag: 9e7bcc3d-0d2b-4b47-a10b-900306cff896
+		summarizeBy: none
+		sourceColumn: ResourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceName
+		dataType: string
+		lineageTag: 2a77adbe-bea6-4983-bf00-4aecce88a41f
+		summarizeBy: none
+		sourceColumn: ResourceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceType
+		dataType: string
+		lineageTag: b6754807-1ab2-4539-91d7-7cf168611962
+		summarizeBy: none
+		sourceColumn: ResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceCategory
+		dataType: string
+		lineageTag: ca4cd2e5-dc77-44d9-9066-db47415f55a0
+		summarizeBy: none
+		sourceColumn: ServiceCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceName
+		dataType: string
+		lineageTag: 6eb323ad-0d70-4f9c-80d6-9b632e76aa9c
+		summarizeBy: none
+		sourceColumn: ServiceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountId
+		dataType: string
+		lineageTag: 4d652ba2-a21c-40e4-a41d-e418b2a6c273
+		summarizeBy: none
+		sourceColumn: SubAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountName
+		dataType: string
+		lineageTag: c8129c8b-09bd-4b2b-b2a3-de5bcaba11bc
+		summarizeBy: none
+		sourceColumn: SubAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ChargePeriodMonth
+		dataType: dateTime
+		formatString: Mmm yyyy
+		lineageTag: dba79d77-a8ff-46cf-b875-1be385cccb84
+		summarizeBy: none
+		sourceColumn: x_ChargePeriodMonth
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_CommitmentDiscountSavings
+		dataType: double
+		lineageTag: 817b654e-9c47-436c-8339-a98533beba85
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_NegotiatedDiscountSavings
+		dataType: double
+		lineageTag: 83389c04-430d-4bfa-9f4a-35668948dd3b
+		summarizeBy: sum
+		sourceColumn: x_NegotiatedDiscountSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_ReportingDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 847e9789-6be7-4e76-ba47-99588ba5dd4e
+		summarizeBy: none
+		sourceColumn: x_ReportingDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceGroupName
+		dataType: string
+		lineageTag: ec19aa54-faf2-4309-90a1-bb0667336908
+		summarizeBy: none
+		sourceColumn: x_ResourceGroupName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceType
+		dataType: string
+		lineageTag: 855d5899-738a-4b28-90ad-3af4e04279bb
+		summarizeBy: none
+		sourceColumn: x_ResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ToolkitTool
+		dataType: string
+		lineageTag: cb5f9918-0620-4c3e-850e-9685996a054b
+		summarizeBy: none
+		sourceColumn: x_ToolkitTool
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ToolkitVersion
+		dataType: string
+		lineageTag: 258a0bc6-5718-497c-a216-84e9e202a650
+		summarizeBy: none
+		sourceColumn: x_ToolkitVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_TotalSavings
+		dataType: double
+		lineageTag: da07ab98-b106-4b7f-bc0f-bde0a4a7ffdf
+		summarizeBy: sum
+		sourceColumn: x_TotalSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_ResourceParentId
+		dataType: string
+		lineageTag: f5154656-aea2-49c0-91d4-45730e6b5da4
+		summarizeBy: none
+		sourceColumn: x_ResourceParentId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentName
+		dataType: string
+		lineageTag: 5ca85360-d65b-450d-9794-a4c9e234db74
+		summarizeBy: none
+		sourceColumn: x_ResourceParentName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentType
+		dataType: string
+		lineageTag: 8fd052fd-1aef-456c-8f64-38696ea1d7dd
+		summarizeBy: none
+		sourceColumn: x_ResourceParentType
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ToolkitCosts = m
+		mode: import
+		queryGroup: KQL
+		source =
+				let
+				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+				    let numberOfMonths = " & lookback & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
+				    let allowCostManagementAllocationRules = false;
+				    Costs_v1_0
+				    | where ChargePeriodStart >= monthsago(numberOfMonths)
+				    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
+				    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
+				    | extend x_ReportingDate = iff(monthlyGranularity, x_ChargePeriodMonth, startofday(ChargePeriodStart))
+				    //
+				    | extend x_ToolkitTool = tostring(Tags['ftk-tool'])
+				    | where isnotempty(x_ToolkitTool)
+				    | extend x_ToolkitVersion = tostring(Tags['ftk-version'])
+				    | extend tmp_ResourceParent = parse_resourceid(Tags['cm-resource-parent'])
+				    | extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)
+				    | extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)
+				    | extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)
+				    //
+				    | summarize
+				        AvailabilityZone = take_any(AvailabilityZone),
+				        BilledCost = sum(BilledCost),
+				        BillingAccountName = take_any(BillingAccountName),
+				        ChargePeriodEnd = max(ChargePeriodEnd),
+				        ChargePeriodStart = min(ChargePeriodStart),
+				        ContractedCost = sum(ContractedCost),
+				        EffectiveCost = sum(EffectiveCost),
+				        ListCost = sum(ListCost),
+				        ProviderName = take_any(ProviderName),
+				        RegionId = take_any(RegionId),
+				        RegionName = take_any(RegionName),
+				        ResourceName = take_any(ResourceName),
+				        ResourceType = take_any(ResourceType),
+				        ServiceCategory = take_any(ServiceCategory),
+				        ServiceName = take_any(ServiceName),
+				        SubAccountName = take_any(SubAccountName),
+				        x_ResourceGroupName = take_any(x_ResourceGroupName),
+				        x_ResourceType = take_any(x_ResourceType)
+				        by
+				            BillingAccountId,
+				            BillingCurrency,
+				            CommitmentDiscountCategory,
+				            CommitmentDiscountId,
+				            CommitmentDiscountName,
+				            CommitmentDiscountType,
+				            CommitmentDiscountStatus,
+				            ResourceId,
+				            SubAccountId,
+				            // Tags,
+				            x_ChargePeriodMonth,
+				            // x_CostCategories,
+				            // x_CostCenter,
+				            x_ReportingDate,
+				            x_ResourceParentId,
+				            x_ResourceParentName,
+				            x_ResourceParentType,
+				            x_ToolkitTool,
+				            x_ToolkitVersion
+				    | project
+				        AvailabilityZone,
+				        BilledCost,
+				        BillingAccountId,
+				        BillingAccountName,
+				        BillingCurrency,
+				        ChargePeriodEnd,
+				        ChargePeriodStart,
+				        CommitmentDiscountCategory,
+				        CommitmentDiscountId,
+				        CommitmentDiscountName,
+				        CommitmentDiscountType,
+				        CommitmentDiscountStatus,
+				        ContractedCost,
+				        EffectiveCost,
+				        ListCost,
+				        ProviderName,
+				        RegionId,
+				        RegionName,
+				        ResourceId,
+				        ResourceName,
+				        ResourceType,
+				        ServiceCategory,
+				        ServiceName,
+				        SubAccountId,
+				        SubAccountName,
+				        // Tags,
+				        x_ChargePeriodMonth,
+				        x_CommitmentDiscountSavings = ContractedCost - EffectiveCost,
+				        // x_CostCategories,
+				        // x_CostCenter
+				        x_NegotiatedDiscountSavings = ListCost - ContractedCost,
+				        x_ReportingDate,
+				        x_ResourceGroupName,
+				        x_ResourceParentId,
+				        x_ResourceParentName,
+				        x_ResourceParentType,
+				        x_ResourceType,
+				        x_ToolkitTool,
+				        x_ToolkitVersion,
+				        x_TotalSavings = ListCost - EffectiveCost
+				
+				    ", [MaxRows=null, MaxSize=null, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-DataIngestion-ToolkitCosts"])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
