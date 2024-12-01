@@ -129,10 +129,6 @@ Legend:
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:
-> 
-> 1. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
-
 <small>**Breaking change**</small>
 {: .label .label-red .pt-0 .pl-3 .pr-3 .m-0 }
 
@@ -151,6 +147,7 @@ Legend:
 >    - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
 >    - Added param to specify subnet range of virtual network - minimum size = /26
 > 1. Support for storage account infrastructure encryption.
+> 1. Published a [schema file](https://aka.ms/finops/hubs/settings-schema) for the hub settings.json file.
 >
 > ✏️ Changed:
 >
@@ -176,7 +173,7 @@ Legend:
 > ➕ Added:
 >
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
->   1. On the Storagetab, included the **RSVaultBackup** tag in the list of non-idle disks.
+>   1. On the Storage tab, included the **RSVaultBackup** tag in the list of non-idle disks.
 >
 > 🛠️ Fixed:
 >
