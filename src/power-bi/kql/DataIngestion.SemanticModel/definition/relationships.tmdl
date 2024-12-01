@@ -1,0 +1,8 @@
+relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
+	fromColumn: StorageData.Scope
+	toColumn: HubScopes.Scope
+
+relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
+	fromColumn: StorageErrors.Scope
+	toColumn: HubScopes.Scope
+

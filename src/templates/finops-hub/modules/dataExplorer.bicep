@@ -108,11 +108,8 @@ param dataFactoryName string
 @description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
 param rawRetentionInDays int = 0
 
-// @description('Required. Name of the storage account to use for data ingestion.')
-// param storageAccountName string
-
-// @description('Required. Name of storage container to monitor for data ingestion.')
-// param storageContainerName string
+@description('Required. Name of the storage account to use for data ingestion.')
+param storageAccountName string
 
 @description('Required. Resource ID of the virtual network for private endpoints.')
 param virtualNetworkId string
@@ -131,6 +128,74 @@ var ftkver = any(loadTextContent('ftkver.txt')) // any() is used to suppress a w
 var ftkVersion = contains(ftkver, '-') ? split(ftkver, '-')[0] : ftkver
 var ftkBranch = contains(ftkver, '-') ? split(ftkver, '-')[1] : ''
 var dataExplorerPrivateDnsZoneName = replace('privatelink.${location}.${replace(environment().suffixes.storage, 'core', 'kusto')}', '..', '.')
+
+// Actual = Minimum(ClusterMaximumConcurrentOperations, Number of nodes in cluster * Maximum(1, Core count per node * CoreUtilizationCoefficient))
+var ingestionCapacity = {
+  'Dev(No SLA)_Standard_E2a_v4': 1
+  'Dev(No SLA)_Standard_D11_v2': 1
+  Standard_D11_v2: 2
+  Standard_D12_v2: 4
+  Standard_D13_v2: 8
+  Standard_D14_v2: 16
+  Standard_D16d_v5: 16
+  Standard_D32d_v4: 32
+  Standard_D32d_v5: 32
+  'Standard_DS13_v2+1TB_PS': 8
+  'Standard_DS13_v2+2TB_PS': 8
+  'Standard_DS14_v2+3TB_PS': 16
+  'Standard_DS14_v2+4TB_PS': 16
+  Standard_E2a_v4: 2
+  Standard_E2ads_v5: 2
+  Standard_E2d_v4: 2
+  Standard_E2d_v5: 2
+  Standard_E4a_v4: 4
+  Standard_E4ads_v5: 4
+  Standard_E4d_v4: 4
+  Standard_E4d_v5: 4
+  Standard_E8a_v4: 8
+  Standard_E8ads_v5: 8
+  'Standard_E8as_v4+1TB_PS': 8
+  'Standard_E8as_v4+2TB_PS': 8
+  'Standard_E8as_v5+1TB_PS': 8
+  'Standard_E8as_v5+2TB_PS': 8
+  Standard_E8d_v4: 8
+  Standard_E8d_v5: 8
+  'Standard_E8s_v4+1TB_PS': 8
+  'Standard_E8s_v4+2TB_PS': 8
+  'Standard_E8s_v5+1TB_PS': 8
+  'Standard_E8s_v5+2TB_PS': 8
+  Standard_E16a_v4: 16
+  Standard_E16ads_v5: 16
+  'Standard_E16as_v4+3TB_PS': 16
+  'Standard_E16as_v4+4TB_PS': 16
+  'Standard_E16as_v5+3TB_PS': 16
+  'Standard_E16as_v5+4TB_PS': 16
+  Standard_E16d_v4: 16
+  Standard_E16d_v5: 16
+  'Standard_E16s_v4+3TB_PS': 16
+  'Standard_E16s_v4+4TB_PS': 16
+  'Standard_E16s_v5+3TB_PS': 16
+  'Standard_E16s_v5+4TB_PS': 16
+  Standard_E64i_v3: 64
+  Standard_E80ids_v4: 80
+  Standard_EC8ads_v5: 8
+  'Standard_EC8as_v5+1TB_PS': 8
+  'Standard_EC8as_v5+2TB_PS': 8
+  Standard_EC16ads_v5: 16
+  'Standard_EC16as_v5+3TB_PS': 16
+  'Standard_EC16as_v5+4TB_PS': 16
+  Standard_L4s: 4
+  Standard_L8as_v3: 8
+  Standard_L8s: 8
+  Standard_L8s_v2: 8
+  Standard_L8s_v3: 8
+  Standard_L16as_v3: 16
+  Standard_L16s: 16
+  Standard_L16s_v2: 16
+  Standard_L16s_v3: 16
+  Standard_L32as_v3: 32
+  Standard_L32s_v3: 32
+}
 
 //==============================================================================
 // Resources
@@ -157,17 +222,9 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' exis
   name: 'privatelink.table.${environment().suffixes.storage}'
 }
 
-// resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-//   name: storageAccountName
-
-//   resource blobServices 'blobServices' = {
-//     name: 'default'
-
-//     resource landingContainer 'containers' = {
-//       name: storageContainerName
-//     }
-//   }
-// }
+resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: storageAccountName
+}
 
 //------------------------------------------------------------------------------
 // Cluster + databases
@@ -192,12 +249,22 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
   }
 
+  resource adfClusterAdmin 'principalAssignments' = {
+    name: 'adf-mi-cluster-admin'
+    properties: {
+      principalType: 'App'
+      principalId: dataFactory.identity.principalId
+      tenantId: dataFactory.identity.tenantId
+      role: 'AllDatabasesAdmin'
+    }
+  }
+
   resource ingestionDb 'databases' = {
     name: 'Ingestion'
     location: location
     kind: 'ReadWrite'
 
-    resource ingestionCommonScript 'scripts' = {
+    resource commonScript 'scripts' = {
       name: 'CommonFunctions'
       properties: {
         scriptContent: loadTextContent('scripts/Common.kql')
@@ -206,8 +273,11 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       }
     }
 
-    resource ingestionSetupScript 'scripts' = {
+    resource setupScript 'scripts' = {
       name: 'SetupScript'
+      dependsOn: [
+        ingestionDb::commonScript
+      ]
       properties: {
         scriptContent: replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
           '$$adfPrincipalId$$', dataFactory.identity.principalId),
@@ -225,10 +295,10 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     location: location
     kind: 'ReadWrite'
     dependsOn: [
-      ingestionDb
+      ingestionDb::setupScript
     ]
 
-    resource ingestionCommonScript 'scripts' = {
+    resource commonScript 'scripts' = {
       name: 'CommonFunctions'
       properties: {
         scriptContent: loadTextContent('scripts/Common.kql')
@@ -237,10 +307,10 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       }
     }
 
-    resource hubSetupScript 'scripts' = {
+    resource setupScript 'scripts' = {
       name: 'SetupScript'
       dependsOn: [
-        ingestionDb::ingestionSetupScript
+        hubDb::commonScript
       ]
       properties: {
         scriptContent: replace(replace(loadTextContent('scripts/HubSetup.kql'),
@@ -253,26 +323,27 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
 }
 
-// //  Authorize Kusto Cluster to read storage
-// resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-//   name: guid(cluster.name, storageContainerName, 'Storage Blob Data Contributor')
-//   scope: storage::blobServices
-//   properties: {
-//     description: 'Give "Storage Blob Data Contributor" to the cluster'
-//     principalId: cluster.identity.principalId
-//     // Required in case principal not ready when deploying the assignment
-//     principalType: 'ServicePrincipal'
-//     roleDefinitionId: subscriptionResourceId(
-//       'Microsoft.Authorization/roleDefinitions',
-//       'ba92f5b4-2d11-453d-a403-e96b0029c9fe'  // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage
-//     )
-//   }
-// }
+//  Authorize Kusto Cluster to read storage
+resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(cluster.name, subscription().id, 'Storage Blob Data Contributor')
+  scope: storage
+  properties: {
+    description: 'Give "Storage Blob Data Contributor" to the cluster'
+    principalId: cluster.identity.principalId
+    // Required in case principal not ready when deploying the assignment
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      'ba92f5b4-2d11-453d-a403-e96b0029c9fe'  // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage
+    )
+  }
+}
 
 // DNS zone
 resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   name: dataExplorerPrivateDnsZoneName
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones') ? tagsByResource['Microsoft.Network/privateDnsZones'] : {})
   properties: {}
 }
 
@@ -281,6 +352,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
   name: '${replace(dataExplorerPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   parent: dataExplorerPrivateDnsZone
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
   properties: {
     virtualNetwork: {
       id: virtualNetworkId
@@ -293,6 +365,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   name: '${cluster.name}-ep'
   location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId
@@ -350,6 +423,9 @@ resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/pri
 @description('The resource ID of the cluster.')
 output clusterId string = cluster.id
 
+@description('The ID of the cluster system assigned managed identity.')
+output principalId string = cluster.identity.principalId
+
 @description('The name of the cluster.')
 output clusterName string = cluster.name
 
@@ -361,3 +437,6 @@ output ingestionDbName string = cluster::ingestionDb.name
 
 @description('The name of the database for queries.')
 output hubDbName string = cluster::hubDb.name
+
+@description('Max ingestion capacity of the cluster.')
+output clusterIngestionCapacity int = ingestionCapacity[?clusterSku] ?? 1

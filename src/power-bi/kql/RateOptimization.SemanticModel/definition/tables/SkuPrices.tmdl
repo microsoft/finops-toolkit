@@ -289,7 +289,7 @@ table SkuPrices
 				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
 				    let numberOfMonths = " & lookback & ";
-				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Daily") & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
 				    let allowCostManagementAllocationRules = false;
 				    let usageOnly = true;
 				    let committedOnly = true;

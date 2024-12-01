@@ -158,27 +158,3 @@ ifempty(val: dynamic, defaultVal: dynamic)
 {
     iff(isempty(val), defaultVal, val)
 }
-
-// parse_resourceid
-.create-or-alter function 
-with (docstring = 'Parses an Azure resource ID to extract resource attributes like the name, type, resource group, and subaccount ID.', folder = 'Common')
-parse_resourceid(resourceId: string) {
-    let ResourceId = tolower(resourceId);
-    // let ResourceId = tolower('/providers/Microsoft.BillingBenefits/savingsPlanOrders/2d2e284b-0638-427e-b8c6-1b874d4f17c8/sp/xxx');
-    let SubAccountId = tostring(extract('/subscriptions/[^/]+', 1, ResourceId));
-    let x_ResourceGroupName = tostring(extract('/resourcegroups/[^/]+', 1, ResourceId));
-    let providerPath = iff(ResourceId !contains '/providers/', '', split(iff(ResourceId startswith '/subscriptions/', strcat('/providers/microsoft.resources/', ResourceId), ResourceId), '/providers/')[-1]);
-    let x_ResourceProvider = iff(isempty(providerPath), '', split(providerPath, '/')[0]);
-    let tmp_ResourceProviderPath = iff(isempty(providerPath), '', substring(providerPath, strlen(x_ResourceProvider) + 1));
-    let segments = split(tmp_ResourceProviderPath, '/');
-    let ResourceName = trim(@'/+', replace_string(strcat_array(array_iff(
-        dynamic([false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true]),
-        segments, dynamic([])), '/'), '//', '/'));
-    let x_ResourceTypePath = trim(@'/+', replace_string(strcat_array(array_iff(
-        dynamic([true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]),
-        segments, dynamic([])), '/'), '//', '/'));
-    let xRT = iff(isempty(x_ResourceProvider) or isempty(x_ResourceTypePath), '', strcat(x_ResourceProvider, '/', x_ResourceTypePath));
-    let types = split(toscalar(database('Ingestion').ResourceTypes | summarize types = make_set(strcat(x_ResourceType, '=', SingularDisplayName)) | extend types = strcat('||', strcat_array(types, '||')), '||'), strcat('||', xRT, '='));
-    let ResourceType = iff(array_length(types) < 2, '', split(types[1], '||')[0]);
-    bag_pack('ResourceId', ResourceId, 'ResourceName', ResourceName, 'ResourceType', coalesce(ResourceType, xRT), 'SubAccountId', SubAccountId, 'x_ResourceGroupName', x_ResourceGroupName, 'x_ResourceProvider', x_ResourceProvider, 'x_ResourceType', xRT)
-}

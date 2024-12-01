@@ -447,164 +447,165 @@ table CommitmentDiscountCosts
 		queryGroup: 'Data Explorer'
 		source =
 				let
-				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
-				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+								    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+								    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
-				    let numberOfMonths = " & lookback & ";
-				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Daily") & ";
-				    let allowCostManagementAllocationRules = false;
-				    Costs_v1_0
-				    | where ChargePeriodStart >= monthsago(numberOfMonths)
-				    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
-				    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
-				    | extend x_ReportingDate = iff(monthlyGranularity, x_ChargePeriodMonth, startofday(ChargePeriodStart))
-				    //
-				    // Create a flag to remove unnecessary values to keep row count down
-				    | extend tmp_isVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'
-				    //
-				//| where isnotempty(CommitmentDiscountId)
-				    | extend x_SkuCPUs       = iff(tmp_isVMUsage, toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores)), toint(''))
-				    | extend x_UsageCPUHours = iff(tmp_isVMUsage and isnotempty(x_SkuCPUs), x_SkuCPUs * ConsumedQuantity, todecimal(''))
-				    //
-				    // | extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)
-				    | extend x_SkuImageType = iff(tmp_isVMUsage, tostring(x_SkuDetails.ImageType), '')
-				    | extend x_SkuType      = iff(tmp_isVMUsage, tostring(x_SkuDetails.ServiceType), '')  // Remove other values to keep row count down
-				    // | extend x_ResourceMachineName = tostring(x_SkuDetails.VMName)
-				    // | extend x_SkuVMProperties = tostring(x_SkuDetails.VMProperties)
-				    // | extend tmp_AddlReservationOrderId = tostring(x_SkuDetails.ReservationOrderId)
-				    // | extend tmp_AddlReservationId = tostring(x_SkuDetails.ReservationId)
-				    // | extend x_CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
-				    | extend tmp_IsSQLAHB = tolower(x_SkuDetails.AHB) == 'true'
-				    | extend x_SkuLicenseStatus = case(
-				        (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Windows') or not(tmp_IsSQLAHB), 'Not enabled',
-				        (isnotempty(x_SkuImageType) and x_SkuImageType contains 'Windows Server BYOL') or tmp_IsSQLAHB or (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Azure Hybrid Benefit'), 'Enabled',
-				        ''
-				    )
-				    | extend x_SkuLicenseCPUs = case(
-				        isempty(x_SkuCPUs), toint(''),
-				        x_SkuCPUs <= 8, 8,
-				        x_SkuCPUs <= 16, 16,
-				        x_SkuCPUs == 20, 24,
-				        x_SkuCPUs > 20, x_SkuCPUs,
-				        toint('')
-				    )
-				    // Remove other values to keep row count down
-				    | extend x_CommitmentDiscountKey = iff(tmp_isVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
-				    //
-				    | summarize
-				        BilledCost = sum(BilledCost),
-				        ChargePeriodEnd = max(ChargePeriodEnd), ChargePeriodStart = min(ChargePeriodStart),
-				        ConsumedQuantity = sum(ConsumedQuantity),
-				        ContractedCost = sum(ContractedCost),
-				        EffectiveCost = sum(EffectiveCost),
-				        ListCost = sum(ListCost),
-				        PricingQuantity = sum(PricingQuantity),
-				        x_CommitmentDiscountServiceCategory = arraystring(make_set_if(ServiceCategory, ServiceCategory != 'Other')),
-				        x_CommitmentDiscountServiceName = arraystring(make_set(ServiceName)),
-				        x_ResourceCount = dcountif(ResourceId, x_ResourceType !startswith 'microsoft.billingbenefits' and x_ResourceType !startswith 'microsoft.capacity/reservation'),
-				        x_UsageCPUHours = sum(x_UsageCPUHours)
-				        by
-				            BillingCurrency,
-				            ChargeCategory,
-				            ChargeFrequency,
-				            CommitmentDiscountCategory,
-				            CommitmentDiscountId,
-				            CommitmentDiscountName,
-				            CommitmentDiscountType,
-				            CommitmentDiscountStatus,
-				            ConsumedUnit,
-				            PricingCategory,
-				            PricingUnit,
-				            ProviderName,
-				            RegionName,
-				            SubAccountId,
-				            SubAccountName,
-				            x_ChargePeriodMonth,
-				            x_CommitmentDiscountKey,
-				            x_PricingSubcategory,
-				            x_ReportingDate,
-				            x_ResourceGroupName,
-				            x_SkuCPUs,
-				            x_SkuDescription      = iff(PricingCategory == 'Committed', x_SkuDescription, ''), // Remove other values to keep row count down
-				            x_SkuImageType,
-				            x_SkuLicenseCPUs,
-				            x_SkuLicenseStatus,
-				            x_SkuMeterCategory    = iff(tmp_isVMUsage, x_SkuMeterCategory, ''),    // Remove other values to keep row count down
-				            x_SkuMeterName        = iff(tmp_isVMUsage, x_SkuMeterName, ''),        // Remove other values to keep row count down
-				            x_SkuMeterSubcategory = iff(tmp_isVMUsage, x_SkuMeterSubcategory, ''), // Remove other values to keep row count down
-				            x_SkuOrderId,
-				            x_SkuOrderName,
-				            x_SkuTerm,
-				            x_SkuType
-				    | extend x_CommitmentDiscountUtilizationPotential = case(
-				        ProviderName == 'Microsoft', EffectiveCost,
-				        CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
-				        CommitmentDiscountCategory == 'Spend', EffectiveCost,
-				        decimal(0)
-				    )
-				    | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, decimal(0))
-				    | project
-				        BilledCost,
-				        BillingCurrency,
-				        ChargeCategory,
-				        ChargeFrequency,
-				        ChargePeriodEnd,
-				        ChargePeriodStart,
-				        CommitmentDiscountCategory,
-				        CommitmentDiscountId,
-				        CommitmentDiscountName,
-				        CommitmentDiscountType,
-				        CommitmentDiscountStatus,
-				        ConsumedQuantity,
-				        ConsumedUnit,
-				        ContractedCost,
-				        EffectiveCost,
-				        ListCost,
-				        PricingCategory,
-				        PricingQuantity,
-				        PricingUnit,
-				        ProviderName,
-				        RegionName,
-				        SubAccountId,
-				        SubAccountName,
-				        x_CommitmentDiscountKey,
-				        x_CommitmentDiscountServiceCategory = case(
-				            ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute',
-				            isempty(x_CommitmentDiscountServiceCategory), 'Other',
-				            x_CommitmentDiscountServiceCategory
-				        ),
-				        x_CommitmentDiscountServiceName = iff(ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute', x_CommitmentDiscountServiceName),
-				        x_CommitmentDiscountUtilizationAmount,
-				        x_CommitmentDiscountUtilizationPotential,
-				        x_ChargePeriodMonth,
-				        x_CommitmentDiscountSavings = ContractedCost - EffectiveCost,
-				        x_NegotiatedDiscountSavings = ListCost - ContractedCost,
-				        x_PricingSubcategory,
-				        x_ReportingDate,
-				        x_ResourceCount,
-				        x_ResourceGroupName,
-				        x_SkuCPUs,
-				        x_SkuDescription,
-				        x_SkuImageType,
-				        x_SkuLicenseCPUs,
-				        x_SkuLicenseStatus,
-				        x_SkuMeterCategory,
-				        x_SkuMeterName,
-				        x_SkuMeterSubcategory,
-				        x_SkuOrderId,
-				        x_SkuOrderName,
-				        x_SkuTerm,
-				        x_SkuTermLabel = case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))),
-				        x_SkuType,
-				        x_TotalSavings = ListCost - EffectiveCost,
-				        x_UsageCPUHours
-				    | extend x_NegotiatedDiscountSavings = iff(x_NegotiatedDiscountSavings < 0.0001, decimal(0), x_NegotiatedDiscountSavings)
-				    | extend x_CommitmentDiscountSavings = iff(x_CommitmentDiscountSavings < 0.0001, decimal(0), x_CommitmentDiscountSavings)
-				    | extend x_TotalSavings = iff(x_TotalSavings < 0.0001, decimal(0), x_TotalSavings)
+								    let numberOfMonths = " & lookback & ";
+								    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
+								    let allowCostManagementAllocationRules = false;
+								    Costs_v1_0
+								    | where ChargePeriodStart >= monthsago(numberOfMonths)
+								    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
+								    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
+								    | extend x_ReportingDate = iff(monthlyGranularity, x_ChargePeriodMonth, startofday(ChargePeriodStart))
+								    //
+								    // Create a flag to remove unnecessary values to keep row count down
+								    | extend tmp_isVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'
+								    //
+								//| where isnotempty(CommitmentDiscountId)
+								    | extend x_SkuCPUs       = iff(tmp_isVMUsage, toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores)), toint(''))
+								    | extend x_UsageCPUHours = iff(tmp_isVMUsage and isnotempty(x_SkuCPUs), x_SkuCPUs * ConsumedQuantity, todecimal(''))
+								    //
+								    // | extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)
+								    | extend x_SkuImageType = iff(tmp_isVMUsage, tostring(x_SkuDetails.ImageType), '')
+								    | extend x_SkuType      = iff(tmp_isVMUsage, tostring(x_SkuDetails.ServiceType), '')  // Remove other values to keep row count down
+								    // | extend x_ResourceMachineName = tostring(x_SkuDetails.VMName)
+								    // | extend x_SkuVMProperties = tostring(x_SkuDetails.VMProperties)
+								    // | extend tmp_AddlReservationOrderId = tostring(x_SkuDetails.ReservationOrderId)
+								    // | extend tmp_AddlReservationId = tostring(x_SkuDetails.ReservationId)
+								    // | extend x_CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
+								    | extend tmp_IsSQLAHB = tolower(x_SkuDetails.AHB) == 'true'
+								    | extend x_SkuLicenseStatus = case(
+								        (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Windows') or not(tmp_IsSQLAHB), 'Not enabled',
+								        (isnotempty(x_SkuImageType) and x_SkuImageType contains 'Windows Server BYOL') or tmp_IsSQLAHB or (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Azure Hybrid Benefit'), 'Enabled',
+								        ''
+								    )
+								    | extend x_SkuLicenseCPUs = case(
+								        isempty(x_SkuCPUs), toint(''),
+								        x_SkuCPUs <= 8, 8,
+								        x_SkuCPUs <= 16, 16,
+								        x_SkuCPUs == 20, 24,
+								        x_SkuCPUs > 20, x_SkuCPUs,
+								        toint('')
+								    )
+								    // Remove other values to keep row count down
+								    | extend x_CommitmentDiscountKey = iff(tmp_isVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
+								    //
+								    | summarize
+								        BilledCost = sum(BilledCost),
+								        ChargePeriodEnd = max(ChargePeriodEnd),
+				                        ChargePeriodStart = min(ChargePeriodStart),
+								        ConsumedQuantity = sum(ConsumedQuantity),
+								        ContractedCost = sum(ContractedCost),
+								        EffectiveCost = sum(EffectiveCost),
+								        ListCost = sum(ListCost),
+								        PricingQuantity = sum(PricingQuantity),
+								        x_CommitmentDiscountServiceCategory = arraystring(make_set_if(ServiceCategory, ServiceCategory != 'Other')),
+								        x_CommitmentDiscountServiceName = arraystring(make_set(ServiceName)),
+								        x_ResourceCount = dcountif(ResourceId, x_ResourceType !startswith 'microsoft.billingbenefits' and x_ResourceType !startswith 'microsoft.capacity/reservation'),
+								        x_UsageCPUHours = sum(x_UsageCPUHours)
+								        by
+								            BillingCurrency,
+								            ChargeCategory,
+								            ChargeFrequency,
+								            CommitmentDiscountCategory,
+								            CommitmentDiscountId,
+								            CommitmentDiscountName,
+								            CommitmentDiscountType,
+								            CommitmentDiscountStatus,
+								            ConsumedUnit,
+								            PricingCategory,
+								            PricingUnit,
+								            ProviderName,
+								            RegionName,
+								            SubAccountId,
+								            SubAccountName,
+								            x_ChargePeriodMonth,
+								            x_CommitmentDiscountKey,
+								            x_PricingSubcategory,
+								            x_ReportingDate,
+								            x_ResourceGroupName,
+								            x_SkuCPUs,
+								            x_SkuDescription      = iff(PricingCategory == 'Committed', x_SkuDescription, ''), // Remove other values to keep row count down
+								            x_SkuImageType,
+								            x_SkuLicenseCPUs,
+								            x_SkuLicenseStatus,
+								            x_SkuMeterCategory    = iff(tmp_isVMUsage, x_SkuMeterCategory, ''),    // Remove other values to keep row count down
+								            x_SkuMeterName        = iff(tmp_isVMUsage, x_SkuMeterName, ''),        // Remove other values to keep row count down
+								            x_SkuMeterSubcategory = iff(tmp_isVMUsage, x_SkuMeterSubcategory, ''), // Remove other values to keep row count down
+								            x_SkuOrderId,
+								            x_SkuOrderName,
+								            x_SkuTerm,
+								            x_SkuType
+								    | extend x_CommitmentDiscountUtilizationPotential = case(
+								        ProviderName == 'Microsoft', EffectiveCost,
+								        CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
+								        CommitmentDiscountCategory == 'Spend', EffectiveCost,
+								        decimal(0)
+								    )
+								    | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, decimal(0))
+								    | project
+								        BilledCost,
+								        BillingCurrency,
+								        ChargeCategory,
+								        ChargeFrequency,
+								        ChargePeriodEnd,
+								        ChargePeriodStart,
+								        CommitmentDiscountCategory,
+								        CommitmentDiscountId,
+								        CommitmentDiscountName,
+								        CommitmentDiscountType,
+								        CommitmentDiscountStatus,
+								        ConsumedQuantity,
+								        ConsumedUnit,
+								        ContractedCost,
+								        EffectiveCost,
+								        ListCost,
+								        PricingCategory,
+								        PricingQuantity,
+								        PricingUnit,
+								        ProviderName,
+								        RegionName,
+								        SubAccountId,
+								        SubAccountName,
+								        x_CommitmentDiscountKey,
+								        x_CommitmentDiscountServiceCategory = case(
+								            ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute',
+								            isempty(x_CommitmentDiscountServiceCategory), 'Other',
+								            x_CommitmentDiscountServiceCategory
+								        ),
+								        x_CommitmentDiscountServiceName = iff(ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute', x_CommitmentDiscountServiceName),
+								        x_CommitmentDiscountUtilizationAmount,
+								        x_CommitmentDiscountUtilizationPotential,
+								        x_ChargePeriodMonth,
+								        x_CommitmentDiscountSavings = ContractedCost - EffectiveCost,
+								        x_NegotiatedDiscountSavings = ListCost - ContractedCost,
+								        x_PricingSubcategory,
+								        x_ReportingDate,
+								        x_ResourceCount,
+								        x_ResourceGroupName,
+								        x_SkuCPUs,
+								        x_SkuDescription,
+								        x_SkuImageType,
+								        x_SkuLicenseCPUs,
+								        x_SkuLicenseStatus,
+								        x_SkuMeterCategory,
+								        x_SkuMeterName,
+								        x_SkuMeterSubcategory,
+								        x_SkuOrderId,
+								        x_SkuOrderName,
+								        x_SkuTerm,
+								        x_SkuTermLabel = case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))),
+								        x_SkuType,
+								        x_TotalSavings = ListCost - EffectiveCost,
+								        x_UsageCPUHours
+								    | extend x_NegotiatedDiscountSavings = iff(x_NegotiatedDiscountSavings < 0.0001, decimal(0), x_NegotiatedDiscountSavings)
+								    | extend x_CommitmentDiscountSavings = iff(x_CommitmentDiscountSavings < 0.0001, decimal(0), x_CommitmentDiscountSavings)
+								    | extend x_TotalSavings = iff(x_TotalSavings < 0.0001, decimal(0), x_TotalSavings)
 				
-				    ", [MaxRows=null, MaxSize=100000000000, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-CommitmentDiscountCosts"])
-				in
-				    Source
+								    ", [MaxRows=null, MaxSize=100000000000, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-CommitmentDiscountCosts"])
+								in
+								    Source
 
 	annotation PBI_NavigationStepName = Navigation
 

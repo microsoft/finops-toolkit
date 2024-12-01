@@ -21,7 +21,7 @@ queryGroup 'Data Explorer'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.138.530.0 (24.11)
+annotation PBIDesktopVersion = 2.138.1004.0 (24.11)
 
 annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URI","RangeStart","RangeEnd","Number of Months","ChargeBreakdown","PurchaseCosts","ResourceCosts","Daily or Monthly","SkuPrices","TagCosts"]
 

@@ -29,7 +29,7 @@ queryGroup 'Open data'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.137.378.0 (24.10)
+annotation PBIDesktopVersion = 2.138.1004.0 (24.11)
 
 annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","CostDetails","HubScopes","HubSettings","InstanceSizeFlexibility","Regions","ResourceTypes","Prices","ReservationDetails","ReservationRecomendations","ReservationTransactions","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","Experimental: Add Missing Prices"]
 

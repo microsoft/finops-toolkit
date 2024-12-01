@@ -21,6 +21,7 @@ Sorry to hear you're having a problem. We're here to help!
 - [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed)
 - [DataExplorerPreIngestionDropFailed](#dataexplorerpreingestiondropfailed)
 - [HubDataNotFound](#hubdatanotfound)
+- [IngestionFilesNotFound](#ingestionfilesnotfound)
 - [InvalidEffectiveCost](#invalideffectivecost)
 - [InvalidExportContainer](#invalidexportcontainer)
 - [InvalidExportVersion](#invalidexportversion)
@@ -34,7 +35,6 @@ Sorry to hear you're having a problem. We're here to help!
 - [MissingListUnitPrice](#missinglistunitprice)
 - [MissingProviderName](#missingprovidername)
 - [ManifestReadFailed](#manifestreadfailed)
-- [RerunFilesNotFound](#rerunfilesnotfound)
 - [ResourceAccessForbiddenException](#resourceaccessforbiddenexception)
 - [RoleAssignmentUpdateNotPermitted](#roleassignmentupdatenotpermitted)
 - [SchemaLoadFailed](#schemaloadfailed)
@@ -48,8 +48,6 @@ Sorry to hear you're having a problem. We're here to help!
 - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
 - [Power BI: Reports are missing data for specific dates](#power-bi-reports-are-missing-data-for-specific-dates)
 - [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
-  - [FinOps hubs: Ingestion container is empty](#finops-hubs-ingestion-container-is-empty)
-  - [FinOps hubs: Files available in the ingestion container](#finops-hubs-files-available-in-the-ingestion-container)
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
 - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
@@ -154,6 +152,16 @@ FinOps hub data was not found in the specified storage account.
 5. FinOps hub data factory pipelines should be successful.
 
 For more details and debugging steps, see [Validate your FinOps hub deployment](./troubleshooting.md#-validate-your-finops-hub-deployment).
+
+<br>
+
+## IngestionFilesNotFound
+
+<sup>Severity: Critical</sup>
+
+Unable to locate parquet files to ingest from the specified folder path.
+
+**Mitigation**: Confirm the folder path is the full path, including the **ingestion** container and not starting with or ending with a slash (**/**). Copy the path from the last successful **ingestion_ExecuteETL** pipeline run.
 
 <br>
 
@@ -360,16 +368,6 @@ TODO: Consider the following ways to streamline this in the future:
 3. Create a hub configuration workbook to detect configuration issues.
 4. Consider renaming the main deployment file so it doesn't risk conflicting with other deployments.
 -->
-
-<br>
-
-## RerunFilesNotFound
-
-<sup>Severity: Critical</sup>
-
-Unable to locate previously ingested parquet files in the specified folder path.
-
-**Mitigation**: Confirm the folder path is the full path, including the **ingestion** container and not starting with or ending with a slash (**/**). Copy the path from the last successful **ingestion_ExecuteETL** pipeline run.
 
 <br>
 

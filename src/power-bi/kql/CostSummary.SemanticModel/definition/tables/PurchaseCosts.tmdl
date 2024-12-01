@@ -81,12 +81,14 @@ table PurchaseCosts
 
 	column ChargePeriodStart
 		dataType: dateTime
-		formatString: General Date
+		formatString: Mmm d
 		lineageTag: fd0dfc11-37ad-40f2-bd12-f2e4ee5547c5
 		summarizeBy: none
 		sourceColumn: ChargePeriodStart
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
 
 	column ContractedCost
 		dataType: double
@@ -338,6 +340,24 @@ table PurchaseCosts
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_ChargePeriodMonth
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 2b3da636-6d41-44ad-aa7f-8291ed1fbe08
+		summarizeBy: none
+		sourceColumn: x_ChargePeriodMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ReportingDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 6e3e6796-d89c-44a7-a4f3-ecff9545c819
+		summarizeBy: none
+		sourceColumn: x_ReportingDate
+
+		annotation SummarizationSetBy = Automatic
+
 	partition PurchaseCosts = m
 		mode: import
 		queryGroup: 'Data Explorer'
@@ -346,17 +366,78 @@ table PurchaseCosts
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
 				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
+				    let numberOfMonths = " & lookback & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
+				    let allowCostManagementAllocationRules = false;
+				    let summarizeAfterRowCount = 400000;
 				    Costs_v1_0
-				    | where ChargePeriodStart >= monthsago(" & lookback & ")
-				    //
-				    // Filter out cost allocation changes
-				    | where isempty(x_CostAllocationRuleName)
-				    //
-				    // Fix missing costs
-				    | extend ContractedCost = iff(isempty(ContractedCost) or ContractedCost == 0, EffectiveCost, ContractedCost)
-				    | extend ListCost = iff(isempty(ListCost) or ListCost == 0, ContractedCost, ListCost)
+				    | where ChargePeriodStart >= monthsago(numberOfMonths)
+				    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
+				    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
+				    | extend x_ReportingDate = iff(monthlyGranularity, x_ChargePeriodMonth, startofday(ChargePeriodStart))
 				    //
 				    | where ChargeCategory == 'Purchase'
+				    //
+				    | summarize
+				        BilledCost = sum(BilledCost),
+				        ChargePeriodEnd = max(ChargePeriodEnd),
+				        ChargePeriodStart = min(ChargePeriodStart),
+				        ContractedCost = sum(ContractedCost),
+				        EffectiveCost = sum(EffectiveCost),
+				        ListCost = sum(ListCost),
+				        PricingQuantity = sum(PricingQuantity),
+				        x_ServicePeriodEnd = max(x_ServicePeriodEnd),
+				        x_ServicePeriodStart = min(x_ServicePeriodStart)
+				        by
+				            BillingAccountId,
+				            BillingAccountName,
+				            BillingCurrency,
+				            BillingPeriodEnd,
+				            BillingPeriodStart,
+				            ChargeClass,
+				            // ChargeDescription,
+				            ChargeFrequency,
+				            CommitmentDiscountCategory,
+				            // CommitmentDiscountId,
+				            // CommitmentDiscountName,
+				            CommitmentDiscountType,
+				            ContractedUnitPrice,
+				            ListUnitPrice,
+				            PricingCategory,
+				            PricingUnit,
+				            ProviderName,
+				            PublisherName,
+				            // ServiceCategory,
+				            // ServiceName,
+				            SkuId,
+				            SkuPriceId,
+				            SubAccountId,
+				            SubAccountName,
+				            // x_BillingAccountAgreement,
+				            // x_BillingAccountId,
+				            // x_BillingAccountName,
+				            // x_BillingProfileId,
+				            // x_BillingProfileName,
+				            x_ChargePeriodMonth,
+				            x_EffectiveUnitPrice,
+				            x_Operation,
+				            x_PricingBlockSize,
+				            x_PricingUnitDescription,
+				            x_PublisherCategory,
+				            x_PublisherId,
+				            x_ReportingDate,
+				            x_SkuDescription,
+				            // x_SkuDetails,
+				            // x_SkuIsCreditEligible,
+				            // x_SkuMeterCategory,
+				            // x_SkuMeterId,
+				            // x_SkuMeterName,
+				            // x_SkuMeterSubcategory,
+				            x_SkuOrderId,
+				            x_SkuOrderName,
+				            // x_SkuServiceFamily,
+				            x_SkuTerm,
+				            x_UsageType
 				    | project
 				        BilledCost,
 				        BillingAccountId,
@@ -394,12 +475,14 @@ table PurchaseCosts
 				        // x_BillingAccountName,
 				        // x_BillingProfileId,
 				        // x_BillingProfileName,
+				        x_ChargePeriodMonth,
 				        x_EffectiveUnitPrice,
 				        x_Operation,
 				        x_PricingBlockSize,
 				        x_PricingUnitDescription,
 				        x_PublisherCategory,
 				        x_PublisherId,
+				        x_ReportingDate,
 				        x_ServicePeriodEnd,
 				        x_ServicePeriodStart,
 				        x_SkuDescription,
@@ -414,8 +497,67 @@ table PurchaseCosts
 				        // x_SkuServiceFamily,
 				        x_SkuTerm,
 				        x_UsageType
+				    | serialize
+				    | extend ROW = row_number()
+				    | as allData
+				    | limit summarizeAfterRowCount
+				    | union (
+				        allData
+				        | where ROW > summarizeAfterRowCount
+				        | summarize
+				            BilledCost = sum(BilledCost),
+				            ChargePeriodEnd = max(ChargePeriodEnd),
+				            ChargePeriodStart = min(ChargePeriodStart),
+				            ContractedCost = sum(ContractedCost),
+				            EffectiveCost = sum(EffectiveCost),
+				            ListCost = sum(ListCost),
+				            PricingQuantity = sum(PricingQuantity),
+				            x_ServicePeriodEnd = max(x_ServicePeriodEnd),
+				            x_ServicePeriodStart = min(x_ServicePeriodStart)
+				            by
+				                BillingAccountId,
+				                BillingAccountName,
+				                BillingCurrency,
+				                BillingPeriodEnd,
+				                BillingPeriodStart,
+				                ChargeClass,
+				                ChargeFrequency,
+				                CommitmentDiscountCategory,
+				                CommitmentDiscountType,
+				                ContractedUnitPrice = todecimal(''),
+				                ListUnitPrice = todecimal(''),
+				                PricingCategory,
+				                PricingUnit,
+				                ProviderName,
+				                PublisherName,
+				                SkuId = '(multiple)',
+				                SkuPriceId = '(multiple)',
+				                SubAccountId = '(multiple)',
+				                SubAccountName = '(multiple)',
+				                x_ChargePeriodMonth,
+				                x_EffectiveUnitPrice = todecimal(''),
+				                x_Operation = '(multiple)',
+				                x_PricingBlockSize = todecimal(''),
+				                x_PricingUnitDescription = '(multiple)',
+				                x_PublisherCategory,
+				                x_PublisherId,
+				                x_ReportingDate,
+				                x_SkuDescription = '(multiple)',
+				                // x_SkuDetails,
+				                // x_SkuIsCreditEligible,
+				                // x_SkuMeterCategory,
+				                // x_SkuMeterId,
+				                // x_SkuMeterName,
+				                // x_SkuMeterSubcategory,
+				                x_SkuOrderId = '(multiple)',
+				                x_SkuOrderName = '(multiple)',
+				                // x_SkuServiceFamily,
+				                x_SkuTerm = toint(''),
+				                x_UsageType = '(multiple)'
+				    )
+				    | project-away ROW
 				
-				    ", [MaxRows=null, MaxSize=null, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-Resources-PurchaseCosts"])
+				    ", [MaxRows=null, MaxSize=1073741824, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-CostSummary-PurchaseCosts"])
 				in
 				    Source
 

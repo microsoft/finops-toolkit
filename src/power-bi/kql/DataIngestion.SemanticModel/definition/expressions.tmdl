@@ -1,0 +1,145 @@
+/// Name of the Azure DataLake Gen2 storage account to pull data from.
+expression 'Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navigation
+
+expression RangeStart = null meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
+	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_ResultType = Null
+
+	annotation PBI_NavigationStepName = Navigation
+
+expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
+	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_ResultType = Null
+
+	annotation PBI_NavigationStepName = Navigation
+
+expression '▶️  START HERE' = ```
+		let
+		    // Storage
+		    StorageUrl = #"Storage URL",
+		    UrlSegments = if StorageUrl <> null then Text.Split(StorageUrl, "/") else {},
+		    UrlSegmentCount = List.Count(UrlSegments),
+		    StorageCheck = 
+		        if StorageUrl = "" or StorageUrl = null then {"✖ Invalid", "Storage URL not specified."}
+		        else if Text.StartsWith(StorageUrl, "https://") = false then {"✖ Invalid", "Storage URL must be a valid HTTPS path."} 
+		        else if (UrlSegmentCount = 4 and Text.Lower(UrlSegments{3}) = "ingestion") or (UrlSegmentCount = 7 and Text.Lower(UrlSegments{5}) = "Files" and Text.Lower(UrlSegments{6}) = "ingestion") then (
+		            let
+		                // Looks like hubs; try to get hub version
+		                Settings = try Json.Document(AzureStorage.DataLake(StorageUrl & (if UrlSegmentCount = 3 then "/config" else "/../config")){[Name="settings.json"]}[Content], 1252) otherwise null,
+		                HubVersion = if Settings <> null then try Settings[version] otherwise null else null,
+		                Output = 
+		                    if HubVersion = null then (
+		                        if UrlSegmentCount = 4                                               and Text.Lower(UrlSegments{3}) = "ingestion" then {"❓️ Unconfirmed", "Unable to confirm FinOps hub version from storage: " & Text.Split(StorageUrl, "."){0} & "."}
+		                        else if UrlSegmentCount = 7 and Text.Lower(UrlSegments{5}) = "Files" and Text.Lower(UrlSegments{6}) = "ingestion" then {"❓️ Unconfirmed", "Unable to confirm FinOps hub version from OneLake: " & Text.Split(StorageUrl, "."){0} & "."}
+		                        else {"✖️ Invalid", "Configured storage account does not have FinOps hubs deployed."}
+		                    )
+		                    else {"✔️ Specified", "Will use FinOps hub v" & HubVersion & " storage: " & Text.Split(StorageUrl, "."){0} & "."}
+		            in
+		                Output
+		        )
+		        else if (try AzureStorage.DataLake(StorageUrl) otherwise null) <> null then {"✔️ Specified", "Will use exports in storage account: " & Text.Split(StorageUrl, "."){0} & "."}
+		        // TODO: Read export manifests from the storage account to validate data is available
+		        else {"✖️ Invalid", "Unable to connect to the specified storage account: " & Text.Split(StorageUrl, "."){0} & "."},
+		
+		    // Incremental refresh
+		    DateEnd = RangeEnd,
+		    DateStart = RangeStart,
+		    DateMonths = #"Number of Months",
+		    DateStartEffective = if DateStart <> null and DateStart <> "" then DateStart else Date.AddMonths(if DateEnd <> null and DateEnd <> "" then DateEnd else Date.AddMonths(Date.StartOfMonth(DateTime.LocalNow()), 1), -DateMonths+1),
+		    _formatDate = (d) => try DateTime.ToText(d, [Format="MMM d, yyyy"]) otherwise d,
+		    DateStartFormat = 
+		        if (DateStart = null or DateStart = "") and (DateMonths = null or DateMonths < 1) then "*"
+		        else if (DateStart = null or DateStart = "") and DateMonths <> null and DateMonths >= 1 then _formatDate(DateStartEffective)
+		        else _formatDate(DateStart),
+		    DateEndFormat = if DateEnd = null or DateEnd = "" then "*" else _formatDate(DateEnd),
+		    DateValue = 
+		        if DateStartFormat = "*" and DateEndFormat = "*" then "(no dates)" else DateStartFormat & " - " & DateEndFormat,
+		    DateCheck =
+		        // TODO: Catch when DateEnd and DateMonths create a start date in the future
+		        if DateValue = "(no dates)"   then {"⚠️ Warning", "Will pull all data. May fail if over $2-5M."}
+		        else if DateStart <> null and DateStart <> "" and DateEndFormat = "*" then {"⚠️ Warning", "Will pull all data after start date. May fail if over $2-5M."}
+		        else if (DateStart = null or DateStart = "")  and DateEndFormat = "*" then {"✔️ Specified", "Will pull data for the last " & (if DateMonths = 1 then "1 month" else (Text.From(DateMonths) & " months")) & "."}
+		        else if DateStartFormat = "*" then {"⚠️ Warning", "Will pull all data before end date. May fail if over $2-5M."}
+		        else if DateStart <> null and DateStart <> "" and DateStart > DateEnd then {"✖ Invalid", "The start date must be before the end date."}
+		        else if DateStart <> null and DateStart <> "" and DateStart < DateEnd then try {"✔️ Specified", "Will pull data for " & Number.ToText(Duration.Days(DateEnd - DateStart)) & " days."} otherwise {"✖ Invalid", "Unable to parse dates: " & DateStart & " - " & DateEnd & "."}
+		        else if DateStart = null and DateMonths <> null and DateMonths < 1 then {"✖ Invalid", "The number of months must be more 1 or more (empty for all)."}
+		        else if DateStart = null and DateMonths <> null and DateMonths > 0 then try {"✔️ Specified", "Will pull data for " & Number.ToText(Duration.Days(DateEnd - DateStartEffective)) & " days."} otherwise {"✖ Invalid", "Unable to parse dates: " & DateStartEffective & " - " & DateEnd & "."}
+		        else {"✖ Invalid", "Unable to confirm dates: " & (if DateStart = null then "(null)" else ("'"&Text.From(DateStart)&"'")) & " - " & (if DateEnd = null then "(null)" else ("'"&Text.From(DateEnd)&"'")) & " or # of months: " & (if DateMonths = null then "(null)" else ("'"&Text.From(DateMonths)&"'")) & "."},
+		
+		    // 
+		    /*
+		    Step1 = Table.InsertRows(#table({"Instructions", "Value", "Status", "Message"}, {}), 0, {
+		        [ Instructions = "① Set the data source parameter on the left", Value = SourceType, Status = SourceCheck{0}, Message = SourceCheck{1} ],
+		        [ Instructions = "        ➖ About exports @ https://aka.ms/finops/toolkit/exports", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ About FinOps hubs @ https://aka.ms/finops/hubs", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "", Value = "", Status = "", Message = "" ]
+		    }),
+		
+		    MainChecks = Table.InsertRows(Step1, 4, 
+		    */
+		
+		    MainChecks = Table.InsertRows(#table({"Instructions", "Value", "Status", "Message"}, {}), 0, {
+		        [ Instructions = "① Set the storage URL on the left", Value = StorageUrl, Status = StorageCheck{0}, Message = StorageCheck{1} ],
+		        [ Instructions = "        If using FinOps hubs:", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Go to your hub resource group", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Open Deployments > `hub` > Outputs", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Copy the 'HubUrlForPowerBI' value", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        If using exports:", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Go to your storage account", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Open Endpoints", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Copy the 'Data Lake Storage' value", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Optionally add a container or file path", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "③ Optional: Set the desired date range", Value = DateValue, Status = DateCheck{0}, Message = DateCheck{1} ],
+		        //[ Instructions = "        ➖ Dates are only required to support incremental refresh", Value = "", Status = "", Message = if DateCheck{0} = "⚠️ Warning" then "Incremental refresh requires dates." else if DateCheck{0} = "✔️ Specified" then "Please configure incremental refresh to support up to $2-5M/mo." else "" ],
+		        [ Instructions = "        ➖ NOTE: Power BI only supports a total of $2-5M without incremental refresh", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ", Value = "", Status = "", Message = "" ]
+		    })
+		in
+		    MainChecks
+		```
+	lineageTag: 6cfe80b8-1c4b-4c11-9916-43fc98b49dac
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+
+/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
+expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Null
+
+/// Name of the Azure DataLake Gen2 storage account to pull data from.
+expression 'Cluster URI' = "khub-mf.westcentralus" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 8bb38797-ae01-4df5-9c8e-cfba106e1fd9
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+/// Name of the Azure DataLake Gen2 storage account to pull data from.
+expression 'Daily or Monthly' = "Daily" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
+	lineageTag: c29452ce-fd30-44c5-af1c-45e640627223
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
