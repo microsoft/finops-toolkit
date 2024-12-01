@@ -69,7 +69,6 @@ Legend:
 >
 > 1. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 1. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 1. ETL pipelile – Add support for parquet files created by Cost Management exports.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -99,7 +98,7 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Added Enterprise App Patterns links resources to the architecting for the cloud section.
-> 1. Update cost and unit of measuring handling in the [FOCUS conversion instructions](../_docs/focus/convert.md).
+> 1. Update cost and unit of measure handling in the [FOCUS conversion instructions](../_docs/focus/convert.md).
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
