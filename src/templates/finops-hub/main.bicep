@@ -23,11 +23,21 @@ param location string = resourceGroup().location
 @description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
 param storageSku string = 'Premium_LRS'
 
+@description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
+param enableInfrastructureEncryption bool = false
+
+@description('Optional. Storage account to push data to for ingestion into a remote hub.')
+param remoteHubStorageUri string = ''
+
+@description('Optional. Storage account key to use when pushing data to a remote hub.')
+@secure()
+param remoteHubStorageKey string = ''
+
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
 
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
-@description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".')
+@description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_D11_v2".')
 @allowed([
   'Dev(No SLA)_Standard_E2a_v4' // 2 CPU, 16GB RAM, 24GB cache, $110/mo
   'Dev(No SLA)_Standard_D11_v2' // 2 CPU, 14GB RAM, 78GB cache, $121/mo
@@ -93,8 +103,8 @@ param dataExplorerName string = ''
   'Standard_L16s_v3'
   'Standard_L32as_v3'
   'Standard_L32s_v3'
-])
-param dataExplorerSku string = 'Dev(No SLA)_Standard_E2a_v4'
+])  
+param dataExplorerSku string = 'Dev(No SLA)_Standard_D11_v2'
 
 @description('Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1 for dev/test SKUs, 2 for standard SKUs.')
 @minValue(1)
@@ -122,17 +132,7 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
-@description('Optional. Storage account to push data to for ingestion into a remote hub.')
-param remoteHubStorageUri string = ''
-
-@description('Optional. Storage account key to use when pushing data to a remote hub.')
-@secure()
-param remoteHubStorageKey string = ''
-
-@description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
-param enableInfrastructureEncryption bool = false
-
-@description('Optional. Enable public access to the data lake.  Default: true.')
+@description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
 
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')

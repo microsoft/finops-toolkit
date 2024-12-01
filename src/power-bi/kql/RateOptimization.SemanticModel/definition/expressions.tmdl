@@ -108,7 +108,7 @@ expression '▶️  START HERE' = ```
 	annotation PBI_NavigationStepName = Navigation
 
 /// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
-expression 'Number of Months' = 3 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+expression 'Number of Months' = 13 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
 	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
 	queryGroup: '🛠️ Setup'
 
@@ -128,7 +128,7 @@ expression 'Cluster URI' = "khub-mf.westcentralus" meta [IsParameterQuery=true, 
 	annotation PBI_ResultType = Text
 
 /// Indicate whether you want to view daily or monthly data in this report. If using daily, you may need to set the number of months to be a lower number depending on how many resources you have.
-expression 'Daily or Monthly' = "Daily" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
+expression 'Daily or Monthly' = "Monthly" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
 	lineageTag: cf257a84-c284-44da-87a5-2d9cf8f66c28
 	queryGroup: '🛠️ Setup'
 

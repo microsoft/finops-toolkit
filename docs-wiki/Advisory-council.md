@@ -24,6 +24,7 @@ The council is responsible for the following high-level areas:
 - **Recognition**: Acknowledging and celebrating the contributions of community members to encourage continued engagement and contribution.
 
 Council members are also expected to facilitate [[Support escalations]] by:
+
 - Reviewing new and unresolved issues and discussions related to their tool or resource at least once per week.
 - Responding to issues and discussions about their tool or resource within 2 business days.
 - Responding to Microsoft Support escalations within 2 business days.
@@ -55,21 +56,22 @@ The advisory council consists of the following representative seats:
   - Customer Success Unit - CCX
   - Customer Success Unit - Infrastructure
   - Customer Success Unit - Data & AI
-  - Azure Customer Experience - FastTrack
+  - Azure Customer Experience - ISV & Digital Natives
+  - Commerce - FastTrack
   - Developer Relations
   - Customer Support Services  
 - Any FinOps Certified Professional (no limit on number)
 
 This currently includes the following people:
 
-| Seat | Member |
-|------|--------|
-| Azure Optimization Engine | Helder Pinto |
-| Cost optimization workbook | Seif Bassem |
-| FinOps hubs | Brett Wilson |
-| Governance workbook | Nicolas Teyan |
-| PowerShell module | Anthony Romano |
-| Learning resources | Fernando Vasconcellos |
+| Seat                       | Member                |
+| -------------------------- | --------------------- |
+| Azure Optimization Engine  | Helder Pinto          |
+| Cost optimization workbook | Seif Bassem           |
+| FinOps hubs                | Brett Wilson          |
+| Governance workbook        | Nicolas Teyan         |
+| PowerShell module          | Anthony Romano        |
+| Learning resources         | Fernando Vasconcellos |
 
 Each seat can be filled by one and only one representative to ensure the council remains fair, balanced, and does not grow too large to be effective. The one exception is FinOps Certified Professionals who we believe have earned the right to contribute independently given their investment in certification and dedication to the FinOps space.
 

@@ -15,6 +15,12 @@ param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
 
+@description('Optional. Tags to apply to all resources.')
+param tags object = {}
+
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -77,6 +83,7 @@ var subnets = [
 resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   name: nsgName
   location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/networkSecurityGroups') ? tagsByResource['Microsoft.Storage/networkSecurityGroups'] : {})
   properties: {
     securityRules: [
       {
@@ -164,6 +171,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
 resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   name: vNetName
   location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/virtualNetworks') ? tagsByResource['Microsoft.Storage/virtualNetworks'] : {})
   properties: {
     addressSpace: {
       addressPrefixes: [virtualNetworkAddressPrefix]

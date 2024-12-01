@@ -37,6 +37,7 @@ relationship 52ab9bad-3b48-18fa-4f79-7737ba7d2ffa
 
 relationship 568a17db-5207-5401-71ea-a593da6df3e2
 	crossFilteringBehavior: bothDirections
+	toCardinality: many
 	fromColumn: VirtualMachines.id
 	toColumn: Resources.id
 
@@ -81,6 +82,7 @@ relationship bdf6c03b-4982-e859-788c-8a358b10259a
 
 relationship 26e1c802-749f-5e32-3d1c-82aba5427b7e
 	crossFilteringBehavior: bothDirections
+	toCardinality: many
 	fromColumn: Resources.type
 	toColumn: ResourceTypes.ResourceType
 
@@ -114,8 +116,4 @@ relationship 923fe473-f344-7b97-3b8a-c6b009d13973
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.'properties.policyAssignmentId'
 	toColumn: 'Compliance calculation'.id
-
-relationship 615d9a08-4782-4725-fe93-913b691cb2f3
-	fromColumn: CostDetails.ResourceId
-	toColumn: Disks.id
 

@@ -15,8 +15,7 @@
 // 4. Update older versioned functions to also pull from the new *_vX_Y functions and transform to the old schema
 //======================================================================================================================
 
-// Grant ADF identity access to the cluster
-.add database Hub admins ('aadapp=$$adfPrincipalId$$;$$adfTenantId$$')
+// For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
 
 
 //======================================================================================================================

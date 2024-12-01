@@ -1,0 +1,84 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 33.5287866683784
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 7082.96492519873,
+            "y": 730.3515343338363
+          },
+          "nodeIndex": "HubScopes",
+          "nodeLineageTag": "6dfeb4ff-e902-435e-abed-2109389c66e3",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1826.3909942579139,
+            "y": 697.76517518040441
+          },
+          "nodeIndex": "HubSettings",
+          "nodeLineageTag": "b391a865-7a16-491c-a9f4-8bc826285b97",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6392.7763294224005,
+            "y": 730.3515343338363
+          },
+          "nodeIndex": "StorageData",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 6358.3834817422121,
+            "y": 693.24885206120746
+          },
+          "nodeIndex": "StorageErrors",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 5540.5739309408164,
+            "y": 249.63429182338359
+          },
+          "nodeIndex": "ToolkitCosts",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 70,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

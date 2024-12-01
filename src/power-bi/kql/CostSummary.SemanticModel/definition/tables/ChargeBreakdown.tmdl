@@ -299,6 +299,24 @@ table ChargeBreakdown
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	column x_ChargePeriodMonth
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 487aae09-ebbf-43b1-baa2-5220b477575d
+		summarizeBy: none
+		sourceColumn: x_ChargePeriodMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ReportingDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1c5359f9-6c85-4157-9274-8a4bb4f040b9
+		summarizeBy: none
+		sourceColumn: x_ReportingDate
+
+		annotation SummarizationSetBy = Automatic
+
 	partition ChargeBreakdown = m
 		mode: import
 		queryGroup: 'Data Explorer'
@@ -307,18 +325,20 @@ table ChargeBreakdown
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
 				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
 				
+				    let numberOfMonths = " & lookback & ";
+				    let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
+				    let allowCostManagementAllocationRules = false;
+				    let summarizeAfterRowCount = 400000;
 				    Costs_v1_0
-				    | where ChargePeriodStart >= monthsago(" & lookback & ")
-				    //
-				    // Filter out cost allocation changes
-				    | where isempty(x_CostAllocationRuleName)
-				    //
-				    // Fix missing costs
-				    | extend ContractedCost = iff(isempty(ContractedCost) or ContractedCost == 0, EffectiveCost, ContractedCost)
-				    | extend ListCost = iff(isempty(ListCost) or ListCost == 0, ContractedCost, ListCost)
+				    | where ChargePeriodStart >= monthsago(numberOfMonths)
+				    | where allowCostManagementAllocationRules or isempty(x_CostAllocationRuleName)
+				    | extend x_ChargePeriodMonth = startofmonth(ChargePeriodStart)
+				    | extend x_ReportingDate = iff(monthlyGranularity, x_ChargePeriodMonth, startofday(ChargePeriodStart))
 				    //
 				    | summarize
 				        BilledCost     = sum(BilledCost),
+				        ChargePeriodEnd = max(ChargePeriodEnd),
+				        ChargePeriodStart = min(ChargePeriodStart),
 				        ContractedCost = sum(ContractedCost),
 				        EffectiveCost  = sum(EffectiveCost),
 				        ListCost       = sum(ListCost)
@@ -328,8 +348,6 @@ table ChargeBreakdown
 				            BillingCurrency,
 				            ChargeCategory,
 				            ChargeClass,
-				            ChargePeriodEnd,
-				            ChargePeriodStart,
 				            CommitmentDiscountCategory,
 				            CommitmentDiscountStatus,
 				            CommitmentDiscountType,
@@ -340,9 +358,11 @@ table ChargeBreakdown
 				            ServiceCategory,
 				            ServiceName,
 				            SubAccountName,
+				            x_ChargePeriodMonth,
 				            x_Operation,
 				            x_PricingSubcategory,
 				            x_PublisherCategory,
+				            x_ReportingDate,
 				            x_SkuMeterCategory,
 				            x_SkuMeterName,
 				            x_SkuMeterSubcategory,
@@ -373,11 +393,13 @@ table ChargeBreakdown
 				        ServiceCategory,
 				        ServiceName,
 				        SubAccountName,
+				        x_ChargePeriodMonth,
 				        x_CommitmentDiscountSavings = ContractedCost - EffectiveCost,
 				        x_NegotiatedDiscountSavings = ListCost - ContractedCost,
 				        x_Operation,
 				        x_PricingSubcategory,
 				        x_PublisherCategory,
+				        x_ReportingDate,
 				        x_SkuMeterCategory,
 				        x_SkuMeterName,
 				        x_SkuMeterSubcategory,
@@ -387,8 +409,53 @@ table ChargeBreakdown
 				        x_SkuTier,
 				        x_TotalSavings = ListCost - EffectiveCost,
 				        x_UsageType
+				    | serialize
+				    | extend ROW = row_number()
+				    | as allData
+				    | limit summarizeAfterRowCount
+				    | union (
+				        allData
+				        | where ROW > summarizeAfterRowCount
+				        | summarize
+				            BilledCost        = sum(BilledCost),
+				            ChargePeriodEnd   = max(ChargePeriodEnd),
+				            ChargePeriodStart = min(ChargePeriodStart),
+				            ContractedCost    = sum(ContractedCost),
+				            EffectiveCost     = sum(EffectiveCost),
+				            ListCost          = sum(ListCost)
+				            by
+				                BillingAccountId,
+				                BillingAccountName,
+				                BillingCurrency,
+				                ChargeCategory,
+				                ChargeClass,
+				                CommitmentDiscountCategory,
+				                CommitmentDiscountStatus,
+				                CommitmentDiscountType,
+				                PricingCategory,
+				                ProviderName,
+				                PublisherName,
+				                ResourceType = '(multiple)',
+				                ServiceCategory,
+				                ServiceName,
+				                SubAccountName = '(multiple)',
+				                x_ChargePeriodMonth,
+				                x_Operation = '(multiple)',
+				                x_PricingSubcategory,
+				                x_PublisherCategory,
+				                x_ReportingDate,
+				                x_SkuMeterCategory = '(multiple)',
+				                x_SkuMeterName = '(multiple)',
+				                x_SkuMeterSubcategory = '(multiple)',
+				                x_SkuPartNumber = '(multiple)',
+				                x_SkuServiceFamily = '(multiple)',
+				                x_SkuTerm,
+				                x_SkuTier = '(multiple)',
+				                x_UsageType = '(multiple)'
+				    )
+				    | project-away ROW
 				
-				    ", [MaxRows=null, MaxSize=null, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-Resources-PurchaseCosts"])
+				    ", [MaxRows=null, MaxSize=1073741824, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-CostSummary-ChargeBreakdown"])
 				in
 				    Source
 

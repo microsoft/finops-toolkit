@@ -551,6 +551,44 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "bwatts64",
+      "name": "bwatts64",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32721128?v=4",
+      "profile": "https://github.com/bwatts64",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "claudiazambella",
+      "name": "Claudia Zambella",
+      "avatar_url": "https://avatars.githubusercontent.com/u/82816897?v=4",
+      "profile": "https://github.com/claudiazambella",
+      "contributions": [
+        "security"
+      ]
+    },
+    {
+      "login": "brianwyka",
+      "name": "Brian Wyka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/46069296?v=4",
+      "profile": "https://brianwyka.github.io/",
+      "contributions": [
+        "doc",
+        "review",
+        "bug"
+      ]
+    },
+    {
+      "login": "RolandKrummenacher",
+      "name": "Roland Krummenacher",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1803486?v=4",
+      "profile": "https://github.com/RolandKrummenacher",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
