@@ -51,7 +51,7 @@ _Released December 1, 2024_
 
 - **Added**
   - Added partial support for OneLake URLs.
-    - Support for OneLake URIs was added based on feedback and was not fully tested. More changes may be needed to fully support Microsoft Fabric.
+    - Support for OneLake URLs was added based on feedback and wasn't fully tested. More changes may be needed to fully support Microsoft Fabric.
   - Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
   - Added KQL-based version of the [Cost summary](power-bi/cost-summary.md), [Data ingestion](power-bi/data-ingestion.md), and [Rate optimization](power-bi/rate-optimization.md) reports that connect to FinOps hubs with Azure Data Explorer.
 - **Changed**
@@ -282,10 +282,10 @@ _Released October 2, 2024_
 #### [Resource types v0.6](open-data.md#resource-types)
 
 - **Added**
-  - Added 13 new Microsoft.Billing resource types.
-  - Added 17 new Microsoft.ComputeHub resource types.
-  - Added two new Microsoft.DeviceOnboarding resource types.
-  - Added eight new Microsoft.Edge resource types.
+  - Added 13 new **Microsoft.Billing** resource types.
+  - Added 17 new **Microsoft.ComputeHub** resource types.
+  - Added two new **Microsoft.DeviceOnboarding** resource types.
+  - Added eight new **Microsoft.Edge** resource types.
   - Added eight other new resource types:
     - microsoft.agricultureplatform/agriservices
     - microsoft.azurefleet/fleetscomputehub
@@ -407,7 +407,7 @@ _Released September 1, 2024_
 
 - **Added**
   - `Register-MultitenantAutomationSchedules` PowerShell script helper to [add a different Azure tenant to the scope of AOE](optimization-engine/customize.md).
-  - Zone-redundant (ZRS) disks included in the scope of the `Premium SSD disk has been underutilized` recommendation (besides locally-redundant storage (LRS)).
+  - Zone-redundant storage (ZRS) disks included in the scope of the `Premium SSD disk has been underutilized` recommendation (besides locally redundant storage (LRS)).
   - Option to scope consumption exports to MCA Billing Profile.
 - **Changed**
   - Improved SQL Database security, replacing SQL authentication by Microsoft Entra ID authentication-only.
@@ -439,23 +439,23 @@ _Released September 1, 2024_
 
 - **Added**
   - Added the following new region values:
-    - asiapacific
-    - australia
-    - azure stack
-    - eastsu2
-    - gbs
-    - germany west central
-    - japan
-    - sweden central
-    - unitedstates
-    - us do
-    - central
-    - us dod east
-    - us gov iowa
-    - us gov virginia
-    - us2
-    - usa
-    - usv
+    - `asiapacific`
+    - `australia`
+    - `azure stack`
+    - `eastsu2`
+    - `gbs`
+    - `germany west central`
+    - `japan`
+    - `sweden central`
+    - `unitedstates`
+    - `us do`
+    - `central`
+    - `us dod east`
+    - `us gov iowa`
+    - `us gov virginia`
+    - `us2`
+    - `usa`
+    - `usv`
 
 #### [Resource types v0.5](open-data.md#resource-types)
 
@@ -626,7 +626,7 @@ _Released July 12, 2024_
   - Simplified queries and improved error handling in the START HERE query for report setup steps.
   - Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](/power-bi/developer/projects/projects-dataset#tmdl-format).
     - This change makes it easier to review changes to the data model in Power BI.
-    - Reports continue to get released as Power BI report (PBIX) files, so this change shouldn't affect end users.
+    - Reports continue to get released as Power BI report (.pbix) files, so this change shouldn't affect end users.
     - Visualizations aren't being switched to [Power BI Enhanced Report (PBIR)](/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would affect end users (as of June 2024).
 - **Fixed**
   - Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
@@ -756,7 +756,7 @@ _Released March 28, 2024_
   - Changed all unit price columns to not summarize by default and use three decimal places.
   - Changed the `x_PricingBlockSize` column to a whole number and not summarize by default.
 - **Fixed**
-  - Fixed data issue where Cost Management uses **1Year**, **3Years**, and **5Years** for the x_SkuTerm. Values should be 12, 36, and 60 ([#594](https://github.com/microsoft/finops-toolkit/issues/594)).
+  - Fixed data issue where Cost Management uses `1Year`, `3Years`, and `5Years` for the `x_SkuTerm`. Values should be 12, 36, and 60 ([#594](https://github.com/microsoft/finops-toolkit/issues/594)).
   - Changed the data type for the `x_Month` column to be a date.
   - Changed `x_SkuTerm` to be a whole number and to not summarize by default.
   - Changed `x_BillingExchangeRate` to not summarize by default.
@@ -853,7 +853,7 @@ _**Breaking change**_
 - **Changed**
   - Top 10 services: Improved Monitoring tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
 - **Fixed**
-  - AHB: Fixed AHB to support Windows 10/Windows 11
+  - Azure Hybrid Benefit: Fixed support for Windows 10/Windows 11.
 
 ### PowerShell module v0.2
 
