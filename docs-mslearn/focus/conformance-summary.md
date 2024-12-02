@@ -3,7 +3,7 @@ title: FOCUS conformance summary
 description: Summary of FOCUS conformance gaps in the Microsoft Cost Management FOCUS dataset with applicable workarounds.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/31/2024
+ms.date: 12/02/2024
 ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
@@ -39,9 +39,9 @@ The remaining conformance gaps are summarized in the following sections. For det
 
 ## Incorrect data
 
-| Issue                                                                                                        | Workaround                                                                                                                                                         | Columns / Requirements                                                                                                                                      |
-| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Some columns can be "-2" or "Unassigned" when there's no value.                                              | Replace "-2" and "Unassigned" with null.                                                                                                                           | SkuPriceId, SubAccountName, x_AccountId, x_AccountName, x_AccountOwnerId, x_InvoiceSectionId, x_InvoiceSectionName, x_PricingUnitDescription<br>NH1-3, SAN3 |
+| Issue                                                           | Workaround                               | Columns / Requirements                                                                                                                                      |
+| --------------------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Some columns can be "-2" or "Unassigned" when there's no value. | Replace "-2" and "Unassigned" with null. | SkuPriceId, SubAccountName, x_AccountId, x_AccountName, x_AccountOwnerId, x_InvoiceSectionId, x_InvoiceSectionName, x_PricingUnitDescription<br>NH1-3, SAN3 |
 
 <br>
 

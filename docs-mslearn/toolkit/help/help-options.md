@@ -3,7 +3,7 @@ title: Help and support options
 description: This article summarizes the options for getting help and support for common issues you might experience in the FinOps toolkit.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/30/2024
+ms.date: 12/02/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan

@@ -3,7 +3,7 @@ title: Create a Fabric workspace for FinOps
 description: This article guides you through creating and configuring a Microsoft Fabric workspace for FinOps. When completed, you can use Power BI to build reports.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/29/2024
+ms.date: 12/02/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan

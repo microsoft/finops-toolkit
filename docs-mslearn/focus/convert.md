@@ -1,9 +1,9 @@
 ---
-title: Convert to FOCUS
+title: Convert cost and usage data to FOCUS
 description: This document provides guidance for converting existing Cost Management datasets to the FinOps Open Cost and Usage Specification (FOCUS).
 author: bandersmsft
 ms.author: banders
-ms.date: 10/29/2024
+ms.date: 12/02/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan

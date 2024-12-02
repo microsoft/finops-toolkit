@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/30/2024
+ms.date: 12/02/2024
 ms.topic: troubleshooting
 ms.service: finops
 ms.reviewer: micflan

@@ -3,7 +3,7 @@ title: Get support
 description: This article explains how to get support for issues with FinOps toolkit solutions, including reporting security issues and troubleshooting.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 12/02/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
