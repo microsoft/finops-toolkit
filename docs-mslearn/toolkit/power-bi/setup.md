@@ -34,37 +34,49 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
    - Reservation transactions
 
 2. Download and open the desired report in Power BI Desktop.
-3. Select **Transform data** on the toolbar.
 
-   :::image type="content" source="./media/setup/transform-data.png" border="true" alt-text="Screenshot of the Transform data button in the Power BI Desktop toolbar." lightbox="./media/setup/transform-data.png" :::
+   | Data source                                | Download                                                                                                                             | Notes                                                                                                    |
+   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring more than $2M per month or more than 13 months of data.                      |
+   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring more than $2M per month.                                                 |
+   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring more than $1M in total cost or accounts that contain savings plan usage. |
 
-   :::image type="content" source="./media/setup/start-here.png" border="true" alt-text="Screenshot showing instructions to connect to a storage account." lightbox="./media/setup/start-here.png" :::
+3. Open each report and specify the applicable report parameters:
 
-4. If connecting to a FinOps hub instance, set the **Hub Storage URL**.
-   1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
-   2. Select the hub resource group.
-   3. Select **Deployments** in the menu.
-   4. Select the **hub** deployment.
-   5. Select **Outputs**.
-   6. Copy the value for `storageUrlForPowerBI`.
-5. If connecting directly to Cost Management exports, set the **Export Storage URL**.
-   1. Open the desired storage account in the Azure portal.
-   2. Select **Settings** > **Endpoints** in the menu.
-   3. Copy the **Data Lake Storage** URL.
-   4. Append the container and export path, if applicable.
-6. If only using one storage URL (whether it's for hubs or exports), paste that same URL in both parameters.
-   - When only one URL is specified, the Power BI service thinks there's a problem. It blocks configuring a scheduled refresh.
-   - To work around this problem, copy the same URL into both parameters.
-   - If using hubs, the export storage URL is never used.
-   - If using exports, the hub URL is ignored since exports don't meet the hub storage requirements.
-   - These parameters will be merged in a future update.
-7. Specify how much data you would like to include from storage using one of the following methods:
-   - Set **Number of Months** to the number of closed months you would like to report on if you want to always show a specific number of recent months.
-   - Set **RangeStart** and **RangeEnd** to specific start/end dates if you don't want the dates to move (for example, fiscal year reporting).
-   - Don't set any date parameters to report on all data in storage.
+   - **Cluster URI** (KQL reports only) &ndash; Required Data Explorer cluster URI.
+     1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
+     2. Select the hub resource group.
+     3. Select **Deployments** in the menu.
+     4. Select the **hub** deployment.
+     5. Select **Outputs**.
+     6. Copy the value for `clusterUri`.
+   - **Daily or Monthly** (KQL reports only) &ndash; Required granularity of data. Use this to report on longer periods of time.
+     - Consider creating two copies of these reports to show both daily data for a short time period and monthly data for historical reporting.
+   - **Storage URL** (storage reports only) &ndash; Required path to the Azure storage account with your data.
+     - If connecting to FinOps hubs:
+       1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
+       2. Select the hub resource group.
+       3. Select **Deployments** in the menu.
+       4. Select the **hub** deployment.
+       5. Select **Outputs**.
+       6. Copy the value for `storageUrlForPowerBI`.
+     - If connecting directly to Cost Management exports in storage:
+       1. Open the desired storage account in the Azure portal.
+       2. Select **Settings** > **Endpoints** in the menu.
+       3. Copy the **Data Lake Storage** URL.
+       4. Append the container and export path, if applicable.
+   - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, all data in storage will be included.
+   - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, all data in storage will be included.
      > [!WARNING]
-     > [Enable incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details.
-8. Select **Close & Apply** to save your settings.
+     > [Enable incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $2M of raw cost details. Power BI reports can only support $2M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2M/month for a total of ~$26M in raw cost details.
+
+4. Authorize each data source:
+
+   - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub database.
+   - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
+   - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
+   - **https://ccmstorageprod...** &ndash; Anonymous access. This is used for reservation size flexibility data.
+   - **https://github.com/...** &ndash; Anonymous access. This is used for FinOps toolkit open data files.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
 
@@ -72,12 +84,7 @@ If you run into any issues syncing your data, see [Troubleshooting Power BI repo
 
 ## Use a SAS token to connect data to a report
 
-Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. 
-
-> [!NOTE]
-> This article contains images showing example data. Any price data is for test purposes only.
-
-To connect Power BI reports to your data via SAS tokens:
+Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. To connect Power BI reports to your data via SAS tokens:
 
 1. Generate the SAS token with required permissions:
    - Navigate the FinOps hub storage account in the Azure portal.

@@ -34,6 +34,7 @@ The board is responsible for identifying short-, medium-, and long-term goals an
 - **Compliance**: Ensuring we're in compliance with Microsoft policies and procedures.
 
 Board members are also expected to facilitate [[Support escalations]] by:
+
 - Reviewing new and unresolved issues and discussions at least once per week.
 - Responding to Microsoft Support escalations within 2 business days.
 - Responding to security investigations within 1 business day.
@@ -66,18 +67,18 @@ If consensus cannot be reached within 14 days and the board believes the issue i
 
 The governing board consists of the following representative seats:
 
-| Seat | Member |
-|------|--------|
-| Business sponsor | Nelson Pereira |
-| Community | Sonia Cuff |
-| Consulting | Manfred Simonis |
-| Engineering | Arthur Clares |
-| Marketing | Vacant |
-| Product | Michael Flanakin |
-| FinOps Certified Professional | Vacant |
-| Internal customer (one per FinOps persona) | Mark Aggar |
-| External customer (one per FinOps persona) | Vacant |
-| Advisory Council | Vacant |
+| Seat                                       | Member           |
+| ------------------------------------------ | ---------------- |
+| Business sponsor                           | Nelson Pereira   |
+| Community                                  | Sonia Cuff       |
+| Consulting                                 | Manfred Simonis  |
+| Engineering                                | Arthur Clares    |
+| Marketing                                  | Vacant           |
+| Product                                    | Michael Flanakin |
+| FinOps Certified Professional              | Vacant           |
+| Internal customer (one per FinOps persona) | Vacant           |
+| External customer (one per FinOps persona) | Vacant           |
+| Advisory Council                           | Vacant           |
 
 Individuals must meet the following criteria in order to attain a board seat:
 

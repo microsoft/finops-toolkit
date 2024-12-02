@@ -23,7 +23,7 @@ Support for the [Cost Management connector for Power BI](/power-bi/connect-data/
 
 ## Available reports
 
-The FinOps toolkit includes two sets of reports that connect to different data sources. We recommend using the following reports that connect to Cost Management exports or [FinOps hubs](../hubs/finops-hubs-overview.md):
+The FinOps toolkit includes reports that connect to different data sources. We recommend using the following reports that connect to Cost Management exports or [FinOps hubs](../hubs/finops-hubs-overview.md):
 
 - [Cost summary](cost-summary.md) – Overview of amortized costs with common breakdowns.
 - [Rate optimization](rate-optimization.md) – Summarizes existing and potential savings from commitment discounts.
@@ -31,7 +31,9 @@ The FinOps toolkit includes two sets of reports that connect to different data s
 - [Cloud policy and governance](governance.md) – Summarize cloud governance posture including areas like compliance, security, operations, and resource management.
 - [Data ingestion](data-ingestion.md) – Provides insights into your data ingestion layer.
 
-The following reports use the Cost Management connector for Power BI to connect to your data. While the connector isn't recommended due to the following reasons, these reports are available as long as the Cost Management team supports the connector.
+If you need to monitor more than $5M in spend, we generally recommend using KQL-based reports that connect to [FinOps hubs](../hubs/README.md) with Azure Data Explorer. As of November 2024, only the Cost summary and Rate optimization reports connect to Data Explorer. Additional reports will come in future updates. Organizations who need other reports can continue to connect to the underlying hub storage account.
+
+In addition, the following reports use the Cost Management connector for Power BI to connect to your data. While the connector is not recommended, these reports will be available as long as the connector is supported by the Cost Management team.
 
 - [Cost Management connector](connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector for Enterprise Agreements and Microsoft Customer Agreement accounts.
 - [Cost Management template app](template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
@@ -42,29 +44,23 @@ The following reports use the Cost Management connector for Power BI to connect 
 
 ## Connect to your data
 
-All FinOps toolkit reports, come with sample data to explore without connecting to your account. Reports have a built-in tutorial to help you connect to your data.
+The FinOps toolkit includes three sets of reports. [Demo reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip) include sample data to explore without connecting to your account. When you're ready to connect to your account, please download the correct report template:
 
-1. Configure Cost Management exports for any data you would like to include in reports, including:
+| Data source                                | Download                                                                                                                             | Notes                                                                                                    |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring more than $2M per month or more than 13 months of data.                      |
+| Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring more than $2M per month.                                                 |
+| Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring more than $1M in total cost or accounts that contain savings plan usage. |
 
-   - Cost and usage (FOCUS) &ndash; Required for all reports.
-   - Price sheet
-   - Reservation details
-   - Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
-   - Reservation transactions
+When using KQL or storage reports, you will need to configure FinOps hubs or Cost Management exports. For FinOps hubs, refer to [Configure scopes](../hubs/configure-scopes.md). For Cost Management exports, refer to [How to create exports](/azure/cost-management-billing/costs/tutorial-improved-exports). Power BI reports use the following export types:
 
-2. Select the **Transform data** button (table with a pencil symbol) in the toolbar.
+- Cost and usage (FOCUS) &ndash; Required for all reports.
+- Price sheet
+- Reservation details
+- Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
+- Reservation transactions
 
-   :::image type="content" source="./media/reports/transform-data.png" border="true" alt-text="Screenshot of the Transform data button in the Power BI Desktop toolbar." lightbox="./media/reports/transform-data.png" :::
-
-3. Select **Queries** > **Setup** > **▶ START HERE** and follow the instructions.
-
-   Make sure you have the [Storage Blob Data Reader role](/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) on the storage account so you can access the data.
-
-   :::image type="content" source="./media/reports/start-here.png" border="true" alt-text="Screenshot showing instructions about how to connect to a storage account." lightbox="./media/reports/start-here.png" :::
-
-4. Select **Close & Apply** in the toolbar and allow Power BI to refresh to see your data.
-
-For more information, see [How to setup Power BI](setup.md).
+For more information, see [How to setup Power BI](setup.md#set-up-your-first-report).
 
 <br>
 

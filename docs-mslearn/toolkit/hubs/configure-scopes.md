@@ -31,29 +31,27 @@ If you can't grant permissions for your scope, you can create Cost Management ex
 1. [Create a new FOCUS cost export](/azure/cost-management-billing/costs/tutorial-export-acm-data) using the following settings:
 
    - **Type of data** = `Cost and usage details (FOCUS)`¹
-   - **Dataset version** = `1.0`²
+   - **Dataset version** = `1.0` or `1.0r2`²
    - **Frequency** = `Daily export of month-to-date costs`³
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
-   - **Format** = `CSV`
-   - **Compression Type** = `none`
+   - **Format** = `Parquet` (when available)
+   - **Compression Type** = `Snappy` (when available)
    - **Directory** = (Specify a unique path for this scope⁵)
      - _**EA billing account:** `billingAccounts/{enrollment-number}`_
      - _**MCA billing profile:** `billingProfiles/{billing-profile-id}`_
      - _**Subscription:** `subscriptions/{subscription-id}`_
      - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
-   - **Format** = Parquet
-   - **Compression** = Snappy
    - **File partitioning** = On
    - **Overwrite data** = Off⁴
 2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
 3. Create exports for any other data you would like to include in your reports.
    - Supported datasets and versions:
      - Price sheet `2023-05-01`
+       - Required to populate missing prices/costs and calculate savings when using Azure Data Explorer.
      - Reservation details `2023-03-01`
      - Reservation recommendations `2023-05-01`
-        > [!NOTE]
-        > Virtual machine reservation recommendations exports are required on the Reservation recommendations page of the Rate optimization report. If you do not create an export, the page will be empty.
+       - Virtual machine reservation recommendations are required on the Reservation recommendations page of the Rate optimization report. If you do not create an export, the page will be empty.
      - Reservation transactions `2023-05-01`
    - Supported formats: Parquet (preferred) or CSV
    - Supported compression: Snappy (preferred), GZip, or uncompressed
@@ -66,7 +64,7 @@ If you can't grant permissions for your scope, you can create Cost Management ex
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
 
-_² FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, use FinOps hubs 0.3._
+_² The only difference in FOCUS 1.0r2 compared to 1.0 is the inclusion of seconds in date columns. If seconds are not required for the system you are ingested data into, there is no need to change existing 1.0 exports to leverage 1.0r2._
 
 _³ Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
 
@@ -79,7 +77,6 @@ _⁵ Export paths can be any value but must be unique per scope. We recommended 
 ## Configure managed exports
 
 Managed exports allow FinOps hubs to set up and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor.
-
 
 :::image type="content" source="./media/configure-scopes/hubs-scopes.png" border="false" alt-text="Diagram showing the supported scopes for hubs." lightbox="./media/configure-scopes/hubs-scopes.png" :::
 

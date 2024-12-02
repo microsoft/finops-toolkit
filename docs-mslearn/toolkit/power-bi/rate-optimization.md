@@ -86,7 +86,6 @@ The chart shows total cost savings for the period split out by commitment type (
 ## Chargeback
 
 The **Chargeback** page helps facilitate chargeback at a subscription, resource group, or resource level. Use the table for chargeback.
-<!-- NOTE: This page is duplicated in the cost-summary.md file as "Commitments". Please keep both updated at the same time. -->
 
 The chart shows the amortized cost for each subscription that used a commitment. If you see **Unassigned**, that is the unused cost that isn't associated with a subscription.
 
@@ -137,9 +136,9 @@ The table below the charts shows the recommended reservations based on the speci
 
 ## Purchases
 
-<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
-
 The **Purchases** page shows any new commitment discount purchases, either monthly or upfront payments, within the specified period.
+
+<!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
 There's one, **Billed cost** KPI which shows the total cost of the purchases as it appears on your invoice. It's different than the cost on other pages, which show amortized cost.
 
@@ -152,8 +151,6 @@ The chart shows the purchases over time and the table shows a list of the commit
 ## Hybrid Benefit
 
 The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs).
-
-<!-- NOTE: This page is duplicated in the cost-summary.md file. Please keep both updated at the same time. -->
 
 KPIs show how many VMs are using Azure Hybrid Benefit and how many vCPUs are used.
 
@@ -180,7 +177,7 @@ The table shows a list of VMs that are currently using or could be using AHB, sh
 
 The **Prices** page shows the prices for all products that were used with commitment discounts during the period.
 
-<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
+<!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
 The chart shows a summary of the meters that got used the most.
 
@@ -190,7 +187,7 @@ The chart shows a summary of the meters that got used the most.
 
 ## Data quality
 
-The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. It can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (for example, missing price and cost values). If you're missing any data, contact support to help raise the priority of these bugs in Cost Management.
+The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. It can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (for example, missing price and cost values). If you're missing any data, contact support to help raise the priority of these bugs in Cost Management. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 :::image type="content" source="./media/rate-optimization/data-quality.png" border="true" alt-text="Screenshot of the Data quality page that shows some of the data used to calculate savings at a cost and unit price level." lightbox="./media/rate-optimization/data-quality.png" :::
 

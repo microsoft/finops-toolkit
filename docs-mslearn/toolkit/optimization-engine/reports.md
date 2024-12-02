@@ -23,7 +23,7 @@ AOE includes a [Power BI report](reports.md) for visualizing recommendations. To
 
 :::image type="content" source="./media/reports/power-bi-transform-data-menu.png" border="true" alt-text="Screenshot showing navigation to the Data source settings menu item." lightbox="./media/reports/power-bi-transform-data-menu.png":::
 
-Then select **Change source** and change to your SQL database server URL. Ensure your SQL Firewall rules allow for the connection.
+Then select **Change source** and change to your SQL database server URL. Ensure your SQL Firewall rules allow for the connection and to sign in with a Microsoft work/school account with permissions on the SQL database.
 
 :::image type="content" source="./media/reports/power-bi-data-source-settings.png" border="true" alt-text="Screenshot showing the SQL Server database connection settings." lightbox="./media/reports/power-bi-data-source-settings.png":::
 

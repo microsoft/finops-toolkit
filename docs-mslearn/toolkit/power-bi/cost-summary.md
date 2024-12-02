@@ -124,53 +124,11 @@ The **Inventory** page includes a list of resource types with the count, total c
 
 <br>
 
-## Commitments
-
-The **Commitments** page serves the following three primary purposes:
-
-<!-- NOTE: This page is duplicated in the rate-optimization.md. Please keep both updated at the same time. -->
-
-- Determine if there are any under-utilized commitments.
-- Facilitate chargeback at a subscription, resource group, or resource level.
-- Summarize cost savings obtained from commitment discounts.
-
-This page uses the standard layout with a breakdown of commitment discounts in the chart and table.
-
-In addition to cost and savings KPIs, there's also a utilization KPI for the commitment discounts amount that were utilized during the period. Low utilization results in lost savings potential, so this number is one of the most important KPIs on the page.
-
-The chart breaks down the cost of used (utilized) vs. unused charges. The commitment type (for example, reservation and savings plan) splits unused charges.
-
-The table shows resource usage against commitment discounts with columns for resource name, resource group, subscription, and commitment. Use the table for chargeback and savings calculations.
-
-This page filters usage down to only show charges related to commitment discounts. That means the total cost on the Commitments page doesn't match other pages, which aren't filtered by default.
-
-:::image type="content" source="./media/cost-summary/commitment-discounts.png" border="true" alt-text="Screenshot of the Commitment discounts page that shows a breakdown of commitment discounts." lightbox="./media/cost-summary/commitment-discounts.png" :::
-
-<br>
-
-## Hybrid Benefit
-
-The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs).
-
-KPIs show how many VMs are using Azure Hybrid Benefit and how many vCPUs are used.
-
-There are three charts on the page:
-
-- SKU names and number of VMs currently using fewer than 8 vCPUs. They're under-utilizing AHB.
-- SKU names and number of VMs with 8+ vCPUs that aren't currently using AHB.
-- Daily breakdown of AHB and non-AHB usage (excluding VMs where AHB isn't supported).
-
-The table shows a list of VMs that are currently using or could be using AHB. It shows their vCPU count, AHB vCPU count, resource group, subscription, cost, and quantity.
-
-:::image type="content" source="./media/cost-summary/hybrid-benefit.png" border="true" alt-text="Screenshot of the Hybrid Benefit page that shows AHB usage for VMs." lightbox="./media/cost-summary/hybrid-benefit.png" :::
-
-<br>
-
 ## Prices
 
 The **Prices** page shows the prices for all products used during the period.
 
-<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
+<!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
 The chart shows a summary of the meters that were most used.
 
@@ -181,6 +139,8 @@ The chart shows a summary of the meters that were most used.
 ## Purchases
 
 The **Purchases** page shows a list of products that were purchased during the period.
+
+<!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
 :::image type="content" source="./media/cost-summary/purchases.png" border="true" alt-text="Screenshot of the Purchases page that shows a list of purchased products." lightbox="./media/cost-summary/purchases.png" :::
 
@@ -209,7 +169,7 @@ The **Charge breakdown** page shows a breakdown of all charges using the followi
 
 ## Raw data
 
-The **Raw data** page shows a table with most columns to help you explore FOCUS columns.
+The **Raw data** page shows a table with most columns to help you explore FOCUS columns. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 :::image type="content" source="./media/cost-summary/raw-data.png" border="true" alt-text="Screenshot of the Raw data page that shows a table with most FOCUS columns." lightbox="./media/cost-summary/raw-data.png" :::
 
@@ -217,7 +177,7 @@ The **Raw data** page shows a table with most columns to help you explore FOCUS 
 
 ## Data quality
 
-The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions.
+The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 :::image type="content" source="./media/cost-summary/data-quality.png" border="true" alt-text="Screenshot of the Data quality page that shows several data categories." lightbox="./media/cost-summary/data-quality.png" :::
 

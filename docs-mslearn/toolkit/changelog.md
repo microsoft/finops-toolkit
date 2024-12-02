@@ -22,40 +22,123 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### FinOps guide
-
-- **Added**
-  - Added Enterprise App Patterns links resources to the architecting for the cloud section.
-
 ### FinOps hubs
 
-- **Added**
-  - Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
-  - Autobackfill – Backfill historical data from Microsoft Cost Management.
-  - Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-  - Extract, transform, and load (ETL) pipeline – Add support for parquet files created by Cost Management exports.
+- Autobackfill – Backfill historical data from Microsoft Cost Management.
+- Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 
 ### Power BI reports
 
-The following updates apply to Power BI reports.
-
-#### General Power BI updates
-
-- **Added**
-  - Populate missing prices.
+- Populate missing prices.
 
 ### Bicep Registry modules
 
-- **Added**
-  - Cost Management export modules for subscriptions and resource groups.
+- Cost Management export modules for subscriptions and resource groups.
 
-### Optimization engine
+<br><a name="latest"></a>
+
+## v0.7
+
+_Released December 1, 2024_
+
+### FinOps guide v0.7
+
+- **Changed**
+  - Added Enterprise App Patterns links resources to the architecting for the cloud section.
+  - Update cost and unit of measure handling in the [FOCUS conversion instructions](../_docs/focus/convert.md).
+
+### Power BI reports v0.7
+
+- **Added**
+  1. Added partial support for OneLake URLs.
+     - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
+  2. Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
+  3. Added KQL-based version of the [Cost summary](../_reporting/power-bi/cost-summary.md), [Data ingestion](../_reporting/power-bi/data-ingestion.md), and [Rate optimization](../_reporting/power-bi/rate-optimization.md) reports that connect to FinOps hubs with Azure Data Explorer.
+- **Changed**
+  1. Consolidated the **Hub Storage URL** and **Export Storage URL** parameters into a single **Storage URL**.
+     - This means all datasets will either need to be raw exports outside of FinOps hubs or be processed through hubs. This release no longer supports some data from hubs and some from raw exports.
+     - If you have existing exports that are not running through hubs data pipelines, simply change the exports to point to the hub **msexports** container.
+     - This change was made to simplify the setup process and avoid errors in Power BI service configuration (e.g., incremental refresh).
+  2. Renamed the following columns:
+     - x_DatasetChanges is now `x_SourceChanges`
+     - x_DatasetType is now `x_SourceType`
+     - x_DatasetVersion is now `x_SourceVersion`
+     - x_AccountType is now `x_BillingAccountAgreement`
+  3. Updated supported spend estimates in the Power BI documentation.
+
+### FinOps hubs v0.7
+
+_**Breaking change**_
+
+- **Added**
+  - Option to ingest data into an Azure Data Explorer cluster.
+  - Set missing reservation list and contracted prices/cost columns for EA and MCA accounts (Data Explorer only).
+    - Requires the price sheet export to be configured.
+  - Support for FOCUS 1.0r2 exports.
+    - The 1.0r2 dataset only differs in date formatting. There are no functional differences compared to 1.0.
+    - The 1.0r2 dataset is only needed when ingesting data into a system that requires date/time values to include seconds (for example, "2024-01-01T00:00:00Z" where the last "00" is seconds).
+  - Support for private endpoints via an optional template parameter.
+    - Added private endpoints for storage account, Azure Data Explorer & Keyvault.
+    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
+    - All data processing now happens within a virtual network.
+    - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
+    - Added param to specify subnet range of virtual network - minimum size = /26
+  - Support for storage account infrastructure encryption.
+  - Published a [schema file](https://aka.ms/finops/hubs/settings-schema) for the hub settings.json file.
+- **Changed**
+  - Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
+    > [!IMPORTANT]
+    > This change requires removing previously ingested data for the current month to avoid data duplication. You do not need to re-export historical data for storage-based Power BI reports; however, historical data DOES need to be re-exported to ingest into Azure Data Explorer.
+    - For FOCUS cost data, use "Costs".
+    - For price sheet data, use "Prices".
+    - For reservation details, use "CommitmentDiscountUsage".
+    - For reservation recommendations, use "Recommendations".
+    - For reservation transactions, use "Transactions".
+  - Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+- **Fixed**
+  - Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
+    - The same fix was applied to Power BI reports for those not using Data Explorer. The underlying data has not changed however.
+
+### FinOps workbooks v0.7
+
+- **Added**
+  - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+    1. On the Storage tab, included the **RSVaultBackup** tag in the list of non-idle disks.
+- **Fixed**
+  - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+    1. On the Commitment discounts tab, fixed RI ROWS Limited.
+    1. On the Compute tab, fixed incorrect VM processor in processors query.
+- **Removed**
+  - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+    1. On the Database tab, removed the idle SQL databases query.
+       - This query will be re-evaluated and added again in a future release.
+
+### Optimization engine v0.7
 
 - **Fixed**
   - Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
   - Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
 
-<br><a name="latest"></a>
+### Open data v0.7
+
+- **Added**
+  - [Resource types](../_reporting/data/README.md#-resource-types)
+    1. Added 50 new Microsoft.AWSConnector resource types.
+    1. Added 8 new Microsoft.Compute resource types.
+    1. Added 3 new Microsoft.ContainerInstance resource types.
+    1. Added 3 new Microsoft.DatabaseFleetManager resource types.
+    1. Added 4 new Microsoft.Fabric resource types.
+    1. Added 5 new Microsoft.OpenLogisticsPlatform resource types.
+    1. Added 3 new Microsoft.Sovereign resource types.
+    1. Added 14 other new resource types: arizeai.observabilityeval/organizations, lambdatest.hyperexecute/organizations, microsoft.azurestackhci/edgedevices/jobs, microsoft.clouddeviceplatform/delegatedidentities, microsoft.compute/capacityreservationgroupscomputehub, microsoft.compute/galleries/imagescomputehub, microsoft.compute/hostgroupscomputehub, microsoft.hybridcompute/machinessoftwareassurance, microsoft.machinelearning/workspaces, microsoft.resources/deletedresources, microsoft.security/defenderforstoragesettings/malwarescans, microsoft.weightsandbiases/instances, neon.postgres/organizations, pinecone.vectordb/organizations.
+  - [Services](../_reporting/data/README.md#-services)
+    1. Added 3 resource types to existing services: microsoft.hardwaresecuritymodules/cloudhsmclusters, microsoft.healthdataaiservices/deidservices, microsoft.insights/datacollectionrules.
+- **Changed**
+  - [Resource types](../_reporting/data/README.md#-resource-types)
+    1. Updated 17 new Microsoft.ComputeHub resource types.
+    1. Updated 9 other resource type: microsoft.appsecurity/policies, microsoft.compute/virtualmachines/providers/guestconfigurationassignments, microsoft.dbforpostgresql/flexibleservers, microsoft.deviceregistry/billingcontainers, microsoft.durabletask/namespaces, microsoft.durabletask/namespaces/taskhubs, microsoft.edge/configurations, microsoft.hybridcompute/machines/providers/guestconfigurationassignments, microsoft.securitycopilot/capacities.
+
+<br>
 
 ## v0.6 Update 1
 
@@ -558,7 +641,7 @@ _Released January 22, 2024_
 
 ### FinOps hubs v0.2
 
-***Breaking change***
+_**Breaking change**_
 
 - **Fixed**
   - Fixed error in some China regions where deployment scripts weren't supported ([#259](https://github.com/microsoft/finops-toolkit/issues/259)).

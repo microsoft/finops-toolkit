@@ -25,20 +25,131 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <br>
 
+## AccountPropertyCannotBeUpdated
+
+<sup>Severity: Critical</sup>
+
+This error typically occurs when updating a FinOps hub deployment with a different storage account configuration than was originally used during creation. While most properties can be changed, there are a few properties that can only be set once when the storage account is created and cannot change. The one known case of this for FinOps hubs is the "requireInfrastructureEncryption" property. If was enabled or disabled during the first FinOps hub deployment, then it cannot be changed. You will see the following error when this happens:
+
+> The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
+
+**Mitigation**: If you did not mean to change this setting, confirm whether your storage account is configured to use infrastructure encryption and re-deploy the FinOps hub template with the same value (either on or off). If you want to change the setting, we recommend deploying a new FinOps hub instance, as this will require re-ingesting all data.
+
+You can try to delete the existing storage account and redeploy the template with infrastructure encryption changed; however, we have not thoroughly tested this. While we do not anticipate issues, we cannot confirm if it will cause problems.
+
+<br>
+
 ## BadHubVersion
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 FinOps hubs 0.2 isn't operational. Upgrade to version 0.3 or later.
-
 
 **Mitigation**: Upgrade to the latest version of [FinOps hubs](../hubs/finops-hubs-overview.md).
 
 <br>
 
+## DataExplorerIngestionFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer ingestion failed. The new data will not be available for reporting.
+
+**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_ExecuteETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerIngestionMappingFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer ingestion mapping could not be created for the specified table.
+
+**Mitigation**: Please fix the error and rerun ingestion for the specified folder path. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerIngestionTimeout
+
+<sup>Severity: Critical</sup>
+
+Data Explorer ingestion timed out after 2 hours while waiting for available capacity.
+
+**Mitigation**: Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerPostIngestionDropFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer post-ingestion cleanup (drop extents from the final table) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.
+
+**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerPreIngestionDropFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. Ingestion was not completed.
+
+**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+
+<br>
+
+## ExportDataNotFound
+
+<sup>Severity: Critical</sup>
+
+Exports weren't found in the specified storage path.
+
+**Mitigation**: Confirm that a [Cost Management export](https://aka.ms/exportsv2) was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, correct the storage URL to point to the 'ingestion' container. Refer to the `storageUrlForPowerBI` output from the FinOps hub deployment for the full URL.
+
+<br>
+
+## HubDataNotFound
+
+<sup>Severity: Critical</sup>
+
+FinOps hub data was not found in the specified storage account.
+
+**Mitigation**: This error assumes you are connecting to a FinOps hub deployment. If using raw exports, please correct the storage path to not reference the `ingestion` container. Confirm the following:
+
+1. The storage URL should match the `StorageUrlForPowerBI` output on the FinOps hub deployment.
+2. Cost Management exports should be configured to point to the same storage account using the `msexports` container.
+3. Cost Management exports should show a successful export in the run history.
+4. FinOps hub data factory triggers should all be started.
+5. FinOps hub data factory pipelines should be successful.
+
+For more details and debugging steps, see [Validate your FinOps hub deployment](../help/troubleshooting.md#validate-your-finops-hub-deployment).
+
+<br>
+
+## IngestionFilesNotFound
+
+<sup>Severity: Critical</sup>
+
+Unable to locate parquet files to ingest from the specified folder path.
+
+**Mitigation**: Confirm the folder path is the full path, including the **ingestion** container and not starting with or ending with a slash (**/**). Copy the path from the last successful **ingestion_ExecuteETL** pipeline run.
+
+<br>
+
+## InvalidEffectiveCost
+
+<sup>Severity: Major</sup>
+
+As of November 2024, Cost Management has a known bug where savings plan purchases are internally tracked as both actual and amortized costs. Because of this, FOCUS includes savings plan purchases in the calculation for `EffectiveCost`, which leads to inaccurate numbers in FinOps toolkit reports.
+
+**Mitigation**: File a support request with the Microsoft Cost Management team with details about the issue to fix the underlying data. As of November 2024, the team is aware of the issue, but the fix has not yet been prioritized. In the interim, update to FinOps toolkit 0.7, which includes a workaround for FinOps hubs and storage-based Power BI reports.
+
+<br>
+
 ## InvalidExportContainer
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 This file looks like it might be exported from Cost Management but it isn't in the correct container.
 
@@ -48,10 +159,9 @@ This file looks like it might be exported from Cost Management but it isn't in t
 
 ## InvalidExportVersion
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 FinOps hubs require FOCUS cost exports but this file looks like a legacy Cost Management export.
-
 
 **Mitigation**: Create a new Cost Management export for FOCUS cost and either stop the current export or change it to export to a different storage container.
 
@@ -59,10 +169,9 @@ FinOps hubs require FOCUS cost exports but this file looks like a legacy Cost Ma
 
 ## InvalidHubVersion
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 FinOps hubs 0.1.1 and earlier don't work with the [Data ingestion Power BI report](../power-bi/data-ingestion.md).
-
 
 **Mitigation**: Upgrade to the latest version of [FinOps hubs](../hubs/finops-hubs-overview.md) or download Power BI reports from [release 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1).
 
@@ -70,7 +179,7 @@ FinOps hubs 0.1.1 and earlier don't work with the [Data ingestion Power BI repor
 
 ## InvalidScopeId
 
-*Severity: Informational*
+<sup>Severity: Informational</sup>
 
 The export path isn't a valid scope ID. FinOps hubs expect the export path to be an Azure resource ID for the scope the export was created to simplify management. It shouldn't cause failures, but might result in confusing results for scope-related reports.
 
@@ -78,87 +187,19 @@ The export path isn't a valid scope ID. FinOps hubs expect the export path to be
 
 <br>
 
-## ExportDataNotFound
+## LegacyFocusVersion
 
-*Severity: Critical*
+<sup>Severity: Informational</sup>
 
-Exports weren't found in the specified storage path.
+This error code is shown in the `x_SourceChanges` column when the ingested data uses an older version of FOCUS. FinOps hubs converts data to the latest FOCUS version so this should not cause an issue; however, the modernization transform cannot account for all scenarios and may result in unexpected results in some cases. Refer to documentation for known issues.
 
-
-**Mitigation**: Confirm that a [Cost Management export](https://aka.ms/exportsv2) was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, correct the storage URL to point to the 'ingestion' container. Refer to the `storageUrlForPowerBI` output from the FinOps hub deployment for the full URL.
-
-<br>
-
-## HubDataNotFound
-
-*Severity: Critical*
-
-FinOps hub data wasn't found in the specified storage account.
-
-
-**Mitigation**: This error assumes you're connecting to a FinOps hub deployment. If using raw exports, correct the storage path to not reference the `ingestion` container. Confirm the following information:
-
-1. The storage URL should match the `StorageUrlForPowerBI` output on the FinOps hub deployment.
-2. Cost Management exports should be configured to point to the same storage account using the `msexports` container.
-3. Cost Management exports should show a successful export in the run history.
-4. FinOps hub data factory triggers should all be started.
-5. FinOps hub data factory pipelines should be successful.
-
-For more information and debugging steps, see [Validate your FinOps hub deployment](troubleshooting.md#validate-your-finops-hub-deployment).
-
-<br>
-
-## MissingContractedCost
-
-*Severity: Informational*
-
-This error code is shown in the `x_DatasetChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management didn't include `ContractedCost` for the specified rows, which means savings can't be calculated.
-
-**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings aren't available for these records.
-
-To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
-
-<br>
-
-## MissingContractedUnitPrice
-
-*Severity: Informational*
-
-This error code is shown in the `x_DatasetChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management didn't include `ContractedUnitPrice` for the specified rows, which means savings can't be calculated.
-
-**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings aren't available for these records.
-
-To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
-
-<br>
-
-## MissingListCost
-
-*Severity: Informational*
-
-This error code is shown in the `x_DatasetChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management didn't include `ListCost` for the specified rows, which means savings can't be calculated.
-
-**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings aren't available for these records.
-
-To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
-
-<br>
-
-## MissingListUnitPrice
-
-*Severity: Informational*
-
-This error code is shown in the `x_DatasetChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management didn't include `ListUnitPrice` for the specified rows, which means savings can't be calculated.
-
-**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings aren't available for these records.
-
-To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+**Mitigation**: Update configured exports to use the latest FOCUS version. If the latest FOCUS version is not supported by the provider, please request official support for the latest FOCUS version.
 
 <br>
 
 ## ManifestReadFailed
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 FinOps hub **msexports_ExecuteETL** pipeline failed to read the Cost Management manifest file.
 
@@ -233,6 +274,64 @@ TODO: Consider the following ways to streamline this in the future:
 
 <br>
 
+## MissingContractedCost
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management didn't include `ContractedCost` for the specified rows, which means savings can't be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings aren't available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingContractedUnitPrice
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management didn't include `ContractedUnitPrice` for the specified rows, which means savings can't be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings aren't available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingListCost
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management didn't include `ListCost` for the specified rows, which means savings can't be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings aren't available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingListUnitPrice
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management didn't include `ListUnitPrice` for the specified rows, which means savings can't be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings aren't available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingProviderName
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (e.g., Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports attempt to identify the provider based on the available columns.
+
+<br>
+
 ## ResourceAccessForbiddenException
 
 Power BI: An exception of the 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' type was thrown
@@ -260,7 +359,7 @@ To fix that issue you have to remove the stale identity:
 
 ## SchemaLoadFailed
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 FinOps hub **msexports_ETL_ingestion** pipeline failed to load the schema file.
 
@@ -270,7 +369,7 @@ FinOps hub **msexports_ETL_ingestion** pipeline failed to load the schema file.
 
 ## SchemaNotFound
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 FinOps hub **msexports_ExecuteETL** pipeline wasn't able to find the schema mapping file for the exported dataset.
 
@@ -282,7 +381,7 @@ To add support for another dataset, create a custom mapping file and save it to 
 
 ## UnknownExportFile
 
-*Severity: Informational*
+<sup>Severity: Informational</sup>
 
 The file in hub storage doesn't look like it was exported from Cost Management. File is ignored.
 
@@ -290,9 +389,19 @@ The file in hub storage doesn't look like it was exported from Cost Management. 
 
 <br>
 
+## UnknownFocusVersion
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when a FOCUS version could not be identified.
+
+**Mitigation**: Validate that the FOCUS dataset is using a supported FOCUS version. Report this issue with an anonymized sample of the data at https://aka.ms/ftk/ideas to investigate further.
+
+<br>
+
 ## UnknownHubVersion
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 Unable to identify the version of FinOps hubs from the settings file. Verify settings are correct. FinOps hubs 0.1.1 and earlier doesn't work with this Power BI report.
 
@@ -302,7 +411,7 @@ Unable to identify the version of FinOps hubs from the settings file. Verify set
 
 ## UnsupportedExportFileType
 
-*Severity: Critical*
+<sup>Severity: Critical</sup>
 
 Unable to ingest the specified export file because the file type isn't supported.
 
@@ -312,7 +421,7 @@ Unable to ingest the specified export file because the file type isn't supported
 
 ## UnsupportedExportType
 
-*Severity: Warning*
+<sup>Severity: Warning</sup>
 
 The export manifest in hub storage indicates the export was for an unsupported dataset. Exported data is reported as ingestion errors.
 

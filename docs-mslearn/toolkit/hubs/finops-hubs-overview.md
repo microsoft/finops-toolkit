@@ -19,12 +19,12 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 - **Built for scale**<br>_Designed to support the largest accounts and organizations._
 - **Open and extensible**<br>_Embrace the ecosystem and prioritize enabling the platform._
 
-FinOps hubs are in early development. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account. FinOps hubs address a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
+FinOps hubs extend Cost Management to provide a scalable platform for advanced data reporting and analytics, through tools like Power BI and Microsoft Fabric. FinOps hubs are a foundation to build your own cost management and optimization solution.
 
 > [!NOTE]
-> Estimated cost: $25/mo per $1M in cost being monitored.
+> Estimated cost: Starts at $120/mo + $10/mo per $1M in cost being monitored.
 >
-> Estimated cost includes $5 for Azure storage and data processing plus up to $20 per user for [Power BI licenses](https://www.microsoft.com/power-platform/products/power-bi/pricing). Exact cost varies based on discounts, data size per $1M (~20GB of data), and Power BI license requirements. Pipelines run once a day per export, plus one additional monthly run per export. Pipeline run time depends on data size. For details, refer to the [FinOps hub cost estimate](https://azure.com/e/c3d98263bec048b6af52acb180c42b7e) in the Azure Pricing Calculator or monitor hub cost using the [Data ingestion report](../power-bi/data-ingestion.md).
+> Estimated monthly cost includes $120 for a single-node Azure Data Explorer cluster, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on discounts, data size (we estimate ~20GB per $1M), and Power BI license requirements. Cost without Data Explorer is $5 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
 
 <br>
 
@@ -47,20 +47,17 @@ FinOps hubs streamline implementing the FinOps Framework. They're being designed
 
 FinOps hubs provide many benefits over using Cost Management exports.
 
+- Report on cost and usage across multiple accounts and subscriptions in separate tenants.
+- Run advanced analytical queries and report on year over year cost trends in seconds.
+- Report on negotiated and commitment discount savings for EA billing accounts and MCA billing profiles.
+- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../_docs/focus/README.md).
 - Clean up duplicated data in daily Cost Management exports (and save money on storage).
 - Convert exported data to parquet for faster data access.
-- Connect Power BI to subscriptions, resource groups, and other scopes.
-- Connect Power BI to Azure Government and Azure China.
+- Extensible via standard Data Factory and Power BI capabilities to integrate business or other providers cost data.
+- Connect Power BI to Azure Government and Azure China¹.
 - Connect Power BI to Microsoft Online Services Agreement (MOSA) subscriptions¹.
-- Report on multiple subscriptions, resource groups, or billing accounts.
-- Streamlined deployment and management with PowerShell.
-- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../focus/what-is-focus.md).
-- _In development: Ingest data from subscriptions in multiple tenants into a single storage account²._
-- _In development: Ingest data into Azure Data Explorer._
 
-_¹ MOSA (or pay-as-you-go) subscriptions are only supported in FinOps hubs 0.1.x. FinOps hubs 0.2 requires FOCUS cost data from Cost Management exports, which aren't supported for MOSA subscriptions. Contact support about transitioning to a Microsoft Customer Agreement account._
-
-_² EA billing scopes can be exported to any tenant today. Sign in to that tenant with an account that has access to the billing scope and target storage account to configure exports. Nonbilling scopes (subscriptions, management groups, and resource groups) and all MCA scopes are only supported in the tenant they exist in today. They'll be supported via a "remote hubs" feature in a future FinOps hubs release._
+_¹ Azure Government, Azure China, and MOSA (or pay-as-you-go) subscriptions are only supported in FinOps hubs 0.1.1. FinOps hubs 0.2+ requires FOCUS cost data from Cost Management exports, which aren't supported for MOSA subscriptions. Contact support about transitioning to a Microsoft Customer Agreement account._
 
 <br>
 
@@ -68,11 +65,12 @@ _² EA billing scopes can be exported to any tenant today. Sign in to that tenan
 
 The FinOps hub template includes the following resources:
 
-- Storage account (Data Lake Storage Gen2) to hold all cost data.
+- Azure Data Explorer (Kusto) as a scalable datastore for advanced analytics (optional).
+- Storage account (Data Lake Storage Gen2) as a staging area for data ingestion.
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
 
-Once deployed, you can report on the data in Power BI or by connecting to the storage account directly.
+Once deployed, you can report on the data directly using Data Explorer queries, Data Explorer dashboards, Power BI, or by connecting to the database or storage account directly.
 
 > [!NOTE]
 > This article contains images showing example data. Any price data is for test purposes only.
@@ -119,7 +117,7 @@ To create a new FinOps hub, follow these steps:
 
 3. **Connect to your data.**
 
-   You can connect to your data from any system that supports Azure storage. For ideas, see [get started with hubs](#get-started-with-hubs). We recommend using prebuilt Power BI starter templates to get started quickly.
+   You can connect to your data from any system that supports Azure Data Explorer or Azure storage. For ideas, see [get started with hubs](#get-started-with-hubs). We recommend using prebuilt Power BI starter templates to get started quickly.
 
    For more information, see [Connect to your data](../power-bi/reports.md#connect-to-your-data).
 
@@ -134,7 +132,7 @@ If you run into any issues, see [Troubleshooting Power BI reports](../help/troub
 
 If you run into any issues, refer to the [Troubleshooting guide](../help/troubleshooting.md).
 
-A *scope* is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope is the Azure Resource Manager URI that identifies the scope (for example, "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). For more information, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).
+A _scope_ is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope is the Azure Resource Manager URI that identifies the scope (for example, "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). For more information, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).
 
 <br>
 
@@ -142,41 +140,38 @@ A *scope* is an Azure construct that contains resources or enables purchasing se
 
 After you deploy a hub instance, there are several ways for you to get started:
 
-1. Customize the prebuilt Power BI reports.
+- Customize the prebuilt Power BI reports.
 
-   Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](../power-bi/reports.md).
+  Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](../power-bi/reports.md).
 
-2. Create your own Power BI reports.
+- Create your own Power BI reports.
 
-   If you want to create your own reports or add cost data to an existing report, you can [copy queries from a prebuilt report](../power-bi/setup.md#copy-queries-from-a-toolkit-report). Or you can connect manually using the Azure Data Lake Storage Gen2 connector.
+  If you want to create your own reports or add cost data to an existing report, you can [copy queries from a prebuilt report](../power-bi/setup.md#copy-queries-from-a-toolkit-report). Or you can connect manually using the Azure Data Lake Storage Gen2 connector.
 
-3. Connect to Microsoft Fabric for advanced queries.
+- Connect to Microsoft Fabric for advanced queries.
 
-   If you use OneLake in Microsoft Fabric, you can create a shortcut to the `ingestion` container in your hubs storage account to run SQL or KQL queries directly against the data in hubs. [Learn more](../../fabric/create-fabric-workspace-finops.md#create-a-shortcut-to-storage).
+  If you use OneLake in Microsoft Fabric, you can create a shortcut to the `ingestion` container in your hubs storage account to run SQL or KQL queries directly against the data in hubs. [Learn more](../../fabric/create-fabric-workspace-finops.md#create-a-shortcut-to-storage).
 
-4. Access the cost data from custom tools.
+- Access the cost data from custom tools.
 
-   Cost data is stored in an [Azure Data Lake Storage Gen2](/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data.
-<!--- Refer to the [data dictionary](../../_resources/data-dictionary.md) for details about available columns. -->
+  Data is stored in [Azure Data Explorer](/azure/data-explorer) and an [Azure Data Lake Storage Gen2](/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. Refer to the [data dictionary](../help/data-dictionary.md) for details about available columns.
 
-5. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
+- Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
-   [Data Factory](/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Don't modify built-in pipelines or data in the **msexports** container. If you create custom pipelines, monitor new data in the **ingestion** container and use a consistent prefix to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
+  [Data Factory](/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Don't modify built-in pipelines or data in the **msexports** container. If you create custom pipelines, monitor new data in the **ingestion** container and use a consistent prefix to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
 
    > [!IMPORTANT]
    > Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](../roadmap.md). Get familiar the roadmap to avoid conflicts with future updates. Consider [contributing to the project](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md) to add support for new scenarios to avoid conflicts.
 
-6. Generate custom alerts using Power Automate.
+- Generate custom alerts using Power Automate.
 
-   You have many options for generating custom alerts. [Power Automate](https://powerautomate.microsoft.com/connectors/details/shared_azureblob/azure-blob-storage) is a great option for people who are new to automation. You can also use [Data Factory](/azure/data-factory/introduction), [Functions](/azure/azure-functions/functions-overview), or any other service that supports custom code or direct access to data in Azure Data Lake Storage Gen2.
+  You have many options for generating custom alerts. [Power Automate](https://powerautomate.microsoft.com/connectors/details/shared_azureblob/azure-blob-storage) is a great option for people who are new to automation. You can also use [Data Factory](/azure/data-factory/introduction), [Functions](/azure/azure-functions/functions-overview), or any other service that supports custom code or direct access to data in Azure Data Lake Storage Gen2.
 
 No matter what you choose to do we recommend creating a new Bicep module to support updating your solution. You can reference `finops-hub/main.bicep` or `hub.bicep` directly to ensure you can apply new updates as they're released.
 
 If you need to change `hub.bicep`, be sure to track those changes and reapply them when upgrading to the latest release. We generally don't recommend modifying the template or modules directly to avoid conflicts with future updates. Instead, consider contributing those changes back to the open source project. [Learn more](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md).
 
-<!-- TODO: Uncomment when files are added
-If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](../../_resources/data-dictionary.md) for details about the available columns.
--->
+If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](../help/data-dictionary.md) for details about the available columns.
 
 <br>
 
