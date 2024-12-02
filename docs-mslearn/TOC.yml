@@ -11,6 +11,8 @@
     href: https://aka.ms/finops/blog
 - name: Implementing FinOps
   items:
+  - name: Implementing FinOps guide
+    href: implementing-finops-guide.md
   - name: Conduct a FinOps iteration
     href: conduct-iteration.md
   - name: FinOps review assessment
