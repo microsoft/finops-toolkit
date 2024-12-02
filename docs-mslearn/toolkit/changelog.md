@@ -50,21 +50,21 @@ _Released December 1, 2024_
 ### Power BI reports v0.7
 
 - **Added**
-  1. Added partial support for OneLake URLs.
-     - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
-  2. Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
-  3. Added KQL-based version of the [Cost summary](power-bi/cost-summary.md), [Data ingestion](power-bi/data-ingestion.md), and [Rate optimization](power-bi/rate-optimization.md) reports that connect to FinOps hubs with Azure Data Explorer.
+  - Added partial support for OneLake URLs.
+    - Support for OneLake URIs was added based on feedback and was not fully tested. More changes may be needed to fully support Microsoft Fabric.
+  - Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
+  - Added KQL-based version of the [Cost summary](power-bi/cost-summary.md), [Data ingestion](power-bi/data-ingestion.md), and [Rate optimization](power-bi/rate-optimization.md) reports that connect to FinOps hubs with Azure Data Explorer.
 - **Changed**
-  1. Consolidated the **Hub Storage URL** and **Export Storage URL** parameters into a single **Storage URL**.
-     - This means all datasets will either need to be raw exports outside of FinOps hubs or be processed through hubs. This release no longer supports some data from hubs and some from raw exports.
-     - If you have existing exports that are not running through hubs data pipelines, simply change the exports to point to the hub **msexports** container.
-     - This change was made to simplify the setup process and avoid errors in Power BI service configuration (e.g., incremental refresh).
-  2. Renamed the following columns:
-     - x_DatasetChanges is now `x_SourceChanges`
-     - x_DatasetType is now `x_SourceType`
-     - x_DatasetVersion is now `x_SourceVersion`
-     - x_AccountType is now `x_BillingAccountAgreement`
-  3. Updated supported spend estimates in the Power BI documentation.
+  - Consolidated the **Hub Storage URL** and **Export Storage URL** parameters into a single **Storage URL**.
+    - All datasets must be either raw exports outside of FinOps hubs or be processed through hubs. This release no longer supports some data from hubs and some from raw exports.
+    - If you have existing exports that aren't running through hubs data pipelines, change the exports to point to the hub **msexports** container.
+    - This change was made to simplify the setup process and avoid errors in Power BI service configuration (for example, incremental refresh).
+  - Renamed the following columns:
+    - The **x_DatasetChanges** column is now **x_SourceChanges**.
+    - The **x_DatasetType** column is now **x_SourceType**.
+    - The **x_DatasetVersion** column is now **x_SourceVersion**.
+    - The **x_AccountType** column is now **x_BillingAccountAgreement**.
+  - Updated supported spend estimates in the Power BI documentation.
 
 ### FinOps hubs v0.7
 
@@ -76,7 +76,8 @@ _**Breaking change**_
     - Requires the price sheet export to be configured.
   - Support for FOCUS 1.0r2 exports.
     - The 1.0r2 dataset only differs in date formatting. There are no functional differences compared to 1.0.
-    - The 1.0r2 dataset is only needed when ingesting data into a system that requires date/time values to include seconds (for example, "2024-01-01T00:00:00Z" where the last "00" is seconds).
+    - For example, dates in 1.0 are formatted as `2024-01-01T00:00Z` while dates in 1.0r2 are formatted as `2024-01-01T00:00:00Z`. Note the last `:00` for seconds.
+    - The 1.0r2 dataset is only needed if you experience date parsing errors with the 1.0 dataset.
   - Support for private endpoints via an optional template parameter.
     - Added private endpoints for storage account, Azure Data Explorer & Keyvault.
     - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
@@ -89,29 +90,27 @@ _**Breaking change**_
   - Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
     > [!IMPORTANT]
     > This change requires removing previously ingested data for the current month to avoid data duplication. You do not need to re-export historical data for storage-based Power BI reports; however, historical data DOES need to be re-exported to ingest into Azure Data Explorer.
-    - For FOCUS cost data, use "Costs".
-    - For price sheet data, use "Prices".
-    - For reservation details, use "CommitmentDiscountUsage".
-    - For reservation recommendations, use "Recommendations".
-    - For reservation transactions, use "Transactions".
+    - For FOCUS cost data, use `Costs`.
+    - For price sheet data, use `Prices`.
+    - For reservation details, use `CommitmentDiscountUsage`.
+    - For reservation recommendations, use `Recommendations`.
+    - For reservation transactions, use `Transactions`.
   - Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
 - **Fixed**
   - Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
-    - The same fix was applied to Power BI reports for those not using Data Explorer. The underlying data has not changed however.
 
 ### FinOps workbooks v0.7
 
+#### [Optimization workbook v0.7](workbooks/optimization.md)
+
 - **Added**
-  - [Optimization workbook](workbooks/optimization.md)
-    1. On the Storage tab, included the **RSVaultBackup** tag in the list of non-idle disks.
+  - On the Storage tab, included the **RSVaultBackup** tag in the list of nonidle disks.
 - **Fixed**
-  - [Optimization workbook](workbooks/optimization.md)
-    1. On the Commitment discounts tab, fixed RI ROWS Limited.
-    1. On the Compute tab, fixed incorrect VM processor in processors query.
+  - On the Azure reservations tab, fixed an error some users experienced with rows being limited.
+  - On the Compute tab, fixed incorrect virtual machine processor in processors query.
 - **Removed**
-  - [Optimization workbook](workbooks/optimization.md)
-    1. On the Database tab, removed the idle SQL databases query.
-       - This query will be re-evaluated and added again in a future release.
+  - On the Database tab, removed the idle SQL databases query.
+    - This query will be reevaluated and added again in a future release.
 
 ### Optimization engine v0.7
 
@@ -121,22 +120,52 @@ _**Breaking change**_
 
 ### Open data v0.7
 
+#### [Resource types v0.7](open-data.md#resource-types)
+
 - **Added**
-  - [Resource types](open-data.md#resource-types)
-    1. Added 50 new Microsoft.AWSConnector resource types.
-    1. Added 8 new Microsoft.Compute resource types.
-    1. Added 3 new Microsoft.ContainerInstance resource types.
-    1. Added 3 new Microsoft.DatabaseFleetManager resource types.
-    1. Added 4 new Microsoft.Fabric resource types.
-    1. Added 5 new Microsoft.OpenLogisticsPlatform resource types.
-    1. Added 3 new Microsoft.Sovereign resource types.
-    1. Added 14 other new resource types: arizeai.observabilityeval/organizations, lambdatest.hyperexecute/organizations, microsoft.azurestackhci/edgedevices/jobs, microsoft.clouddeviceplatform/delegatedidentities, microsoft.compute/capacityreservationgroupscomputehub, microsoft.compute/galleries/imagescomputehub, microsoft.compute/hostgroupscomputehub, microsoft.hybridcompute/machinessoftwareassurance, microsoft.machinelearning/workspaces, microsoft.resources/deletedresources, microsoft.security/defenderforstoragesettings/malwarescans, microsoft.weightsandbiases/instances, neon.postgres/organizations, pinecone.vectordb/organizations.
-  - [Services](open-data.md#services)
-    1. Added 3 resource types to existing services: microsoft.hardwaresecuritymodules/cloudhsmclusters, microsoft.healthdataaiservices/deidservices, microsoft.insights/datacollectionrules.
+  - Added 50 new **Microsoft.AWSConnector** resource types.
+  - Added eight new **Microsoft.Compute** resource types.
+  - Added three new **Microsoft.ContainerInstance** resource types.
+  - Added three new **Microsoft.DatabaseFleetManager** resource types.
+  - Added four new **Microsoft.Fabric** resource types.
+  - Added five new **Microsoft.OpenLogisticsPlatform** resource types.
+  - Added three new **Microsoft.Sovereign** resource types.
+  - Added 10 other new Microsoft resource types:
+    - microsoft.azurestackhci/edgedevices/jobs
+    - microsoft.clouddeviceplatform/delegatedidentities
+    - microsoft.compute/capacityreservationgroupscomputehub
+    - microsoft.compute/galleries/imagescomputehub
+    - microsoft.compute/hostgroupscomputehub
+    - microsoft.hybridcompute/machinessoftwareassurance
+    - microsoft.machinelearning/workspaces
+    - microsoft.resources/deletedresources
+    - microsoft.security/defenderforstoragesettings/malwarescans
+    - microsoft.weightsandbiases/instances
+  - Added four other new third-party resource types:
+    - arizeai.observabilityeval/organizations
+    - lambdatest.hyperexecute/organizations
+    - neon.postgres/organizations
+    - pinecone.vectordb/organizations
 - **Changed**
-  - [Resource types](open-data.md#resource-types)
-    1. Updated 17 new Microsoft.ComputeHub resource types.
-    1. Updated 9 other resource type: microsoft.appsecurity/policies, microsoft.compute/virtualmachines/providers/guestconfigurationassignments, microsoft.dbforpostgresql/flexibleservers, microsoft.deviceregistry/billingcontainers, microsoft.durabletask/namespaces, microsoft.durabletask/namespaces/taskhubs, microsoft.edge/configurations, microsoft.hybridcompute/machines/providers/guestconfigurationassignments, microsoft.securitycopilot/capacities.
+  - Updated 17 new **Microsoft.ComputeHub** resource types.
+  - Updated nine other resource type:
+    - microsoft.appsecurity/policies
+    - microsoft.compute/virtualmachines/providers/guestconfigurationassignments
+    - microsoft.dbforpostgresql/flexibleservers
+    - microsoft.deviceregistry/billingcontainers
+    - microsoft.durabletask/namespaces
+    - microsoft.durabletask/namespaces/taskhubs
+    - microsoft.edge/configurations
+    - microsoft.hybridcompute/machines/providers/guestconfigurationassignments
+    - microsoft.securitycopilot/capacities
+
+#### [Services v0.7](open-data.md#services)
+
+- **Added**
+  - Added three resource types to existing services:
+    - microsoft.hardwaresecuritymodules/cloudhsmclusters
+    - microsoft.healthdataaiservices/deidservices
+    - microsoft.insights/datacollectionrules
 
 <br>
 
@@ -257,18 +286,34 @@ _Released October 2, 2024_
   - Added 17 new Microsoft.ComputeHub resource types.
   - Added two new Microsoft.DeviceOnboarding resource types.
   - Added eight new Microsoft.Edge resource types.
-  - Added eight other new resource types: "microsoft.agricultureplatform/agriservices", "microsoft.azurefleet/fleetscomputehub", "microsoft.cloudtest/buildcaches", "microsoft.contoso/employees/desks", "microsoft.databasefleetmanager/fleets", "microsoft.resources/databoundaries", "microsoft.subscription/changetenantrequest", "microsoft.sustainabilityservices/calculations".
+  - Added eight other new resource types:
+    - microsoft.agricultureplatform/agriservices
+    - microsoft.azurefleet/fleetscomputehub
+    - microsoft.cloudtest/buildcaches
+    - microsoft.contoso/employees/desks
+    - microsoft.databasefleetmanager/fleets
+    - microsoft.resources/databoundaries
+    - microsoft.subscription/changetenantrequest
+    - microsoft.sustainabilityservices/calculations
 - **Changed**
   - Updated two Microsoft.DurableTask resource types.
   - Updated four Microsoft.SignalRService resource types.
   - Updated four Microsoft.TimeSeriesInsights resource types.
-  - Updated four other resource types: "microsoft.network/dnsresolvers", "microsoft.search/searchservices", "microsoft.storagepool/diskpools/iscsitargets", "oracle.database/oraclesubscriptions".
+  - Updated four other resource types:
+    - microsoft.network/dnsresolvers
+    - microsoft.search/searchservices
+    - microsoft.storagepool/diskpools/iscsitargets
+    - oracle.database/oraclesubscriptions
 
 #### [Services v0.6](open-data.md#services)
 
 - **Added**
   - Added a new ServiceSubcategory column to support FOCUS 1.1 ServiceSubcategory mapping.
-  - Added the following resource types to existing services:  "microsoft.apimanagement/gateways", "microsoft.sql/longtermretentionmanagedinstances", "microsoft.sql/longtermretentionservers", "microsoft.verifiedid/authorities".
+  - Added the following resource types to existing services:
+    - microsoft.apimanagement/gateways
+    - microsoft.sql/longtermretentionmanagedinstances
+    - microsoft.sql/longtermretentionservers
+    - microsoft.verifiedid/authorities
 
 [Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6)
 
@@ -348,8 +393,8 @@ _Released September 1, 2024_
   - New storage query to identify Powered Off VMs with Premium Disks
 - **Changed**
   - Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
-  - Fixed the AHB Virtual Machine Scale Set query to count the total cores consumed per the entire scale set
-  - Improved storage idle disks query to ignore disks used by AKS pods
+  - Fixed the Hybrid Benefit Virtual Machine Scale Set query to count the total cores consumed per the entire scale set
+  - Improved storage idle disks query to ignore disks used by Azure Kubernetes Service pods
   - Updated Storage not v2 query to exclude blockBlobStorage accounts from the list
   - Added export option for the list of idle backups to streamline data extraction
 
@@ -362,7 +407,7 @@ _Released September 1, 2024_
 
 - **Added**
   - `Register-MultitenantAutomationSchedules` PowerShell script helper to [add a different Azure tenant to the scope of AOE](optimization-engine/customize.md).
-  - ZRS disks included in the scope of the `Premium SSD disk has been underutilized` recommendation (besides LRS).
+  - Zone-redundant (ZRS) disks included in the scope of the `Premium SSD disk has been underutilized` recommendation (besides locally-redundant storage (LRS)).
   - Option to scope consumption exports to MCA Billing Profile.
 - **Changed**
   - Improved SQL Database security, replacing SQL authentication by Microsoft Entra ID authentication-only.
@@ -386,40 +431,158 @@ _Released September 1, 2024_
 #### [Pricing units v0.5](open-data.md#pricing-units)
 
 - **Added**
-  - Added handling for the following new UnitOfMeasure values: "1 /Minute", "10 PiB/Hour", "100000 /Month", "Text".
+  - Added handling for the following new UnitOfMeasure values: **1 /Minute**, **10 PiB/Hour**, **100000 /Month**, **Text**.
 - **Changed**
-  - Changed DistinctUnits for the "10000s" UnitOfMeasure from "Units" to "Transactions".
+  - Changed DistinctUnits for the **10000s** UnitOfMeasure from **Units** to **Transactions**.
 
 #### [Regions v0.5](open-data.md#regions)
 
 - **Added**
-  - Added the following new region values: "asiapacific", "australia", azure "stack", "eastsu2", "gbs", germany west "central", "japan", sweden "central", "unitedstates", us dod "central", us dod "east", us gov "iowa", us gov "virginia", "us2", "usa", "usv".
+  - Added the following new region values:
+    - asiapacific
+    - australia
+    - azure stack
+    - eastsu2
+    - gbs
+    - germany west central
+    - japan
+    - sweden central
+    - unitedstates
+    - us do
+    - central
+    - us dod east
+    - us gov iowa
+    - us gov virginia
+    - us2
+    - usa
+    - usv
 
 #### [Resource types v0.5](open-data.md#resource-types)
 
 - **Added**
-  - Added the following new resource types: "microsoft.app/logicapps", "microsoft.app/logicapps/workflows", "microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems", "microsoft.azurebusinesscontinuity/unifiedprotecteditems", "microsoft.azurecis/publishconfigvalues", "microsoft.compositesolutions/compositesolutiondefinitions", "microsoft.compositesolutions/compositesolutions", "microsoft.compute/capacityreservationgroups/capacityreservations", "microsoft.compute/virtualmachinescalesets/virtualmachines", "microsoft.datareplication/replicationvaults/alertsettings", "microsoft.datareplication/replicationvaults/events", "microsoft.datareplication/replicationvaults/jobs", "microsoft.datareplication/replicationvaults/jobs/operations", "microsoft.datareplication/replicationvaults/operations", "microsoft.datareplication/replicationvaults/protecteditems", "microsoft.datareplication/replicationvaults/protecteditems/operations", "microsoft.datareplication/replicationvaults/protecteditems/recoverypoints", "microsoft.datareplication/replicationvaults/replicationextensions", "microsoft.datareplication/replicationvaults/replicationextensions/operations", "microsoft.datareplication/replicationvaults/replicationpolicies", "microsoft.datareplication/replicationvaults/replicationpolicies/operations", "microsoft.deviceregistry/billingcontainers", "microsoft.deviceregistry/discoveredassetendpointprofiles", "microsoft.deviceregistry/discoveredassets", "microsoft.deviceregistry/schemaregistries", "microsoft.deviceregistry/schemaregistries/schemas", "microsoft.deviceregistry/schemaregistries/schemas/schemaversions", "microsoft.eventgrid/systemtopics/eventsubscriptions", "microsoft.hardware/orders", "microsoft.hybridcompute/machines/microsoft.awsconnector/ec2instances", "microsoft.hybridonboarding/extensionmanagers", "microsoft.iotoperations/instances", "microsoft.iotoperations/instances/brokers", "microsoft.iotoperations/instances/brokers/authentications", "microsoft.iotoperations/instances/brokers/authorizations", "microsoft.iotoperations/instances/brokers/listeners", "microsoft.iotoperations/instances/dataflowendpoints", "microsoft.iotoperations/instances/dataflowprofiles", "microsoft.iotoperations/instances/dataflowprofiles/dataflows", "microsoft.messagingconnectors/connectors", "microsoft.mobilepacketcore/networkfunctions", "microsoft.saashub/cloudservices/hidden", "microsoft.secretsynccontroller/azurekeyvaultsecretproviderclasses", "microsoft.secretsynccontroller/secretsyncs", "microsoft.storagepool/diskpools/iscsitargets", "microsoft.usagebilling/accounts/dataexports", "microsoft.usagebilling/accounts/metricexports", "microsoft.windowsesu/multipleactivationkeys"
+  - Added the following new resource types:
+    - microsoft.app/logicapps
+    - microsoft.app/logicapps/workflows
+    - microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems
+    - microsoft.azurebusinesscontinuity/unifiedprotecteditems
+    - microsoft.azurecis/publishconfigvalues
+    - microsoft.compositesolutions/compositesolutiondefinitions
+    - microsoft.compositesolutions/compositesolutions
+    - microsoft.compute/capacityreservationgroups/capacityreservations
+    - microsoft.compute/virtualmachinescalesets/virtualmachines
+    - microsoft.datareplication/replicationvaults/alertsettings
+    - microsoft.datareplication/replicationvaults/events
+    - microsoft.datareplication/replicationvaults/jobs
+    - microsoft.datareplication/replicationvaults/jobs/operations
+    - microsoft.datareplication/replicationvaults/operations
+    - microsoft.datareplication/replicationvaults/protecteditems
+    - microsoft.datareplication/replicationvaults/protecteditems/operations
+    - microsoft.datareplication/replicationvaults/protecteditems/recoverypoints
+    - microsoft.datareplication/replicationvaults/replicationextensions
+    - microsoft.datareplication/replicationvaults/replicationextensions/operations
+    - microsoft.datareplication/replicationvaults/replicationpolicies
+    - microsoft.datareplication/replicationvaults/replicationpolicies/operations
+    - microsoft.deviceregistry/billingcontainers
+    - microsoft.deviceregistry/discoveredassetendpointprofiles
+    - microsoft.deviceregistry/discoveredassets
+    - microsoft.deviceregistry/schemaregistries
+    - microsoft.deviceregistry/schemaregistries/schemas
+    - microsoft.deviceregistry/schemaregistries/schemas/schemaversions
+    - microsoft.eventgrid/systemtopics/eventsubscriptions
+    - microsoft.hardware/orders
+    - microsoft.hybridcompute/machines/microsoft.awsconnector/ec2instances
+    - microsoft.hybridonboarding/extensionmanagers
+    - microsoft.iotoperations/instances
+    - microsoft.iotoperations/instances/brokers
+    - microsoft.iotoperations/instances/brokers/authentications
+    - microsoft.iotoperations/instances/brokers/authorizations
+    - microsoft.iotoperations/instances/brokers/listeners
+    - microsoft.iotoperations/instances/dataflowendpoints
+    - microsoft.iotoperations/instances/dataflowprofiles
+    - microsoft.iotoperations/instances/dataflowprofiles/dataflows
+    - microsoft.messagingconnectors/connectors
+    - microsoft.mobilepacketcore/networkfunctions
+    - microsoft.saashub/cloudservices/hidden
+    - microsoft.secretsynccontroller/azurekeyvaultsecretproviderclasses
+    - microsoft.secretsynccontroller/secretsyncs
+    - microsoft.storagepool/diskpools/iscsitargets
+    - microsoft.usagebilling/accounts/dataexports
+    - microsoft.usagebilling/accounts/metricexports
+    - microsoft.windowsesu/multipleactivationkeys
 - **Changed**
-  - Updated the following resource types: "microsoft.apimanagement/gateways", "microsoft.azurearcdata/sqlserveresulicenses", "microsoft.azurestackhci/edgenodepools", "microsoft.azurestackhci/galleryimages", "microsoft.azurestackhci/logicalnetworks", "microsoft.azurestackhci/marketplacegalleryimages", "microsoft.azurestackhci/networkinterfaces", "microsoft.azurestackhci/storagecontainers", "microsoft.cache/redisenterprise", "microsoft.cache/redisenterprise/databases", "microsoft.databricks/accessconnectors", "microsoft.datareplication/replicationvaults", "microsoft.devhub/iacprofiles", "microsoft.edge/sites", "microsoft.eventhub/namespaces", "microsoft.hybridcompute/gateways", "microsoft.impact/connectors", "microsoft.iotoperationsorchestrator/instances", "microsoft.iotoperationsorchestrator/solutions", "microsoft.iotoperationsorchestrator/targets", "microsoft.kubernetesruntime/loadbalancers", "microsoft.manufacturingplatform/manufacturingdataservices", "microsoft.network/dnsforwardingrulesets", "microsoft.network/dnsresolvers", "microsoft.network/dnszones", "microsoft.powerbidedicated/capacities", "microsoft.programmableconnectivity/gateways", "microsoft.programmableconnectivity/operatorapiconnections", "microsoft.programmableconnectivity/operatorapiplans", "microsoft.resources/subscriptions/resourcegroups", "microsoft.security/pricings", "microsoft.sovereign/transparencylogs", "microsoft.storagepool/diskpools"
-  - Updated multiple resource types for the following resource providers: "microsoft.awsconnector"
-  - Changed the following resource providers to be GA: "microsoft.modsimworkbench".
+  - Updated the following resource types:
+    - microsoft.apimanagement/gateways
+    - microsoft.azurearcdata/sqlserveresulicenses
+    - microsoft.azurestackhci/edgenodepools
+    - microsoft.azurestackhci/galleryimages
+    - microsoft.azurestackhci/logicalnetworks
+    - microsoft.azurestackhci/marketplacegalleryimages
+    - microsoft.azurestackhci/networkinterfaces
+    - microsoft.azurestackhci/storagecontainers
+    - microsoft.cache/redisenterprise
+    - microsoft.cache/redisenterprise/databases
+    - microsoft.databricks/accessconnectors
+    - microsoft.datareplication/replicationvaults
+    - microsoft.devhub/iacprofiles
+    - microsoft.edge/sites
+    - microsoft.eventhub/namespaces
+    - microsoft.hybridcompute/gateways
+    - microsoft.impact/connectors
+    - microsoft.iotoperationsorchestrator/instances
+    - microsoft.iotoperationsorchestrator/solutions
+    - microsoft.iotoperationsorchestrator/targets
+    - microsoft.kubernetesruntime/loadbalancers
+    - microsoft.manufacturingplatform/manufacturingdataservices
+    - microsoft.network/dnsforwardingrulesets
+    - microsoft.network/dnsresolvers
+    - microsoft.network/dnszones
+    - microsoft.powerbidedicated/capacities
+    - microsoft.programmableconnectivity/gateways
+    - microsoft.programmableconnectivity/operatorapiconnections
+    - microsoft.programmableconnectivity/operatorapiplans
+    - microsoft.resources/subscriptions/resourcegroups
+    - microsoft.security/pricings
+    - microsoft.sovereign/transparencylogs
+    - microsoft.storagepool/diskpools
+  - Updated multiple resource types for the following resource providers: **microsoft.awsconnector**.
+  - Changed the following resource providers to be GA: **microsoft.modsimworkbench**.
 - **Removed**
   - Removed internal "microsoft.cognitiveservices/browse*" resource types
 
 #### [Services v0.5](open-data.md#services)
 
 - **Added**
-  - Added the following consumed services:  "API Center", "API Management", "Bastion Scale Units", "Microsoft.Community", "Microsoft.DataReplication.Admin", "Microsoft.DevOpsInfrastructure", "Microsoft.Dynamics365FraudProtection", "Microsoft.HybridContainerService", "Microsoft.NetworkFunction", "Microsoft.RecommendationsService", "Microsoft.ServiceNetworking", "Virtual Network"
-  - Added the following resource types to existing services:  "Microsoft.AgFoodPlatform/farmBeats", "Microsoft.App/sessionPools", "Microsoft.AzureActiveDirectory/ciamDirectories", "Microsoft.AzureArcData/sqlServerEsuLicenses", "Microsoft.Graph/accounts", "Microsoft.MachineLearningServices/registries", "Microsoft.Orbital/groundStations", "PlayFabBillingService/partyVoice"
+  - Added the following consumed services:
+    - API Center
+    - API Management
+    - Bastion Scale Units
+    - Microsoft.Community
+    - Microsoft.DataReplication.Admin
+    - Microsoft.DevOpsInfrastructure
+    - Microsoft.Dynamics365FraudProtection
+    - Microsoft.HybridContainerService
+    - Microsoft.NetworkFunction
+    - Microsoft.RecommendationsService
+    - Microsoft.ServiceNetworking
+    - Virtual Network
+  - Added the following resource types to existing services:
+    - Microsoft.AgFoodPlatform/farmBeats
+    - Microsoft.App/sessionPools
+    - Microsoft.AzureActiveDirectory/ciamDirectories
+    - Microsoft.AzureArcData/sqlServerEsuLicenses
+    - Microsoft.Graph/accounts
+    - Microsoft.MachineLearningServices/registries
+    - Microsoft.Orbital/groundStations
+    - PlayFabBillingService/partyVoice
 - **Changed**
-  - Moved Microsoft Genomics from the "AI and Machine Learning" service category to "Analytics"
-  - Changed Microsoft Genomics from the "SaaS" service model to "PaaS"
-  - Replace "Azure Active Directory" service name references with "Microsoft Entra"
-  - Move Azure Cache for Redis from the "Storage" service category to "Databases"
-  - Move Event Hubs from the "Integration" service category to "Analytics"
-  - Rename the Microsoft.HybridCompute consumed service name from "Azure Resource Manager" to "Azure Arc"
-  - Move Microsoft Defender for Endpoint from the "Multicloud" service category to "Security"
-  - Move StorSimple from the "Multicloud" service category to "Storage"
+  - Moved Microsoft Genomics from the **AI and Machine Learning** service category to **Analytics**.
+  - Changed Microsoft Genomics from the **SaaS** service model to **PaaS**.
+  - Replace **Azure Active Directory** service name references with **Microsoft Entra**.
+  - Move Azure Cache for Redis from the **Storage** service category to **Databases**.
+  - Move Event Hubs from the **Integration** service category to **Analytics**.
+  - Rename the Microsoft.HybridCompute consumed service name from **Azure Resource Manager** to **Azure Arc**.
+  - Move Microsoft Defender for Endpoint from the **Multicloud** service category to **Security**.
+  - Move StorSimple from the **Multicloud** service category to **Storage**.
 
 [Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5)
 
@@ -463,7 +626,7 @@ _Released July 12, 2024_
   - Simplified queries and improved error handling in the START HERE query for report setup steps.
   - Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](/power-bi/developer/projects/projects-dataset#tmdl-format).
     - This change makes it easier to review changes to the data model in Power BI.
-    - Reports continue to get released as PBIX files, so this change shouldn't affect end users.
+    - Reports continue to get released as Power BI report (PBIX) files, so this change shouldn't affect end users.
     - Visualizations aren't being switched to [Power BI Enhanced Report (PBIR)](/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would affect end users (as of June 2024).
 - **Fixed**
   - Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
@@ -506,7 +669,7 @@ _Released July 12, 2024_
   - Identify Azure Hybrid Benefit usage for SQL Database elastic pools to maximize cost efficiency.
 - **Changed**
   - Redesigned the Sustainability tab to clarify recommendations.
-  - Ignore dynamic IPs in the public IP addresses list to help provide accurate results.
+  - Provide more accurate results by ignoring dynamic IPs in the public IP addresses list.
   - Ignore free tier web apps to provide a clearer picture of your top services.
 
 #### [Governance workbook v0.4](workbooks/governance.md)
@@ -593,7 +756,7 @@ _Released March 28, 2024_
   - Changed all unit price columns to not summarize by default and use three decimal places.
   - Changed the `x_PricingBlockSize` column to a whole number and not summarize by default.
 - **Fixed**
-  - Fixed data issue where Cost Management uses "1Year", "3Years", and "5Years" for the x_SkuTerm. Values should be 12, 36, and 60 ([#594](https://github.com/microsoft/finops-toolkit/issues/594)).
+  - Fixed data issue where Cost Management uses **1Year**, **3Years**, and **5Years** for the x_SkuTerm. Values should be 12, 36, and 60 ([#594](https://github.com/microsoft/finops-toolkit/issues/594)).
   - Changed the data type for the `x_Month` column to be a date.
   - Changed `x_SkuTerm` to be a whole number and to not summarize by default.
   - Changed `x_BillingExchangeRate` to not summarize by default.
@@ -648,7 +811,7 @@ _**Breaking change**_
 - **Changed**
   - Switch from amortized cost exports to FOCUS cost exports.
     > [!NOTE]
-    > This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. A later release updates the schema to align to the FinOps Open Cost and Usage Specification (FOCUS).
+    > This change requires re-ingesting historical data and isn't backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. A later release updates the schema to align to the FinOps Open Cost and Usage Specification (FOCUS).
   - Updated ingestion container month folders from `yyyyMMdd-yyyyMMdd` to `yyyyMM`.
   - Renamed **msexports_extract** pipeline to **msexports_ExecuteETL**.
   - Renamed **msexports_transform** pipeline to **msexports_ETL_ingestion**.
