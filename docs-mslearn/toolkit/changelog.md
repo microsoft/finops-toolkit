@@ -44,7 +44,7 @@ _Released December 1, 2024_
 ### FinOps guide v0.7
 
 - **Changed**
-  - Added Enterprise App Patterns links resources to the architecting for the cloud section.
+  - Added Enterprise App Patterns links resources to the [Architecting for cloud capability](../framework/optimize/architecting.md).
   - Update cost and unit of measure handling in the [FOCUS conversion instructions](../focus/convert.md).
 
 ### Power BI reports v0.7
