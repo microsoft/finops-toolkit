@@ -66,20 +66,38 @@ Examples:
 
 ## 🌐 Build-OpenData
 
-[Build-OpenData.ps1](./Build-OpenData.ps1) generates PowerShell commands for all open data sets. The PowerShell commands are private and not shared externally today. They must be manually checked in and the script only needs to be run when datasets are added or updated. These are meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData.
+[Build-OpenData.ps1](./Build-OpenData.ps1) generates data files and PowerShell commands for all open data. PowerShell commands are private and not shared externally today. They must be manually checked in and the script only needs to be run when datasets are added or updated. These are meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData.
 
 Examples:
 
-- Build all data sets:
+- Build all PowerShell functions:
 
   ```powershell
   ./Build-OpenData
   ```
 
-- Build one data set:
+- Build one PowerShell function:
 
   ```powershell
   ./Build-OpenData -Name Regions
+  ```
+
+- Build data files only:
+
+  ```powershell
+  ./Build-OpenData -Data
+  ```
+
+- Build data files and PowerShell functions:
+
+  ```powershell
+  ./Build-OpenData -All
+  ```
+
+- Run tests after the build completes:
+
+  ```powershell
+  ./Build-OpenData -Test
   ```
 
 <br>
@@ -293,11 +311,12 @@ Example:
 
 [Package-Toolkit.ps1](./Package-Toolkit.ps1) packages all toolkit templates as ZIP files for release.
 
-| Parameter   | Description                                                                                           |
-| ----------- | ----------------------------------------------------------------------------------------------------- |
-| `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                              |
-| `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.      |
-| `‑PowerBI`  | Optional. Indicates whether to open Power BI files as part of the packaging process. Default = false. |
+| Parameter   | Description                                                                                                                |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                                                   |
+| `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.                           |
+| `‑PowerBI`  | Optional. Indicates whether to open Power BI files as part of the packaging process. Default = false.                      |
+| `‑Preview`  | Optional. Indicates that the template(s) should be saved as a preview only. Does not package other files. Default = false. |
 
 Examples:
 
@@ -311,6 +330,11 @@ Examples:
 
   ```powershell
   ./Package-Toolkit -Build
+
+- Builds the latest version of a specific template and updates the deployment files for the website.
+
+  ```powershell
+  ./Package-Toolkit finops-workbooks -Build -Preview
   ```
 
 <br>

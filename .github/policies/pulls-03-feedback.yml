@@ -1,0 +1,46 @@
+id: pulls-03-feedback
+name: GitOps.PullRequestIssueManagement
+description: Handles when a PR gets feedback
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: >-
+          When a PR gets feedback:
+          - Assign to author
+          - Label with `Needs: Attention 👋`
+        if:
+          - or:
+              - and:
+                  - payloadType: Pull_Request_Review_Comment
+                  - isAction:
+                      action: Created
+                  - isActivitySender:
+                      issueAuthor: False
+              - and:
+                  - payloadType: Pull_Request_Review
+                  - isReviewState:
+                      reviewState: Changes_requested
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          - addLabel:
+              label: 'Needs: Attention 👋'
+          - removeLabel:
+              label: 'Needs: Review 👀'
+          - assignTo:
+              author: True
+          - addReply:
+              reply: >-
+                @${issueAuthor}: you have some new feedback!
+
+
+                Please review and resolve all comments and I'll let reviewers know by removing the `Needs: Attention` label. If I miss anything, just reply with `#needs-review` and I'll update the status.
+onFailure:
+onSuccess:

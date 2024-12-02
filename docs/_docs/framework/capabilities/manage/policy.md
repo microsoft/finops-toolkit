@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Manage
 title: Policy + governance
 permalink: /framework/capabilities/manage/policy
-nav_order: 5
+nav_order: 4
 description: This article helps you understand the cloud policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
@@ -49,15 +49,15 @@ When you first start managing cost in the cloud, you use the native compliance t
 
 - Review your existing FinOps processes to identify opportunities for policy to automate enforcement. Some examples:
   - [Enforce your tagging strategy](https://learn.microsoft.com/azure/governance/policy/tutorials/govern-tags) to support different capabilities, like:
-    - Organizational reporting hierarchy tags for [cost allocation](../understand/allocation.md).
+    - Organizational reporting hierarchy tags for [allocation](../understand/allocation.md).
     - Financial reporting tags for [chargeback](./invoicing-chargeback.md).
     - Environment and application tags for [workload management](../optimize/workloads.md).
     - Business and application owners for [anomalies](../understand/anomalies.md).
   - Monitor required and suggested alerting for [anomalies](../understand/anomalies.md) and [budgets](../quantify/budgeting.md).
   - Block or audit the creation of more expensive resource SKUs (for example, E-series virtual machines).
-  - Implementation of cost recommendations and unused resources for [utilization and efficiency](../optimize/utilization-efficiency.md).
-  - Application of Azure Hybrid Benefit for [utilization and efficiency](../optimize/utilization-efficiency.md).
-  - Monitor [commitment-based discounts](../optimize/commitment-discounts.md) coverage.
+  - Implementation of cost recommendations and unused resources for [utilization and efficiency](../optimize/workloads.md).
+  - Application of Azure Hybrid Benefit for [utilization and efficiency](../optimize/workloads.md).
+  - Monitor [commitment discounts](../optimize/rates.md) coverage.
 - Identify what policies can be automated through [Azure Policy](https://learn.microsoft.com/azure/governance/policy/overview) and which need other tooling.
 - Review and [implement built-in policies](https://learn.microsoft.com/azure/governance/policy/assign-policy-portal) that align with your needs and goals.
 - Start small with audit policies and expand slowly (and safely) to ensure engineering efforts aren't negatively impacted.
@@ -84,8 +84,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Cloud policy and governance videos" id="wxYMbhhA51dZNrky" list="PLUSCToibAswk2tx4PuWlztgSK9DZpL04b" %}
+<!--[!VIDEO https://www.youtube.com/embed/wiqCovCttOc?list=PLUSCToibAswnr2q_J-kn7Yii1CO2-PU35&pp=iAQB]-->
+{% include video.html title="Cloud policy and governance videos" id="wiqCovCttOc" list="PLUSCToibAswnr2q_J-kn7Yii1CO2-PU35" %}
 
 <br>
 
@@ -93,8 +93,8 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Establishing a FinOps culture](./culture.md)
-- [Workload management and automation](../optimize/workloads.md)
+- [FinOps practice operations](./operations.md)
+- [Workload optimization](../optimize/workloads.md)
 
 <br>
 

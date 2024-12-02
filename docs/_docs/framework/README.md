@@ -50,10 +50,10 @@ In the next few sections, we cover the basic concepts of the FinOps Framework:
 Before digging into FinOps, it's important to understand the core principles that should guide your FinOps efforts. The FinOps community developed the principles by applying their collective experience, and helps you create a culture of shared accountability and transparency.
 
 - **Teams need to collaborate** – Build a common focus on cost efficiency, processes and cost decisions across teams that might not typically work closely together.
-- **Everyone takes ownership** – Decentralize decisions about cloud resource usage and optimization, and drive technical teams to consider cost as well as uptime and performance.
-- **A centralized team drives FinOps** – Centralize management of FinOps practices for consistency, automation, and rate negotiations.
-- **FinOps reports should be accessible and timely** – Provide clear usage and cost data quickly, to the right people, to enable prompt decisions and forecasting.
 - **Decisions are driven by the business value of cloud** – Balance cost decisions with business benefits including quality, speed, and business capability.
+- **Everyone takes ownership for their cloud usage** – Decentralize decisions about cloud resource usage and optimization, and drive technical teams to consider cost as well as uptime and performance.
+- **FinOps data should be accessible and timely** – Provide clear usage and cost data quickly, to the right people, to enable prompt decisions and forecasting.
+- **A centralized team drives FinOps** – Centralize management of FinOps practices for consistency, automation, and rate negotiations.
 - **Take advantage of the variable cost model of the cloud** – Make continuous small adjustments in cloud usage and optimization.
 
 For more information about FinOps principles, including tips from the experts, see [FinOps with Azure – Bringing FinOps to life through organizational and cultural alignment](https://azure.microsoft.com/resources/finops-with-azure-bringing-finops-to-life-through-organizational-and-cultural-alignment/).
@@ -64,11 +64,20 @@ For more information about FinOps principles, including tips from the experts, s
 
 FinOps requires a holistic and cross-functional approach that involves various stakeholders (or personas). They have different roles, responsibilities, and perspectives that influence how they use and optimize cloud resources and costs. Familiarize yourself with each role and identify the stakeholders within your organization. An effective FinOps program requires collaboration across all stakeholders:
 
-- **Finance** – Accurately budget, forecast, and report on cloud costs.
-- **Leadership** – Apply the strengths of the cloud to maximize business value.
-- **Product owners** – Launch new offerings at the right price.
-- **Engineering teams** – Deliver high quality, cost-effective services.
-- **FinOps practitioners** – Educate, standardize, and promote FinOps best practices.
+- Core stakeholders:
+  - **Procurement** – Source and purchase necessary resources, negotiate contracts, and managing vendor relationships..
+  - **Finance** – Accurately budget, forecast, and report on cloud costs.
+  - **Leadership** – Apply the strengths of the cloud to maximize business value.
+  - **Business owners** – Drives strategic decision-making, budgeting, and understanding the financial impact of operational decisions.
+  - **Product owners** – Define and prioritize the product backlog, aligning it with user needs and business value.
+  - **Engineering teams** – Deliver high quality, cost-effective services.
+  - **FinOps practitioners** – Educate, standardize, and promote FinOps best practices.
+- Allied stakeholders:
+  - **Sustainability practitioners** – Manage and reduce the environmental impact of the cloud resources.
+  - **ITFM/TBM teams** (Information Technology Financial Management / Technology Business Management) – Cost management beyond cloud infrastructure and services.
+  - **ITSM/ITIL teams** (Information Technology Service Management / Information Technology Infrastructure Library) – Align IT services with business needs and deliver/support IT services that meet business goals.
+  - **ITAM teams** (Information Technology Asset Management) – Manage and optimize the purchase, deployment, maintenance, utilization, and disposal of software and hardware assets.
+  - **Security teams** – Ensure cloud operations and systems adhere to organizational security standards and policies.
 
 <!--
 You can also find related videos on the FinOps Foundation YouTube channel:
@@ -91,43 +100,41 @@ The FinOps Framework defines a simple lifecycle with three phases:
 
 ## 📝 Capabilities
 
-The FinOps Framework includes capabilities that cover everything from cost analysis and monitoring to optimization and organizational alignment, grouped into a set of related domains. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
+The FinOps Framework includes capabilities that cover everything pfrom cost analysis and monitoring to optimization and organizational alignment, grouped into a set of related domains. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
 
-- Understanding cloud usage and cost
+- Understand cloud usage and cost
 
-  - [Cost allocation](./capabilities/understand/allocation.md)
-  - [Data analysis and showback](./capabilities/understand/reporting.md)
-  - [Managing shared cost](./capabilities/understand/shared-cost.md)
-  - [Data ingestion and normalization](./capabilities/understand/ingestion.md)
+  - [Data ingestion](./capabilities/understand/ingestion.md)
+  - [Allocation](./capabilities/understand/allocation.md)
+  - [Reporting and analytics](./capabilities/understand/reporting.md)
+  - [Anomaly management](./capabilities/understand/anomalies.md)
 
-- Performance tracking and benchmarking
+- Quantify business value
 
-  - [Measuring unit costs](./capabilities/quantify/unit-economics.md)
+  - [Planning and estimating](./capabilities/quantify/planning.md)
   - [Forecasting](./capabilities/quantify/forecasting.md)
-  - [Budget management](./capabilities/quantify/budgeting.md)
+  - [Budgeting](./capabilities/quantify/budgeting.md)
+  - [Benchmarking](./capabilities/quantify/benchmarking.md)
+  - [Unit economics](./capabilities/quantify/unit-economics.md)
 
-- Real-time decision making
+- Optimize cloud usage and cost
 
-  - [Managing anomalies](./capabilities/understand/anomalies.md)
-  - [Establishing a FinOps decision and accountability structure](./capabilities/manage/structure.md)
+  - [Architecting for the cloud](./capabilities/optimize/architecting.md)
+  - [Workload optimization](./capabilities/optimize/workloads.md)
+  - [Rate optimization](./capabilities/optimize/rates.md)
+  - [Licensing and SaaS](./capabilities/optimize/licensing.md)
+  - [Cloud sustainability](./capabilities/optimize/sustainability.md)
 
-- Cloud rate optimization
+- Manage the FinOps practice
 
-  - [Managing commitment-based discounts](./capabilities/optimize/commitment-discounts.md)
-
-- Cloud usage optimization
-
-  - [Onboarding workloads](./capabilities/manage/onboarding.md)
-  - [Resource utilization and efficiency](./capabilities/optimize/utilization-efficiency.md)
-  - [Workload management and automation](./capabilities/optimize/workloads.md)
-
-- Organizational alignment
-
-  - [Establishing a FinOps culture](./capabilities/manage/culture.md)
-  - [Chargeback and finance integration](./capabilities/manage/invoicing-chargeback.md)
   - [FinOps education and enablement](./capabilities/manage/education.md)
+  - [FinOps practice operations](./capabilities/manage/operations.md)
+  - [Onboarding workloads](./capabilities/manage/onboarding.md)
   - [Cloud policy and governance](./capabilities/manage/policy.md)
-  - [FinOps and intersecting frameworks](./capabilities/manage/intersecting-disciplines.md)
+  - [Invoicing and chargeback](./capabilities/manage/invoicing-chargeback.md)
+  - [FinOps assessment](./capabilities/manage/assessment.md)
+  - [FinOps tools and services](./capabilities/manage/tools-and-services.md)
+  - [Intersecting frameworks](./capabilities/manage/intersecting-disciplines.md)
 
 <br>
 

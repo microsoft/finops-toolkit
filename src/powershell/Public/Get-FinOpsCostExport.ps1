@@ -19,7 +19,10 @@
     Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.
 
     .PARAMETER DataSet
-    Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost", "Usage". Default = null (all exports).
+    Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = null (all exports).
+
+    .PARAMETER DataSetVersion
+    Optional. Schema version of the dataset to export. Default = null (all exports).
 
     .PARAMETER StorageAccountId
     Optional. Resource ID of the storage account to get exports for. Default = null (all exports).
@@ -44,7 +47,7 @@
     Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
 
     .EXAMPLE
-    Get-FinOpsCostExport -DataSet "AmortizedCost"
+    Get-FinOpsCostExport -Dataset "AmortizedCost"
 
     Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
 
@@ -80,9 +83,13 @@ function Get-FinOpsCostExport
         $Scope,
 
         [Parameter()]
-        [ValidateSet("ActualCost", "AmortizedCost", "Usage")]
+        [ValidateSet("ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations")]
         [string]
-        $DataSet,
+        $Dataset,
+
+        [Parameter()]
+        [string]
+        $DatasetVersion,
 
         [Parameter()]
         [string]
@@ -120,7 +127,7 @@ function Get-FinOpsCostExport
     $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$ApiVersion$(if ($RunHistory) { '&$expand=runHistory' })"
 
     # Get operation does not allow wildcards. Fetching all exports using list operation and then filtering in script
-    # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
+    # https://learn.microsoft.com/rest/api/cost-management/exports/list?tabs=HTTP
 
     Write-Verbose -Message "fetching all exports for scope:$scope"
     $response = Invoke-Rest -Method GET -Uri $path -CommandName "Get-FinOpsCostExport"
@@ -138,10 +145,15 @@ function Get-FinOpsCostExport
             $content = $content | Where-Object { $_.name -like $Name }
             Write-Verbose -Message "$($content.count) items left after filtering for Name $Name"
         }
-        if (-not [System.String]::IsNullOrEmpty($DataSet))
+        if (-not [System.String]::IsNullOrEmpty($Dataset))
         {
-            $content = $content | Where-Object { $_.properties.definition.type -like $DataSet }
-            Write-Verbose -Message "$($content.count) items left after filtering for DataSet $DataSet"
+            $content = $content | Where-Object { $_.properties.definition.type -like $Dataset }
+            Write-Verbose -Message "$($content.count) items left after filtering for Dataset $Dataset"
+        }
+        if (-not [System.String]::IsNullOrEmpty($DatasetVersion))
+        {
+            $content = $content | Where-Object { $_.properties.definition.type -like $DatasetVersion }
+            Write-Verbose -Message "$($content.count) items left after filtering for DatasetVersion $DatasetVersion"
         }
         if (-not [System.String]::IsNullOrEmpty($StorageAccountId))
         {

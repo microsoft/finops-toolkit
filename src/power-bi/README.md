@@ -2,10 +2,26 @@
 
 On this page:
 
+- [� Prerequisites](#-prerequisites)
 - [📐 Design guidelines](#-design-guidelines)
 - [ℹ️ Cost Management template app](#ℹ️-cost-management-template-app)
 
 ---
+
+## 📋 Prerequisites
+
+Power BI reports use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format), which is currently a preview. Before you can open reports, you will need to enable the **** preview.
+
+1. Open Power BI
+2. Select **File** > **Options and settings** > **Options** > **Global** > **Preview features**
+3. Enable the following features:
+   1. Power BI Project (.pbip) save option
+   2. Store semantic model using TMDL format
+4. **DO NOT** enable the "Store reports using enhanced metadata format (PBIR)"
+5. Select the **OK** button to save settings
+6. Restart Power BI
+
+<br>
 
 ## 📐 Design guidelines
 

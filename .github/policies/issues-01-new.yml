@@ -39,10 +39,47 @@ configuration:
           - not:
               hasLabel:
                 label: 'Status: 🔬 Code review'
+          - not:
+              hasLabel:
+                label: 'Good first issue 🏆'
+          - not:
+              hasLabel:
+                label: 'Skill: DevOps'
+          - not:
+              hasLabel:
+                label: 'Skill: Documentation'
+          - not:
+              hasLabel:
+                label: 'Tool: Bicep Registry'
+          - not:
+              hasLabel:
+                label: 'Tool: FinOps guide'
+          - not:
+              hasLabel:
+                label: 'Tool: FinOps hubs'
+          - not:
+              hasLabel:
+                label: 'Tool: Governance workbook'
+          - not:
+              hasLabel:
+                label: 'Tool: Open data'
+          - not:
+              hasLabel:
+                label: 'Tool: Optimization Engine'
+          - not:
+              hasLabel:
+                label: 'Tool: Optimization workbook'
+          - not:
+              hasLabel:
+                label: 'Tool: Power BI'
+          - not:
+              hasLabel:
+                label: 'Tool: PowerShell'
+          - not:
+              hasLabel:
+                label: 'Tool: Workbooks'
         then:
           - addLabel:
               label: 'Needs: Triage 🔍'
-          - assignTo:
-              user: flanakin
 onFailure:
 onSuccess:

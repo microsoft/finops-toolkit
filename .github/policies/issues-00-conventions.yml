@@ -14,21 +14,41 @@ configuration:
         if:
           - payloadType: Issues
         then:
-          # bicep
+          # aoe
           - if:
               - or:
                   - titleContains:
-                      pattern: '^\[Bicep Registry\]'
-                      isRegex: true
-                  - titleContains:
-                      pattern: '^\[Bicep\]'
+                      pattern: /(aoe|optimization engine)/i
                       isRegex: true
                   - bodyContains:
-                      pattern: /bicep/i
+                      pattern: /(aoe|optimization engine)/i
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Area: DevOps'
+                  label: 'Tool: Optimization Engine'
+          # bicep / terraform
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: /(bicep|terraform)/i
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /(bicep|terraform)/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Skill: Deployment'
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: /bicep registry/i
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /bicep registry/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Tool: Bicep Registry'
           # devops
           - if:
               - or:
@@ -36,23 +56,23 @@ configuration:
                       pattern: '^\[DevOps\]'
                       isRegex: true
                   - bodyContains:
-                      pattern: /DevOps/i
+                      pattern: /devops/i
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Area: DevOps'
+                  label: 'Skill: DevOps'
           # hubs
           - if:
               - or:
                   - titleContains:
-                      pattern: '^\[Hubs\]'
+                      pattern: /hubs/i
                       isRegex: true
                   - bodyContains:
-                      pattern: /Hubs/i
+                      pattern: /hubs/i
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Solution: FinOps hubs'
+                  label: 'Tool: FinOps hubs'
           # open data
           - if:
               - or:
@@ -64,19 +84,19 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Solution: Open data'
+                  label: 'Tool: Open data'
           # powershell
           - if:
               - or:
                   - titleContains:
-                      pattern: '^\[PowerShell\]'
+                      pattern: /PowerShell/i
                       isRegex: true
                   - bodyContains:
                       pattern: /PowerShell/i
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Area: PowerShell'
+                  label: 'Tool: PowerShell'
           # workbooks
           - if:
               - or:
@@ -88,6 +108,6 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Solution: Workbooks'
+                  label: 'Skill: Workbooks'
 onFailure:
 onSuccess:

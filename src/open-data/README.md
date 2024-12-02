@@ -14,13 +14,15 @@ On this page:
 ## 📏 Pricing units
 
 <sup>
-    📅 Updated: Sep 24, 2023<br>
+    📅 Updated: Aug 22, 2024<br>
     ➡️ Source: Cost Management team<br>
 </sup>
 
 The [PricingUnits.csv](./PricingUnits.csv) file contains the list of all unique `UnitOfMeasure` values. This data will need to be updated periodically.
 
 Use the following query to update the data:
+
+<!-- TODO: Merge with existing units -->
 
 ```kql
 let unabbrev = (regex: string, uom: string) { tolong(replace_string(replace_string(replace_string(replace_string(extract(regex, 1, uom), 'K', '000'), 'M', '000000'), 'B', '000000000'), 'T', '000000000000')) };
@@ -60,6 +62,7 @@ Meters
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^Gb( ?/ ?Month)?$', @'GB\1')
 //
 // Clean up units per period
+| extend DistinctUnits = iff(DistinctUnits matches regex '^[a-z]', strcat(toupper(substring(DistinctUnits, 0, 1)), substring(DistinctUnits, 1)), DistinctUnits)  // Capitalize first word
 | extend DistinctUnits = replace_string(DistinctUnits, ' / ', '/')  // Don't space out the slash
 | extend DistinctUnits = replace_regex(DistinctUnits, @'(App|Border|Call|Certificate|Connection|Day|Device|Domain|Hour|Key|Machine|Meter|Minute|Month|Node|Pack|Pipeline|Plan|Request|Resource|Second|Subscription|Unit|User|Website|Zone)(/.*)?$', @'\1s\2') // Always plural before slash
 | extend DistinctUnits = replace_regex(DistinctUnits, @'/(Second|Minute|Hour|Day|Month)s$', @'/\1') // Always singular after slash
@@ -68,10 +71,11 @@ Meters
 | extend DistinctUnits = case(
     UnitOfMeasure == '10000s' and DistinctUnits == 'S', 'Transactions',
     DistinctUnits == '1,000s', 'Transactions in Thousands',
-    DistinctUnits in ('API Calls', 'print job'), 'Requests',
+    DistinctUnits in ('API Calls', 'Print job'), 'Requests',
     DistinctUnits == 'Concurrent DVC', 'Configurations',
     DistinctUnits == 'CallingMinutes', 'Minutes',
     DistinctUnits == 'Key Use', 'Keys',
+    DistinctUnits == 'Text', 'Messages',
     DistinctUnits == 'Unassigned', 'Units',
     DistinctUnits == 'VM', 'Virtual Machines',
     DistinctUnits in ('MAUS', 'MAUs'), 'Users/Month',
@@ -81,7 +85,6 @@ Meters
 // Prefix cleanup
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^1 ', '')  // Remove duplicate quantity
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^[\s\pZ\pC]+', '')  // Remove leading spaces
-| extend DistinctUnits = iff(DistinctUnits matches regex '^[a-z]', strcat(toupper(substring(DistinctUnits, 0, 1)), substring(DistinctUnits, 1)), DistinctUnits)  // Capitalize first word
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^(Per|Por) ', '')  // Remove starting "per"
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^(Activity|Border|Content|Core|Database|Hosted|Instance|Messaging|Named|Operation|Privacy Subject Rights|Relay|Reserved|Service|Virtual User) ', '')  // Trim extra adjectives
 //
@@ -91,8 +94,6 @@ Meters
 | extend DistinctUnits = replace_regex(DistinctUnits, @'\(s\)$', 's')  // Always plural
 //
 | order by UnitOfMeasure asc
-// Output with quotes to avoid spaces being lost --
-| extend UnitOfMeasure = strcat('"', UnitOfMeasure, '"')
 ```
 
 <br>
@@ -100,28 +101,60 @@ Meters
 ## 🗺️ Regions
 
 <sup>
-    📅 Updated: Sep 16, 2023<br>
+    📅 Updated: Aug 23, 2024<br>
     ➡️ Source: Commerce Platform Data Model team<br>
 </sup>
 
 <br>
 
-The [Regions.csv](./Regions.csv) file contains data from several internal sources. We shouldn't need to update this file as Cost Management data is standardizing on Azure regions.
+The [Regions.csv](./Regions.csv) file contains the list of all unique `ResourceLocation` and `ResourceLocationNormalized` values. This data will need to be updated periodically as new regions are added.
 
-> ℹ️ _Internal only: Contact the CPDM PM team for any updates._
+Use the following query to update the data:
+
+```kql
+let oldValues = externaldata(OriginalValue:string, RegionId:string, RegionName:string) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Regions.csv"] with (format="csv", ignoreFirstRecord=true);
+let newValues = union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table> | where ResourceType != 'Microsoft.Security/securityConnectors' | distinct ResourceLocation, ResourceLocationNormalized;
+newValues | project OriginalValue = tolower(ResourceLocation)
+| union (newValues | project OriginalValue = tolower(ResourceLocationNormalized))
+| where isnotempty(OriginalValue) and OriginalValue !in ('null', 'true', 'false', 'test', 'unknown', 'zone1', 'zone 1')
+| distinct OriginalValue
+| where OriginalValue !in ((oldValues | distinct OriginalValue))
+| union (oldValues)
+| as reg
+| extend regionWithoutLetter = extract(@'^([a-z ]+[1-2])[a-c]$', 1, OriginalValue)
+| extend regionWithoutNumber = extract(@'^([a-z]+( [a-z]+)*)[1-3][a-c]?$', 1, OriginalValue)
+| extend regionWithoutSpace = case(
+    OriginalValue contains ' ', replace_string(OriginalValue, ' ', ''),
+    OriginalValue == 'eastsu2', 'eastus2',
+    OriginalValue == 'gbs', 'uksouth',
+    OriginalValue == 'usa', 'usgovarizona',
+    OriginalValue == 'usv', 'usgovvirginia',
+    '')
+// DEBUG: | where isempty(regionWithoutLetter) or regionWithoutLetter !in ((reg | distinct OriginalValue))
+// DEBUG: | where isempty(regionWithoutNumber) or regionWithoutNumber !in ((reg | distinct OriginalValue))
+| join kind=leftouter (reg) on $left.regionWithoutLetter == $right.OriginalValue
+| join kind=leftouter (reg) on $left.regionWithoutNumber == $right.OriginalValue
+| join kind=leftouter (reg) on $left.regionWithoutSpace == $right.OriginalValue
+| extend RegionId = case(isnotempty(RegionId), RegionId, isnotempty(RegionId1), RegionId1, isnotempty(RegionId2), RegionId2, isnotempty(RegionId3), RegionId3, RegionId)
+| extend RegionName = case(isnotempty(RegionName), RegionName, isnotempty(RegionName1), RegionName1, isnotempty(RegionName2), RegionName2, isnotempty(RegionName3), RegionName3, RegionName)
+| project OriginalValue, RegionId, RegionName
+| order by OriginalValue asc
+```
+
+After updating the list of available original values, other columns must be manually populated.
 
 <br>
 
 ## 🗺️ Resource types
 
 <sup>
-    📅 Updated: Nov 11, 2023<br>
+    📅 Updated: Aug 24, 2024<br>
     ➡️ Source: Azure portal / Azure mobile app<br>
 </sup>
 
 <br>
 
-The [ResourceTypes.csv](./ResourceTypes.csv) file contains data from the Azure portal. The Build-OpenData script generates the flie without any additional work.
+The [ResourceTypes.csv](./ResourceTypes.csv) file contains data from the Azure portal. The Build-OpenData script generates the fie. After the file is generated, review the updates to ensure values are not removed.
 
 If you find a resource type is missing, add it to [ResourceTypes.Overrides.csv](./ResourceTypes.Overrides.json). The override file supports overriding names and icons.
 
@@ -132,7 +165,7 @@ If you run into any issues with the script that gets the data, you can look at e
 ## 🎛️ Services
 
 <sup>
-    📅 Updated: Sep 30, 2023<br>
+    📅 Updated: Aug 23, 2024<br>
     ➡️ Source: Cost Management team<br>
 </sup>
 
@@ -143,14 +176,19 @@ The [Services.csv](./Services.csv) file contains the list of all unique `Consume
 Use the following query to update the data:
 
 ```kql
-union cluster('<shard-cluster>').database('<shard>*').UCDD
-| where UsageDate > ago(365d)
-| where isnotempty(ConsumedService)
+let oldValues = externaldata(ConsumedService:string, ResourceType:string, ServiceName:string, ServiceCategory:string, PublisherName:string, PublisherType:string, Environment:string, ServiceModel:string) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Services.csv"] with (format="csv", ignoreFirstRecord=true);
+union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table>
+| where UsageDateDt > ago(120d)
+| where isnotempty(ConsumedService) and isnotempty(InstanceName)
 | where ConsumedService !startswith '/subscriptions/'
+// TODO: Parse full resource type
 | extend ParsedResourceType = tostring(extract(@'/providers/([^/]+/[^/]+)', 1, tolower(InstanceName)))
+| extend ConsumedService = tolower(ConsumedService)
 | extend ResourceType = iff(isempty(ParsedResourceType), tolower(ResourceType), ParsedResourceType)
-| summarize by ConsumedServiceId, ConsumedService, ResourceType
-| order by ConsumedServiceId asc, ResourceType asc
+| distinct ConsumedService, ResourceType
+| where strcat(ConsumedService, ResourceType) !in ((oldValues | project CSRT = strcat(ConsumedService, ResourceType)))
+| union (oldValues)
+| order by ConsumedService asc, ResourceType asc
 ```
 
 The **ServiceModel** column is manually applied using the following logic:
@@ -159,6 +197,5 @@ The **ServiceModel** column is manually applied using the following logic:
 - If multiple service models apply, select the one with the highest requirements.
 - Supporting services, like Defender for Cloud, are aligned to the service model of the service they are in support of.
 - Use the service model declared by the service owner (e.g., Microsoft), if documented on their website.
-
 
 <br>

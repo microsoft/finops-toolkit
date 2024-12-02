@@ -13,6 +13,32 @@
     "singular": "Analysis Services server"
   },
   {
+    "type": "microsoft.apimanagement/gateways",
+    "originalPlural": "Gateways",
+    "originalSingular": "Gateways",
+    "plural": "API Management gateways",
+    "singular": "API Management gateway"
+  },
+  {
+    "type": "microsoft.apimanagement/gateways/configconnections",
+    "plural": "API Management gateway connections",
+    "singular": "API Management gateway connection"
+  },
+  {
+    "type": "microsoft.app/logicapps",
+    "plural": "Logic apps",
+    "singular": "Logic app",
+    "lowerPlural": "logic apps",
+    "lowerSingular": "logic app"
+  },
+  {
+    "type": "microsoft.app/logicapps/workflows",
+    "plural": "Logic app workflows",
+    "singular": "Logic app workflow",
+    "lowerPlural": "logic app workflows",
+    "lowerSingular": "logic app workflow"
+  },
+  {
     "type": "microsoft.appservice/apiapps",
     "plural": "API apps",
     "singular": "API app"
@@ -98,10 +124,31 @@
     "singular": "IPv4 virtual IP"
   },
   {
+    "type": "microsoft.compute/capacityreservationgroups/capacityreservations",
+    "singular": "Capacity reservation",
+    "plural": "Capacity reservations",
+    "lowerSingular": "capacity reservation",
+    "lowerPlural": "capacity reservations",
+    "icon": "<svg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'><g><path fill='#a33a85' d='m15.434 9.798-1.71 1.01-1.72 1-3.01 1.77-3-1.77-1.71-1-1.72-1.01 1.35-.79 5.08 2.98 5.09-2.98 1.35.79z'/><path fill='#59285f' d='M15.434 9.798v1.72l-6.44 3.78-6.43-3.78v-1.72l1.72 1.01 1.71 1 3 1.77 3.01-1.77 1.72-1 1.71-1.01z'/><path fill='#a33a85' d='m15.434 6.488-1.71 1-1.11.65-.61.36-3.01 1.76-3-1.76-.61-.36-1.1-.65-1.72-1 6.43-3.79 6.44 3.79z'/><path fill='#59285f' d='M15.434 6.488v1.72l-1.35.8-5.09 2.98-5.08-2.98-1.35-.8v-1.72l1.72 1 1.1.65.61.36 3 1.76 3.01-1.76.61-.36 1.11-.65 1.71-1z'/><path d='M16.755 4.794v8.416a.565.565 0 0 1-.281.49l-7.186 4.222A.566.566 0 0 1 9 18V9.022l7.679-4.51a.569.569 0 0 1 .076.282Z' fill='#a33a85' fill-opacity='.6'/><path d='M16.68 4.512 9 9.011v.011L1.32 4.511a.551.551 0 0 1 .206-.211L8.718.075a.569.569 0 0 1 .57 0l7.189 4.227a.567.567 0 0 1 .203.21Z' fill='#dc92bf' fill-opacity='.6'/><path d='M9 9.022V18a.547.547 0 0 1-.284-.077L1.526 13.7a.565.565 0 0 1-.281-.49V4.791a.564.564 0 0 1 .075-.28Z' fill='#ce74b6' fill-opacity='.6'/></g></svg>"
+  },
+  {
+    "type": "microsoft.compute/virtualmachinescalesets/virtualmachines",
+    "singular": "Virtual machine scale set instance",
+    "plural": "Virtual machine scale set instances",
+    "lowerSingular": "virtual machine scale set instance",
+    "lowerPlural": "virtual machine scale set instances",
+    "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><defs><linearGradient id='1d03f79a-96a0-4d61-a23a-1ddcc58a51d4' x1='8.88' x2='8.88' y1='12.21' y2='.21' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#0078d4'/><stop offset='.82' stop-color='#5ea0ef'/></linearGradient><linearGradient id='d58a7efe-239c-4678-aeab-4c0c6e658145' x1='8.88' x2='8.88' y1='16.84' y2='12.21' gradientUnits='userSpaceOnUse'><stop offset='.15' stop-color='#ccc'/><stop offset='1' stop-color='#707070'/></linearGradient></defs><rect width='18' height='12' x='-.12' y='.21' fill='url(#1d03f79a-96a0-4d61-a23a-1ddcc58a51d4)' rx='.6'/><path fill='#50e6ff' d='M11.88 4.46v3.49l-3 1.76v-3.5l3-1.75z'/><path fill='#c3f1ff' d='M11.88 4.46l-3 1.76-3-1.76 3-1.75 3 1.75z'/><path fill='#9cebff' d='M8.88 6.22v3.49l-3-1.76V4.46l3 1.76z'/><path fill='#c3f1ff' d='M5.88 7.95l3-1.74v3.5l-3-1.76z'/><path fill='#9cebff' d='M11.88 7.95l-3-1.74v3.5l3-1.76z'/><path fill='url(#d58a7efe-239c-4678-aeab-4c0c6e658145)' d='M12.49 15.84c-1.78-.28-1.85-1.56-1.85-3.63H7.11c0 2.07-.06 3.35-1.84 3.63a1 1 0 00-.89 1h9a1 1 0 00-.89-1z'/></svg>"
+  },
+  {
     "type": "microsoft.cloud/hubs",
     "plural": "FinOps hubs",
     "singular": "FinOps hub",
     "icon": "<svg width='276' height='276' viewBox='0 0 276 276' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M130.145 4.46016L24.6026 64.4294C19.6291 67.2557 16.56 72.5328 16.56 78.2515V197.748C16.56 203.467 19.6291 208.744 24.6026 211.571L130.145 271.54C135.014 274.305 140.981 274.305 145.855 271.54L251.397 211.571C256.371 208.744 259.44 203.467 259.44 197.748V78.2515C259.44 72.5328 256.371 67.2557 251.397 64.4294L145.855 4.46016C140.981 1.69464 135.019 1.69464 130.145 4.46016Z' fill='url(#paint0_linear_301_521)'/><g filter='url(#filter0_d_301_521)'><path d='M138 60.168C146.841 60.168 154.008 53.001 154.008 44.16C154.008 35.319 146.841 28.152 138 28.152C129.159 28.152 121.992 35.319 121.992 44.16C121.992 53.001 129.159 60.168 138 60.168Z' fill='white'/></g><g filter='url(#filter1_d_301_521)'><path d='M138 247.848C146.841 247.848 154.008 240.681 154.008 231.84C154.008 222.999 146.841 215.832 138 215.832C129.159 215.832 121.992 222.999 121.992 231.84C121.992 240.681 129.159 247.848 138 247.848Z' fill='white'/></g><g filter='url(#filter2_d_301_521)'><path d='M193.316 169.16C193.316 192.582 170.088 209.578 138.077 209.578C109.936 209.578 92.2944 198.974 84.2021 177.17L111.675 171.998C115.23 179.676 123.079 188.442 140.368 188.442C157.668 188.442 164.115 178.053 164.115 171.506C164.115 157.889 147.693 153.169 140.628 151.772C110.637 145.822 89.4075 138.96 89.4075 104.621C89.4075 76.4244 115.622 66.4221 138.072 66.4221C162.63 66.4221 178.6 74.5421 186.858 91.2345L163.122 98.7693C158.142 90.2796 149.642 85.7918 138.491 85.7918C122.207 85.7918 117.902 97.014 117.902 102.948C117.902 111.123 126.055 118.288 138.668 121.219C154.488 124.89 165.6 127.711 172.08 130.438C182.348 134.76 193.316 147.202 193.316 169.16Z' fill='white'/></g><defs><filter id='filter0_d_301_521' x='101.992' y='8.15201' width='72.016' height='72.016' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/><feOffset/><feGaussianBlur stdDeviation='10'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/><feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow_301_521'/><feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow_301_521' result='shape'/></filter><filter id='filter1_d_301_521' x='101.992' y='195.832' width='72.016' height='72.016' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/><feOffset/><feGaussianBlur stdDeviation='10'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/><feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow_301_521'/><feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow_301_521' result='shape'/></filter><filter id='filter2_d_301_521' x='64.2021' y='46.4221' width='149.114' height='183.156' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/><feOffset/><feGaussianBlur stdDeviation='10'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/><feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow_301_521'/><feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow_301_521' result='shape'/></filter><linearGradient id='paint0_linear_301_521' x1='67.424' y1='34.4399' x2='135.53' y2='271.171' gradientUnits='userSpaceOnUse'><stop stop-color='#7B33C0'/><stop offset='1' stop-color='#4E2E7A'/></linearGradient></defs></svg>"
+  },
+  {
+    "type": "microsoft.compute/virtualmachinescalesets/virtualmachines",
+    "plural": "Virtual machine scale set instances",
+    "singular": "Virtual machine scale set instance"
   },
   {
     "type": "microsoft.compute/virtualmachinescalesets/virtualmachines/networkinterfaces",
@@ -184,6 +231,8 @@
   },
   {
     "type": "microsoft.eventgrid/extensiontopics",
+    "originalPlural": "Microsoft.EventGrid extension topics",
+    "originalSingular": "Microsoft.EventGrid extension topic",
     "plural": "Event Grid extension topics",
     "singular": "Event Grid extension topic"
   },
@@ -233,6 +282,13 @@
     "icon": "<svg version='1.0' id='e0050721-e8d8-4c79-ae50-d8fc2871d932' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 18 18' enable-background='new 0 0 18 18' xml:space='preserve'><path fill='#FFCA00' d='M15.89,2.91h1.27c0.188,0,0.34,0.152,0.34,0.34l0,0v3.5c0,0.188-0.152,0.34-0.34,0.34l0,0h-1.27l0,0V2.91 L15.89,2.91z'/><path fill='#FFCA00' d='M15.89,9h1.27c0.188,0,0.34,0.152,0.34,0.34l0,0v5.86c0,0.188-0.152,0.34-0.34,0.34l0,0h-1.27l0,0V9L15.89,9 z'/><linearGradient id='bb847533-c351-4b52-ba55-1be31e7d1b3f' gradientUnits='userSpaceOnUse' x1='9.01' y1='3.5' x2='9.01' y2='18.5' gradientTransform='matrix(1 0 0 -1 0 20)'><stop offset='0' style='stop-color:#5E9641'/><stop  offset='0.34' style='stop-color:#6BAA42'/><stop  offset='0.67' style='stop-color:#73B743'/><stop  offset='1' style='stop-color:#76BB43'/></linearGradient><path fill='url(#bb847533-c351-4b52-ba55-1be31e7d1b3f)' d='M2.82,1.5H15.2c0.381,0,0.69,0.309,0.69,0.69v13.62c0,0.381-0.309,0.69-0.69,0.69H2.82 c-0.381,0-0.69-0.309-0.69-0.69V2.19C2.13,1.809,2.439,1.5,2.82,1.5z'/><path fill='#B4EC36' d='M5.9,12.9H5.19C5.08,12.895,4.995,12.801,5,12.69c0,0,0,0,0,0V4.34c-0.006-0.105,0.075-0.194,0.18-0.2 c0.003,0,0.007,0,0.01,0h1.93c0.105,0,0.19,0.085,0.19,0.19c0,0.003,0,0.007,0,0.01c0.006,0.11-0.079,0.204-0.19,0.21c0,0,0,0,0,0 H5.38v7.93H5.9c0.11,0.005,0.195,0.099,0.19,0.21c0,0,0,0,0,0C6.09,12.799,6.008,12.89,5.9,12.9z'/><path fill='#B4EC36' d='M6,13.92H4.4c-0.11-0.005-0.195-0.099-0.19-0.21c0,0,0,0,0,0L4.08,3.38C4.078,3.324,4.1,3.269,4.14,3.23 c0.031-0.039,0.08-0.062,0.13-0.06h2.85v0.41H4.47l0.12,9.92H6V13.92z'/><path fill='#B4EC36' d='M12,13h-1.59c-0.055-0.002-0.106-0.028-0.14-0.07c-0.04-0.035-0.062-0.087-0.06-0.14V7.9 c-0.006-0.105,0.075-0.194,0.18-0.2c0.003,0,0.007,0,0.01,0h0.91V5.45h0.38v2.44c0.006,0.107-0.073,0.199-0.18,0.21H10.6v4.42H12V13 z'/><path fill='#365615' d='M7.33,2.29h5.62c0.144,0,0.26,0.116,0.26,0.26v2.59c0,0.144-0.116,0.26-0.26,0.26H7.33 c-0.144,0-0.26-0.116-0.26-0.26V2.55C7.07,2.406,7.186,2.29,7.33,2.29z'/><path fill='#365615' d='M8.85,11.05v4.38c0,0.144-0.116,0.26-0.26,0.26H8.02c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C8.734,10.79,8.85,10.906,8.85,11.05z'/><path fill='#365615' d='M6.99,11.07v4.38c0,0.144-0.116,0.26-0.26,0.26H6.16c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C6.874,10.81,6.99,10.926,6.99,11.07z'/><path fill='#F2F2F2' d='M12.97,11.07v4.38c0,0.144-0.116,0.26-0.26,0.26h-0.57c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C12.854,10.81,12.97,10.926,12.97,11.07z'/><ellipse fill='#F2F2F2' cx='8.11' cy='8.06' rx='1.04' ry='1.12'/><path fill='#3B3B3B' d='M2.11,12.25H0.84c-0.173,0.001-0.32-0.128-0.34-0.3V6.09c0-0.188,0.152-0.34,0.34-0.34h0h1.27l0,0V12.25 L2.11,12.25z'/></svg>"
   },
   {
+    "type": "microsoft.network/virtualnetworkgateways/connections",
+    "singular": "Virtual network gateway connection",
+    "plural": "Virtual network gateway connections",
+    "lowerSingular": "virtual network gateway connection",
+    "lowerPlural": "virtual network gateway connections"
+  },
+  {
     "type": "microsoft.relay/namespaces/hybridconnections",
     "originalPlural": "Hybrid Connections",
     "originalSingular": "Hybrid Connection",
@@ -256,16 +312,22 @@
   },
   {
     "type": "microsoft.scheduler/jobcollections",
+    "originalPlural": "Microsoft.Scheduler job collections",
+    "originalSingular": "Microsoft.Scheduler job collection",
     "plural": "Scheduler job collections",
     "singular": "Scheduler job collection"
   },
   {
     "type": "microsoft.scheduler/jobcollections/jobs",
+    "originalPlural": "Microsoft.Scheduler jobs",
+    "originalSingular": "Microsoft.Scheduler job",
     "plural": "Scheduler jobs",
     "singular": "Scheduler job"
   },
   {
     "type": "microsoft.security/pricings",
+    "originalPlural": "Microsoft.Security pricings",
+    "originalSingular": "Microsoft.Security pricing",
     "plural": "Defender for Cloud",
     "singular": "Defender for Cloud",
     "comment": "2023-11-07: Placeholder icon. Replace when available. Added name since this isn't a real resource type.",
@@ -303,8 +365,15 @@
   },
   {
     "type": "microsoft.storsimple/managers",
+    "originalPlural": "Microsoft.StorSimple managers",
+    "originalSingular": "Microsoft.StorSimple manager",
     "plural": "StorSimple device managers",
     "singular": "StorSimple device manager"
+  },
+  {
+    "type": "microsoft.visualstudio/organizations",
+    "plural": "Azure DevOps organizations",
+    "singular": "Azure DevOps organization"
   },
   {
     "type": "microsoft.web/connectiongateways",

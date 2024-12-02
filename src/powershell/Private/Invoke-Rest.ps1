@@ -78,12 +78,12 @@ function Invoke-Rest
         # TODO: Map Azure to Fabric environment
         # $token = (Get-PowerBIAccessToken).Token.Value.Trim('Bearer ')
         $resourceUri = $fabricUrls.default.resource
-        $token = (Get-AzAccessToken -ResourceUrl $resourceUri).Token
+        $token = (Get-AzAccessToken -ResourceUrl $resourceUri -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
         $domain = $fabricUrls.default.endpoint
     }
     else
     {
-        $token = (Get-AzAccessToken).Token
+        $token = (Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
         $domain = $env.ResourceManagerUrl
     }
     $params = @{
@@ -113,9 +113,14 @@ function Invoke-Rest
     {
         Write-Verbose "Error invoking $Method $($params.Uri) with request body $($params.Body)"
         $response = $_.Exception.Response
+        try
+        {
         $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
         # DEBUG: Write-Verbose "Exception.Response = $($response | ConvertTo-Json -Depth 10)"
         # DEBUG: Write-Verbose "ErrorDetails.Message = $($content | ConvertTo-Json -Depth 10)"
+        }
+        catch {}
+
         if ($content.error)
         {
             $errorCode = $content.error.code
@@ -148,6 +153,7 @@ function Invoke-Rest
         Success    = $response.StatusCode -ge 200 -and $response.StatusCode -lt 300
         Failure    = $response.StatusCode -ge 300
         NotFound   = $response.StatusCode -eq 404 -or $response.StatusCode -eq 'NotFound'
+        Throttled  = $response.StatusCode -eq 429 -or $response.StatusCode -eq 'ResourceRequestsThrottled'
         Content    = $content
     }
 }

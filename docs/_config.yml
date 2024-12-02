@@ -21,7 +21,7 @@ collections:
   reporting:
     permalink: /:collection/:path/
     output: true
-  workbooks:
+  optimize:
     permalink: /:collection/:path/
     output: true
   automation:
@@ -37,25 +37,18 @@ just_the_docs:
       name: Implementing FinOps
     reporting:
       name: Reporting + analytics
-    workbooks:
-      name: Azure Monitor workbooks
+    optimize:
+      name: Optimization + governance
     automation:
       name: Automation + extensibility
     resources:
-      name: Resources
+      name: Help + support
       nav_fold: true # collapse by default
 
 # Enable relative links for collections -- https://github.com/benbalter/jekyll-relative-links
 relative_links:
   enabled: true
   collections: true
-
-# Links under the left nav
-nav_external_links:
-  - title: ❤️ Give feedback
-    url: https://aka.ms/ftk/feedback
-    hide_icon: false
-    opens_in_new_tab: true
 
 # Footer
 # footer_content: ''

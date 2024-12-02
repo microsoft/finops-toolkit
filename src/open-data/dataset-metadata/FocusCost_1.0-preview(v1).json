@@ -1,0 +1,546 @@
+{
+  "DataGenerator": "Microsoft",
+  "SchemaId": "1.0-preview(v1)",
+  "FocusVersion": "1.0-preview",
+  "CreationDate": "2023-11-15T00:00:00Z",
+  "Columns": [
+    {
+      "ColumnName": "AvailabilityZone",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Provider assigned identifier for a physically separated and isolated area within a Region that provides high availability and fault tolerance."
+    },
+    {
+      "ColumnName": "BilledCost",
+      "DataType": "Decimal",
+      "Description": "A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring)."
+    },
+    {
+      "ColumnName": "BillingAccountId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier assigned to a billing account by the provider."
+    },
+    {
+      "ColumnName": "BillingAccountName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Display name assigned to a billing account."
+    },
+    {
+      "ColumnName": "BillingAccountType",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Provider label for the kind of entity the BillingAccountId represents."
+    },
+    {
+      "ColumnName": "BillingCurrency",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Currency that a charge was billed in."
+    },
+    {
+      "ColumnName": "BillingPeriodEnd",
+      "DataType": "DateTime",
+      "Description": "End date and time of the billing period."
+    },
+    {
+      "ColumnName": "BillingPeriodStart",
+      "DataType": "DateTime",
+      "Description": "Beginning date and time of the billing period."
+    },
+    {
+      "ColumnName": "ChargeCategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates whether the row represents an upfront or recurring fee, cost of usage that already occurred, an after-the-fact adjustment (e.g., credits), or taxes."
+    },
+    {
+      "ColumnName": "ChargeDescription",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Brief, human-readable summary of a row."
+    },
+    {
+      "ColumnName": "ChargeFrequency",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates how often a charge will occur."
+    },
+    {
+      "ColumnName": "ChargePeriodEnd",
+      "DataType": "DateTime",
+      "Description": "End date and time of a charge period."
+    },
+    {
+      "ColumnName": "ChargePeriodStart",
+      "DataType": "DateTime",
+      "Description": "Beginning date and time of a charge period."
+    },
+    {
+      "ColumnName": "ChargeSubcategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates the kind of usage or adjustment the row represents."
+    },
+    {
+      "ColumnName": "CommitmentDiscountCategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates whether the commitment-based discount identified in the CommitmentDiscountId column is based on usage quantity or cost (aka spend)."
+    },
+    {
+      "ColumnName": "CommitmentDiscountId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier assigned to a commitment-based discount by the provider."
+    },
+    {
+      "ColumnName": "CommitmentDiscountName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Display name assigned to a commitment-based discount."
+    },
+    {
+      "ColumnName": "CommitmentDiscountType",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Label assigned by the provider to describe the type of commitment-based discount applied to the row."
+    },
+    {
+      "ColumnName": "EffectiveCost",
+      "DataType": "Decimal",
+      "Description": "The cost inclusive of amortized upfront fees, amortized recurring fees, and the usage cost of the row."
+    },
+    {
+      "ColumnName": "InvoiceIssuerName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the entity responsible for invoicing for the resources and/or services consumed."
+    },
+    {
+      "ColumnName": "ListCost",
+      "DataType": "Decimal",
+      "Description": "The cost without any discounts or amortized charges based on the public retail or market prices."
+    },
+    {
+      "ColumnName": "ListUnitPrice",
+      "DataType": "Decimal",
+      "Description": "Unit price for the SKU without any discounts or amortized charges based on the public retail or market prices that a consumer would be charged per unit."
+    },
+    {
+      "ColumnName": "PricingCategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates how the charge was priced."
+    },
+    {
+      "ColumnName": "PricingQuantity",
+      "DataType": "Decimal",
+      "Description": "Amount of a particular service that was used or purchased based on the PricingUnit. PricingQuantity is the same as UsageQuantity divided by PricingBlocksize."
+    },
+    {
+      "ColumnName": "PricingUnit",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates what measurement type is used by the PricingQuantity."
+    },
+    {
+      "ColumnName": "ProviderName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the entity that made the resources and/or services available for purchase."
+    },
+    {
+      "ColumnName": "PublisherName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the entity that produced the resources and/or services that were purchased."
+    },
+    {
+      "ColumnName": "Region",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Isolated geographic area where a resource is provisioned in and/or a service is provided from."
+    },
+    {
+      "ColumnName": "ResourceId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier assigned to a resource by the provider."
+    },
+    {
+      "ColumnName": "ResourceName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Display name assigned to a resource."
+    },
+    {
+      "ColumnName": "ResourceType",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "The kind of resource for which you are being charged."
+    },
+    {
+      "ColumnName": "ServiceCategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Highest-level classification of a service based on the core function of the service."
+    },
+    {
+      "ColumnName": "ServiceName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "An offering that can be purchased from a provider (e.g., cloud virtual machine, SaaS database, professional services from a systems integrator)."
+    },
+    {
+      "ColumnName": "SkuId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the SKU that was used or purchased."
+    },
+    {
+      "ColumnName": "SkuPriceId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the SKU inclusive of additional pricing variations, like tiering and discounts."
+    },
+    {
+      "ColumnName": "SubAccountId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier assigned to a grouping of resources or services, often used to manage access or cost."
+    },
+    {
+      "ColumnName": "SubAccountName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name assigned to a grouping of resources or services, often used to manage access or cost."
+    },
+    {
+      "ColumnName": "SubAccountType",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Provider label for the kind of entity the SubAccountId represents."
+    },
+    {
+      "ColumnName": "Tags",
+      "DataType": "JSON",
+      "Description": "List of custom key-value pairs applied to a charge defined as a JSON object."
+    },
+    {
+      "ColumnName": "UsageQuantity",
+      "DataType": "Decimal",
+      "Description": "Number of units of a resource or service that was used or purchased based on the UsageUnit."
+    },
+    {
+      "ColumnName": "UsageUnit",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates what measurement type is used by the UsageQuantity."
+    },
+    {
+      "ColumnName": "x_AccountName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the identity responsible for billing for this subscription. This is your EA enrollment account owner or MOSA account admin. Not applicable to MCA."
+    },
+    {
+      "ColumnName": "x_AccountOwnerId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Email address of the identity responsible for billing for this subscription. This is your EA enrollment account owner or MOSA account admin. Not applicable to MCA."
+    },
+    {
+      "ColumnName": "x_BilledCostInUsd",
+      "DataType": "Decimal",
+      "Description": "BilledCost in USD."
+    },
+    {
+      "ColumnName": "x_BilledUnitPrice",
+      "DataType": "Decimal",
+      "Description": "Unit price for the SKU that a consumer would be charged per unit."
+    },
+    {
+      "ColumnName": "x_BillingAccountId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the Microsoft billing account. Same as BillingAccountId for EA."
+    },
+    {
+      "ColumnName": "x_BillingAccountName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the Microsoft billing account. Same as BillingAccountName for EA."
+    },
+    {
+      "ColumnName": "x_BillingExchangeRate",
+      "DataType": "Decimal",
+      "Description": "Exchange rate to multiply by when converting from the pricing currency to the billing currency."
+    },
+    {
+      "ColumnName": "x_BillingExchangeRateDate",
+      "DataType": "DateTime",
+      "Description": "Date the exchange rate was determined."
+    },
+    {
+      "ColumnName": "x_BillingProfileId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the Microsoft billing profile. Same as BillingAccountId for MCA."
+    },
+    {
+      "ColumnName": "x_BillingProfileName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the Microsoft billing profile. Same as BillingAccountName for MCA."
+    },
+    {
+      "ColumnName": "x_ChargeId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Not used."
+    },
+    {
+      "ColumnName": "x_CostAllocationRuleName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the Microsoft Cost Management cost allocation rule that generated this charge. Cost allocation is used to move or split shared charges."
+    },
+    {
+      "ColumnName": "x_CostCenter",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Custom value defined by a billing admin for internal chargeback."
+    },
+    {
+      "ColumnName": "x_CustomerId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the Cloud Solution Provider (CSP) customer tenant."
+    },
+    {
+      "ColumnName": "x_CustomerName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Display name for the Cloud Solution Provider (CSP) customer tenant."
+    },
+    {
+      "ColumnName": "x_EffectiveCostInUsd",
+      "DataType": "Decimal",
+      "Description": "EffectiveCost in USD."
+    },
+    {
+      "ColumnName": "x_EffectiveUnitPrice",
+      "DataType": "Decimal",
+      "Description": "Unit price for the SKU inclusive of amortized upfront fees, amortized recurring fees, and the usage cost that a consumer would be charged per unit."
+    },
+    {
+      "ColumnName": "x_InvoiceId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the invoice this charge was billed on."
+    },
+    {
+      "ColumnName": "x_InvoiceIssuerId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the Cloud Solution Provider (CSP) partner."
+    },
+    {
+      "ColumnName": "x_InvoiceSectionId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the MCA invoice section or EA department."
+    },
+    {
+      "ColumnName": "x_InvoiceSectionName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Display name for the MCA invoice section or EA department."
+    },
+    {
+      "ColumnName": "x_OnDemandCost",
+      "DataType": "Decimal",
+      "Description": "A charge inclusive of negotiated discounts that a consumer would be charged for each billing period."
+    },
+    {
+      "ColumnName": "x_OnDemandCostInUsd",
+      "DataType": "Decimal",
+      "Description": "OnDemandCost in USD."
+    },
+    {
+      "ColumnName": "x_OnDemandUnitPrice",
+      "DataType": "Decimal",
+      "Description": "Unit price for the SKU after negotiated discounts that a consumer would be charged per unit."
+    },
+    {
+      "ColumnName": "x_PartnerCreditApplied",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates when the Cloud Solution Provider (CSP) Partner Earned Credit (PEC) was applied for a charge."
+    },
+    {
+      "ColumnName": "x_PartnerCreditRate",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Rate earned based on the Cloud Solution Provider (CSP) Partner Earned Credit (PEC) applied."
+    },
+    {
+      "ColumnName": "x_PricingBlockSize",
+      "DataType": "Decimal",
+      "Description": "Indicates the number of usage units grouped together for block pricing. This number is usually a part of the PricingUnit. Divide UsageQuantity by PricingBlockSize to get the PricingQuantity."
+    },
+    {
+      "ColumnName": "x_PricingCurrency",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Currency used for all price columns."
+    },
+    {
+      "ColumnName": "x_PricingSubcategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Describes the kind of pricing model used for a charge within a specific Pricing Category."
+    },
+    {
+      "ColumnName": "x_PricingUnitDescription",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates what measurement type is used by the PricingQuantity, including pricing block size. This is what is used in the price list and/or on the invoice."
+    },
+    {
+      "ColumnName": "x_PublisherCategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Indicates whether a charge is from a cloud provider or third-party Marketplace vendor."
+    },
+    {
+      "ColumnName": "x_PublisherId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier of the entity that produced the resources and/or services that were purchased."
+    },
+    {
+      "ColumnName": "x_ResellerId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier for the Cloud Solution Provider (CSP) reseller."
+    },
+    {
+      "ColumnName": "x_ResellerName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the Cloud Solution Provider (CSP) reseller."
+    },
+    {
+      "ColumnName": "x_ResourceGroupName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Grouping of resources that make up an application or set of resources that share the same lifecycle (e.g., created and deleted together)."
+    },
+    {
+      "ColumnName": "x_ResourceType",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Azure Resource Manager resource type."
+    },
+    {
+      "ColumnName": "x_ServicePeriodEnd",
+      "DataType": "DateTime",
+      "Description": "Exclusive end date of the service period applicable for the charge."
+    },
+    {
+      "ColumnName": "x_ServicePeriodStart",
+      "DataType": "DateTime",
+      "Description": "Start date of the service period applicable for the charge."
+    },
+    {
+      "ColumnName": "x_SkuDescription",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Description of the SKU that was used or purchased."
+    },
+    {
+      "ColumnName": "x_SkuDetails",
+      "DataType": "JSON",
+      "Description": "Additional information about the SKU. This column is formatted as a JSON object."
+    },
+    {
+      "ColumnName": "x_SkuIsCreditEligible",
+      "DataType": "Boolean",
+      "Description": "Indicates if the charge is eligible for Azure credits"
+    },
+    {
+      "ColumnName": "x_SkuMeterCategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the service the SKU falls within."
+    },
+    {
+      "ColumnName": "x_SkuMeterId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier (sometimes a GUID, but not always) for the usage meter. This usually maps to a specific SKU or range of SKUs that have a specific price."
+    },
+    {
+      "ColumnName": "x_SkuMeterName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Name of the usage meter. This usually maps to a specific SKU or range of SKUs that have a specific price. Not applicable for purchases."
+    },
+    {
+      "ColumnName": "x_SkuMeterSubcategory",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Group of SKU Classes that address the same core need within the SKU Group."
+    },
+    {
+      "ColumnName": "x_SkuOfferId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Microsoft Cloud subscription type."
+    },
+    {
+      "ColumnName": "x_SkuOrderId",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Unique identifier of the entitlement product for this charge. Same as MCA ProductOrderId. Not applicable for EA."
+    },
+    {
+      "ColumnName": "x_SkuOrderName",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Display name of the entitlement product for this charge. Same as MCA ProductOrderId. Not applicable for EA."
+    },
+    {
+      "ColumnName": "x_SkuPartNumber",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Identifier to help break down specific usage meters."
+    },
+    {
+      "ColumnName": "x_SkuRegion",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Region that the SKU operated in. This may be different from the resource region."
+    },
+    {
+      "ColumnName": "x_SkuServiceFamily",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Highest-level classification of a SKU based on the core function of the SKU."
+    },
+    {
+      "ColumnName": "x_SkuTerm",
+      "DataType": "Number",
+      "Description": "Number of months a purchase covers."
+    },
+    {
+      "ColumnName": "x_SkuTier",
+      "DataType": "String",
+      "StringEncoding": "UTF-8",
+      "Description": "Pricing tier for the SKU when that SKU supports tiered or graduated pricing."
+    }
+  ]
+}
