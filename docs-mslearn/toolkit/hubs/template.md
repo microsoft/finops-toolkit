@@ -13,19 +13,16 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps hub template
 
-Behind the scenes peek at what makes up the FinOps hub template, including inputs and outputs.
+This document provides a detailed summary of what's included in the FinOps hubs deployment template. You can use this as a guide for tuning your deployment or to inform customizations you can make to the template to meet your organizational needs. This document explains the required prerequisites to deploy the template, input parameters you can customize, resources that will be deployed, and the template outputs. Template outputs can be used to connect to your hub instances in Power BI, Data Explorer, or other tools.
 
-This template creates a new **FinOps hub** instance.
+FinOps hubs includes many resources to offer a secure and scalable FinOps platform. The main resources you will interact with include:
 
-FinOps hubs include:
-
-- Data Lake storage for data staging.
-- Data Explorer to host cost data.
-- Data Factory for data processing and orchestration.
-- Key Vault for storing secrets.
+- Data Explorer (Kusto) as a scalable datastore for advanced analytics (optional).
+- Storage account (Data Lake Storage Gen2) as a staging area for data ingestion.
+- Data Factory instance to manage data ingestion and cleanup.
 
 > [!IMPORTANT]
-> To use the template, you need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. For more information, see [Create a new hub](finops-hubs-overview.md#create-a-new-hub).
+> To use the template, you need to create Cost Management exports to publish data to the `msexports` container in the included storage account. For more information, see [Create a new hub](finops-hubs-overview.md#create-a-new-hub).
 
 <br>
 
@@ -35,8 +32,8 @@ Ensure the following prerequisites are met before you deploy the template:
 
 - You must have the following permissions to create the [deployed resources](#resources).
 
-   | Resource                                                        | Minimum Azure RBAC                                                                                                                                                                                                                                                                                                                                            |
-   | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | Resource                                             | Minimum Azure RBAC                                                                                                                                                                                                                                                                                                           |
+   | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
    | Deploy and configure Data Factory¹                   | [Data Factory Contributor](/azure/role-based-access-control/built-in-roles#data-factory-contributor)                                                                                                                                                                                                                         |
    | Deploy Key Vault¹                                    | [Key Vault Contributor](/azure/role-based-access-control/built-in-roles#key-vault-contributor)                                                                                                                                                                                                                               |
    | Configure Key Vault secrets¹                         | [Key Vault Administrator](/azure/role-based-access-control/built-in-roles#key-vault-administrator)                                                                                                                                                                                                                           |
@@ -44,7 +41,7 @@ Ensure the following prerequisites are met before you deploy the template:
    | Deploy and configure storage¹                        | [Storage Account Contributor](/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                                                                                                                                                                                                   |
    | Assign managed identity to resources¹                | [Managed Identity Operator](/azure/role-based-access-control/built-in-roles#managed-identity-operator)                                                                                                                                                                                                                       |
    | Create deployment scripts¹                           | Custom role containing only the `Microsoft.Resources/deploymentScripts/write` and `Microsoft.ContainerInstance/containerGroups/write` permissions as allowed actions or, alternatively, [Contributor](/azure/role-based-access-control/built-in-roles#contributor), which includes these permissions and all the above roles |
-   | Assign permissions to managed identities¹            | [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator) or, alternatively, [Owner](/azure/role-based-access-control/built-in-roles#owner), which includes this role and all the above roles                                 |
+   | Assign permissions to managed identities¹            | [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator) or, alternatively, [Owner](/azure/role-based-access-control/built-in-roles#owner), which includes this role and all the above roles                                                       |
    | Create a subscription or resource group cost export² | [Cost Management Contributor](/azure/role-based-access-control/built-in-roles#cost-management-contributor)                                                                                                                                                                                                                   |
    | Create an EA billing cost export²                    | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](/azure/cost-management-billing/manage/understand-ea-roles))                                                                                                                                                                                  |
    | Create an MCA billing cost export²                   | [Contributor](/azure/cost-management-billing/manage/understand-mca-roles)                                                                                                                                                                                                                                                    |
@@ -69,7 +66,7 @@ Ensure the following prerequisites are met before you deploy the template:
 
 Here are the parameters you can use to customize the deployment:
 
-| Parameter                      | Type   | Description                                                                                                                                                                                                                                                       | Default value       |
+| Parameter                              | Type   | Description                                                                                                                                                                                                                                                                                                                            | Default value      |
 | -------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
 | **hubName**                            | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                                                                                                                                                                       | "finops-hub"       |
 | **location**                           | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                                                                                                                                                                       | Same as deployment |
@@ -153,10 +150,10 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `HubSettings` function – Gets the latest version of the hub instance settings.
       - `HubScopes` function – Gets the currently configured scopes for this hub instance.
     - Open data:
-      - `PricingUnits` table – [PricingUnits mapping file](../data/README.md#pricing-units) from the FinOps toolkit. Used for data normalization and cleanup.
-      - `Regions` table – [Regions mapping file](../data/README.md#regions) from the FinOps toolkit. Used for data normalization and cleanup.
-      - `ResourceTypes` table – [ResourceTypes mapping file](../data/README.md#resource-types) from the FinOps toolkit. Used for data normalization and cleanup.
-      - `Services` table – [Services mapping file](../data/README.md#services) from the FinOps toolkit. Used for data normalization and cleanup.
+      - `PricingUnits` table – [PricingUnits mapping file](../open-data.md#pricing-units) from the FinOps toolkit. Used for data normalization and cleanup.
+      - `Regions` table – [Regions mapping file](../open-data.md#regions) from the FinOps toolkit. Used for data normalization and cleanup.
+      - `ResourceTypes` table – [ResourceTypes mapping file](../open-data.md#resource-types) from the FinOps toolkit. Used for data normalization and cleanup.
+      - `Services` table – [Services mapping file](../open-data.md#services) from the FinOps toolkit. Used for data normalization and cleanup.
     - Datasets:
       - `<dataset>_raw` table – Raw data directly from the ingestion source. Uses a union schema for data from multiple sources.
       - `<dataset>_transform_vX_Y` function – Normalizes and cleans raw data to align to the targeted FOCUS version using open data tables as needed.
@@ -179,7 +176,7 @@ In addition to the preceding information, the following resources are created to
 
 Here are the outputs generated by the deployment:
 
-| Output                      | Type   | Description                                                                                                                               | Value |
+| Output | Type | Description | Value |
 | ------ | ---- | ----------- ||
 | **name**                    | String | Name of the resource group.                                                                                                               |
 | **location**                | String | Azure resource location resources were deployed to.                                                                                       |

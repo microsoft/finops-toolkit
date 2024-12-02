@@ -25,7 +25,7 @@ This report pulls data from:
 You can download the Workload optimization report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
 
 > [!NOTE]
-> The Workload optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../optimization-workbook/cost-optimization-workbook.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
+> The Workload optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
 <br>
 

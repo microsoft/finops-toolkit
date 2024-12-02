@@ -45,7 +45,7 @@ _Released December 1, 2024_
 
 - **Changed**
   - Added Enterprise App Patterns links resources to the architecting for the cloud section.
-  - Update cost and unit of measure handling in the [FOCUS conversion instructions](../_docs/focus/convert.md).
+  - Update cost and unit of measure handling in the [FOCUS conversion instructions](../focus/convert.md).
 
 ### Power BI reports v0.7
 
@@ -53,7 +53,7 @@ _Released December 1, 2024_
   1. Added partial support for OneLake URLs.
      - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
   2. Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
-  3. Added KQL-based version of the [Cost summary](../_reporting/power-bi/cost-summary.md), [Data ingestion](../_reporting/power-bi/data-ingestion.md), and [Rate optimization](../_reporting/power-bi/rate-optimization.md) reports that connect to FinOps hubs with Azure Data Explorer.
+  3. Added KQL-based version of the [Cost summary](power-bi/cost-summary.md), [Data ingestion](power-bi/data-ingestion.md), and [Rate optimization](power-bi/rate-optimization.md) reports that connect to FinOps hubs with Azure Data Explorer.
 - **Changed**
   1. Consolidated the **Hub Storage URL** and **Export Storage URL** parameters into a single **Storage URL**.
      - This means all datasets will either need to be raw exports outside of FinOps hubs or be processed through hubs. This release no longer supports some data from hubs and some from raw exports.
@@ -102,14 +102,14 @@ _**Breaking change**_
 ### FinOps workbooks v0.7
 
 - **Added**
-  - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+  - [Optimization workbook](workbooks/optimization.md)
     1. On the Storage tab, included the **RSVaultBackup** tag in the list of non-idle disks.
 - **Fixed**
-  - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+  - [Optimization workbook](workbooks/optimization.md)
     1. On the Commitment discounts tab, fixed RI ROWS Limited.
     1. On the Compute tab, fixed incorrect VM processor in processors query.
 - **Removed**
-  - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+  - [Optimization workbook](workbooks/optimization.md)
     1. On the Database tab, removed the idle SQL databases query.
        - This query will be re-evaluated and added again in a future release.
 
@@ -122,7 +122,7 @@ _**Breaking change**_
 ### Open data v0.7
 
 - **Added**
-  - [Resource types](../_reporting/data/README.md#-resource-types)
+  - [Resource types](open-data.md#resource-types)
     1. Added 50 new Microsoft.AWSConnector resource types.
     1. Added 8 new Microsoft.Compute resource types.
     1. Added 3 new Microsoft.ContainerInstance resource types.
@@ -131,10 +131,10 @@ _**Breaking change**_
     1. Added 5 new Microsoft.OpenLogisticsPlatform resource types.
     1. Added 3 new Microsoft.Sovereign resource types.
     1. Added 14 other new resource types: arizeai.observabilityeval/organizations, lambdatest.hyperexecute/organizations, microsoft.azurestackhci/edgedevices/jobs, microsoft.clouddeviceplatform/delegatedidentities, microsoft.compute/capacityreservationgroupscomputehub, microsoft.compute/galleries/imagescomputehub, microsoft.compute/hostgroupscomputehub, microsoft.hybridcompute/machinessoftwareassurance, microsoft.machinelearning/workspaces, microsoft.resources/deletedresources, microsoft.security/defenderforstoragesettings/malwarescans, microsoft.weightsandbiases/instances, neon.postgres/organizations, pinecone.vectordb/organizations.
-  - [Services](../_reporting/data/README.md#-services)
+  - [Services](open-data.md#services)
     1. Added 3 resource types to existing services: microsoft.hardwaresecuritymodules/cloudhsmclusters, microsoft.healthdataaiservices/deidservices, microsoft.insights/datacollectionrules.
 - **Changed**
-  - [Resource types](../_reporting/data/README.md#-resource-types)
+  - [Resource types](open-data.md#resource-types)
     1. Updated 17 new Microsoft.ComputeHub resource types.
     1. Updated 9 other resource type: microsoft.appsecurity/policies, microsoft.compute/virtualmachines/providers/guestconfigurationassignments, microsoft.dbforpostgresql/flexibleservers, microsoft.deviceregistry/billingcontainers, microsoft.durabletask/namespaces, microsoft.durabletask/namespaces/taskhubs, microsoft.edge/configurations, microsoft.hybridcompute/machines/providers/guestconfigurationassignments, microsoft.securitycopilot/capacities.
 

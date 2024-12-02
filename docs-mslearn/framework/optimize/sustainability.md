@@ -30,7 +30,7 @@ To optimize cloud sustainability while balancing cost, establish policies, guide
 When you first start with cloud sustainability, you use the native tools to drive efficiency and optimize carbon in the portal.
 
 - Use [Azure Carbon Optimization](/azure/carbon-optimization/overview) to find opportunities to lower carbon emissions.
-- Consider using the [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md) to view carbon optimization recommendations alongside other usage and cost efficiency recommendations. 
+- Consider using the [Cost optimization workbook](../../toolkit/workbooks/optimization.md) to view carbon optimization recommendations alongside other usage and cost efficiency recommendations. 
 <br>
 
 ## Building on the basics
@@ -68,6 +68,6 @@ Related products:
 Related solutions:
 
 - [Microsoft Cloud for Sustainability](https://www.microsoft.com/sustainability/cloud)
-- [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
+- [Cost optimization workbook](../../toolkit/workbooks/optimization.md)
 
 <br>

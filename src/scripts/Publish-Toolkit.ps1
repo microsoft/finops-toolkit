@@ -76,7 +76,7 @@ $repoConfig = @{
     pc          = @{
         org           = 'MicrosoftDocs'
         mainBranch    = 'main'
-        possibleNames = @($DocsRepo, 'partner-center', 'pc')
+        possibleNames = @($DocsRepo, 'partner-center-pr', 'pc')
         relativePath  = "finops/finops"
         requiredFiles = @()
     }

@@ -50,7 +50,7 @@ FinOps hubs provide many benefits over using Cost Management exports.
 - Report on cost and usage across multiple accounts and subscriptions in separate tenants.
 - Run advanced analytical queries and report on year over year cost trends in seconds.
 - Report on negotiated and commitment discount savings for EA billing accounts and MCA billing profiles.
-- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../_docs/focus/README.md).
+- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../focus/what-is-focus.md).
 - Clean up duplicated data in daily Cost Management exports (and save money on storage).
 - Convert exported data to parquet for faster data access.
 - Extensible via standard Data Factory and Power BI capabilities to integrate business or other providers cost data.

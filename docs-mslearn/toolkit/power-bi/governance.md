@@ -29,7 +29,7 @@ This report pulls data from:
 You can download the Governance report from the [latest release](https://aka.ms/ftk/latest).
 
 > [!NOTE]
-> The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../optimization-workbook/cost-optimization-workbook.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
+> The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
 <br>
 

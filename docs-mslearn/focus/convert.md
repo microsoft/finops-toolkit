@@ -21,8 +21,8 @@ This document provides guidance for converting Cost Management actual and amorti
 
 In order to convert cost and usage data to FOCUS, you will need both the actual and amortized cost datasets:
 
-1. Keep all rows from the amortized cost data.
-2. Filter the actual cost data to only include rows where ChargeType == "Purchase" or "Refund" and PricingModel == "Reservation" or "SavingsPlan".
+- Keep all rows from the amortized cost data.
+- Filter the actual cost data to only include rows where ChargeType == "Purchase" or "Refund" and PricingModel == "Reservation" or "SavingsPlan".
 
 Apply the following logic to all of the rows:
 
@@ -55,16 +55,16 @@ Apply the following logic to all of the rows:
 | ListUnitPrice              | • Enterprise Agreement: PayGPrice<br><br> • Microsoft Customer Agreement: PayGPrice \* ExchangeRate     | None                                                                                                                                                                                       |
 | PricingCategory            | PricingModel                                                                                            | If `OnDemand`, then `Standard`; if `Spot`, then `Dynamic`; if `Reservation` or `Savings Plan`, then `Committed`; otherwise, null                                                           |
 | PricingQuantity            | Quantity / focus:x_PricingBlockSize                                                                     | Note that x_PricingBlockSize requires a mapping. See column notes for details.                                                                                                             |
-| PricingUnit                | DistinctUnits (lookup)                                                                                  | Map UnitOfMeasure to DistinctUnits using [Pricing units data file](../../_reporting/data/README.md#-pricing-units)                                                                         |
+| PricingUnit                | DistinctUnits (lookup)                                                                                  | Map UnitOfMeasure to DistinctUnits using [Pricing units data file](../toolkit/open-data.md#pricing-units)                                                                                  |
 | ProviderName               | `Microsoft`                                                                                             | None                                                                                                                                                                                       |
 | PublisherName              | PublisherName                                                                                           | None                                                                                                                                                                                       |
 | RegionId                   | focus:RegionName                                                                                        | Lowercase and remove spaces                                                                                                                                                                |
-| RegionName                 | ResourceLocation                                                                                        | Map ResourceLocation (OriginalValue) to RegionName using [Regions data file](../../_reporting/data/README.md#-regions)<sup>2</sup>                                                         |
+| RegionName                 | ResourceLocation                                                                                        | Map ResourceLocation (OriginalValue) to RegionName using [Regions data file](../toolkit/open-data.md#regions)<sup>2</sup>                                                                  |
 | ResourceId                 | ResourceId                                                                                              | None                                                                                                                                                                                       |
 | ResourceName               | EA: ResourceName<br>MCA: last(split(ResourceId, "/"))                                                   | Azure resource names include multiple levels (e.g., "SqlServerName/SqlDbName"), which requires more processing. This is a simplified approach to only use the last, most-specific segment. |
-| ResourceType               | SingularDisplayName (lookup)                                                                            | Map ResourceType to SingularDisplayName using [Resource types data file](../../_reporting/data/README.md#-resource-types)                                                                  |
-| ServiceCategory            | ServiceCategory (lookup)                                                                                | Map ConsumedService and ResourceType to SerivceCategory using [Services data file](../../_reporting/data/README.md#-services)                                                              |
-| ServiceName                | ServiceName (lookup)                                                                                    | Map ConsumedService and ResourceType to SerivceName using [Services data file](../../_reporting/data/README.md#-services)                                                                  |
+| ResourceType               | SingularDisplayName (lookup)                                                                            | Map ResourceType to SingularDisplayName using [Resource types data file](../toolkit/open-data.md#resource-types)                                                                           |
+| ServiceCategory            | ServiceCategory (lookup)                                                                                | Map ConsumedService and ResourceType to ServiceCategory using [Services data file](../toolkit/open-data.md#services)                                                                       |
+| ServiceName                | ServiceName (lookup)                                                                                    | Map ConsumedService and ResourceType to ServiceName using [Services data file](../toolkit/open-data.md#services)                                                                           |
 | SkuId                      | • Enterprise Agreement: Not available<br><br>• Microsoft Customer Agreement: ProductId                  | None                                                                                                                                                                                       |
 | SkuPriceId                 | Not available                                                                                           | None                                                                                                                                                                                       |
 | SubAccountId               | SubscriptionId                                                                                          | None                                                                                                                                                                                       |
@@ -73,7 +73,7 @@ Apply the following logic to all of the rows:
 
 _¹ Quantity in Cost Management is the consumed (usage) quantity._
 
-_² While RegionName is a direct mapping of ResourceLocation, Cost Management and FinOps toolkit reports do additional data cleansing to ensure consistency in values based on the [Regions data file](../../_reporting/data/README.md#-regions)._
+_² While RegionName is a direct mapping of ResourceLocation, Cost Management and FinOps toolkit reports do additional data cleansing to ensure consistency in values based on the [Regions data file](../toolkit/open-data.md#regions)._
 
 <br>
 

@@ -34,7 +34,7 @@ This section focuses on strategies to optimize your Azure costs by addressing ra
 
 Here's an example of the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit.
 
-:::image type="content" source="../optimization-workbook/media/cost-optimization-workbook/rate-optimization-example.png" alt-text="Screenshot showing the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit." lightbox="../optimization-workbook/media/cost-optimization-workbook/rate-optimization-example.png" :::
+:::image type="content" source="./media/optimization/rate-optimization-example.png" alt-text="Screenshot showing the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit." lightbox="./media/optimization/rate-optimization-example.png" :::
 
 <br>
 
@@ -44,7 +44,7 @@ The purpose of Usage optimization is to ensure that your Azure resources are use
 
 Here's an example of the Usage optimization section for Azure Kubernetes Service (AKS).
 
-:::image type="content" source="../optimization-workbook/media/cost-optimization-workbook//usage-optimization-example.png" alt-text="Screenshot showing the Usage optimization section for AKS." lightbox="../optimization-workbook/media/cost-optimization-workbook//usage-optimization-example.png" :::
+:::image type="content" source="./media/optimization/usage-optimization-example.png" alt-text="Screenshot showing the Usage optimization section for AKS." lightbox="./media/optimization/usage-optimization-example.png" :::
 
 For more information about the Cost optimization workbook, see [Understand and optimize your Azure costs using the Cost optimization workbook](/azure/advisor/advisor-cost-optimization-workbook).
 
