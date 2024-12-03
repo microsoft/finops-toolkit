@@ -11,7 +11,7 @@ permalink: /power-bi/cost-summary
 Common breakdowns of your cost to identify top contributors, review changes over time, build a chargeback report, and summarize savings.
 {: .fs-6 .fw-300 }
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostSummary.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Connect your data](./README.md#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
