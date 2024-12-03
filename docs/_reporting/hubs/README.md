@@ -185,16 +185,22 @@ If you access data in storage or are creating or customizing Power BI reports, p
 
 ## 🔐 Required permissions
 
-Required permissions for deploying or updating hub instances are covered in the [template details](./template.md#-prerequisites).
+Minimum required permissions for deploying or updating hub instances are covered in the [template details](./template.md#-prerequisites).
 
-You will need one or more of the following to export your cost data:
+You will need these following roles to configure exports, deploy hubs template, and configure PowerBI:
 
-| Scope                                                 | Permission                                                                                                                             |
-| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Subscriptions and resource groups (all account types) | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor). |
-| EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).                                                       |
-| MCA billing scopes                                    | Contributor on the billing account, billing profile, or invoice section.                                                               |
-| MPA billing scopes                                    | Contributor on the billing account, billing profile, or customer.                                                                      |
+- Configuring exports requires one of the following, depending on scope:
+  - Subscriptions and resource groups: [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor).
+  - EA billing scopes: Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).
+  - MCA billing scopes: Contributor on the billing account, billing profile, or invoice section.
+  - MPA billing scopes: Contributor on the billing account, billing profile, or customer.
+- Deploying hubs template requires one of the following:
+  - [Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
+  - [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
+  - For least-privileged access, see  [template details](https://file+.vscode-resource.vscode-cdn.net/c%3A/.git/dev/hubs-permissions/finops-toolkit/docs/_reporting/hubs/template.md#-prerequisites).
+- Configuring PowerBI requires one of the following
+  - Storage reports: [Storage Blob Data Reader](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
+  - KQL reports: Viewer on the Hub database.
 
 Note that CSP customers will need to configure exports for each subscription in order to ingest their total cost into FinOps hubs. Cost Management does not support management group exports for MCA or CSP subscriptions (as of May 2024).
 
@@ -209,3 +215,26 @@ For additional details, refer to [Cost Management documentation](https://learn.m
 {% include tools.md aoe="1" bicep="0" data="1" gov="0" pbi="1" ps="1" opt="1" %}
 
 <br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
