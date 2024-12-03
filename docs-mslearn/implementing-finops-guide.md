@@ -3,7 +3,7 @@ title: Implementing FinOps guide
 description: Learn how FinOps can help you maintain business efficiency, empower new endeavors, and accelerate business growth through the cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -13,7 +13,7 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Implementing FinOps guide
 
-FinOps is an expansive topic with branches that extend out into many cloud management and governance activities. Cost especially is a part of many cloud and business initiatives, like security, resiliency, and adopting cloud-native solutions like AI. And to streamline cloud adoption in a way that prioritizes business value, you need the right guidance to help you make the right data-driven decisions. This document summarizes the FinOps resources available to organizations of all sizes to facilitate your FinOps goals, whether FinOps is a task, a job, or a team.
+FinOps is an expansive area with branches that extend out into many cloud management and governance activities. Cost especially is a part of many cloud and business initiatives, like security, resiliency, and adopting cloud-native solutions like AI. And to streamline cloud adoption in a way that prioritizes business value, you need the right guidance to help you make the right data-driven decisions. This document summarizes the FinOps resources available to organizations of all sizes to facilitate your FinOps goals, whether FinOps is a task, a job, or a team.
 
 <br>
 
@@ -21,40 +21,40 @@ FinOps is an expansive topic with branches that extend out into many cloud manag
 
 If you're new to FinOps, there are a few places you can get started:
 
-- [What is FinOps?](overview.md) offers a quick introduction to FinOps.
-- [FinOps on Azure e-book](https://aka.ms/finops/ebook) is an executive walkthrough of the FinOps principles.
-- [Get started with FinOps](/training/modules/get-started-with-finops) is a self-paced FinOps introduction.
+- [What is FinOps?](overview.md) &ndash; Quick introduction to FinOps.
+- [FinOps on Azure e-book](https://aka.ms/finops/ebook) &ndash; Executive walkthrough of the FinOps principles.
+- [Get started with FinOps](/training/modules/get-started-with-finops) &ndash; Self-paced FinOps introduction.
 
 <br>
 
 ## Learn FinOps capabilities
 
-Once you have a solid foundation for what FinOps is, the next step is to understand the FinOps Framework and build a plan for how you'll implement FinOps capabilities based on your organizational priorities.
+Next, learn about the FinOps Framework and build a plan to implement FinOps capabilities based on your organizational priorities.
 
-- [Adopt FinOps on Azure](/training/modules/adopt-finops-on-azure) lets you learn FinOps capabilities at your own pace.
-- [Conduct a FinOps iteration](conduct-iteration.md) helps you plan your first or next iteration.
-- [FinOps review assessment](/assessments/ad1c0f6b-396b-44a4-924b-7a4c778a13d3) helps you review and refine your process with quick wins.
-- [FinOps Framework](framework/finops-framework.md) provides details about how to implement each capability in the Microsoft Cloud.
+- [Adopt FinOps on Azure](/training/modules/adopt-finops-on-azure) &ndash; Learn FinOps capabilities at your own pace.
+- [Conduct a FinOps iteration](conduct-iteration.md) &ndash; Plan your first or next iteration.
+- [FinOps review assessment](/assessments/ad1c0f6b-396b-44a4-924b-7a4c778a13d3) &ndash; Review and refine your FinOps efforts.
+- [FinOps Framework](framework/finops-framework.md) &ndash; Details about how to implement FinOps capabilities in the Microsoft Cloud.
 
 <br>
 
 ## Accelerate cloud productivity
 
-At this point, you should have a plan for which areas you'll focus your efforts on over the coming weeks or months. Now it's time to learn the tools and services you'll need to be successful.
+At this point, you should have a plan for which areas to focus on over the coming weeks or months. Now it's time to learn the tools and services you need to be successful.
 
-- [FinOps Open Cost and Usage Specification (FOCUS)](focus/what-is-focus.md) gets people speaking the same language about cost and usage data.
-- [Interactive product guides](https://aka.ms/finops/guides) help you learn how to use Microsoft products and solutions.
-- [FinOps best practice library](best-practices/library.md) categorizes lessons learned and proven practices by product to maximize your use of the Microsoft Cloud.
+- [FinOps Open Cost and Usage Specification (FOCUS)](focus/what-is-focus.md) &ndash; Accelerate your efforts with data designed for FinOps.
+- [Interactive product guides](https://aka.ms/finops/guides) &ndash; Hands-on walk through of Microsoft products and solutions.
+- [FinOps best practice library](best-practices/library.md) &ndash; Product-specific lessons learned and proven practices to maximize your cloud investment.
 
 <br>
 
 ## Learn more
 
-If you're looking for additional resources, here are a few videos and training resources that might help you dig in further:
+Learn more with these videos and training resources:
 
-- [Intro for cloud migration](https://info.microsoft.com/ww-ondemand-implement-finops-for-azure.html) offers great context when migrating from on-premises.
-- [FinOps Foundation YouTube channel](https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA) includes videos covering topics from the FinOps community.
-- [FinOps certification and training](https://learn.finops.org) is also available to advance your knowledge and get certified.
+- [Intro for cloud migration](https://info.microsoft.com/ww-ondemand-implement-finops-for-azure.html) &ndash; Great context when migrating from on-premises.
+- [FinOps Foundation YouTube channel](https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA) &ndash; Videos from the FinOps community covering each FinOps capability.
+- [FinOps certification and training](https://learn.finops.org) &ndash; Advance your knowledge and get certified.
 
 <br>
 
@@ -62,7 +62,7 @@ If you're looking for additional resources, here are a few videos and training r
 
 Stay up to date on the latest news or engage with the FinOps community:
 
-- [FinOps blog](https://aka.ms/finops/blog) includes the latest FinOps news from Microsoft.
-- [FinOps discussions](https://aka.ms/finops/discuss) is available to help you engage with others in the community.
+- [FinOps blog](https://aka.ms/finops/blog) &ndash; Latest FinOps news from Microsoft.
+- [FinOps discussions](https://aka.ms/finops/discuss) &ndash; Engage with others in the community.
 
 <br>

@@ -3,7 +3,7 @@ title: Data ingestion report
 description: Learn about the Data Ingestion Report, which provides insights into the data ingested into your FinOps hub storage account.
 author: bandersmsft
 ms.author: banders
-ms.date: 11/01/2024
+ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -13,7 +13,12 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Data ingestion report
 
-The **Data ingestion report** provides details about the data that got ingested into your FinOps hub storage account. You can download the Data ingestion report from the [latest release](https://aka.ms/ftk/latest).
+The **Data ingestion report** provides details about the data that got ingested into your FinOps hub storage account.
+
+> [!div class="nextstepaction"]
+> [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
+> [!div class="nextstepaction"]
+> [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 
 <br>
 
@@ -67,14 +72,14 @@ The **Ingestion errors** page summarizes potential issues that were identified a
 
 :::image type="content" source="./media/data-ingestion/ingestion-errors.png" border="true" alt-text="Screenshot of the Ingestion errors page that shows a summary of potential problems." lightbox="./media/data-ingestion/ingestion-errors.png" :::
 
-
 <br>
 
 ## Looking for more?
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 

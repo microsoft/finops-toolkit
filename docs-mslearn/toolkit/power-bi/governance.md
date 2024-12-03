@@ -3,7 +3,7 @@ title: FinOps toolkit Governance report
 description: Summarize cloud governance posture including areas like compliance, security, operations, and resource management in Power BI.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -26,10 +26,16 @@ This report pulls data from:
 - Cost Management exports or FinOps hubs
 - Azure Resource Graph
 
-You can download the Governance report from the [latest release](https://aka.ms/ftk/latest).
-
 > [!NOTE]
 > The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
+
+<!--
+> [!div class="nextstepaction"]
+> [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
+-->
+
+> [!div class="nextstepaction"]
+> [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 
 <br>
 
@@ -61,7 +67,7 @@ The **Policy compliance** page lists policies configured in Azure Policy for the
 
 The **Virtual machines** page lists the virtual machines, disks, and public IP addresses with related right-sizing recommendations.
 
-:::image type="content" source="./media/governance/virtual-machines.png" border="true" alt-text="Screenshot of the Virtual machines page that shows VM details." lightbox="./media/governance/virtual-machines.png" :::
+:::image type="content" source="./media/governance/virtual-machines.png" border="true" alt-text="Screenshot of the Virtual machines page that shows virtual machine details." lightbox="./media/governance/virtual-machines.png" :::
 
 <br>
 
@@ -106,7 +112,8 @@ The **Network security groups** page lists network security groups and network s
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 
@@ -117,11 +124,8 @@ Related resources:
 - [What is FOCUS?](../../focus/what-is-focus.md)
 - [How to convert Cost Management data to FOCUS](../../focus/convert.md)
 - [How to update existing reports to FOCUS](../../focus/mapping.md)
-
-<!-- TODO: Bring in after these resources are moved
-- [Common terms](../../_resources/terms.md)
-- [Data dictionary](../../_resources/data-dictionary.md)
--->
+- [Common terms](../help/terms.md)
+- [Data dictionary](../help/data-dictionary.md)
 
 Related FinOps capabilities:
 

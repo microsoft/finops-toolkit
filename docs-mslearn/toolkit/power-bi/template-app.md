@@ -1,9 +1,9 @@
 ---
-title: EA template app
+title: Cost Management template app for Enterprise Agreement
 description: Learn about the Cost Management template app for Enterprise Agreement accounts, including its features, usage insights, and available reports.
 author: bandersmsft
 ms.author: banders
-ms.date: 11/01/2024
+ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -13,7 +13,9 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Cost Management template app for Enterprise Agreement accounts
 
-The **EA template app** is the PBIX version of the "Cost Management app" in Microsoft AppSource. The template app isn't customizable or downloadable, so we're making the PBIX file available here. We don't recommend using this report as it only works for Enterprise Agreement billing accounts and is no longer being updated. You're welcome to download and customize it as needed. However, you might want to check out the other [FinOps toolkit reports](reports.md), which were updated to cover new scenarios. The [Cost summary](cost-summary.md) and [Rate optimization](rate-optimization.md) reports were both created based on the template app, so you should find most capabilities within those reports. If you feel something is missing, [let us know](https://aka.ms/ftk/ideas)!
+The **EA template app** is the .pbix version of the "Cost Management app" in Microsoft AppSource. The template app isn't customizable or downloadable, so we're making the PBIX file available here. We don't recommend using this report as it only works for Enterprise Agreement billing accounts and is no longer being updated. You're welcome to download and customize it as needed. However, you might want to check out the other [FinOps toolkit reports](reports.md), which were updated to cover new scenarios. The [Cost summary](cost-summary.md) and [Rate optimization](rate-optimization.md) reports were both created based on the template app, so you should find most capabilities within those reports. If you feel something is missing, [let us know](https://aka.ms/ftk/ideas)!
+
+You can download the Cost Management template app from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
 
 <br>
 
@@ -25,11 +27,11 @@ Included reports:
 
 - Account overview
 - Usage by subscriptions and resource groups
-- Top 5 usage drivers
+- Top five usage drivers
 - Usage by services
-- Windows Server AHB usage
-- VM reservation coverage (shared recommendation)
-- VM reservation coverage (single recommendation)
+- Windows Server Hybrid Benefit usage
+- Virtual machine reservation coverage (shared recommendation)
+- Virtual machine reservation coverage (single recommendation)
 - Reservation savings
 - Reservation chargeback
 - Reservation purchases
@@ -51,7 +53,8 @@ In general, we don't plan to make changes to the template app. The following min
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 

@@ -3,7 +3,7 @@ title: FinOps toolkit Rate optimization report
 description: Learn about the Rate Optimization Report in Power BI, which summarizes savings from commitment discounts like reservations and savings plans.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -21,10 +21,10 @@ The **Rate optimization report** summarizes existing and potential savings from 
 - Determine which resources used commitment discounts (also called chargeback).
 - Summarize cost savings from commitment discounts.
 
-You can download the Rate optimization report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
-
-> [!NOTE]
-> The "Commitment discounts" report was renamed to "Rate optimization" in FinOps toolkit 0.4. The purpose and intent of the report remains the same.
+> [!div class="nextstepaction"]
+> [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
+> [!div class="nextstepaction"]
+> [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 
 <br>
 
@@ -39,13 +39,13 @@ This report includes the following filters on each page:
 - Service (for example, virtual machines and SQL database)
 - Currency
 
-A few common KPIs you fill find in this report are:
+A few common key performance indicators (KPIs) in this report are:
 
 - **Effective cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
 - **Utilization** shows the percentage of your current commitments were used during the period.
 - **Commitment savings** shows how much you're saving with commitment discounts.
   > [!IMPORTANT]
-  > Microsoft Cost Management does not include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this.
+  > Microsoft Cost Management does not include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated when using storage reports. Use KQL reports for FinOps hubs with Data Explorer to work around this limitation.
 
 <br>
 
@@ -76,8 +76,8 @@ The **Savings** page summarizes cost savings obtained from commitment discounts.
 
 The chart shows total cost savings for the period split out by commitment type (for example, reservation and savings plan).
 
-> [!WARNING]
-> Microsoft Cost Management does not include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this.
+> [!IMPORTANT]
+> Microsoft Cost Management does not include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated when using storage reports. Use KQL reports for FinOps hubs with Data Explorer to work around this limitation.
 
 :::image type="content" source="./media/rate-optimization/savings.png" border="true" alt-text="Screenshot of the Savings page that shows cost savings from commitment discounts." lightbox="./media/rate-optimization/savings.png" :::
 
@@ -96,9 +96,9 @@ The chart shows the amortized cost for each subscription that used a commitment.
 
 ### Chargeback customization tips
 
-- Consider changing the columns in the table based on your chargeback needs.
-- If you use tags for cost allocation, create custom columns in the CostDetails table that extract their values, then add them as columns into the visual for reporting.
-- Consider bringing in external data for more allocation options.
+- Change the columns in the table based on your chargeback needs.
+- Create custom columns in the CostDetails table that extract tags for cost allocation, then add them as columns into the visual for reporting.
+- Integrate external data for more allocation options.
 
 <br>
 
@@ -187,7 +187,7 @@ The chart shows a summary of the meters that got used the most.
 
 ## Data quality
 
-The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. It can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (for example, missing price and cost values). If you're missing any data, contact support to help raise the priority of these bugs in Cost Management. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
+The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. It can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (for example, missing price and cost values). If you're missing any data, contact support to help raise the priority of these bugs in Cost Management. This page is only available in storage-based reports. If using Data Explorer, use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 :::image type="content" source="./media/rate-optimization/data-quality.png" border="true" alt-text="Screenshot of the Data quality page that shows some of the data used to calculate savings at a cost and unit price level." lightbox="./media/rate-optimization/data-quality.png" :::
 
@@ -197,7 +197,8 @@ The **Data quality** page shows some of the data used to calculate savings at a 
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 
@@ -206,11 +207,8 @@ We'd love to hear about any reports, charts, or general reporting questions you'
 Related resources:
 
 - [What is FOCUS?](../../focus/what-is-focus.md)
-
-<!-- TODO: Bring in after these resources are moved
-- [Common terms](../../_resources/terms.md)
-- [Data dictionary](../../_resources/data-dictionary.md)
--->
+- [Common terms](../help/terms.md)
+- [Data dictionary](../help/data-dictionary.md)
 
 Related FinOps capabilities:
 
@@ -227,4 +225,3 @@ Related solutions:
 - [FinOps toolkit open data](../open-data.md)
 
 <br>
-

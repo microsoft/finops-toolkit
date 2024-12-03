@@ -22,10 +22,16 @@ This report pulls data from:
 - Cost Management exports or FinOps hubs
 - Azure Resource Graph
 
-You can download the Workload optimization report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
-
 > [!NOTE]
 > The Workload optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
+
+<!--
+> [!div class="nextstepaction"]
+> [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
+-->
+
+> [!div class="nextstepaction"]
+> [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 
 <br>
 
@@ -68,7 +74,8 @@ The chart shows the cost of each disk over time. The table shows the disks with 
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 
@@ -91,5 +98,3 @@ Related solutions:
 - [FinOps toolkit open data](../open-data.md)
 
 <br>
-
-

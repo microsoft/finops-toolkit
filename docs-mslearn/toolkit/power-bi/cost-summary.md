@@ -3,7 +3,7 @@ title: FinOps toolkit Cost summary report
 description: Learn about the Cost Summary Report in Power BI to identify top cost contributors, review cost changes over time, and summarize savings.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -20,7 +20,12 @@ The **Cost summary report** provides a general overview of cost and savings with
 - Build a chargeback report.
 - Summarize cost savings from negotiated and commitment discounts.
 
-You can download the Cost summary report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
+> [!div class="nextstepaction"]
+> [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
+> [!div class="nextstepaction"]
+> [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
+
+<br>
 
 > [!NOTE]
 > This article contains images showing example data. Any price data is for test purposes only.
@@ -169,7 +174,7 @@ The **Charge breakdown** page shows a breakdown of all charges using the followi
 
 ## Raw data
 
-The **Raw data** page shows a table with most columns to help you explore FOCUS columns. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
+The **Raw data** page shows a table with most columns to help you explore FOCUS columns. This page is only available in storage-based reports. If using Data Explorer, use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 :::image type="content" source="./media/cost-summary/raw-data.png" border="true" alt-text="Screenshot of the Raw data page that shows a table with most FOCUS columns." lightbox="./media/cost-summary/raw-data.png" :::
 
@@ -177,7 +182,7 @@ The **Raw data** page shows a table with most columns to help you explore FOCUS 
 
 ## Data quality
 
-The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
+The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions. This page is only available in storage-based reports. If using Data Explorer, use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 :::image type="content" source="./media/cost-summary/data-quality.png" border="true" alt-text="Screenshot of the Data quality page that shows several data categories." lightbox="./media/cost-summary/data-quality.png" :::
 
@@ -187,18 +192,16 @@ The **Data quality** page is for data validation purposes only; however, it can 
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Share feedback](https://aka.ms/ftk/ideas)
 
 ## Related content
 
 Related resources:
 
 - [What is FOCUS?](../../focus/what-is-focus.md)
-
-<!-- TODO: Uncomment when files are added
-- [Common terms](../../_resources/terms.md)
-- [Data dictionary](../../_resources/data-dictionary.md)
--->
+- [Common terms](../help/terms.md)
+- [Data dictionary](../help/data-dictionary.md)
 
 Related FinOps capabilities:
 

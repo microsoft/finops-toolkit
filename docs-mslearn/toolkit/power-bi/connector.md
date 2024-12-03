@@ -3,7 +3,7 @@ title: Cost Management connector report
 description: Understand the Power BI report for the Cost Management connector, including cost overviews, commitment discounts, and savings insights.
 author: bandersmsft
 ms.author: banders
-ms.date: 11/01/2024
+ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -92,8 +92,8 @@ This report includes the following pages:
 
 Here's a list of known issues with the Cost Management connector report:
 
-- `ChargeSubcategory` for uncommitted usage shows "On-Demand". This value should be null. (Applies to all Cost Management data.)
-- `InvoiceIssuerName` doesn't account for indirect Enterprise Agreement and Microsoft Customer Agreement partners. The value appears as "Microsoft". (Applies to all Cost Management data.)
+- `ChargeSubcategory` for uncommitted usage shows **On-Demand**. This value should be null. (Applies to all Cost Management data.)
+- `InvoiceIssuerName` doesn't account for indirect Enterprise Agreement and Microsoft Customer Agreement partners. The value appears as **Microsoft**. (Applies to all Cost Management data.)
 - `ListUnitPrice` and `ListCost` can be 0 when the data isn't available. (Applies to all Cost Management data.)
 - `PricingUnit` and `UsageUnit` both include the pricing block size. Exports (and FinOps hubs) separate the block size into `x_PricingBlockSize`.
 - `SkuPriceId` isn't set due to the connector not having the data to populate the value.
@@ -114,7 +114,8 @@ If you have feedback about FOCUS, [create an issue in the FOCUS repository](http
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 
@@ -147,5 +148,3 @@ Related solutions:
 - [FinOps toolkit open data](../open-data.md)
 
 <br>
-
-

@@ -3,7 +3,7 @@ title: Set up Power BI reports
 description: Learn how to set up Power BI FinOps reports using the FinOps toolkit, customize visuals, and connect to your cost data for detailed analysis.
 author: bandersmsft
 ms.author: banders
-ms.date: 11/01/2024
+ms.date: 12/03/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -35,11 +35,11 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
 
 2. Download and open the desired report in Power BI Desktop.
 
-   | Data source                                | Download                                                                                                                             | Notes                                                                                                    |
-   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring more than $2M per month or more than 13 months of data.                      |
-   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring more than $2M per month.                                                 |
-   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring more than $1M in total cost or accounts that contain savings plan usage. |
+   | Data source                                | Download                                                                                                                             | Notes                                                                                                           |
+   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring more than $2 million per month or more than 13 months of data.                      |
+   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring more than $2 million per month.                                                 |
+   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring more than $1 million in total cost or accounts that contain savings plan usage. |
 
 3. Open each report and specify the applicable report parameters:
 
@@ -65,18 +65,18 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
        2. Select **Settings** > **Endpoints** in the menu.
        3. Copy the **Data Lake Storage** URL.
        4. Append the container and export path, if applicable.
-   - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, all data in storage will be included.
-   - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, all data in storage will be included.
+   - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, the report will include all data in storage.
+   - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, the report will include all data in storage.
      > [!WARNING]
-     > [Enable incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $2M of raw cost details. Power BI reports can only support $2M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2M/month for a total of ~$26M in raw cost details.
+     > [Enable incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $2 million of raw cost details. Power BI reports can only support $2 million of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2 million per month for a total of ~$26 million in raw cost details.
 
 4. Authorize each data source:
 
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub database.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
    - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
-   - **https://ccmstorageprod...** &ndash; Anonymous access. This is used for reservation size flexibility data.
-   - **https://github.com/...** &ndash; Anonymous access. This is used for FinOps toolkit open data files.
+   - **https://ccmstorageprod...** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
+   - **https://github.com/...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
 
@@ -145,9 +145,7 @@ At this point, you have the core data from the FinOps toolkit reports, extended 
 
 Some columns and measures depend on one another. You can ignore those errors as you copy each formula. Each resolves itself when the dependent column or measure is added.
 
-<!-- TODO: Uncomment when files are added
-For details about the columns available in Power BI, refer to the [data dictionary](../../_resources/data-dictionary.md).
--->
+For details about the columns available in Power BI, refer to the [data dictionary](../help/data-dictionary.md).
 
 <br>
 
@@ -183,9 +181,7 @@ If using exports or FinOps hubs, you use the Azure Data Lake Storage Gen2 connec
 
 For more information about connecting to Azure Data Lake Storage Gen2, see [Connect to Azure Data Lake Storage Gen2 from Power Query Desktop](/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop).
 
-<!-- TODO: Uncomment when files are added
-For details about the columns available in storage, refer to the [data dictionary](../../_resources/data-dictionary.md).
--->
+For details about the columns available in storage, refer to the [data dictionary](../help/data-dictionary.md).
 
 <br>
 
@@ -230,66 +226,7 @@ The Cost Management connector provides separate queries for actual (billed) and 
 
 If interested in custom columns and measures, see [Copy queries from a toolkit report](#copy-queries-from-a-toolkit-report) for required steps.
 
-<!--
-See [Queries and datasets](#️-queries-and-datasets) below for additional details.
--->
-
 <br>
-
-<!--
-## Queries and datasets
-
-FinOps toolkit reports offer multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use CostDetails or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
-
-<blockquote class="warning" markdown="1">
-   _FinOps hubs will eventually adopt the [FOCUS standard](../../focus/what-is-focus.md) when available._
-</blockquote>
-
-### CostDetails
-
-The **CostDetails** dataset is a reference to the latest version of the schema. All visuals in FinOps hub reports are connected to this latest version. If you do not want to point to the latest version, you can edit the CostDetails query in the Power Query editor and change it to reference a different schema version.
-
-### CMExports
-
-The CMExports dataset uses the raw column names from Cost Management exports. This mostly aligns to the CMConnector schema, but with a few small differences. See [CMConnector](#cmconnector) for details.
-
-This dataset is hidden from the list of tables. To see it, right-click any table and select **Unhide all**.
-
-### CMConnector
-
-The CMConnector dataset uses the original schema from the "Azure Cost Management" Power BI connector. This dataset is only provided for backwards compatibility.
-
-Internally, the CMConnector dataset starts with CMExports data and reverses the schema changes:
-
-- **BillingCurrencyCode** renamed to **BillingCurrency**.
-- **CostInBilling** renamed to **Cost**.
-- **InvoiceSectionName** renamed to **InvoiceSection**.
-- **IsAzureCreditEligible** renamed to **IsCreditEligible** and changed from a boolean to a string (`True` or `False`).
-- **ProductName** renamed to **Product**.
-
-Note the following columns are new in this release. These columns were not previously present in the Cost Management connector:
-
-- **CostAllocationRuleName**
-- **benefitId**
-- **benefitName**
-- **Month**
-- **CPUHours**
-- **CommitmentNameUnique**
-- **ResourceNameUnique**
-- **ResourceGroupNameUnique**
-- **SubscriptionNameUnique**
-- **CommitmentType**
-- **CommitmentUtilizationAmount**
-- **CommitmentUtilizationPotential**
-- **RetailPrice**
-- **RetailCost**
-- **OnDemandCost**
-- **CommitmentSavings**
-- **DiscountSavings**
-- **NegotiatedSavings**
-
-<br>
--->
 
 ## Related content
 
