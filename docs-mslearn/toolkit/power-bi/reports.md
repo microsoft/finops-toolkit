@@ -31,7 +31,7 @@ The FinOps toolkit includes reports that connect to different data sources. We r
 - [Cloud policy and governance](governance.md) – Summarize cloud governance posture including areas like compliance, security, operations, and resource management.
 - [Data ingestion](data-ingestion.md) – Provides insights into your data ingestion layer.
 
-If you need to monitor more than $2 million in spend, we generally recommend using Kusto Query Language (KQL) reports that connect to [FinOps hubs](../hubs/finops-hubs-overview.md) with Azure Data Explorer. As of November 2024, only the Cost summary and Rate optimization reports connect to Data Explorer. More reports will come in future updates. Organizations who need other reports can continue to connect to the underlying hub storage account.
+If you need to monitor more than $2 million in spend, we generally recommend using Kusto Query Language (KQL) reports that connect to [FinOps hubs](../hubs/finops-hubs-overview.md) with Azure Data Explorer. As of November 2024, only the Cost summary, Rate optimization, and Data ingestion reports connect to Data Explorer. Organizations who need other reports can continue to connect to the underlying hub storage account.
 
 In addition, the following reports use the Cost Management connector for Power BI to connect to your data. While the connector isn't recommended due to performance and scalability, these reports are also available for Enterprise Agreement (EA) and Microsoft Customer Agreement (MCA) accounts.
 

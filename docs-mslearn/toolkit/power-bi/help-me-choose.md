@@ -30,7 +30,7 @@ Use the following list as a quick guide for selecting the most appropriate data 
 - For costs under $2 million per month (~$26 million total)² that need savings plan data, you can connect to raw exports in Azure Data Lake Storage Gen2.
 - For costs under $2 million per month (~$26 million total)² that need managed exports or to connect to multiple tenants, you can connect to FinOps hubs storage.
 - For costs over $2 million per month or that need advanced, high performance analytics, you can connect to FinOps hubs with Data Explorer.
-  - While not directly supported by FinOps toolkit reports at this time, you can build reports that connect to data in Microsoft Fabric. Direct support will be added in a future release.
+  - While not directly supported by FinOps toolkit reports at this time, you can build reports that connect to data in Microsoft Fabric.
 
 _¹ Power BI Pro can handle under $1 million of raw cost data. Power BI Premium can handle ~$2 million._
 
@@ -86,7 +86,7 @@ _² The Cost Management connector for Power BI doesn't support incremental refre
 
 _³ The Cost Management connector uses an old API version and doesn't include details for some features, like savings plans. Use exports or FinOps hubs for the latest version with all details._
 
-_⁴ EA billing scopes can be exported to any tenant today. Sign in to that tenant with an account that has access to the billing scope and target storage account to configure exports. Other scopes (subscriptions, management groups, and resource groups) and all Microsoft Customer Agreement (MCA) scopes are only supported in the tenant they exist in today. Supported using a "remote hubs" feature is in development._
+_⁴ EA billing scopes can be exported to any tenant today. Sign in to that tenant with an account that has access to the billing scope and target storage account to configure exports. Subscriptions, resource groups, and Microsoft Customer Agreement (MCA) billing scopes are only supported in the tenant they exist in today but can be integrated using the FinOps hubs "remote hubs" feature that pushes data to a primary hub in another tenant._
 
 If you're unsure where to start, we recommend downloading the Power BI dashboards and connecting them to Cost Management exports in storage. You can explore reports and see how they work with your data. Alternatively, you can open the demo reports using the provided sample data.
 

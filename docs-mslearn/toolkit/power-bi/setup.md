@@ -87,32 +87,29 @@ If you run into any issues syncing your data, see [Troubleshooting Power BI repo
 Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. To connect Power BI reports to your data via SAS tokens:
 
 1. Generate the SAS token with required permissions:
-   - Navigate the FinOps hub storage account in the Azure portal.
-   - Select **Security + Networking** > **Shared access signature** in the menu on the left.
-   - Under **Allowed resource types**, select `Container` and `Object`.
-   - Under **Allowed permissions**, select **Read, List**.
-   - Provide the start and expiration date range as desired.
-   - Keep the remaining default values or update as desired.
-   - Select **Generate SAS token and URL**.
-   - Copy the generated token.
+   1. Navigate the FinOps hub storage account in the Azure portal.
+   2. Select **Security + Networking** > **Shared access signature** in the menu on the left.
+   3. Under **Allowed resource types**, select `Container` and `Object`.
+   4. Under **Allowed permissions**, select **Read, List**.
+   5. Provide the start and expiration date range as desired.
+   6. Keep the remaining default values or update as desired.
+   7. Select **Generate SAS token and URL**.
+   8. Copy the generated token.
 
    :::image type="content" source="./media/setup/storage-account-sas.png" border="true" alt-text="Screenshot showing the SAS token configuration in the Azure portal." lightbox="./media/setup/storage-account-sas.png" :::
 
-2. Configure SAS token access in Power BI:
-   - Open the report in Power BI Desktop.
-   - Select **Transform data** > **Data Source Settings** in the ribbon.
-   - Select **Edit permissions** at the bottom of the dialog.
-   - Select **Edit** below the credentials.
-
-   :::image type="content" source="./media/setup/data-source-permissions.png" border="true" alt-text="Screenshot of the data source settings within Transform data." lightbox="./media/setup/data-source-permissions.png" :::
-
-   - Select the **Shared access signature** tab.
-   - Paste the copied SAS token from the Azure portal.
-   - Select **Save**.
-   - Select **Close**.
-   - Select **Apply and Close** in the ribbon.
-
-   :::image type="content" source="./media/setup/sas-token.png" border="true" alt-text="Screenshot showing the SAS token dialog." lightbox="./media/setup/sas-token.png" :::
+1. Configure SAS token access in Power BI:
+   1. Open the report in Power BI Desktop.
+   2. Select **Transform data** > **Data Source Settings** in the ribbon.
+   3. Select **Edit permissions** at the bottom of the dialog.
+   4. Select **Edit** below the credentials.
+      :::image type="content" source="./media/setup/data-source-permissions.png" border="true" alt-text="Screenshot of the data source settings within Transform data." lightbox="./media/setup/data-source-permissions.png" :::
+   5. Select the **Shared access signature** tab.
+   6. Paste the copied SAS token from the Azure portal.
+   7. Select **Save**.
+   8. Select **Close**.
+   9. Select **Apply and Close** in the ribbon.
+      :::image type="content" source="./media/setup/sas-token.png" border="true" alt-text="Screenshot showing the SAS token dialog." lightbox="./media/setup/sas-token.png" :::
 
 <br>
 
@@ -213,16 +210,16 @@ The Cost Management connector provides separate queries for actual (billed) and 
 16. Delete the **Usage details amortized** query.
 17. Select **Close & Apply** in the toolbar for both reports.
 18. Review each page to ensure the visuals are still working as expected. Update any references to old columns or measures to the new names.
-    - Start at the report level:
-      - In the **Data** pane, expand each custom table and check custom columns and measures.
-      - In the **Filters** pane, check **Filters on all pages**.
-    - Then check each page:
-      - In the **Filters** pane, check **Filters on this page**.
-    - Then check each visual on each page:
-      - In the **Filters** pane, check **Filters on this visual**.
-      - In the **Visualizations** pane, check **Fields**.
-        > [!NOTE]
-        > If the column name was customized and you aren't sure what the original name was, right-click the field and select **Rename for this visual**, then delete the name, and press `Enter` to reset the name back to the original column name.
+    1. Start at the report level:
+       - In the **Data** pane, expand each custom table and check custom columns and measures.
+       - In the **Filters** pane, check **Filters on all pages**.
+    2. Then check each page:
+       - In the **Filters** pane, check **Filters on this page**.
+    3. Then check each visual on each page:
+       - In the **Filters** pane, check **Filters on this visual**.
+       - In the **Visualizations** pane, check **Fields**.
+         > [!NOTE]
+         > If the column name was customized and you aren't sure what the original name was, right-click the field and select **Rename for this visual**, then delete the name, and press `Enter` to reset the name back to the original column name.
 
 If interested in custom columns and measures, see [Copy queries from a toolkit report](#copy-queries-from-a-toolkit-report) for required steps.
 

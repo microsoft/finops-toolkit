@@ -70,18 +70,30 @@ This report includes the following pages:
 - **Regions** includes a breakdown of cost by region with a map showing the cost from each region. The map shows approximate locations and isn't exact.
   > [!NOTE]
   > The Cost Management connector report performs additional data cleansing for the Region column to better align with Azure regions and may not match values you see in actual and amortized datasets in Cost Management.
-  - **Charge breakdown** shows a breakdown of all charges using the following information hierarchy:
+- **Charge breakdown** shows a breakdown of all charges using the following information hierarchy:
+  - ChargeCategory
+  - ChargeSubcategory
+  - PricingCategory
+  - x_PricingSubcategory
+  - ServiceCategory
+  - ServiceName
+  - x_SkuMeterCategory
+  - x_SkuMeterSubcategory
+  - x_SkuMeterName
+  - SubAccountName
+  - x_ResourceGroupName
+  - ResourceName
 - **Prices** shows the prices for all products that were used during the period.
 - **Hybrid Benefit** shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs).
 - **Purchases** shows a list of products that were purchased during the period.
 - **Commitments** serves 3 primary purposes:
-  1. Determine if there are any under-utilized commitments.
-  2. Facilitate chargeback at a subscription, resource group, or resource level.
-  3. Summarize cost savings obtained from commitment discounts.
+  - Determine if there are any under-utilized commitments.
+  - Facilitate chargeback at a subscription, resource group, or resource level.
+  - Summarize cost savings obtained from commitment discounts.
 - **Commitment savings** summarizes cost savings obtained from commitment discounts. Commitments get grouped by program and service.
   > [!WARNING]
   > Microsoft Cost Management doesn't include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this issue.
-  - **Commitment chargeback** helps facilitate chargeback at a subscription, resource group, or resource level. Use the table for chargeback.
+- **Commitment chargeback** helps facilitate chargeback at a subscription, resource group, or resource level. Use the table for chargeback.
 - There are two **Reservation coverage** pages that help you identify any places where you could potentially save even more based on your historical usage patterns with virtual machine reservations within a single subscription or shared across all subscriptions.
 - **Raw data** shows a table with most columns to help you explore FOCUS columns.
 - **Data quality** is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions.
