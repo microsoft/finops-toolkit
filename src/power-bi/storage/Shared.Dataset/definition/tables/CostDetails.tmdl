@@ -1399,7 +1399,7 @@ table CostDetails
 				            0.0, each if Text.Contains([x_SourceChanges], "MissingListCost")            then null else [ListCost],            Replacer.ReplaceValue, {"ListCost"}),
 				            0.0, each if Text.Contains([x_SourceChanges], "MissingListUnitPrice")       then null else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
 				            // Fix savings plan purchases
-				            each [EffectiveCost], each if [ChargeCategory] = "Purchase" and ([CommitmentDiscountId] = "" or [CommitmentDiscountId] = null) then [EffectiveCost] else 0.0, Replacer.ReplaceValue, {"EffectiveCost"}),
+				            each [EffectiveCost], each if [ChargeCategory] = "Purchase" and [CommitmentDiscountId] <> "" and [CommitmentDiscountId] <> null then 0.0 else [EffectiveCost], Replacer.ReplaceValue, {"EffectiveCost"}),
 				            // Fix inconsistent Microsoft x_SkuTerm values
 				            "1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
 				            "3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),
