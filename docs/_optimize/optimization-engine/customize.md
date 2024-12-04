@@ -29,7 +29,18 @@ By default, the Azure Automation Managed Identity is assigned the Reader role on
 
 In the context of augmented VM right-size recommendations, you may have your VMs reporting to multiple workspaces. If you need to include other workspaces - besides the main one AOE is using - in the recommendations scope, you just have to add their workspace IDs to the `AzureOptimization_RightSizeAdditionalPerfWorkspaces` variable (see more details in [Configuring workspaces](./configuring-workspaces.md)).
 
-If you are a multi-tenant customer, you can extend the reach of AOE to a tenant other than the one where it was deployed. To achieve this, you must ensure the following pre-requisites:
+If you are a multi-tenant customer, you can extend the reach of AOE to a tenant other than the one where it was deployed. To achieve this, you have two options, each with its pros and cons:
+
+| Service Principal in secondary tenant           | Azure Lighthouse deployment        |
+| ----------------------------------------------- | ---------------------------------- |
+| Provides the widest feature coverage (see limitations below) | Provides an almost complete feature coverage (see limitations below) |
+| Uses a less secure and unmanaged authentication option, based on secrets | Provides robust authentication, reusing the engine's managed identity |
+| Does not support reusing Perf metrics from Log Analytics workspaces in the secondary tenant, when augmenting VM right-size recommendations | Does not include support for Microsoft Entra objects, impacting the completeness of the Identities and Roles workbook and Microsoft Entra ID-related recommendations. The Policy Compliance workbook overview tab does not bring data from the secondary tenant; only the detailed policy analysis is supported. |
+| Implementation is based on the execution of a helper PowerShell script | Implementation is based on the deployment of an Azure Resource Manager template |
+
+### Multi-tenant with Service Principal authentication
+
+To widen the engine scope using the Service Principal-based approach, you must ensure the following pre-requisites:
 
 * Create a service principal (App registration) and a secret in the secondary tenant.
 * Grant the required permissions to the service principal in the secondary tenant, namely **Reader** in Azure subscriptions/management groups and **Global Reader** in Entra ID.
@@ -39,6 +50,18 @@ If you are a multi-tenant customer, you can extend the reach of AOE to a tenant 
 ```powershell
 ./Register-MultitenantAutomationSchedules.ps1 -AutomationAccountName <AOE automation account> -ResourceGroupName <AOE resource group> -TargetSchedulesSuffix <suffix to append to every new job schedules, e.g., Tenant2> -TargetTenantId <secondary tenant GUID> -TargetTenantCredentialName <name of the Automation credential created in the previous step> [-TargetSchedulesOffsetMinutes <offset in minutes relative to original schedules, defaults to 0>] [-TargetAzureEnvironment <AzureUSGovernment|AzureGermanCloud|AzureCloud>] [-ExcludedRunbooks <An array of runbook names to exclude from the process>] [-IncludedRunbooks <An array of runbook names to include in the process>]
 ```
+
+### Multi-tenant with Azure Lighthouse
+
+To widen the engine scope using the Azure Lighthouse-based approach, you must ensure the following pre-requisites:
+
+* Prepare the Azure Resource Manager template to be deployed in the secondary tenant. You can reuse as-is the reference template in our repository (`lighthouse-template.json` file available in the [AOE root folder](https://aka.ms/AzureOptimizationEngine/code)).
+* If you're deploying the template for a single subscription, you just have to follow the steps described [here](https://learn.microsoft.com/azure/lighthouse/how-to/onboard-customer#deploy-the-azure-resource-manager-template), by using the reference template above and specifying the template parameters values (as a separate parameters file or directly in the Azure portal interface).
+* If you need to deploy at scale to multiple subscriptions, you can leverage Azure Policy, by following the instructions available [here](https://learn.microsoft.com/azure/lighthouse/how-to/onboard-management-group) and adjusting the policy definition code to follow the reference template above.
+* No matter the deployment approach, the template parameters you must provide are the following:
+    * `managedByTenantId` - Microsoft Entra tenant ID of the tenant where AOE was deployed in
+    * `principalId` - Microsoft Entra object id of the AOE automation account system managed identity
+    * `principalIdDisplayName` - AOE automation account name 
 
 <br>
 
