@@ -28,6 +28,14 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 <br>
 
+## 🆕 What's new in FinOps toolkit 0.7
+
+November introduces a few highly anticipated updates, like support for large datasets at scale with Azure Data Explorer, EA and MCA cost savings, private endpoints, and infrastructure encryption in FinOps hubs; more accurate effective cost in Power BI; and more!
+
+[See all changes](https://aka.ms/ftk/changes){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
 ## 🧰 Available tools
 
 {% include tools.md all="1" %}
@@ -189,6 +197,7 @@ All the main changes are tracked in the changelog. For additional details, refer
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/RolandKrummenacher"><img src="https://avatars.githubusercontent.com/u/1803486?v=4?s=100" width="100px;" alt="Roland Krummenacher"/><br /><sub><b>Roland Krummenacher</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3ARolandKrummenacher" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/lmoscinski"><img src="https://avatars.githubusercontent.com/u/135173807?v=4?s=100" width="100px;" alt="lmoscinski"/><br /><sub><b>lmoscinski</b></sub></a><br /><a href="#design-lmoscinski" title="Design">🎨</a></td>
     </tr>
   </tbody>
 </table>
