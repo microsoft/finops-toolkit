@@ -5,6 +5,12 @@ title: ''
 labels: "Needs: Triage \U0001F50D, Type: New Tool \U26A1"
 assignees: ''
 ---
+## Thank You for Contributing!  
+Thank you for taking the time to propose a new tool for the FinOps toolkit. 🙌  
+
+As part of this process, once the tool is merged, you’ll take on the important role of its technical lead. To better understand what this entails, please review the [technical lead responsibilities here](https://github.com/microsoft/finops-toolkit/blob/dev/docs-wiki/Advisory-council.md).  
+
+- [ ] I acknowledge the responsibilities of a technical lead and agree to serve as the technical lead for this tool once it is merged.  
 
 ## New Tool Submission
 
