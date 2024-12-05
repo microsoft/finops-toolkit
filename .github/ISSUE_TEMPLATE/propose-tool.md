@@ -8,27 +8,27 @@ assignees: ''
 
 ## New Tool Submission
 
-## 1. Tool Overview (Mandatory)
+## 1. Tool overview (Mandatory)
 **Tool Name:**
 _Provide a clear, descriptive name for the tool._  
 
 Description:
 _Summarize the purpose and functionality of the tool._  
 
- Use Case:
+ Use case:
 _What problem does this tool solve? Who will benefit from it?_  
 
-### Contributor Information:
+### Contributor information:
 - **Name**: [Your Name]
 - **Contact Email**: [Your Email Address]
 
 ---
 
-## 2. Proposal Details (Mandatory)
+## 2. Proposal details (Mandatory)
 **Proposed Features:**  
 _List the key features and capabilities of the tool._  
 
-**Expected Impact:**  
+**Expected impact:**  
 _How will this tool enhance workflows, save costs, or add value?_  
 
 **Services used:**
@@ -38,19 +38,19 @@ _What are the Azure services needed to deploy this tool?_
 _List any dependencies, such as other tools, data sources, or teams._  
 
 ---
-3. Development Plan (To be completed by tech lead)
+## 3. Development plan (To be completed by tech lead)
 
-**Tech Lead:**  
+**Tech lead:**  
 _Name the tech lead overseeing this tool's onboarding._  
 
-**Initial Tasks:**  
+**Initial tasks:**  
 _Outline the first steps or tasks for development._  
 
 
 ---
 
-## 4. Supporting Information (To be completed by tech lead)
-**Mockups or Diagrams:**  
+## 4. Supporting information (To be completed by tech lead)
+**Mockups or diagrams:**  
 _Include visual representations, if available._  
 ```[tasklist]
 - [ ] Diagram included
@@ -58,8 +58,8 @@ _Include visual representations, if available._
 ---
 
 
-## 5. Progress Tracking (To be completed by tech lead)
-**Status Updates:**  
+## 5. Progress tracking (To be completed by tech lead)
+**Status updates:**  
 _This section will be updated by the tech lead throughout the development process._  
 ```[tasklist]
 - [ ] Discovery meeting completed  
