@@ -38,6 +38,7 @@ If you are a multi-tenant customer, you can extend the reach of AOE to a tenant 
 | Does not support reusing Perf metrics from Log Analytics workspaces in the secondary tenant, when augmenting VM right-size recommendations | Does not include support for Microsoft Entra objects, impacting the completeness of the Identities and Roles workbook and Microsoft Entra ID-related recommendations. The Policy Compliance workbook overview tab does not bring data from the secondary tenant; only the detailed policy analysis is supported. |
 | Implementation is based on the execution of a helper PowerShell script | Implementation is based on the deployment of an Azure Resource Manager template |
 | More scalable coverage of secondary tenant, just by granting permissions to the service principal on a higher-level scope | Deployment is done per subscription in secondary tenant; needs Azure Policy to scale |
+| Less cost-effective, as job schedules are duplicated for the secondary tenant | More cost-effective, as existing job schedules will automatically cover the secondary tenant |
 
 ### Multi-tenant with service principal in secondary tenant
 
