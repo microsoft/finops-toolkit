@@ -31,16 +31,17 @@ In the context of augmented VM right-size recommendations, you may have your VMs
 
 If you are a multi-tenant customer, you can extend the reach of AOE to a tenant other than the one where it was deployed. To achieve this, you have two options, each with its pros and cons:
 
-| Service Principal in secondary tenant           | Azure Lighthouse deployment        |
+| Service principal in secondary tenant           | Azure Lighthouse deployment        |
 | ----------------------------------------------- | ---------------------------------- |
 | Provides the widest feature coverage (see limitations below) | Provides an almost complete feature coverage (see limitations below) |
 | Uses a less secure and unmanaged authentication option, based on secrets | Provides robust authentication, reusing the engine's managed identity |
 | Does not support reusing Perf metrics from Log Analytics workspaces in the secondary tenant, when augmenting VM right-size recommendations | Does not include support for Microsoft Entra objects, impacting the completeness of the Identities and Roles workbook and Microsoft Entra ID-related recommendations. The Policy Compliance workbook overview tab does not bring data from the secondary tenant; only the detailed policy analysis is supported. |
 | Implementation is based on the execution of a helper PowerShell script | Implementation is based on the deployment of an Azure Resource Manager template |
+| More scalable coverage of secondary tenant, just by granting permissions to the service principal on a higher-level scope | Deployment is done per subscription in secondary tenant; needs Azure Policy to scale |
 
-### Multi-tenant with Service Principal authentication
+### Multi-tenant with service principal in secondary tenant
 
-To widen the engine scope using the Service Principal-based approach, you must ensure the following pre-requisites:
+To widen the engine scope using the service principal-based approach, you must ensure the following pre-requisites:
 
 * Create a service principal (App registration) and a secret in the secondary tenant.
 * Grant the required permissions to the service principal in the secondary tenant, namely **Reader** in Azure subscriptions/management groups and **Global Reader** in Entra ID.
