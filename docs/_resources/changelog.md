@@ -63,23 +63,6 @@ Legend:
 
 ## 🔄️ Unreleased
 
-🏦 FinOps hubs
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 1. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 1. ETL pipelile – Add support for parquet files created by Cost Management exports.
-
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> - General
->   1. Populate missing prices.
-
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -91,6 +74,10 @@ Legend:
 <br><a name="latest"></a>
 
 ## 🪛 v0.7 Update 1
+
+<sup>Released December 9, 2024</sup>
+
+This release is a minor patch to update documentation and fix Power BI storage reports that are reporting all usage as $0. These files were updated in the existing 0.7 release. We are documenting this as a new patch release for transparency. If you downloaded the **PowerBI-storage.zip** file between December 1-9, 2024, please update to the latest version.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -105,9 +92,17 @@ Legend:
 > 1. Added the Pricing units open dataset to support price sheet data cleanup.
 > 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
 >
+> 🛠️ Fixed:
+>
+> 1. Corrected the EffectiveCost for usage records.
+> 2. Updated the download links in Power BI docs to the new files:
+>    - PowerBI-demo.zip for demo-only reports (not intended for connecting to customer data)
+>    - PowerBI-storage.zip for reports that connect to raw Cost Management exports or FinOps hubs storage.
+>    - PowerBI-kql.zip for reports that connect to FinOps hubs with Data Explorer.
+>
 > 🚫 Deprecated:
 >
-> 1. Cosmetic and informational transforms will be disabled by default in 0.8 and removed on or after June 1, 2025 to improve Power BI performance. This includes:
+> 1. Cosmetic and informational transforms will be disabled by default in 0.8 and removed on or after June 1, 2025 to improve Power BI performance. If you rely on any of these changes, please let us know by [creating an issue in GitHub](https://aka.ms/ftk/ideas) to request an exemption. This includes:
 >    - Support for FOCUS 1.0 preview. Please create new FOCUS 1.0 exports and backfill historical data.
 >    - Fixing `x_SkuTerm` for MCA so it's the number of months rather than a display string.
 >    - Tracking changes in the `x_SourceChanges` column.
@@ -118,7 +113,7 @@ Legend:
 
 ## 🚚 v0.7
 
-<sup>Released November 2024</sup>
+<sup>Released December 1, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
