@@ -29,7 +29,7 @@ By default, the Azure Automation Managed Identity is assigned the Reader role on
 
 In the context of augmented VM right-size recommendations, you may have your VMs reporting to multiple workspaces. If you need to include other workspaces - besides the main one AOE is using - in the recommendations scope, you just have to add their workspace IDs to the `AzureOptimization_RightSizeAdditionalPerfWorkspaces` variable (see more details in [Configuring workspaces](./configuring-workspaces.md)).
 
-If you are a multi-tenant customer, you can extend the reach of AOE to a tenant other than the one where it was deployed. To achieve this, you have two options, each with its pros and cons:
+If you have multiple Entra ID directories (also known as tenants), you can extend the reach of AOE to a tenant other than the one where it was deployed. To achieve this, you have two options, each with its pros and cons:
 
 | Service principal in secondary tenant           | Azure Lighthouse deployment        |
 | ----------------------------------------------- | ---------------------------------- |
