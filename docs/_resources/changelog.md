@@ -116,6 +116,10 @@ This release is a minor patch to update documentation and fix Power BI storage r
 >    - PowerBI-storage.zip for reports that connect to raw Cost Management exports or FinOps hubs storage.
 >    - PowerBI-kql.zip for reports that connect to FinOps hubs with Data Explorer.
 
+<blockquote class="important" markdown="1">
+  _Some have reported "file not found" and ">=" errors in storage reports. Both issues seem to be transient and resolve themselves within a few hours. We have not been able to reproduce either issue and cannot pinpoint the source. If you are experiencing either, please [submit an issue](https://aka.ms/ftk/ideas)._
+</blockquote>
+
 <br>
 
 ## 🚚 v0.7
