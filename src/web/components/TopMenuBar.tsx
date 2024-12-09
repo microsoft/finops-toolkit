@@ -50,19 +50,19 @@ function TopMenuBar() {
   const classes = useStyles();
 
   return (
-      <div className={classes.fullWidthContainer}>
-        <div className={classes.commandBar}>
-          <div className={classes.logoTextContainer}>
-            <Image src="logo-windows.png" alt="Microsoft Logo" className={classes.logo} />
-            <div className={classes.textContainer}>
-              <Text size={300} weight="medium">
-                FinOps toolkit
-              </Text>
-            </div>
-            <Divider vertical className={classes.divider} />
+    <div className={classes.fullWidthContainer}>
+      <div className={classes.commandBar}>
+        <div className={classes.logoTextContainer}>
+          <Image src="logo-windows.png" alt="Microsoft Logo" className={classes.logo} />
+          <div className={classes.textContainer}>
+            <Text size={300} weight="medium">
+              FinOps toolkit
+            </Text>
           </div>
+          <Divider vertical className={classes.divider} />
         </div>
       </div>
+    </div>
   );
 }
 
