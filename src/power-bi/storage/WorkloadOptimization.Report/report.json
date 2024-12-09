@@ -427,7 +427,7 @@
           "z": 6000.00
         },
         {
-          "config": "{\"name\":\"d69252e27ccce4ab509b\",\"layouts\":[{\"id\":0,\"position\":{\"x\":15.562310030395137,\"y\":16,\"z\":0,\"height\":96,\"width\":1264.0000000000002,\"tabOrder\":5000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Workload optimization report\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"42pt\"}},{\"value\":\"   v24.10.05\",\"textStyle\":{\"color\":\"#808080\"}}]}]}}]},\"vcObjects\":{\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}}",
+          "config": "{\"name\":\"d69252e27ccce4ab509b\",\"layouts\":[{\"id\":0,\"position\":{\"x\":15.562310030395137,\"y\":16,\"z\":0,\"height\":96,\"width\":1264.0000000000002,\"tabOrder\":5000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Workload optimization report\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"42pt\"}},{\"value\":\"   v24.12.08\",\"textStyle\":{\"color\":\"#808080\"}}]}]}}]},\"vcObjects\":{\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}}",
           "height": 96.00,
           "width": 1264.00,
           "x": 15.56,

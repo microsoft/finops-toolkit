@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🪛 v0.7 Update 1](#-v07-update-1)
 - [🚚 v0.7](#-v07)
 - [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
@@ -88,6 +89,32 @@ Legend:
 >
 
 <br><a name="latest"></a>
+
+## 🪛 v0.7 Update 1
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added experimental feature to populate missing prices/costs.
+>    - This feature requires Cost Management price sheet exports be created and configured in the same FinOps hub instance or storage path.
+>    - This feature performs a large join between cost and price datasets and will slow down data refresh times.
+>    - If you run into any issues with data at scale, please disable the parameter.
+>    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
+> 1. Added the Pricing units open dataset to support price sheet data cleanup.
+> 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
+>
+> 🚫 Deprecated:
+>
+> 1. Cosmetic and informational transforms will be disabled by default in 0.8 and removed on or after June 1, 2025 to improve Power BI performance. This includes:
+>    - Support for FOCUS 1.0 preview. Please create new FOCUS 1.0 exports and backfill historical data.
+>    - Fixing `x_SkuTerm` for MCA so it's the number of months rather than a display string.
+>    - Tracking changes in the `x_SourceChanges` column.
+>    - Explaining why rows have no cost in the `x_FreeReason` column.
+>    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
+
+<br>
 
 ## 🚚 v0.7
 
