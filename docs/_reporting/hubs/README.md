@@ -192,7 +192,7 @@ Configuring and managing FinOps hubs requires the following permissions:
   - EA billing scopes: Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).
   - MCA billing scopes: Contributor on the billing account, billing profile, or invoice section.
   - MPA billing scopes: Contributor on the billing account, billing profile, or customer.
-- Deploying hubs template requires one of the following:
+- Deploying the FinOps hubs template requires one of the following:
   - [Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
   - [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
   - For least-privileged access, see  [template details](https://file+.vscode-resource.vscode-cdn.net/c%3A/.git/dev/hubs-permissions/finops-toolkit/docs/_reporting/hubs/template.md#-prerequisites).
