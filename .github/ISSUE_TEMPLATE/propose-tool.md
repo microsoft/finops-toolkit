@@ -5,7 +5,8 @@ title: ''
 labels: "Needs: Triage \U0001F50D, Type: New Tool \U26A1"
 assignees: ''
 ---
-## Thank You for Contributing!  
+
+## Thank you for contributing!  
 Thank you for taking the time to propose a new tool for the FinOps toolkit. 🙌  
 
 As part of this process, once the tool is merged, you’ll take on the important role of its technical lead. To better understand what this entails, please review the [technical lead responsibilities here](https://github.com/microsoft/finops-toolkit/blob/dev/docs-wiki/Advisory-council.md).  
@@ -23,27 +24,18 @@ _Summarize the purpose and functionality of the tool._
 Use case:
 _What problem does this tool solve? Who will benefit from it?_  
 
-### Contributor information:
-- **Name**: [Your Name]
-
----
-
-## 2. Proposal details (Mandatory)
-**Proposed Features:**  
-_List the key features and capabilities of the tool._  
-
-**Expected impact:**  
-_How will this tool enhance workflows, save costs, or add value?_  
-
 **Services used:**
 _What are the Azure services needed to deploy this tool?_
 
 **Dependencies:**  
 _List any dependencies, such as other tools, data sources, or teams._  
 
+### Contributor information:
+- **Name**: [Your Name]
+
 ---
 
-## 3. Development plan (to be completed by tech lead)
+## 2. Development plan (to be completed by tech lead)
 
 **Tech lead:**  
 _Name the tech lead overseeing this tool's onboarding._  
@@ -66,14 +58,16 @@ _Include visual representations, if available._
 ## 5. Progress tracking (To be completed by tech lead)
 **Status updates:**  
 _This section will be updated by the tech lead throughout the development process._  
-```[tasklist]
-- [ ] Discovery meeting completed  
-- [ ] Feature branch created  
-- [ ] Tasks outlined and assigned  
-- [ ] Pull requests submitted  
-- [ ] Tool reviewed and approved by tech lead  
-- [ ] Governing board review completed  
-- [ ] Merged into dev  
-```
+
+| Task                                 | Status   | Comments          |
+|--------------------------------------|----------|-------------------|
+| Discovery meeting completed          | [ ]      |                   |
+| Feature branch created               | [ ]      |                   |
+| Tasks outlined and assigned          | [ ]      |                   |
+| Pull requests submitted              | [ ]      |                   |
+| Tool reviewed and approved by tech lead | [ ]   |                   |
+| Governing board review completed     | [ ]      |                   |
+| Merged into dev                      | [ ]      |                   |
+
 ---
 
