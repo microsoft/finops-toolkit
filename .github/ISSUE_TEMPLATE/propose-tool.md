@@ -35,9 +35,11 @@ _List any dependencies, such as other tools, data sources, or teams._
 
 ---
 
-## 2. Development plan (to be completed by tech lead)
+## 2. Development plan (to be completed by onboarding lead)
 
-**Tech lead:**  
+
+**Onboarding lead:**  
+
 _Name the tech lead overseeing this tool's onboarding._  
 
 **Initial tasks:**  
