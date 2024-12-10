@@ -185,7 +185,7 @@ If you access data in storage or are creating or customizing Power BI reports, p
 
 ## 🔐 Required permissions
 
-You will need these following roles to configure exports, deploy hubs template, and configure PowerBI:
+Configuring and managing FinOps hubs requires the following permissions:
 
 - Configuring exports requires one of the following, depending on scope:
   - Subscriptions and resource groups: [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor).
