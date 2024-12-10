@@ -185,8 +185,6 @@ If you access data in storage or are creating or customizing Power BI reports, p
 
 ## 🔐 Required permissions
 
-Minimum required permissions for deploying or updating hub instances are covered in the [template details](./template.md#-prerequisites).
-
 You will need these following roles to configure exports, deploy hubs template, and configure PowerBI:
 
 - Configuring exports requires one of the following, depending on scope:
