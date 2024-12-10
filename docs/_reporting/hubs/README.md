@@ -195,7 +195,7 @@ Configuring and managing FinOps hubs requires the following permissions:
 - Deploying the FinOps hubs template requires one of the following:
   - [Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
   - [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
-  - For least-privileged access, see  [template details](https://file+.vscode-resource.vscode-cdn.net/c%3A/.git/dev/hubs-permissions/finops-toolkit/docs/_reporting/hubs/template.md#-prerequisites).
+  - For least-privileged access, see  [template details](template.md#-prerequisites).
 - Configuring PowerBI requires one of the following
   - Storage reports: [Storage Blob Data Reader](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
   - KQL reports: Viewer on the Hub database.
