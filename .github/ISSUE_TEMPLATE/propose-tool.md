@@ -12,7 +12,6 @@ As part of this process, once the tool is merged, you’ll take on the important
 
 - [ ] I acknowledge the responsibilities of a technical lead and agree to serve as the technical lead for this tool once it is merged.  
 
-## New Tool Submission
 
 ## 1. Tool overview (Mandatory)
 **Tool Name:**
@@ -21,12 +20,11 @@ _Provide a clear, descriptive name for the tool._
 Description:
 _Summarize the purpose and functionality of the tool._  
 
- Use case:
+Use case:
 _What problem does this tool solve? Who will benefit from it?_  
 
 ### Contributor information:
 - **Name**: [Your Name]
-- **Contact Email**: [Your Email Address]
 
 ---
 
@@ -44,7 +42,8 @@ _What are the Azure services needed to deploy this tool?_
 _List any dependencies, such as other tools, data sources, or teams._  
 
 ---
-## 3. Development plan (To be completed by tech lead)
+
+## 3. Development plan (to be completed by tech lead)
 
 **Tech lead:**  
 _Name the tech lead overseeing this tool's onboarding._  
