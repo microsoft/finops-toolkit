@@ -89,6 +89,13 @@ Legend:
 >    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
 -->
 
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
