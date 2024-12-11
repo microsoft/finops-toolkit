@@ -103,7 +103,12 @@ Legend:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
 >
-
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+> 🛠️ Fixed:
+>
+> 1. No longer deploys network components when enablePublicAccess is set to true.  When set to false a vNet will be created along with the required private endpoints and DNS zones for Hubs to function in a fully private manner.
+>
 <br><a name="latest"></a>
 
 ## 🪛 v0.7 Update 1
