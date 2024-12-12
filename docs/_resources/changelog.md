@@ -89,12 +89,20 @@ Legend:
 >    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
 -->
 
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
 > 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
+
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
