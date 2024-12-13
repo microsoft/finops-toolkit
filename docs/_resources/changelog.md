@@ -101,7 +101,7 @@ Legend:
 > 🛠️ Fixed:
 >
 > 1. Fixed date handling bug that resulted in a "We cannot apply operator >= to types List and Number" error ([#1180](https://github.com/microsoft/finops-toolkit/issues/1180))
->    - Parsing these functions now uses the report locale. If you run into issues, set the report locale explicitly to the desired format.
+>    - Date parsing now uses the report locale. If you run into issues, set the report locale explicitly to the desired format.
 >
 > 🚫 Deprecated:
 >
