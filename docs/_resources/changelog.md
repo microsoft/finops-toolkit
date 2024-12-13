@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.8](#-v08)
 - [🪛 v0.7 Update 1](#-v07-update-1)
 - [🚚 v0.7](#-v07)
 - [🪛 v0.6 Update 1](#-v06-update-1)
@@ -63,47 +64,6 @@ Legend:
 
 ## 🔄️ Unreleased
 
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Added experimental feature to populate missing prices/costs.
->    - This feature requires Cost Management price sheet exports be created and configured in the same FinOps hub instance or storage path.
->    - This feature performs a large join between cost and price datasets and will slow down data refresh times.
-<!--
->    - If you run into any issues with data at scale, please disable the parameter.
->    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
--->
-> 1. Added the Pricing units open dataset to support price sheet data cleanup.
-> 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
-<!--
->
-> 🚫 Deprecated:
->
-> 1. Cosmetic and informational transforms will be disabled by default in 0.9 and removed on or after July 1, 2025 to improve Power BI performance. If you rely on any of these changes, please let us know by [creating an issue in GitHub](https://aka.ms/ftk/ideas) to request an exemption. This includes:
->    - Support for FOCUS 1.0 preview. Please create new FOCUS 1.0 exports and backfill historical data.
->    - Fixing `x_SkuTerm` for MCA so it's the number of months rather than a display string.
->    - Tracking changes in the `x_SourceChanges` column.
->    - Explaining why rows have no cost in the `x_FreeReason` column.
->    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
--->
-
-🏦 FinOps hubs
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ✏️ Changed:
->
-> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
-
-🔍 Optimization engine
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
-
-
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -113,6 +73,53 @@ Legend:
 >
 
 <br><a name="latest"></a>
+
+## 🚚 v0.8
+
+<sup>Released December 2024</sup>
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added experimental feature to populate missing prices/costs.
+>    - This feature requires Cost Management price sheet exports be created and configured in the same FinOps hub instance or storage path.
+>    - This feature performs a large join between cost and price datasets and will slow down data refresh times.
+>    - If you run into any issues with data at scale, please disable the parameter.
+>    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
+> 1. Added the Pricing units open dataset to support price sheet data cleanup.
+> 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed date handling bug that resulted in a "We cannot apply operator >= to types List and Number" error ([#1180](https://github.com/microsoft/finops-toolkit/issues/1180))
+>    - Parsing these functions now uses the report locale. If you run into issues, set the report locale explicitly to the desired format.
+>
+> 🚫 Deprecated:
+>
+> 1. Cosmetic and informational transforms will be disabled by default in 0.9 and removed on or after July 1, 2025 to improve Power BI performance. If you rely on any of these changes, please let us know by [creating an issue in GitHub](https://aka.ms/ftk/ideas) to request an exemption. This includes:
+>    - Support for FOCUS 1.0 preview. Please create new FOCUS 1.0 exports and backfill historical data.
+>    - Fixing `x_SkuTerm` for MCA so it's the number of months rather than a display string.
+>    - Tracking changes in the `x_SourceChanges` column.
+>    - Explaining why rows have no cost in the `x_FreeReason` column.
+>    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
+
+<br>
 
 ## 🪛 v0.7 Update 1
 
