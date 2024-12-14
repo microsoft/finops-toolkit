@@ -31,10 +31,10 @@ expression ftk_Storage = ```
 		let
 		    // Config
 		    url   = #"Storage URL",
-		    end   = if RangeEnd <> null then RangeEnd else null,
+		    end   = if RangeEnd <> null then Date.From(RangeEnd, Culture.Current) else null,
 		    start = 
-		        if RangeStart <> null then RangeStart 
-		        else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if RangeEnd <> null then RangeEnd else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -#"Number of Months"+1)
+		        if RangeStart <> null then Date.From(RangeStart, Culture.Current)
+		        else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if end <> null then end else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -(#"Number of Months"+1))
 		        else null,
 		    data = if datasetType <> null and datasetType <> "" then Text.Lower(datasetType) else "focuscost",
 		
@@ -118,7 +118,7 @@ expression ftk_Storage = ```
 		        if start = null and end = null then Source
 		        else Table.SelectRows(
 		            Table.AddColumn(Source, "EndDate", each if [StartDate] = null then null else Date.EndOfMonth([StartDate]), type datetime), 
-		            each (start = null or [StartDate] = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))
+		            each (start = null or [StartDate] = null or [StartDate] >= Date.StartOfMonth(start)) and (end = null or [EndDate] = null or [EndDate] <= Date.EndOfMonth(end))
 		        ),
 		    AddMetadata = Table.AddColumn(FilterFilesByDate, "Metadata", each 
 		        if Text.Lower([Extension]) = ".parquet" and datasetType = "focuscost" then ftk_Metadata([Content], "ChargePeriodStart")
@@ -201,20 +201,21 @@ expression ftk_Storage = ```
 		    ),
 		
 		    // Only pull from the predefined date range (if specified)
-		    _parseDate = (d) =>
+		    _parseCostManagementDate = (d) =>
 		        let
 		            segments = if d = null then null else Text.SplitAny(Text.From(d), "/- T"),
 		            output =
 		                try Number.From(Date.From(
-		                            if Text.Length(segments{0}) = 4 then segments{0} & "-" & Text.PadStart(segments{1}, 2, "0") & "-" & Text.PadStart(segments{2}, 2, "0")
+                            if Text.Length(segments{0}) = 4 then segments{0} & "-" & Text.PadStart(segments{1}, 2, "0") & "-" & Text.PadStart(segments{2}, 2, "0")
 		                    else if Text.Length(segments{2}) = 4 then segments{2} & "-" & Text.PadStart(segments{0}, 2, "0") & "-" & Text.PadStart(segments{1}, 2, "0")
-		                    else d
-		                )) otherwise segments
+		                    else d,
+                            "en-US"
+		                )) otherwise null
 		        in output,
 		    RefreshDate = Table.AddColumn(
 		        Table.ReplaceValue(CleanColumns, "", null, Replacer.ReplaceValue, Table.ColumnsOfType(CleanColumns, {type text, type any})),
 		        "x_IncrementalRefreshDate",
-		            each _parseDate(
+		            each _parseCostManagementDate(
 		                if data = "focuscost"                    then [ChargePeriodStart]
 		                else if data = "pricesheet"              then [EffectiveStartDate]
 		                else if data = "reservationdetails"      then [UsageDate]
@@ -234,7 +235,7 @@ expression ftk_Storage = ```
 		            // TODO: Extract from the manifest
 		            each if data = "focuscost"                  then (if Table.HasColumns(FilterRowsByDate, {"ChargeSubcategory"}) and [ChargeSubcategory] <> null then "1.0-preview(v1)" else "1.0")
 		            else if data = "pricesheet"                 then "2023-05-01"
-		            else if data = "reservationdetails"         then "2023-05-01"
+		            else if data = "reservationdetails"         then "2023-03-01"
 		            else if data = "reservationtransactions"    then "2023-05-01"
 		            else if data = "reservationrecommendations" then "2023-05-01"
 		            else null
@@ -424,7 +425,7 @@ expression ftk_DatetimeToJulianDate = ```
 		(InputDate) =>
 		    let
 		        StartDate = #date(1899, 12, 30),
-		        NumberOfDays = Duration.Days(Date.From(InputDate) - StartDate),
+		        NumberOfDays = Duration.Days(InputDate - StartDate),
 		        JulianDay = NumberOfDays + 2415018.5 // 2415019 or 2415018.5 
 		    in
 		        JulianDay
