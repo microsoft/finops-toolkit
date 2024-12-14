@@ -42,11 +42,11 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "optimization-workbook-v$verStr.zip"  $null '0.5'
             
                 # Power BI
-                CheckFile "CostManagementConnector.pbix"        '0.2' $null
-                CheckFile "CostManagementTemplateApp.pbix"      '0.2' $null
                 CheckFile "PowerBI-demo.zip"                    '0.7' $null
                 CheckFile "PowerBI-kql.zip"                     '0.7' $null
                 CheckFile "PowerBI-storage.zip"                 '0.7' $null
+                CheckFile "CostManagementConnector.pbix"        '0.2' $null
+                CheckFile "CostManagementTemplateApp.pbix"      '0.2' $null
                 CheckFile "CostSummary.pbit"                    '0.2' '0.6'
                 CheckFile "CostSummary.pbix"                    $null '0.6'
                 CheckFile "DataIngestion.pbit"                  '0.3' '0.6'

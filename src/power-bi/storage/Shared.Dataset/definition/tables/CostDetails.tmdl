@@ -373,7 +373,7 @@ table CostDetails
 
 	column x_BillingExchangeRateDate
 		dataType: dateTime
-		formatString: Long Date
+		formatString: General Date
 		lineageTag: 7b0c8a90-630d-4437-9b63-92360a394650
 		summarizeBy: none
 		sourceColumn: x_BillingExchangeRateDate
@@ -562,7 +562,7 @@ table CostDetails
 
 	column x_ServicePeriodEnd
 		dataType: dateTime
-		formatString: Long Date
+		formatString: General Date
 		lineageTag: ce3224e0-9c28-46d2-9268-9f3f23134d34
 		summarizeBy: none
 		sourceColumn: x_ServicePeriodEnd
@@ -571,7 +571,7 @@ table CostDetails
 
 	column x_ServicePeriodStart
 		dataType: dateTime
-		formatString: Long Date
+		formatString: General Date
 		lineageTag: 813988da-21b6-4c56-bcce-03b5128e4401
 		summarizeBy: none
 		sourceColumn: x_ServicePeriodStart
@@ -833,7 +833,7 @@ table CostDetails
 
 	column ChargePeriodEnd
 		dataType: dateTime
-		formatString: Long Date
+		formatString: General Date
 		lineageTag: d3c22e34-9351-4df5-8c12-51b9b72c3ec0
 		summarizeBy: none
 		sourceColumn: ChargePeriodEnd
@@ -1340,10 +1340,12 @@ table CostDetails
 				    _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
 				    
 				    // Update previous FOCUS versions
+				    PerformDeprecatedOptimizations = #"Deprecated: Perform Extra Query Optimizations",
 				    HasPreview = Table.HasColumns(RawData, {"ChargeSubcategory"}),
 				    Has10      = Table.HasColumns(RawData, {"ChargeClass"}),
-				    LatestSchema = if HasPreview 
-				        then (
+				    LatestSchema = if HasPreview = false then RawData
+				        else if PerformDeprecatedOptimizations = false then error "LegacyFocusVersion: Please enable the 'Perform Extra Query Optimizations' parameter"
+				        else (
 				            let
 				                ChargeClass         = if Has10
 				                    then Table.ReplaceValue(RawData,          null,                       each if [ChargeSubcategory] = "Refund" then "Correction" else null, Replacer.ReplaceValue, {"ChargeClass"})
@@ -1369,42 +1371,16 @@ table CostDetails
 				                RemovePreviewCols   = Table.RemoveColumns(RenamePreviewCols, {"ChargeSubcategory", "UsageQuantity", "UsageUnit", "x_ChargeId"})
 				            in
 				                RemovePreviewCols
-				        ) else RawData,
+				        ),
 				
 				    // Fix known bugs and set datatyps
 				    Fixes = Table.TransformColumnTypes(
-				        // Data fixes
-				        Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
-				            // Track all the changes we're about to make before we make them for transparency
-				            Table.AddColumn(
-				                // Create AvailabilityZone column if missing to support non-Microsoft clouds
-				                if Table.HasColumns(LatestSchema, {"AvailabilityZone"}) then LatestSchema else Table.AddColumn(LatestSchema, "AvailabilityZone", each null),
-				                "x_SourceChanges",
-				                each let
-				                    value = Text.Combine(List.RemoveNulls({
-				                        if ([ContractedCost] = null      or [ContractedCost] = 0)      and [EffectiveCost] <> 0                                        then "MissingContractedCost"            else null,
-				                        if ([ContractedUnitPrice] = null or [ContractedUnitPrice] = 0) and [x_EffectiveUnitPrice] <> 0                                 then "MissingContractedUnitPrice"       else null,
-				                        if ([ListCost] = null            or [ListCost] = 0)            and ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then "MissingListCost"                  else null,
-				                        if ([ListUnitPrice] = null       or [ListUnitPrice] = 0)       and ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then "MissingListUnitPrice"             else null,
-				                        if [PricingCategory] = "Standard" and [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage"                            then "PricingCategoryShouldBeCommitted" else null,
-				                        if [x_SkuTerm] = "1Year" or [x_SkuTerm] = "3Years" or [x_SkuTerm] = "5Years"                                                   then "SkuTermShouldBeAnInteger"         else null
-				                    }), ","),
-				                    output = if _isBlank(value) then null else value
-				                in
-				                    output
-				            ),
-				            // Reset missing cost/prices
-				            0.0, each if Text.Contains([x_SourceChanges], "MissingContractedCost")      then null else [ContractedCost],      Replacer.ReplaceValue, {"ContractedCost"}),
-				            0.0, each if Text.Contains([x_SourceChanges], "MissingContractedUnitPrice") then null else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
-				            0.0, each if Text.Contains([x_SourceChanges], "MissingListCost")            then null else [ListCost],            Replacer.ReplaceValue, {"ListCost"}),
-				            0.0, each if Text.Contains([x_SourceChanges], "MissingListUnitPrice")       then null else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
-				            // Fix savings plan purchases
-				            each [EffectiveCost], each if [ChargeCategory] = "Purchase" and ([CommitmentDiscountId] = "" or [CommitmentDiscountId] = null) then [EffectiveCost] else 0.0, Replacer.ReplaceValue, {"EffectiveCost"}),
-				            // Fix inconsistent Microsoft x_SkuTerm values
-				            "1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
-				            "3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),
-				            "5Years", 60, Replacer.ReplaceValue, {"x_SkuTerm"}),
-				            // Fix PricingCategory values
+				        Table.ReplaceValue(Table.ReplaceValue(
+				            // Create AvailabilityZone column if missing to support non-Microsoft clouds
+				            if Table.HasColumns(LatestSchema, {"AvailabilityZone"}) then LatestSchema else Table.AddColumn(LatestSchema, "AvailabilityZone", each null),
+				            // Fix savings plan purchases -- Cost Management fix pending as of Dec 8, 2024
+				            each [EffectiveCost], each if [ChargeCategory] = "Purchase" and [CommitmentDiscountId] <> "" and [CommitmentDiscountId] <> null then 0.0 else [EffectiveCost], Replacer.ReplaceValue, {"EffectiveCost"}),
+				            // Fix PricingCategory values -- Remove after Oct 1, 2025
 				            "Standard", each if [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage" then "Committed" else [PricingCategory], Replacer.ReplaceValue, {"PricingCategory"}),
 				        {
 				            // Date columns
@@ -1432,59 +1408,82 @@ table CostDetails
 				            {"PricingQuantity",           type number},
 				            {"x_BillingExchangeRate",     type number},
 				            {"x_PartnerCreditRate",       type number},
-				            {"x_PricingBlockSize",        type number},
-				            {"x_SkuTerm",                 type number}
-				            // TODO: {"x_SkuIsCreditEligible",   type logical}
-				            // TODO: {"x_PartnerCreditApplied",  type logical}
+				            {"x_PricingBlockSize",        type number}
+				            // {"x_SkuTerm",                 type number}
+				            // {"x_SkuIsCreditEligible",   type logical}
+				            // {"x_PartnerCreditApplied",  type logical}
 				        }
 				    ),
+				    OptionalFixes = if PerformDeprecatedOptimizations = false then Fixes else Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+				        // Track all the changes we're about to make before we make them for transparency
+				        Table.AddColumn(
+										Fixes,
+				            "x_SourceChanges",
+				            each let
+				                value = Text.Combine(List.RemoveNulls({
+				                    if ([ContractedCost] = null      or [ContractedCost] = 0)      and [EffectiveCost] <> 0                                        then "MissingContractedCost"            else null,
+				                    if ([ContractedUnitPrice] = null or [ContractedUnitPrice] = 0) and [x_EffectiveUnitPrice] <> 0                                 then "MissingContractedUnitPrice"       else null,
+				                    if ([ListCost] = null            or [ListCost] = 0)            and ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then "MissingListCost"                  else null,
+				                    if ([ListUnitPrice] = null       or [ListUnitPrice] = 0)       and ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then "MissingListUnitPrice"             else null,
+				                    if [PricingCategory] = "Standard" and [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage"                            then "PricingCategoryShouldBeCommitted" else null,
+				                    if [x_SkuTerm] = "1Year" or [x_SkuTerm] = "3Years" or [x_SkuTerm] = "5Years"                                                   then "SkuTermShouldBeAnInteger"         else null
+				                }), ","),
+				                output = if _isBlank(value) then null else value
+				            in
+				                output
+				        ),
+				        // Fix inconsistent Microsoft x_SkuTerm values
+				        "1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
+				        "3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),
+				        "5Years", 60, Replacer.ReplaceValue, {"x_SkuTerm"}),
 				
 				    // Split CostDetails by what needs prices and what doesn't
 				    PopulateMissingPrices = 
 				        Table.TransformColumnTypes(
 				            if #"Experimental: Add Missing Prices" = false then
 				                // Copy prices/costs from related columns
-				                Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Fixes,
-				                    null, each [x_EffectiveUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
-				                    null, each [ContractedUnitPrice],  Replacer.ReplaceValue, {"ListUnitPrice"}),
-				                    null, each [EffectiveCost],        Replacer.ReplaceValue, {"ContractedCost"}),
-				                    null, each [ContractedCost],       Replacer.ReplaceValue, {"ListCost"})
+				                Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(OptionalFixes,
+				                    0.0, each if [x_EffectiveUnitPrice] <> 0                                 then [x_EffectiveUnitPrice] else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+				                    0.0, each if ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then [ContractedUnitPrice]  else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
+				                    0.0, each if [EffectiveCost] <> 0                                        then [EffectiveCost]        else [ContractedCost],      Replacer.ReplaceValue, {"ContractedCost"}),
+				                    0.0, each if ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then [ContractedCost]       else [ListCost],            Replacer.ReplaceValue, {"ListCost"})
 				            else
 				                Table.RemoveColumns(
 				                    Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
 				                        // Join only the rows/columns that need to be joined
 				                        Table.ExpandTableColumn(
 				                            Table.NestedJoin(
-				                                Table.AddColumn(Fixes, "tmp_MeterOfferStart", each [x_SkuMeterId] & [x_SkuOfferId] & DateTimeZone.ToText([BillingPeriodStart], [Format="yyyy-MM-dd"])), {"x_SkuMeterId", "x_SkuOfferId", "BillingPeriodStart"},
-				                                Table.AddColumn(
-				                                    // Join missing prices with the cost rows that are missing tose prices
-				                                    Table.SelectColumns(
+				                                Table.AddColumn(OptionalFixes, "tmp_MeterOfferStart", each [x_SkuMeterId] & [x_SkuOfferId] & DateTimeZone.ToText([ChargePeriodStart], [Format="yyyy-MM"])),
+				                                {"tmp_MeterOfferStart"},
+				                                // Join missing prices with the cost rows that are missing tose prices
+				                                Table.SelectColumns(
+				                                    Table.AddColumn(
 				                                        Table.SelectRows(Prices, each [x_SkuPriceType] = "Consumption" and [x_SkuMeterId] <> "" and [x_SkuMeterId] <> null),
-				                                        {"x_SkuMeterId", "x_SkuOfferId", "x_EffectivePeriodStart", "ListUnitPrice", "ContractedUnitPrice"}
+				                                        "tmp_MeterOfferStart",
+				                                        each [x_SkuMeterId] & [x_SkuOfferId] & DateTime.ToText([x_EffectivePeriodStart], [Format="yyyy-MM"])
 				                                    ),
-				                                    "tmp_MeterOfferStart",
-				                                    each [x_SkuMeterId] & [x_SkuOfferId] & DateTime.ToText([x_EffectivePeriodStart], [Format="yyyy-MM-dd"])
+				                                    {"tmp_MeterOfferStart", "ListUnitPrice", "ContractedUnitPrice", "PricingUnit", "x_PricingBlockSize"}
 				                                ),
-				                                {"x_SkuMeterId", "x_SkuOfferId", "x_EffectivePeriodStart"},
+				                                {"tmp_MeterOfferStart"},
 				                                "Prices",
 				                                JoinKind.LeftOuter
 				                            ),
 				                            "Prices",
-				                            {"ListUnitPrice", "ContractedUnitPrice"},
-				                            {"NewListUnitPrice", "NewContractedUnitPrice"}
+				                            {"ListUnitPrice", "ContractedUnitPrice", "PricingUnit", "x_PricingBlockSize"},
+				                            {"NewListUnitPrice", "NewContractedUnitPrice", "NewPricingUnit", "NewPricingBlockSize"}
 				                        ),
 				                        // Update missing prices
-				                        null, each [NewContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
-				                        null, each [NewListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
+				                        0.0, each if [x_EffectiveUnitPrice] <> 0                                 and [PricingUnit] = [NewPricingUnit] then [NewContractedUnitPrice] * [x_BillingExchangeRate] / [NewPricingBlockSize] * [x_PricingBlockSize] else [x_EffectiveUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+				                        0.0, each if ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) and [PricingUnit] = [NewPricingUnit] then [NewListUnitPrice]       * [x_BillingExchangeRate] / [NewPricingBlockSize] * [x_PricingBlockSize] else [ContractedUnitPrice],  Replacer.ReplaceValue, {"ListUnitPrice"}),
 				                        // Update missing costs
-				                        null, each [PricingQuantity] * [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedCost"}),
-				                        null, each [PricingQuantity] * [ListUnitPrice],       Replacer.ReplaceValue, {"ListCost"}),
-				                    {"NewListUnitPrice", "NewContractedUnitPrice"}
+				                        0.0, each if [EffectiveCost] <> 0                                        and [ContractedUnitPrice] <> null then [PricingQuantity] * [ContractedUnitPrice] else [ContractedCost], Replacer.ReplaceValue, {"ContractedCost"}),
+				                        0.0, each if ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        and [ListUnitPrice]       <> null then [PricingQuantity] * [ListUnitPrice]       else [ListCost],       Replacer.ReplaceValue, {"ListCost"}),
+				                    {"NewListUnitPrice", "NewContractedUnitPrice", "NewPricingUnit", "NewPricingBlockSize", "tmp_MeterOfferStart"}
 				                ),
 				            {{"ContractedCost", type number}, {"ContractedUnitPrice", type number}, {"ListCost", type number}, {"ListUnitPrice", type number}}
 				        ),
 				
-				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
 				        PopulateMissingPrices,
 				        // Parse arrays
 				        "x_SkuDetailsDictionary", each if _isBlank([x_SkuDetails]) then [] else try Json.Document([x_SkuDetails]) otherwise []),
@@ -1501,6 +1500,10 @@ table CostDetails
 				        "x_DiscountCostSavings",        
 				            each if [ListCost]            <> null and [ListCost]            > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ListCost]       >= [EffectiveCost] then [ListCost]       - [EffectiveCost]  
 				            else if [ContractedCost]      <> null and [ContractedCost]      > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
+				        // Month column
+				        "x_Month", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
+				    OptionalAdd = if PerformDeprecatedOptimizations = false then Add else Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+				        Add,
 				        // Explain why cost is 0
 				        "x_FreeReason", 
 				            each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
@@ -1519,14 +1522,12 @@ table CostDetails
 				        "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
 				        "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
 				        "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & ftk_ParseResourceName([SubAccountId]) & ")"),
-				        // Month column
-				        "x_Month", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
 				
 				    // FTK columns
 				    FTK = Table.RemoveColumns(
 				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
 				            Table.ExpandRecordColumn(
-				                Table.ReplaceErrorValues(Table.AddColumn(Add, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
+				                Table.ReplaceErrorValues(Table.AddColumn(OptionalAdd, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
 				                "tmp_Tags",
 				                {"cm-resource-parent", "ms-resource-parent", "hidden-managedby", "costanalysis-parent", "ftk-version",      "ftk-tool"},
 				                {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}

@@ -412,7 +412,7 @@ expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
 	annotation PBI_ResultType = Function
 
 /// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
-expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+expression 'Number of Months' = 1 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
 	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
 	queryGroup: '🛠️ Setup'
 
@@ -484,7 +484,7 @@ expression ftk_Metadata =
 /// Optional. Experimental feature to join the prices with the cost to populate missing list and contracted unit price and calculate missing cost values. This enables calculating total savings. Allowed values = "TRUE", "FALSE".
 /// 
 /// This experimental feature is extremely slow to run and has not been fully tested. We are investigating alternative means to perform this join.
-expression 'Experimental: Add Missing Prices' = false meta [IsParameterQuery=true, Type="Logical", IsParameterQueryRequired=false]
+expression 'Experimental: Add Missing Prices' = false meta [IsParameterQuery=true, List={false, true}, DefaultValue=false, Type="Logical", IsParameterQueryRequired=false]
 	lineageTag: 3664712f-0c0b-4565-8123-1161b5a8dba8
 	queryGroup: '🛠️ Setup'
 
@@ -502,4 +502,15 @@ expression ftk_DemoFilter = () => if List.Contains({ "demohubupzaljui2bxfm", "ku
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Function
+
+/// Optional. Experimental feature to join the prices with the cost to populate missing list and contracted unit price and calculate missing cost values. This enables calculating total savings. Allowed values = "TRUE", "FALSE".
+/// 
+/// This experimental feature is extremely slow to run and has not been fully tested. We are investigating alternative means to perform this join.
+expression 'Deprecated: Perform Extra Query Optimizations' = true meta [IsParameterQuery=true, List={false, true}, DefaultValue=true, Type="Logical", IsParameterQueryRequired=false]
+	lineageTag: f22de62e-d0a2-4f18-be6a-86172ff55b17
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
 
