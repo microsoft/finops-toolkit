@@ -95,6 +95,12 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed an issue where `x_ResourceType` is using the wrong value.
+>    - This fix resolves the issue for all newly ingested data.
+>    - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -102,7 +108,6 @@ Legend:
 > ➕ Added:
 >
 > 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
-
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
