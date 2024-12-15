@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.8](#-v08)
 - [🪛 v0.7 Update 1](#-v07-update-1)
 - [🚚 v0.7](#-v07)
 - [🪛 v0.6 Update 1](#-v06-update-1)
@@ -114,6 +115,12 @@ Legend:
 
 <br><a name="latest"></a>
 
+## 🚚 v0.8
+
+<sup>Released January 2025</sup>
+
+<br>
+
 ## 🪛 v0.7 Update 1
 
 <sup>Released December 9, 2024</sup>
@@ -132,7 +139,7 @@ This release is a minor patch to update documentation and fix Power BI storage r
 >    - PowerBI-kql.zip for reports that connect to FinOps hubs with Data Explorer.
 
 <blockquote class="important" markdown="1">
-  _Some have reported "file not found" and ">=" errors in storage reports. Both issues seem to be transient and resolve themselves within a few hours. We have not been able to reproduce either issue and cannot pinpoint the source. If you are experiencing either, please [submit an issue](https://aka.ms/ftk/ideas)._
+  _Some have reported a 404 or "file not found" error in storage reports. The issue seems to be transient and can be resolved within a few hours. We have not been able to reproduce the issue and cannot pinpoint the source. If you are experiencing the error, please [submit an issue](https://aka.ms/ftk/ideas)._
 </blockquote>
 
 <br>
