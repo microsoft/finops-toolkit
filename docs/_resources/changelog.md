@@ -92,6 +92,10 @@ Legend:
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. Clean up `ResourceType` values that have internal resource type IDs (for example, microsoft.compute/virtualmachines).
+>
 > ✏️ Changed:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
