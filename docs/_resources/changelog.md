@@ -95,6 +95,7 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 2. Updated `CommitmentDiscountUsage_transform_v1_0()` to use `parse_resourceid()`.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
