@@ -177,6 +177,26 @@ configuration:
                       reviewer: rolandkrummenacher
                   - assignTo:
                       user: rolandkrummenacher
+          # kql
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^.*\.kql$
+                  - filesMatchPattern:
+                      pattern: ^src\/templates\/finops-hub\/modules\/dataExplorer\.bicep$
+            then:
+              - addLabel:
+                  label: 'Skill: KQL'
+              # Brad
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: bwatts64
+                then:
+                  - requestReview:
+                      reviewer: bwatts64
+                  - assignTo:
+                      user: bwatts64
           # open data
           - if:
               - or:
