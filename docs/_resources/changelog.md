@@ -95,6 +95,10 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+>
+> 🛠️ Fixed:
+>
+> 1. Improved performance and memory consumption in the `parse_resourceid()` function to address out of memory errors during cost data ingestion ([#1188](https://github.com/microsoft/finops-toolkit/issues/1188))
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }

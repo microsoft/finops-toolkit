@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 //======================================================================================================================
 // Ingestion database
 // Used for data ingestion, normalization, and cleansing.
@@ -113,9 +116,8 @@ parse_resourceid(resourceId: string) {
         dynamic([true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]),
         segments, dynamic([])), '/'), '//', '/'));
     let xRT = iff(isempty(x_ResourceProvider) or isempty(x_ResourceTypePath), '', strcat(x_ResourceProvider, '/', x_ResourceTypePath));
-    let types = split(toscalar(database('Ingestion').ResourceTypes | summarize types = make_set(strcat(x_ResourceType, '=', SingularDisplayName)) | extend types = strcat('||', strcat_array(types, '||')), '||'), strcat('||', xRT, '='));
-    let ResourceType = iff(array_length(types) < 2, '', split(types[1], '||')[0]);
-    bag_pack('ResourceId', ResourceId, 'ResourceName', ResourceName, 'ResourceType', coalesce(ResourceType, xRT), 'SubAccountId', SubAccountId, 'x_ResourceGroupName', x_ResourceGroupName, 'x_ResourceProvider', x_ResourceProvider, 'x_ResourceType', xRT)
+    // TODO: Remove ResourceType in 0.9
+    bag_pack('ResourceId', ResourceId, 'ResourceName', ResourceName, 'ResourceType', xRT, 'SubAccountId', SubAccountId, 'x_ResourceGroupName', x_ResourceGroupName, 'x_ResourceProvider', x_ResourceProvider, 'x_ResourceType', xRT)
 }
 
 
@@ -879,21 +881,20 @@ Costs_transform_v1_0()
         isnotempty(ResourceId), ResourceId,
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), CommitmentDiscountId,
         ResourceId)
-    | extend tmp_ResourceDetails = parse_resourceid(ResourceId)
     | extend ResourceName = tolower(case(
         isnotempty(ResourceName), ResourceName,
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountName), CommitmentDiscountName,
-        isnotempty(ResourceId), tmp_ResourceDetails.ResourceName,
+        isnotempty(ResourceId), parse_resourceid(ResourceId).ResourceName,
         ResourceName))
-    | extend ResourceType = case(
-        isnotempty(ResourceType), ResourceType,
-        isnotempty(ResourceId) and isnotempty(tmp_ResourceDetails.ResourceType), tmp_ResourceDetails.ResourceType,
-        ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
-        ResourceType)
     | extend x_ResourceType = case(
         isnotempty(x_ResourceType), x_ResourceType,
-        isnotempty(ResourceId) and isnotempty(tmp_ResourceDetails.x_ResourceType), tmp_ResourceDetails.x_ResourceType,
+        isnotempty(ResourceId), parse_resourceid(ResourceId).x_ResourceType,
         x_ResourceType)
+    | extend ResourceType = case(
+        isnotempty(ResourceType), ResourceType,
+        isnotempty(ResourceId), parse_resourceid(ResourceId).ResourceType,
+        ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
+        ResourceType)
     //
     // Sort columns and apply final transforms
     | project
@@ -901,7 +902,7 @@ Costs_transform_v1_0()
         BilledCost,
         BillingAccountId,
         BillingAccountName,
-        BillingAccountType,          // Azure 1.0-preview(v1)+
+        BillingAccountType,
         BillingCurrency,
         BillingPeriodEnd,
         BillingPeriodStart,
@@ -1275,7 +1276,7 @@ CommitmentDiscountUsage_transform_v1_0()
         x_CommitmentDiscountNormalizedGroup = iff(InstanceFlexibilityGroup == 'NA', '', InstanceFlexibilityGroup),
         x_CommitmentDiscountNormalizedRatio = InstanceFlexibilityRatio,
         x_CommitmentDiscountQuantity        = UsedHours * InstanceFlexibilityRatio,
-        x_IngestionTime                     = ingestion_time(),             // Hubs add-on
+        x_IngestionTime                     = ingestion_time(),
         x_ResourceGroupName                 = extract('/resourcegroups/([^/]+)/', 1, ResourceId),
         x_ResourceType,
         // x_RowId = hash_sha256(strcat(
