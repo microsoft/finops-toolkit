@@ -95,6 +95,9 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 1. ETL Pipeline - Fixed timezones for ADF triggers to resolve issue where triggers would not start due to unrecognized timezone.
+> 1. Changed the **enablePublicAccess** parameter to exclude network components.
+>    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -111,14 +114,6 @@ Legend:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
 >
-
-🏦 FinOps hubs
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ✏️ Changed:
->
-> 1. Changed the **enablePublicAccess** parameter to exclude network components.
->    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
 
 <br><a name="latest"></a>
 
