@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🪛 v0.7 Update 1](#-v07-update-1)
 - [🚚 v0.7](#-v07)
 - [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
@@ -62,27 +63,29 @@ Legend:
 
 ## 🔄️ Unreleased
 
-🏦 FinOps hubs
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 1. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 1. ETL pipelile – Add support for parquet files created by Cost Management exports.
->
-> ➕ Changed:
->
-> 1. ETL Pipeline - Fixed timezones for ADF triggers to resolve issue where triggers would not start due to unrecognized timezone.
-
-
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> - General
->   1. Populate missing prices.
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 1. ETL Pipeline - Fixed timezones for ADF triggers to resolve issue where triggers would not start due to unrecognized timezone.
+> 1. Changed the **enablePublicAccess** parameter to exclude network components.
+>    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
+
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -94,9 +97,32 @@ Legend:
 
 <br><a name="latest"></a>
 
+## 🪛 v0.7 Update 1
+
+<sup>Released December 9, 2024</sup>
+
+This release is a minor patch to update documentation and fix Power BI storage reports that are reporting all usage as $0. These files were updated in the existing 0.7 release. We are documenting this as a new patch release for transparency. If you downloaded the **PowerBI-storage.zip** file between December 1-9, 2024, please update to the latest version.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Corrected the EffectiveCost for usage records.
+> 2. Updated the download links in Power BI docs to the new files:
+>    - PowerBI-demo.zip for demo-only reports (not intended for connecting to customer data)
+>    - PowerBI-storage.zip for reports that connect to raw Cost Management exports or FinOps hubs storage.
+>    - PowerBI-kql.zip for reports that connect to FinOps hubs with Data Explorer.
+
+<blockquote class="important" markdown="1">
+  _Some have reported "file not found" and ">=" errors in storage reports. Both issues seem to be transient and resolve themselves within a few hours. We have not been able to reproduce either issue and cannot pinpoint the source. If you are experiencing either, please [submit an issue](https://aka.ms/ftk/ideas)._
+</blockquote>
+
+<br>
+
 ## 🚚 v0.7
 
-<sup>Released November 2024</sup>
+<sup>Released December 1, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
