@@ -69,7 +69,7 @@ At this point, you have automated alerts configured and ideally views and report
 
 ## KPIs and metrics
 
-For robust anomaly detection across the Azure environment, the following KPIs offer a framework for identifying and addressing irregularities in data and resource usage, helping to maintain optimal performance and cost management.
+Consider the following key performance indicators (KPIs) to measure the effectiveness and completeness of your anomaly management approach.
 
 | KPI | Definition | Formula |
 |--------------|----------------|---------|

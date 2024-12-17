@@ -127,7 +127,7 @@ At this point, you have an allocation strategy with detailed cloud management an
 
 ## KPIs and metrics
 
-To ensure effective resource allocation across the Azure environment, these KPIs provide a framework for evaluating the efficiency and accuracy of resource distribution.
+Consider the following key performance indicators (KPIs) to measure the effectiveness and completeness of your allocation strategy.
 
 | KPI | Definition | Formula |
 |--------------|----------------|---------|

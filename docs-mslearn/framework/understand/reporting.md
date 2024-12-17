@@ -131,7 +131,7 @@ At this point, you're likely utilizing the native reporting and analysis solutio
 
 ## KPIs and metrics
 
-To enhance reporting across the Azure environment, thes following KPIs establish a framework for evaluating the accuracy, timeliness, and comprehensiveness of reports, supporting informed decision-making.
+Consider the following key performance indicators (KPIs) to measure the effectiveness, timeliness, and completeness of your FinOps reporting.
 
 | KPI | Definition | Formula |
 |--------------|----------------|---------|
