@@ -68,6 +68,26 @@ Legend:
 
 > ➕ Added:
 >
+> 1. Added experimental feature to populate missing prices/costs.
+>    - This feature requires Cost Management price sheet exports be created and configured in the same FinOps hub instance or storage path.
+>    - This feature performs a large join between cost and price datasets and will slow down data refresh times.
+<!--
+>    - If you run into any issues with data at scale, please disable the parameter.
+>    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
+-->
+> 1. Added the Pricing units open dataset to support price sheet data cleanup.
+> 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
+<!--
+>
+> 🚫 Deprecated:
+>
+> 1. Cosmetic and informational transforms will be disabled by default in 0.9 and removed on or after July 1, 2025 to improve Power BI performance. If you rely on any of these changes, please let us know by [creating an issue in GitHub](https://aka.ms/ftk/ideas) to request an exemption. This includes:
+>    - Support for FOCUS 1.0 preview. Please create new FOCUS 1.0 exports and backfill historical data.
+>    - Fixing `x_SkuTerm` for MCA so it's the number of months rather than a display string.
+>    - Tracking changes in the `x_SourceChanges` column.
+>    - Explaining why rows have no cost in the `x_FreeReason` column.
+>    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
+-->
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
