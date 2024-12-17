@@ -70,6 +70,11 @@ Legend:
 > 1. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 1. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 1. ETL pipelile – Add support for parquet files created by Cost Management exports.
+>
+> ➕ Changed:
+>
+> 1. ETL Pipeline - Fixed timezones for ADF triggers to resolve issue where triggers would not start due to unrecognized timezone.
+
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
