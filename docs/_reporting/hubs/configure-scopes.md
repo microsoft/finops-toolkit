@@ -40,7 +40,9 @@ For the most seamless experience, we recommend allowing FinOps hubs to manage ex
 
 If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
 
-1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
+1. Determine the scope for your data export. We recommend exporting from either an **EA billing account** or a **MCA billing profile** scope to access additional datasets, including the price sheet, reservation details, reservation recommendations, and reservation transactions.
+
+2. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
 
    - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
    - **Dataset version** = `1.0` or `1.0r2`<sup>2</sup>
@@ -57,8 +59,8 @@ If you cannot grant permissions for your scope, you can create Cost Management e
    - **File partitioning** = On
    - **Overwrite data** = Off<sup>4</sup>
   
-2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
-3. Create exports for any additional data you would like to include in your reports.
+3. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
+4. Create exports for any additional data you would like to include in your reports.
    - Supported datasets and versions:
      - Price sheet (2023-05-01)
      - Reservation details (2023-03-01)
@@ -69,12 +71,12 @@ If you cannot grant permissions for your scope, you can create Cost Management e
      - Reservation transactions (2023-05-01)
    - Supported formats: Parquet (preferred) or CSV
    - Supported compression: Snappy (preferred), GZip, or uncompressed
-4. Run your exports to initialize the dataset.
+5. Run your exports to initialize the dataset.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
    - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../../_automation/powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
-5. Repeat steps 1-4 for each scope you want to monitor.
+6. Repeat steps 1-4 for each scope you want to monitor.
 
 _<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
 _<sup>2) FinOps hubs 0.4 supports FOCUS 1.0r2, 1.0, 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3. The only difference in FOCUS 1.0r2 is the inclusion of seconds in date columns.</sup>_
