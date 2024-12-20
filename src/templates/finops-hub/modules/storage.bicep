@@ -77,6 +77,10 @@ var schemaFiles = {
   'reservationrecommendations_2023-05-01_mca': loadTextContent('../schemas/reservationrecommendations_2023-05-01_mca.json')
   'reservationtransactions_2023-05-01_ea': loadTextContent('../schemas/reservationtransactions_2023-05-01_ea.json')
   'reservationtransactions_2023-05-01_mca': loadTextContent('../schemas/reservationtransactions_2023-05-01_mca.json')
+  'recommendations_1.0': loadTextContent('../schemas/recommendations_1.0.json')
+}
+var queriesFiles = {
+  'Recommendations': loadTextContent('./scripts/Recommendations.json')
 }
 
 // Roles needed to auto-start triggers
@@ -462,6 +466,10 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
       {
         name: 'schemaFiles'
         value: string(schemaFiles)
+      }
+      {
+        name: 'queriesFiles'
+        value: string(queriesFiles)
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')

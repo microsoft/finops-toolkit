@@ -1371,6 +1371,8 @@ CommitmentDiscountUsage_transform_v1_0()
     RecommendedQuantity2:            decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
     RecommendedQuantityNormalized:   decimal,   // MS CM EA resv reco 2024-05-01
     RecommendedQuantityNormalized2:  decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    ResourceId:                      string,    // Hubs Recommendations 1.0
+    ResourceName:                    string,    // Hubs Recommendations 1.0
     ResourceType:                    string,    // MS CM EA+MCA resv reco 2024-05-01
     Scope:                           string,    // MS CM EA resv reco 2024-05-01
     scope:                           string,    // MS CM MCA resv reco 2024-05-01
@@ -1378,10 +1380,24 @@ CommitmentDiscountUsage_transform_v1_0()
     SkuName:                         string,    // MS CM MCA resv reco 2024-05-01
     SkuProperties:                   string,    // MS CM EA resv reco 2024-05-01
     SkuProperties2:                  string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    SubAccountId:                    string,    // Hubs Recommendations 1.0
+    SubAccountName:                  string,    // Hubs Recommendations 1.0
     SubscriptionId:                  string,    // MS CM EA+MCA resv reco 2024-05-01
     Term:                            string,    // MS CM EA+MCA resv reco 2024-05-01
     TotalCostWithReservedInstances:  decimal,   // MS CM EA resv reco 2024-05-01
     TotalCostWithReservedInstances2: decimal,   // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
+    x_RecommendationCategory:        string,    // Hubs Recommendations 1.0
+    x_RecommendationControl:         string,    // Hubs Recommendations 1.0
+    x_RecommendationDate:            datetime,  // Hubs Recommendations 1.0
+    x_RecommendationDescription:     string,    // Hubs Recommendations 1.0
+    x_RecommendationDetails:         string,    // Hubs Recommendations 1.0
+    x_RecommendationId:              string,    // Hubs Recommendations 1.0
+    x_RecommendationImpact:          string,    // Hubs Recommendations 1.0
+    x_RecommendationMaturityLevel:   string,    // Hubs Recommendations 1.0
+    x_RecommendationSolution:        string,    // Hubs Recommendations 1.0
+    x_RecommendationTypeId:          string,    // Hubs Recommendations 1.0
+    x_ResourceGroupName:             string,    // Hubs Recommendations 1.0
+    x_ResourceType:                  string,    // Hubs Recommendations 1.0
     x_SourceName:                    string,    // Hubs add-on
     x_SourceProvider:                string,    // Hubs add-on
     x_SourceType:                    string,    // Hubs add-on
@@ -1496,19 +1512,35 @@ Recommendations_transform_v1_0()
         'SkuSize', coalesce(SKU, SkuName),
         'SkuTerm', isoMonths(Term)
       ),
+      x_SourceType endswith '-HubsRecommendations', bag_pack(
+        'RecommendationCategory', x_RecommendationCategory,
+        'RecommendationId', x_RecommendationId,
+        'RecommendationSolution', x_RecommendationSolution,
+        'RecommendationTypeId', x_RecommendationTypeId,
+        'RecommendationImpact', x_RecommendationImpact,
+        'RecommendationControl', x_RecommendationControl,
+        'RecommendationMaturityLevel', x_RecommendationMaturityLevel,
+        'AdditionalInfo', x_RecommendationDetails
+      ),
       dynamic({})
     )
     //
     // Sort columns and apply final transforms
     | project
       ProviderName,
-      SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
-      x_IngestionTime = ingestion_time(),
+      ResourceId,
+      ResourceName,
+      ResourceType      = coalesce(ResourceType, x_ResourceType),
+      SubAccountId      = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
+      SubAccountName,
       x_EffectiveCostAfter = TotalCostWithReservedInstances,
       x_EffectiveCostBefore = CostWithNoReservedInstances,
       x_EffectiveCostSavings = NetSavings,
-      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^Last([0-9]+)Days$', 1, LookBackPeriod)) * 1d),
+      x_IngestionTime = ingestion_time(),
+      x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^Last([0-9]+)Days$', 1, LookBackPeriod)) * 1d)),
+      x_RecommendationDescription,
       x_RecommendationDetails,
+      x_ResourceGroupName,
       x_SourceName,
       x_SourceProvider,
       x_SourceType,
@@ -1519,14 +1551,20 @@ Recommendations_transform_v1_0()
 
 // Recommendations_final_v1_0 table
 .create-merge table Recommendations_final_v1_0 (
-    ProviderName:            string,
-    SubAccountId:            string,
-    x_IngestionTime:         datetime,
+    ProviderName:                string,    
+    ResourceId:                  string,
+    ResourceName:                string,
+    ResourceType:                string,
+    SubAccountId:                string,
+    SubAccountName:              string,
     x_EffectiveCostAfter:    decimal,
     x_EffectiveCostBefore:   decimal,
     x_EffectiveCostSavings:  decimal,
+    x_IngestionTime:             datetime,
     x_RecommendationDate:    datetime,
+    x_RecommendationDescription: string,
     x_RecommendationDetails: dynamic,
+    x_ResourceGroupName:     string,
     x_SourceName:            string,
     x_SourceProvider:        string,
     x_SourceType:            string,

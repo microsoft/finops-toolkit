@@ -92,6 +92,9 @@ var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 var managedVnetName = 'default'
 
+var recommendationsDataSet = 'Recommendations'
+var recommendationsScope = 'azure'
+
 // Separator used to separate ingestion ID from file name for ingested files
 var ingestionIdFileNameSeparator = '__'
 
@@ -100,12 +103,14 @@ var exportManifestAddedTriggerName = '${safeExportContainerName}_ManifestAdded'
 var ingestionManifestAddedTriggerName = '${safeIngestionContainerName}_ManifestAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
+var dailyRecommendationsTriggerName = '${recommendationsDataSet}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
   exportManifestAddedTriggerName
   ingestionManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
+  dailyRecommendationsTriggerName
   monthlyTriggerName
 ]
 
@@ -477,6 +482,28 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
   }
 }
 
+var armEndpointPropertyName = 'aadResourceId' // This is a workaround to avoid the warning about "ResourceId" in the property name
+resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+  name: 'azurerm'
+  parent: dataFactory
+  properties: {
+    annotations: []
+    parameters: {}
+    type: 'RestService'
+    typeProperties: union(
+      {
+        url: environment().resourceManager
+        authenticationType: 'ManagedServiceIdentity'
+        enableServerCertificateValidation: true
+      },
+      {
+        // When bicep sees "ResourceId" in the following property name, it raises a warning. The union and variable work around this to avoid the warning.
+        '${armEndpointPropertyName}': environment().resourceManager
+      }
+    )
+  }
+}
+
 resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: 'remoteHubStorage'
   parent: dataFactory
@@ -799,6 +826,24 @@ resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-0
   }
 }
 
+resource dataset_resourcegraph 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
+  name: 'resourcegraph'
+  parent: dataFactory
+  properties: {
+    annotations: []
+    parameters: {}
+    type: 'RestResource'
+    typeProperties: {
+      relativeUrl: '/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01'
+    }
+    linkedServiceName: {
+      parameters: {}
+      referenceName: linkedService_arm.name
+      type: 'LinkedServiceReference'
+    }
+  }
+}
+
 //------------------------------------------------------------------------------
 // Triggers
 //------------------------------------------------------------------------------
@@ -926,6 +971,37 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
     }
   }
 }
+
+resource trigger_RecommendationsDailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: dailyRecommendationsTriggerName
+  parent: dataFactory
+  dependsOn: [
+    stopTriggers
+  ]
+  properties: {
+    pipelines: [
+      {
+        pipelineReference: {
+          referenceName: pipeline_ExecuteRecommendations.name
+          type: 'PipelineReference'
+        }
+        parameters: {
+          Recurrence: 'Daily'
+        }
+      }
+    ]
+    type: 'ScheduleTrigger'
+    typeProperties: {
+      recurrence: {
+        frequency: 'Day'
+        interval: 1
+        startTime: '2023-01-01T03:03:00'
+        timeZone: azuretimezones.outputs.Timezone
+      }
+    }
+  }
+}
+
 
 resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
   name: monthlyTriggerName
@@ -4738,6 +4814,401 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
 }
 
 //------------------------------------------------------------------------------
+// recommendations export pipeline
+// Triggered by dailyRecommendations trigger
+//------------------------------------------------------------------------------
+@description('Extracts Azure Advisor and custom recommendations from the Resource Graph API.')
+resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${recommendationsDataSet}_Execute'
+  parent: dataFactory
+  properties: {
+    activities: [
+      { // Set blob timestamp
+        name: 'Set Blob Timestamp'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'blobExportTimestamp'
+          value: {
+            value: '@concat(utcNow(\'yyyy\'),\'/\',utcNow(\'MM\'),\'/\',utcNow(\'dd\'),\'/\')'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set instance id
+        name: 'Set Instance Id'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'instanceId'
+          value: {
+            value: '@guid()'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set blob base path
+        name: 'Set Blob Base Path'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Blob Timestamp'
+            dependencyConditions: ['Succeeded']
+          }
+          {
+            activity: 'Set Instance Id'
+            dependencyConditions: ['Succeeded']
+          }
+        ]  
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'blobBasePath'
+          value: {
+            value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', variables(\'instanceId\'), \'${ingestionIdFileNameSeparator}\')'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set schema filename        
+        name: 'Set Schema Filename'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'schemaFile'
+          value: 'recommendations_1.0.json'
+        }
+      }
+      { // Set error counter
+        name: 'Set Error Counter'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'pipelineFailed'
+          value: {
+            value: '@bool(false)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Load Schema Mappings
+        name: 'Load Schema Mappings'
+        type: 'Lookup'
+        dependsOn: [
+          {
+            activity: 'Set Schema Filename'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@variables(\'schemaFile\')'
+                type: 'Expression'
+              }
+              folderPath: '${configContainerName}/schemas'
+            }
+          }
+        }
+      }
+      { // Error: SchemaLoadFailed
+        name: 'Failed to Load Schema'
+        type: 'Fail'
+        dependsOn: [
+          {
+            activity: 'Load Schema Mappings'
+            dependencyConditions: ['Failed']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          message: {
+            value: '@concat(\'Unable to load the \', variables(\'schemaFile\'), \' recommendations schema file. Please confirm the schema and version are supported for FinOps hubs ingestion. Unsupported files will remain in the ingestion container.\')'
+            type: 'Expression'
+          }
+          errorCode: 'SchemaLoadFailed'
+        }
+      }
+      { // Load Queries
+        name: 'Load Queries'
+        type: 'Lookup'
+        dependsOn: [
+        ]
+        policy: {
+          timeout: '0.00:10:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'Recommendations.json'
+              folderPath: '${configContainerName}/queries'
+            }
+          }
+          firstRowOnly: true
+        }
+      }
+      { // Iterate Queries
+        name: 'Iterate Queries'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Set Error Counter'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Set Blob Base Path'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Load Schema Mappings'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Load Queries'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Load Queries\').output.firstRow.queries'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            { name: 'Execute Query'
+              type: 'Copy'
+              dependsOn: [
+              ]
+              policy: {
+                timeout: '0.00:10:00'
+                retry: 0
+                retryIntervalInSeconds: 60
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                source: {
+                  type: 'RestSource'
+                  httpRequestTimeout: '00:02:00'
+                  requestInterval: '00.00:00:00.050'
+                  requestMethod: 'POST'
+                  requestBody: {
+                    value: '@concat(\'{ "query": "\', item().query, \' | extend x_SourceName=\\"\', item().source, \'\\", x_SourceType=\\"\', item().type, \'\\", x_SourceProvider=\\"\', item().provider, \'\\", x_SourceVersion=\\"\', item().version, \'\\"" }\')'
+                    type: 'Expression'
+                  }
+                  additionalHeaders: {
+                    'Content-Type': 'application/json'
+                  }
+                }
+                sink: {
+                  type: 'ParquetSink'
+                  storeSettings: {
+                    type: 'AzureBlobFSWriteSettings'
+                  }
+                  formatSettings: {
+                    type: 'ParquetWriteSettings'
+                    fileExtension: '.parquet'
+                  }
+                }
+                enableStaging: false
+                translator: {
+                  value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+                  type: 'Expression'
+                }
+              }
+              inputs: [
+                {
+                  referenceName: dataset_resourcegraph.name
+                  type: 'DatasetReference'
+                  parameters: {}
+                }
+              ]
+              outputs: [
+                {
+                  referenceName: dataset_ingestion.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    blobPath: {
+                      value: '@concat(variables(\'blobBasePath\'), item().type, \'.parquet\')'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
+            }
+            { name: 'Catch Query Failure'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Execute Query'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@contains(activity(\'Execute Query\').output.errors[0].Message, \'Sequence contains no elements\')'
+                  type: 'Expression'
+                }
+                ifFalseActivities: [
+                  {
+                    name: 'Set Query Error Counter'
+                    type: 'SetVariable'
+                    dependsOn: []
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'pipelineFailed'
+                      value: {
+                        value: '@bool(true)'
+                        type: 'Expression'
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+      { // Overall Exports Check
+        name: 'Overall Exports Check'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Iterate Queries'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(variables(\'pipelineFailed\'), true)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Fail Pipeline'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: 'Pipeline failed'
+                  type: 'Expression'
+                }
+                errorCode: 'ARGQueriesFailed'
+              }
+            }
+          ]
+        }
+      }
+    ]
+    policy: {
+      elapsedTimeMetric: {}
+    }
+    variables: {
+      schemaFile: {
+        type: 'String'
+      }
+      instanceId: {
+        type: 'String'
+      }
+      blobExportTimestamp: {
+        type: 'String'
+      }
+      blobBasePath: {
+        type: 'String'
+      }
+      pipelineFailed: {
+        type: 'Boolean'
+      }
+    }
+    annotations: []
+  }
+}
+
+//------------------------------------------------------------------------------
 // Start all triggers
 //------------------------------------------------------------------------------
 
@@ -4759,6 +5230,7 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     trigger_IngestionManifestAdded
     trigger_SettingsUpdated
     trigger_DailySchedule
+    trigger_RecommendationsDailySchedule
     trigger_MonthlySchedule
   ]
   properties: {
