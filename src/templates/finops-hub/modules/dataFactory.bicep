@@ -5224,7 +5224,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
               ]
               outputs: [
                 {
-                  referenceName: 'ingestion'
+                  referenceName: dataset_ingestion.name
                   type: 'DatasetReference'
                   parameters: {
                     blobPath: {
