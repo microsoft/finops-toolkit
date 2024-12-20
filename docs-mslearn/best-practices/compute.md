@@ -31,7 +31,7 @@ Resource management
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.containerservice/managedclusters"
 | extend AgentPoolProfiles = properties.agentPoolProfiles
@@ -70,7 +70,7 @@ Waste reduction
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'microsoft.compute/virtualmachines' 
     and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM deallocated' 
@@ -82,6 +82,92 @@ resources
 | project id, PowerState, VMLocation, resourceGroup, subscriptionId
 ```
 
+### Leverage commitment discounts
+
+Recommendation: Leverage commitment discounts to save up to 72% compared to list costs.
+
+#### About commitment discounts
+
+Commitment discounts are financial incentives offered to organizations who commit to using Azure services for a specified period or term, typically one or three years. By agreeing to a fixed amount of usage or spend (cost) for the term, organizations can benefit from significant discounts (up to 72%) compared to list prices. Discounts are applied to eligible resources, helping organizations save on their cloud costs while providing flexibility and predictability in their budgeting.
+
+To learn more about commitment discounts, refer to the [Rate optimization capability](../framework/optimize/rates.md).
+
+#### Measure virtual machine commitment discount coverage
+
+Use the following FinOps hub query to measure overall VM commitment discount coverage.
+
+```kusto
+Costs
+| where ResourceType =~ 'Virtual machine'
+| where x_SkuMeterCategory startswith 'Virtual Machines'
+//
+// Join with prices to filter out ineligible SKUs
+| extend tmp_MeterKey = strcat(substring(ChargePeriodStart, 0, 7), x_SkuMeterId)
+| project tmp_MeterKey, EffectiveCost, PricingCategory, CommitmentDiscountCategory, ResourceName, x_ResourceGroupName, SubAccountName, BillingCurrency
+| join kind=leftouter (
+    Prices
+    | where x_SkuMeterCategory startswith 'Virtual Machines'
+    | summarize sp = countif(x_SkuPriceType == 'SavingsPlan'), ri = countif(x_SkuPriceType == 'ReservedInstance')
+        by tmp_MeterKey = strcat(substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId)
+    | project tmp_MeterKey, x_CommitmentDiscountSpendEligibility = iff(sp == 0, 'Not Eligible', 'Eligible'), x_CommitmentDiscountUsageEligibility = iff(ri == 0, 'Not Eligible', 'Eligible')
+) on tmp_MeterKey
+| extend x_CommitmentDiscountUsageEligibility = iff(isempty(x_CommitmentDiscountUsageEligibility), '(missing prices)', x_CommitmentDiscountUsageEligibility)
+| extend x_CommitmentDiscountSpendEligibility = iff(isempty(x_CommitmentDiscountSpendEligibility), '(missing prices)', x_CommitmentDiscountSpendEligibility)
+//
+// Sum costs
+| summarize
+    TotalCost = sum(EffectiveCost),
+    OnDemandCost = sumif(EffectiveCost, PricingCategory == 'Standard'),
+    SpotCost = sumif(EffectiveCost, PricingCategory == 'Dynamic'),
+    CommittedCost = sumif(EffectiveCost, PricingCategory == 'Committed'),
+    CommittedSpendCost = sumif(EffectiveCost, CommitmentDiscountCategory == 'Spend'),
+    CommittedUsageCost = sumif(EffectiveCost, CommitmentDiscountCategory == 'Usage')
+    by x_CommitmentDiscountUsageEligibility, x_CommitmentDiscountSpendEligibility, BillingCurrency
+| extend OnDemandPercent = round(OnDemandCost / TotalCost * 100, 2)
+| extend CoveragePercent = round(CommittedCost / TotalCost * 100, 2)
+| extend CoverageUsagePercent = round(CommittedUsageCost / TotalCost * 100, 2)
+| extend CoverageSpendPercent = round(CommittedSpendCost / TotalCost * 100, 2)
+| order by CoveragePercent desc
+```
+
+Use the following query to measure how coverage per VM.
+
+```kusto
+Costs
+| where ResourceType =~ 'Virtual machine'
+| where x_SkuMeterCategory startswith 'Virtual Machines'
+//
+// Join with prices to filter out ineligible SKUs
+| extend tmp_MeterKey = strcat(substring(ChargePeriodStart, 0, 7), x_SkuMeterId)
+| project tmp_MeterKey, EffectiveCost, PricingCategory, CommitmentDiscountCategory, ResourceName, x_ResourceGroupName, SubAccountName, BillingCurrency
+| join kind=leftouter (
+    Prices
+    | where x_SkuMeterCategory startswith 'Virtual Machines'
+    | summarize sp = countif(x_SkuPriceType == 'SavingsPlan'), ri = countif(x_SkuPriceType == 'ReservedInstance')
+        by tmp_MeterKey = strcat(substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId)
+    | project tmp_MeterKey, x_CommitmentDiscountSpendEligibility = iff(sp == 0, 'Not Eligible', 'Eligible'), x_CommitmentDiscountUsageEligibility = iff(ri == 0, 'Not Eligible', 'Eligible')
+) on tmp_MeterKey
+| extend x_CommitmentDiscountUsageEligibility = iff(isempty(x_CommitmentDiscountUsageEligibility), '(missing prices)', x_CommitmentDiscountUsageEligibility)
+| extend x_CommitmentDiscountSpendEligibility = iff(isempty(x_CommitmentDiscountSpendEligibility), '(missing prices)', x_CommitmentDiscountSpendEligibility)
+//
+// Sum costs by resource
+| summarize
+    TotalCost = sum(EffectiveCost),
+    OnDemandCost = sumif(EffectiveCost, PricingCategory == 'Standard'),
+    SpotCost = sumif(EffectiveCost, PricingCategory == 'Dynamic'),
+    CommittedCost = sumif(EffectiveCost, PricingCategory == 'Committed'),
+    CommittedSpendCost = sumif(EffectiveCost, CommitmentDiscountCategory == 'Spend'),
+    CommittedUsageCost = sumif(EffectiveCost, CommitmentDiscountCategory == 'Usage')
+    by ResourceName, x_ResourceGroupName, SubAccountName, x_CommitmentDiscountUsageEligibility, x_CommitmentDiscountSpendEligibility, BillingCurrency
+| extend OnDemandPercent = round(OnDemandCost / TotalCost * 100, 2)
+| extend CoveragePercent = round(CommittedCost / TotalCost * 100, 2)
+| extend CoverageUsagePercent = round(CommittedUsageCost / TotalCost * 100, 2)
+| extend CoverageSpendPercent = round(CommittedSpendCost / TotalCost * 100, 2)
+| order by CoveragePercent desc
+```
+
+To learn more about FinOps hubs, refer to [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md).
+
 ### Query - Virtual machine scale set details
 
 This query analyzes Virtual Machine Scale Sets in your Azure environment based on their SKU, spot VM priority, and priority mix policy. It provides insights for cost optimization and resource management strategies.
@@ -92,7 +178,7 @@ Resource management
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'microsoft.compute/virtualmachinescalesets'
 | extend SpotVMs = tostring(properties.virtualMachineProfile.priority)
@@ -112,7 +198,7 @@ Resource management
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == 'microsoft.compute/virtualmachines'
 | extend vmSize = properties.hardwareProfile.vmSize
