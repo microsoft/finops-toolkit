@@ -1163,35 +1163,35 @@ CommitmentDiscountUsage_transform_v1_0()
     NormalizedSize:                 string,    // MS CM EA+MCA resv reco 2024-05-01
     RecommendedQuantity:            decimal,   // MS CM EA+MCA resv reco 2024-05-01
     RecommendedQuantityNormalized:  decimal,   // MS CM EA+MCA resv reco 2024-05-01
+    ResourceId:                     string,    // Hubs Recommendations 1.0
+    ResourceName:                   string,    // Hubs Recommendations 1.0
     ResourceType:                   string,    // MS CM EA+MCA resv reco 2024-05-01
     Scope:                          string,    // MS CM EA resv reco 2024-05-01
     scope:                          string,    // MS CM MCA resv reco 2024-05-01
     SKU:                            string,    // MS CM EA resv reco 2024-05-01
     SkuName:                        string,    // MS CM MCA resv reco 2024-05-01
     SkuProperties:                  string,    // MS CM EA+MCA resv reco 2024-05-01
+    SubAccountId:                   string,    // Hubs Recommendations 1.0
+    SubAccountName:                 string,    // Hubs Recommendations 1.0
     SubscriptionId:                 string,    // MS CM EA+MCA resv reco 2024-05-01
     Term:                           string,    // MS CM EA+MCA resv reco 2024-05-01
     TotalCostWithReservedInstances: decimal,   // MS CM EA+MCA resv reco 2024-05-01
+    x_RecommendationCategory:       string,    // Hubs Recommendations 1.0
+    x_RecommendationControl:        string,    // Hubs Recommendations 1.0
+    x_RecommendationDate:           datetime,  // Hubs Recommendations 1.0
+    x_RecommendationDescription:    string,    // Hubs Recommendations 1.0
+    x_RecommendationDetails:        string,    // Hubs Recommendations 1.0
+    x_RecommendationId:             string,    // Hubs Recommendations 1.0
+    x_RecommendationImpact:         string,    // Hubs Recommendations 1.0
+    x_RecommendationMaturityLevel:  string,    // Hubs Recommendations 1.0
+    x_RecommendationSolution:       string,    // Hubs Recommendations 1.0
+    x_RecommendationTypeId:         string,    // Hubs Recommendations 1.0
+    x_ResourceGroupName:            string,    // Hubs Recommendations 1.0
+    x_ResourceType:                 string,    // Hubs Recommendations 1.0
     x_SourceName:                   string,    // Hubs add-on
     x_SourceProvider:               string,    // Hubs add-on
     x_SourceType:                   string,    // Hubs add-on
-    x_SourceVersion:                string,    // Hubs add-on
-    ResourceId:                     string,    // Advisor
-    ResourceName:                   string,    // Advisor
-    x_ResourceType:                 string,    // Advisor
-    x_RecommendationCategory:       string,    // Advisor
-    x_RecommendationId:             string,    // Advisor
-    x_RecommendationDescription:    string,    // Advisor
-    x_RecommendationSolution:       string,    // Advisor
-    x_RecommendationTypeId:         string,    // Advisor
-    SubAccountId:                   string,    // Advisor
-    SubAccountName:                 string,    // Advisor
-    x_RecommendationImpact:         string,    // Advisor
-    x_RecommendationControl:        string,    // Advisor
-    x_RecommendationMaturityLevel:  string,    // Advisor
-    x_RecommendationDetails:        string,    // Advisor
-    x_RecommendationDate:           datetime,  // Advisor
-    x_ResourceGroupName:            string     // Advisor
+    x_SourceVersion:                string     // Hubs add-on
 )
 
 // Set Recommendations_raw retention policy
@@ -1242,11 +1242,7 @@ Recommendations_transform_v1_0()
         'SkuSize', coalesce(SKU, SkuName),
         'SkuTerm', isoMonths(Term)
       ),
-      x_SourceType endswith 'Recommendations', bag_pack(
-        'ResourceId', ResourceId,
-        'ResourceName', ResourceName,
-        'ResourceGroupName', x_ResourceGroupName,
-        'ResourceType', x_ResourceType,
+      x_SourceType endswith '-HubsRecommendations', bag_pack(
         'RecommendationCategory', x_RecommendationCategory,
         'RecommendationId', x_RecommendationId,
         'RecommendationSolution', x_RecommendationSolution,
@@ -1264,24 +1260,28 @@ Recommendations_transform_v1_0()
       // TODO: Should we include ChargePeriodEnd?
       ChargePeriodStart = FirstUsageDate,
       ProviderName,
+      ResourceId,
+      ResourceName,
+      ResourceType      = coalesce(ResourceType, x_ResourceType),
       SubAccountId      = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
+      SubAccountName,
       // TODO: SubAccountName,
       x_IngestionTime   = ingestion_time(),             // Hubs add-on
       x_LookbackPeriod  = case(
         LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
         ''
       ),
-      x_RecommendationCostAfter  = TotalCostWithReservedInstances,
+      x_RecommendationCostAfter = TotalCostWithReservedInstances,
       x_RecommendationCostBefore = CostWithNoReservedInstances,
       x_RecommendationCostSavings = NetSavings,
+      x_RecommendationDate,
+      x_RecommendationDescription,
       x_RecommendationDetails,
+      x_ResourceGroupName,
       x_SourceName,
       x_SourceProvider,
       x_SourceType,
-      x_SourceVersion,
-      SubAccountName,
-      x_RecommendationDescription,
-      x_RecommendationDate
+      x_SourceVersion
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1290,20 +1290,24 @@ Recommendations_transform_v1_0()
 .create-merge table Recommendations_final_v1_0 (
     ChargePeriodStart:           datetime,
     ProviderName:                string,
+    ResourceId:                  string,
+    ResourceName:                string,
+    ResourceType:                string,
     SubAccountId:                string,
+    SubAccountName:              string,
     x_IngestionTime:             datetime,
     x_LookbackPeriod:            string,
     x_RecommendationCostAfter:   decimal,
     x_RecommendationCostBefore:  decimal,
     x_RecommendationCostSavings: decimal,
+    x_RecommendationDate:        datetime,
+    x_RecommendationDescription: string,
     x_RecommendationDetails:     dynamic,
+    x_ResourceGroupName:         string,
     x_SourceName:                string,
     x_SourceProvider:            string,
     x_SourceType:                string,
-    x_SourceVersion:             string,
-    SubAccountName:              string,
-    x_RecommendationDescription: string,
-    x_RecommendationDate:        datetime
+    x_SourceVersion:             string
 )
 
 //----------------------------------------------------------------------------------------------------------------------

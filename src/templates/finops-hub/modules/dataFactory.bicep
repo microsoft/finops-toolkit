@@ -5217,7 +5217,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
               }
               inputs: [
                 {
-                  referenceName: 'resourcegraph'
+                  referenceName: dataset_resourcegraph.name
                   type: 'DatasetReference'
                   parameters: {}
                 }
