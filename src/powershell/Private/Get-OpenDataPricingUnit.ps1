@@ -45,7 +45,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '1 GB'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'GB'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 GB Hour'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'GB Hours'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 GB Second'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'GB Seconds'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = '1 GB/Day'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'GB/Day'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '1 GB/Day'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'GB/Day'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 GB/Hour'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'GB/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 GB/Month'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'GB/Month'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 GB/hora'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'GB/Hour'; }
@@ -85,8 +85,8 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Plans'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Plans'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Policies'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Policies'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Resource'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Resources'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = '1 Rotation'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'Rotation'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = '1 Second'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'Seconds'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '1 Rotation'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'Rotation'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '1 Second'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'Seconds'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Sites'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Sites'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Subscription'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Subscriptions'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Subscriptions'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Subscriptions'; }
@@ -313,7 +313,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '10K Transactions'; AccountTypes = 'MCA'; PricingBlockSize = 10000; DistinctUnits = 'Transactions'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10K/Hour'; AccountTypes = 'MCA'; PricingBlockSize = 10000; DistinctUnits = 'Units/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10K/Month'; AccountTypes = 'MCA, EA'; PricingBlockSize = 10000; DistinctUnits = 'Units/Month'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = '10M'; AccountTypes = 'MCA'; PricingBlockSize = 10000000; DistinctUnits = 'Units'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '10M'; AccountTypes = 'MCA, EA'; PricingBlockSize = 10000000; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '128 MB'; AccountTypes = 'MCA, EA'; PricingBlockSize = 128; DistinctUnits = 'MB'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '150 Hours'; AccountTypes = 'EA'; PricingBlockSize = 150; DistinctUnits = 'Hours'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1B'; AccountTypes = 'MCA'; PricingBlockSize = 1000000000; DistinctUnits = 'Units'; }
@@ -378,7 +378,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = 'Minute(s)'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'Minutes'; }
         ,[PSCustomObject]@{ UnitOfMeasure = 'Per Call'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'Calls'; }
         ,[PSCustomObject]@{ UnitOfMeasure = 'Per Request'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'Requests'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = 'Text'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'Messages'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = 'Text'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'Messages'; }
         ,[PSCustomObject]@{ UnitOfMeasure = 'Unassigned'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = 'Unit'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = 'Units'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'Units'; }

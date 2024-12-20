@@ -273,35 +273,11 @@ table Prices
 
 		annotation SummarizationSetBy = Automatic
 
-	column BillingAccountName
-		dataType: string
-		lineageTag: 24ef666f-89e9-484a-bc3d-17503ca58eff
-		summarizeBy: none
-		sourceColumn: BillingAccountName
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_BillingAccountAgreement
 		dataType: string
 		lineageTag: 4368fe70-6efa-49a8-9df7-abb859926de7
 		summarizeBy: none
 		sourceColumn: x_BillingAccountAgreement
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_BillingProfileName
-		dataType: string
-		lineageTag: 30971e71-71dd-4d4f-9dd0-92eb7a9b8827
-		summarizeBy: none
-		sourceColumn: x_BillingProfileName
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_SkuTierMinimum
-		dataType: string
-		lineageTag: ee6d677c-6bef-42c9-84f5-842b0cc6dadd
-		summarizeBy: none
-		sourceColumn: x_SkuTierMinimum
 
 		annotation SummarizationSetBy = Automatic
 
@@ -320,6 +296,24 @@ table Prices
 		sourceColumn: x_SourceVersion
 
 		annotation SummarizationSetBy = Automatic
+
+	column PricingUnit
+		dataType: string
+		lineageTag: 03ff6fbe-f948-495f-bbd0-3e924c21ad77
+		summarizeBy: none
+		sourceColumn: PricingUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingBlockSize
+		dataType: double
+		lineageTag: e2b74b8c-4a93-4689-8118-f51321e5c671
+		summarizeBy: sum
+		sourceColumn: x_PricingBlockSize
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	partition Prices = m
 		mode: import
@@ -342,7 +336,9 @@ table Prices
 				            {"BasePrice",          type number},
 				            {"MarketPrice",        type number},
 				            {"UnitPrice",          type number},
-				            {"Term",               type number}
+				            {"Term",               type number},
+				            // Other
+				            {"UnitOfMeasure",      type text}
 				            // TODO: Should we set the type for EA-only fields? -- {"IncludedQuantity",   type number},
 				        }
 				    ),
@@ -382,7 +378,17 @@ table Prices
 				        )
 				        else FixTypes,
 				
-				    Rename = Table.RenameColumns(AlignColumns,
+				    SplitUnitOfMeasure = Table.ReplaceValue(Table.ReplaceValue(
+				        Table.ExpandTableColumn(
+				            Table.NestedJoin(AlignColumns, {"UnitOfMeasure"}, PricingUnits, {"UnitOfMeasure"}, "PricingUnits", JoinKind.LeftOuter),
+				            "PricingUnits",
+				            {"PricingBlockSize", "DistinctUnits"},
+				            {"x_PricingBlockSize", "PricingUnit"}
+				        ),
+				        null, 1, Replacer.ReplaceValue, {"x_PricingBlockSize"}),
+				        null, "Units", Replacer.ReplaceValue, {"PricingUnit"}),
+				
+				    Rename = Table.RenameColumns(SplitUnitOfMeasure,
 				        {
 				            {"BasePrice",          "x_BaseUnitPrice"},
 				            {"BillingAccountId",   "x_BillingAccountId"},
@@ -416,6 +422,7 @@ table Prices
 				        },
 				        MissingField.Ignore
 				    ),
+				
 				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
 				        "BillingAccountId",           each "/providers/Microsoft.Billing/billingAccounts/" & [x_BillingAccountId] & (if [x_BillingProfileId] = null or [x_BillingProfileId] = [x_BillingAccountId] then null else "/billingProfiles/" & [x_BillingProfileId])),
 				        "ChargeCategory",             each if [x_SkuPriceType] = "Consumption" then "Usage"       else if [x_SkuPriceType] = "SavingsPlan" or [x_SkuPriceType] = "Reservation" then "Purchase" else null),

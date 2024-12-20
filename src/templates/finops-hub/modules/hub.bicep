@@ -21,11 +21,21 @@ param location string = resourceGroup().location
 @description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
 param storageSku string = 'Premium_LRS'
 
+@description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
+param enableInfrastructureEncryption bool = false
+
+@description('Optional. Remote storage account for ingestion dataset.')
+param remoteHubStorageUri string = ''
+
+@description('Optional. Storage account key for remote storage account.')
+@secure()
+param remoteHubStorageKey string = ''
+
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
 
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
-@description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".')
+@description('Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_D11_v2".')
 @allowed([
   'Dev(No SLA)_Standard_E2a_v4' // 2 CPU, 16GB RAM, 24GB cache, $110/mo
   'Dev(No SLA)_Standard_D11_v2' // 2 CPU, 14GB RAM, 78GB cache, $121/mo
@@ -92,7 +102,7 @@ param dataExplorerName string = ''
   'Standard_L32as_v3'
   'Standard_L32s_v3'
 ])
-param dataExplorerSku string = 'Dev(No SLA)_Standard_E2a_v4'
+param dataExplorerSku string = 'Dev(No SLA)_Standard_D11_v2'
 
 @description('Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1 for dev/test SKUs, 2 for standard SKUs.')
 @minValue(1)
@@ -120,24 +130,14 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
-@description('Optional. Remote storage account for ingestion dataset.')
-param remoteHubStorageUri string = ''
-
-@description('Optional. Storage account key for remote storage account.')
-@secure()
-param remoteHubStorageKey string = ''
-
-@description('Optional. Address space for the workload. A /27 is required for the workload. Default: "10.20.30.0/27".')
-param virtualNetworkAddressPrefix string = '10.20.30.0/27'
-
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
+@description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
+param virtualNetworkAddressPrefix string = '10.20.30.0/26'
+
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
-
-@description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
-param enableInfrastructureEncryption bool = false
 
 //------------------------------------------------------------------------------
 // Variables
@@ -161,10 +161,20 @@ var dataFactoryName = replace(
   '-'
 )
 
-// Do not reference the dataExplorer deployment directly or indirectly to avoid a DeploymentNotFound error
+// Do not reference these deployments directly or indirectly to avoid a DeploymentNotFound error
 var deployDataExplorer = !empty(dataExplorerName)
-var dataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
-var dataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
+var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clusterName
+var safeDataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
+var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
+var safeDataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
+var safeDataExplorerIngestionCapacity =  !deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity
+var safeDataExplorerPrincipalId =  !deployDataExplorer ? '' : dataExplorer.outputs.principalId
+var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
+var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
+var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
+var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
+
+// var eventGridName = 'finops-hub-eventgrid-${uniqueSuffix}'
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
 // var eventGridSuffix = '-${uniqueSuffix}'
@@ -224,12 +234,14 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 // Virtual network
 //------------------------------------------------------------------------------
 
-module vnet 'vnet.bicep' = {
+module vnet 'vnet.bicep' = if (!enablePublicAccess) {
   name: 'vnet'
   params: {
     hubName: hubName
     location: location
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    tags: resourceTags
+    tagsByResource: tagsByResource
   }
 }
 
@@ -252,9 +264,9 @@ module storage 'storage.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
-    virtualNetworkId: vnet.outputs.vNetId
-    privateEndpointSubnetId: vnet.outputs.finopsHubSubnetId
-    scriptSubnetId: vnet.outputs.scriptSubnetId
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId: safeFinopsHubSubnetId
+    scriptSubnetId: safeScriptSubnetId
     enablePublicAccess: enablePublicAccess
   }
 }
@@ -266,8 +278,6 @@ module storage 'storage.bicep' = {
 module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
   name: 'dataExplorer'
   params: {
-    // hubName: hubName
-    // uniqueSuffix: uniqueSuffix
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
@@ -276,9 +286,10 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
-    // eventGridLocation: finalEventGridLocation
-    // storageAccountName: storage.outputs.name
-    // storageContainerName: storage.outputs.ingestionContainer
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId: safeDataExplorerSubnetId
+    enablePublicAccess: enablePublicAccess
+    storageAccountName: storage.outputs.name
   }
 }
 
@@ -313,10 +324,15 @@ module dataFactoryResources 'dataFactory.bicep' = {
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
-    dataExplorerUri: dataExplorerUri
-    dataExplorerIngestionDatabase: dataExplorerIngestionDb
+    dataExplorerName: safeDataExplorerName
+    dataExplorerPrincipalId: safeDataExplorerPrincipalId
+    dataExplorerIngestionDatabase: safeDataExplorerIngestionDb
+    dataExplorerIngestionCapacity: safeDataExplorerIngestionCapacity
+    dataExplorerUri: safeDataExplorerUri
+    dataExplorerId: safeDataExplorerId
     keyVaultName: keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
+    enablePublicAccess: enablePublicAccess
   }
 }
 
@@ -333,8 +349,9 @@ module keyVault 'keyVault.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     storageAccountKey: remoteHubStorageKey
-    virtualNetworkId: vnet.outputs.vNetId
-    privateEndpointSubnetId: vnet.outputs.finopsHubSubnetId
+    enablePublicAccess: enablePublicAccess
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId:safeFinopsHubSubnetId
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId

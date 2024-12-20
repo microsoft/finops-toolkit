@@ -2,9 +2,11 @@
 param location string = resourceGroup().location
 
 param timezoneobject object = {
-  australiaeast: 'Australian Eastern Standard Time'
-  australiasoutheast: 'Australian Eastern Standard Time'
-  brazilsouth: 'Brasil Standard Time'
+  australiaeast: 'AUS Eastern Standard Time'
+  australiacentral: 'AUS Eastern Standard Time'
+  australiacentral2: 'AUS Eastern Standard Time'
+  australiasoutheast: 'AUS Eastern Standard Time'
+  brazilsouth: 'E. South America Standard Time'
   canadacentral: 'Central Standard Time'
   canadaeast: 'Eastern Standard Time'
   centralindia: 'India Standard Time'

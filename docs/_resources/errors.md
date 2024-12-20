@@ -13,18 +13,21 @@ Sorry to hear you're having a problem. We're here to help!
 <details markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [AccountPropertyCannotBeUpdated](#accountpropertycannotbeupdated)
 - [BadHubVersion](#badhubversion)
 - [DataExplorerIngestionFailed](#dataexploreringestionfailed)
 - [DataExplorerIngestionMappingFailed](#dataexploreringestionmappingfailed)
 - [DataExplorerIngestionTimeout](#dataexploreringestiontimeout)
 - [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed)
 - [DataExplorerPreIngestionDropFailed](#dataexplorerpreingestiondropfailed)
+- [HubDataNotFound](#hubdatanotfound)
+- [IngestionFilesNotFound](#ingestionfilesnotfound)
+- [InvalidEffectiveCost](#invalideffectivecost)
 - [InvalidExportContainer](#invalidexportcontainer)
 - [InvalidExportVersion](#invalidexportversion)
 - [InvalidHubVersion](#invalidhubversion)
 - [InvalidScopeId](#invalidscopeid)
 - [ExportDataNotFound](#exportdatanotfound)
-- [HubDataNotFound](#hubdatanotfound)
 - [LegacyFocusVersion](#legacyfocusversion)
 - [MissingContractedCost](#missingcontractedcost)
 - [MissingContractedUnitPrice](#missingcontractedunitprice)
@@ -32,7 +35,6 @@ Sorry to hear you're having a problem. We're here to help!
 - [MissingListUnitPrice](#missinglistunitprice)
 - [MissingProviderName](#missingprovidername)
 - [ManifestReadFailed](#manifestreadfailed)
-- [RerunFilesNotFound](#rerunfilesnotfound)
 - [ResourceAccessForbiddenException](#resourceaccessforbiddenexception)
 - [RoleAssignmentUpdateNotPermitted](#roleassignmentupdatenotpermitted)
 - [SchemaLoadFailed](#schemaloadfailed)
@@ -58,6 +60,20 @@ Sorry to hear you're having a problem. We're here to help!
 This article describes common FinOps toolkit errors and provides information about solutions. If you get an error when using FinOps toolkit solutions that you don't understand or can't resolve, find the error code below with mitigation steps to resolve the problem.
 
 If the information provided doesn't resolve the issue, try the [Troubleshooting guide](./troubleshooting.md).
+
+<br>
+
+## AccountPropertyCannotBeUpdated
+
+<sup>Severity: Critical</sup>
+
+This error typically occurs when updating a FinOps hub deployment with a different storage account configuration than was originally used during creation. While most properties can be changed, there are a few properties that can only be set once when the storage account is created and cannot change. The one known case of this for FinOps hubs is the "requireInfrastructureEncryption" property. If was enabled or disabled during the first FinOps hub deployment, then it cannot be changed. You will see the following error when this happens:
+
+> The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
+
+**Mitigation**: If you did not mean to change this setting, confirm whether your storage account is configured to use infrastructure encryption and re-deploy the FinOps hub template with the same value (either on or off). If you want to change the setting, we recommend deploying a new FinOps hub instance, as this will require re-ingesting all data.
+
+You can try to delete the existing storage account and redeploy the template with infrastructure encryption changed; however, we have not thoroughly tested this. While we do not anticipate issues, we cannot confirm if it will cause problems.
 
 <br>
 
@@ -121,6 +137,44 @@ Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. In
 
 <br>
 
+## HubDataNotFound
+
+<sup>Severity: Critical</sup>
+
+FinOps hub data was not found in the specified storage account.
+
+**Mitigation**: This error assumes you are connecting to a FinOps hub deployment. If using raw exports, please correct the storage path to not reference the `ingestion` container. Confirm the following:
+
+1. The storage URL should match the `StorageUrlForPowerBI` output on the FinOps hub deployment.
+2. Cost Management exports should be configured to point to the same storage account using the `msexports` container.
+3. Cost Management exports should show a successful export in the run history.
+4. FinOps hub data factory triggers should all be started.
+5. FinOps hub data factory pipelines should be successful.
+
+For more details and debugging steps, see [Validate your FinOps hub deployment](./troubleshooting.md#-validate-your-finops-hub-deployment).
+
+<br>
+
+## IngestionFilesNotFound
+
+<sup>Severity: Critical</sup>
+
+Unable to locate parquet files to ingest from the specified folder path.
+
+**Mitigation**: Confirm the folder path is the full path, including the **ingestion** container and not starting with or ending with a slash (**/**). Copy the path from the last successful **ingestion_ExecuteETL** pipeline run.
+
+<br>
+
+## InvalidEffectiveCost
+
+<sup>Severity: Major</sup>
+
+As of November 2024, Cost Management has a known bug where savings plan purchases are internally tracked as both actual and amortized costs. Because of this, FOCUS includes savings plan purchases in the calculation for `EffectiveCost`, which leads to inaccurate numbers in FinOps toolkit reports.
+
+**Mitigation**: File a support request with the Microsoft Cost Management team with details about the issue to fix the underlying data. As of November 2024, the team is aware of the issue, but the fix has not yet been prioritized. In the interim, update to FinOps toolkit 0.7, which includes a workaround for FinOps hubs and storage-based Power BI reports.
+
+<br>
+
 ## InvalidExportContainer
 
 <sup>Severity: Critical</sup>
@@ -171,31 +225,21 @@ Exports were not found in the specified storage path.
 
 <br>
 
-## HubDataNotFound
-
-<sup>Severity: Critical</sup>
-
-FinOps hub data was not found in the specified storage account.
-
-**Mitigation**: This error assumes you are connecting to a FinOps hub deployment. If using raw exports, please correct the storage path to not reference the `ingestion` container. Confirm the following:
-
-1. The storage URL should match the `StorageUrlForPowerBI` output on the FinOps hub deployment.
-2. Cost Management exports should be configured to point to the same storage account using the `msexports` container.
-3. Cost Management exports should show a successful export in the run history.
-4. FinOps hub data factory triggers should all be started.
-5. FinOps hub data factory pipelines should be successful.
-
-For more details and debugging steps, see [Validate your FinOps hub deployment](./troubleshooting.md#-validate-your-finops-hub-deployment).
-
-<br>
-
 ## LegacyFocusVersion
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_SourceChanges` column when the ingested data uses an older version of FOCUS. FinOps hubs converts data to the latest FOCUS version so this should not cause an issue; however, the modernization transform cannot account for all scenarios and may result in unexpected results in some cases. Refer to documentation for known issues.
+This error code is shown when the ingested data uses an older version of FOCUS. When found in the `x_SourceChanges` column, the code is informational only. When shown in Power BI storage reports when the CostDetails query fails to load, this means the **Deprecated: Perform Extra Query Optimizations** parameter is disabled.
 
-**Mitigation**: Update configured exports to use the latest FOCUS version. If the latest FOCUS version is not supported by the provider, please request official support for the latest FOCUS version.
+FinOps hubs converts data to the latest FOCUS version so this should not cause an issue; however, the modernization transform cannot account for all scenarios and may result in unexpected results in some cases. Refer to documentation for known issues.
+
+**Mitigation**: There are several ways to mitigate this message, depending on which tool you're using.
+
+If using FinOps hubs with Data Explorer and seeing this in the `x_SourceChanges` column of the Costs table or related functions, update Cost Management cost exports to use the latest FOCUS version. No additional changes need to be made &nbsp; all data will be merged during Data Explorer ingestion.
+
+If using storage reports and seeing this in the `x_SourceChanges` column of the CostDetails query, this message is a warning that this FOCUS version will be removed in a future update. While you can safely ignore this message, it will require an update in a future release. To avoid the message, update Cost Management exports to the latest FOCUS version, delete or move any older data using an older FOCUS version, and reexport historical data. If using FinOps hubs, delete or move data outside of the **ingestion** container. If hosting your own exports in storage, change the **Storage URL** parameter to a different folder path that does not include older FOCUS versions.
+
+As of FinOps toolkit 0.7, support for older FOCUS versions has been deprecated to improve performance and scalability. We recommend updating to the latest FOCUS version and reexporting data to improve your experience. Set the **Deprecated: Perform Extra Query Optimizations** parameter to `TRUE` to ensure older FOCUS versions are supported and set it to `FALSE` to speed up performance and support larger datasets covering more cost or time. As of 0.7, this parameter is enabled by default for backwards compatibility. In FinOps toolkit 0.8, it will be disabled by default, but still available for backwards compatibility until on or after June 2025. If you cannot move off of old FOCUS versions or for the best performance and support for larger accounts or longer periods of time, we recommend using FinOps hubs with Data Explorer.
 
 <br>
 
@@ -332,16 +376,6 @@ TODO: Consider the following ways to streamline this in the future:
 3. Create a hub configuration workbook to detect configuration issues.
 4. Consider renaming the main deployment file so it doesn't risk conflicting with other deployments.
 -->
-
-<br>
-
-## RerunFilesNotFound
-
-<sup>Severity: Critical</sup>
-
-Unable to locate previously ingested parquet files in the specified folder path.
-
-**Mitigation**: Confirm the folder path is the full path, including the **ingestion** container and not starting with or ending with a slash (**/**). Copy the path from the last successful **ingestion_ExecuteETL** pipeline run.
 
 <br>
 

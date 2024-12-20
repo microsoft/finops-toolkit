@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🪛 v0.7 Update 1](#-v07-update-1)
 - [🚚 v0.7](#-v07)
 - [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
@@ -44,42 +45,67 @@ Legend:
 🪛⬆️ Update
 🌱 Pre-release
 
+📗 FinOps guide
+🏦 FinOps hubs
+📊 Power BI reports
+📒 FinOps workbooks
+🔍 Optimization engine
+🖥️ PowerShell
+🦾 Bicep modules
+🌐 Open data
+
 ➕ Added
 ✏️ Changed
 🛠️ Fixed
 🚫 Deprecated
 🗑️ Removed
-
-📒 Workbook
-🏦 FinOps hubs
-🖥️ PowerShell
 -->
 
 ## 🔄️ Unreleased
-
-🏦 FinOps hubs
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
-> 5. Private endpoints support.
->    - Added private endpoints for storage account & Keyvault.
->    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
->    - All data processing now happens within a vNet.
->    - Added param to disable external access to data lake
->    - Added param to specify subnet range of vnet - minumum size = /27
-> 6. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> - General
->   1. Populate missing prices.
+> 1. Added experimental feature to populate missing prices/costs.
+>    - This feature requires Cost Management price sheet exports be created and configured in the same FinOps hub instance or storage path.
+>    - This feature performs a large join between cost and price datasets and will slow down data refresh times.
+<!--
+>    - If you run into any issues with data at scale, please disable the parameter.
+>    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
+-->
+> 1. Added the Pricing units open dataset to support price sheet data cleanup.
+> 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
+<!--
+>
+> 🚫 Deprecated:
+>
+> 1. Cosmetic and informational transforms will be disabled by default in 0.9 and removed on or after July 1, 2025 to improve Power BI performance. If you rely on any of these changes, please let us know by [creating an issue in GitHub](https://aka.ms/ftk/ideas) to request an exemption. This includes:
+>    - Support for FOCUS 1.0 preview. Please create new FOCUS 1.0 exports and backfill historical data.
+>    - Fixing `x_SkuTerm` for MCA so it's the number of months rather than a display string.
+>    - Tracking changes in the `x_SourceChanges` column.
+>    - Explaining why rows have no cost in the `x_FreeReason` column.
+>    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
+-->
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 1. ETL Pipeline - Fixed timezones for ADF triggers to resolve issue where triggers would not start due to unrecognized timezone.
+> 1. Changed the **enablePublicAccess** parameter to exclude network components.
+>    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
+
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -89,26 +115,42 @@ Legend:
 > 1. Cost Management export modules for subscriptions and resource groups.
 >
 
+<br><a name="latest"></a>
+
+## 🪛 v0.7 Update 1
+
+<sup>Released December 9, 2024</sup>
+
+This release is a minor patch to update documentation and fix Power BI storage reports that are reporting all usage as $0. These files were updated in the existing 0.7 release. We are documenting this as a new patch release for transparency. If you downloaded the **PowerBI-storage.zip** file between December 1-9, 2024, please update to the latest version.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Corrected the EffectiveCost for usage records.
+> 2. Updated the download links in Power BI docs to the new files:
+>    - PowerBI-demo.zip for demo-only reports (not intended for connecting to customer data)
+>    - PowerBI-storage.zip for reports that connect to raw Cost Management exports or FinOps hubs storage.
+>    - PowerBI-kql.zip for reports that connect to FinOps hubs with Data Explorer.
+
+<blockquote class="important" markdown="1">
+  _Some have reported "file not found" and ">=" errors in storage reports. Both issues seem to be transient and resolve themselves within a few hours. We have not been able to reproduce either issue and cannot pinpoint the source. If you are experiencing either, please [submit an issue](https://aka.ms/ftk/ideas)._
+</blockquote>
+
+<br>
+
+## 🚚 v0.7
+
+<sup>Released December 1, 2024</sup>
+
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ✏️ Changed:
 >
 > 1. Added Enterprise App Patterns links resources to the architecting for the cloud section.
-
-🔍 Optimization engine
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> 🛠️ Fixed:
->
-> 1. Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
-> 1. Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
-
-<br><a name="latest"></a>
-
-## 🚚 v0.7
-
-<sup>Released November 2024</sup>
+> 1. Update cost and unit of measuring handling in the [FOCUS conversion instructions](../_docs/focus/convert.md).
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -118,6 +160,8 @@ Legend:
 > - General
 >   1. Added partial support for OneLake URLs.
 >      - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
+>   1. Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
+>   1. Added KQL-based version of the [Cost summary](../_reporting/power-bi/cost-summary.md), [Data ingestion](../_reporting/power-bi/data-ingestion.md), and [Rate optimization](../_reporting/power-bi/rate-optimization.md) reports that connect to FinOps hubs with Azure Data Explorer.
 >
 > ✏️ Changed:
 >
@@ -131,6 +175,7 @@ Legend:
 >      - x_DatasetType is now `x_SourceType`
 >      - x_DatasetVersion is now `x_SourceVersion`
 >      - x_AccountType is now `x_BillingAccountAgreement`
+>   3. Updated supported spend estimates in the Power BI documentation.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -141,9 +186,19 @@ Legend:
 > ➕ Added:
 >
 > 1. Option to ingest data into an Azure Data Explorer cluster.
-> 2. Support for FOCUS 1.0r2 exports.
+> 1. Set missing reservation list and contracted prices/cost columns for EA and MCA accounts (Data Explorer only).
+>    - Requires the price sheet export to be configured.
+> 1. Support for FOCUS 1.0r2 exports.
 >    - The 1.0r2 dataset only differs in date formatting. There are no functional differences compared to 1.0.
 >    - The 1.0r2 dataset is only needed when ingesting data into a system that requires date/time values to include seconds (for example, "2024-01-01T00:00:00Z" where the last "00" is seconds).
+> 1. Support for private endpoints via an optional template parameter.
+>    - Added private endpoints for storage account, Azure Data Explorer & Keyvault.
+>    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
+>    - All data processing now happens within a virtual network.
+>    - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
+>    - Added param to specify subnet range of virtual network - minimum size = /26
+> 1. Support for storage account infrastructure encryption.
+> 1. Published a [schema file](https://aka.ms/finops/hubs/settings-schema) for the hub settings.json file.
 >
 > ✏️ Changed:
 >
@@ -156,18 +211,23 @@ Legend:
 >    - For reservation details, use "CommitmentDiscountUsage".
 >    - For reservation recommendations, use "Recommendations".
 >    - For reservation transactions, use "Transactions".
-> 2. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+> 1. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+>
+> 🛠️ Fixed:
+>
+> 1. Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
+>    - The same fix was applied to Power BI reports for those not using Data Explorer. The underlying data has not changed however.
 
-📒 Azure Monitor workbooks
+📒 FinOps workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
->   1. On the Storagetab, included the **RSVaultBackup** tag in the list of non-idle disks.
+>   1. On the Storage tab, included the **RSVaultBackup** tag in the list of non-idle disks.
 >
 > 🛠️ Fixed:
-> 
+>
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. On the Commitment discounts tab, fixed RI ROWS Limited.
 >   2. On the Compute tab, fixed incorrect VM processor in processors query.
@@ -177,6 +237,37 @@ Legend:
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. On the Database tab, removed the idle SQL databases query.
 >      - This query will be re-evaluated and added again in a future release.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
+> 1. Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 50 new Microsoft.AWSConnector resource types.
+>   1. Added 8 new Microsoft.Compute resource types.
+>   1. Added 3 new Microsoft.ContainerInstance resource types.
+>   1. Added 3 new Microsoft.DatabaseFleetManager resource types.
+>   1. Added 4 new Microsoft.Fabric resource types.
+>   1. Added 5 new Microsoft.OpenLogisticsPlatform resource types.
+>   1. Added 3 new Microsoft.Sovereign resource types.
+>   1. Added 14 other new resource types: arizeai.observabilityeval/organizations, lambdatest.hyperexecute/organizations, microsoft.azurestackhci/edgedevices/jobs, microsoft.clouddeviceplatform/delegatedidentities, microsoft.compute/capacityreservationgroupscomputehub, microsoft.compute/galleries/imagescomputehub, microsoft.compute/hostgroupscomputehub, microsoft.hybridcompute/machinessoftwareassurance, microsoft.machinelearning/workspaces, microsoft.resources/deletedresources, microsoft.security/defenderforstoragesettings/malwarescans, microsoft.weightsandbiases/instances, neon.postgres/organizations, pinecone.vectordb/organizations.
+> - [Services](../_reporting/data/README.md#-services)
+>   1. Added 3 resource types to existing services: microsoft.hardwaresecuritymodules/cloudhsmclusters, microsoft.healthdataaiservices/deidservices, microsoft.insights/datacollectionrules.
+>
+> ✏️ Changed:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Updated 17 new Microsoft.ComputeHub resource types.
+>   1. Updated 9 other resource type: microsoft.appsecurity/policies, microsoft.compute/virtualmachines/providers/guestconfigurationassignments, microsoft.dbforpostgresql/flexibleservers, microsoft.deviceregistry/billingcontainers, microsoft.durabletask/namespaces, microsoft.durabletask/namespaces/taskhubs, microsoft.edge/configurations, microsoft.hybridcompute/machines/providers/guestconfigurationassignments, microsoft.securitycopilot/capacities.
 
 <br>
 

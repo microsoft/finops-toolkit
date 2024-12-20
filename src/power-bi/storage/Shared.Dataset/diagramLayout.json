@@ -5,17 +5,18 @@
       "ordinal": 0,
       "scrollPosition": {
         "x": 0,
-        "y": 33.5287866683784
+        "y": 295.71428571428572
       },
       "nodes": [
         {
           "location": {
-            "x": 6402.7763294224005,
-            "y": 480.76858364676713
+            "x": 6311.34775799383,
+            "y": 904.34282136186243
           },
           "nodeIndex": "CostDetails",
+          "nodeLineageTag": "4b9830c4-e7c7-43ee-823c-d6b15359c25f",
           "size": {
-            "height": 337,
+            "height": 381.28571428571433,
             "width": 234
           },
           "zIndex": 2
@@ -23,7 +24,7 @@
         {
           "location": {
             "x": 7366.96492519873,
-            "y": 501.26858364676713
+            "y": 507.69996421900527
           },
           "nodeIndex": "InstanceSizeFlexibility",
           "nodeLineageTag": "04a435c4-9138-4c1f-ad59-dd939cd8e139",
@@ -36,7 +37,7 @@
         {
           "location": {
             "x": 7082.96492519873,
-            "y": 499.26858364676713
+            "y": 505.69996421900527
           },
           "nodeIndex": "HubScopes",
           "nodeLineageTag": "6dfeb4ff-e902-435e-abed-2109389c66e3",
@@ -49,7 +50,7 @@
         {
           "location": {
             "x": 1826.3909942579139,
-            "y": 466.6822244933353
+            "y": 473.11360506557344
           },
           "nodeIndex": "HubSettings",
           "nodeLineageTag": "b391a865-7a16-491c-a9f4-8bc826285b97",
@@ -62,7 +63,7 @@
         {
           "location": {
             "x": 3709.5016065581754,
-            "y": 167.69094213898998
+            "y": 174.12232271122812
           },
           "nodeIndex": "Prices",
           "nodeLineageTag": "71332c0b-dcb0-4c8a-86a9-b64ea64f0f8f",
@@ -75,7 +76,7 @@
         {
           "location": {
             "x": 7650.96492519873,
-            "y": 499.26858364676713
+            "y": 505.69996421900527
           },
           "nodeIndex": "ReservationDetails",
           "nodeLineageTag": "4f9c5acb-e811-40c7-9d01-347392d90bfd",
@@ -88,7 +89,7 @@
         {
           "location": {
             "x": 4803.8463686552477,
-            "y": 420.77237789473912
+            "y": 427.20375846697726
           },
           "nodeIndex": "ReservationRecomendations",
           "nodeLineageTag": "e2acd751-9829-4624-bb15-d9a1cb22f057",
@@ -101,7 +102,7 @@
         {
           "location": {
             "x": 5053.6559194566435,
-            "y": 708.49975276955638
+            "y": 714.93113334179452
           },
           "nodeIndex": "ReservationTransactions",
           "nodeLineageTag": "4f416097-b08b-4b6e-abca-b82e5f6c5e59",
@@ -114,7 +115,7 @@
         {
           "location": {
             "x": 6392.7763294224005,
-            "y": 499.26858364676718
+            "y": 505.69996421900532
           },
           "nodeIndex": "StorageData",
           "size": {
@@ -126,7 +127,7 @@
         {
           "location": {
             "x": 6358.3834817422121,
-            "y": 462.16590137413829
+            "y": 468.59728194637643
           },
           "nodeIndex": "StorageErrors",
           "size": {
@@ -138,7 +139,7 @@
         {
           "location": {
             "x": 1297.2967846706038,
-            "y": 923.2059954758945
+            "y": 929.63737604813264
           },
           "nodeIndex": "Disks",
           "nodeLineageTag": "ca0025b1-6be2-4a29-af32-30ef5f20fe5f",
@@ -151,7 +152,7 @@
         {
           "location": {
             "x": 70.693496627301357,
-            "y": 1373.0736765379907
+            "y": 1379.5050571102288
           },
           "nodeIndex": "PolicyAssignments",
           "nodeLineageTag": "fc42feb2-59a9-44bf-8459-e2c1592a05dd",
@@ -164,7 +165,7 @@
         {
           "location": {
             "x": 611.26492519872954,
-            "y": 971.07367653799065
+            "y": 977.50505711022879
           },
           "nodeIndex": "PolicyDefinitions",
           "nodeLineageTag": "f9b1ee3e-756a-4801-a1b7-8891089488b5",
@@ -177,7 +178,7 @@
         {
           "location": {
             "x": 95.993168794926532,
-            "y": 801.14170452889823
+            "y": 807.57308510113637
           },
           "nodeIndex": "PolicyStates",
           "nodeLineageTag": "cf0e7752-0e35-40aa-a509-8a4f90194eee",
@@ -190,7 +191,7 @@
         {
           "location": {
             "x": 881.15829311934226,
-            "y": 467.3820938791809
+            "y": 473.81347445141904
           },
           "nodeIndex": "Resources",
           "nodeLineageTag": "ec447c64-6e55-41d8-a5ea-a43adab5dc79",
@@ -203,7 +204,7 @@
         {
           "location": {
             "x": 79.440121008531719,
-            "y": 391.11633441561219
+            "y": 397.54771498785033
           },
           "nodeIndex": "Subscriptions",
           "nodeLineageTag": "07b667e4-2b48-4235-8cfb-5d59858a92fd",
@@ -215,8 +216,8 @@
         },
         {
           "location": {
-            "x": 1674.5585338073536,
-            "y": 963.81622791977316
+            "x": 1663.129962378782,
+            "y": 1164.5333227777255
           },
           "nodeIndex": "Advisor for disks",
           "nodeLineageTag": "98ceee9a-da76-4d64-9d74-1165ec1b28c4",
@@ -229,7 +230,7 @@
         {
           "location": {
             "x": 316.63034621477181,
-            "y": 1172.5084862145522
+            "y": 1178.9398667867904
           },
           "nodeIndex": "Compliance calculation",
           "nodeLineageTag": "9b45030f-f270-4b9c-8264-bde9e0fd5fea",
@@ -242,7 +243,7 @@
         {
           "location": {
             "x": 452.09858346487061,
-            "y": 122.28758704815868
+            "y": 128.71896762039682
           },
           "nodeIndex": "AdvisorRecommendations",
           "size": {
@@ -254,7 +255,7 @@
         {
           "location": {
             "x": 68.334578983958409,
-            "y": 12.862761144476167
+            "y": 19.294141716714307
           },
           "nodeIndex": "AdvisorReservationRecommendations",
           "size": {
@@ -266,7 +267,7 @@
         {
           "location": {
             "x": 2245.26492519873,
-            "y": 133.93081939513354
+            "y": 140.36219996737168
           },
           "nodeIndex": "ManagementGroups",
           "size": {
@@ -278,7 +279,7 @@
         {
           "location": {
             "x": 812.19847543619926,
-            "y": 1364.6063702218914
+            "y": 1371.0377507941296
           },
           "nodeIndex": "NetworkInterfaces",
           "size": {
@@ -290,7 +291,7 @@
         {
           "location": {
             "x": 1067.2472475500674,
-            "y": 33.5287866683784
+            "y": 39.960167240616542
           },
           "nodeIndex": "NetworkSecurityGroups",
           "size": {
@@ -302,7 +303,7 @@
         {
           "location": {
             "x": 1315.6059368352826,
-            "y": 1366.4474166201212
+            "y": 1372.8787971923593
           },
           "nodeIndex": "PublicIPAddresses",
           "size": {
@@ -314,7 +315,7 @@
         {
           "location": {
             "x": 1562.5104142360167,
-            "y": 288.841561295017
+            "y": 295.27294186725516
           },
           "nodeIndex": "Regions",
           "size": {
@@ -326,7 +327,7 @@
         {
           "location": {
             "x": 520.00195472390942,
-            "y": 561.72558904852167
+            "y": 568.15696962075981
           },
           "nodeIndex": "ResourceTypes",
           "size": {
@@ -338,7 +339,7 @@
         {
           "location": {
             "x": 1259.109862664134,
-            "y": 512.21267290281253
+            "y": 518.64405347505067
           },
           "nodeIndex": "SqlDatabases",
           "size": {
@@ -350,11 +351,24 @@
         {
           "location": {
             "x": 903.4866840237313,
-            "y": 914.4452440392688
+            "y": 920.87662461150694
           },
           "nodeIndex": "VirtualMachines",
           "size": {
             "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7866.6303462147716,
+            "y": 760.53683826899533
+          },
+          "nodeIndex": "PricingUnits",
+          "nodeLineageTag": "d66ce6f9-eeff-48b4-8b10-825ead39a54d",
+          "size": {
+            "height": 152,
             "width": 234
           },
           "zIndex": 0

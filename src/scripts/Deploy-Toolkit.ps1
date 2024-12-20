@@ -144,16 +144,18 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
             {
                 # Create resource group if it doesn't exist
                 $rg = Get-AzResourceGroup $ResourceGroup -ErrorAction SilentlyContinue
-                If ($null -eq $rg)
+                if ($null -eq $rg)
                 {
                     New-AzResourceGroup `
                         -Name $ResourceGroup `
                         -Location $Location `
                     | Out-Null
                 }
-
+                
                 # Start deployment
+                Write-Verbose "Deploying $templateFile..."
                 $global:ftkDeployment = New-AzResourceGroupDeployment `
+                    -DeploymentName "ftk-$templateName".Replace('/', '-') `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -ResourceGroupName $ResourceGroup `
@@ -161,7 +163,7 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
                 $global:ftkDeployment
             }
 
-            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
+            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup/deployments"
 
         }
         "subscription"
@@ -176,7 +178,9 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
             }
             else
             {
+                Write-Verbose "Deploying $templateFile..."
                 $global:ftkDeployment = New-AzSubscriptionDeployment `
+                    -DeploymentName "ftk-$templateName".Replace('/', '-') `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -Location $Location `
@@ -193,7 +197,6 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
         }
         "tenant"
         {
-
             $azContext = (Get-AzContext).Tenant
             Write-Host "  → [tenant] $(iff ([string]::IsNullOrWhitespace($azContext.Name)) $azContext.Id $azContext.Name)..."
             $Parameters.Keys | ForEach-Object { Write-Host "             $($_) = $($Parameters[$_])" }
@@ -204,7 +207,9 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
             }
             else
             {
+                Write-Verbose "Deploying $templateFile..."
                 $global:ftkDeployment = New-AzTenantDeployment `
+                    -DeploymentName "ftk-$templateName".Replace('/', '-') `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -Location $Location `

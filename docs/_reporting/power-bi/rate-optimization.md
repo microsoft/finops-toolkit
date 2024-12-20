@@ -11,7 +11,7 @@ permalink: /power-bi/rate-optimization
 Commitment discount chargeback, savings, and coverage.
 {: .fs-6 .fw-300 }
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/RateOptimization.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Connect your data](./README.md#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
@@ -160,7 +160,7 @@ The table below the charts shows the recommended reservations based on the speci
 
 ## Purchases
 
-<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
+<!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
 The **Purchases** page shows any new commitment discount purchases (either monthly or upfront payments) within the specified period.
 
@@ -173,8 +173,6 @@ The chart shows the purchases over time and the table shows a list of the commit
 <br>
 
 ## Hybrid Benefit
-
-<!-- NOTE: This page is duplicated in the cost-summary.md file. Please keep both updated at the same time. -->
 
 The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs).
 
@@ -194,7 +192,7 @@ The table shows a list of VMs that are currently using or could be using AHB wit
 
 ## Prices
 
-<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
+<!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
 The **Prices** page shows the prices for all products that were used with commitment discounts during the period.
 
@@ -206,7 +204,7 @@ The chart shows a summary of the meters that were used the most.
 
 ## DQ
 
-The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. This can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (e.g., missing price and cost values). If you are missing any data, please contact support to help raise the priority of these bugs in Cost Management.
+The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. This can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (e.g., missing price and cost values). If you are missing any data, please contact support to help raise the priority of these bugs in Cost Management. This page is only available in storage-based reports. If using Data Explorer, please use the [Data Explorer query console](https://dataexplorer.azure.com).
 
 > ![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/5d43969e-6093-4f14-a535-6c4bc86659d2)
 

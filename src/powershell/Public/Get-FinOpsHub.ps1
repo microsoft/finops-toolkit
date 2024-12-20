@@ -127,6 +127,7 @@ function Get-FinOpsHub
             }
             else
             {
+                # TODO: Read version from storage
                 $status = 'Unknown'
             }
 

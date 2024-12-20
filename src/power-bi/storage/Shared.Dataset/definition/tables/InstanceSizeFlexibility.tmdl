@@ -76,10 +76,8 @@ table InstanceSizeFlexibility
 		annotation SummarizationSetBy = Automatic
 
 	column x_CommitmentDiscountKeyNormalized = [x_SkuTypeNormalized] & [x_SkuHardwareMeter]
-		dataType: string
 		lineageTag: d1db9f39-1d52-4cd1-950f-8089a14f760a
 		summarizeBy: none
-		isDataTypeInferred
 
 		annotation SummarizationSetBy = Automatic
 

@@ -40,6 +40,9 @@ param virtualNetworkId string
 @description('Required. Resource ID of the subnet for private endpoints.')
 param privateEndpointSubnetId string
 
+@description('Optional. Enable public access to the data lake.  Default: false.')
+param enablePublicAccess bool
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -83,8 +86,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
     }
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Deny'
-  }
+      defaultAction: enablePublicAccess ? 'Allow' : 'Deny'
+    }
   }
 }
 
@@ -109,16 +112,18 @@ resource keyVault_secret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!e
   }
 }
 
-resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: keyVaultPrivateDnsZoneName
   location: 'global'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.KeyVault/privateDnsZones') ? tagsByResource['Microsoft.KeyVault/privateDnsZones'] : {})
   properties: {}
 }
 
-resource keyVaultPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+resource keyVaultPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   name: '${replace(keyVaultPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   parent: keyVaultPrivateDnsZone
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
   properties: {
     virtualNetwork: {
       id: virtualNetworkId
@@ -127,9 +132,10 @@ resource keyVaultPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNe
   }
 }
 
-resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: '${keyVault.name}-ep'
   location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId
@@ -146,7 +152,7 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
   }
 }
 
-resource keyVaultPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+resource keyVaultPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
   name: 'keyvault-endpoint-zone'
   parent: keyVaultEndpoint
   properties: {
