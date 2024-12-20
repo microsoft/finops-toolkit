@@ -31,7 +31,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources 
 | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
 | project FWID=id, firewallName=name, SkuTier=tostring(properties.sku.tier), resourceGroup, location
@@ -64,7 +64,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
 | project
@@ -108,7 +108,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'Microsoft.Network/applicationGateways'
 | extend
@@ -153,7 +153,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'Microsoft.Network/expressRouteCircuits'
     and properties.serviceProviderProvisioningState == "NotProvisioned"
@@ -190,7 +190,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
 | extend SKUName = tostring(sku.name)
@@ -227,7 +227,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.network/privatednszones"
     and properties.numberOfVirtualNetworkLinks == 0
@@ -254,7 +254,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'Microsoft.Network/publicIPAddresses'
     and isempty(properties.ipConfiguration)
@@ -310,7 +310,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'Microsoft.Network/publicIPAddresses'
     and isnotempty(properties.ipConfiguration)
@@ -343,7 +343,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.network/publicipaddresses"
 | project ddosProtection = tostring(properties.ddosSettings), name
@@ -369,7 +369,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
 | extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
@@ -400,7 +400,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.network/natgateways" and isnull(properties.subnets)
 | project

@@ -35,7 +35,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 advisorresources
 | where type =~ 'microsoft.advisor/recommendations'
 | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
@@ -69,7 +69,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 advisorresources
 | where type =~ 'microsoft.advisor/recommendations'
 | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
@@ -97,7 +97,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.documentdb/databaseaccounts"
 | where resourceGroup in ({ResourceGroup})
@@ -128,7 +128,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.sql/servers/databases"
 | where name contains "old" or name contains "Dev"or  name contains "test"
@@ -148,7 +148,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.sql/servers/elasticpools"
 | extend elasticPoolId = tolower(tostring(id))

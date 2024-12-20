@@ -35,7 +35,7 @@ Sustainability
 
 **Query**
 
-```kql
+```kusto
 advisorresources
 | where tolower(type) == "microsoft.advisor/recommendations"
 | extend RecommendationTypeId = tostring(properties.recommendationTypeId)

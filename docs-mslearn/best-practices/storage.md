@@ -31,7 +31,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 recoveryservicesresources
 | where type =~ 'microsoft.recoveryservices/vaults/backupfabrics/protectioncontainers/protecteditems'
 | extend vaultId = tostring(properties.vaultId)
@@ -56,7 +56,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == 'microsoft.recoveryservices/vaults'
 | where resourceGroup in ({ResourceGroup})
@@ -84,7 +84,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'microsoft.compute/disks' and managedBy == ""
 | extend diskState = tostring(properties.diskState)
@@ -107,7 +107,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == 'microsoft.compute/snapshots'
 | extend TimeCreated = properties.timeCreated
@@ -127,7 +127,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == 'microsoft.compute/snapshots'
 | extend
@@ -154,7 +154,7 @@ Optimization
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'Microsoft.Storage/StorageAccounts'
     and kind !='StorageV2'

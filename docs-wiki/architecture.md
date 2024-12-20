@@ -88,7 +88,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 <!--
 INTERNAL ONLY: To view deployments, query ARMProd:
 
-```kql
+```kusto
 Deployments
 | where deploymentName startswith 'pid-00f120b5-2007-6120-'
     or generatorName == 'FinOps toolkit'

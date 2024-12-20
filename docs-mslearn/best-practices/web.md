@@ -31,7 +31,7 @@ Monitoring
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type =~ 'Microsoft.Web/sites'
 | project
@@ -56,7 +56,7 @@ Resource management
 
 **Query**
 
-```kql
+```kusto
 resources
 | where type == "microsoft.web/serverfarms"  and sku.tier !~ 'Free'
 | project
