@@ -40,7 +40,11 @@ For the most seamless experience, we recommend allowing FinOps hubs to manage ex
 
 If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
 
-1. Determine the scope for your data export. We recommend exporting from either an **EA billing account** or a **MCA billing profile** scope to access additional datasets, including the price sheet, reservation details, reservation recommendations, and reservation transactions.
+1. Determine the scope for your data export.
+
+   - We recommend exporting from either an **EA billing account** or a **MCA billing profile** scope to access additional datasets, including price sheets, reservation details, reservation recommendations, and reservation transactions.
+   - Price sheet exports are required to populate missing prices and costs.
+   - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
 
 2. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
 
