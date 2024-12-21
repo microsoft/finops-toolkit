@@ -887,8 +887,8 @@ Costs_transform_v1_0()
         ResourceName))
     | extend ResourceType = case(
         isnotempty(ResourceType), ResourceType,
-        isnotempty(ResourceId) and isnotempty(tmp_ResourceDetails.ResourceType), tmp_ResourceDetails.ResourceType,
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
+        isnotempty(x_ResourceType), coalesce(resource_type(x_ResourceType).SingularDisplayName, ResourceType, x_ResourceType),
         ResourceType)
     | extend x_ResourceType = case(
         isnotempty(x_ResourceType), x_ResourceType,
