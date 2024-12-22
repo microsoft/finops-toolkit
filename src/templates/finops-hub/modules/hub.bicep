@@ -161,7 +161,7 @@ var dataFactoryName = replace(
   '-'
 )
 
-// Do not reference the dataExplorer deployment directly or indirectly to avoid a DeploymentNotFound error
+// Do not reference these deployments directly or indirectly to avoid a DeploymentNotFound error
 var deployDataExplorer = !empty(dataExplorerName)
 var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clusterName
 var safeDataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
@@ -169,6 +169,12 @@ var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.cluster
 var safeDataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
 var safeDataExplorerIngestionCapacity =  !deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity
 var safeDataExplorerPrincipalId =  !deployDataExplorer ? '' : dataExplorer.outputs.principalId
+var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
+var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
+var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
+var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
+
+// var eventGridName = 'finops-hub-eventgrid-${uniqueSuffix}'
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
 // var eventGridSuffix = '-${uniqueSuffix}'
@@ -228,7 +234,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 // Virtual network
 //------------------------------------------------------------------------------
 
-module vnet 'vnet.bicep' = {
+module vnet 'vnet.bicep' = if (!enablePublicAccess) {
   name: 'vnet'
   params: {
     hubName: hubName
@@ -258,9 +264,9 @@ module storage 'storage.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
-    virtualNetworkId: vnet.outputs.vNetId
-    privateEndpointSubnetId: vnet.outputs.finopsHubSubnetId
-    scriptSubnetId: vnet.outputs.scriptSubnetId
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId: safeFinopsHubSubnetId
+    scriptSubnetId: safeScriptSubnetId
     enablePublicAccess: enablePublicAccess
   }
 }
@@ -280,8 +286,8 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
-    virtualNetworkId: vnet.outputs.vNetId
-    privateEndpointSubnetId: vnet.outputs.dataExplorerSubnetId
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId: safeDataExplorerSubnetId
     enablePublicAccess: enablePublicAccess
     storageAccountName: storage.outputs.name
   }
@@ -343,8 +349,9 @@ module keyVault 'keyVault.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     storageAccountKey: remoteHubStorageKey
-    virtualNetworkId: vnet.outputs.vNetId
-    privateEndpointSubnetId: vnet.outputs.finopsHubSubnetId
+    enablePublicAccess: enablePublicAccess
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId:safeFinopsHubSubnetId
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId
