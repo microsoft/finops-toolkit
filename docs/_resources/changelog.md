@@ -72,6 +72,18 @@ Legend:
 > 1. Cost Management export modules for subscriptions and resource groups.
 >
 
+📒 FinOps workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. Azure Arc Windows license management under the **Commitment Discounts** tab.  
+> 🛠️ **Fixed:**  
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. Enabled "Export to CSV" option on the **Idle backups** query.
+>   1. Corrected VM processor details on the **Compute** tab query.  
+
+
 <br><a name="latest"></a>
 
 ## 🚚 v0.8
