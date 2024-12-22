@@ -64,6 +64,27 @@ Legend:
 
 ## 🔄️ Unreleased
 
+🦾 Bicep modules
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Cost Management export modules for subscriptions and resource groups.
+>
+
+<br><a name="latest"></a>
+
+## 🚚 v0.8
+
+<sup>Released December 2024</sup>
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -72,13 +93,15 @@ Legend:
 > 1. Added experimental feature to populate missing prices/costs.
 >    - This feature requires Cost Management price sheet exports be created and configured in the same FinOps hub instance or storage path.
 >    - This feature performs a large join between cost and price datasets and will slow down data refresh times.
-<!--
 >    - If you run into any issues with data at scale, please disable the parameter.
 >    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
--->
 > 1. Added the Pricing units open dataset to support price sheet data cleanup.
 > 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
-<!--
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed date handling bug that resulted in a "We cannot apply operator >= to types List and Number" error ([#1180](https://github.com/microsoft/finops-toolkit/issues/1180))
+>    - Date parsing now uses the report locale. If you run into issues, set the report locale explicitly to the desired format.
 >
 > 🚫 Deprecated:
 >
@@ -88,7 +111,6 @@ Legend:
 >    - Tracking changes in the `x_SourceChanges` column.
 >    - Explaining why rows have no cost in the `x_FreeReason` column.
 >    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
--->
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -107,16 +129,7 @@ Legend:
 >
 > 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
 
-
-🦾 Bicep modules
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Cost Management export modules for subscriptions and resource groups.
->
-
-<br><a name="latest"></a>
+<br>
 
 ## 🚚 v0.8
 
