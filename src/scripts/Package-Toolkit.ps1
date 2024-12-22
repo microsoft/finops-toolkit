@@ -155,6 +155,25 @@ function Copy-OpenDataFiles()
     Write-Verbose "Copying open data files..."
     Copy-Item "$PSScriptRoot/../open-data/*.csv" $relDir
     Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir
+    
+    Write-Verbose "Generating ResourceTypes.json..."
+    Import-Csv "$PSScriptRoot/../open-data/ResourceTypes.csv" -Encoding utf8 `
+    | ForEach-Object {
+        return [ordered]@{
+            resourceType             = $_.ResourceType
+            singularDisplayName      = $_.SingularDisplayName
+            pluralDisplayName        = $_.PluralDisplayName
+            lowerSingularDisplayName = $_.LowerSingularDisplayName
+            lowerPluralDisplayName   = $_.LowerPluralDisplayName
+            isPreview                = $_.IsPreview -eq 'true'
+            description              = $_.Description ?? $null
+            icon                     = $_.Icon
+            links                    = $_.Links | ConvertFrom-Json -Depth 2 -NoEnumerate
+            missingMetadata          = $_.MissingMetadata -eq 'true'
+        }
+    } `
+    | ConvertTo-Json -Depth 10 `
+    | Out-File "$relDir/ResourceTypes.json" -Encoding utf8
 }
 
 function Copy-OpenDataFolders()
