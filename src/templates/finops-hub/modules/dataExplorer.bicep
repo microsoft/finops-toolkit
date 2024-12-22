@@ -264,6 +264,15 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     location: location
     kind: 'ReadWrite'
 
+    resource openDataScript 'scripts' = {
+      name: 'OpenDataFunctions'
+      properties: {
+        scriptContent: loadTextContent('scripts/OpenDataFunctions.kql')
+        continueOnErrors: continueOnErrors
+        forceUpdateTag: forceUpdateTag
+      }
+    }
+
     resource commonScript 'scripts' = {
       name: 'CommonFunctions'
       properties: {

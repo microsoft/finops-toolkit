@@ -117,6 +117,7 @@ Legend:
 
 > ➕ Added:
 >
+> 1. Add `resource_type()` KQL function to map internal resource type IDs to display names.
 > 1. Clean up `ResourceType` values that have internal resource type IDs (for example, microsoft.compute/virtualmachines).
 >
 > ✏️ Changed:
