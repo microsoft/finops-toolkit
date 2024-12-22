@@ -112,12 +112,28 @@ Legend:
 >    - Explaining why rows have no cost in the `x_FreeReason` column.
 >    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
 
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 1. ETL Pipeline - Fixed timezones for ADF triggers to resolve issue where triggers would not start due to unrecognized timezone.
+> 1. Changed the **enablePublicAccess** parameter to exclude network components.
+>    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
+
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
 > 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
+
+<br>
+
+## 🚚 v0.8
+
+<sup>Released January 2025</sup>
 
 <br>
 
@@ -139,7 +155,7 @@ This release is a minor patch to update documentation and fix Power BI storage r
 >    - PowerBI-kql.zip for reports that connect to FinOps hubs with Data Explorer.
 
 <blockquote class="important" markdown="1">
-  _Some have reported "file not found" and ">=" errors in storage reports. Both issues seem to be transient and resolve themselves within a few hours. We have not been able to reproduce either issue and cannot pinpoint the source. If you are experiencing either, please [submit an issue](https://aka.ms/ftk/ideas)._
+  _Some have reported a 404 or "file not found" error in storage reports. The issue seems to be transient and can be resolved within a few hours. We have not been able to reproduce the issue and cannot pinpoint the source. If you are experiencing the error, please [submit an issue](https://aka.ms/ftk/ideas)._
 </blockquote>
 
 <br>
