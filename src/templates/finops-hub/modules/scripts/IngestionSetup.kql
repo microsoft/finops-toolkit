@@ -887,7 +887,7 @@ Costs_transform_v1_0()
         ResourceName))
     | extend ResourceType = case(
         // Use existing resource type display name unless it's an internal resource type ID
-        isnotempty(ResourceType) and isnotempty(x_ResourceType) and tolower(ResourceType) != x_ResourceType, ResourceType,
+        isnotempty(ResourceType) and isnotempty(x_ResourceType) and tolower(ResourceType) != tolower(x_ResourceType), ResourceType,
         isnotempty(ResourceId) and isnotempty(tmp_ResourceDetails.ResourceType), tmp_ResourceDetails.ResourceType,
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
         ResourceType)
