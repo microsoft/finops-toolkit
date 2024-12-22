@@ -1010,10 +1010,7 @@ Costs_transform_v1_0()
         x_ResellerId,                // Azure 1.0-preview(v1)+
         x_ResellerName,              // Azure 1.0-preview(v1)+
         x_ResourceGroupName = tolower(x_ResourceGroupName),  // Azure 1.0-preview(v1)+
-        x_ResourceType = tolower(case(
-            isnotempty(ResourceType), ResourceType,
-            ChargeCategory == 'Purchase' and CommitmentDiscountType == 'Reservation', '',
-            ResourceType)),          // Azure 1.0-preview(v1)+
+        x_ResourceType,              // Azure 1.0-preview(v1)+
         x_ServiceCode,               // AWS 1.0
         x_ServiceId,                 // GCP Jan 2024
         x_ServicePeriodEnd,          // Azure 1.0-preview(v1)+

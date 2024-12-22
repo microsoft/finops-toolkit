@@ -76,7 +76,7 @@ Legend:
 
 ## 🚚 v0.8
 
-<sup>Released December 2024</sup>
+<sup>Released January 2025</sup>
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -121,6 +121,12 @@ Legend:
 > 1. ETL Pipeline - Fixed timezones for ADF triggers to resolve issue where triggers would not start due to unrecognized timezone.
 > 1. Changed the **enablePublicAccess** parameter to exclude network components.
 >    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed an issue where `x_ResourceType` is using the wrong value.
+>    - This fix resolves the issue for all newly ingested data.
+>    - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -128,12 +134,6 @@ Legend:
 > ➕ Added:
 >
 > 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
-
-<br>
-
-## 🚚 v0.8
-
-<sup>Released January 2025</sup>
 
 <br>
 
