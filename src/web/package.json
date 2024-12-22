@@ -15,6 +15,7 @@
     "@fluentui/react-components": "^9.55.1",
     "autoprefixer": "^10.4.20",
     "eslint-plugin-react": "^7.37.1",
+    "normalize.css": "^8.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0",
