@@ -340,7 +340,7 @@ resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-0
 }
 
 // DNS zone
-resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: dataExplorerPrivateDnsZoneName
   location: 'global'
   tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones') ? tagsByResource['Microsoft.Network/privateDnsZones'] : {})
@@ -348,7 +348,7 @@ resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-0
 }
 
 // Link DNS zone to VNet
-resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   name: '${replace(dataExplorerPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   parent: dataExplorerPrivateDnsZone
@@ -362,7 +362,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 }
 
 // Private endpoint
-resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: '${cluster.name}-ep'
   location: location
   tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
@@ -383,7 +383,7 @@ resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = 
 }
 
 // DNS records for private endpoint
-resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
   name: 'dataExplorer-endpoint-zone'
   parent: dataExplorerEndpoint
   properties: {
