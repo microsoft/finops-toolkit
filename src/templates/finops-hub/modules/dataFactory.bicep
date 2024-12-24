@@ -59,6 +59,9 @@ param tagsByResource object = {}
 @description('Optional. Enable public access.')
 param enablePublicAccess bool
 
+@description('Optional. Sets schedule-based triggers base time.')
+param triggersBaseTime string = utcNow('u')
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -69,12 +72,22 @@ var exportApiVersion = '2023-07-01-preview'
 var hubDataExplorerName = 'hubDataExplorer'
 
 // Function to generate the body for a Cost Management export
-func getExportBody(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
+func getExportBody(
+  exportContainerName string,
+  datasetType string,
+  schemaVersion string,
+  isMonthly bool,
+  exportFormat string,
+  compressionMode string,
+  partitionData string,
+  dataOverwriteBehavior string
+) string =>
+  '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
 
 var deployDataExplorer = !empty(dataExplorerId)
 
 var datasetPropsDefault = {
-    location: {
+  location: {
     type: 'AzureBlobFSLocation'
     fileName: {
       value: '@{dataset().fileName}'
@@ -92,9 +105,6 @@ var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 var managedVnetName = 'default'
 
-var recommendationsDataSet = 'Recommendations'
-var recommendationsScope = 'azure'
-
 // Separator used to separate ingestion ID from file name for ingested files
 var ingestionIdFileNameSeparator = '__'
 
@@ -103,14 +113,15 @@ var exportManifestAddedTriggerName = '${safeExportContainerName}_ManifestAdded'
 var ingestionManifestAddedTriggerName = '${safeIngestionContainerName}_ManifestAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
-var dailyRecommendationsTriggerName = '${recommendationsDataSet}_DailySchedule'
+var dailyQueriesDateTime = dateTimeAdd(triggersBaseTime, 'PT1H')
+var dailyQueriesTriggerName = 'queries_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
   exportManifestAddedTriggerName
   ingestionManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
-  dailyRecommendationsTriggerName
+  dailyQueriesTriggerName
   monthlyTriggerName
 ]
 
@@ -174,20 +185,20 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
       computeProperties: {
         location: location
         dataFlowProperties: {
-            computeType: 'General'
-            coreCount: 8
-            timeToLive: 10
-            cleanup: false
-            customProperties: []
+          computeType: 'General'
+          coreCount: 8
+          timeToLive: 10
+          cleanup: false
+          customProperties: []
         }
         copyComputeScaleProperties: {
-            dataIntegrationUnit: 16
-            timeToLive: 30
+          dataIntegrationUnit: 16
+          timeToLive: 30
         }
         pipelineExternalComputeScaleProperties: {
-            timeToLive: 30
-            numberOfPipelineNodes: 1
-            numberOfExternalNodes: 1
+          timeToLive: 30
+          numberOfPipelineNodes: 1
+          numberOfExternalNodes: 1
         }
       }
     }
@@ -307,29 +318,38 @@ module approveDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bice
 resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${dataFactory.name}_triggerManager'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+  tags: union(
+    tags,
+    contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities')
+      ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities']
+      : {}
+  )
 }
 
-resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
-  name: guid(dataFactory.id, role, triggerManagerIdentity.id)
-  scope: dataFactory
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: triggerManagerIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
+resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for role in autoStartRbacRoles: {
+    name: guid(dataFactory.id, role, triggerManagerIdentity.id)
+    scope: dataFactory
+    properties: {
+      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+      principalId: triggerManagerIdentity.properties.principalId
+      principalType: 'ServicePrincipal'
+    }
   }
-}]
+]
 
 // Grant ADF identity access to manage data in storage
-resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
-  name: guid(storageAccount.id, role, dataFactory.id)
-  scope: storageAccount
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: dataFactory.identity.principalId
-    principalType: 'ServicePrincipal'
+resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for role in storageRbacRoles: {
+    name: guid(storageAccount.id, role, dataFactory.id)
+    scope: storageAccount
+    properties: {
+      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+      principalId: dataFactory.identity.principalId
+      principalType: 'ServicePrincipal'
+    }
   }
-}]
+]
 
 //------------------------------------------------------------------------------
 // Delete old triggers and pipelines
@@ -349,7 +369,12 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   dependsOn: [
     triggerManagerRoleAssignments
   ]
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
+  tags: union(
+    tags,
+    contains(tagsByResource, 'Microsoft.Resources/deploymentScripts')
+      ? tagsByResource['Microsoft.Resources/deploymentScripts']
+      : {}
+  )
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -432,10 +457,12 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
     typeProperties: {
       baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
-    connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntime.name
-      type: 'IntegrationRuntimeReference'
-    }
+    connectVia: enablePublicAccess
+      ? null
+      : {
+          referenceName: managedIntegrationRuntime.name
+          type: 'IntegrationRuntimeReference'
+        }
   }
 }
 
@@ -450,10 +477,12 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
     }
-    connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntime.name
-      type: 'IntegrationRuntimeReference'
-    }
+    connectVia: enablePublicAccess
+      ? null
+      : {
+          referenceName: managedIntegrationRuntime.name
+          type: 'IntegrationRuntimeReference'
+        }
   }
 }
 
@@ -475,10 +504,12 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
       tenant: dataFactory.identity.tenantId
       servicePrincipalId: dataFactory.identity.principalId
     }
-    connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntime.name
-      type: 'IntegrationRuntimeReference'
-    }
+    connectVia: enablePublicAccess
+      ? null
+      : {
+          referenceName: managedIntegrationRuntime.name
+          type: 'IntegrationRuntimeReference'
+        }
   }
 }
 
@@ -523,10 +554,12 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
         secretName: '${toLower(hubName)}-storage-key'
       }
     }
-    connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntime.name
-      type: 'IntegrationRuntimeReference'
-    }
+    connectVia: enablePublicAccess
+      ? null
+      : {
+          referenceName: managedIntegrationRuntime.name
+          type: 'IntegrationRuntimeReference'
+        }
   }
 }
 
@@ -547,10 +580,12 @@ resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
     }
-    connectVia: enablePublicAccess ? null : { 
-      referenceName: managedIntegrationRuntime.name
-      type: 'IntegrationRuntimeReference'
-    }
+    connectVia: enablePublicAccess
+      ? null
+      : {
+          referenceName: managedIntegrationRuntime.name
+          type: 'IntegrationRuntimeReference'
+        }
   }
 }
 
@@ -591,7 +626,7 @@ resource dataset_manifest 'Microsoft.DataFactory/factories/datasets@2018-06-01' 
     parameters: {
       fileName: {
         type: 'String'
-      defaultValue: 'manifest.json'
+        defaultValue: 'manifest.json'
       }
       folderPath: {
         type: 'String'
@@ -727,7 +762,9 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
     }
     linkedServiceName: {
       parameters: {}
-      referenceName: empty(remoteHubStorageUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorage.name
+      referenceName: empty(remoteHubStorageUri)
+        ? linkedService_storageAccount.name
+        : linkedService_remoteHubStorage.name
       type: 'LinkedServiceReference'
     }
   }
@@ -756,7 +793,9 @@ resource dataset_ingestion_files 'Microsoft.DataFactory/factories/datasets@2018-
     }
     linkedServiceName: {
       parameters: {}
-      referenceName: empty(remoteHubStorageUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorage.name
+      referenceName: empty(remoteHubStorageUri)
+        ? linkedService_storageAccount.name
+        : linkedService_remoteHubStorage.name
       type: 'LinkedServiceReference'
     }
   }
@@ -972,8 +1011,8 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
   }
 }
 
-resource trigger_RecommendationsDailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: dailyRecommendationsTriggerName
+resource trigger_QueriesDailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: dailyQueriesTriggerName
   parent: dataFactory
   dependsOn: [
     stopTriggers
@@ -982,7 +1021,7 @@ resource trigger_RecommendationsDailySchedule 'Microsoft.DataFactory/factories/t
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_ExecuteRecommendations.name
+          referenceName: pipeline_ExecuteQueries.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -995,13 +1034,12 @@ resource trigger_RecommendationsDailySchedule 'Microsoft.DataFactory/factories/t
       recurrence: {
         frequency: 'Day'
         interval: 1
-        startTime: '2023-01-01T03:03:00'
+        startTime: dailyQueriesDateTime
         timeZone: azuretimezones.outputs.Timezone
       }
     }
   }
 }
-
 
 resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
   name: monthlyTriggerName
@@ -1052,7 +1090,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
   parent: dataFactory
   properties: {
     activities: [
-      { // Get Config
+      {
+        // Get Config
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -1082,7 +1121,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
           }
         }
       }
-      { // Set Version
+      {
+        // Set Version
         name: 'Set Version'
         type: 'SetVariable'
         dependsOn: [
@@ -1102,7 +1142,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
           }
         }
       }
-      { // Set Scopes
+      {
+        // Set Scopes
         name: 'Set Scopes'
         type: 'SetVariable'
         dependsOn: [
@@ -1122,7 +1163,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
           }
         }
       }
-      { // Set Retention
+      {
+        // Set Retention
         name: 'Set Retention'
         type: 'SetVariable'
         dependsOn: [
@@ -1142,7 +1184,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
           }
         }
       }
-      { // Until Capacity Is Available
+      {
+        // Until Capacity Is Available
         name: 'Until Capacity Is Available'
         type: 'Until'
         dependsOn: [
@@ -1172,7 +1215,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
             type: 'Expression'
           }
           activities: [
-            { // Confirm Ingestion Capacity
+            {
+              // Confirm Ingestion Capacity
               name: 'Confirm Ingestion Capacity'
               type: 'AzureDataExplorerCommand'
               dependsOn: []
@@ -1196,7 +1240,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                 }
               }
             }
-            { // If Has Capacity
+            {
+              // If Has Capacity
               name: 'If Has Capacity'
               type: 'IfCondition'
               dependsOn: [
@@ -1214,7 +1259,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                   type: 'Expression'
                 }
                 ifFalseActivities: [
-                  { // Wait for Ingestion
+                  {
+                    // Wait for Ingestion
                     name: 'Wait for Ingestion'
                     type: 'Wait'
                     dependsOn: []
@@ -1223,7 +1269,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       waitTimeInSeconds: 15
                     }
                   }
-                  { // Try Again
+                  {
+                    // Try Again
                     name: 'Try Again'
                     type: 'SetVariable'
                     dependsOn: [
@@ -1246,7 +1293,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                   }
                 ]
                 ifTrueActivities: [
-                  { // Save ingestion policy in ADX
+                  {
+                    // Save ingestion policy in ADX
                     name: 'Set ingestion policy in ADX'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: []
@@ -1273,7 +1321,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
-                  { // Save Hub Settings in ADX
+                  {
+                    // Save Hub Settings in ADX
                     name: 'Save Hub Settings in ADX'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
@@ -1307,7 +1356,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
-                  { // Update PricingUnits in ADX
+                  {
+                    // Update PricingUnits in ADX
                     name: 'Update PricingUnits in ADX'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
@@ -1338,7 +1388,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
-                  { // Update Regions in ADX
+                  {
+                    // Update Regions in ADX
                     name: 'Update Regions in ADX'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
@@ -1369,7 +1420,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
-                  { // Update ResourceTypes in ADX
+                  {
+                    // Update ResourceTypes in ADX
                     name: 'Update ResourceTypes in ADX'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
@@ -1400,7 +1452,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
-                  { // Update Services in ADX
+                  {
+                    // Update Services in ADX
                     name: 'Update Services in ADX'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
@@ -1431,7 +1484,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       }
                     }
                   }
-                  { // Ingestion Complete
+                  {
+                    // Ingestion Complete
                     name: 'Ingestion Complete'
                     type: 'SetVariable'
                     dependsOn: [
@@ -1455,7 +1509,8 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                 ]
               }
             }
-            { // Abort On Error
+            {
+              // Abort On Error
               name: 'Abort On Error'
               type: 'SetVariable'
               dependsOn: [
@@ -1480,14 +1535,15 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
           timeout: '0.02:00:00'
         }
       }
-      { // Timeout Error
+      {
+        // Timeout Error
         name: 'Timeout Error'
         type: 'Fail'
         dependsOn: [
           {
             activity: 'Until Capacity Is Available'
             dependencyConditions: [
-                'Failed'
+              'Failed'
             ]
           }
         ]
@@ -1526,7 +1582,8 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
   parent: dataFactory
   properties: {
     activities: [
-      { // Get Config
+      {
+        // Get Config
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -1566,7 +1623,8 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      { // Set backfill end date
+      {
+        // Set backfill end date
         name: 'Set backfill end date'
         type: 'SetVariable'
         dependsOn: [
@@ -1586,7 +1644,8 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      { // Set backfill start date
+      {
+        // Set backfill start date
         name: 'Set backfill start date'
         type: 'SetVariable'
         dependsOn: [
@@ -1606,7 +1665,8 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      { // Set export start date
+      {
+        // Set export start date
         name: 'Set export start date'
         type: 'SetVariable'
         dependsOn: [
@@ -1626,7 +1686,8 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      { // Set export end date
+      {
+        // Set export end date
         name: 'Set export end date'
         type: 'SetVariable'
         dependsOn: [
@@ -1646,7 +1707,8 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      { // Every Month
+      {
+        // Every Month
         name: 'Every Month'
         type: 'Until'
         dependsOn: [
@@ -1789,7 +1851,8 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
   parent: dataFactory
   properties: {
     activities: [
-      { // Get Config
+      {
+        // Get Config
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -1829,7 +1892,8 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
           }
         }
       }
-      { // Set Scopes
+      {
+        // Set Scopes
         name: 'Set Scopes'
         description: 'Save scopes to test if it is an array'
         type: 'SetVariable'
@@ -1854,7 +1918,8 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
           }
         }
       }
-      { // Set Scopes as Array
+      {
+        // Set Scopes as Array
         name: 'Set Scopes as Array'
         description: 'Wraps a single scope object into an array to work around the PowerShell bug where single-item arrays are sometimes written as a single object instead of an array.'
         type: 'SetVariable'
@@ -1879,7 +1944,8 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
           }
         }
       }
-      { // Filter Invalid Scopes
+      {
+        // Filter Invalid Scopes
         name: 'Filter Invalid Scopes'
         description: 'Remove any invalid scopes to avoid errors.'
         type: 'Filter'
@@ -1910,7 +1976,8 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
           }
         }
       }
-      { // ForEach Export Scope
+      {
+        // ForEach Export Scope
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
@@ -1968,7 +2035,7 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
                 }
                 method: 'POST'
                 headers: {
-                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
+                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'
                   'Content-Type': 'application/json'
                   ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                 }
@@ -2036,7 +2103,8 @@ resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@
   parent: dataFactory
   properties: {
     activities: [
-      { // Get Config
+      {
+        // Get Config
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -2076,7 +2144,8 @@ resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@
           }
         }
       }
-      { // Set Scopes
+      {
+        // Set Scopes
         name: 'Set Scopes'
         description: 'Save scopes to test if it is an array'
         type: 'SetVariable'
@@ -2101,7 +2170,8 @@ resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@
           }
         }
       }
-      { // Set Scopes as Array
+      {
+        // Set Scopes as Array
         name: 'Set Scopes as Array'
         description: 'Wraps a single scope object into an array to work around the PowerShell bug where single-item arrays are sometimes written as a single object instead of an array.'
         type: 'SetVariable'
@@ -2126,7 +2196,8 @@ resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@
           }
         }
       }
-      { // Filter Invalid Scopes
+      {
+        // Filter Invalid Scopes
         name: 'Filter Invalid Scopes'
         description: 'Remove any invalid scopes to avoid errors.'
         type: 'Filter'
@@ -2157,7 +2228,8 @@ resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@
           }
         }
       }
-      { // ForEach Export Scope
+      {
+        // ForEach Export Scope
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
@@ -2357,7 +2429,7 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
         type: 'String'
         defaultValue: environment().resourceManager
       }
-    hubName: {
+      hubName: {
         type: 'String'
         defaultValue: hubName
       }
@@ -2375,7 +2447,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
   parent: dataFactory
   properties: {
     activities: [
-      { // Get Config
+      {
+        // Get Config
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -2415,7 +2488,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      { // Save Scopes
+      {
+        // Save Scopes
         name: 'Save Scopes'
         type: 'SetVariable'
         dependsOn: [
@@ -2439,7 +2513,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      { // Save Scopes as Array
+      {
+        // Save Scopes as Array
         name: 'Save Scopes as Array'
         type: 'SetVariable'
         dependsOn: [
@@ -2463,7 +2538,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      { // Filter Invalid Scopes
+      {
+        // Filter Invalid Scopes
         name: 'Filter Invalid Scopes'
         type: 'Filter'
         dependsOn: [
@@ -2493,7 +2569,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      { // ForEach Export Scope
+      {
+        // ForEach Export Scope
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
@@ -2512,7 +2589,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
           isSequential: true
           activities: [
-            { // 'Create or update open month focus export'
+            {
+              // 'Create or update open month focus export'
               name: 'Create or update open month focus export'
               type: 'WebActivity'
               dependsOn: [
@@ -2538,7 +2616,16 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
                 method: 'PUT'
                 body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                  value: getExportBody(
+                    exportContainerName,
+                    'FocusCost',
+                    focusSchemaVersion,
+                    false,
+                    'Parquet',
+                    'Snappy',
+                    'true',
+                    'CreateNewReport'
+                  )
                   type: 'Expression'
                 }
                 authentication: {
@@ -2550,7 +2637,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            { // 'Set open month focus export name'
+            {
+              // 'Set open month focus export name'
               name: 'Set open month focus export name'
               type: 'SetVariable'
               dependsOn: []
@@ -2567,7 +2655,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            { // 'Create or update closed month focus export'
+            {
+              // 'Create or update closed month focus export'
               name: 'Create or update closed month focus export'
               type: 'WebActivity'
               dependsOn: [
@@ -2593,7 +2682,16 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
                 method: 'PUT'
                 body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                  value: getExportBody(
+                    exportContainerName,
+                    'FocusCost',
+                    focusSchemaVersion,
+                    true,
+                    'Parquet',
+                    'Snappy',
+                    'true',
+                    'CreateNewReport'
+                  )
                   type: 'Expression'
                 }
                 authentication: {
@@ -2605,7 +2703,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            { // 'Set closed month focus export name'
+            {
+              // 'Set closed month focus export name'
               name: 'Set closed month focus export name'
               type: 'SetVariable'
               dependsOn: [
@@ -2678,7 +2777,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
   parent: dataFactory
   properties: {
     activities: [
-      { // Wait
+      {
+        // Wait
         name: 'Wait'
         description: 'Files may not be available immediately after being created.'
         type: 'Wait'
@@ -2688,7 +2788,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           waitTimeInSeconds: 60
         }
       }
-      { // Read Manifest
+      {
+        // Read Manifest
         name: 'Read Manifest'
         description: 'Load the export manifest to determine the scope, dataset, and date range.'
         type: 'Lookup'
@@ -2734,7 +2835,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Set Has No Rows
+      {
+        // Set Has No Rows
         name: 'Set Has No Rows'
         description: 'Check the row count '
         type: 'SetVariable'
@@ -2759,7 +2861,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Set Export Dataset Type
+      {
+        // Set Export Dataset Type
         name: 'Set Export Dataset Type'
         description: 'Save the dataset type from the export manifest.'
         type: 'SetVariable'
@@ -2784,7 +2887,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Set MCA Column
+      {
+        // Set MCA Column
         name: 'Set MCA Column'
         description: 'Determines if the dataset schema has channel-specific columns and saves the column name that only exists in MCA to determine if it is an MCA dataset.'
         type: 'SetVariable'
@@ -2809,7 +2913,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Set Export Dataset Version
+      {
+        // Set Export Dataset Version
         name: 'Set Export Dataset Version'
         description: 'Save the dataset version from the export manifest.'
         type: 'SetVariable'
@@ -2834,7 +2939,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Detect Channel
+      {
+        // Detect Channel
         name: 'Detect Channel'
         description: 'Determines what channel this export is from. Switch statement handles the different file types if the mcaColumnToCheck variable is set.'
         type: 'Switch'
@@ -2865,7 +2971,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
             type: 'Expression'
           }
           cases: [
-            { // csv
+            {
+              // csv
               value: 'csv'
               activities: [
                 {
@@ -2931,7 +3038,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                 }
               ]
             }
-            { // gz
+            {
+              // gz
               value: 'gz'
               activities: [
                 {
@@ -2997,7 +3105,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                 }
               ]
             }
-            { // parquet
+            {
+              // parquet
               value: 'parquet'
               activities: [
                 {
@@ -3085,7 +3194,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           ]
         }
       }
-      { // Set Scope
+      {
+        // Set Scope
         name: 'Set Scope'
         description: 'Save the scope from the export manifest.'
         type: 'SetVariable'
@@ -3110,7 +3220,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Set Date
+      {
+        // Set Date
         name: 'Set Date'
         description: 'Save the exported month from the export manifest.'
         type: 'SetVariable'
@@ -3135,7 +3246,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Error: ManifestReadFailed
+      {
+        // Error: ManifestReadFailed
         name: 'Failed to Read Manifest'
         type: 'Fail'
         dependsOn: [
@@ -3173,7 +3285,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           errorCode: 'ManifestReadFailed'
         }
       }
-      { // Check Schema
+      {
+        // Check Schema
         name: 'Check Schema'
         description: 'Verify that the schema file exists in storage.'
         type: 'GetMetadata'
@@ -3228,7 +3341,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Error: SchemaNotFound
+      {
+        // Error: SchemaNotFound
         name: 'Schema Not Found'
         type: 'Fail'
         dependsOn: [
@@ -3246,7 +3360,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           errorCode: 'SchemaNotFound'
         }
       }
-      { // Set Hub Dataset
+      {
+        // Set Hub Dataset
         name: 'Set Hub Dataset'
         type: 'SetVariable'
         dependsOn: [
@@ -3270,7 +3385,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // Set Destination Folder
+      {
+        // Set Destination Folder
         name: 'Set Destination Folder'
         type: 'SetVariable'
         dependsOn: [
@@ -3300,7 +3416,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           }
         }
       }
-      { // For Each Blob
+      {
+        // For Each Blob
         name: 'For Each Blob'
         description: 'Loop thru each exported file listed in the manifest.'
         type: 'ForEach'
@@ -3321,7 +3438,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           batchCount: enablePublicAccess ? 30 : 4 // so we don't overload the managed runtime
           isSequential: false
           activities: [
-            { // Execute
+            {
+              // Execute
               name: 'Execute'
               description: 'Run the ingestion ETL pipeline.'
               type: 'ExecutePipeline'
@@ -3371,7 +3489,8 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
           ]
         }
       }
-      { // Copy Manifest
+      {
+        // Copy Manifest
         name: 'Copy Manifest'
         description: 'Copy the manifest to the ingestion container to trigger ADX ingestion'
         type: 'Copy'
@@ -3495,7 +3614,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
-      { // Get Existing Parquet Files
+      {
+        // Get Existing Parquet Files
         name: 'Get Existing Parquet Files'
         description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
         type: 'GetMetadata'
@@ -3528,7 +3648,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Filter Out Current Exports
+      {
+        // Filter Out Current Exports
         name: 'Filter Out Current Exports'
         description: 'Remove existing files from the current export so those files do not get deleted.'
         type: 'Filter'
@@ -3552,7 +3673,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Load Schema Mappings
+      {
+        // Load Schema Mappings
         name: 'Load Schema Mappings'
         description: 'Get schema mapping file to use for the CSV to parquet conversion.'
         type: 'Lookup'
@@ -3590,7 +3712,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Error: SchemaLoadFailed
+      {
+        // Error: SchemaLoadFailed
         name: 'Failed to Load Schema'
         type: 'Fail'
         dependsOn: [
@@ -3610,7 +3733,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           errorCode: 'SchemaLoadFailed'
         }
       }
-      { // Set Additional Columns
+      {
+        // Set Additional Columns
         name: 'Set Additional Columns'
         type: 'SetVariable'
         dependsOn: [
@@ -3634,7 +3758,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // For Each Old File
+      {
+        // For Each Old File
         name: 'For Each Old File'
         description: 'Loop thru each of the existing files from previous exports.'
         type: 'ForEach'
@@ -3659,7 +3784,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             type: 'Expression'
           }
           activities: [
-            { // Delete Old Ingested File
+            {
+              // Delete Old Ingested File
               name: 'Delete Old Ingested File'
               description: 'Delete the previously ingested files from older exports.'
               type: 'Delete'
@@ -3694,7 +3820,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           ]
         }
       }
-      { // Set Destination Path
+      {
+        // Set Destination Path
         name: 'Set Destination Path'
         type: 'SetVariable'
         dependsOn: []
@@ -3711,7 +3838,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Convert to Parquet
+      {
+        // Convert to Parquet
         name: 'Convert to Parquet'
         description: 'Convert CSV to parquet and move the file to the ${ingestionContainerName} container.'
         type: 'Switch'
@@ -3742,10 +3870,12 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             type: 'Expression'
           }
           cases: [
-            { // CSV
+            {
+              // CSV
               value: 'csv'
               activities: [
-                { // Convert CSV File
+                {
+                  // Convert CSV File
                   name: 'Convert CSV File'
                   type: 'Copy'
                   dependsOn: []
@@ -3818,10 +3948,12 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                 }
               ]
             }
-            { // GZ
+            {
+              // GZ
               value: 'gz'
               activities: [
-                { // Convert GZip CSV File
+                {
+                  // Convert GZip CSV File
                   name: 'Convert GZip CSV File'
                   type: 'Copy'
                   dependsOn: []
@@ -3894,10 +4026,12 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                 }
               ]
             }
-            { // Parquet
+            {
+              // Parquet
               value: 'parquet'
               activities: [
-                { // Move Parquet File
+                {
+                  // Move Parquet File
                   name: 'Move Parquet File'
                   type: 'Copy'
                   dependsOn: []
@@ -3968,7 +4102,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             }
           ]
           defaultActivities: [
-            { // Error: UnsupportedFileType
+            {
+              // Error: UnsupportedFileType
               name: 'Unsupported File Type'
               type: 'Fail'
               dependsOn: []
@@ -3984,7 +4119,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           ]
         }
       }
-      { // Read Hub Config
+      {
+        // Read Hub Config
         name: 'Read Hub Config'
         description: 'Read the hub config to determine if the export should be retained.'
         type: 'Lookup'
@@ -4019,7 +4155,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // If Not Retaining Exports
+      {
+        // If Not Retaining Exports
         name: 'If Not Retaining Exports'
         description: 'If the msexports retention period <= 0, delete the source file. The main reason to keep the source file is to allow for troubleshooting and reprocessing in the future.'
         type: 'IfCondition'
@@ -4044,7 +4181,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             type: 'Expression'
           }
           ifTrueActivities: [
-            { // Delete Source File
+            {
+              // Delete Source File
               name: 'Delete Source File'
               description: 'Delete the exported data file to keep storage costs down. This file is not referenced by any reporting systems.'
               type: 'Delete'
@@ -4125,12 +4263,12 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
   parent: dataFactory
   properties: {
     activities: [
-      { // Read Hub Config
+      {
+        // Read Hub Config
         name: 'Read Hub Config'
         description: 'Read the hub config to determine how long data should be retained.'
         type: 'Lookup'
-        dependsOn: [
-        ]
+        dependsOn: []
         policy: {
           timeout: '0.12:00:00'
           retry: 0
@@ -4161,7 +4299,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
           }
         }
       }
-      { // Set Final Retention Months
+      {
+        // Set Final Retention Months
         name: 'Set Final Retention Months'
         type: 'SetVariable'
         dependsOn: [
@@ -4185,7 +4324,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
           }
         }
       }
-      { // Until Capacity Is Available
+      {
+        // Until Capacity Is Available
         name: 'Until Capacity Is Available'
         type: 'Until'
         dependsOn: [
@@ -4204,7 +4344,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
             type: 'Expression'
           }
           activities: [
-            { // Confirm Ingestion Capacity
+            {
+              // Confirm Ingestion Capacity
               name: 'Confirm Ingestion Capacity'
               type: 'AzureDataExplorerCommand'
               dependsOn: []
@@ -4225,7 +4366,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                 type: 'LinkedServiceReference'
               }
             }
-            { // If Has Capacity
+            {
+              // If Has Capacity
               name: 'If Has Capacity'
               type: 'IfCondition'
               dependsOn: [
@@ -4243,7 +4385,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                   type: 'Expression'
                 }
                 ifFalseActivities: [
-                  { // Wait for Ingestion
+                  {
+                    // Wait for Ingestion
                     name: 'Wait for Ingestion'
                     type: 'Wait'
                     dependsOn: []
@@ -4252,7 +4395,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       waitTimeInSeconds: 15
                     }
                   }
-                  { // Try Again
+                  {
+                    // Try Again
                     name: 'Try Again'
                     type: 'SetVariable'
                     dependsOn: [
@@ -4275,7 +4419,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                   }
                 ]
                 ifTrueActivities: [
-                  { // Pre-Ingest Cleanup
+                  {
+                    // Pre-Ingest Cleanup
                     name: 'Pre-Ingest Cleanup'
                     description: 'Cost Management exports include all month-to-date data from the previous export run. To ensure data is not double-reported, it must be dropped from the raw table before ingestion completes. Remove previous ingestions into the raw table for the month and any previous runs of the current ingestion month file in any table.'
                     type: 'AzureDataExplorerCommand'
@@ -4302,7 +4447,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       }
                     }
                   }
-                  { // Ingest Data
+                  {
+                    // Ingest Data
                     name: 'Ingest Data'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
@@ -4336,7 +4482,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       }
                     }
                   }
-                  { // Post-Ingest Cleanup
+                  {
+                    // Post-Ingest Cleanup
                     name: 'Post-Ingest Cleanup'
                     description: 'Cost Management exports include all month-to-date data from the previous export run. To ensure data is not double-reported, it must be dropped after ingestion completes. Remove the current ingestion month file from raw and any old ingestions for the month from the final table.'
                     type: 'AzureDataExplorerCommand'
@@ -4370,7 +4517,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       }
                     }
                   }
-                  { // Ingestion Complete
+                  {
+                    // Ingestion Complete
                     name: 'Ingestion Complete'
                     type: 'SetVariable'
                     dependsOn: [
@@ -4391,7 +4539,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       value: false
                     }
                   }
-                  { // Abort On Ingestion Error
+                  {
+                    // Abort On Ingestion Error
                     name: 'Abort On Ingestion Error'
                     type: 'SetVariable'
                     dependsOn: [
@@ -4412,7 +4561,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       value: false
                     }
                   }
-                  { // Error: DataExplorerIngestionFailed
+                  {
+                    // Error: DataExplorerIngestionFailed
                     name: 'Ingestion Failed Error'
                     type: 'Fail'
                     dependsOn: [
@@ -4432,7 +4582,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       errorCode: 'DataExplorerIngestionFailed'
                     }
                   }
-                  { // Abort On Pre-Ingest Drop Error
+                  {
+                    // Abort On Pre-Ingest Drop Error
                     name: 'Abort On Pre-Ingest Drop Error'
                     type: 'SetVariable'
                     dependsOn: [
@@ -4453,7 +4604,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       value: false
                     }
                   }
-                  { // Error: DataExplorerPreIngestionDropFailed
+                  {
+                    // Error: DataExplorerPreIngestionDropFailed
                     name: 'Pre-Ingest Drop Failed Error'
                     type: 'Fail'
                     dependsOn: [
@@ -4473,7 +4625,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       errorCode: 'DataExplorerPreIngestionDropFailed'
                     }
                   }
-                  { // Abort On Post-Ingest Drop Error
+                  {
+                    // Abort On Post-Ingest Drop Error
                     name: 'Abort On Post-Ingest Drop Error'
                     type: 'SetVariable'
                     dependsOn: [
@@ -4494,7 +4647,8 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       value: false
                     }
                   }
-                  { // Error: DataExplorerPostIngestionDropFailed
+                  {
+                    // Error: DataExplorerPostIngestionDropFailed
                     name: 'Post-Ingest Drop Failed Error'
                     type: 'Fail'
                     dependsOn: [
@@ -4568,26 +4722,28 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
   properties: {
     concurrency: 1
     activities: [
-      { // Wait
-            name: 'Wait'
-            description: 'Files may not be available immediately after being created.'
-            type: 'Wait'
-            dependsOn: []
-            userProperties: []
-            typeProperties: {
-              waitTimeInSeconds: 60
-            }
+      {
+        // Wait
+        name: 'Wait'
+        description: 'Files may not be available immediately after being created.'
+        type: 'Wait'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          waitTimeInSeconds: 60
+        }
       }
-      { // Set Container Folder Path
+      {
+        // Set Container Folder Path
         name: 'Set Container Folder Path'
         type: 'SetVariable'
         dependsOn: [
-            {
-                activity: 'Wait'
-                dependencyConditions: [
-                  'Succeeded'
-                ]
-              }
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
         ]
         policy: {
           secureOutput: false
@@ -4602,7 +4758,8 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           }
         }
       }
-      { // Get Existing Parquet Files
+      {
+        // Get Existing Parquet Files
         name: 'Get Existing Parquet Files'
         description: 'Get the previously ingested files so we can get file paths.'
         type: 'GetMetadata'
@@ -4642,7 +4799,8 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           }
         }
       }
-      { // Filter Out Folders and manifest files
+      {
+        // Filter Out Folders and manifest files
         name: 'Filter Out Folders'
         description: 'Remove any folders or manifest files.'
         type: 'Filter'
@@ -4666,16 +4824,17 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           }
         }
       }
-      { // Set Ingestion Timestamp
+      {
+        // Set Ingestion Timestamp
         name: 'Set Ingestion Timestamp'
         type: 'SetVariable'
         dependsOn: [
-            {
-                activity: 'Wait'
-                dependencyConditions: [
-                  'Succeeded'
-                ]
-            }
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
         ]
         policy: {
           secureOutput: false
@@ -4690,7 +4849,8 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           }
         }
       }
-      { // For Each Old File
+      {
+        // For Each Old File
         name: 'For Each Old File'
         description: 'Loop thru each of the existing files.'
         type: 'ForEach'
@@ -4716,7 +4876,8 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
             type: 'Expression'
           }
           activities: [
-            { // Execute
+            {
+              // Execute
               name: 'Execute'
               description: 'Run the ADX ETL pipeline.'
               type: 'ExecutePipeline'
@@ -4758,7 +4919,8 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           ]
         }
       }
-      { // If No Files
+      {
+        // If No Files
         name: 'If No Files'
         description: 'If there are no files found, fail the pipeline.'
         type: 'IfCondition'
@@ -4777,7 +4939,8 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
             type: 'Expression'
           }
           ifTrueActivities: [
-            { // Error: IngestionFilesNotFound
+            {
+              // Error: IngestionFilesNotFound
               name: 'Files Not Found'
               type: 'Fail'
               dependsOn: []
@@ -4814,16 +4977,152 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
 }
 
 //------------------------------------------------------------------------------
-// recommendations export pipeline
-// Triggered by dailyRecommendations trigger
+// queries export pipeline
+// Triggered by dailyQueries trigger
 //------------------------------------------------------------------------------
-@description('Extracts Azure Advisor and custom recommendations from the Resource Graph API.')
-resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${recommendationsDataSet}_Execute'
+@description('Extracts query results from multiple sources (e.g., Resource Graph)')
+resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: 'queries_ExecuteETL'
   parent: dataFactory
   properties: {
     activities: [
-      { // Set blob timestamp
+      {
+        // Load Queries
+        name: 'Load Queries'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.00:10:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              wildcardFileName: '*.json'
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'settings.json'
+              folderPath: '${configContainerName}/queries'
+            }
+          }
+          firstRowOnly: false
+        }
+      }
+      {
+        // Iterate Files
+        name: 'Iterate Files'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Load Queries'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Load Queries\').output.value'
+            type: 'Expression'
+          }
+          batchCount: 2
+          isSequential: false
+          activities: [
+            {
+              // Execute File Queries
+              name: 'Execute File Queries'
+              description: 'Execute the queries declared in the queries file.'
+              type: 'ExecutePipeline'
+              dependsOn: []
+              policy: {
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                pipeline: {
+                  referenceName: pipeline_ExecuteQueries_query.name
+                  type: 'PipelineReference'
+                }
+                waitOnCompletion: true
+                parameters: {
+                  inputDataset: {
+                    value: '@item().inputDataset'
+                    type: 'Expression'
+                  }
+                  outputDataset: {
+                    value: '@item().outputDataset'
+                    type: 'Expression'
+                  }
+                  schemaFile: {
+                    value: '@item().schemaFile'
+                    type: 'Expression'
+                  }
+                  queryScope: {
+                    value: '@item().scope'
+                    type: 'Expression'
+                  }
+                  query: {
+                    value: '@item().query'
+                    type: 'Expression'
+                  }
+                  queryVersion: {
+                    value: '@item().version'
+                    type: 'Expression'
+                  }
+                  querySource: {
+                    value: '@item().source'
+                    type: 'Expression'
+                  }
+                  queryProvider: {
+                    value: '@item().provider'
+                    type: 'Expression'
+                  }
+                  queryType: {
+                    value: '@item().type'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+    policy: {
+      elapsedTimeMetric: {}
+    }
+    annotations: []
+  }
+}
+
+//------------------------------------------------------------------------------
+// queries export pipeline
+// Triggered by dailyQueries trigger
+//------------------------------------------------------------------------------
+@description('Extracts query results from a specific source (e.g., Resource Graph)')
+resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: 'queries_ExecuteQuery'
+  parent: dataFactory
+  properties: {
+    activities: [
+      {
+        // Set blob timestamp
         name: 'Set Blob Timestamp'
         type: 'SetVariable'
         dependsOn: []
@@ -4840,7 +5139,8 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
           }
         }
       }
-      { // Set instance id
+      {
+        // Set instance id
         name: 'Set Instance Id'
         type: 'SetVariable'
         dependsOn: []
@@ -4857,7 +5157,26 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
           }
         }
       }
-      { // Set blob base path
+      {
+        // Set initial query error value
+        name: 'Set Query Error Value'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'queryError'
+          value: {
+            value: '@string(\'\')'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        // Set blob base path
         name: 'Set Blob Base Path'
         type: 'SetVariable'
         dependsOn: [
@@ -4869,7 +5188,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             activity: 'Set Instance Id'
             dependencyConditions: ['Succeeded']
           }
-        ]  
+        ]
         policy: {
           secureOutput: false
           secureInput: false
@@ -4878,51 +5197,16 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
         typeProperties: {
           variableName: 'blobBasePath'
           value: {
-            value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', variables(\'instanceId\'), \'${ingestionIdFileNameSeparator}\')'
+            value: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'blobExportTimestamp\'), pipeline().parameters.queryScope, \'/\', variables(\'instanceId\'), \'${ingestionIdFileNameSeparator}\')'
             type: 'Expression'
           }
         }
       }
-      { // Set schema filename        
-        name: 'Set Schema Filename'
-        type: 'SetVariable'
-        dependsOn: []
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'schemaFile'
-          value: 'recommendations_1.0.json'
-        }
-      }
-      { // Set error counter
-        name: 'Set Error Counter'
-        type: 'SetVariable'
-        dependsOn: []
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'pipelineFailed'
-          value: {
-            value: '@bool(false)'
-            type: 'Expression'
-          }
-        }
-      }
-      { // Load Schema Mappings
+      {
+        // Load Schema Mappings
         name: 'Load Schema Mappings'
         type: 'Lookup'
-        dependsOn: [
-          {
-            activity: 'Set Schema Filename'
-            dependencyConditions: ['Succeeded']
-          }
-        ]
+        dependsOn: []
         policy: {
           timeout: '0.12:00:00'
           retry: 0
@@ -4948,7 +5232,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               fileName: {
-                value: '@variables(\'schemaFile\')'
+                value: '@pipeline().parameters.schemaFile'
                 type: 'Expression'
               }
               folderPath: '${configContainerName}/schemas'
@@ -4956,7 +5240,8 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
           }
         }
       }
-      { // Error: SchemaLoadFailed
+      {
+        // Error: SchemaLoadFailed
         name: 'Failed to Load Schema'
         type: 'Fail'
         dependsOn: [
@@ -4968,202 +5253,156 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
         userProperties: []
         typeProperties: {
           message: {
-            value: '@concat(\'Unable to load the \', variables(\'schemaFile\'), \' recommendations schema file. Please confirm the schema and version are supported for FinOps hubs ingestion. Unsupported files will remain in the ingestion container.\')'
+            value: '@concat(\'Unable to load the \', pipeline().parameters.schemaFile, \' queries schema file. Please confirm the schema and version are supported for FinOps hubs ingestion. Unsupported files will remain in the ingestion container.\')'
             type: 'Expression'
           }
           errorCode: 'SchemaLoadFailed'
         }
       }
-      { // Load Queries
-        name: 'Load Queries'
-        type: 'Lookup'
+      {
+        type: 'Switch'
+        name: 'Switch Query Type'
         dependsOn: [
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'JsonSource'
-            storeSettings: {
-              type: 'AzureBlobFSReadSettings'
-              recursive: true
-              enablePartitionDiscovery: false
-            }
-            formatSettings: {
-              type: 'JsonReadSettings'
-            }
-          }
-          dataset: {
-            referenceName: dataset_config.name
-            type: 'DatasetReference'
-            parameters: {
-              fileName: 'Recommendations.json'
-              folderPath: '${configContainerName}/queries'
-            }
-          }
-          firstRowOnly: true
-        }
-      }
-      { // Iterate Queries
-        name: 'Iterate Queries'
-        type: 'ForEach'
-        dependsOn: [
-          {
-            activity: 'Set Error Counter'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
           {
             activity: 'Set Blob Base Path'
-            dependencyConditions: [
-              'Succeeded'
-            ]
+            dependencyConditions: ['Succeeded']
           }
           {
             activity: 'Load Schema Mappings'
-            dependencyConditions: [
-              'Succeeded'
-            ]
+            dependencyConditions: ['Succeeded']
           }
           {
-            activity: 'Load Queries'
-            dependencyConditions: [
-              'Succeeded'
-            ]
+            activity: 'Set Query Error Value'
+            dependencyConditions: ['Succeeded']
           }
         ]
         userProperties: []
         typeProperties: {
-          items: {
-            value: '@activity(\'Load Queries\').output.firstRow.queries'
+          on: {
+            value: '@pipeline().parameters.inputDataset'
             type: 'Expression'
           }
-          isSequential: true
-          activities: [
-            { name: 'Execute Query'
-              type: 'Copy'
-              dependsOn: [
-              ]
-              policy: {
-                timeout: '0.00:10:00'
-                retry: 0
-                retryIntervalInSeconds: 60
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                source: {
-                  type: 'RestSource'
-                  httpRequestTimeout: '00:02:00'
-                  requestInterval: '00.00:00:00.050'
-                  requestMethod: 'POST'
-                  requestBody: {
-                    value: '@concat(\'{ "query": "\', item().query, \' | extend x_SourceName=\\"\', item().source, \'\\", x_SourceType=\\"\', item().type, \'\\", x_SourceProvider=\\"\', item().provider, \'\\", x_SourceVersion=\\"\', item().version, \'\\"" }\')'
-                    type: 'Expression'
-                  }
-                  additionalHeaders: {
-                    'Content-Type': 'application/json'
-                  }
-                }
-                sink: {
-                  type: 'ParquetSink'
-                  storeSettings: {
-                    type: 'AzureBlobFSWriteSettings'
-                  }
-                  formatSettings: {
-                    type: 'ParquetWriteSettings'
-                    fileExtension: '.parquet'
-                  }
-                }
-                enableStaging: false
-                translator: {
-                  value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-                  type: 'Expression'
-                }
-              }
-              inputs: [
+          cases: [
+            {
+              value: dataset_resourcegraph.name
+              activities: [
                 {
-                  referenceName: dataset_resourcegraph.name
-                  type: 'DatasetReference'
-                  parameters: {}
+                  name: 'Execute ARG Query'
+                  type: 'Copy'
+                  dependsOn: []
+                  policy: {
+                    timeout: '0.00:10:00'
+                    retry: 0
+                    retryIntervalInSeconds: 60
+                    secureOutput: false
+                    secureInput: false
+                  }
+                  userProperties: []
+                  typeProperties: {
+                    source: {
+                      type: 'RestSource'
+                      httpRequestTimeout: '00:02:00'
+                      requestInterval: '00.00:00:00.050'
+                      requestMethod: 'POST'
+                      requestBody: {
+                        value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | extend x_SourceName=\\"\', pipeline().parameters.querySource, \'\\", x_SourceType=\\"\', pipeline().parameters.queryType, \'\\", x_SourceProvider=\\"\', pipeline().parameters.queryProvider, \'\\", x_SourceVersion=\\"\', pipeline().parameters.queryVersion, \'\\"" }\')'
+                        type: 'Expression'
+                      }
+                      additionalHeaders: {
+                        'Content-Type': 'application/json'
+                      }
+                    }
+                    sink: {
+                      type: 'ParquetSink'
+                      storeSettings: {
+                        type: 'AzureBlobFSWriteSettings'
+                      }
+                      formatSettings: {
+                        type: 'ParquetWriteSettings'
+                        fileExtension: '.parquet'
+                      }
+                    }
+                    enableStaging: false
+                    translator: {
+                      value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+                      type: 'Expression'
+                    }
+                  }
+                  inputs: [
+                    {
+                      referenceName: dataset_resourcegraph.name
+                      type: 'DatasetReference'
+                      parameters: {}
+                    }
+                  ]
+                  outputs: [
+                    {
+                      referenceName: dataset_ingestion.name
+                      type: 'DatasetReference'
+                      parameters: {
+                        blobPath: {
+                          value: '@concat(variables(\'blobBasePath\'), pipeline().parameters.queryType, \'.parquet\')'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  ]
                 }
-              ]
-              outputs: [
                 {
-                  referenceName: dataset_ingestion.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@concat(variables(\'blobBasePath\'), item().type, \'.parquet\')'
+                  name: 'Set ARG Query Error'
+                  type: 'SetVariable'
+                  dependsOn: [
+                    {
+                      activity: 'Execute ARG Query'
+                      dependencyConditions: ['Failed']
+                    }
+                  ]
+                  policy: {
+                    secureOutput: false
+                    secureInput: false
+                  }
+                  userProperties: []
+                  typeProperties: {
+                    variableName: 'queryError'
+                    value: {
+                      value: '@activity(\'Execute ARG Query\').output.errors[0].Message'
                       type: 'Expression'
                     }
                   }
                 }
               ]
             }
-            { name: 'Catch Query Failure'
-              type: 'IfCondition'
-              dependsOn: [
-                {
-                  activity: 'Execute Query'
-                  dependencyConditions: [
-                    'Failed'
-                  ]
-                }
-              ]
+          ]
+          defaultActivities: [
+            {
+              type: 'Fail'
+              name: 'Unsupported input dataset'
               userProperties: []
               typeProperties: {
-                expression: {
-                  value: '@contains(activity(\'Execute Query\').output.errors[0].Message, \'Sequence contains no elements\')'
+                message: {
+                  value: '@concat(\'Unable to execute the specified query because the input data set is not supported. Dataset: \', pipeline().parameters.inputDataset)'
                   type: 'Expression'
                 }
-                ifFalseActivities: [
-                  {
-                    name: 'Set Query Error Counter'
-                    type: 'SetVariable'
-                    dependsOn: []
-                    policy: {
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'pipelineFailed'
-                      value: {
-                        value: '@bool(true)'
-                        type: 'Expression'
-                      }
-                    }
-                  }
-                ]
+                errorCode: 'UnsupportedInputDataset'
               }
             }
           ]
         }
       }
-      { // Overall Exports Check
-        name: 'Overall Exports Check'
+      {
+        // Catch ARG Query Failure
+        name: 'Catch ARG Query Failure'
         type: 'IfCondition'
         dependsOn: [
           {
-            activity: 'Iterate Queries'
-            dependencyConditions: [
-              'Completed'
-            ]
+            activity: 'Switch Query Type'
+            dependencyConditions: ['Completed']
           }
         ]
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@equals(variables(\'pipelineFailed\'), true)'
+            value: '@and(not(empty(variables(\'queryError\'))), and(equals(pipeline().parameters.inputDataset, \'${dataset_resourcegraph.name}\'), not(contains(variables(\'queryError\'), \'Sequence contains no elements\'))))'
             type: 'Expression'
           }
           ifTrueActivities: [
@@ -5174,10 +5413,10 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
               userProperties: []
               typeProperties: {
                 message: {
-                  value: 'Pipeline failed'
+                  value: 'Pipeline failed due to an ARG query error'
                   type: 'Expression'
                 }
-                errorCode: 'ARGQueriesFailed'
+                errorCode: 'ARGQueryFailed'
               }
             }
           ]
@@ -5188,9 +5427,6 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
       elapsedTimeMetric: {}
     }
     variables: {
-      schemaFile: {
-        type: 'String'
-      }
       instanceId: {
         type: 'String'
       }
@@ -5200,8 +5436,37 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
       blobBasePath: {
         type: 'String'
       }
-      pipelineFailed: {
-        type: 'Boolean'
+      queryError: {
+        type: 'String'
+      }
+    }
+    parameters: {
+      inputDataset: {
+        type: 'string'
+      }
+      outputDataset: {
+        type: 'string'
+      }
+      schemaFile: {
+        type: 'string'
+      }
+      queryScope: {
+        type: 'string'
+      }
+      query: {
+        type: 'string'
+      }
+      queryVersion: {
+        type: 'string'
+      }
+      querySource: {
+        type: 'string'
+      }
+      queryProvider: {
+        type: 'string'
+      }
+      queryType: {
+        type: 'string'
       }
     }
     annotations: []
@@ -5216,7 +5481,12 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactory.name}_startTriggers'
   // chinaeast2 is the only region in China that supports deployment scripts
   location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
+  tags: union(
+    tags,
+    contains(tagsByResource, 'Microsoft.Resources/deploymentScripts')
+      ? tagsByResource['Microsoft.Resources/deploymentScripts']
+      : {}
+  )
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -5230,7 +5500,7 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     trigger_IngestionManifestAdded
     trigger_SettingsUpdated
     trigger_DailySchedule
-    trigger_RecommendationsDailySchedule
+    trigger_QueriesDailySchedule
     trigger_MonthlySchedule
   ]
   properties: {
@@ -5257,7 +5527,7 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       }
       {
         name: 'Pipelines'
-        value: join([ pipeline_InitializeHub.name ], '|')
+        value: join([pipeline_InitializeHub.name], '|')
       }
     ]
   }

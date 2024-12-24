@@ -1512,7 +1512,7 @@ Recommendations_transform_v1_0()
         'SkuSize', coalesce(SKU, SkuName),
         'SkuTerm', isoMonths(Term)
       ),
-      x_SourceType endswith '-HubsRecommendations', bag_pack(
+      x_SourceType startswith 'HubsRecommendations-', bag_pack(
         'RecommendationCategory', x_RecommendationCategory,
         'RecommendationId', x_RecommendationId,
         'RecommendationSolution', x_RecommendationSolution,

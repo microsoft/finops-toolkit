@@ -80,7 +80,16 @@ var schemaFiles = {
   'recommendations_1.0': loadTextContent('../schemas/recommendations_1.0.json')
 }
 var queriesFiles = {
-  'Recommendations': loadTextContent('./scripts/Recommendations.json')
+  'HubsRecommendations-AdvisorCost': loadTextContent('./scripts/HubsRecommendations-AdvisorCost.json')
+  'HubsRecommendations-AppGWsWithoutBackend': loadTextContent('./scripts/HubsRecommendations-AppGWsWithoutBackend.json')
+  'HubsRecommendations-EmptySQLElasticPools': loadTextContent('./scripts/HubsRecommendations-EmptySQLElasticPools.json')
+  'HubsRecommendations-LBsWithoutBackend': loadTextContent('./scripts/HubsRecommendations-LBsWithoutBackend.json')
+  'HubsRecommendations-NonSpotAKSClusters': loadTextContent('./scripts/HubsRecommendations-NonSpotAKSClusters.json')
+  'HubsRecommendations-NotDeallocatedVMs': loadTextContent('./scripts/HubsRecommendations-NotDeallocatedVMs.json')
+  'HubsRecommendations-SQLVMsWithoutAHB': loadTextContent('./scripts/HubsRecommendations-SQLVMsWithoutAHB.json')
+  'HubsRecommendations-UnattachedDisks': loadTextContent('./scripts/HubsRecommendations-UnattachedDisks.json')
+  'HubsRecommendations-UnattachedPublicIPs': loadTextContent('./scripts/HubsRecommendations-UnattachedPublicIPs.json')
+  'HubsRecommendations-VMsWithoutAHB': loadTextContent('./scripts/HubsRecommendations-VMsWithoutAHB.json')
 }
 
 // Roles needed to auto-start triggers
