@@ -183,10 +183,10 @@ $schemaFiles.PSObject.Properties | ForEach-Object {
     Set-AzStorageBlobContent @storageContext -File $tempPath -Blob "schemas/$fileName" -Force | Out-Null
 }
 
-# Save queries filse to storage
-$queriesFiles = $env:queriesFiles | ConvertFrom-Json -Depth 10
-Write-Output "Uploading ${$queriesFiles.PSObject.Properties.Count} queries files..."
-$queriesFiles.PSObject.Properties | ForEach-Object {
+# Save query files to storage
+$queryFiles = $env:queryFiles | ConvertFrom-Json -Depth 10
+Write-Output "Uploading ${$queryFiles.PSObject.Properties.Count} query files..."
+$queryFiles.PSObject.Properties | ForEach-Object {
     $fileName = "$($_.Name).json"
     $tempPath = "./$fileName"
     Write-Output "  Uploading $($_.Name).json..."
