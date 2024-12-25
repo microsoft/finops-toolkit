@@ -1514,13 +1514,13 @@ Recommendations_transform_v1_0()
       ),
       x_SourceType startswith 'HubsRecommendations-', bag_pack(
         'RecommendationCategory', x_RecommendationCategory,
-        'RecommendationId', x_RecommendationId,
-        'RecommendationSolution', x_RecommendationSolution,
-        'RecommendationTypeId', x_RecommendationTypeId,
-        'RecommendationImpact', x_RecommendationImpact,
         'RecommendationControl', x_RecommendationControl,
+        'RecommendationDetails', x_RecommendationDetails,
+        'RecommendationId', x_RecommendationId,
+        'RecommendationImpact', x_RecommendationImpact,
         'RecommendationMaturityLevel', x_RecommendationMaturityLevel,
-        'RecommendationDetails', x_RecommendationDetails
+        'RecommendationSolution', x_RecommendationSolution,
+        'RecommendationTypeId', x_RecommendationTypeId      
       ),
       dynamic({})
     )
