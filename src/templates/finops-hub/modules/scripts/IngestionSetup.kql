@@ -1520,7 +1520,7 @@ Recommendations_transform_v1_0()
         'RecommendationImpact', x_RecommendationImpact,
         'RecommendationControl', x_RecommendationControl,
         'RecommendationMaturityLevel', x_RecommendationMaturityLevel,
-        'AdditionalInfo', x_RecommendationDetails
+        'RecommendationDetails', x_RecommendationDetails
       ),
       dynamic({})
     )
