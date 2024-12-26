@@ -4980,7 +4980,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
 // queries export pipeline
 // Triggered by dailyQueries trigger
 //------------------------------------------------------------------------------
-@description('Extracts query results from multiple sources (e.g., Resource Graph)')
+@description('Queues the queries_ETL_ingestion pipeline to extract query results from multiple sources (e.g., Resource Graph)')
 resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: 'queries_ExecuteETL'
   parent: dataFactory
@@ -5112,12 +5112,12 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
 }
 
 //------------------------------------------------------------------------------
-// queries export pipeline
-// Triggered by dailyQueries trigger
+// specific query export pipeline
+// Triggered by queries_ExecuteETL pipeline
 //------------------------------------------------------------------------------
 @description('Extracts query results from a specific source (e.g., Resource Graph)')
 resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: 'queries_ExecuteQuery'
+  name: 'queries_ETL_ingestion'
   parent: dataFactory
   properties: {
     activities: [
