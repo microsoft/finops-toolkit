@@ -123,13 +123,14 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
-> 1. ETL Pipeline - Fixed timezones for ADF triggers to resolve issue where triggers would not start due to unrecognized timezone.
 > 1. Changed the **enablePublicAccess** parameter to exclude network components.
 >    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
+> 1. Updated `CommitmentDiscountUsage_transform_v1_0()` to use `parse_resourceid()`.
 >
 > 🛠️ Fixed:
 >
 > 1. Improved performance and memory consumption in the `parse_resourceid()` function to address out of memory errors during cost data ingestion ([#1188](https://github.com/microsoft/finops-toolkit/issues/1188))
+> 1. Fixed timezones for Data Factory triggers to resolve issue where triggers would not start due to unrecognized timezone.
 > 1. Fixed an issue where `x_ResourceType` is using the wrong value.
 >    - This fix resolves the issue for all newly ingested data.
 >    - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.

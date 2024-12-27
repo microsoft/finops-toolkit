@@ -1246,12 +1246,10 @@ CommitmentDiscountUsage_transform_v1_0()
     //
     // Handle resource columns
     | extend ResourceId = tolower(InstanceId)
-    // TODO: Switch to use parse_resourceid()
-    | parse ResourceId with "/subscriptions/" SubAccountId "/resourcegroups/" x_ResourceGroupName "/providers/" tmp_ResourceProvider "/" tmp_ResourceProviderPath
-    | extend segments = split(tmp_ResourceProviderPath, '/')
-    | mv-apply element = segments on (extend index = row_number() | where index % 2 == 0 | summarize ResourceName = strcat_array(make_list(element), '/'))
-    | mv-apply element = segments on (extend index = row_number() | where index % 2 == 1 | summarize x_ResourceType = strcat_array(make_list(element), '/'))
-    | extend x_ResourceType = strcat(tmp_ResourceProvider, '/', x_ResourceType)
+    | extend tmp_ResourceDetails = parse_resourceid(ResourceId)
+    | extend SubAccountId = tmp_ResourceDetails.SubAccountId
+    | extend x_ResourceGroupName = tmp_ResourceDetails.x_ResourceGroupName
+    | extend x_ResourceType = tmp_ResourceDetails.x_ResourceType
     | lookup kind=leftouter (ResourceTypes | distinct x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
     | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, x_ServiceModel) on x_ResourceType
     //
@@ -1277,7 +1275,7 @@ CommitmentDiscountUsage_transform_v1_0()
         x_CommitmentDiscountNormalizedRatio = InstanceFlexibilityRatio,
         x_CommitmentDiscountQuantity        = UsedHours * InstanceFlexibilityRatio,
         x_IngestionTime                     = ingestion_time(),
-        x_ResourceGroupName                 = extract('/resourcegroups/([^/]+)/', 1, ResourceId),
+        x_ResourceGroupName,
         x_ResourceType,
         // x_RowId = hash_sha256(strcat(
         //     // DO NOT CHANGE COLUMNS OR COLUMN ORDER
