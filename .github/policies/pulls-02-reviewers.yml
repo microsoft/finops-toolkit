@@ -121,12 +121,32 @@ configuration:
             then:
               - addLabel:
                   label: 'Skill: Deployment'
+              # Zach
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: fallenhoot
+                then:
+                  - requestReview:
+                      reviewer: fallenhoot
+                  - assignTo:
+                      user: fallenhoot
           - if:
               - filesMatchPattern:
                   pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/bicep-registry\/.*
             then:
               - addLabel:
                   label: 'Tool: Bicep Registry'
+              # Zach
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: fallenhoot
+                then:
+                  - requestReview:
+                      reviewer: fallenhoot
+                  - assignTo:
+                      user: fallenhoot
           # hubs
           - if:
               - or:
