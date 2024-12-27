@@ -129,6 +129,7 @@ Legend:
 >
 > 🛠️ Fixed:
 >
+> 1. Improved performance and memory consumption in the `parse_resourceid()` function to address out of memory errors during cost data ingestion ([#1188](https://github.com/microsoft/finops-toolkit/issues/1188))
 > 1. Fixed an issue where `x_ResourceType` is using the wrong value.
 >    - This fix resolves the issue for all newly ingested data.
 >    - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
