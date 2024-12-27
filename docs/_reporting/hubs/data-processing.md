@@ -106,17 +106,20 @@ The following datasets were accounted for in the design, but have not been teste
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes converting FOCUS 1.0 preview to 1.0.
-2. Add `x_IngestionTime` to indicate when the row was last updated.
-3. Add `x_SourceChanges` to identify when data in a row has been changed in hubs.
-4. Update `ProviderName` and `PublisherName` when not specified.
-5. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
-6. Populate missing `ListCost`, `ListUnitPrice`, `ContractedCost`, and `ContractedUnitPrice` values based on the price sheet.
-   - This process requires prices to be exported before the cost. This may result in prices being missing for the first day of the month until prices are ingested.
-7. Fix `ContractedCost` when it's set incorrectly due to a bug in Cost Management.
-8. Lowercase `ResourceName` and `x_ResourceGroupName` to address casing consistency issues that break grouping and filtering.
-9. Add `x_BillingAccountAgreement` based on the account type.
+- v0.7+:
+  - Align column names to FOCUS 1.0.
+    - Includes converting FOCUS 1.0 preview to 1.0.
+  - Add `x_IngestionTime` to indicate when the row was last updated.
+  - Add `x_SourceChanges` to identify when data in a row has been changed in hubs.
+  - Update `ProviderName` and `PublisherName` when not specified.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+  - Populate missing `ListCost`, `ListUnitPrice`, `ContractedCost`, and `ContractedUnitPrice` values based on the price sheet.
+    - This process requires prices to be exported before the cost. This may result in prices being missing for the first day of the month until prices are ingested.
+  - Fix `ContractedCost` when it's set incorrectly due to a bug in Cost Management.
+  - Lowercase `ResourceName` and `x_ResourceGroupName` to address casing consistency issues that break grouping and filtering.
+  - Add `x_BillingAccountAgreement` based on the account type.
+- v0.8+:
+  - Fix any `ResourceType` values that use internal resource type IDs (for example, microsoft.compute/virtualmachines).
 
 ### Price data transforms
 
