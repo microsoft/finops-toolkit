@@ -14,6 +14,9 @@
     .PARAMETER PowerShell
     Indicates that PowerShell functions should be generated from data files. Default = true, unless -Data is specified.
 
+    .PARAMETER Hubs
+    Indicates that FinOps hubs KQL functions should be generated from data files. Default = true, unless -Data is specified.
+
     .PARAMETER All
     Indicates that all data files and PowerShell functions should be generated. Shortcut for -Data -PowerShell. Default = false.
 
@@ -50,6 +53,9 @@ Param(
     $PowerShell,
 
     [switch]
+    $Hubs,
+
+    [switch]
     $All,
 
     [switch]
@@ -58,9 +64,9 @@ Param(
 
 if ($All)
 {
-    $Data = $PowerShell = $true
+    $Data = $PowerShell = $Hubs = $true
 }
-elseif (-not $Data -and -not $PowerShell)
+elseif (-not $Data -and -not $PowerShell -and -not $Hubs)
 {
     $PowerShell = $true
 }
@@ -119,7 +125,43 @@ function Write-Test($DataType, $Command)
     Write-Output "}"
 }
 
-$outDir = "$PSScriptRoot/../powershell"
+function Write-KqlFunction($Function, $File, $ColumnsToKeep)
+{
+    $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') } `
+    | Where-Object { $ColumnsToKeep -contains $_ }
+    $data = Import-Csv $File
+
+    Write-Output "// $Function"
+    Write-Output ".create-or-alter function "
+    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData')"
+    Write-Output "$Function(id: string) {"
+    Write-Output "    dynamic({"
+    
+    $firstRow = $true
+    $data | ForEach-Object {
+        $row = $_
+        $firstColumn = $true
+        $props = $columns | ForEach-Object {
+            $column = $_
+            $value = $row.$column
+            if ($null -eq $value) { $value = '' }
+            $stringColumn = (-not ($value -match '^([\d\.]+|true|false)$')) -or ($stringColumnNames -contains $column)
+            if ($stringColumn) { $quote = '"' } else { $quote = '' }
+            $escapingQuote = "$(if ($stringColumn -and $value.Contains('"')) { '@' })$quote"
+            $line = "$(if (-not $firstColumn) { "$quote$column$quote`: " })$escapingQuote$($value -replace '"', '""')$quote"
+            $firstColumn = $false
+            return $line
+        }
+        Write-Output "        $(if (-not $firstRow) { ',' })$($props[0]): { $(($props | Select-Object -Skip 1) -join ', ') }"
+        $firstRow = $false
+    }
+    
+    Write-Output "    })[tolower(id)]"
+    Write-Output "}"
+}
+
+$hubsDir = "$PSScriptRoot/../templates/finops-hub/modules/scripts"
+$psDir = "$PSScriptRoot/../powershell"
 $srcDir = "$PSScriptRoot/../open-data"
 $svgDir = "$PSScriptRoot/../../docs/svg"
 
@@ -450,8 +492,8 @@ if ($PowerShell)
         $command = "Get-OpenData$($dataType.TrimEnd('s'))"
     
         Write-Verbose "Generating $command from $dataType.csv..."
-        Write-Command -Command $command -File $file      | Out-File "$outDir/Private/$command.ps1"          -Encoding ascii -Append:$false
-        Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
+        Write-Command -Command $command -File $file      | Out-File "$psDir/Private/$command.ps1"          -Encoding ascii -Append:$false
+        Write-Test -DataType $dataType -Command $command | Out-File "$psDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
     }
 }
 
@@ -459,6 +501,39 @@ if ($PowerShell)
 if ($Test)
 {
     & "$PSScriptRoot/Test-PowerShell.ps1" -Unit -Integration -Data
+}
+
+# Generate Hubs KQL functions from data files
+if ($Hubs)
+{
+    $outFile = "$hubsDir/OpenDataFunctions.kql"
+
+    # Write header
+    Write-Output "// Copyright (c) Microsoft Corporation." | Out-File $outFile -Encoding ascii -Append:$false
+    Write-Output "// Licensed under the MIT License."      | Out-File $outFile -Encoding ascii -Append
+
+    # Constraints
+    $filesToUse = $(
+        'ResourceTypes'
+    )
+    $columnsToKeep = $(
+        'ResourceType',
+        'SingularDisplayName'
+    )
+    
+    # Loop thru all datasets
+    Get-ChildItem "$srcDir/*.csv" `
+    | Where-Object { $_.Name -like "$Name.csv" -and $filesToUse -contains $_.BaseName }
+    | ForEach-Object {
+        $file = $_
+        $dataType = $file.BaseName
+        $function = ($dataType -creplace '([a-z])([A-Z])', '$1_$2').ToLower().TrimEnd('s')
+    
+        Write-Verbose "Generating KQL $function() from $dataType.csv..."
+        Write-Output "" | Out-File $outFile -Encoding ascii -Append
+        Write-KqlFunction -Function $function -File $file -ColumnsToKeep $columnsToKeep `
+        | Out-File $outFile -Encoding ascii -Append
+    }
 }
 
 <# TODO: Integrate the following script to revert SVG files with nonfunctional changes

@@ -66,7 +66,7 @@ Examples:
 
 ## 🌐 Build-OpenData
 
-[Build-OpenData.ps1](./Build-OpenData.ps1) generates data files and PowerShell commands for all open data. PowerShell commands are private and not shared externally today. They must be manually checked in and the script only needs to be run when datasets are added or updated. These are meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData.
+[Build-OpenData.ps1](./Build-OpenData.ps1) generates data files, PowerShell commands, and FinOps hubs KQL functions for open data. PowerShell commands are private and not shared externally today &ndash; they're meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData. FinOps hubs KQL functions are available from the hub Ingestion database. File updates must be manually checked in and the script only needs to be run when datasets are added or updated.
 
 Examples:
 
@@ -88,13 +88,19 @@ Examples:
   ./Build-OpenData -Data
   ```
 
+- Build FinOps hubs KQL functions only:
+
+  ```powershell
+  ./Build-OpenData -Hubs
+  ```
+
 - Build data files and PowerShell functions:
 
   ```powershell
   ./Build-OpenData -All
   ```
 
-- Run tests after the build completes:
+- Run PowerShell tests after the build completes:
 
   ```powershell
   ./Build-OpenData -Test
