@@ -1,0 +1,271 @@
+table Resources
+	lineageTag: 4bd8da11-6970-48a5-a858-38608719bcc3
+
+	column AvailabilityZone
+		dataType: string
+		lineageTag: d53507c5-b7ca-4160-8200-2ed20aa10da8
+		summarizeBy: none
+		sourceColumn: AvailabilityZone
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionId
+		dataType: string
+		lineageTag: 7f92acd6-3938-408b-bdc9-5d2b1015ee8c
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceName
+		dataType: string
+		lineageTag: f4b354a1-4a50-4176-b8a1-37dfbaec6324
+		isDefaultLabel
+		summarizeBy: none
+		sourceColumn: ResourceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceType
+		dataType: string
+		lineageTag: 5084bb39-c36a-40c8-a11f-bac6dd07b5d8
+		summarizeBy: none
+		sourceColumn: ResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceCategory
+		dataType: string
+		lineageTag: 89c59383-d8af-46d6-a83c-2bc9b752c590
+		summarizeBy: none
+		sourceColumn: ServiceCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceName
+		dataType: string
+		lineageTag: e315500a-2472-4560-bf19-6ba170e9c2fe
+		summarizeBy: none
+		sourceColumn: ServiceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountId
+		dataType: string
+		lineageTag: 203b51af-2f82-4561-bf58-bd09de2baae1
+		summarizeBy: none
+		sourceColumn: SubAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tags
+		dataType: string
+		lineageTag: 9a387f07-7bbd-49a1-8959-695340260e39
+		summarizeBy: none
+		sourceColumn: Tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceGroupName
+		dataType: string
+		lineageTag: b57e5a7a-1095-4a09-a917-3371de699da5
+		summarizeBy: none
+		sourceColumn: x_ResourceGroupName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceType
+		dataType: string
+		lineageTag: 5dbd1d25-dbde-475e-a4f0-8400e399ebb1
+		summarizeBy: none
+		sourceColumn: x_ResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceId
+		dataType: string
+		isKey
+		lineageTag: 877b01a0-58b8-484b-ac7a-37df42ba1b7d
+		summarizeBy: none
+		sourceColumn: ResourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentId
+		dataType: string
+		lineageTag: 3563f196-decd-4cda-9368-5f8952b83433
+		summarizeBy: none
+		sourceColumn: x_ResourceParentId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentName
+		dataType: string
+		lineageTag: 5de0c07a-ce07-4fca-b982-da9d2f2d2971
+		summarizeBy: none
+		sourceColumn: x_ResourceParentName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentType
+		dataType: string
+		lineageTag: ef8d092c-1236-46f4-be25-6e1f7a8bf6dd
+		summarizeBy: none
+		sourceColumn: x_ResourceParentType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ToolkitTool
+		dataType: string
+		lineageTag: 25fe77db-f284-44dc-bcaa-4060a41fce74
+		summarizeBy: none
+		sourceColumn: x_ToolkitTool
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ToolkitVersion
+		dataType: string
+		lineageTag: 73090289-7b3b-44a6-b797-d9cc13d15e22
+		summarizeBy: none
+		sourceColumn: x_ToolkitVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Service Hierarchy'
+		lineageTag: 6da70c44-657d-4172-882b-f4b5e072e428
+
+		level 'Service category'
+			lineageTag: cdf494ec-3c01-4860-9b09-ccc0db1a27c3
+			column: ServiceCategory
+
+		level 'Service name'
+			lineageTag: 75390a76-0c00-40b9-b706-b543480b2c29
+			column: ServiceName
+
+		level 'Resource type'
+			lineageTag: 8eeca3f0-1660-4125-94c2-71d5454dc59e
+			column: ResourceType
+
+		level Resource
+			lineageTag: 2563793f-2963-4298-aef4-1958c9f0dc62
+			column: ResourceName
+
+	hierarchy 'Resource Hierarchy'
+		lineageTag: af025857-13bc-4774-aa58-6e9c24eb42c3
+
+		level 'Resource group'
+			lineageTag: 5483fd9c-da94-4b50-bad3-6cf5fd7b5a7b
+			column: x_ResourceGroupName
+
+		level Resource
+			lineageTag: 68af432c-3a94-45b7-8172-ee06e0663566
+			column: ResourceName
+
+	partition Resources = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source = ```
+				let
+					lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+					Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+					let numberOfMonths = " & lookback & ";
+					Costs_v1_0
+					//
+					// Apply summarization settings
+					| where ChargePeriodStart >= monthsago(numberOfMonths)
+					//
+					| where isnotempty(ResourceId)
+					| where isempty(x_CostAllocationRuleName)
+					//
+					| extend x_ToolkitTool = tostring(Tags['ftk-tool'])
+					| extend x_ToolkitVersion = tostring(Tags['ftk-version'])
+				    | extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])
+				    | extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)
+				    | extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)
+				    | extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)
+					//
+					| summarize
+						hasGlobalRegion      = countif(RegionId == 'global'),
+						AvailabilityZone     = take_any(AvailabilityZone),
+						RegionId             = make_set_if(RegionId,   RegionId != 'global'),
+						ResourceName         = take_any(ResourceName),
+						ResourceType         = take_anyif(ResourceType, ResourceType !contains '/'),
+						ServiceCategory      = make_set_if(ServiceCategory, ServiceCategory != 'Other'),
+						ServiceName          = make_set_if(ServiceName, ServiceName != 'Bandwidth'),
+						SubAccountId         = take_any(SubAccountId),
+						Tags                 = take_any(Tags),
+						x_ResourceGroupName  = take_any(x_ResourceGroupName),
+						// x_ResourceMachineName = take_any(tostring(x_SkuDetails.VMName)),
+						x_ResourceParentId   = take_any(x_ResourceParentId),
+						x_ResourceParentName = take_any(x_ResourceParentName),
+						x_ResourceParentType = take_any(x_ResourceParentType),
+						x_ResourceType       = take_anyif(tolower(x_ResourceType), x_ResourceType contains '/'),
+						x_ToolkitTool        = take_any(x_ToolkitTool),
+						x_ToolkitVersion     = take_any(x_ToolkitVersion)
+						by
+						ResourceId
+					| extend x_RegionIdList = RegionId
+					| extend RegionId = case(
+						array_length(RegionId) > 1, '(multiple)',
+						array_length(RegionId) == 0 and hasGlobalRegion > 0, 'global',
+						RegionId[0]
+					)
+					| extend tmp_resourceTypeDetails = database('Ingestion').resource_type(tolower(x_ResourceType))
+					| extend x_ResourceType  = iff(isnotempty(x_ResourceType), x_ResourceType, tmp_resourceTypeDetails.x_ResourceType)
+					| extend ResourceType    = iff(isnotempty(ResourceType), ResourceType, tmp_resourceTypeDetails.SingularDisplayName)
+					| extend ServiceName     = case(
+						array_length(ServiceName) == 1 and isnotempty(ServiceName[0]), ServiceName[0],
+						isnotempty(tmp_resourceTypeDetails.ServiceName), tmp_resourceTypeDetails.ServiceName,
+						ServiceName[0]
+					)
+					| extend ServiceCategory = case(
+						array_length(ServiceCategory) == 1 and isnotempty(ServiceCategory[0]), ServiceCategory[0],
+						isnotempty(tmp_resourceTypeDetails.ServiceCategory), tmp_resourceTypeDetails.ServiceCategory,
+						ServiceCategory[0]
+					)
+					//
+					// TODO: Consider adding a 'multiple' record
+					// | union (print
+					// 	AvailabilityZone    = '(multiple)',
+					// 	RegionId            = '(multiple)',
+					// 	ResourceId          = '(multiple)',
+					// 	ResourceName        = '(multiple)',
+					// 	ResourceType        = '(multiple)',
+					// 	ServiceCategory     = '(multiple)',
+					// 	ServiceName         = '(multiple)',
+					// 	SubAccountId        = '(multiple)',
+					// 	Tags                = '(multiple)',
+					// 	x_ResourceGroupName = '(multiple)',
+					// 	x_ResourceType      = '(multiple)'
+					// )
+					//
+					// Sort columns
+					| project 
+						AvailabilityZone,
+						RegionId,
+						ResourceId,
+						ResourceName,
+						ResourceType,
+						ServiceCategory,
+						ServiceName,
+						SubAccountId,
+						Tags,
+						x_ResourceGroupName,
+						// x_ResourceMachineName,
+						x_ResourceParentId,
+						x_ResourceParentName,
+						x_ResourceParentType,
+						x_ResourceType,
+						x_ToolkitTool,
+						x_ToolkitVersion
+				
+					", [MaxRows=null, MaxSize=2147483648, NoTruncate=true, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-Resources"])
+				in
+					Source
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

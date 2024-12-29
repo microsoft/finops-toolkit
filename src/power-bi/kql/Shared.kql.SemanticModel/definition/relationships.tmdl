@@ -1,0 +1,71 @@
+relationship 4564a47b-eaad-4726-2ce4-df8734c5ae7c
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+
+relationship AutoDetected_f3d3382d-35b7-4417-b742-a045469336c6
+	fromColumn: Charges.RegionId
+	toColumn: Regions.RegionId
+
+relationship 8662d996-67a9-ddb8-ce7d-ead1cafef9dd
+	fromColumn: Charges.x_ReportingDate
+	toColumn: ChargeDates.x_ReportingDate
+
+relationship b888c1ce-6e29-bc83-8ff8-40b66d276264
+	fromColumn: Charges.BillingAccountId
+	toColumn: BillingAccounts.BillingAccountId
+
+relationship 3688b24d-90b5-49fb-c971-576f7920c6f2
+	fromColumn: Charges.CommitmentDiscountId
+	toColumn: CommitmentDiscounts.CommitmentDiscountId
+
+relationship a6468adb-88bb-a2ad-0e3f-65873697e8da
+	isActive: false
+	fromColumn: Resources.RegionId
+	toColumn: Regions.RegionId
+
+relationship d5345611-ec28-1e43-7269-a8e19374bf84
+	isActive: false
+	fromColumn: Resources.SubAccountId
+	toColumn: SubAccounts.SubAccountId
+
+relationship 7bc30db2-73ca-74bc-5e10-2117f10857e1
+	fromColumn: Charges.SubAccountId
+	toColumn: SubAccounts.SubAccountId
+
+relationship 92bfc200-2caa-82c9-cb06-648706f6ac5c
+	isActive: false
+	fromColumn: SubAccounts.BillingAccountId
+	toColumn: BillingAccounts.BillingAccountId
+
+relationship e483611f-c166-244c-c427-a6f42b97cf50
+	fromColumn: Charges.ResourceId
+	toColumn: Resources.ResourceId
+
+relationship 33dd1759-ed1c-daf3-f158-61df491bf974
+	fromColumn: Charges.x_SkuKey
+	toColumn: Skus.x_SkuKey
+
+relationship 4bb52b18-6e14-9ca6-bcbd-a903f778c8f4
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Charges.x_CommitmentDiscountKey
+	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
+
+relationship 0c6b3f75-5cb1-7a06-f83d-069e4502d94d
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Charges.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+
+relationship 948156a2-b5f5-e164-1f69-31baba66f4e0
+	isActive: false
+	fromColumn: ReservationRecommendations.RegionId
+	toColumn: Regions.RegionId
+
+relationship AutoDetected_0ffb1e5e-7a27-4691-adf7-c947645a4aaa
+	fromColumn: StorageData.Scope
+	toColumn: HubScopes.Scope
+

@@ -1,0 +1,53 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup '🛠️ Setup'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup Functions
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 'Data Explorer'
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup 'Open data'
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup Storage
+
+	annotation PBI_QueryGroupOrder = 4
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBIDesktopVersion = 2.139.927.0 (24.12)+304def1e9b85d1d2829888ece3513835a4501d6c
+
+annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URI","Storage URL","RangeStart","RangeEnd","Number of Months","Daily or Monthly","Promote Tags","InstanceSizeFlexibility","BillingAccounts","ChargeDates","Charges","CommitmentDiscounts","HubSettings","Regions","ReservationRecommendations","Resources","Skus","SubAccounts","HubScopes","StorageData","StorageErrors"]
+
+annotation PBI_ProTooling = ["DevMode","DaxQueryView_Desktop"]
+
+ref table ReservationRecommendations
+ref table InstanceSizeFlexibility
+ref table BillingAccounts
+ref table SubAccounts
+ref table Resources
+ref table CommitmentDiscounts
+ref table Skus
+ref table ChargeDates
+ref table Charges
+ref table Regions
+ref table HubSettings
+ref table HubScopes
+ref table StorageData
+ref table StorageErrors
+
+ref cultureInfo en-US
+

@@ -1,0 +1,136 @@
+table CommitmentDiscounts
+	lineageTag: 2645aa2d-ed1c-474c-b341-167bacd92798
+
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: 6bbc9179-6766-4d12-a1ad-edd76b60eefb
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountId
+		dataType: string
+		isKey
+		lineageTag: 8fc3f4a2-77a5-41ed-8a89-4248580dd8a2
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountName
+		dataType: string
+		lineageTag: 127a256f-07ba-44d0-8ce2-857981e9f85c
+		isDefaultLabel
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: b21f71ed-b62f-4c00-8b60-d16d0c51e41a
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 6575be44-a435-4b8b-aeb0-31034e2bc385
+		summarizeBy: none
+		sourceColumn: ChargePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ed3cf755-77b1-4f4a-9d69-115e5cba3086
+		summarizeBy: none
+		sourceColumn: ChargePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOrderId
+		dataType: string
+		lineageTag: 5eb5f760-2bdf-4b22-aabf-1b3d9b01a333
+		summarizeBy: none
+		sourceColumn: x_SkuOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTerm
+		dataType: int64
+		formatString: 0
+		lineageTag: f7e008ea-f9e7-47f4-aefe-33b0d4ca1b17
+		summarizeBy: none
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTermLabel
+		dataType: string
+		lineageTag: 1e2941cc-5620-4337-84fa-8c85601ff236
+		summarizeBy: none
+		sourceColumn: x_SkuTermLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOrderName
+		dataType: string
+		lineageTag: 91f88893-6b78-48de-a115-9725c8ccec64
+		summarizeBy: none
+		sourceColumn: x_SkuOrderName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CommitmentDiscounts = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+					lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+					Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+					let numberOfMonths = " & lookback & ";
+					Costs_v1_0
+					//
+					// Apply summarization settings
+					| where ChargePeriodStart >= monthsago(numberOfMonths)
+					//
+				    | where ChargeCategory == 'Usage'
+				    | where isnotempty(CommitmentDiscountId)
+				    | where isempty(x_CostAllocationRuleName)
+				    | summarize
+				        ChargePeriodEnd             = max(ChargePeriodEnd),
+				        ChargePeriodStart           = min(ChargePeriodStart),
+				        CommitmentDiscountCategory  = take_any(CommitmentDiscountCategory),
+				        CommitmentDiscountName      = take_any(CommitmentDiscountName),
+				        CommitmentDiscountType      = take_any(CommitmentDiscountType),
+				        x_SkuOrderId                = take_any(x_SkuOrderId),
+				        x_SkuOrderName              = take_any(x_SkuOrderName),
+				        x_SkuTerm                   = take_any(x_SkuTerm)
+				        by
+				        CommitmentDiscountId
+				    | project
+				        ChargePeriodEnd,
+				        ChargePeriodStart,
+				        CommitmentDiscountCategory,
+				        CommitmentDiscountId,
+				        CommitmentDiscountName,
+				        CommitmentDiscountType,
+				        x_SkuOrderId,
+				        x_SkuOrderName,
+				        x_SkuTerm,
+				        x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
+				
+					", [MaxRows=null, MaxSize=2147483648, NoTruncate=true, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-CommitmentDiscounts"])
+				in
+					Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

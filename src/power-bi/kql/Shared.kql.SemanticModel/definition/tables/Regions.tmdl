@@ -1,0 +1,45 @@
+table Regions
+	lineageTag: f0bb3291-869b-43e5-93ee-eb52e260409e
+
+	column RegionId
+		dataType: string
+		isKey
+		lineageTag: 2ec613ae-d9f0-4a4d-8a9a-8b6170634d85
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionName
+		dataType: string
+		lineageTag: 8b00821d-9b84-4fa4-85b7-a67c237b9b8a
+		isDefaultLabel
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Regions = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+					lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+					Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+					let numberOfMonths = " & lookback & ";
+					Costs_v1_0
+					//
+					// Apply summarization settings
+					| where ChargePeriodStart >= monthsago(numberOfMonths)
+					//
+				    | distinct RegionId, RegionName
+				
+					", [MaxRows=null, MaxSize=2147483648, NoTruncate=true, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-Regions"])
+				in
+					Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

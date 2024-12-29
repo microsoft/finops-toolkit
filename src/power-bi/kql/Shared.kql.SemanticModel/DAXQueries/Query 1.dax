@@ -1,0 +1,12 @@
+// Welcome to DAX query view! Learn more about DAX queries at https://aka.ms/dax-queries.
+// Right-click on tables, columns, or measures in the data pane to access quick queries, or ask Copilot for help writing DAX.
+
+// Select "Run" to try this sample DAX query.
+    // TOPN(100, 'Skus')
+//SUMMARIZECOLUMNS( Skus[x_SkuKey], Charges[x_SkuKey] )
+//DISTINCTCOUNT(Skus[x_SkuKey])
+// DISTINCT(Skus[x_SkuKey])
+EVALUATE
+// NATURALINNERJOIN( SELECTCOLUMNS(Skus, "x_SkuKey", Skus[x_SkuKey]), SELECTCOLUMNS(Charges, "x_SkuKey", Charges[x_SkuKey]) )
+
+NATURALINNERJOIN( TREATAS(SELECTCOLUMNS(Skus, "x_SkuKey", Skus[x_SkuKey]), Charges[x_SkuKey]), Charges )

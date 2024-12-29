@@ -1,0 +1,103 @@
+/// List of billing accounts.
+table HubSettings
+	lineageTag: 1d5a0322-1dcf-4ed9-8a64-73ec9016508b
+
+	column StorageAccount
+		dataType: string
+		lineageTag: 6da79bd3-339a-4880-8592-2c8a5ceb9018
+		summarizeBy: none
+		sourceColumn: StorageAccount
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataExplorerCluster
+		dataType: string
+		lineageTag: 448ce6b1-54ab-402c-8e46-e17b981d0f6b
+		summarizeBy: none
+		sourceColumn: DataExplorerCluster
+
+		annotation SummarizationSetBy = Automatic
+
+	column Version
+		dataType: string
+		lineageTag: e44f2e83-c117-4c7c-9115-161c854c9d23
+		summarizeBy: none
+		sourceColumn: Version
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExportRetentionInDays
+		dataType: int64
+		formatString: 0
+		lineageTag: 9ac086f6-48f1-48b0-9982-203d36c3e591
+		summarizeBy: sum
+		sourceColumn: ExportRetentionInDays
+
+		annotation SummarizationSetBy = Automatic
+
+	column IngestionRetentionInMonths
+		dataType: int64
+		formatString: 0
+		lineageTag: 1f1e114f-702f-44af-89c5-e7656a4e80a8
+		summarizeBy: sum
+		sourceColumn: IngestionRetentionInMonths
+
+		annotation SummarizationSetBy = Automatic
+
+	column RawRetentionInDays
+		dataType: int64
+		formatString: 0
+		lineageTag: 52f2b144-4208-4210-9656-3d16c3c21f7d
+		summarizeBy: sum
+		sourceColumn: RawRetentionInDays
+
+		annotation SummarizationSetBy = Automatic
+
+	column FinalRetentionInMonths
+		dataType: int64
+		formatString: 0
+		lineageTag: 42b1c260-8178-4897-92f1-1b31be0676e8
+		summarizeBy: sum
+		sourceColumn: FinalRetentionInMonths
+
+		annotation SummarizationSetBy = Automatic
+
+	column Scopes
+		dataType: int64
+		formatString: 0
+		lineageTag: 1d8d19c3-24f2-46e4-a276-88534c2588dd
+		summarizeBy: sum
+		sourceColumn: Scopes
+
+		annotation SummarizationSetBy = Automatic
+
+	partition HubSettings = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+					cluster = #"Cluster URI",
+					storage = #"Storage URL",
+					Source = AzureDataExplorer.Contents(cluster, "Ingestion", "
+				
+					let cluster = '" & cluster & "';
+					let storage = '" & storage & "';
+					HubSettings
+					| project
+						StorageAccount = coalesce(extract(@'//([^\.]+', 1, storage), storage),
+						DataExplorerCluster = coalesce(extract(@'//([^\.]+\.[^\.]+)', 1, cluster), cluster),
+						Version = version,
+						ExportRetentionInDays = toint(retention.msexports.days),
+						IngestionRetentionInMonths = toint(retention.ingestion.months),
+						RawRetentionInDays = toint(retention.raw.days),
+						FinalRetentionInMonths = toint(retention.final.months),
+						Scopes = array_length(scopes)
+				
+					", [MaxRows=null, MaxSize=2147483648, NoTruncate=true, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-PowerBI-HubSettings"])
+				in
+					Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

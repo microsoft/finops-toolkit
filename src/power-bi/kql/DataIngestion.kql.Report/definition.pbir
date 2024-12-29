@@ -1,0 +1,9 @@
+{
+  "version": "4.0",
+  "datasetReference": {
+    "byPath": {
+      "path": "../Shared.kql.SemanticModel"
+    },
+    "byConnection": null
+  }
+}

@@ -1,0 +1,74 @@
+table ChargeDates
+	lineageTag: 8762ba1b-d42d-42f3-83ba-a5734c6d79cd
+
+	/// Month of the charge.
+	column x_ChargeMonth
+		dataType: dateTime
+		formatString: Mmm yyyy
+		lineageTag: f8df5df9-a4e3-4577-8caf-a9bdd8541f3c
+		summarizeBy: none
+		sourceColumn: x_ChargeMonth
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Date of the charge summarized based on desired granularity, either monthly or daily. This column maps to the ChargePeriodStart column in the underlying Costs table.
+	column x_ReportingDate
+		dataType: dateTime
+		isKey
+		formatString: Mmm d
+		lineageTag: e0dec88a-e0b2-4bae-b0be-51220ecd5634
+		isDefaultLabel
+		summarizeBy: none
+		sourceColumn: x_ReportingDate
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	/// Number of rows in the raw Costs table for each date.
+	column x_RowCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 56b35361-debc-4994-bfde-0fc55a726e3f
+		summarizeBy: none
+		sourceColumn: x_RowCount
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ChargeDates = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+					lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+					Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+					let numberOfMonths = " & lookback & ";
+					let monthlyGranularity = " & Text.From(#"Daily or Monthly" = "Monthly") & ";
+					Costs_v1_0
+					//
+					// Apply summarization settings
+					| where ChargePeriodStart >= monthsago(numberOfMonths)
+					| extend x_ChargeMonth = startofmonth(ChargePeriodStart)
+					| extend x_ReportingDate = iff(monthlyGranularity, x_ChargeMonth, startofday(ChargePeriodStart))
+					//
+				    | summarize x_RowCount = count() by x_ChargeMonth, x_ReportingDate
+				
+					", [MaxRows=null, MaxSize=2147483648, NoTruncate=true, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-ChargeDates"])
+				in
+					Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,350 @@
+table Skus
+	lineageTag: 283f5112-8ebe-461e-bb1b-c55c5065040c
+
+	column PricingUnit
+		dataType: string
+		lineageTag: a8103a4b-9886-4510-96b7-5ea900417b04
+		summarizeBy: none
+		sourceColumn: PricingUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column PublisherName
+		dataType: string
+		lineageTag: d5df0e2e-05d0-4f2e-99a1-137796fe86f0
+		summarizeBy: none
+		sourceColumn: PublisherName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuId
+		dataType: string
+		lineageTag: 96963535-8610-41e4-8c95-b05b29026deb
+		summarizeBy: none
+		sourceColumn: SkuId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuPriceId
+		dataType: string
+		lineageTag: f4871477-24fd-4116-9290-795eb07a3010
+		summarizeBy: none
+		sourceColumn: SkuPriceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingBlockSize
+		dataType: double
+		lineageTag: 520a9759-38ca-4c38-82e4-2f51553221d4
+		summarizeBy: none
+		sourceColumn: x_PricingBlockSize
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_PricingUnitDescription
+		dataType: string
+		lineageTag: f8598ec1-bcea-4f16-acff-931226e98235
+		summarizeBy: none
+		sourceColumn: x_PricingUnitDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PublisherCategory
+		dataType: string
+		lineageTag: e9ac1a76-5f4a-4cb6-87b5-61f88b166e86
+		summarizeBy: none
+		sourceColumn: x_PublisherCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PublisherId
+		dataType: string
+		lineageTag: e9ade955-472b-47b4-82d3-e767a3ad5f25
+		summarizeBy: none
+		sourceColumn: x_PublisherId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuCoreCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 06ffb2cb-e2ad-4dfe-b734-9c470d27fdfd
+		summarizeBy: none
+		sourceColumn: x_SkuCoreCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuDescription
+		dataType: string
+		lineageTag: 1f57878f-3dec-41a8-8973-bb78282e652b
+		isDefaultLabel
+		summarizeBy: none
+		sourceColumn: x_SkuDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuImageType
+		dataType: string
+		lineageTag: 314735c2-4593-4b00-8479-bac3be471a2d
+		summarizeBy: none
+		sourceColumn: x_SkuImageType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuIsCreditEligible
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 86159e79-6b07-4625-9142-7359e4e2edf8
+		summarizeBy: none
+		sourceColumn: x_SkuIsCreditEligible
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterCategory
+		dataType: string
+		lineageTag: e6fc8aa9-6f4e-4359-aabb-180ee15ea6ed
+		summarizeBy: none
+		sourceColumn: x_SkuMeterCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterId
+		dataType: string
+		lineageTag: 0570c1c7-71b7-429a-883e-daf97161759f
+		summarizeBy: none
+		sourceColumn: x_SkuMeterId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterName
+		dataType: string
+		lineageTag: 9fc2eda2-1928-4b98-98a2-12148ead9e3d
+		summarizeBy: none
+		sourceColumn: x_SkuMeterName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterSubcategory
+		dataType: string
+		lineageTag: 7f9a1578-1dfd-4a0d-b1df-34140bf1e914
+		summarizeBy: none
+		sourceColumn: x_SkuMeterSubcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOfferId
+		dataType: string
+		lineageTag: 9a2ab138-bb9e-4808-964b-779563bc7ef9
+		summarizeBy: none
+		sourceColumn: x_SkuOfferId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuPartNumber
+		dataType: string
+		lineageTag: db03d2d1-db6c-4b32-8b71-0bdca3717561
+		summarizeBy: none
+		sourceColumn: x_SkuPartNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuServiceFamily
+		dataType: string
+		lineageTag: 23b00921-7f39-49a2-9db0-ea3aecd1957c
+		summarizeBy: none
+		sourceColumn: x_SkuServiceFamily
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTerm
+		dataType: int64
+		formatString: 0
+		lineageTag: 91f6e37c-8e64-453f-a13c-84165e6094b9
+		summarizeBy: none
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTermLabel
+		dataType: string
+		lineageTag: f1ffa327-cf81-4987-9028-1416c380e3d8
+		summarizeBy: none
+		sourceColumn: x_SkuTermLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTier
+		dataType: string
+		lineageTag: 2b24e575-a976-4e62-8147-5d412c3b33fa
+		summarizeBy: none
+		sourceColumn: x_SkuTier
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuType
+		dataType: string
+		lineageTag: 93c80a17-fe9d-4eb9-957f-25e4e464a2de
+		summarizeBy: none
+		sourceColumn: x_SkuType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuKey
+		dataType: string
+		isKey
+		lineageTag: 7c9e1842-f15e-4748-934e-53824b9564e2
+		summarizeBy: none
+		sourceColumn: x_SkuKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1330fffe-b5d3-4316-adf3-3d2fb600fae0
+		summarizeBy: none
+		sourceColumn: ChargePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b92bbb2c-f31c-4925-9417-d4fba37386a9
+		summarizeBy: none
+		sourceColumn: ChargePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: 53d8bd9d-ec93-4981-bbe7-afca5c093daf
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: df8b9469-906c-4b8c-b131-261c82919821
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeCategory
+		dataType: string
+		lineageTag: 7bfc00a7-ab9b-463b-8e87-7153833c638e
+		summarizeBy: none
+		sourceColumn: ChargeCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Skus = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+					lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+					Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+					let numberOfMonths = " & lookback & ";
+					Costs_v1_0
+					//
+					// Apply summarization settings
+					| where ChargePeriodStart >= monthsago(numberOfMonths)
+					//
+				    | where isempty(x_CostAllocationRuleName)
+				    //
+				    // Extract Hybrid Benefit attributes
+				    | extend tmp_IsVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'
+				    | extend x_SkuCoreCount = iff(tmp_IsVMUsage, toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores)), toint(''))
+				    // | extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)
+					| extend x_SkuImageType = iff(tmp_IsVMUsage, tostring(x_SkuDetails.ImageType), '')
+					| extend x_SkuType      = iff(tmp_IsVMUsage, tostring(x_SkuDetails.ServiceType), '')  // Remove other values to keep row count down
+				    | extend x_SkuCoreCount = iff(tmp_IsVMUsage, toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores)), toint(''))
+				    //
+				    | extend x_SkuKey = strcat(
+				        SkuId,
+				        SkuPriceId,
+				        x_SkuMeterId,
+				        x_SkuOfferId,
+				        x_SkuPartNumber,
+				        x_SkuTerm,
+				        x_SkuTier
+				    )
+				    | where isnotempty(x_SkuKey)
+				    | summarize
+				        ChargeCategory             = take_any(ChargeCategory),
+				        ChargePeriodEnd            = max(ChargePeriodEnd),
+				        ChargePeriodStart          = min(ChargePeriodStart),
+				        CommitmentDiscountCategory = take_any(CommitmentDiscountCategory),
+				        CommitmentDiscountType     = take_any(CommitmentDiscountType),
+				        // ConsumedUnit               = take_any(ConsumedUnit),
+				        PricingUnit                = take_any(PricingUnit),
+				        PublisherName              = take_any(PublisherName),
+				        x_PricingBlockSize         = take_any(x_PricingBlockSize),
+				        x_PricingUnitDescription   = take_any(x_PricingUnitDescription),
+				        x_PublisherCategory        = take_any(x_PublisherCategory),
+				        x_PublisherId              = take_any(x_PublisherId),
+				        x_SkuCoreCount             = take_any(x_SkuCoreCount),
+				        x_SkuDescription           = take_any(x_SkuDescription),
+				        // x_SkuDetails has inconstent values and cannot be included cleanly
+				        x_SkuImageType             = take_any(x_SkuImageType),
+				        x_SkuIsCreditEligible      = take_any(x_SkuIsCreditEligible),
+				        x_SkuMeterCategory         = take_any(x_SkuMeterCategory),
+				        x_SkuMeterName             = take_any(x_SkuMeterName),
+				        x_SkuMeterSubcategory      = take_any(x_SkuMeterSubcategory),
+				        x_SkuServiceFamily         = take_any(x_SkuServiceFamily),
+				        x_SkuType                  = take_any(x_SkuType)
+				        by
+				        SkuId,
+				        SkuPriceId,
+				        x_SkuKey,
+				        x_SkuMeterId,
+				        x_SkuOfferId,
+				        x_SkuPartNumber,
+				        x_SkuTerm,
+				        x_SkuTier
+				    | project
+				        ChargeCategory,
+				        ChargePeriodEnd,
+				        ChargePeriodStart,
+				        CommitmentDiscountCategory,
+				        CommitmentDiscountType,
+				        // ConsumedUnit,
+				        PricingUnit,
+				        PublisherName,
+				        SkuId,
+				        SkuPriceId,
+				        x_PricingBlockSize,
+				        x_PricingUnitDescription,
+				        x_PublisherCategory,
+				        x_PublisherId,
+				        x_SkuCoreCount,
+				        x_SkuDescription,
+				        x_SkuImageType,
+				        x_SkuIsCreditEligible,
+				        x_SkuKey,
+				        x_SkuMeterCategory,
+				        x_SkuMeterId,
+				        x_SkuMeterName,
+				        x_SkuMeterSubcategory,
+				        x_SkuOfferId,
+				        x_SkuPartNumber,
+				        x_SkuServiceFamily,
+				        x_SkuTerm,
+				        x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))),
+				        x_SkuTier,
+				        x_SkuType
+				
+					", [MaxRows=null, MaxSize=2147483648, NoTruncate=true, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-Skus"])
+				in
+					Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

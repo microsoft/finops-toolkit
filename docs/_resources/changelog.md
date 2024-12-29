@@ -110,10 +110,15 @@ Legend:
 > 1. Added the Pricing units open dataset to support price sheet data cleanup.
 > 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
 >
+> ✏️ Changed:
+>
+> 1. Updated the KQL reports to use a star schema to scale to more data.
+>
 > 🛠️ Fixed:
 >
 > 1. Fixed date handling bug that resulted in a "We cannot apply operator >= to types List and Number" error ([#1180](https://github.com/microsoft/finops-toolkit/issues/1180))
 >    - Date parsing now uses the report locale. If you run into issues, set the report locale explicitly to the desired format.
+> 1. Fixed the number of enabled resources on the KQL Rate optimization report Hybrid Benefit page. Storage report does not have bug.
 >
 > 🚫 Deprecated:
 >

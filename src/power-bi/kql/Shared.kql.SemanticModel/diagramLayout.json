@@ -1,0 +1,213 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 1476.6687643004075,
+            "y": 130.92234897992273
+          },
+          "nodeIndex": "InstanceSizeFlexibility",
+          "nodeLineageTag": "9b860b11-eaaf-481a-b298-c8811f7d3f7b",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 1,
+          "expandedHeight": 296
+        },
+        {
+          "location": {
+            "x": 1467.8116214432644,
+            "y": 553.20806326563718
+          },
+          "nodeIndex": "ReservationRecommendations",
+          "nodeLineageTag": "aaf05c81-39b8-4528-9bb3-3303552e6da8",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 2,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 181.42857142857144,
+            "y": 109.64285714285715
+          },
+          "nodeIndex": "BillingAccounts",
+          "nodeLineageTag": "d3076656-0832-45fa-821e-1c2783a92e0d",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 13,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 448.63663469420862
+          },
+          "nodeIndex": "ChargeDates",
+          "nodeLineageTag": "8762ba1b-d42d-42f3-83ba-a5734c6d79cd",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 548.48727547889916,
+            "y": 416.78571428571428
+          },
+          "nodeIndex": "Charges",
+          "nodeLineageTag": "0bcf4d33-0115-4517-bc22-9255277bd2fa",
+          "size": {
+            "height": 248,
+            "width": 248
+          },
+          "zIndex": 9,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 843.52590715755014,
+            "y": 819.642857142857
+          },
+          "nodeIndex": "CommitmentDiscounts",
+          "nodeLineageTag": "2645aa2d-ed1c-474c-b341-167bacd92798",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 7,
+          "expandedHeight": 176
+        },
+        {
+          "location": {
+            "x": 1051.4285714285709,
+            "y": 460.05653935102714
+          },
+          "nodeIndex": "Regions",
+          "nodeLineageTag": "f0bb3291-869b-43e5-93ee-eb52e260409e",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 10,
+          "expandedHeight": 145
+        },
+        {
+          "location": {
+            "x": 1050.3830500146928,
+            "y": 8.2142857142857153
+          },
+          "nodeIndex": "Resources",
+          "nodeLineageTag": "4bd8da11-6970-48a5-a858-38608719bcc3",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 11,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 240.09733572897883,
+            "y": 681.77949183706551
+          },
+          "nodeIndex": "Skus",
+          "nodeLineageTag": "283f5112-8ebe-461e-bb1b-c55c5065040c",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 8,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 531.24019287183592,
+            "y": 2.5
+          },
+          "nodeIndex": "SubAccounts",
+          "nodeLineageTag": "23a1e2c7-e947-4a52-8a90-c34ed32872d4",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 12,
+          "expandedHeight": 300
+        },
+        {
+          "location": {
+            "x": 2054.6687643004075,
+            "y": 401.0714285714285
+          },
+          "nodeIndex": "HubScopes",
+          "nodeLineageTag": "666d6d87-203b-4ee4-a058-e1fd88cd07bd",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2328.6687643004075,
+            "y": 327.0714285714285
+          },
+          "nodeIndex": "HubSettings",
+          "nodeLineageTag": "1d5a0322-1dcf-4ed9-8a64-73ec9016508b",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1770.6687643004075,
+            "y": 303.0714285714285
+          },
+          "nodeIndex": "StorageData",
+          "nodeLineageTag": "d73dacf5-9203-44f3-bdad-bd3fe72855c2",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2612.6687643004075,
+            "y": 313.0714285714285
+          },
+          "nodeIndex": "StorageErrors",
+          "nodeLineageTag": "de16117d-69dd-483e-af5c-faa50291d989",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 70,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

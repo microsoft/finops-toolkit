@@ -1,0 +1,173 @@
+table SubAccounts
+	lineageTag: 23a1e2c7-e947-4a52-8a90-c34ed32872d4
+
+	column SubAccountId
+		dataType: string
+		isKey
+		lineageTag: b5a2241d-63be-44b3-bc9a-d5ca575f56b7
+		summarizeBy: none
+		sourceColumn: SubAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountName
+		dataType: string
+		lineageTag: a3a32ac1-5c7b-43b1-8a2f-65b1653ae61b
+		isDefaultLabel
+		summarizeBy: none
+		sourceColumn: SubAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountType
+		dataType: string
+		lineageTag: cd536619-751d-41f3-a5e4-05ba73376206
+		summarizeBy: none
+		sourceColumn: SubAccountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_AccountId
+		dataType: string
+		lineageTag: 38a08ecc-04f3-4d5a-8a3f-49fce4177273
+		summarizeBy: none
+		sourceColumn: x_AccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_AccountName
+		dataType: string
+		lineageTag: 80944af8-9cce-4526-bd6e-c3991fdb5e24
+		summarizeBy: none
+		sourceColumn: x_AccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_AccountOwnerId
+		dataType: string
+		lineageTag: b10f54ac-5555-4edf-bede-510da7386e86
+		summarizeBy: none
+		sourceColumn: x_AccountOwnerId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CostCenter
+		dataType: string
+		lineageTag: 40975336-8054-47bd-9a08-59f351737d8d
+		summarizeBy: none
+		sourceColumn: x_CostCenter
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CustomerId
+		dataType: string
+		lineageTag: 15fe2275-62f4-49ba-a62b-afd333d77966
+		summarizeBy: none
+		sourceColumn: x_CustomerId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CustomerName
+		dataType: string
+		lineageTag: 196fec71-92be-4a98-95a0-b99e8bbcd884
+		summarizeBy: none
+		sourceColumn: x_CustomerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_InvoiceSectionId
+		dataType: string
+		lineageTag: 42c4062a-fee9-40e5-8d9d-32ac5860a6ca
+		summarizeBy: none
+		sourceColumn: x_InvoiceSectionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_InvoiceSectionName
+		dataType: string
+		lineageTag: 4e194f98-1fa0-4344-9be9-078f09836f0d
+		summarizeBy: none
+		sourceColumn: x_InvoiceSectionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResellerId
+		dataType: string
+		lineageTag: ddb1fa41-84b6-4a29-a454-a4625673b8c8
+		summarizeBy: none
+		sourceColumn: x_ResellerId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResellerName
+		dataType: string
+		lineageTag: 5104c3a9-3c2f-497d-b49d-8eb8438d06bc
+		summarizeBy: none
+		sourceColumn: x_ResellerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingAccountId
+		dataType: string
+		lineageTag: a29815a1-e9c8-4650-a2a0-22b8726d4a45
+		summarizeBy: none
+		sourceColumn: BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SubAccounts = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+					lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+					Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+					let numberOfMonths = " & lookback & ";
+					Costs_v1_0
+					//
+					// Apply summarization settings
+					| where ChargePeriodStart >= monthsago(numberOfMonths)
+					//
+					| where isnotempty(SubAccountId)
+					| where isempty(x_CostAllocationRuleName)
+					| summarize
+						BillingAccountId           = take_any(BillingAccountId),
+						SubAccountName             = take_any(SubAccountName),
+						SubAccountType             = take_any(SubAccountType),
+						x_AccountId                = take_any(x_AccountId),
+						x_AccountName              = take_any(x_AccountName),
+						x_AccountOwnerId           = take_any(x_AccountOwnerId),
+						x_CostCenter               = take_any(x_CostCenter),
+						x_CustomerId               = take_any(x_CustomerId),
+						x_CustomerName             = take_any(x_CustomerName),
+						x_InvoiceSectionId         = take_any(x_InvoiceSectionId),
+						x_InvoiceSectionName       = take_any(x_InvoiceSectionName),
+						x_ResellerId               = take_any(x_ResellerId),
+						x_ResellerName             = take_any(x_ResellerName)
+						by
+						SubAccountId
+					| project
+						BillingAccountId,
+						SubAccountId,
+						SubAccountName,
+						SubAccountType,
+						x_AccountId,
+						x_AccountName,
+						x_AccountOwnerId,
+						x_CostCenter,
+						x_CustomerId,
+						x_CustomerName,
+						x_InvoiceSectionId,
+						x_InvoiceSectionName,
+						x_ResellerId,
+						x_ResellerName
+				
+					", [MaxRows=null, MaxSize=2147483648, NoTruncate=true, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-SubAccounts"])
+				in
+					Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

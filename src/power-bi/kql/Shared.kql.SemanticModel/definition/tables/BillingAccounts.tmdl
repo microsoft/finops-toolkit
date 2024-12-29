@@ -1,0 +1,179 @@
+/// List of billing accounts.
+table BillingAccounts
+	lineageTag: d3076656-0832-45fa-821e-1c2783a92e0d
+
+	/// Unique identifier for the billing account. "BillingAccount" columns map to the EA billing account and MCA billing profile. x_BillingAccount is the same as Cost Management.
+	column BillingAccountId
+		dataType: string
+		isKey
+		lineageTag: 38438f4c-a6ee-4260-b071-26dd5dcfc7b1
+		summarizeBy: none
+		sourceColumn: BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Name of the billing account. "BillingAccount" columns map to the EA billing account and MCA billing profile. x_BillingAccount is the same as Cost Management.
+	column BillingAccountName
+		dataType: string
+		lineageTag: cfc1dc85-f832-4128-b010-4d3cae56591f
+		isDefaultLabel
+		summarizeBy: none
+		sourceColumn: BillingAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Indicates whether the BillingAccountId represents an EA billing account or MCA billing profile.
+	column BillingAccountType
+		dataType: string
+		lineageTag: 7679c1b8-7420-4b93-b5ff-6f119ce2c4a8
+		summarizeBy: none
+		sourceColumn: BillingAccountType
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Currency code for all price and cost columns.
+	column BillingCurrency
+		dataType: string
+		lineageTag: 0b331419-f67f-4050-af0f-ace014789860
+		summarizeBy: none
+		sourceColumn: BillingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Name of the organization that generated the invoice. Only supported for CSP accounts. Not supported for EA or MCA accounts that a partner manages due to data not being provided by Cost Management.
+	column InvoiceIssuerName
+		dataType: string
+		lineageTag: 3b1c1f8e-c2db-4be6-96ae-8321aeadeab6
+		summarizeBy: none
+		sourceColumn: InvoiceIssuerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProviderName
+		dataType: string
+		lineageTag: 8c358daa-f2e0-4877-a054-eb1756cc48a6
+		summarizeBy: none
+		sourceColumn: ProviderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountAgreement
+		dataType: string
+		lineageTag: c0d7d974-c4e9-4750-8b3e-476ac0a37fbd
+		summarizeBy: none
+		sourceColumn: x_BillingAccountAgreement
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountId
+		dataType: string
+		lineageTag: 794f466b-4c69-424e-baa5-271d47d9e0ba
+		summarizeBy: none
+		sourceColumn: x_BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountName
+		dataType: string
+		lineageTag: 6e2560d5-1973-4890-aa92-9ac0a48389b9
+		summarizeBy: none
+		sourceColumn: x_BillingAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingProfileId
+		dataType: string
+		lineageTag: 789516b5-d121-42e2-80c5-4b3b7ccdae64
+		summarizeBy: none
+		sourceColumn: x_BillingProfileId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingProfileName
+		dataType: string
+		lineageTag: fdc152d9-3b71-46df-aec8-9c4a26251a85
+		summarizeBy: none
+		sourceColumn: x_BillingProfileName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CurrencyConversionRate
+		dataType: double
+		lineageTag: 8ca164a5-412f-47c0-b4d3-6c137a0fbd62
+		summarizeBy: none
+		sourceColumn: x_CurrencyConversionRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_InvoiceIssuerId
+		dataType: string
+		lineageTag: 1fe42367-4d07-42b5-b430-bcb785cfd003
+		summarizeBy: none
+		sourceColumn: x_InvoiceIssuerId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingCurrency
+		dataType: string
+		lineageTag: 0a611923-5b80-47b4-b428-4aa431b1a251
+		summarizeBy: none
+		sourceColumn: x_PricingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	partition BillingAccounts = m
+		mode: import
+		queryGroup: 'Data Explorer'
+		source =
+				let
+					lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+					Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				
+					let numberOfMonths = " & lookback & ";
+					Costs_v1_0
+					//
+					// Apply summarization settings
+					| where ChargePeriodStart >= monthsago(numberOfMonths)
+					//
+					| summarize
+						BillingAccountName         = take_any(BillingAccountName),
+						BillingAccountType         = take_any(BillingAccountType),
+						BillingCurrency            = take_any(BillingCurrency),
+						InvoiceIssuerName          = take_any(InvoiceIssuerName),
+						ProviderName               = take_any(ProviderName),
+						x_BillingAccountAgreement  = take_any(x_BillingAccountAgreement),
+						x_BillingAccountId         = take_any(x_BillingAccountId),
+						x_BillingAccountName       = take_any(x_BillingAccountName),
+						x_BillingProfileId         = take_any(x_BillingProfileId),
+						x_BillingProfileName       = take_any(x_BillingProfileName),
+						x_CurrencyConversionRate   = take_any(x_CurrencyConversionRate),
+						x_InvoiceIssuerId          = take_any(x_InvoiceIssuerId),
+						x_PricingCurrency          = take_any(x_PricingCurrency)
+						by
+						BillingAccountId
+					| project
+						BillingAccountId,
+						BillingAccountName,
+						BillingAccountType,
+						BillingCurrency,
+						InvoiceIssuerName,
+						ProviderName,
+						x_BillingAccountAgreement,
+						x_BillingAccountId,
+						x_BillingAccountName,
+						x_BillingProfileId,
+						x_BillingProfileName,
+						x_CurrencyConversionRate,
+						x_InvoiceIssuerId,
+						x_PricingCurrency
+				
+					", [MaxRows=null, MaxSize=2147483648, NoTruncate=true, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-RateOptimization-BillingAccounts"])
+				in
+					Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
