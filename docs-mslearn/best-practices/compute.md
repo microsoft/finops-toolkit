@@ -3,10 +3,10 @@ title: FinOps best practices for compute
 description: This article provides FinOps best practices for compute services, including cost optimization, efficiency improvements, and insights into Azure resources.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/24/2024
+ms.date: 12/30/2024
 ms.topic: concept-article
 ms.service: finops
-ms.reviewer: arclares
+ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with compute services.
 ---
 
@@ -58,28 +58,44 @@ resources
 
 ## Virtual machines
 
-The following sections provide ARG queries for VMs. These queries help you optimize costs, improve efficiency, and gain insights into your VMs.
+Azure virtual machines (VMs) are one of several types of [on-demand, scalable computing resources that Azure offers](/azure/architecture/guide/technology-choices/compute-decision-tree). Typically, you choose a VM when you need more control over the computing environment than the other choices offer.
 
-### Query - List virtual machines stopped (and not deallocated)
+An Azure VM gives you the flexibility of virtualization without having to buy and maintain the physical hardware that runs it. However, you still need to maintain the VM by performing tasks, such as configuring, patching, and installing the software that runs on it.
 
-This ARG query identifies VMs that don't have the `deallocated` or `running` state. It retrieves details about their power state, location, resource group, and subscription ID.
+Related resources:
 
-**Category**
+- [About virtual machines](https://azure.microsoft.com/products/virtual-machines)
+- [Virtual machine pricing](https://azure.microsoft.com/pricing/details/virtual-machines)
+- [Virtual machine documentation](/azure/virtual-machines)
+- [Azure services for on-demand, scalable compute](/azure/architecture/guide/technology-choices/compute-decision-tree)
 
-Waste reduction
+### Deallocate virtual machines
 
-**Query**
+Recommendation: Deallocate VMs to avoid unused compute charges. Avoid stopping VMs without deallocating them.
+
+#### About non-running VMs
+
+VMs have 2 non-running states: Stopped and Deallocated.
+
+Stopped VMs have been shut down from within the operating system (e.g., using the shut down command). Stopped VMs are powered off, but Azure still reserves compute resources, like CPU and memory. Since compute resources are reserved and cannot be used by other VMs, these VMs continue to incur compute charges.
+
+Deallocated VMs are stopped via cloud management APIs in the Azure portal, CLI, PowerShell, or other client tool. When a VM is deallocated, Azure releases the corresponding compute resources. Since compute resources are released, these VMs will not incur compute charges; however, it is important to note that both stopped and deallocated VMs will incur non-compute charges, like storage charges from disks.
+
+#### Identify stopped VMs
+
+Use the following Azure Resource Graph (ARG) query to identify stopped VMs that have not been deallocated. It retrieves details about their power state, location, resource group, and subscription ID.
 
 ```kusto
 resources
-| where type =~ 'microsoft.compute/virtualmachines' 
-    and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM deallocated' 
-    and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM running'
+| where type =~ 'microsoft.compute/virtualmachines'
 | extend PowerState = tostring(properties.extended.instanceView.powerState.displayStatus)
-| extend VMLocation = location
-| extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
-| order by id asc
-| project id, PowerState, VMLocation, resourceGroup, subscriptionId
+| where PowerState !in =('VM deallocated', 'VM running')
+| project
+    ResourceId = id,
+    PowerState,
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
 ```
 
 ### Leverage commitment discounts
