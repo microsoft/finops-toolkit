@@ -3,7 +3,7 @@ title: FinOps toolkit overview
 description: Learn how the FinOps toolkit helps you automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to improve FinOps practices.
 author: bandersmsft
 ms.author: banders
-ms.date: 11/01/2024
+ms.date: 12/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -41,6 +41,9 @@ The FinOps toolkit is an ever-evolving collection of tools and resources. The fo
   - [Services](open-data.md#services) – Microsoft consumed services, resource types, and FOCUS service categories.
   - [Sample exports](open-data.md#dataset-examples) – Sample files from Cost Management exports.
 
+> [!div class="nextstepaction"]
+> [Download](https://aka.ms/ftk/latest)
+
 <br>
 
 ## Roadmap
@@ -55,7 +58,10 @@ If you have any questions or comments on past or future releases, [join the conv
 
 ## Get involved
 
-The FinOps toolkit is an open source project. We have many ideas on the long-term vision, but are more interested in learning from the community to drive the product direction. There are many ways you can contribute to the project. You can participate in discussions and request features to review and submitting pull requests. To get started, refer to the [contribution guide](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md).
+The FinOps toolkit is an open source project. We have many ideas on the long-term vision, but are more interested in learning from the community to drive the product direction. There are many ways you can contribute to the project. You can participate in discussions and request features to review and submitting pull requests.
+
+> [!div class="nextstepaction"]
+> [How to contribute](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md).
 
 <br>
 
@@ -63,7 +69,8 @@ The FinOps toolkit is an open source project. We have many ideas on the long-ter
 
 All the main changes are tracked in the changelog. For more information, see the commit history.
 
-[Explore the changelog](changelog.md) &nbsp; [Browse the commit history](https://github.com/microsoft/finops-toolkit/commits/main).
+> [!div class="nextstepaction"]
+> [Explore the changelog](changelog.md)
 
 <br>
 

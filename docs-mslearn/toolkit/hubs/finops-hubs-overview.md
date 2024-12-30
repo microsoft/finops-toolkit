@@ -3,7 +3,7 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 12/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -28,8 +28,8 @@ FinOps hubs extend Cost Management to provide a scalable platform for advanced d
 
 <br>
 
-> [!NOTE]
-> FinOps hubs requires an Enterprise Agreement (EA), Microsoft Customer Agreement (MCA), or Microsoft Partner Agreement (MPA) account (including Cloud Solution Provider subscriptions). If you have a Microsoft Online Services Agreement (MOSA, often called pay-as-you-go) or a Microsoft internal subscription, you need to use FinOps hubs 0.1.1. Power BI reports weren't tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement.
+> [!div class="nextstepaction"]
+> [Create a hub](#create-a-new-hub)
 
 <br>
 
@@ -39,7 +39,10 @@ Many organizations that use Microsoft Cost Management eventually hit a wall wher
 
 FinOps hubs streamline implementing the FinOps Framework. They're being designed to scale to meet the largest enterprise needs. And, they're open and extensible to support building custom solutions without the hassle of building the backend data store. FinOps hubs are designed for and by the community. Join the discussion and let us know what you'd like to see next or learn how to contribute and be a part of the team.
 
-[Join the conversation](https://aka.ms/ftk/discuss) &nbsp; [Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md)
+> [!div class="nextstepaction"]
+> [Join the conversation](https://aka.ms/ftk/discuss)
+
+[Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md)
 
 <br>
 
@@ -103,11 +106,10 @@ To create a new FinOps hub, follow these steps:
 
 1. **Deploy your FinOps hub.**
 
-   <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-latest.ui.json"><img alt="Deploy To Azure" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true" /></a>
+   > [!div class="nextstepaction"]
+   > [Deploy to Azure](https://aka.ms/finops/hubs/deploy)
 
-   <!-- TODO: Uncomment when files are added
-   [Learn more](../../_resources/deploy.md)
-   -->
+   [Learn more](../help/deploy.md)
 
 2. **Configure scopes to monitor.**
 
@@ -125,10 +127,11 @@ If you run into any issues, see [Troubleshooting Power BI reports](../help/troub
 
 > [!NOTE]
 > If you need to deploy to Azure Gov or Azure China, use [FinOps hubs 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1). Instructions are the same except you will create an amortized cost export instead of a FOCUS export.
-
-  <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json"><img alt="Deploy To Azure Gov" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true" /></a>
-  &nbsp;
-  <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json"><img alt="Deploy To Azure China" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true" /></a>
+>
+> > [!div class="nextstepaction"]
+> > [Deploy to Azure Gov](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json)
+> > [!div class="nextstepaction"]
+> > [Deploy to Azure China](https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json)
 
 If you run into any issues, refer to the [Troubleshooting guide](../help/troubleshooting.md).
 
