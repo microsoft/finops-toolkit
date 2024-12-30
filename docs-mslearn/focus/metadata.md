@@ -3,7 +3,7 @@ title: FOCUS metadata
 description: This article provides general information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/29/2024
+ms.date: 12/30/2024
 ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
@@ -18,7 +18,8 @@ This document describes what is included in the FOCUS cost and usage details dat
 
 ## FocusCost 1.0
 
-[Download metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
+> [!div class="nextstepaction"]
+> [Download metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
 
 - Data generator: Microsoft
 - Schema ID: `1.0`
@@ -131,7 +132,8 @@ Columns include:
 
 ## FocusCost 1.0-preview(v1)
 
-[Download metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
+> [!div class="nextstepaction"]
+> [Download metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
 
 - Data generator: Microsoft
 - Schema ID: `1.0-preview(v1)`
@@ -252,15 +254,11 @@ If you have feedback about FOCUS, [create an issue in the FOCUS repository](http
 
 Related resources:
 
+- [FOCUS conformance summary](conformance-summary.md)
 - [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus)
-
-<!--
-TODO: Add these after we bring in the rest of the toolkit content
-- [Data dictionary](../../_resources/data-dictionary.md)
-- [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
-- [Known issues](../../_resources/data-dictionary.md#-known-issues)
-- [Common terms](../../_resources/terms.md)
--->
+- [FinOps toolkit data dictionary](../toolkit/help/data-dictionary.md)
+- [Generating a unique ID](../toolkit/help/data-dictionary.md#generating-a-unique-id)
+- [FinOps toolkit common terms](../toolkit/help/terms.md)
 
 Related products:
 

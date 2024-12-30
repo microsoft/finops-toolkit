@@ -3,7 +3,7 @@ title: Validate FOCUS data
 description: This article provides reference information that explains how to compare FOCUS data with existing Cost Management datasets.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/29/2024
+ms.date: 12/30/2024
 ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
@@ -103,14 +103,9 @@ Related resources:
 - [How to update existing reports to FOCUS](mapping.md)
 - [How to convert Cost Management data to FOCUS](convert.md)
 - [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus)
-
-<!--
-TODO: Add these after we bring in the rest of the toolkit content
-- [Data dictionary](../../_resources/data-dictionary.md)
-- [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
-- [Known issues](../../_resources/data-dictionary.md#-known-issues)
-- [Common terms](../../_resources/terms.md)
--->
+- [FinOps toolkit data dictionary](../toolkit/help/data-dictionary.md)
+- [Generating a unique ID](../toolkit/help/data-dictionary.md#generating-a-unique-id)
+- [FinOps toolkit common terms](../toolkit/help/terms.md)
 
 Related products:
 

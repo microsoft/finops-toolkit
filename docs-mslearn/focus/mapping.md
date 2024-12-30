@@ -1,9 +1,9 @@
 ---
-title: Update reports
+title: Update reports to use FOCUS columns
 description: Learn how to update existing reports from Cost Management actual or amortized datasets to use FOCUS columns.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/29/2024
+ms.date: 12/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -115,14 +115,10 @@ Related resources:
 
 - [How to convert Cost Management data to FOCUS](convert.md)
 - [How to compare FOCUS with actual/amortized cost](validate.md)
-
-<!--
-TODO: Add these after we bring in the rest of the toolkit content
-- [Data dictionary](../../_resources/data-dictionary.md)
-- [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
-- [Known issues](../../_resources/data-dictionary.md#-known-issues)
-- [Common terms](../../_resources/terms.md)
--->
+- [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus)
+- [FinOps toolkit data dictionary](../toolkit/help/data-dictionary.md)
+- [Generating a unique ID](../toolkit/help/data-dictionary.md#generating-a-unique-id)
+- [FinOps toolkit common terms](../toolkit/help/terms.md)
 
 Related products:
 
