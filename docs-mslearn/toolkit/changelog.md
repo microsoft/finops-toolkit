@@ -41,18 +41,17 @@ The following section lists features and enhancements that are currently in deve
 
 _Released December 1, 2024_
 
-### FinOps guide v0.7
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.7
 
 - **Changed**
   - Added Enterprise App Patterns links resources to the [Architecting for cloud capability](../framework/optimize/architecting.md).
   - Update cost and unit of measure handling in the [FOCUS conversion instructions](../focus/convert.md).
 
-### Power BI reports v0.7
+### [Power BI reports](power-bi/reports.md) v0.7
 
 - **Added**
   - Added partial support for OneLake URLs.
     - Support for OneLake URLs was added based on feedback and wasn't fully tested. More changes may be needed to fully support Microsoft Fabric.
-  - Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
   - Added KQL-based version of the [Cost summary](power-bi/cost-summary.md), [Data ingestion](power-bi/data-ingestion.md), and [Rate optimization](power-bi/rate-optimization.md) reports that connect to FinOps hubs with Azure Data Explorer.
 - **Changed**
   - Consolidated the **Hub Storage URL** and **Export Storage URL** parameters into a single **Storage URL**.
@@ -65,8 +64,10 @@ _Released December 1, 2024_
     - The **x_DatasetVersion** column is now **x_SourceVersion**.
     - The **x_AccountType** column is now **x_BillingAccountAgreement**.
   - Updated supported spend estimates in the Power BI documentation.
-
-### FinOps hubs v0.7
+- **Fixed**
+  - Fixed EffectiveCost for savings plan purchases to work around a bug in exported data.
+  
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.7
 
 _**Breaking change**_
 
@@ -99,28 +100,28 @@ _**Breaking change**_
 - **Fixed**
   - Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
 
-### FinOps workbooks v0.7
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v0.7
 
-#### [Optimization workbook v0.7](workbooks/optimization.md)
+#### [Optimization workbook](workbooks/optimization.md) v0.7
 
 - **Added**
   - On the Storage tab, included the **RSVaultBackup** tag in the list of nonidle disks.
 - **Fixed**
-  - On the Azure reservations tab, fixed an error some users experienced with rows being limited.
+  - On the Azure reservations tab, fixed a configuration issue which was limiting results to 100 rows.
   - On the Compute tab, fixed incorrect virtual machine processor in processors query.
 - **Removed**
-  - On the Database tab, removed the idle SQL databases query.
+  - On the Database tab, removed the idle SQL database query.
     - This query will be reevaluated and added again in a future release.
 
-### Optimization engine v0.7
+### [Optimization engine](optimization-engine/overview.md) v0.7
 
 - **Fixed**
   - Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
   - Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
 
-### Open data v0.7
+### [Open data](open-data.md) v0.7
 
-#### [Resource types v0.7](open-data.md#resource-types)
+#### [Resource types](open-data.md#resource-types) v0.7
 
 - **Added**
   - Added 50 new **Microsoft.AWSConnector** resource types.
@@ -159,13 +160,18 @@ _**Breaking change**_
     - microsoft.hybridcompute/machines/providers/guestconfigurationassignments
     - microsoft.securitycopilot/capacities
 
-#### [Services v0.7](open-data.md#services)
+#### [Services](open-data.md#services) v0.7
 
 - **Added**
   - Added three resource types to existing services:
     - microsoft.hardwaresecuritymodules/cloudhsmclusters
     - microsoft.healthdataaiservices/deidservices
     - microsoft.insights/datacollectionrules
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/ v0.7v0.7)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.6...v0.7)
 
 <br>
 
@@ -175,7 +181,7 @@ _Released October 5, 2024_
 
 This release is a minor patch to update documentation and fix Rate optimization and Data ingestion Power BI files. These files were updated in the existing 0.6 release. We're documenting this release as a new patch release for transparency. If you downloaded these files between October 2-4, 2024, update to the latest version.
 
-### Power BI reports v0.6 update 1
+### [Power BI reports](power-bi/reports.md) v0.6 update 1
 
 - **Added**
   - Documented the need to configure both **Hub Storage URL** and **Export Storage URL** when publishing reports to the Power BI service ([#1033](https://github.com/microsoft/finops-toolkit/issues/1033)).
@@ -183,7 +189,7 @@ This release is a minor patch to update documentation and fix Rate optimization 
   - Updated the Data ingestion report to account for storage path changes ([#1043](https://github.com/microsoft/finops-toolkit/issues/1043)).
   - Updated the Rate optimization report to remove the sensitivity level ([#1041](https://github.com/microsoft/finops-toolkit/issues/1041)).
 
-### FinOps hubs v0.6 update 1
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.6 update 1
 
 - **Added**
   - Added [compatibility guide](hubs/compatibility.md) to identify when changes are compatible with older Power BI reports.
@@ -198,12 +204,12 @@ This release is a minor patch to update documentation and fix Rate optimization 
 
 _Released October 2, 2024_
 
-### FinOps guide v0.6
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.6
 
 - **Added**
   - Started a FinOps best practices library using Azure Resource Graph (ARG) queries from the Cost optimization workbook.
 
-### Power BI reports v0.6
+### [Power BI reports](power-bi/reports.md) v0.6
 
 #### General Power BI updates v0.6
 
@@ -233,7 +239,7 @@ _Released October 2, 2024_
   - Added Azure Advisor cost recommendations.
   - Added Unattached disks.
 
-### FinOps hubs v0.6
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.6
 
 - **Added**
   - Support for Cost Management parquet and Gzip CSV exports.
@@ -253,13 +259,13 @@ _Released October 2, 2024_
 - **Removed**
   - Removed the temporary Event Grid resource from the template.
 
-### FinOps workbooks v0.6
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v0.6
 
 - **Added**
   - Created an option to deploy all [general-purpose FinOps toolkit workbooks](workbooks/finops-workbooks-overview.md) together.
     - Doesn't include workbooks specific to Optimization Engine.
 
-### Optimization engine v0.6
+### [Optimization engine](optimization-engine/overview.md) v0.6
 
 - **Added**
   - [Troubleshooting documentation page](optimization-engine/troubleshooting.md) with the most common deployment and runtime issues and respective solutions or troubleshooting steps.
@@ -272,12 +278,12 @@ _Released October 2, 2024_
     - The script was used to set up performance counters collection for machines connected to Log Analytics workspaces with the legacy agent. 
     - We recommend migrating to the [Azure Monitor Agent](/azure/azure-monitor/agents/azure-monitor-agent-migration) and use the `Setup-DataCollectionRules` script to [setup performance counters collection with Data Collection Rules](optimization-engine/configure-workspaces.md).
 
-### PowerShell module v0.6
+### [PowerShell module](powershell/powershell-commands.md) v0.6
 
 - **Changed**
   - Added a -ServiceSubcategory filter option to the [Get-FinOpsService command](powershell/data/get-finopsservice.md).
 
-### Open data v0.6
+### [Open data](open-data.md) v0.6
 
 #### [Resource types v0.6](open-data.md#resource-types)
 
@@ -315,7 +321,10 @@ _Released October 2, 2024_
     - microsoft.sql/longtermretentionservers
     - microsoft.verifiedid/authorities
 
-[Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6)
+> [!div class="nextstepaction"]
+> [Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6)
 
 <br>
 
@@ -325,7 +334,7 @@ _Released September 7, 2024_
 
 This release is a minor patch to Power BI files. These files were updated in the existing 0.5 release. We're documenting the release as a new patch release for transparency.
 
-### Power BI reports v0.5 update 1
+### [Power BI reports](power-bi/reports.md) v0.5 update 1
 
 - **Fixed**
   - Corrected a bug where Azure Data Lake Storage (ADLS) data sources couldn't be refreshed from the Power BI service ([#964](https://github.com/microsoft/finops-toolkit/issues/964)).
@@ -337,12 +346,12 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 _Released September 1, 2024_
 
-### FinOps guide v0.5
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.5
 
 - **Added**
   - Documented [how to compare FOCUS and actual/amortized data](../focus/validate.md) to learn and validate FOCUS data.
 
-### Power BI reports v0.5
+### [Power BI reports](power-bi/reports.md) v0.5
 
 #### General Power BI updates v0.5
 
@@ -371,7 +380,7 @@ _Released September 1, 2024_
     - The calculated savings function is still incomplete since we don't have accurate list/contracted cost values.
   - Merged shared and single reservation recommendations into a single [Reservation recommendations](power-bi/rate-optimization.md#reservation-recommendations) page.
 
-### FinOps hubs v0.5
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.5
 
 - **Added**
   - Added an optional `skipEventGridRegistration` template parameter to support skipping Event Grid resource provider registration.
@@ -383,7 +392,7 @@ _Released September 1, 2024_
   - Updated the config_ConfigureExports pipeline to handle when scopes in the settings.json file aren't an object.
   - Fixed a bug where scopes added via the Add-FinOpsHubScope command aren't added correctly due to missing brackets.
 
-### FinOps workbooks v0.5
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v0.5
 
 #### [Optimization workbook v0.5](workbooks/optimization.md)
 
@@ -403,7 +412,7 @@ _Released September 1, 2024_
 - **Changed**
   - Removed the management group filter to simplify filtering by subscription.
 
-### Optimization engine v0.5
+### [Optimization engine](optimization-engine/overview.md) v0.5
 
 - **Added**
   - `Register-MultitenantAutomationSchedules` PowerShell script helper to [add a different Azure tenant to the scope of AOE](optimization-engine/customize.md).
@@ -415,7 +424,7 @@ _Released September 1, 2024_
   - `Premium SSD disk has been underutilized` recommendation wasn't showing results due to a meter name change in Cost Management ([#831](https://github.com/microsoft/finops-toolkit/issues/831)).
   - Consumption exports for pay-as-you-go MCA subscriptions were missing cost data ([#828](https://github.com/microsoft/finops-toolkit/issues/828))
 
-### PowerShell module v0.5
+### [PowerShell module](powershell/powershell-commands.md) v0.5
 
 - **Added**
   - Added support for FOCUS, price sheet, and reservation dataset filters in [Get-FinOpsCostExport](powershell/cost/Get-FinOpsCostExport.md).
@@ -426,7 +435,7 @@ _Released September 1, 2024_
   - Fixed [New-FinOpsCostExport](powershell/cost/New-FinOpsCostExport.md) to address breaking change in Cost Management when storage paths start with `/`.
   - Fixed a bug where scopes added via the Add-FinOpsHubScope command aren't added correctly due to missing brackets.
 
-### Open data v0.5
+### [Open data](open-data.md) v0.5
 
 #### [Pricing units v0.5](open-data.md#pricing-units)
 
@@ -584,7 +593,10 @@ _Released September 1, 2024_
   - Move Microsoft Defender for Endpoint from the **Multicloud** service category to **Security**.
   - Move StorSimple from the **Multicloud** service category to **Storage**.
 
-[Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5)
+> [!div class="nextstepaction"]
+> [Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5)
 
 <br>
 
@@ -592,7 +604,7 @@ _Released September 1, 2024_
 
 _Released July 12, 2024_
 
-### FinOps guide v0.4
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.4
 
 - **Added**
   - Documented the [FOCUS export dataset](../focus/metadata.md) to align to the FOCUS metadata specification.
@@ -600,7 +612,7 @@ _Released July 12, 2024_
   - Updated [FinOps Framework guidance](../framework/finops-framework.md) to account for the 2024 updates.
   - Updated [FOCUS guidance](../focus/what-is-focus.md) to FOCUS 1.0.
 
-### FinOps hubs v0.4
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.4
 
 - **Added**
   - Ingest FOCUS 1.0 data in FinOps hubs.
@@ -612,7 +624,7 @@ _Released July 12, 2024_
     - If you see dates that are off, upgrade to 0.4 and re-export those months. The fix is in ingestion.
     - You can re-export data in FOCUS 1.0 or FOCUS 1.0 preview. We recommend FOCUS 1.0 for slightly faster refresh times in Power BI.
 
-### Power BI reports v0.4
+### [Power BI reports](power-bi/reports.md) v0.4
 
 #### General Power BI updates v0.4
 
@@ -656,7 +668,7 @@ _Released July 12, 2024_
 - **Fixed**
   - Added error handling for missing `normalizedSize` and `recommendedQuantityNormalized` columns in the [Rate optimization (Commitment discounts) report](power-bi/rate-optimization.md) ([#702](https://github.com/microsoft/finops-toolkit/issues/702)).
 
-### FinOps workbooks v0.4
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v0.4
 
 #### [Optimization workbook v0.4](workbooks/optimization.md)
 
@@ -679,12 +691,12 @@ _Released July 12, 2024_
 - **Changed**
   - Overview was revised to align with the latest governance principles of the cloud adoption framework.
 
-### Optimization engine v0.4
+### [Optimization engine](optimization-engine/overview.md) v0.4
 
 - **Added**
   - Added Azure Optimization Engine (AOE), an extensible solution for custom optimization recommendations.
 
-### PowerShell module v0.4
+### [PowerShell module](powershell/powershell-commands.md) v0.4
 
 - **Added**
   - Added progress tracking to [Start-FinOpsCostExport](powershell/cost/Start-FinOpsCostExport.md) for multi-month exports.
@@ -696,7 +708,7 @@ _Released July 12, 2024_
     > _We discovered errors with Windows PowerShell due to incompatibilities in Windows PowerShell and PowerShell 7. Due to our limited capacity, we decided to only support [PowerShell 7](/powershell/scripting/install/installing-powershell) going forward._
   - Removed `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` commands which were deprecated in [0.2 (January 2024)](#v02).
 
-### Open data v0.4
+### [Open data](open-data.md) v0.4
 
 - **Added**
   - Added a new FOCUS 1.0 [dataset example](open-data.md#dataset-examples).
@@ -706,7 +718,10 @@ _Released July 12, 2024_
   - Changed the primary columns in the [Regions](open-data.md#regions) and [Services](open-data.md#services) open data files to be lowercase.
   - Updated all [sample exports](open-data.md#dataset-examples) to use the same date range as the FOCUS 1.0 dataset.
 
-[Download v0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.3...v0.4)
+> [!div class="nextstepaction"]
+> [Download v0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.3...v0.4)
 
 <br>
 
@@ -714,14 +729,14 @@ _Released July 12, 2024_
 
 _Released March 28, 2024_
 
-### FinOps guide v0.3
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.3
 
 - **Added**
   - Moved Azure FinOps documentation about how to implement and adopt FinOps into the toolkit repository.
 - **Changed**
   - Rearranged documentation site to better organize content.
 
-### FinOps hubs v0.3
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.3
 
 - **Added**
   - Started archiving template versions so they can be referenced easily via URL microsoft.github.io/finops-toolkit/deploy/finops-hub-{version}.json.
@@ -732,7 +747,7 @@ _Released March 28, 2024_
 - **Changed**
   - Return a single boolean value from the Remove-FinOpsHub command.
 
-### Power BI reports v0.3
+### [Power BI reports](power-bi/reports.md) v0.3
 
 #### General Power BI updates v0.3
 
@@ -775,7 +790,7 @@ _Released March 28, 2024_
   - Fixed numerous errors causing the report to not load for MCA accounts.
   - Corrected references to `x_InvoiceIssuerId` and `InvoiceIssuerName` columns ([#639](https://github.com/microsoft/finops-toolkit/issues/649)).
 
-### PowerShell module v0.3
+### [PowerShell module](powershell/powershell-commands.md) v0.3
 
 - **Added**
   - [Get-FinOpsService](powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
@@ -788,13 +803,16 @@ _Released March 28, 2024_
   - Changed the default `-EndDate` in [New-FinOpsCostExport](powershell/cost/New-FinOpsCostExport.md) to be the end of the month due to a breaking change in Cost Management exports.
   - Fixed internal command used in [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) that might cause failure for some versions of the Az PowerShell module.
 
-### Open data v0.3
+### [Open data](open-data.md) v0.3
 
 - **Added**
   - Added ServiceModel and Environment columns to the [services](open-data.md#services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
   - New and updated [resource types](open-data.md#resource-types) and icons.
 
-[Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3)
+> [!div class="nextstepaction"]
+> [Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3)
 
 <br>
 
@@ -802,7 +820,7 @@ _Released March 28, 2024_
 
 _Released January 22, 2024_
 
-### FinOps hubs v0.2
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.2
 
 _**Breaking change**_
 
@@ -816,7 +834,7 @@ _**Breaking change**_
   - Renamed **msexports_extract** pipeline to **msexports_ExecuteETL**.
   - Renamed **msexports_transform** pipeline to **msexports_ETL_ingestion**.
 
-### Power BI reports v0.2
+### [Power BI reports](power-bi/reports.md) v0.2
 
 #### General Power BI updates v0.2
 
@@ -841,7 +859,7 @@ _**Breaking change**_
 - **Added**
   - Added new report to support the Cost Management connector.
 
-### FinOps workbooks v0.2
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v0.2
 
 #### [Optimization workbook v0.2](workbooks/optimization.md)
 
@@ -855,7 +873,7 @@ _**Breaking change**_
 - **Fixed**
   - Azure Hybrid Benefit: Fixed support for Windows 10/Windows 11.
 
-### PowerShell module v0.2
+### [PowerShell module](powershell/powershell-commands.md) v0.2
 
 - **Added**
   - [New-FinOpsCostExport](powershell/cost/New-FinOpsCostExport.md) to create and update Cost Management exports.
@@ -871,19 +889,22 @@ _**Breaking change**_
     - With native support for FOCUS 1.0 preview in Cost Management, we're deprecating both commands, which only support FOCUS 0.5.
     - If you would like to see the PowerShell commands updated to 1.0 preview, let us know in discussions or via a GitHub issue.
 
-### Open data v0.2
+### [Open data](open-data.md) v0.2
 
 - **Added**
   - [Resource types](open-data.md#resource-types) to map Azure resource types to friendly display names.
   - [Get-FinOpsResourceType](powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
   - [Sample exports](open-data.md) for each of the datasets that can be exported from Cost Management.
 
-### FinOps guide v0.2
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.2
 
 - **Added**
   - [FinOps Open Cost and Usage Specification (FOCUS) details](../focus/what-is-focus.md).
 
-[Download v0.2](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1.1...v0.2)
+> [!div class="nextstepaction"]
+> [Download v0.2](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1.1...v0.2)
 
 <br>
 
@@ -891,7 +912,7 @@ _**Breaking change**_
 
 _Released October 26, 2023_
 
-### PowerShell module v0.1.1
+### [PowerShell module](powershell/powershell-commands.md) v0.1.1
 
 - **Added**
   - New PowerShell commands to convert data to FOCUS 0.5:
@@ -901,7 +922,7 @@ _Released October 26, 2023_
     - [Get-FinOpsCostExport](powershell/cost/Get-FinOpsCostExport.md)
     - [Remove-FinOpsCostExport](powershell/cost/Remove-FinOpsCostExport.md)
 
-### Open data v0.1.1
+### [Open data](open-data.md) v0.1.1
 
 - **Added**
   - New PowerShell commands to integrate open data to support data cleansing:
@@ -909,7 +930,7 @@ _Released October 26, 2023_
     - [Get-FinOpsRegion](powershell/data/Get-FinOpsRegion.md)
     - [Get-FinOpsService](powershell/data/Get-FinOpsService.md)
 
-### FinOps hubs v0.1.1
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.1.1
 
 - **Added**
   - New PowerShell commands to manage FinOps hubs 0.1:
@@ -918,7 +939,10 @@ _Released October 26, 2023_
     - [Register-FinOpsHubProviders](powershell/hubs/Register-FinOpsHubProviders.md)
     - [Remove-FinOpsHub](powershell/hubs/Remove-FinOpsHub.md)
 
-[Download v0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1...v0.1.1)
+> [!div class="nextstepaction"]
+> [Download v0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1...v0.1.1)
 
 <br>
 
@@ -926,13 +950,13 @@ _Released October 26, 2023_
 
 _Released October 22, 2023_
 
-### PowerShell module v0.1
+### [PowerShell module](powershell/powershell-commands.md) v0.1
 
 - **Added**
   - [FinOpsToolkit module](powershell/toolkit/finops-toolkit-commands.md) released in the PowerShell Gallery.
   - [Get-FinOpsToolkitVersion](powershell/toolkit/get-finopstoolkitversion.md) to get toolkit versions.
 
-### FinOps hubs v0.1
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.1
 
 - **Added**
   - [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) to deploy or update a hub instance.
@@ -942,7 +966,7 @@ _Released October 22, 2023_
   - Storage redundancy dropdown default not set correctly in the creation form.
   - Tags specified in the creation form were causing the deployment to fail ([#331](https://github.com/microsoft/finops-toolkit/issues/331)).
 
-### Power BI reports v0.1
+### [Power BI reports](power-bi/reports.md) v0.1
 
 - **Added**
   - Commitments, Savings, Chargeback, Purchases, and Prices pages in the [Commitment discounts report](power-bi/rate-optimization.md).
@@ -952,21 +976,24 @@ _Released October 22, 2023_
 - **Changed**
   - Expanded the FinOps hubs Cost summary and Commitment discounts [Power BI reports](power-bi/reports.md) to support the Cost Management connector.
 
-### FinOps workbooks v0.1
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v0.1
 
 - **Added**
   - [Governance workbook](workbooks/governance.md) to centralize governance.
 - **Changed**
   - [Optimization workbook](workbooks/optimization.md) updated to cover more scenarios.
 
-### Open data v0.1
+### [Open data](open-data.md) v0.1
 
 - **Added**
   - [Pricing units](open-data.md#pricing-units) to map all pricing units (UnitOfMeasure values) to distinct units with a scaling factor.
   - [Regions](open-data.md#regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
   - [Services](open-data.md#services) to map all resource types to FOCUS service names and categories.
 
-[Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.0.1...v0.1)
+> [!div class="nextstepaction"]
+> [Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.0.1...v0.1)
 
 <br>
 
@@ -974,34 +1001,26 @@ _Released October 22, 2023_
 
 _Released May 27, 2023_
 
-### FinOps hubs v0.0.1
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.0.1
 
 - **Added**
   - [FinOps hub template](hubs/finops-hubs-overview.md) to deploy a storage account and Data Factory instance.
   - [Cost summary report](power-bi/cost-summary.md) for various out-of-the-box cost breakdowns.
   - [Commitment discounts report](power-bi/rate-optimization.md) for commitment-based discount reports.
 
-### Bicep Registry modules v0.0.1
+### [Bicep Registry modules](bicep-registry/modules.md) v0.0.1
 
 - **Added**
   - [Scheduled action modules](bicep-registry/scheduled-actions.md) submitted to the Bicep Registry.
 
-### FinOps workbooks v0.0.1
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v0.0.1
 
 - **Added**
   - [Cost optimization workbook](workbooks/optimization.md) to centralize cost optimization.
 
-[Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1) &nbsp; [Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1)
+> [!div class="nextstepaction"]
+> [Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1)
 
 <br>
-
-## Related content
-
-Related products:
-
-- [Cost Management](/azure/cost-management-billing/costs/)
-
-Related solutions:
-
-- [FinOps toolkit Power BI reports](power-bi/reports.md)
-- [FinOps hubs](hubs/finops-hubs-overview.md)
