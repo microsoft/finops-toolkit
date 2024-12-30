@@ -3,7 +3,7 @@ title: FinOps toolkit data dictionary
 description: This article describes the column names found in FinOps toolkit solutions, including columns from Cost Management and FOCUS.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 12/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -24,36 +24,17 @@ Quick links:
 &nbsp; [B](#b)
 &nbsp; [C](#c)
 &nbsp; [D](#d)
-&nbsp; [E](#e)
-<!--
-&nbsp; [F](#f)
-&nbsp; [G](#g)
-&nbsp; [H](#h)
--->
-&nbsp; [I](#i)
-<!--
-&nbsp; [J](#j)
-&nbsp; [K](#k)
--->
+&nbsp; [E](#e) <!-- &nbsp; [F](#f) &nbsp; [G](#g) &nbsp; [H](#h) -->
+&nbsp; [I](#i) <!-- &nbsp; [J](#j) &nbsp; [K](#k) -->
 &nbsp; [L](#l)
 &nbsp; [M](#m)
 &nbsp; [N](#n)
 &nbsp; [O](#o)
-&nbsp; [P](#p)
-<!--
-&nbsp; [Q](#q)
--->
+&nbsp; [P](#p) <!-- &nbsp; [Q](#q) -->
 &nbsp; [R](#r)
 &nbsp; [S](#s)
 &nbsp; [T](#t)
-&nbsp; [U](#u)
-<!--
-&nbsp; [V](#v)
-&nbsp; [W](#w)
-&nbsp; [X](#x)
-&nbsp; [Y](#y)
-&nbsp; [Z](#z)
--->
+&nbsp; [U](#u) <!-- &nbsp; [V](#v) &nbsp; [W](#w) &nbsp; [X](#x) &nbsp; [Y](#y) &nbsp; [Z](#z) -->
 
 | Name                                     | Description                                                                                                                                                                                                                                                                               |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -250,10 +231,8 @@ If you have feedback about FOCUS, [create an issue in the FOCUS repository](http
 
 Related resources:
 
-- [List of terms](#list-of-terms)
-- [Generating a unique ID](#generating-a-unique-id)
-- [Feedback about FOCUS columns](#feedback-about-focus-columns)
-- [Related content](#related-content)
+- [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus)
+- [FinOps toolkit common terms](../toolkit/help/terms.md)
 
 Related FinOps capabilities:
 
