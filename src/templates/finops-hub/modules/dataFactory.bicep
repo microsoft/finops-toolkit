@@ -5390,8 +5390,8 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         }
       }
       {
-        // Catch ARG Query Failure
-        name: 'Catch ARG Query Failure'
+        // Catch Query Failure
+        name: 'Catch Query Failure'
         type: 'IfCondition'
         dependsOn: [
           {
@@ -5402,7 +5402,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@and(not(empty(variables(\'queryError\'))), and(equals(pipeline().parameters.inputDataset, \'${dataset_resourcegraph.name}\'), not(contains(variables(\'queryError\'), \'Sequence contains no elements\'))))'
+            value: '@and(not(empty(variables(\'queryError\'))), not(contains(variables(\'queryError\'), \'Sequence contains no elements\')))'
             type: 'Expression'
           }
           ifTrueActivities: [
@@ -5413,10 +5413,10 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
               userProperties: []
               typeProperties: {
                 message: {
-                  value: 'Pipeline failed due to an ARG query error'
+                  value: '@concat(\'Pipeline failed due to a \', pipeline().parameters.inputDataset, \' query error. Error: \', variables(\'queryError\'))'
                   type: 'Expression'
                 }
-                errorCode: 'ARGQueryFailed'
+                errorCode: 'QueryFailed'
               }
             }
           ]
