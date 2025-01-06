@@ -90,6 +90,13 @@ Legend:
 
 <sup>Released January 2025</sup>
 
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added the Learning FOCUS blog series to the [FOCUS overview doc](../_docs/focus/README.md).
+
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
