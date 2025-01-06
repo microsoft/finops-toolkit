@@ -1,24 +1,3 @@
-SKU,Location,CostWithNoReservedInstances,FirstUsageDate,InstanceFlexibilityRatio,InstanceFlexibilityGroup,LookBackPeriod,MeterId,NetSavings,NormalizedSize,RecommendedQuantity,RecommendedQuantityNormalized,ResourceType,Scope,SkuProperties,Term,TotalCostWithReservedInstances
-Standard_B2ms,westus,14.6816,2024-06-13T00:00:00Z,4.0,BS Series High Memory,Last7Days,949adaff-7692-4519-bbe0-28d9588f35a1,6.023951598173516,Standard_B1ms,1,4.0,virtualmachines,Single,[],P1Y,8.657648401826483
-Standard_D2s_v3,southcentralus,13.086338100000003,2024-06-13T00:00:00Z,1.0,DSv3 Series,Last7Days,ec8c7b49-9790-4261-b46f-293dabb53fd9,6.36772969406393,Standard_D2s_v3,1,1.0,virtualmachines,Single,[],P3Y,6.718608405936073
-Standard_D11_v2,eastus2,22.201,2024-06-13T00:00:00Z,1.0,Dv2 Series High Memory,Last7Days,b17ee794-9c81-499f-9a76-789152fa3f39,6.450543378995434,Standard_D11_v2,1,1.0,virtualmachines,Single,[],P1Y,15.750456621004567
-Standard_B2s,eastus,18.249124053185007,2024-06-13T00:00:00Z,8.0,BS Series,Last7Days,2c57ed84-f939-4f5c-ba90-782349a367b8,7.38028843674665,Standard_B1ls,3,24.0,virtualmachines,Single,[],P1Y,10.868835616438357
-Standard_B2ms,westus,14.6816,2024-06-13T00:00:00Z,4.0,BS Series High Memory,Last7Days,949adaff-7692-4519-bbe0-28d9588f35a1,9.125283409436834,Standard_B1ms,1,4.0,virtualmachines,Single,[],P3Y,5.556316590563165
-Standard_B4ms,eastus,24.568,2024-06-13T00:00:00Z,8.0,BS Series High Memory,Last7Days,d2d57463-924c-4ee2-853e-99d697a2c960,10.059210045662104,Standard_B1ms,1,8.0,virtualmachines,Single,[],P1Y,14.508789954337898
-Standard_DS2_v2,centralus,21.753999999999998,2024-06-13T00:00:00Z,2.0,DSv2 Series,Last7Days,286bf7e1-9b61-4739-9f6b-4583e64da0e9,10.715073059360728,Standard_DS1_v2,1,2.0,virtualmachines,Single,[],P1Y,11.03892694063927
-Standard_B2s,eastus,18.249124053185007,2024-06-13T00:00:00Z,8.0,BS Series,Last7Days,2c57ed84-f939-4f5c-ba90-782349a367b8,11.258370628527473,Standard_B1ls,3,24.0,virtualmachines,Single,[],P3Y,6.990753424657535
-Standard_D4s_v4,eastus,28.448000640000004,2024-06-13T00:00:00Z,2.0,Dsv4 Series,Last7Days,79871bb6-0868-523c-9366-f6e87635d713,11.593968036529684,Standard_D2s_v4,1,2.0,virtualmachines,Single,[],P1Y,16.85403260347032
-Standard_D11_v2,eastus2,22.201,2024-06-13T00:00:00Z,1.0,Dv2 Series High Memory,Last7Days,b17ee794-9c81-499f-9a76-789152fa3f39,11.780071537290716,Standard_D11_v2,1,1.0,virtualmachines,Single,[],P3Y,10.420928462709284
-Standard_DS2_v2,centralus,21.753999999999998,2024-06-13T00:00:00Z,2.0,DSv2 Series,Last7Days,286bf7e1-9b61-4739-9f6b-4583e64da0e9,14.530788432267881,Standard_DS1_v2,1,2.0,virtualmachines,Single,[],P3Y,7.2232115677321165
-Standard_B4ms,eastus,24.568,2024-06-13T00:00:00Z,8.0,BS Series High Memory,Last7Days,d2d57463-924c-4ee2-853e-99d697a2c960,15.246995433789955,Standard_B1ms,1,8.0,virtualmachines,Single,[],P3Y,9.321004566210046
-Standard_D2s_v3,eastus,42.71307233066667,2024-06-13T00:00:00Z,1.0,DSv3 Series,Last7Days,ae331802-83a5-4b9e-b287-85675f794e3d,17.148346303269406,Standard_D2s_v3,3,3.0,virtualmachines,Single,[],P1Y,25.564726027397263
-Standard_D4s_v4,eastus,28.448000640000004,2024-06-13T00:00:00Z,2.0,Dsv4 Series,Last7Days,79871bb6-0868-523c-9366-f6e87635d713,17.66055859969559,Standard_D2s_v4,1,2.0,virtualmachines,Single,[],P3Y,10.787442040304414
-Standard_B2ms,eastus,49.24941127253334,2024-06-13T00:00:00Z,4.0,BS Series High Memory,Last7Days,ac404994-aeeb-4edb-a83d-7cd24425f58a,20.26584962869772,Standard_B1ms,4,16.0,virtualmachines,Single,[],P1Y,28.983561643835618
-Standard_D2s_v3,eastus,42.71307233066667,2024-06-13T00:00:00Z,1.0,DSv3 Series,Last7Days,ae331802-83a5-4b9e-b287-85675f794e3d,26.248232148018268,Standard_D2s_v3,3,3.0,virtualmachines,Single,[],P3Y,16.464840182648402
-Standard_D8s_v3,canadacentral,64.816608732,2024-06-13T00:00:00Z,4.0,DSv3 Series,Last7Days,b4a4a522-0bda-4b47-8d22-dda90d7c3be6,26.85222517035617,Standard_D2s_v3,1,4.0,virtualmachines,Single,[],P1Y,37.964383561643835
-Standard_B2ms,eastus,49.24941127253334,2024-06-13T00:00:00Z,4.0,BS Series High Memory,Last7Days,ac404994-aeeb-4edb-a83d-7cd24425f58a,30.607402140113244,Standard_B1ms,4,16.0,virtualmachines,Single,[],P3Y,18.642009132420092
-Standard_DS12_v2,westus2,88.80300000000001,2024-06-13T00:00:00Z,2.0,DSv2 Series High Memory,Last7Days,e8f65007-bf26-47ab-9500-d611cde8e191,36.244780821917814,Standard_DS11_v2,2,4.0,virtualmachines,Single,[],P1Y,52.5582191780822
-Standard_D8s_v3,canadacentral,64.816608732,2024-06-13T00:00:00Z,4.0,DSv3 Series,Last7Days,b4a4a522-0bda-4b47-8d22-dda90d7c3be6,40.16470614448098,Standard_D2s_v3,1,4.0,virtualmachines,Single,[],P3Y,24.651902587519025
-Standard_DS2_v2,eastus,85.10342102399999,2024-06-13T00:00:00Z,2.0,DSv2 Series,Last7Days,14fc9a21-4919-4cb1-b495-5666966556bc,48.29322333292236,Standard_DS1_v2,4,8.0,virtualmachines,Single,[],P1Y,36.810197691077626
-Standard_DS12_v2,westus2,88.80300000000001,2024-06-13T00:00:00Z,2.0,DSv2 Series High Memory,Last7Days,e8f65007-bf26-47ab-9500-d611cde8e191,54.04767275494674,Standard_DS11_v2,2,4.0,virtualmachines,Single,[],P3Y,34.75532724505327
-Standard_DS2_v2,eastus,85.10342102399999,2024-06-13T00:00:00Z,2.0,DSv2 Series,Last7Days,14fc9a21-4919-4cb1-b495-5666966556bc,61.016054383150674,Standard_DS1_v2,4,8.0,virtualmachines,Single,[],P3Y,24.087366640849314
+version https://git-lfs.github.com/spec/v1
+oid sha256:ceb4fa7d2664f166da2ae9a881209f258d2cc05c2830eb417a09af3b614e6633
+size 5237
