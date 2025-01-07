@@ -93,6 +93,10 @@ Legend:
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. Added Data Explorer dashboard template.
+>
 > ✏️ Changed:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
