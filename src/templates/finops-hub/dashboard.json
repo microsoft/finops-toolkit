@@ -1,7 +1,7 @@
 {
   "$schema": "https://dataexplorer.azure.com/static/d/schema/52/dashboard.json",
-  "id": "f1100c46-1225-426e-a7b1-3cd0d19e10ce",
-  "eTag": "c6c0657f-957f-4c33-8c01-93b1dbddbf88",
+  "id": "a20bfb32-a3e1-4854-bc9f-e93b86e40813",
+  "eTag": "b33a0cc6-40e5-48d1-8eef-0cfe87d14653",
   "schema_version": "52",
   "title": "FinOps hub",
   "tiles": [
@@ -100,7 +100,7 @@
       "title": "Counts (last n days)",
       "visualType": "multistat",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 15, "width": 6, "height": 7 },
+      "layout": { "x": 0, "y": 15, "width": 6, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "5d63e04d-1a11-4307-96f1-ebbf68e09be0" },
       "visualOptions": {
         "multiStat__textSize": "auto",
@@ -373,7 +373,7 @@
       "title": "Summary",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 22, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 23, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "c077a6d4-719f-42fe-b39b-36f77dc68976" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -430,7 +430,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 57, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 58, "width": 22, "height": 4 },
       "markdownText": "# Regions\r\nEffective cost breakdown by region\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33)",
       "visualOptions": {}
     },
@@ -439,7 +439,7 @@
       "title": "Monthly trend by region",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 61, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 62, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "d5224d06-c8e7-4dd9-afec-595b39712f5a" },
       "visualOptions": {
         "multipleYAxes": {
@@ -466,7 +466,7 @@
       "title": "Monthly trend by region",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 66, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 67, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "0dcf2c54-7f1d-45e9-a53b-d598a24493a4" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -485,7 +485,7 @@
       "title": "Monthly trend by service name",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 44, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 45, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "30644718-defd-4c6c-9ffa-a9c2cd1f871f" },
       "visualOptions": {
         "multipleYAxes": {
@@ -512,7 +512,7 @@
       "title": "Monthly trend by service name",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 49, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 50, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "6259f773-593c-4953-898c-15aa5ff6e53a" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -531,7 +531,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 74, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 75, "width": 22, "height": 4 },
       "markdownText": "# Subscriptions\r\nEffective cost breakdown by subscription (subaccount)\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33)",
       "visualOptions": {}
     },
@@ -540,7 +540,7 @@
       "title": "Monthly trend by subscription",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 78, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 79, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "21a87abe-19e2-44ec-8298-ba872e66c162" },
       "visualOptions": {
         "multipleYAxes": {
@@ -567,7 +567,7 @@
       "title": "Monthly trend by subscription",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 83, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 84, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "90502e9a-2d0d-4ae4-8d9d-cc21f9b72d5d" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -586,7 +586,7 @@
       "title": "Monthly trend by resource group",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 100, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 101, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "c2c65ec0-e57d-4834-8a6b-b5975afeb9a0" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -605,7 +605,7 @@
       "title": "Monthly trend by resource group",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 95, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 96, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "61b26784-6a73-4e80-85b2-9c5cfbd2dd06" },
       "visualOptions": {
         "multipleYAxes": {
@@ -632,7 +632,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 91, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 92, "width": 22, "height": 4 },
       "markdownText": "# Resource groups\r\nEffective cost breakdown by resource group\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33)",
       "visualOptions": {}
     },
@@ -641,7 +641,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 108, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 109, "width": 22, "height": 4 },
       "markdownText": "# Resources\r\nEffective cost breakdown by resource\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33)",
       "visualOptions": {}
     },
@@ -650,7 +650,7 @@
       "title": "Monthly trend by resource",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 112, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 113, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "3924981c-23e4-464d-a872-045df1752750" },
       "visualOptions": {
         "multipleYAxes": {
@@ -677,7 +677,7 @@
       "title": "Monthly trend by resource",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 122, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 123, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "c7be613e-deb4-4779-ad75-4445e8d5e01f" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -696,7 +696,7 @@
       "title": "Daily trend by resource",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 117, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 118, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "49e24ee0-91de-4b1c-973f-036a3c060aca" },
       "visualOptions": {
         "multipleYAxes": {
@@ -723,7 +723,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 27, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 28, "width": 22, "height": 4 },
       "markdownText": "# Services\r\nEffective cost breakdown by service category and service name\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33)",
       "visualOptions": {}
     },
@@ -732,7 +732,7 @@
       "title": "Monthly trend by service category",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 31, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 32, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "4c7a7614-9b8c-415b-a4e1-d2d53c023d31" },
       "visualOptions": {
         "multipleYAxes": {
@@ -759,7 +759,7 @@
       "title": "Monthly trend by service category",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 36, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 37, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "1d273b55-d2ea-427c-8a5f-01f6c240e98a" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -778,7 +778,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 130, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 131, "width": 22, "height": 4 },
       "markdownText": "# Resource inventory\r\nSummary of resources and their costs\r\n\r\n⬆️ [Top](?tile=e3ac3bbc-a9ef-44dd-828f-226afbcfda33)",
       "visualOptions": {}
     },
@@ -787,7 +787,7 @@
       "title": "Monthly trend by resource type",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 153, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 154, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "90e30901-a931-4a1d-b81e-0a1821032c3c" },
       "visualOptions": {
         "multipleYAxes": {
@@ -814,7 +814,7 @@
       "title": "Daily trend by resource type (last n days)",
       "visualType": "stackedcolumn",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 140, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 141, "width": 22, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "ebe41e27-e9f9-478e-ab90-fd1f87906766" },
       "visualOptions": {
         "multipleYAxes": {
@@ -841,7 +841,7 @@
       "title": "Monthly trend by resource",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 158, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 159, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "7f7b08a9-ae15-46f8-8b0f-767280375add" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -857,10 +857,10 @@
     },
     {
       "id": "011c2b2c-a232-4459-acf4-8db4055f4f70",
-      "title": "Resource types with the most cost (last n days)",
-      "visualType": "column",
+      "title": "Most cost (last n days)",
+      "visualType": "bar",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 11, "y": 149, "width": 11, "height": 4 },
+      "layout": { "x": 17, "y": 146, "width": 5, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "a35b4c05-8ecb-4c51-9aaf-980af3d7923e" },
       "description": "Uses the Daily trend parameter for the lookback period",
       "visualOptions": {
@@ -885,10 +885,10 @@
     },
     {
       "id": "4495e71e-1005-4224-91f4-8103f06981da",
-      "title": "Most used resource types (last n days)",
-      "visualType": "column",
+      "title": "Most used (last n days)",
+      "visualType": "bar",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 11, "y": 145, "width": 11, "height": 4 },
+      "layout": { "x": 12, "y": 146, "width": 5, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "9c5d3cf0-b6cb-45a2-acfd-b19df425bddf" },
       "description": "Uses the Daily trend parameter for the lookback period",
       "visualOptions": {
@@ -916,7 +916,7 @@
       "title": "Resource type summary (last n days)",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 145, "width": 11, "height": 8 },
+      "layout": { "x": 0, "y": 146, "width": 12, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "2d7b6447-2769-40b8-958a-f252dab68b1e" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -935,7 +935,7 @@
       "title": "Resource inventory summary (last n days)",
       "visualType": "multistat",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 134, "width": 22, "height": 6 },
+      "layout": { "x": 0, "y": 135, "width": 22, "height": 6 },
       "queryRef": { "kind": "query", "queryId": "f062533b-8c94-412f-bf83-0eb5cd06063d" },
       "hideTitle": true,
       "visualOptions": {
@@ -1156,7 +1156,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 166, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 167, "width": 22, "height": 4 },
       "markdownText": "# Purchases\r\nCosts from commitment discount, Marketplace, and other purchases\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563)",
       "visualOptions": {}
     },
@@ -1165,7 +1165,7 @@
       "title": "Purchases",
       "visualType": "table",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 0, "y": 170, "width": 15, "height": 7 },
+      "layout": { "x": 0, "y": 171, "width": 15, "height": 7 },
       "queryRef": { "kind": "query", "queryId": "98c9b9b5-bebf-41f8-8319-5fa2523f9dd0" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1204,7 +1204,7 @@
       "description": "List cost is based on retail prices without any discounts, contracted cost includes negotiated discounts, and effective cost includes commitment and negotiated discounts.",
       "visualType": "bar",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 6, "y": 18, "width": 8, "height": 4 },
+      "layout": { "x": 6, "y": 18, "width": 8, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "5ff29428-de83-4a2c-8f86-d8beebe68750" },
       "visualOptions": {
         "multipleYAxes": {
@@ -1232,7 +1232,7 @@
       "description": "Negotiated discounts are based on your contractual agreement and represented in the \"contracted cost\". Commitment discounts are based on reservations and savings plans and represented in the \"effective cost\".",
       "visualType": "bar",
       "pageId": "f8ee3008-df7e-442f-825e-2e3b46e4c185",
-      "layout": { "x": 14, "y": 18, "width": 8, "height": 4 },
+      "layout": { "x": 14, "y": 18, "width": 8, "height": 5 },
       "queryRef": { "kind": "query", "queryId": "f5f240a8-a818-4f27-bdfb-e96fcfe433bd" },
       "visualOptions": {
         "multipleYAxes": {
@@ -2357,6 +2357,33 @@
       "layout": { "x": 0, "y": 0, "width": 16, "height": 3 },
       "markdownText": "Anomaly management refers to the practice of detecting and addressing abnormal or unexpected cost and usage patterns in a timely manner. With this capability, you identify, triage, and address unexpected changes in cost, usage, and carbon. This capability is especially important with usage-based billing and sustainability models, where small fluctuations in usage can result in large fiscal and environmental impact. [Learn more](http://aka.ms/ftk/fx/anomalies)\n",
       "visualOptions": {}
+    },
+    {
+      "id": "6fb4c25e-ae84-495b-88ae-6dd2035500d1",
+      "title": "Forecast (next n days)",
+      "visualType": "timechart",
+      "pageId": "5838c918-4541-44fe-90d2-77306ef1e241",
+      "layout": { "x": 0, "y": 32, "width": 9, "height": 7 },
+      "queryRef": { "kind": "query", "queryId": "5fd3ea2a-8882-4438-9103-fa3945240604" },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": { "id": "-1", "label": "", "columns": [], "yAxisMaximumValue": null, "yAxisMinimumValue": null, "yAxisScale": "linear", "horizontalLines": [] },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "hideLegend": false,
+        "legendLocation": "bottom",
+        "xColumnTitle": "",
+        "xColumn": null,
+        "yColumns": null,
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": []
+      }
     }
   ],
   "baseQueries": [
@@ -2444,15 +2471,15 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let data = materialize(\n    CostsLastMonth\n    | where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d\n    | summarize\n        Subscriptions = dcount(SubAccountId),\n        ResourceGroups = dcount(strcat(SubAccountId, x_ResourceGroupName)),\n        Resources = dcount(ResourceId),\n        Services = dcount(ServiceName)\n    | project json = todynamic(strcat('[{ \"Type\":\"Subscriptions\", \"Count\":', Subscriptions, ' }, { \"Type\":\"Resource groups\", \"Count\":', ResourceGroups, ' }, { \"Type\":\"Resources\", \"Count\":', Resources, ' }, { \"Type\":\"Services\", \"Count\":', Services, ' }]'))\n    | mv-expand json\n    | project Label = tostring(json.Type), Count = tolong(json.Count)\n);\ndata",
+      "text": "let data = materialize(\n    CostsByDay\n    | summarize\n        Subscriptions = dcount(SubAccountId),\n        ResourceGroups = dcount(strcat(SubAccountId, x_ResourceGroupName)),\n        Resources = dcount(ResourceId),\n        Services = dcount(ServiceName)\n    | project json = todynamic(strcat('[{ \"Type\":\"Subscriptions\", \"Count\":', Subscriptions, ' }, { \"Type\":\"Resource groups\", \"Count\":', ResourceGroups, ' }, { \"Type\":\"Resources\", \"Count\":', Resources, ' }, { \"Type\":\"Services\", \"Count\":', Services, ' }]'))\n    | mv-expand json\n    | project Label = tostring(json.Type), Count = tolong(json.Count)\n);\ndata",
       "id": "5d63e04d-1a11-4307-96f1-ebbf68e09be0",
-      "usedVariables": ["CostsLastMonth", "numberOfDays"]
+      "usedVariables": ["CostsByDay"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "CostsByMonth\n| summarize EffectiveCost = sum(EffectiveCost) by BillingPeriodStart = startofmonth(BillingPeriodStart)\n| order by BillingPeriodStart asc\n| extend PreviousEffectiveCost = prev(EffectiveCost)\n| project BillingPeriodStart, EffectiveCost, Change = iif(isempty(PreviousEffectiveCost), todouble(0), todouble((EffectiveCost - PreviousEffectiveCost) / PreviousEffectiveCost)) * 100\n",
+      "text": "CostsByMonth\n| summarize EffectiveCost = sum(EffectiveCost) by BillingPeriodStart\n| order by BillingPeriodStart asc\n| extend PreviousEffectiveCost = prev(EffectiveCost)\n| project BillingPeriodStart, EffectiveCost, Change = iif(isempty(PreviousEffectiveCost), todouble(0), todouble((EffectiveCost - PreviousEffectiveCost) / PreviousEffectiveCost)) * 100\n",
       "id": "290e7eab-8159-4338-8531-85e2718cedb1",
-      "usedVariables": ["numberOfMonths"]
+      "usedVariables": ["CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
@@ -2462,7 +2489,7 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nCostsByMonth\n| summarize EffectiveCost = sum(EffectiveCost) by ChargePeriodStart, Month = strcat(format_datetime(ChargePeriodStart, 'MM '), monthname[monthofyear(ChargePeriodStart)])\n| order by ChargePeriodStart asc\n| extend EffectiveCostRunningTotal = row_cumsum(EffectiveCost, prev(Month) != Month)\n| project ChargePeriodStart, EffectiveCostRunningTotal, Month\n| render areachart  ",
+      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nCosts_v1_0\n| where ChargePeriodStart >= startofmonth(startofmonth(now()) - 1d)\n| summarize EffectiveCost = sum(EffectiveCost) by ChargePeriodStart, Month = strcat(format_datetime(ChargePeriodStart, 'MM '), monthname[monthofyear(ChargePeriodStart)])\n| order by ChargePeriodStart asc\n| extend EffectiveCostRunningTotal = row_cumsum(EffectiveCost, prev(Month) != Month)\n| project ChargePeriodStart, EffectiveCostRunningTotal, Month\n| render areachart  ",
       "id": "10300876-866a-40d7-836d-b3a8783ecece",
       "usedVariables": []
     },
@@ -2480,7 +2507,7 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nCostsByMonth\n| summarize \n    EffectiveCost = sum(EffectiveCost),\n    ContractedCost = sum(ContractedCost),\n    ListCost = sum(ListCost)\n    by\n    ChargePeriodStart,\n    Month = strcat(format_datetime(ChargePeriodStart, 'MM '), monthname[monthofyear(ChargePeriodStart)])\n| extend CommitmentDiscountSavings = ContractedCost - EffectiveCost\n| extend NegotiatedDiscountSavings = ListCost - ContractedCost\n| order by ChargePeriodStart asc\n| extend EffectiveCostRunningTotal = row_cumsum(EffectiveCost, prev(Month) != Month)\n| extend CommitmentDiscountSavingsRunningTotal = row_cumsum(CommitmentDiscountSavings, prev(Month) != Month)\n| extend NegotiatedDiscountSavingsRunningTotal = row_cumsum(NegotiatedDiscountSavings, prev(Month) != Month)\n| project ChargePeriodStart, CommitmentDiscountSavingsRunningTotal, NegotiatedDiscountSavingsRunningTotal, EffectiveCostRunningTotal, Month\n| render areachart  ",
+      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nCosts_v1_0\n| where ChargePeriodStart >= startofmonth(startofmonth(now()) - 1d)\n| summarize \n    EffectiveCost = sum(EffectiveCost),\n    ContractedCost = sum(ContractedCost),\n    ListCost = sum(ListCost)\n    by\n    ChargePeriodStart,\n    Month = strcat(format_datetime(ChargePeriodStart, 'MM '), monthname[monthofyear(ChargePeriodStart)])\n| extend CommitmentDiscountSavings = ContractedCost - EffectiveCost\n| extend NegotiatedDiscountSavings = ListCost - ContractedCost\n| order by ChargePeriodStart asc\n| extend EffectiveCostRunningTotal = row_cumsum(EffectiveCost, prev(Month) != Month)\n| extend CommitmentDiscountSavingsRunningTotal = row_cumsum(CommitmentDiscountSavings, prev(Month) != Month)\n| extend NegotiatedDiscountSavingsRunningTotal = row_cumsum(NegotiatedDiscountSavings, prev(Month) != Month)\n| project ChargePeriodStart, CommitmentDiscountSavingsRunningTotal, NegotiatedDiscountSavingsRunningTotal, EffectiveCostRunningTotal, Month\n| render areachart  ",
       "id": "dcc1f533-e5f9-4855-9e4c-21e21fcdf943",
       "usedVariables": []
     },
@@ -2488,13 +2515,13 @@
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
       "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = materialize(\n    CostsByMonth\n    | summarize \n        BilledCost = sum(BilledCost),\n        EffectiveCost = sum(EffectiveCost),\n        ContractedCost = sum(ContractedCost),\n        ListCost = sum(ListCost)\n        by\n        ChargePeriodStart\n    | order by ChargePeriodStart asc\n    | extend CommitmentDiscountSavings = ContractedCost - EffectiveCost\n    | extend NegotiatedDiscountSavings = ListCost - ContractedCost\n    | extend Month = monthname[monthofyear(ChargePeriodStart)]\n    | project json = todynamic(strcat('[{ \"Type\":\"Billed cost\", \"Count\":', BilledCost, ' }, { \"Type\":\"Effective cost\", \"Count\":', EffectiveCost, ' }, { \"Type\":\"Commitment savings\", \"Count\":', CommitmentDiscountSavings, ' }, { \"Type\":\"Negotiated savings\", \"Count\":', NegotiatedDiscountSavings, ' }]')), Month, IsThisMonth = ChargePeriodStart >= startofmonth(now())\n    | mv-expand json\n    | project Label = strcat(json.Type, ' (', Month, ')'), Count = tolong(json.Count), IsThisMonth\n);\ndata",
       "id": "e8b343dc-7430-4487-8d44-ef48ac454f2d",
-      "usedVariables": []
+      "usedVariables": ["CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
       "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = (\n    CostsByMonth\n    | summarize \n        BilledCost     = todouble(round(sum(BilledCost), 2)),\n        EffectiveCost  = todouble(round(sum(EffectiveCost), 2)),\n        ContractedCost = todouble(round(sum(ContractedCost), 2)),\n        ListCost       = todouble(round(sum(ListCost), 2))\n        by\n        ChargePeriodStart\n    | order by ChargePeriodStart asc\n    | extend CommitmentDiscountSavings = todouble(round(ContractedCost - EffectiveCost, 2))\n    | extend NegotiatedDiscountSavings = todouble(round(ListCost - ContractedCost, 2))\n    | extend ChargePeriod = strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)])\n);\ndata | extend Data = 'Billed cost' | evaluate pivot(ChargePeriod, sum(BilledCost), Data)\n| union (data | extend Data = 'Effective cost'     | evaluate pivot(ChargePeriod, sum(EffectiveCost), Data))\n| union (data | extend Data = 'Negotiated savings' | evaluate pivot(ChargePeriod, sum(NegotiatedDiscountSavings), Data))\n| union (data | extend Data = 'Commitment savings' | evaluate pivot(ChargePeriod, sum(CommitmentDiscountSavings), Data))\n",
       "id": "c077a6d4-719f-42fe-b39b-36f77dc68976",
-      "usedVariables": ["numberOfMonths"]
+      "usedVariables": ["CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
@@ -2510,33 +2537,33 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = CostsByMonth;\nlet all = costs | summarize sum(EffectiveCost) by RegionName;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = RegionName in (topX)\n| extend RegionName = iff(inTopX, RegionName, otherId)\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart,\n    RegionName\n| project ChargePeriodStart, EffectiveCost, Category = RegionName\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByMonth;\nlet all = costs | where isnotempty(RegionName) | summarize sum(EffectiveCost) by RegionName;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit iff(count - maxGroupCount > 1, maxGroupCount, count);\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = RegionName in (topX)\n| extend RegionName = iff(inTopX, RegionName, strcat('(', count - maxGroupCount, ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart = startofmonth(ChargePeriodStart),\n    RegionName\n| project ChargePeriodStart, EffectiveCost, Region = RegionName\n| order by EffectiveCost desc",
       "id": "d5224d06-c8e7-4dd9-afec-595b39712f5a",
-      "usedVariables": ["maxGroupCount", "numberOfMonths"]
+      "usedVariables": ["CostsByMonth", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = (\n    CostsByMonth\n    | summarize \n        EffectiveCost  = sum(EffectiveCost)\n        by\n        ChargePeriodStart,\n        RegionName\n    | as per\n    | union (\n        per\n        | summarize \n            EffectiveCost  = sum(EffectiveCost)\n            by\n            RegionName\n    )\n    | order by ChargePeriodStart asc\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\n);\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), RegionName)\n| order by Total desc",
+      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = (\n    CostsByMonth\n    | summarize \n        EffectiveCost  = sum(EffectiveCost)\n        by\n        ChargePeriodStart = startofmonth(ChargePeriodStart),\n        RegionName\n    | as per\n    | union (\n        per\n        | summarize \n            EffectiveCost  = sum(EffectiveCost)\n            by\n            RegionName\n    )\n    | order by ChargePeriodStart asc\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\n);\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), RegionName)\n| order by Total desc",
       "id": "0dcf2c54-7f1d-45e9-a53b-d598a24493a4",
       "usedVariables": ["CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = CostsByMonth;\nlet all = costs | summarize sum(EffectiveCost) by ServiceName;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ServiceName in (topX)\n| extend ServiceName = iff(inTopX, ServiceName, otherId)\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart,\n    ServiceName\n| project ChargePeriodStart, EffectiveCost, Category = ServiceName\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByMonth;\nlet all = costs | where isnotempty(ServiceName) | summarize sum(EffectiveCost) by ServiceName;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ServiceName in (topX)\n| extend ServiceName = iff(inTopX, ServiceName, otherId)\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart,\n    ServiceName\n| project ChargePeriodStart, EffectiveCost, Category = ServiceName\n| order by EffectiveCost desc\n| render columnchart",
       "id": "30644718-defd-4c6c-9ffa-a9c2cd1f871f",
-      "usedVariables": ["maxGroupCount", "numberOfMonths"]
+      "usedVariables": ["CostsByMonth", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
       "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = (\n    CostsByMonth\n    | summarize \n        EffectiveCost  = sum(EffectiveCost)\n        by\n        ChargePeriodStart,\n        ServiceCategory,\n        ServiceName\n    | as per\n    | union (\n        per\n        | summarize \n            EffectiveCost  = sum(EffectiveCost)\n            by\n            ServiceCategory,\n            ServiceName\n    )\n    | order by ChargePeriodStart asc\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\n);\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ServiceName, ServiceCategory)\n| order by Total desc",
       "id": "6259f773-593c-4953-898c-15aa5ff6e53a",
-      "usedVariables": ["numberOfMonths"]
+      "usedVariables": ["CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = CostsByMonth;\nlet all = costs | summarize sum(EffectiveCost) by SubAccountId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = SubAccountId in (topX)\n| extend SubAccountId = iff(inTopX, SubAccountId, otherId)\n| extend SubAccountName = iff(inTopX, SubAccountName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    SubAccountName = take_any(SubAccountName)\n    by\n    ChargePeriodStart,\n    SubAccountId\n| project ChargePeriodStart, EffectiveCost, Sub = iff(SubAccountId == otherId, SubAccountName, strcat(SubAccountName, ' (', split(SubAccountId, '/')[2], ')'))\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByMonth;\nlet all = costs | where isnotempty(SubAccountId) | summarize sum(EffectiveCost) by SubAccountId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = SubAccountId in (topX)\n| extend SubAccountId = iff(inTopX, SubAccountId, otherId)\n| extend SubAccountName = iff(inTopX, SubAccountName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    SubAccountName = take_any(SubAccountName)\n    by\n    ChargePeriodStart = startofmonth(ChargePeriodStart),\n    SubAccountId\n| project ChargePeriodStart, EffectiveCost, Sub = iff(SubAccountId == otherId, SubAccountName, strcat(SubAccountName, ' (', split(SubAccountId, '/')[2], ')'))\n| order by EffectiveCost desc\n| render columnchart",
       "id": "21a87abe-19e2-44ec-8298-ba872e66c162",
-      "usedVariables": ["maxGroupCount", "numberOfMonths"]
+      "usedVariables": ["CostsByMonth", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
@@ -2552,15 +2579,15 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = CostsByMonth | extend x_ResourceGroupId = strcat(SubAccountId, '/resourcegroups/', x_ResourceGroupName);\nlet all = costs | summarize sum(EffectiveCost) by x_ResourceGroupId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = x_ResourceGroupId in (topX)\n| extend x_ResourceGroupId = iff(inTopX, x_ResourceGroupId, otherId)\n| extend x_ResourceGroupName = iff(inTopX, x_ResourceGroupName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    SubAccountName = take_any(SubAccountName),\n    x_ResourceGroupName = take_any(x_ResourceGroupName)\n    by\n    ChargePeriodStart,\n    x_ResourceGroupId\n| project ChargePeriodStart, EffectiveCost, RG = iff(x_ResourceGroupId == otherId, x_ResourceGroupName, strcat(x_ResourceGroupName, ' (', SubAccountName, ')'))\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByMonth | extend x_ResourceGroupId = strcat(SubAccountId, '/resourcegroups/', x_ResourceGroupName);\nlet all = costs | where isnotempty(x_ResourceGroupId) | summarize sum(EffectiveCost) by x_ResourceGroupId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = x_ResourceGroupId in (topX)\n| extend x_ResourceGroupId = iff(inTopX, x_ResourceGroupId, otherId)\n| extend x_ResourceGroupName = iff(inTopX, x_ResourceGroupName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    SubAccountName = take_any(SubAccountName),\n    x_ResourceGroupName = take_any(x_ResourceGroupName)\n    by\n    ChargePeriodStart,\n    x_ResourceGroupId\n| project ChargePeriodStart, EffectiveCost, RG = iff(x_ResourceGroupId == otherId, x_ResourceGroupName, strcat(x_ResourceGroupName, ' (', SubAccountName, ')'))\n| order by EffectiveCost desc\n| render columnchart",
       "id": "61b26784-6a73-4e80-85b2-9c5cfbd2dd06",
-      "usedVariables": ["maxGroupCount", "numberOfMonths"]
+      "usedVariables": ["CostsByMonth", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = CostsByMonth;\nlet all = costs | summarize sum(EffectiveCost) by ResourceId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ResourceId in (topX)\n| extend ResourceId = iff(inTopX, ResourceId, otherId)\n| extend ResourceName = iff(inTopX, ResourceName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    ResourceType = take_any(ResourceType),\n    ResourceName = take_any(ResourceName)\n    by\n    ChargePeriodStart,\n    ResourceId\n| project ChargePeriodStart, EffectiveCost, RG = iff(ResourceId == otherId, ResourceName, strcat(ResourceName, ' (', ResourceType, ')'))\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByMonth;\nlet all = costs | where isnotempty(ResourceId) | summarize sum(EffectiveCost) by ResourceId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ResourceId in (topX)\n| extend ResourceId = iff(inTopX, ResourceId, otherId)\n| extend ResourceName = iff(inTopX, ResourceName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    ResourceType = take_any(ResourceType),\n    ResourceName = take_any(ResourceName)\n    by\n    ChargePeriodStart,\n    ResourceId\n| project ChargePeriodStart, EffectiveCost, RG = iff(ResourceId == otherId, ResourceName, strcat(ResourceName, ' (', ResourceType, ')'))\n| order by EffectiveCost desc\n| render columnchart",
       "id": "3924981c-23e4-464d-a872-045df1752750",
-      "usedVariables": ["maxGroupCount", "numberOfMonths"]
+      "usedVariables": ["CostsByMonth", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
@@ -2570,63 +2597,63 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = Costs_v1_0 | where ChargePeriodStart >= ago(numberOfDays * 1d) and ChargePeriodStart < startofday(ago(1d));\nlet all = costs | summarize sum(EffectiveCost) by ResourceId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ResourceId in (topX)\n| extend ResourceId = iff(inTopX, ResourceId, otherId)\n| extend ResourceName = iff(inTopX, ResourceName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    ResourceType = take_any(ResourceType),\n    ResourceName = take_any(ResourceName)\n    by\n    ChargePeriodStart = startofday(ChargePeriodStart),\n    ResourceId\n| project ChargePeriodStart, EffectiveCost, RG = iff(ResourceId == otherId, ResourceName, strcat(ResourceName, ' (', ResourceType, ')'))\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByDay;\nlet all = costs | summarize sum(EffectiveCost) by ResourceId;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ResourceId in (topX)\n| extend ResourceId = iff(inTopX, ResourceId, otherId)\n| extend ResourceName = iff(inTopX, ResourceName, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2),\n    ResourceType = take_any(ResourceType),\n    ResourceName = take_any(ResourceName)\n    by\n    ChargePeriodStart,\n    ResourceId\n| project ChargePeriodStart, EffectiveCost, RG = iff(ResourceId == otherId, ResourceName, strcat(ResourceName, ' (', ResourceType, ')'))\n| order by EffectiveCost desc\n| render columnchart",
       "id": "49e24ee0-91de-4b1c-973f-036a3c060aca",
-      "usedVariables": ["maxGroupCount", "numberOfDays"]
+      "usedVariables": ["CostsByDay", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = CostsByMonth;\nlet all = costs | summarize sum(EffectiveCost) by ServiceCategory;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ServiceCategory in (topX)\n| extend ServiceCategory = iff(inTopX, ServiceCategory, otherId)\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart,\n    ServiceCategory\n| project ChargePeriodStart, EffectiveCost, Category = ServiceCategory\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByMonth;\nlet all = costs | where isnotempty(ServiceCategory) | summarize sum(EffectiveCost) by ServiceCategory;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ServiceCategory in (topX)\n| extend ServiceCategory = iff(inTopX, ServiceCategory, otherId)\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart,\n    ServiceCategory\n| project ChargePeriodStart, EffectiveCost, Category = ServiceCategory\n| order by EffectiveCost desc\n| render columnchart",
       "id": "4c7a7614-9b8c-415b-a4e1-d2d53c023d31",
-      "usedVariables": ["maxGroupCount", "numberOfMonths"]
+      "usedVariables": ["CostsByMonth", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
       "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = (\n    CostsByMonth\n    | summarize \n        EffectiveCost  = sum(EffectiveCost)\n        by\n        ChargePeriodStart,\n        ServiceCategory,\n        ServiceName\n    | as per\n    | union (\n        per\n        | summarize \n            EffectiveCost  = sum(EffectiveCost)\n            by\n            ServiceCategory,\n            ServiceName\n    )\n    | order by ChargePeriodStart asc\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\n);\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ServiceCategory)\n| order by Total desc",
       "id": "1d273b55-d2ea-427c-8a5f-01f6c240e98a",
-      "usedVariables": ["numberOfMonths"]
+      "usedVariables": ["CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = CostsByMonth;\nlet all = costs | summarize sum(EffectiveCost) by ResourceType;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ResourceType in (topX)\n| extend ResourceType = iff(inTopX, ResourceType, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart,\n    ResourceType\n| project ChargePeriodStart, EffectiveCost, Type = ResourceType\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByMonth;\nlet all = costs | where isnotempty(ResourceType) | summarize sum(EffectiveCost) by ResourceType;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n//\n// Group rows after max count\n| extend inTopX = ResourceType in (topX)\n| extend ResourceType = iff(inTopX, ResourceType, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart,\n    ResourceType\n| project ChargePeriodStart, EffectiveCost, Type = ResourceType\n| order by EffectiveCost desc\n| render columnchart",
       "id": "90e30901-a931-4a1d-b81e-0a1821032c3c",
-      "usedVariables": ["maxGroupCount", "numberOfMonths"]
+      "usedVariables": ["CostsByMonth", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = Costs_v1_0 | where ChargePeriodStart >= ago(numberOfDays * 1d) and ChargePeriodStart < startofday(ago(1d));\nlet all = costs | summarize sum(EffectiveCost) by ResourceType;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n| where isnotempty(ResourceType)\n//\n// Group rows after max count\n| extend inTopX = ResourceType in (topX)\n| extend ResourceType = iff(inTopX, ResourceType, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart = startofday(ChargePeriodStart),\n    ResourceType\n| project ChargePeriodStart, EffectiveCost, Type = ResourceType\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByDay;\nlet all = costs | where isnotempty(ResourceType) | summarize sum(EffectiveCost) by ResourceType;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n| where isnotempty(ResourceType)\n//\n// Group rows after max count\n| extend inTopX = ResourceType in (topX)\n| extend ResourceType = iff(inTopX, ResourceType, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ChargePeriodStart = startofday(ChargePeriodStart),\n    ResourceType\n| project ChargePeriodStart, EffectiveCost, Type = ResourceType\n| order by EffectiveCost desc\n| render columnchart",
       "id": "ebe41e27-e9f9-478e-ab90-fd1f87906766",
-      "usedVariables": ["maxGroupCount", "numberOfDays"]
+      "usedVariables": ["CostsByDay", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
       "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = (\n    CostsByMonth\n    | summarize \n        EffectiveCost  = sum(EffectiveCost),\n        ResourceName = take_any(ResourceName),\n        ResourceType = take_any(ResourceType),\n        RegionName = take_any(RegionName),\n        x_ResourceGroupName = take_any(x_ResourceGroupName),\n        SubAccountName = take_any(SubAccountName)\n        by\n        ChargePeriodStart,\n        ResourceId\n    | as per\n    | union (\n        per\n        | summarize \n            EffectiveCost  = sum(EffectiveCost)\n            by\n            ResourceId,\n            ResourceName,\n            ResourceType,\n            RegionName,\n            x_ResourceGroupName,\n            SubAccountName\n    )\n    | order by ChargePeriodStart asc\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\n);\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ResourceName, ResourceType, RegionName, x_ResourceGroupName, SubAccountName)\n| order by Total desc",
       "id": "7f7b08a9-ae15-46f8-8b0f-767280375add",
-      "usedVariables": ["numberOfMonths"]
+      "usedVariables": ["CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = Costs_v1_0 | where ChargePeriodStart >= ago(numberOfDays * 1d) and ChargePeriodStart < startofday(ago(1d)) | where isnotempty(ResourceType);\nlet all = costs | summarize sum(EffectiveCost) by ResourceType;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n| where isnotempty(ResourceType)\n//\n// Group rows after max count\n| extend inTopX = ResourceType in (topX)\n| extend ResourceType = iff(inTopX, ResourceType, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ResourceType\n| order by EffectiveCost desc\n| render columnchart",
+      "text": "let costs = CostsByDay | where isnotempty(ResourceType);\nlet all = costs | summarize sum(EffectiveCost) by ResourceType;\nlet count = toscalar(all | order by sum_EffectiveCost desc | count);\nlet topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n| where isnotempty(ResourceType)\n//\n// Group rows after max count\n| extend inTopX = ResourceType in (topX)\n| extend ResourceType = iff(inTopX, ResourceType, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    EffectiveCost = round(sum(EffectiveCost), 2)\n    by\n    ResourceType\n| order by EffectiveCost desc\n| render columnchart",
       "id": "a35b4c05-8ecb-4c51-9aaf-980af3d7923e",
-      "usedVariables": ["maxGroupCount", "numberOfDays"]
+      "usedVariables": ["CostsByDay", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = Costs_v1_0 | where ChargePeriodStart >= ago(numberOfDays * 1d) and ChargePeriodStart < startofday(ago(1d)) | where isnotempty(ResourceType);\nlet all = costs | summarize ResourceCount = dcount(ResourceId) by ResourceType;\nlet count = toscalar(all | order by ResourceCount desc | count);\nlet topX = all | order by ResourceCount desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n| where isnotempty(ResourceType)\n//\n// Group rows after max count\n| extend inTopX = ResourceType in (topX)\n| extend ResourceType = iff(inTopX, ResourceType, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    ResourceCount = dcount(ResourceId)\n    by\n    ResourceType\n| order by ResourceCount desc\n| render columnchart",
+      "text": "let costs = CostsByDay | where isnotempty(ResourceType);\nlet all = costs | summarize ResourceCount = dcount(ResourceId) by ResourceType;\nlet count = toscalar(all | order by ResourceCount desc | count);\nlet topX = all | order by ResourceCount desc | limit maxGroupCount;\nlet otherId = '(others)';\ncosts\n| where isnotempty(ResourceType)\n//\n// Group rows after max count\n| extend inTopX = ResourceType in (topX)\n| extend ResourceType = iff(inTopX, ResourceType, strcat('(', (count - maxGroupCount), ' others)'))\n//\n| summarize \n    ResourceCount = dcount(ResourceId)\n    by\n    ResourceType\n| order by ResourceCount desc\n| render columnchart",
       "id": "9c5d3cf0-b6cb-45a2-acfd-b19df425bddf",
-      "usedVariables": ["maxGroupCount", "numberOfDays"]
+      "usedVariables": ["CostsByDay", "maxGroupCount"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nCosts_v1_0\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\n| where isnotempty(ResourceType)\n| summarize \n    Count = dcount(ResourceId),\n    EffectiveCost  = sum(EffectiveCost),\n    ListCost  = sum(ListCost),\n    ContractedCost  = sum(ContractedCost)\n    by\n    ResourceType\n| order by Count desc\n| project \n    Type = ResourceType,\n    Count,\n    Cost = round(EffectiveCost, 2),\n    // NegotiatedSavings = round(ListCost - ContractedCost, 2),\n    // CommitmentSavings = round(ContractedCost - EffectiveCost, 2),\n    Savings = round(ListCost - EffectiveCost, 2),\n    [\"Cost / Resource\"] = round(EffectiveCost / Count, 2)\n",
+      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nCostsByDay\n| where isnotempty(ResourceType)\n| summarize \n    Count = dcount(ResourceId),\n    EffectiveCost  = sum(EffectiveCost),\n    ListCost  = sum(ListCost),\n    ContractedCost  = sum(ContractedCost)\n    by\n    ResourceType\n| order by Count desc\n| project \n    Type = ResourceType,\n    Count,\n    Cost = round(EffectiveCost, 2),\n    // NegotiatedSavings = round(ListCost - ContractedCost, 2),\n    // CommitmentSavings = round(ContractedCost - EffectiveCost, 2),\n    Savings = round(ListCost - EffectiveCost, 2),\n    [\"Cost / Resource\"] = round(EffectiveCost / Count, 2)\n",
       "id": "2d7b6447-2769-40b8-958a-f252dab68b1e",
-      "usedVariables": ["numberOfDays"]
+      "usedVariables": ["CostsByDay"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let costs = Costs_v1_0\n| where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\n| where isnotempty(ResourceType);\ncosts | summarize Value = tostring(dcount(ResourceId)) by Label = \"Resources\", Order = 10\n| union (costs | summarize Value = tostring(dcount(ResourceType)) by Label = \"Resource types\", Order = 11)\n| union (costs | summarize CostPerResource = sum(EffectiveCost) / dcount(ResourceId) by Value = ResourceType | order by CostPerResource desc | limit 1 | extend Label = \"Most expensive (cost / resource)\", Order = 21)\n| union (costs | where ResourceType !in (Costs_v1_0 | where ChargePeriodStart < ago(numberOfDays * 1d) - 1d | distinct ResourceType) | summarize Count = dcount(ResourceId) by ResourceType | order by Count desc | as d | count | extend Label = \"New in last n days\", Value = case(Count == 0, '(none)', Count == 1, toscalar(d | project ResourceType), strcat(toscalar(d | limit 1 | project ResourceType), ' and ', (Count - 1), ' more')), Order = 22)\n| union (costs | summarize Count = dcount(ResourceId) by Value = ResourceType | order by Count desc | limit 1 | extend Label = \"Most used\", Order = 31)\n| union (costs | summarize sum(EffectiveCost) by Value = ResourceType | order by sum_EffectiveCost desc | limit 1 | extend Label = \"Most cost\", Order = 32)\n| union (costs | summarize AllTypes = dcount(ResourceType), CommittedTypes = dcountif(ResourceType, isnotempty(CommitmentDiscountType)) by Label = \"Covered by commitment discounts\", Order = 41 | extend Value = strcat(round(1.0 * CommittedTypes / AllTypes * 100, 1), '%'))\n| union (costs | summarize Savings = sum(ListCost - EffectiveCost) by Value = ResourceType | order by Savings desc | limit 1 | extend Label = \"Most savings\", Order = 42)\n| order by Order asc\n",
+      "text": "let costs = CostsByDay\n| where isnotempty(ResourceType);\ncosts | summarize Value = tostring(dcount(ResourceId)) by Label = \"Resources\", Order = 10\n| union (costs | summarize Value = tostring(dcount(ResourceType)) by Label = \"Resource types\", Order = 11)\n| union (costs | summarize Count = dcount(ResourceId) by Value = ResourceType | order by Count desc | limit 1 | extend Label = \"Most used\", Order = 21)\n| union (costs | summarize sum(EffectiveCost) by Value = ResourceType | order by sum_EffectiveCost desc | limit 1 | extend Label = \"Most cost\", Order = 22)\n| union (costs | summarize AllTypes = dcount(ResourceType), CommittedTypes = dcountif(ResourceType, isnotempty(CommitmentDiscountType)) by Label = \"Covered by commitment discounts\", Order = 31 | extend Value = strcat(round(1.0 * CommittedTypes / AllTypes * 100, 1), '%'))\n| union (costs | summarize Savings = sum(ListCost - EffectiveCost) by Value = ResourceType | order by Savings desc | limit 1 | extend Label = \"Most savings\", Order = 32)\n| union (costs | summarize CostPerResource = sum(EffectiveCost) / dcount(ResourceId) by Value = ResourceType | order by CostPerResource desc | limit 1 | extend Label = \"Most expensive (cost / resource)\", Order = 41)\n| union (costs | where ResourceType !in (Costs_v1_0 | where ChargePeriodStart < ago(numberOfDays * 1d) - 1d | distinct ResourceType) | summarize Count = dcount(ResourceId) by ResourceType | order by Count desc | as d | count | extend Label = \"New in last n days\", Value = case(Count == 0, '(none)', Count == 1, toscalar(d | project ResourceType), strcat(toscalar(d | limit 1 | project ResourceType), ' and ', (Count - 1), ' more')), Order = 42)\n| order by Order asc\n",
       "id": "f062533b-8c94-412f-bf83-0eb5cd06063d",
-      "usedVariables": ["numberOfDays"]
+      "usedVariables": ["CostsByDay", "numberOfDays"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
@@ -2660,9 +2687,9 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nCostByMonth\n| where ChargeCategory == 'Purchase'\n| project\n    ChargePeriodStart = substring(ChargePeriodStart, 0, 10),\n    x_SkuDescription,\n    CommitmentDiscountType,\n    Term = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))),\n    PricingQuantity,\n    BilledCost,\n    BillingCurrency\n| order by ChargePeriodStart desc\n",
+      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nCostsByMonth\n| where ChargeCategory == 'Purchase'\n| project\n    ChargePeriodStart = substring(ChargePeriodStart, 0, 10),\n    x_SkuDescription,\n    CommitmentDiscountType,\n    Term = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', ''))),\n    PricingQuantity,\n    BilledCost,\n    BillingCurrency\n| order by ChargePeriodStart desc\n",
       "id": "98c9b9b5-bebf-41f8-8319-5fa2523f9dd0",
-      "usedVariables": ["numberOfMonths"]
+      "usedVariables": ["CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
@@ -2672,15 +2699,15 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let data = materialize(\n    Costs_v1_0\n    | where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\n    | summarize ListCost = round(sum(ListCost), 2), ContractedCost = round(sum(ContractedCost), 2), EffectiveCost = round(sum(EffectiveCost), 2)\n    | project json = todynamic(strcat('[{ \"Label\":\"List\", \"Value\":', ListCost, ' }, { \"Label\":\"Contracted\", \"Value\":', ContractedCost, ' }, { \"Label\":\"Effective\", \"Value\":', EffectiveCost, ' }]'))\n    | mv-expand json\n    | project Label = tostring(json.Label), Value = tolong(json.Value)\n);\ndata",
+      "text": "let data = materialize(\n    CostsByMonth | extend Period = 'Last n months'\n    | union (CostsByDay | extend Period = 'Last n days')\n    | summarize \n        ListCost = round(sum(ListCost), 2),\n        ContractedCost = round(sum(ContractedCost), 2),\n        EffectiveCost = round(sum(EffectiveCost), 2)\n        by\n        Period\n    | project Period, json = todynamic(strcat('[{ \"Label\":\"List\", \"Value\":', ListCost, ' }, { \"Label\":\"Contracted\", \"Value\":', ContractedCost, ' }, { \"Label\":\"Effective\", \"Value\":', EffectiveCost, ' }]'))\n    | mv-expand json\n    | project Label = tostring(json.Label), Value = tolong(json.Value), Period\n);\ndata",
       "id": "5ff29428-de83-4a2c-8f86-d8beebe68750",
-      "usedVariables": ["numberOfDays"]
+      "usedVariables": ["CostsByDay", "CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let data = materialize(\n    Costs_v1_0\n    | where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\n    | summarize ListCost = round(sum(ListCost), 2), ContractedCost = round(sum(ContractedCost), 2), EffectiveCost = round(sum(EffectiveCost), 2)\n    | project json = todynamic(strcat('[{ \"Label\":\"Total\", \"Value\":', ListCost - EffectiveCost, ' }, { \"Label\":\"Negotiated\", \"Value\":', ListCost - ContractedCost, ' }, { \"Label\":\"Commitment\", \"Value\":', ContractedCost - EffectiveCost, ' }]'))\n    | mv-expand json\n    | project Label = tostring(json.Label), Value = tolong(json.Value)\n);\ndata",
+      "text": "let data = materialize(\n    CostsByMonth | extend Period = 'Last n months'\n    | union (CostsByDay | extend Period = 'Last n days')\n    | summarize\n        ListCost = round(sum(ListCost), 2),\n        ContractedCost = round(sum(ContractedCost), 2),\n        EffectiveCost = round(sum(EffectiveCost), 2)\n        by\n        Period\n    | project Period, json = todynamic(strcat('[{ \"Label\":\"Total\", \"Value\":', ListCost - EffectiveCost, ' }, { \"Label\":\"Negotiated\", \"Value\":', ListCost - ContractedCost, ' }, { \"Label\":\"Commitment\", \"Value\":', ContractedCost - EffectiveCost, ' }]'))\n    | mv-expand json\n    | project Label = tostring(json.Label), Value = tolong(json.Value), Period\n);\ndata\n",
       "id": "f5f240a8-a818-4f27-bdfb-e96fcfe433bd",
-      "usedVariables": ["numberOfDays"]
+      "usedVariables": ["CostsByDay", "CostsByMonth"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
@@ -2690,7 +2717,7 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let data = materialize(\n    CostsByMonth\n    // | where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\n    //\n    // Don't double-count commitment discount purchases\n    | where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\n    //\n    | summarize \n        ListCost = sum(ListCost),\n        ContractedCost = sum(ContractedCost),\n        EffectiveCost = sum(EffectiveCost)\n    | extend CommitmentDiscountSavings = ContractedCost - EffectiveCost\n    | extend NegotiatedDiscountSavings = ListCost - ContractedCost\n    | extend TotalSavings = ListCost - EffectiveCost\n    | project json = todynamic(strcat('[',\n        '{ \"order\":11, \"type\":\"List\", \"label\":\"Cost without discounts\", \"value\":\"', numberstring(round(ListCost, 2)), '\" },',\n        '{ \"order\":12, \"type\":\"\", \"label\":\"\", \"value\":\"➖\" },',\n        '{ \"order\":13, \"type\":\"Contracted\", \"label\":\"After negotiated discounts\", \"value\":\"', numberstring(round(ContractedCost, 2)), '\" },',\n        '{ \"order\":14, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":15, \"type\":\"PartialSavings\", \"label\":\"Negotiated savings\", \"value\":\"', numberstring(round(NegotiatedDiscountSavings, 2)), '\" },',\n        //\n        '{ \"order\":21, \"type\":\"Contracted\", \"label\":\"After negotiated discounts\", \"value\":\"', numberstring(round(ContractedCost, 2)), '\" },',\n        '{ \"order\":22, \"type\":\"\", \"label\":\"\", \"value\":\"➖\" },',\n        '{ \"order\":23, \"type\":\"Effective\", \"label\":\"After commitment discounts\", \"value\":\"', numberstring(round(EffectiveCost, 2)), '\" },',\n        '{ \"order\":24, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":25, \"type\":\"PartialSavings\", \"label\":\"Commitment savings\", \"value\":\"', numberstring(round(CommitmentDiscountSavings, 2)), '\" },',\n        //\n        '{ \"order\":31, \"type\":\"List\", \"label\":\"Cost without discounts\", \"value\":\"', numberstring(round(ListCost, 2)), '\" },',\n        '{ \"order\":32, \"type\":\"\", \"label\":\"\", \"value\":\"➖\" },',\n        '{ \"order\":33, \"type\":\"Effective\", \"label\":\"After commitment discounts\", \"value\":\"', numberstring(round(EffectiveCost, 2)), '\" },',\n        '{ \"order\":34, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":35, \"type\":\"TotalSavings\", \"label\":\"Total savings\", \"value\":\"', numberstring(round(TotalSavings, 2)), '\" }',\n    ']'))\n    | mv-expand json\n    | order by toint(json.order) asc\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\n);\ndata",
+      "text": "let data = materialize(\n    Costs_v1_0\n    | where ChargePeriodStart >= startofmonth(startofmonth(now()) - 1d)\n    // | where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\n    //\n    // Don't double-count commitment discount purchases\n    | where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\n    //\n    | summarize \n        ListCost = sum(ListCost),\n        ContractedCost = sum(ContractedCost),\n        EffectiveCost = sum(EffectiveCost)\n    | extend CommitmentDiscountSavings = ContractedCost - EffectiveCost\n    | extend NegotiatedDiscountSavings = ListCost - ContractedCost\n    | extend TotalSavings = ListCost - EffectiveCost\n    | project json = todynamic(strcat('[',\n        '{ \"order\":11, \"type\":\"List\", \"label\":\"Cost without discounts\", \"value\":\"', numberstring(round(ListCost, 2)), '\" },',\n        '{ \"order\":12, \"type\":\"\", \"label\":\"\", \"value\":\"➖\" },',\n        '{ \"order\":13, \"type\":\"Contracted\", \"label\":\"After negotiated discounts\", \"value\":\"', numberstring(round(ContractedCost, 2)), '\" },',\n        '{ \"order\":14, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":15, \"type\":\"PartialSavings\", \"label\":\"Negotiated savings\", \"value\":\"', numberstring(round(NegotiatedDiscountSavings, 2)), '\" },',\n        //\n        '{ \"order\":21, \"type\":\"Contracted\", \"label\":\"After negotiated discounts\", \"value\":\"', numberstring(round(ContractedCost, 2)), '\" },',\n        '{ \"order\":22, \"type\":\"\", \"label\":\"\", \"value\":\"➖\" },',\n        '{ \"order\":23, \"type\":\"Effective\", \"label\":\"After commitment discounts\", \"value\":\"', numberstring(round(EffectiveCost, 2)), '\" },',\n        '{ \"order\":24, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":25, \"type\":\"PartialSavings\", \"label\":\"Commitment savings\", \"value\":\"', numberstring(round(CommitmentDiscountSavings, 2)), '\" },',\n        //\n        '{ \"order\":31, \"type\":\"List\", \"label\":\"Cost without discounts\", \"value\":\"', numberstring(round(ListCost, 2)), '\" },',\n        '{ \"order\":32, \"type\":\"\", \"label\":\"\", \"value\":\"➖\" },',\n        '{ \"order\":33, \"type\":\"Effective\", \"label\":\"After commitment discounts\", \"value\":\"', numberstring(round(EffectiveCost, 2)), '\" },',\n        '{ \"order\":34, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":35, \"type\":\"TotalSavings\", \"label\":\"Total savings\", \"value\":\"', numberstring(round(TotalSavings, 2)), '\" }',\n    ']'))\n    | mv-expand json\n    | order by toint(json.order) asc\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\n);\ndata",
       "id": "e17346d1-0227-4aa4-8765-f9b4bf43bed5",
       "usedVariables": []
     },
@@ -2702,7 +2729,7 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let data = materialize(\n    CostsByMonth\n    // | where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\n    //\n    // Don't double-count commitment discount purchases\n    | where isnotempty(CommitmentDiscountStatus)\n    //\n    // Guarantee there's a row for every combination\n    | union (\n        print json = dynamic([\n            {\"order\": 11, \"CommitmentDiscountType\": \"Reservation\", \"CommitmentDiscountStatus\": \"Used\"},\n            {\"order\": 12, \"CommitmentDiscountType\": \"Reservation\", \"CommitmentDiscountStatus\": \"Unused\"},\n            {\"order\": 21, \"CommitmentDiscountType\": \"Savings Plan\", \"CommitmentDiscountStatus\": \"Used\"},\n            {\"order\": 22, \"CommitmentDiscountType\": \"Savings Plan\", \"CommitmentDiscountStatus\": \"Unused\"}\n        ])\n        | mv-expand json\n        | evaluate bag_unpack(json)\n        | extend EffectiveCost = todecimal(0)\n    )\n    //\n    | summarize Value = sum(EffectiveCost), order = sum(order) by CommitmentDiscountStatus, CommitmentDiscountType\n    | order by order asc\n    | project Label = strcat(CommitmentDiscountStatus, ' ', tolower(CommitmentDiscountType), 's'), Value\n);\ndata",
+      "text": "let data = materialize(\n    Costs_v1_0\n    | where ChargePeriodStart >= startofmonth(startofmonth(now()) - 1d)\n    // | where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)\n    //\n    // Don't double-count commitment discount purchases\n    | where isnotempty(CommitmentDiscountStatus)\n    //\n    // Guarantee there's a row for every combination\n    | union (\n        print json = dynamic([\n            {\"order\": 11, \"CommitmentDiscountType\": \"Reservation\", \"CommitmentDiscountStatus\": \"Used\"},\n            {\"order\": 12, \"CommitmentDiscountType\": \"Reservation\", \"CommitmentDiscountStatus\": \"Unused\"},\n            {\"order\": 21, \"CommitmentDiscountType\": \"Savings Plan\", \"CommitmentDiscountStatus\": \"Used\"},\n            {\"order\": 22, \"CommitmentDiscountType\": \"Savings Plan\", \"CommitmentDiscountStatus\": \"Unused\"}\n        ])\n        | mv-expand json\n        | evaluate bag_unpack(json)\n        | extend EffectiveCost = todecimal(0)\n    )\n    //\n    | summarize Value = sum(EffectiveCost), order = sum(order) by CommitmentDiscountStatus, CommitmentDiscountType\n    | order by order asc\n    | project Label = strcat(CommitmentDiscountStatus, ' ', tolower(CommitmentDiscountType), 's'), Value\n);\ndata",
       "id": "7d0c2c1f-338b-4534-b173-36b284779131",
       "usedVariables": []
     },
@@ -2714,13 +2741,13 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = (\n    CostsByMonth\n    | summarize \n        EffectiveCost  = sum(EffectiveCost)\n        by\n        ChargePeriodStart,\n        ServiceCategory,\n        ServiceName\n    | as per\n    | union (\n        per\n        | summarize \n            EffectiveCost  = sum(EffectiveCost)\n            by\n            ServiceCategory,\n            ServiceName\n    )\n    | order by ChargePeriodStart asc\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\n);\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ServiceCategory)\n| order by Total desc",
+      "text": "let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);\nlet data = (\n    Costs_v1_0\n    | where ChargePeriodStart >= monthsago(numberOfMonths)\n    | summarize \n        EffectiveCost  = sum(EffectiveCost)\n        by\n        ChargePeriodStart = startofmonth(ChargePeriodStart),\n        ServiceCategory,\n        ServiceName\n    | as per\n    | union (\n        per\n        | summarize \n            EffectiveCost  = sum(EffectiveCost)\n            by\n            ServiceCategory,\n            ServiceName\n    )\n    | order by ChargePeriodStart asc\n    | extend EffectiveCost = todouble(round(EffectiveCost, 2))\n    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))\n);\ndata | evaluate pivot(ChargePeriod, sum(EffectiveCost), ServiceCategory)\n| order by Total desc",
       "id": "85320475-730b-411f-98d5-fbc345bf5e68",
       "usedVariables": ["numberOfMonths"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "CostsByMonth\n//\n// Filter out commitment discount purchases\n| where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\n//\n| summarize \n    ListCost = sum(ListCost),\n    ContractedCost = sum(ContractedCost),\n    EffectiveCost = sum(EffectiveCost)\n    by\n    ChargePeriodStart,\n    CommitmentDiscountType\n| project\n    ChargePeriodStart,\n    Savings = round(ListCost - EffectiveCost, 2),\n    Type = case(\n        isnotempty(CommitmentDiscountType), CommitmentDiscountType,\n        'Negotiated'\n    )",
+      "text": "CostsByMonth\n//\n// Filter out commitment discount purchases\n| where ChargeCategory == 'Usage' or isempty(CommitmentDiscountId)\n//\n| summarize \n    ListCost = sum(ListCost),\n    ContractedCost = sum(ContractedCost),\n    EffectiveCost = sum(EffectiveCost)\n    by\n    ChargePeriodStart = startofmonth(ChargePeriodStart),\n    CommitmentDiscountType\n| project\n    ChargePeriodStart,\n    Savings = round(ListCost - EffectiveCost, 2),\n    Type = case(\n        isnotempty(CommitmentDiscountType), CommitmentDiscountType,\n        'Negotiated'\n    )",
       "id": "5bbb5369-ac95-45fc-853c-a6a2ce6a9e7b",
       "usedVariables": ["CostsByMonth"]
     },
@@ -2786,7 +2813,7 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": ".show cluster extents\n| where TableName contains '_final_v'\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\n| where Dataset == 'Costs'\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\s]+)', 1, Tags))\n// | extend Table = tostring(extract(@'drop-by:([^/\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\s]+)', 1, Tags))\n| extend Date  = tostring(extract(@'drop-by:([^/\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\s]+)', 2, Tags))\n| extend Scope = tostring(extract(@'drop-by:([^/\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\s]+)', 5, Tags))\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\n// TODO: Look up the name from cost data\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\n| summarize Rows = sum(RowCount) by Date, ScopeId",
+      "text": ".show cluster extents\n| where TableName contains '_final_v'\n| extend Dataset = tostring(split(TableName, '_final_v')[0])\n| where Dataset == 'Costs'\n| extend FocusVersion = replace_string(tostring(split(TableName, '_final_v')[1]), '_', '.')\n| extend ToolkitVersion = tostring(extract(@'drop-by:ftk-version-([^\\s]+)', 1, Tags))\n// | extend Table = tostring(extract(@'drop-by:([^/\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\s]+)', 1, Tags))\n| extend Date  = tostring(extract(@'drop-by:([^/\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\s]+)', 2, Tags))\n| extend Scope = tostring(extract(@'drop-by:([^/\\s]+)(/[0-9]{4}(/[0-9]{2}(/[0-9]{2})?)?)?(/[^\\s]+)', 5, Tags))\n| extend Date  = todatetime(strcat(replace_string(trim(@'/', Date), '/', '-'), '-01'))\n| extend Scope = replace_regex(Scope, @'/[^/]+$', '')\n| project Dataset, FocusVersion, ToolkitVersion, Date, Scope, LastUpdate = MaxCreatedOn, OriginalSize, RowCount\n| extend ScopeId = tostring(database('Ingestion').parse_resourceid(Scope).ResourceName)\n| extend ScopeResourceType = database('Ingestion').parse_resourceid(Scope).x_ResourceType\n// TODO: Clean up scope resource type display names -- | extend ScopeType = resource_type(ScopeResourceType).SingularDisplayName\n| summarize Rows = sum(RowCount) by Date, ScopeId",
       "id": "187e22fe-3d78-45a2-a2bf-090ece144fd1",
       "usedVariables": []
     },
@@ -2851,6 +2878,12 @@
       "usedVariables": ["CostsByDayAHB"]
     },
     {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "let costs = Costs_v1_0 | where ChargePeriodStart >= startofmonth(now(), -3) and ChargePeriodStart < startofday(ago(-1d));\nlet startOfPeriod = toscalar(costs | summarize min(startofday(ChargePeriodStart)));\nlet endOfPeriod = toscalar(costs | summarize max(startofday(ChargePeriodStart)));\nlet forecastHorizon = numberOfDays * 1d;\ncosts\n| make-series\n    EffectiveCost = sum(EffectiveCost)\n    on ChargePeriodStart\n    from startOfPeriod to endOfPeriod + forecastHorizon step 1d\n    // by SubAccountId\n| extend Forecast = series_decompose_forecast(EffectiveCost, numberOfDays)\n",
+      "id": "5fd3ea2a-8882-4438-9103-fa3945240604",
+      "usedVariables": ["numberOfDays"]
+    },
+    {
       "id": "43612ae4-c475-4f22-bb50-ce9d995abb8f",
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
       "text": "Costs_v1_0\n| where startofmonth(BillingPeriodStart) == startofmonth(now())",
@@ -2865,7 +2898,7 @@
     {
       "id": "4ce0f587-2d45-436c-8f79-102c6b382439",
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "Costs_v1_0\r\n| where ChargePeriodStart >= monthsago(numberOfMonths)\r\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)",
+      "text": "Costs_v1_0\r\n| where ChargePeriodStart >= monthsago(numberOfMonths) and ChargePeriodStart < startofday(ago(1d))\r\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\r\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)",
       "usedVariables": ["numberOfMonths"]
     },
     {
