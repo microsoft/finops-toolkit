@@ -28,68 +28,68 @@ import {
 
 // Styles for the sidebar using Fluent UI's `makeStyles`
 const useStyles = makeStyles({
-    sidebar: {
-      minHeight: '100vh',
-      backgroundColor: '#f4f6f8',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-      transition: 'width 0.2s ease',
-      paddingTop: '40px',
-      paddingRight: '18px',
-      paddingLeft: '16px',
-      paddingBottom: '16px',
-      marginTop: '0',
+  sidebar: {
+    minHeight: '100vh',
+    backgroundColor: '#f4f6f8',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    transition: 'width 0.2s ease',
+    paddingTop: '40px',
+    paddingRight: '18px',
+    paddingLeft: '16px',
+    paddingBottom: '16px',
+    marginTop: '0',
+  },
+  collapsed: {
+    width: '80px',
+  },
+  expanded: {
+    width: '216px',
+  },
+  toggleButton: {
+    position: 'absolute',
+    top: '10px',
+    right: '8px',
+  },
+  menuItem: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '10px 12px',
+    color: '#333',
+    textDecoration: 'none',
+    borderRadius: '6px',
+    position: 'relative',
+    transition: 'background-color 0.2s ease, color 0.2s ease',
+    '&:hover': {
+      backgroundColor: '#E6E6E6', // Updated neutral grey background on hover
+      color: tokens.colorNeutralForeground2BrandHover,
     },
-    collapsed: {
-      width: '80px',
+    '&:hover $icon': {
+      color: tokens.colorNeutralForeground2BrandHover,
     },
-    expanded: {
-      width: '216px',
-    },
-    toggleButton: {
+    '&::before': {
+      content: '""',
       position: 'absolute',
-      top: '10px',
-      right: '8px',
+      left: '2px',
+      top: '22px',
+      transform: 'translateY(-50%)',
+      width: '4px',
+      height: '18px',
+      backgroundColor: 'transparent',
+      borderRadius: '2px',
+      transition: 'background-color 0.1s ease',
     },
-    menuItem: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '10px 12px',
-      color: '#333',
-      textDecoration: 'none',
-      borderRadius: '6px',
-      position: 'relative',
-      transition: 'background-color 0.2s ease, color 0.2s ease',
-      '&:hover': {
-        backgroundColor: '#E6E6E6', // Updated neutral grey background on hover
-        color: tokens.colorNeutralForeground2BrandHover,
-      },
-      '&:hover $icon': {
-        color: tokens.colorNeutralForeground2BrandHover,
-      },
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        left: '2px',
-        top: '22px',
-        transform: 'translateY(-50%)',
-        width: '4px',
-        height: '18px',
-        backgroundColor: 'transparent',
-        borderRadius: '2px',
-        transition: 'background-color 0.1s ease',
-      },
-      '&:hover::before': {
-        backgroundColor: tokens.colorNeutralForeground3BrandHover,
-      },
+    '&:hover::before': {
+      backgroundColor: tokens.colorNeutralForeground3BrandHover,
     },
-    icon: {
-      marginRight: '10px',
-      transition: 'color 0.1s ease',
-    },
-  });
-  
+  },
+  icon: {
+    marginRight: '10px',
+    transition: 'color 0.1s ease',
+  },
+});
+
 
 const menuItems = [
   { name: 'Home', icon: <Home24Regular />, filledIcon: <Home24Filled />, route: '/' },
@@ -118,38 +118,38 @@ function SideBar() {
   };
 
   return (
-      <div className={`${classes.sidebar} ${isCollapsed ? classes.collapsed : classes.expanded}`}>
-        <Button
-          appearance="subtle"
-          icon={isCollapsed ? <PanelLeftExpandRegular /> : <PanelLeftContractRegular />}
-          className={classes.toggleButton}
-          onClick={toggleSidebar}
-          aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-        />
-        {menuItems.map((item, index) => (
-          <div
-            key={index}
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
-            {item.external ? (
-              <a href={item.route} target="_blank" rel="noopener noreferrer" className={classes.menuItem}>
-                <div className={classes.icon}>
-                  {hoveredIndex === index ? item.filledIcon : item.icon}
-                </div>
-                {!isCollapsed && <span>{item.name}</span>}
-              </a>
-            ) : (
-              <Link to={item.route} className={classes.menuItem}>
-                <div className={classes.icon}>
-                  {hoveredIndex === index ? item.filledIcon : item.icon}
-                </div>
-                {!isCollapsed && <span>{item.name}</span>}
-              </Link>
-            )}
-          </div>
-        ))}
-      </div>
+    <div className={`${classes.sidebar} ${isCollapsed ? classes.collapsed : classes.expanded}`}>
+      <Button
+        appearance="subtle"
+        icon={isCollapsed ? <PanelLeftExpandRegular /> : <PanelLeftContractRegular />}
+        className={classes.toggleButton}
+        onClick={toggleSidebar}
+        aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+      />
+      {menuItems.map((item, index) => (
+        <div
+          key={index}
+          onMouseEnter={() => setHoveredIndex(index)}
+          onMouseLeave={() => setHoveredIndex(null)}
+        >
+          {item.external ? (
+            <a href={item.route} target="_blank" rel="noopener noreferrer" className={classes.menuItem}>
+              <div className={classes.icon}>
+                {hoveredIndex === index ? item.filledIcon : item.icon}
+              </div>
+              {!isCollapsed && <span>{item.name}</span>}
+            </a>
+          ) : (
+            <Link to={item.route} className={classes.menuItem}>
+              <div className={classes.icon}>
+                {hoveredIndex === index ? item.filledIcon : item.icon}
+              </div>
+              {!isCollapsed && <span>{item.name}</span>}
+            </Link>
+          )}
+        </div>
+      ))}
+    </div>
   );
 };
 
