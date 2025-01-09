@@ -6,31 +6,9 @@
 with (docstring = 'Return details about the specified ID.', folder = 'OpenData')
 resource_type(id: string) {
     dynamic({
-        "arizeai.observabilityeval/organizations": { "SingularDisplayName": "Azure Native ArizeAi Cloud Service" }
-        ,"astronomer.astro/organizations": { "SingularDisplayName": "Astro Organization" }
-        ,"citrix.services/xenappessentials": { "SingularDisplayName": "Citrix Virtual Apps Essentials" }
-        ,"citrix.services/xendesktopessentials": { "SingularDisplayName": "Citrix Virtual Desktops Essentials" }
-        ,"dell.storage/filesystems": { "SingularDisplayName": "Dell APEX File Storage, An Azure Native Service" }
-        ,"dynatrace.observability/monitors": { "SingularDisplayName": "Dynatrace" }
-        ,"github.network/networksettings": { "SingularDisplayName": "GitHub.Network network setting" }
-        ,"informatica.datamanagement/organizations": { "SingularDisplayName": "Informatica Organization" }
-        ,"lambdatest.hyperexecute/organizations": { "SingularDisplayName": "Azure Native LambdaTest Cloud Service" }
-        ,"microsoft.aad/domainservices": { "SingularDisplayName": "Microsoft Entra Domain Services" }
+        "microsoft.aad/domainservices": { "SingularDisplayName": "Microsoft Entra Domain Services" }
         ,"microsoft.aadiam/diagnosticsettings": { "SingularDisplayName": "Microsoft.aadiam diagnostic setting" }
         ,"microsoft.aadiam/privatelinkforazuread": { "SingularDisplayName": "Private Link for Microsoft Entra ID" }
-        ,"microsoft.advisor/advisorscore": { "SingularDisplayName": "Microsoft.Advisor advisor score" }
-        ,"microsoft.advisor/configurations": { "SingularDisplayName": "Microsoft.Advisor configuration" }
-        ,"microsoft.advisor/generaterecommendations": { "SingularDisplayName": "Microsoft.Advisor generate recommendation" }
-        ,"microsoft.advisor/metadata": { "SingularDisplayName": "Microsoft.Advisor metadata" }
-        ,"microsoft.advisor/recommendations": { "SingularDisplayName": "Microsoft.Advisor recommendation" }
-        ,"microsoft.advisor/recommendations/suppressions": { "SingularDisplayName": "Microsoft.Advisor recommendations suppression" }
-        ,"microsoft.agfoodplatform/farmbeats": { "SingularDisplayName": "Azure Data Manager for Agriculture" }
-        ,"microsoft.agfoodplatform/farmbeatsextensiondefinitions": { "SingularDisplayName": "Microsoft.AgFoodPlatform farm beats extension definition" }
-        ,"microsoft.agfoodplatform/farmbeatssolutiondefinitions": { "SingularDisplayName": "Microsoft.AgFoodPlatform farm beats solution definition" }
-        ,"microsoft.agricultureplatform/agriservices": { "SingularDisplayName": "Microsoft.AgriculturePlatform agri service" }
-        ,"microsoft.akshybrid/agentpools": { "SingularDisplayName": "Microsoft.AksHybrid agent pool" }
-        ,"microsoft.akshybrid/provisionedclusters": { "SingularDisplayName": "Microsoft.AksHybrid provisioned cluster" }
-        ,"microsoft.akshybrid/upgradeprofiles": { "SingularDisplayName": "Microsoft.AksHybrid upgrade profile" }
         ,"microsoft.alertsmanagement/actionrules": { "SingularDisplayName": "Alert processing rule" }
         ,"microsoft.alertsmanagement/alerts": { "SingularDisplayName": "Microsoft.AlertsManagement alert" }
         ,"microsoft.alertsmanagement/alerts/enrichments": { "SingularDisplayName": "Microsoft.AlertsManagement alerts enrichment" }
@@ -61,277 +39,6 @@ resource_type(id: string) {
         ,"microsoft.app/managedenvironments": { "SingularDisplayName": "Container Apps Environment" }
         ,"microsoft.app/sessionpools": { "SingularDisplayName": "Container App Session Pool" }
         ,"microsoft.app/spaces": { "SingularDisplayName": "App Space" }
-        ,"microsoft.appassessment/migrateprojects": { "SingularDisplayName": "Microsoft.AppAssessment migrate project" }
-        ,"microsoft.appassessment/migrateprojects/assessments": { "SingularDisplayName": "Microsoft.AppAssessment migrate projects assessment" }
-        ,"microsoft.appassessment/migrateprojects/assessments/assessedapplications": { "SingularDisplayName": "Microsoft.AppAssessment migrate projects assessments assessed application" }
-        ,"microsoft.appassessment/migrateprojects/assessments/assessedmachines": { "SingularDisplayName": "Microsoft.AppAssessment migrate projects assessments assessed machine" }
-        ,"microsoft.appassessment/migrateprojects/assessments/machinestoassess": { "SingularDisplayName": "Microsoft.AppAssessment migrate projects assessments machines to asses" }
-        ,"microsoft.appassessment/migrateprojects/sites": { "SingularDisplayName": "Microsoft.AppAssessment migrate projects site" }
-        ,"microsoft.appassessment/migrateprojects/sites/applianceconfigurations": { "SingularDisplayName": "Microsoft.AppAssessment migrate projects sites appliance configuration" }
-        ,"microsoft.appcomplianceautomation/reports": { "SingularDisplayName": "Microsoft.AppComplianceAutomation report" }
-        ,"microsoft.appcomplianceautomation/reports/evidences": { "SingularDisplayName": "Microsoft.AppComplianceAutomation reports evidence" }
-        ,"microsoft.appcomplianceautomation/reports/scopingconfigurations": { "SingularDisplayName": "Microsoft.AppComplianceAutomation reports scoping configuration" }
-        ,"microsoft.appcomplianceautomation/reports/snapshots": { "SingularDisplayName": "Microsoft.AppComplianceAutomation reports snapshot" }
-        ,"microsoft.appcomplianceautomation/reports/webhooks": { "SingularDisplayName": "Microsoft.AppComplianceAutomation reports webhook" }
-        ,"microsoft.appconfiguration/configurationstores": { "SingularDisplayName": "App Configuration" }
-        ,"microsoft.appplatform/spring": { "SingularDisplayName": "Azure Spring Apps" }
-        ,"microsoft.appsecurity/policies": { "SingularDisplayName": "App Protect Policy" }
-        ,"microsoft.arc/all": { "SingularDisplayName": "Azure Arc enabled resource" }
-        ,"microsoft.arc/allfairfax": { "SingularDisplayName": "Azure Arc enabled resource" }
-        ,"microsoft.arc/kubernetesresources": { "SingularDisplayName": "Azure Arc Kubernetes cluster" }
-        ,"microsoft.arc/kubernetesresourcesfairfax": { "SingularDisplayName": "Azure Arc Kubernetes cluster" }
-        ,"microsoft.arcnetworking/arcnwloadbalancers": { "SingularDisplayName": "Microsoft.ArcNetworking arc nw load balancer" }
-        ,"microsoft.attestation/attestationproviders": { "SingularDisplayName": "Attestation provider" }
-        ,"microsoft.authorization/accessreviewhistorydefinitions": { "SingularDisplayName": "Microsoft.Authorization access review history definition" }
-        ,"microsoft.authorization/accessreviewscheduledefinitions": { "SingularDisplayName": "Microsoft.Authorization access review schedule definition" }
-        ,"microsoft.authorization/accessreviewscheduledefinitions/instances": { "SingularDisplayName": "Microsoft.Authorization access review schedule definitions instance" }
-        ,"microsoft.authorization/accessreviewscheduledefinitions/instances/decisions": { "SingularDisplayName": "Microsoft.Authorization access review schedule definitions instances decision" }
-        ,"microsoft.authorization/accessreviewschedulesettings": { "SingularDisplayName": "Microsoft.Authorization access review schedule setting" }
-        ,"microsoft.authorization/datapolicymanifests": { "SingularDisplayName": "Microsoft.Authorization data policy manifest" }
-        ,"microsoft.authorization/denyassignments": { "SingularDisplayName": "Microsoft.Authorization deny assignment" }
-        ,"microsoft.authorization/locks": { "SingularDisplayName": "Microsoft.Authorization lock" }
-        ,"microsoft.authorization/policyassignments": { "SingularDisplayName": "Microsoft.Authorization policy assignment" }
-        ,"microsoft.authorization/policydefinitions": { "SingularDisplayName": "Microsoft.Authorization policy definition" }
-        ,"microsoft.authorization/policydefinitions/versions": { "SingularDisplayName": "Microsoft.Authorization policy definitions version" }
-        ,"microsoft.authorization/policyexemptions": { "SingularDisplayName": "Microsoft.Authorization policy exemption" }
-        ,"microsoft.authorization/policysetdefinitions": { "SingularDisplayName": "Microsoft.Authorization policy set definition" }
-        ,"microsoft.authorization/policysetdefinitions/versions": { "SingularDisplayName": "Microsoft.Authorization policy set definitions version" }
-        ,"microsoft.authorization/privatelinkassociations": { "SingularDisplayName": "Microsoft.Authorization private link association" }
-        ,"microsoft.authorization/provideroperations": { "SingularDisplayName": "Microsoft.Authorization provider operation" }
-        ,"microsoft.authorization/resourcemanagementprivatelinks": { "SingularDisplayName": "Resource management private link" }
-        ,"microsoft.authorization/roleassignmentapprovals": { "SingularDisplayName": "Microsoft.Authorization role assignment approval" }
-        ,"microsoft.authorization/roleassignmentapprovals/stages": { "SingularDisplayName": "Microsoft.Authorization role assignment approvals stage" }
-        ,"microsoft.authorization/roleassignments": { "SingularDisplayName": "Microsoft.Authorization role assignment" }
-        ,"microsoft.authorization/roleassignmentscheduleinstances": { "SingularDisplayName": "Microsoft.Authorization role assignment schedule instance" }
-        ,"microsoft.authorization/roleassignmentschedulerequests": { "SingularDisplayName": "Microsoft.Authorization role assignment schedule request" }
-        ,"microsoft.authorization/roleassignmentschedules": { "SingularDisplayName": "Microsoft.Authorization role assignment schedule" }
-        ,"microsoft.authorization/roledefinitions": { "SingularDisplayName": "Microsoft.Authorization role definition" }
-        ,"microsoft.authorization/roleeligibilityscheduleinstances": { "SingularDisplayName": "Microsoft.Authorization role eligibility schedule instance" }
-        ,"microsoft.authorization/roleeligibilityschedulerequests": { "SingularDisplayName": "Microsoft.Authorization role eligibility schedule request" }
-        ,"microsoft.authorization/roleeligibilityschedules": { "SingularDisplayName": "Microsoft.Authorization role eligibility schedule" }
-        ,"microsoft.authorization/rolemanagementalertconfigurations": { "SingularDisplayName": "Microsoft.Authorization role management alert configuration" }
-        ,"microsoft.authorization/rolemanagementalertdefinitions": { "SingularDisplayName": "Microsoft.Authorization role management alert definition" }
-        ,"microsoft.authorization/rolemanagementalertoperations": { "SingularDisplayName": "Microsoft.Authorization role management alert operation" }
-        ,"microsoft.authorization/rolemanagementalerts": { "SingularDisplayName": "Microsoft.Authorization role management alert" }
-        ,"microsoft.authorization/rolemanagementalerts/alertincidents": { "SingularDisplayName": "Microsoft.Authorization role management alerts alert incident" }
-        ,"microsoft.authorization/rolemanagementpolicies": { "SingularDisplayName": "Microsoft.Authorization role management policy" }
-        ,"microsoft.authorization/rolemanagementpolicyassignments": { "SingularDisplayName": "Microsoft.Authorization role management policy assignment" }
-        ,"microsoft.automanage/bestpractices": { "SingularDisplayName": "Microsoft.Automanage best practice" }
-        ,"microsoft.automanage/bestpractices/versions": { "SingularDisplayName": "Microsoft.Automanage best practices version" }
-        ,"microsoft.automanage/configurationprofileassignments": { "SingularDisplayName": "Microsoft.Automanage configuration profile assignment" }
-        ,"microsoft.automanage/configurationprofileassignments/reports": { "SingularDisplayName": "Microsoft.Automanage configuration profile assignments report" }
-        ,"microsoft.automanage/configurationprofiles": { "SingularDisplayName": "Microsoft.Automanage configuration profile" }
-        ,"microsoft.automanage/configurationprofiles/versions": { "SingularDisplayName": "Microsoft.Automanage configuration profiles version" }
-        ,"microsoft.automanage/serviceprincipals": { "SingularDisplayName": "ServicePrincipals" }
-        ,"microsoft.automation/automationaccounts": { "SingularDisplayName": "Automation account" }
-        ,"microsoft.automation/automationaccounts/hybridrunbookworkergroups": { "SingularDisplayName": "Automation hybrid worker group" }
-        ,"microsoft.automation/automationaccounts/runbooks": { "SingularDisplayName": "Automation runbook" }
-        ,"microsoft.autonomousdevelopmentplatform/accounts": { "SingularDisplayName": "Microsoft.AutonomousDevelopmentPlatform account" }
-        ,"microsoft.autonomousdevelopmentplatform/accounts/datapools": { "SingularDisplayName": "Microsoft.AutonomousDevelopmentPlatform accounts data pool" }
-        ,"microsoft.autonomousdevelopmentplatform/workspaces": { "SingularDisplayName": "Microsoft.AutonomousDevelopmentPlatform workspace" }
-        ,"microsoft.avs/privateclouds": { "SingularDisplayName": "Azure VMware Solution private cloud" }
-        ,"microsoft.awsconnector/accessanalyzeranalyzers": { "SingularDisplayName": "Access Analyzer Analyzer" }
-        ,"microsoft.awsconnector/acmcertificatesummaries": { "SingularDisplayName": "ACM Certificate Summary" }
-        ,"microsoft.awsconnector/apigatewayrestapis": { "SingularDisplayName": "Api Gateway Rest Api" }
-        ,"microsoft.awsconnector/apigatewaystages": { "SingularDisplayName": "Api Gateway Stage" }
-        ,"microsoft.awsconnector/applicationautoscalingscalabletargets": { "SingularDisplayName": "Application Auto Scaling Scalable Target" }
-        ,"microsoft.awsconnector/appsyncgraphqlapis": { "SingularDisplayName": "App Sync Graphql Api" }
-        ,"microsoft.awsconnector/autoscalingautoscalinggroups": { "SingularDisplayName": "Auto Scaling Auto Scaling Group" }
-        ,"microsoft.awsconnector/cloudformationstacks": { "SingularDisplayName": "Cloud Formation Stack" }
-        ,"microsoft.awsconnector/cloudformationstacksets": { "SingularDisplayName": "Cloud Formation Stack Set" }
-        ,"microsoft.awsconnector/cloudfrontdistributions": { "SingularDisplayName": "Cloud Front Distribution" }
-        ,"microsoft.awsconnector/cloudtrailtrails": { "SingularDisplayName": "Cloud Trail Trail" }
-        ,"microsoft.awsconnector/cloudwatchalarms": { "SingularDisplayName": "Cloud Watch Alarm" }
-        ,"microsoft.awsconnector/codebuildprojects": { "SingularDisplayName": "Code Build Project" }
-        ,"microsoft.awsconnector/codebuildsourcecredentialsinfos": { "SingularDisplayName": "Code Build Source Credentials Info" }
-        ,"microsoft.awsconnector/configserviceconfigurationrecorders": { "SingularDisplayName": "Config  Service Configuration Recorder" }
-        ,"microsoft.awsconnector/configserviceconfigurationrecorderstatuses": { "SingularDisplayName": "Config  Service Configuration Recorder Status" }
-        ,"microsoft.awsconnector/configservicedeliverychannels": { "SingularDisplayName": "Config  Service Delivery Channel" }
-        ,"microsoft.awsconnector/databasemigrationservicereplicationinstances": { "SingularDisplayName": "Database  Migration  Service Replication Instance" }
-        ,"microsoft.awsconnector/daxclusters": { "SingularDisplayName": "DAX Cluster" }
-        ,"microsoft.awsconnector/dynamodbcontinuousbackupsdescriptions": { "SingularDisplayName": "Dynamo DB Continuous Backups Description" }
-        ,"microsoft.awsconnector/dynamodbtables": { "SingularDisplayName": "Dynamo DB Table" }
-        ,"microsoft.awsconnector/ec2accountattributes": { "SingularDisplayName": "EC2 Account Attribute" }
-        ,"microsoft.awsconnector/ec2addresses": { "SingularDisplayName": "EC2 Address" }
-        ,"microsoft.awsconnector/ec2flowlogs": { "SingularDisplayName": "EC2 Flow Log" }
-        ,"microsoft.awsconnector/ec2images": { "SingularDisplayName": "EC2 Image" }
-        ,"microsoft.awsconnector/ec2instances": { "SingularDisplayName": "Microsoft.AwsConnector ec2 instance" }
-        ,"microsoft.awsconnector/ec2instancestatuses": { "SingularDisplayName": "EC2 Instance Status" }
-        ,"microsoft.awsconnector/ec2ipams": { "SingularDisplayName": "EC2 Ipam" }
-        ,"microsoft.awsconnector/ec2keypairs": { "SingularDisplayName": "EC2 Key Pair" }
-        ,"microsoft.awsconnector/ec2networkacls": { "SingularDisplayName": "EC2 Network Acl" }
-        ,"microsoft.awsconnector/ec2networkinterfaces": { "SingularDisplayName": "EC2 Network Interface" }
-        ,"microsoft.awsconnector/ec2routetables": { "SingularDisplayName": "EC2 Route Table" }
-        ,"microsoft.awsconnector/ec2securitygroups": { "SingularDisplayName": "EC2 Security Group" }
-        ,"microsoft.awsconnector/ec2snapshots": { "SingularDisplayName": "EC2 Snapshot" }
-        ,"microsoft.awsconnector/ec2subnets": { "SingularDisplayName": "EC2 Subnet" }
-        ,"microsoft.awsconnector/ec2volumes": { "SingularDisplayName": "EC2 Volume" }
-        ,"microsoft.awsconnector/ec2vpcendpoints": { "SingularDisplayName": "EC2 VPCEndpoint" }
-        ,"microsoft.awsconnector/ec2vpcpeeringconnections": { "SingularDisplayName": "EC2 VPCPeering Connection" }
-        ,"microsoft.awsconnector/ec2vpcs": { "SingularDisplayName": "EC2 VPC" }
-        ,"microsoft.awsconnector/ecrimagedetails": { "SingularDisplayName": "ECR Image Detail" }
-        ,"microsoft.awsconnector/ecrrepositories": { "SingularDisplayName": "ECR Repository" }
-        ,"microsoft.awsconnector/ecsclusters": { "SingularDisplayName": "ECS Cluster" }
-        ,"microsoft.awsconnector/ecsservices": { "SingularDisplayName": "ECS Service" }
-        ,"microsoft.awsconnector/ecstaskdefinitions": { "SingularDisplayName": "ECS Task Definition" }
-        ,"microsoft.awsconnector/efsfilesystems": { "SingularDisplayName": "EFS File System" }
-        ,"microsoft.awsconnector/efsmounttargets": { "SingularDisplayName": "EFS Mount Target" }
-        ,"microsoft.awsconnector/eksnodegroups": { "SingularDisplayName": "EKS Nodegroup" }
-        ,"microsoft.awsconnector/elasticbeanstalkapplications": { "SingularDisplayName": "Elastic Beanstalk Application" }
-        ,"microsoft.awsconnector/elasticbeanstalkconfigurationtemplates": { "SingularDisplayName": "Elastic Beanstalk Configuration Template" }
-        ,"microsoft.awsconnector/elasticbeanstalkenvironments": { "SingularDisplayName": "Elastic Beanstalk Environment" }
-        ,"microsoft.awsconnector/elasticloadbalancingv2listeners": { "SingularDisplayName": "Elastic Load Balancing V2 Listener" }
-        ,"microsoft.awsconnector/elasticloadbalancingv2loadbalancers": { "SingularDisplayName": "Elastic Load Balancing V2 Load Balancer" }
-        ,"microsoft.awsconnector/elasticloadbalancingv2targetgroups": { "SingularDisplayName": "Elastic Load Balancing V2 Target Group" }
-        ,"microsoft.awsconnector/elasticloadbalancingv2targethealthdescriptions": { "SingularDisplayName": "Elastic  Load  Balancing v2 Target Health Description" }
-        ,"microsoft.awsconnector/elasticsearchdomains": { "SingularDisplayName": "Elasticsearch Domain" }
-        ,"microsoft.awsconnector/emrclusters": { "SingularDisplayName": "EMR Cluster" }
-        ,"microsoft.awsconnector/guarddutydetectors": { "SingularDisplayName": "Guard Duty Detector" }
-        ,"microsoft.awsconnector/iamaccesskeylastuseds": { "SingularDisplayName": "IAM Access Key Last Used" }
-        ,"microsoft.awsconnector/iamaccesskeymetadata": { "SingularDisplayName": "IAM Access Key Metadata" }
-        ,"microsoft.awsconnector/iamgroups": { "SingularDisplayName": "IAM Group" }
-        ,"microsoft.awsconnector/iaminstanceprofiles": { "SingularDisplayName": "IAM Instance Profile" }
-        ,"microsoft.awsconnector/iammanagedpolicies": { "SingularDisplayName": "IAM Managed Policy" }
-        ,"microsoft.awsconnector/iammfadevices": { "SingularDisplayName": "IAM MFADevice" }
-        ,"microsoft.awsconnector/iampasswordpolicies": { "SingularDisplayName": "IAM Password Policy" }
-        ,"microsoft.awsconnector/iampolicyversions": { "SingularDisplayName": "IAM Policy Version" }
-        ,"microsoft.awsconnector/iamroles": { "SingularDisplayName": "IAM Role" }
-        ,"microsoft.awsconnector/iamservercertificates": { "SingularDisplayName": "IAM Server Certificate" }
-        ,"microsoft.awsconnector/iamuserpolicies": { "SingularDisplayName": "IAM User Policy" }
-        ,"microsoft.awsconnector/iamvirtualmfadevices": { "SingularDisplayName": "IAM Virtual MFADevice" }
-        ,"microsoft.awsconnector/kmsaliases": { "SingularDisplayName": "KMS Alias" }
-        ,"microsoft.awsconnector/kmskeys": { "SingularDisplayName": "KMS Key" }
-        ,"microsoft.awsconnector/lambdafunctioncodelocations": { "SingularDisplayName": "Lambda Function Code Location" }
-        ,"microsoft.awsconnector/lambdafunctionconfigurations": { "SingularDisplayName": "Microsoft.AwsConnector lambda function configuration" }
-        ,"microsoft.awsconnector/lambdafunctions": { "SingularDisplayName": "Lambda Function" }
-        ,"microsoft.awsconnector/licensemanagerlicenses": { "SingularDisplayName": "License Manager License" }
-        ,"microsoft.awsconnector/lightsailbuckets": { "SingularDisplayName": "Lightsail Bucket" }
-        ,"microsoft.awsconnector/lightsailinstances": { "SingularDisplayName": "Lightsail Instance" }
-        ,"microsoft.awsconnector/logsloggroups": { "SingularDisplayName": "Logs Log Group" }
-        ,"microsoft.awsconnector/logslogstreams": { "SingularDisplayName": "Logs Log Stream" }
-        ,"microsoft.awsconnector/logsmetricfilters": { "SingularDisplayName": "Logs Metric Filter" }
-        ,"microsoft.awsconnector/logssubscriptionfilters": { "SingularDisplayName": "Logs Subscription Filter" }
-        ,"microsoft.awsconnector/macie2jobsummaries": { "SingularDisplayName": "Macie2 Job Summary" }
-        ,"microsoft.awsconnector/macieallowlists": { "SingularDisplayName": "Macie Allow List" }
-        ,"microsoft.awsconnector/networkfirewallfirewallpolicies": { "SingularDisplayName": "Network Firewall Firewall Policy" }
-        ,"microsoft.awsconnector/networkfirewallfirewalls": { "SingularDisplayName": "Network Firewall Firewall" }
-        ,"microsoft.awsconnector/networkfirewallrulegroups": { "SingularDisplayName": "Network Firewall Rule Group" }
-        ,"microsoft.awsconnector/opensearchdomainstatuses": { "SingularDisplayName": "Open Search Domain Status" }
-        ,"microsoft.awsconnector/opensearchservicedomains": { "SingularDisplayName": "Open Search Service Domain" }
-        ,"microsoft.awsconnector/organizationsaccounts": { "SingularDisplayName": "Organizations Account" }
-        ,"microsoft.awsconnector/organizationsorganizations": { "SingularDisplayName": "Organizations Organization" }
-        ,"microsoft.awsconnector/rdsdbclusters": { "SingularDisplayName": "RDS DBCluster" }
-        ,"microsoft.awsconnector/rdsdbinstances": { "SingularDisplayName": "RDS DBInstance" }
-        ,"microsoft.awsconnector/rdsdbsnapshotattributesresults": { "SingularDisplayName": "RDS DBSnapshot Attributes Result" }
-        ,"microsoft.awsconnector/rdsdbsnapshots": { "SingularDisplayName": "RDS DBSnapshot" }
-        ,"microsoft.awsconnector/rdseventsubscriptions": { "SingularDisplayName": "RDS Event Subscription" }
-        ,"microsoft.awsconnector/rdsexporttasks": { "SingularDisplayName": "RDS Export Task" }
-        ,"microsoft.awsconnector/redshiftclusterparametergroups": { "SingularDisplayName": "Redshift Cluster Parameter Group" }
-        ,"microsoft.awsconnector/redshiftclusters": { "SingularDisplayName": "Redshift Cluster" }
-        ,"microsoft.awsconnector/route53domainsdomainsummaries": { "SingularDisplayName": "Route 53  Domains Domain Summary" }
-        ,"microsoft.awsconnector/route53hostedzones": { "SingularDisplayName": "Route53 Hosted Zone" }
-        ,"microsoft.awsconnector/route53resourcerecordsets": { "SingularDisplayName": "Route 53 Resource Record Set" }
-        ,"microsoft.awsconnector/s3accesscontrolpolicies": { "SingularDisplayName": "S3 Access Control Policy" }
-        ,"microsoft.awsconnector/s3accesspoints": { "SingularDisplayName": "S3 Access Point" }
-        ,"microsoft.awsconnector/s3bucketpolicies": { "SingularDisplayName": "S3 Bucket Policy" }
-        ,"microsoft.awsconnector/s3buckets": { "SingularDisplayName": "S3 Bucket" }
-        ,"microsoft.awsconnector/s3controlmultiregionaccesspointpolicydocuments": { "SingularDisplayName": "S3  Control Multi Region Access Point Policy Document" }
-        ,"microsoft.awsconnector/sagemakerapps": { "SingularDisplayName": "Sage Maker App" }
-        ,"microsoft.awsconnector/sagemakerdevices": { "SingularDisplayName": "Sage Maker Device" }
-        ,"microsoft.awsconnector/sagemakerimages": { "SingularDisplayName": "Sage Maker Image" }
-        ,"microsoft.awsconnector/sagemakernotebookinstancesummaries": { "SingularDisplayName": "Sage Maker Notebook Instance Summary" }
-        ,"microsoft.awsconnector/secretsmanagerresourcepolicies": { "SingularDisplayName": "Secrets Manager Resource Policy" }
-        ,"microsoft.awsconnector/secretsmanagersecrets": { "SingularDisplayName": "Secrets Manager Secret" }
-        ,"microsoft.awsconnector/snssubscriptions": { "SingularDisplayName": "SNS Subscription" }
-        ,"microsoft.awsconnector/snstopics": { "SingularDisplayName": "SNS Topic" }
-        ,"microsoft.awsconnector/sqsqueues": { "SingularDisplayName": "SQS Queue" }
-        ,"microsoft.awsconnector/ssminstanceinformations": { "SingularDisplayName": "SSM Instance Information" }
-        ,"microsoft.awsconnector/ssmparameters": { "SingularDisplayName": "SSM Parameter" }
-        ,"microsoft.awsconnector/ssmresourcecompliancesummaryitems": { "SingularDisplayName": "SSM Resource Compliance Summary Item" }
-        ,"microsoft.awsconnector/wafv2ipsets": { "SingularDisplayName": "WAFv2 IPSet" }
-        ,"microsoft.awsconnector/wafv2loggingconfigurations": { "SingularDisplayName": "WAFv2 Logging Configuration" }
-        ,"microsoft.awsconnector/wafv2webaclassociations": { "SingularDisplayName": "WAFv2 Web ACLAssociation" }
-        ,"microsoft.awsconnector/wafwebaclsummaries": { "SingularDisplayName": "WAF Web ACLSummary" }
-        ,"microsoft.azureactivedirectory/b2cdirectories": { "SingularDisplayName": "B2C tenant" }
-        ,"microsoft.azureactivedirectory/ciamdirectories": { "SingularDisplayName": "External Configuration Tenant" }
-        ,"microsoft.azureactivedirectory/guestusages": { "SingularDisplayName": "Guest Usage" }
-        ,"microsoft.azurearcdata/datacontrollers": { "SingularDisplayName": "Azure Arc data controller" }
-        ,"microsoft.azurearcdata/postgresinstances": { "SingularDisplayName": "PostgreSQL server ? Azure Arc" }
-        ,"microsoft.azurearcdata/sqlmanagedinstances": { "SingularDisplayName": "SQL managed instance - Azure Arc" }
-        ,"microsoft.azurearcdata/sqlserveresulicenses": { "SingularDisplayName": "SQL Server ESU license" }
-        ,"microsoft.azurearcdata/sqlserverinstances": { "SingularDisplayName": "SQL Server - Azure Arc" }
-        ,"microsoft.azurearcdata/sqlserverinstances/databases": { "SingularDisplayName": "SQL Server database - Azure Arc" }
-        ,"microsoft.azurearcdata/sqlserverlicenses": { "SingularDisplayName": "SQL Server License" }
-        ,"microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems": { "SingularDisplayName": "Microsoft.AzureBusinessContinuity deleted unified protected item" }
-        ,"microsoft.azurebusinesscontinuity/unifiedprotecteditems": { "SingularDisplayName": "Microsoft.AzureBusinessContinuity unified protected item" }
-        ,"microsoft.azurecis/aadapplications": { "SingularDisplayName": "Microsoft.AzureCis AAD application" }
-        ,"microsoft.azurecis/autopilotenvironments": { "SingularDisplayName": "Microsoft.AzureCis autopilot environment" }
-        ,"microsoft.azurecis/dsmsallowlists": { "SingularDisplayName": "Microsoft.AzureCis ds msallowlist" }
-        ,"microsoft.azurecis/dsmsrootfolders": { "SingularDisplayName": "Microsoft.AzureCis dsms root folder" }
-        ,"microsoft.azurecis/dstsapplications": { "SingularDisplayName": "Microsoft.AzureCis dsts application" }
-        ,"microsoft.azurecis/dstsserviceaccounts": { "SingularDisplayName": "Microsoft.AzureCis dsts service account" }
-        ,"microsoft.azurecis/dstsserviceclientidentities": { "SingularDisplayName": "Microsoft.AzureCis dsts service client identity" }
-        ,"microsoft.azurecis/genericgenevaactions": { "SingularDisplayName": "Microsoft.AzureCis generic geneva action" }
-        ,"microsoft.azurecis/plannedquotas": { "SingularDisplayName": "Microsoft.AzureCis planned quota" }
-        ,"microsoft.azurecis/publishconfigvalues": { "SingularDisplayName": "Microsoft.AzureCis publish config value" }
-        ,"microsoft.azurecis/pushagentv2accounts": { "SingularDisplayName": "Microsoft.AzureCis push agent v2 account" }
-        ,"microsoft.azuredatatransfer/connections": { "SingularDisplayName": "Connection" }
-        ,"microsoft.azuredatatransfer/connections/flows": { "SingularDisplayName": "Flow" }
-        ,"microsoft.azuredatatransfer/pipelines": { "SingularDisplayName": "Pipeline" }
-        ,"microsoft.azurefleet/fleets": { "SingularDisplayName": "Compute Fleet" }
-        ,"microsoft.azurefleet/fleetscomputehub": { "SingularDisplayName": "Compute Fleet" }
-        ,"microsoft.azureimagetestingforlinux/jobs": { "SingularDisplayName": "Microsoft.AzureImageTestingForLinux job" }
-        ,"microsoft.azureimagetestingforlinux/jobtemplates": { "SingularDisplayName": "Microsoft.AzureImageTestingForLinux job template" }
-        ,"microsoft.azurelargeinstance/azurelargeinstances": { "SingularDisplayName": "Azure Large Instance" }
-        ,"microsoft.azurelargeinstance/azurelargestorageinstances": { "SingularDisplayName": "Microsoft.AzureLargeInstance Azure large storage instance" }
-        ,"microsoft.azurepercept/accounts": { "SingularDisplayName": "Microsoft.AzurePercept account" }
-        ,"microsoft.azurepercept/accounts/devices": { "SingularDisplayName": "Microsoft.AzurePercept accounts device" }
-        ,"microsoft.azurepercept/accounts/devices/sensors": { "SingularDisplayName": "Microsoft.AzurePercept accounts devices sensor" }
-        ,"microsoft.azurepercept/accounts/sensors": { "SingularDisplayName": "Microsoft.AzurePercept accounts sensor" }
-        ,"microsoft.azurepercept/accounts/solutioninstances": { "SingularDisplayName": "Microsoft.AzurePercept accounts solutioninstance" }
-        ,"microsoft.azurepercept/accounts/solutions": { "SingularDisplayName": "Microsoft.AzurePercept accounts solution" }
-        ,"microsoft.azurepercept/accounts/targets": { "SingularDisplayName": "Microsoft.AzurePercept accounts target" }
-        ,"microsoft.azureplaywrightservice/accounts": { "SingularDisplayName": "Playwright Testing" }
-        ,"microsoft.azurescan/scanningaccounts": { "SingularDisplayName": "ESRP Scan" }
-        ,"microsoft.azuresphere/catalogs": { "SingularDisplayName": "Azure Sphere Catalog" }
-        ,"microsoft.azurespherev2/catalogs": { "SingularDisplayName": "Microsoft.AzureSphereV2 catalog" }
-        ,"microsoft.azurespherev2/catalogs/artifacts": { "SingularDisplayName": "Microsoft.AzureSphereV2 catalogs artifact" }
-        ,"microsoft.azurespherev2/catalogs/certificates": { "SingularDisplayName": "Microsoft.AzureSphereV2 catalogs certificate" }
-        ,"microsoft.azurespherev2/catalogs/deviceregistrations": { "SingularDisplayName": "Microsoft.AzureSphereV2 catalogs device registration" }
-        ,"microsoft.azurespherev2/catalogs/provisioningpackages": { "SingularDisplayName": "Microsoft.AzureSphereV2 catalogs provisioning package" }
-        ,"microsoft.azurespherev2/catalogs/syndicationchannels": { "SingularDisplayName": "Microsoft.AzureSphereV2 catalogs syndication channel" }
-        ,"microsoft.azurespherev2/catalogs/syndicationchannels/deployments": { "SingularDisplayName": "Microsoft.AzureSphereV2 catalogs syndication channels deployment" }
-        ,"microsoft.azurespherev2/catalogs/updatepackages": { "SingularDisplayName": "Microsoft.AzureSphereV2 catalogs update package" }
-        ,"microsoft.azurestack/cloudmanifestfiles": { "SingularDisplayName": "Microsoft.AzureStack cloud manifest file" }
-        ,"microsoft.azurestack/linkedsubscriptions": { "SingularDisplayName": "Microsoft.AzureStack linked subscription" }
-        ,"microsoft.azurestack/registrations": { "SingularDisplayName": "Microsoft.AzureStack registration" }
-        ,"microsoft.azurestack/registrations/customersubscriptions": { "SingularDisplayName": "Microsoft.AzureStack registrations customer subscription" }
-        ,"microsoft.azurestack/registrations/products": { "SingularDisplayName": "Microsoft.AzureStack registrations product" }
-        ,"microsoft.azurestackhci/clusters": { "SingularDisplayName": "Azure Stack HCI" }
-        ,"microsoft.azurestackhci/edgedevices": { "SingularDisplayName": "Microsoft.AzureStackHCI edge device" }
-        ,"microsoft.azurestackhci/edgedevices/jobs": { "SingularDisplayName": "Microsoft.AzureStackHCI edge devices job" }
-        ,"microsoft.azurestackhci/edgenodepools": { "SingularDisplayName": "Azure Stack" }
-        ,"microsoft.azurestackhci/galleryimages": { "SingularDisplayName": "Azure Stack HCI Gallery image" }
-        ,"microsoft.azurestackhci/logicalnetworks": { "SingularDisplayName": "Azure Stack HCI Logical network" }
-        ,"microsoft.azurestackhci/marketplacegalleryimages": { "SingularDisplayName": "Azure Stack HCI Marketplace Gallery image" }
-        ,"microsoft.azurestackhci/networkinterfaces": { "SingularDisplayName": "Azure Stack HCI VM Network Interface" }
-        ,"microsoft.azurestackhci/networksecuritygroups": { "SingularDisplayName": "Microsoft.AzureStackHCI network security group" }
-        ,"microsoft.azurestackhci/networksecuritygroups/securityrules": { "SingularDisplayName": "Microsoft.AzureStackHCI network security groups security rule" }
-        ,"microsoft.azurestackhci/storagecontainers": { "SingularDisplayName": "Azure Stack HCI Storage path" }
-        ,"microsoft.azurestackhci/virtualharddisks": { "SingularDisplayName": "Microsoft.AzureStackHCI virtual hard disk" }
-        ,"microsoft.azurestackhci/virtualmachineinstances": { "SingularDisplayName": "Microsoft.AzureStackHCI virtual machine instance" }
-        ,"microsoft.azurestackhci/virtualmachineinstances/guestagents": { "SingularDisplayName": "Microsoft.AzureStackHCI virtual machine instances guest agent" }
-        ,"microsoft.azurestackhci/virtualmachineinstances/hybrididentitymetadata": { "SingularDisplayName": "Microsoft.AzureStackHCI virtual machine instances hybrid identity metadata" }
-        ,"microsoft.azurestackhci/virtualmachines": { "SingularDisplayName": "Azure Stack HCI virtual machine - Azure Arc" }
-        ,"microsoft.azurestackhci/virtualnetworks": { "SingularDisplayName": "Microsoft.AzureStackHCI virtual network" }
-        ,"microsoft.backupsolutions/vmwareapplications": { "SingularDisplayName": "Microsoft.BackupSolutions vmware application" }
-        ,"microsoft.bakeryhybrid/pies": { "SingularDisplayName": "Microsoft.BakeryHybrid py" }
-        ,"microsoft.bakeryhybrid/pies/nestedresourcetype": { "SingularDisplayName": "Microsoft.BakeryHybrid pies nested resource type" }
-        ,"microsoft.baremetal/baremetalconnections": { "SingularDisplayName": "Microsoft.BareMetal bare metal connection" }
-        ,"microsoft.baremetal/crayservers": { "SingularDisplayName": "Cray Server" }
-        ,"microsoft.baremetal/monitoringservers": { "SingularDisplayName": "Monitoring Server" }
-        ,"microsoft.baremetalinfrastructure/baremetalinstances": { "SingularDisplayName": "BareMetal Instance" }
-        ,"microsoft.baremetalinfrastructure/baremetalstorageinstances": { "SingularDisplayName": "Microsoft.BareMetalInfrastructure bare metal storage instance" }
         ,"microsoft.batch/batchaccounts": { "SingularDisplayName": "Batch account" }
         ,"microsoft.billing/billingaccounts": { "SingularDisplayName": "Microsoft.Billing billing account" }
         ,"microsoft.billing/billingaccounts/agreements": { "SingularDisplayName": "Microsoft.Billing billing accounts agreement" }
@@ -406,60 +113,12 @@ resource_type(id: string) {
         ,"microsoft.billingbenefits/savingsplanorders": { "SingularDisplayName": "Savings plan order" }
         ,"microsoft.billingbenefits/savingsplanorders/savingsplans": { "SingularDisplayName": "Savings plan" }
         ,"microsoft.bing/accounts": { "SingularDisplayName": "Bing Resource" }
-        ,"microsoft.blockchain/blockchainmembers": { "SingularDisplayName": "Microsoft.Blockchain blockchain member" }
-        ,"microsoft.blockchain/blockchainmembers/transactionnodes": { "SingularDisplayName": "Microsoft.Blockchain blockchain members transaction node" }
-        ,"microsoft.blockchaintokens/tokenservices": { "SingularDisplayName": "Microsoft.BlockchainTokens token service" }
-        ,"microsoft.blockchaintokens/tokenservices/blockchainnetworks": { "SingularDisplayName": "Microsoft.BlockchainTokens token services blockchain network" }
-        ,"microsoft.blockchaintokens/tokenservices/groups": { "SingularDisplayName": "Microsoft.BlockchainTokens token services group" }
-        ,"microsoft.blockchaintokens/tokenservices/groups/accounts": { "SingularDisplayName": "Microsoft.BlockchainTokens token services groups account" }
-        ,"microsoft.blockchaintokens/tokenservices/tokentemplates": { "SingularDisplayName": "Microsoft.BlockchainTokens token services token template" }
-        ,"microsoft.bluefin/instances": { "SingularDisplayName": "Microsoft.Bluefin instance" }
-        ,"microsoft.bluefin/instances/datasets": { "SingularDisplayName": "Microsoft.Bluefin instances dataset" }
-        ,"microsoft.bluefin/instances/pipelines": { "SingularDisplayName": "Microsoft.Bluefin instances pipeline" }
-        ,"microsoft.blueprint/blueprintassignments": { "SingularDisplayName": "Microsoft.Blueprint blueprint assignment" }
-        ,"microsoft.blueprint/blueprints": { "SingularDisplayName": "Microsoft.Blueprint blueprint" }
-        ,"microsoft.blueprint/blueprints/artifacts": { "SingularDisplayName": "Microsoft.Blueprint blueprints artifact" }
-        ,"microsoft.blueprint/blueprints/versions": { "SingularDisplayName": "Microsoft.Blueprint blueprints version" }
-        ,"microsoft.botservice/botservices": { "SingularDisplayName": "Bot Service" }
         ,"microsoft.cache/redis": { "SingularDisplayName": "Redis cache" }
         ,"microsoft.cache/redisenterprise": { "SingularDisplayName": "Redis Enterprise cluster" }
         ,"microsoft.cache/redisenterprise/databases": { "SingularDisplayName": "Redis Enterprise database" }
         ,"microsoft.capacity/reservationorders": { "SingularDisplayName": "Reservation order" }
         ,"microsoft.capacity/reservationorders/reservations": { "SingularDisplayName": "Reservation" }
         ,"microsoft.cascade/sites": { "SingularDisplayName": "Microsoft.Cascade site" }
-        ,"microsoft.cdn/cdnwebapplicationfirewallpolicies": { "SingularDisplayName": "Content Delivery Network WAF policy" }
-        ,"microsoft.cdn/profiles": { "SingularDisplayName": "Front Door and CDN profile" }
-        ,"microsoft.cdn/profiles/afdendpoints": { "SingularDisplayName": "Endpoint" }
-        ,"microsoft.cdn/profiles/afdendpoints/routes": { "SingularDisplayName": "Route" }
-        ,"microsoft.cdn/profiles/customdomains": { "SingularDisplayName": "Custom domain" }
-        ,"microsoft.cdn/profiles/endpoints": { "SingularDisplayName": "CDN endpoint" }
-        ,"microsoft.cdn/profiles/endpoints/customdomains": { "SingularDisplayName": "CDN custom domain" }
-        ,"microsoft.cdn/profiles/endpoints/origins": { "SingularDisplayName": "CDN origin" }
-        ,"microsoft.cdn/profiles/origingroups": { "SingularDisplayName": "Origin group" }
-        ,"microsoft.cdn/profiles/origingroups/origins": { "SingularDisplayName": "Origin" }
-        ,"microsoft.cdn/profiles/rulesets": { "SingularDisplayName": "Rule set" }
-        ,"microsoft.cdn/profiles/rulesets/rules": { "SingularDisplayName": "Rule" }
-        ,"microsoft.cdn/profiles/secrets": { "SingularDisplayName": "Secret" }
-        ,"microsoft.cdn/profiles/securitypolicies": { "SingularDisplayName": "Security policy" }
-        ,"microsoft.certificateregistration/certificateorders": { "SingularDisplayName": "App Service certificate" }
-        ,"microsoft.certify/testsuites": { "SingularDisplayName": "Microsoft.Certify test suite" }
-        ,"microsoft.certify/validationjobs": { "SingularDisplayName": "Microsoft.Certify validation job" }
-        ,"microsoft.changeanalysis/profile": { "SingularDisplayName": "Microsoft.ChangeAnalysis profile" }
-        ,"microsoft.chaos/experiments": { "SingularDisplayName": "Chaos Experiment" }
-        ,"microsoft.chaos/privateaccesses": { "SingularDisplayName": "Agent Private Access" }
-        ,"microsoft.chaos/targets": { "SingularDisplayName": "Microsoft.Chaos target" }
-        ,"microsoft.chaos/targets/capabilities": { "SingularDisplayName": "Microsoft.Chaos targets capability" }
-        ,"microsoft.classiccompute/domainnames": { "SingularDisplayName": "Cloud service (classic)" }
-        ,"microsoft.classiccompute/domainnames/slots/roles": { "SingularDisplayName": "Cloud service role (classic)" }
-        ,"microsoft.classiccompute/virtualmachines": { "SingularDisplayName": "Virtual machine (classic)" }
-        ,"microsoft.classicnetwork/networksecuritygroups": { "SingularDisplayName": "Network security group (classic)" }
-        ,"microsoft.classicnetwork/reservedips": { "SingularDisplayName": "Reserved IP address (classic)" }
-        ,"microsoft.classicnetwork/virtualnetworks": { "SingularDisplayName": "Virtual network (classic)" }
-        ,"microsoft.classicstorage/storageaccounts": { "SingularDisplayName": "Storage account (classic)" }
-        ,"microsoft.classicstorage/storageaccounts/disks": { "SingularDisplayName": "Disk (classic)" }
-        ,"microsoft.classicstorage/storageaccounts/osimages": { "SingularDisplayName": "OS image (classic)" }
-        ,"microsoft.classicstorage/storageaccounts/vmimages": { "SingularDisplayName": "VM image (classic)" }
-        ,"microsoft.cleanroom/cleanrooms": { "SingularDisplayName": "Microsoft.CleanRoom cleanroom" }
         ,"microsoft.cleanroom/microservices": { "SingularDisplayName": "Microsoft.CleanRoom microservice" }
         ,"microsoft.cloud/hubs": { "SingularDisplayName": "FinOps hub" }
         ,"microsoft.clouddeviceplatform/delegatedidentities": { "SingularDisplayName": "Microsoft.CloudDevicePlatform delegated identity" }
@@ -582,13 +241,6 @@ resource_type(id: string) {
         ,"microsoft.containerservice/managedclustersnapshots": { "SingularDisplayName": "Microsoft.ContainerService managedclustersnapshot" }
         ,"microsoft.containerservice/snapshots": { "SingularDisplayName": "Microsoft.ContainerService snapshot" }
         ,"microsoft.containerstorage/pools": { "SingularDisplayName": "Container storage" }
-        ,"microsoft.contoso/clusters": { "SingularDisplayName": "Microsoft.Contoso cluster" }
-        ,"microsoft.contoso/employees": { "SingularDisplayName": "Microsoft.Contoso employee" }
-        ,"microsoft.contoso/employees/desks": { "SingularDisplayName": "Microsoft.Contoso employees desk" }
-        ,"microsoft.contoso/employees/nestedresourcetype": { "SingularDisplayName": "Microsoft.Contoso employees nested resource type" }
-        ,"microsoft.contoso/employees/privateendpointconnections": { "SingularDisplayName": "Microsoft.Contoso employees private endpoint connection" }
-        ,"microsoft.contoso/employees/privatelinkresources": { "SingularDisplayName": "Microsoft.Contoso employees private link resource" }
-        ,"microsoft.contoso/extensionresourcetype": { "SingularDisplayName": "Microsoft.Contoso extension resource type" }
         ,"microsoft.costmanagement/alerts": { "SingularDisplayName": "Microsoft.CostManagement alert" }
         ,"microsoft.costmanagement/budgets": { "SingularDisplayName": "Microsoft.CostManagement budget" }
         ,"microsoft.costmanagement/cloudconnectors": { "SingularDisplayName": "Microsoft.CostManagement cloud connector" }
@@ -662,9 +314,9 @@ resource_type(id: string) {
         ,"microsoft.dbforpostgresql/flexibleservers": { "SingularDisplayName": "Azure Database for PostgreSQL - Flexible Server" }
         ,"microsoft.dbforpostgresql/servergroupsv2": { "SingularDisplayName": "Azure Cosmos DB for PostgreSQL Cluster" }
         ,"microsoft.dbforpostgresql/servers": { "SingularDisplayName": "PostgreSQL server" }
-        ,"microsoft.delegatednetwork/controller": { "SingularDisplayName": "Microsoft.DelegatedNetwork controller" }
-        ,"microsoft.delegatednetwork/delegatedsubnets": { "SingularDisplayName": "Microsoft.DelegatedNetwork delegated subnet" }
-        ,"microsoft.delegatednetwork/orchestrators": { "SingularDisplayName": "Microsoft.DelegatedNetwork orchestrator" }
+        ,"microsoft.delegateSingularDisplayNameetwork/controller": { "SingularDisplayName": "Microsoft.DelegateSingularDisplayNameetwork controller" }
+        ,"microsoft.delegateSingularDisplayNameetwork/delegatedsubnets": { "SingularDisplayName": "Microsoft.DelegateSingularDisplayNameetwork delegated subnet" }
+        ,"microsoft.delegateSingularDisplayNameetwork/orchestrators": { "SingularDisplayName": "Microsoft.DelegateSingularDisplayNameetwork orchestrator" }
         ,"microsoft.dependencymap/maps": { "SingularDisplayName": "Microsoft.DependencyMap map" }
         ,"microsoft.dependencymap/maps/discoverysources": { "SingularDisplayName": "Microsoft.DependencyMap maps discovery source" }
         ,"microsoft.deploymentmanager/artifactsources": { "SingularDisplayName": "Microsoft.DeploymentManager artifact source" }
@@ -730,31 +382,6 @@ resource_type(id: string) {
         ,"microsoft.durabletask/namespaces": { "SingularDisplayName": "Durable Task Scheduler" }
         ,"microsoft.durabletask/namespaces/taskhubs": { "SingularDisplayName": "Task Hub" }
         ,"microsoft.dynamics365fraudprotection/instances": { "SingularDisplayName": "Microsoft.Dynamics365FraudProtection instance" }
-        ,"microsoft.easm/workspaces": { "SingularDisplayName": "Microsoft Defender EASM" }
-        ,"microsoft.edge/configurations": { "SingularDisplayName": "Site configuration" }
-        ,"microsoft.edge/configurations/arcgatewayconfigurations": { "SingularDisplayName": "Microsoft.Edge configurations arc gateway configuration" }
-        ,"microsoft.edge/configurations/connectivityconfigurations": { "SingularDisplayName": "Microsoft.Edge configurations connectivity configuration" }
-        ,"microsoft.edge/configurations/dynamicconfigurations": { "SingularDisplayName": "Microsoft.Edge configurations dynamic configuration" }
-        ,"microsoft.edge/configurations/dynamicconfigurations/versions": { "SingularDisplayName": "Microsoft.Edge configurations dynamic configurations version" }
-        ,"microsoft.edge/configurations/networkconfigurations": { "SingularDisplayName": "Microsoft.Edge configurations network configuration" }
-        ,"microsoft.edge/configurations/securityconfigurations": { "SingularDisplayName": "Microsoft.Edge configurations security configuration" }
-        ,"microsoft.edge/configurations/timeserverconfigurations": { "SingularDisplayName": "Microsoft.Edge configurations time server configuration" }
-        ,"microsoft.edge/connectivitystatuses": { "SingularDisplayName": "Microsoft.Edge connectivity statuse" }
-        ,"microsoft.edge/siteawareresourcetypes": { "SingularDisplayName": "Microsoft.Edge site aware resource type" }
-        ,"microsoft.edge/sites": { "SingularDisplayName": "Site manager - Azure Arc" }
-        ,"microsoft.edge/updates": { "SingularDisplayName": "Microsoft.Edge update" }
-        ,"microsoft.edgemarketplace/offers": { "SingularDisplayName": "Microsoft.EdgeMarketplace offer" }
-        ,"microsoft.edgemarketplace/publishers": { "SingularDisplayName": "Microsoft.EdgeMarketplace publisher" }
-        ,"microsoft.edgeorder/addresses": { "SingularDisplayName": "Azure Edge Hardware Center Address" }
-        ,"microsoft.edgeorder/bootstrapconfigurations": { "SingularDisplayName": "Site Bootstrap Key" }
-        ,"microsoft.edgeorder/orderitems": { "SingularDisplayName": "Azure Edge Hardware Center" }
-        ,"microsoft.edgeorder/virtual_orderitems": { "SingularDisplayName": "Device" }
-        ,"microsoft.edgezones/extendedzones": { "SingularDisplayName": "Microsoft.EdgeZones extended zone" }
-        ,"microsoft.education/grants": { "SingularDisplayName": "Microsoft.Education grant" }
-        ,"microsoft.education/labs": { "SingularDisplayName": "Microsoft.Education lab" }
-        ,"microsoft.education/labs/joinrequests": { "SingularDisplayName": "Microsoft.Education labs join request" }
-        ,"microsoft.education/labs/students": { "SingularDisplayName": "Microsoft.Education labs student" }
-        ,"microsoft.education/studentlabs": { "SingularDisplayName": "Microsoft.Education student lab" }
         ,"microsoft.elastic/monitors": { "SingularDisplayName": "Elastic" }
         ,"microsoft.elasticsan/elasticsans": { "SingularDisplayName": "Elastic SAN" }
         ,"microsoft.energydataplatform/energyservices": { "SingularDisplayName": "Microsoft.EnergyDataPlatform energy service" }
@@ -797,24 +424,6 @@ resource_type(id: string) {
         ,"microsoft.fairfieldgardens/provisioningresources/provisioningpolicies": { "SingularDisplayName": "Provisioning policy" }
         ,"microsoft.falcon/namespaces": { "SingularDisplayName": "Microsoft.Falcon namespace" }
         ,"microsoft.features/featureprovidernamespaces/featureconfigurations": { "SingularDisplayName": "Preview features" }
-        ,"microsoft.fidalgo/devcenters": { "SingularDisplayName": "Microsoft.Fidalgo devcenter" }
-        ,"microsoft.fidalgo/devcenters/attachednetworks": { "SingularDisplayName": "Microsoft.Fidalgo devcenters attachednetwork" }
-        ,"microsoft.fidalgo/devcenters/catalogs": { "SingularDisplayName": "Microsoft.Fidalgo devcenters catalog" }
-        ,"microsoft.fidalgo/devcenters/catalogs/items": { "SingularDisplayName": "Microsoft.Fidalgo devcenters catalogs item" }
-        ,"microsoft.fidalgo/devcenters/devboxdefinitions": { "SingularDisplayName": "Microsoft.Fidalgo devcenters devboxdefinition" }
-        ,"microsoft.fidalgo/devcenters/environmenttypes": { "SingularDisplayName": "Microsoft.Fidalgo devcenters environment type" }
-        ,"microsoft.fidalgo/devcenters/galleries": { "SingularDisplayName": "Microsoft.Fidalgo devcenters gallery" }
-        ,"microsoft.fidalgo/devcenters/galleries/images": { "SingularDisplayName": "Microsoft.Fidalgo devcenters galleries image" }
-        ,"microsoft.fidalgo/devcenters/galleries/images/versions": { "SingularDisplayName": "Microsoft.Fidalgo devcenters galleries images version" }
-        ,"microsoft.fidalgo/devcenters/mappings": { "SingularDisplayName": "Microsoft.Fidalgo devcenters mapping" }
-        ,"microsoft.fidalgo/machinedefinitions": { "SingularDisplayName": "Microsoft.Fidalgo machinedefinition" }
-        ,"microsoft.fidalgo/networksettings": { "SingularDisplayName": "Microsoft.Fidalgo networksetting" }
-        ,"microsoft.fidalgo/networksettings/healthchecks": { "SingularDisplayName": "Microsoft.Fidalgo networksettings healthcheck" }
-        ,"microsoft.fidalgo/projects": { "SingularDisplayName": "Microsoft.Fidalgo project" }
-        ,"microsoft.fidalgo/projects/attachednetworks": { "SingularDisplayName": "Microsoft.Fidalgo projects attachednetwork" }
-        ,"microsoft.fidalgo/projects/devboxdefinitions": { "SingularDisplayName": "Microsoft.Fidalgo projects devboxdefinition" }
-        ,"microsoft.fidalgo/projects/environments": { "SingularDisplayName": "Microsoft.Fidalgo projects environment" }
-        ,"microsoft.fidalgo/projects/pools": { "SingularDisplayName": "Microsoft.Fidalgo projects pool" }
         ,"microsoft.fileshares/fileshares": { "SingularDisplayName": "File share" }
         ,"microsoft.fluidrelay/fluidrelayservers": { "SingularDisplayName": "Fluid Relay" }
         ,"microsoft.footprintmonitoring/profiles": { "SingularDisplayName": "Microsoft.FootprintMonitoring profile" }
@@ -848,84 +457,6 @@ resource_type(id: string) {
         ,"microsoft.help/simplifiedsolutions": { "SingularDisplayName": "Microsoft.Help simplified solution" }
         ,"microsoft.help/solutions": { "SingularDisplayName": "Microsoft.Help solution" }
         ,"microsoft.help/troubleshooters": { "SingularDisplayName": "Microsoft.Help troubleshooter" }
-        ,"microsoft.hpcworkbench/instances": { "SingularDisplayName": "Microsoft.HpcWorkbench instance" }
-        ,"microsoft.hpcworkbench/instances/chambers": { "SingularDisplayName": "Microsoft.HpcWorkbench instances chamber" }
-        ,"microsoft.hpcworkbench/instances/chambers/accessprofiles": { "SingularDisplayName": "Microsoft.HpcWorkbench instances chambers access profile" }
-        ,"microsoft.hpcworkbench/instances/chambers/filerequests": { "SingularDisplayName": "Microsoft.HpcWorkbench instances chambers file request" }
-        ,"microsoft.hpcworkbench/instances/chambers/files": { "SingularDisplayName": "Microsoft.HpcWorkbench instances chambers file" }
-        ,"microsoft.hpcworkbench/instances/chambers/storages": { "SingularDisplayName": "Microsoft.HpcWorkbench instances chambers storage" }
-        ,"microsoft.hpcworkbench/instances/chambers/workloads": { "SingularDisplayName": "Microsoft.HpcWorkbench instances chambers workload" }
-        ,"microsoft.hpcworkbench/instances/consortiums": { "SingularDisplayName": "Microsoft.HpcWorkbench instances consortium" }
-        ,"microsoft.hybridcloud/cloudconnections": { "SingularDisplayName": "Microsoft.HybridCloud cloud connection" }
-        ,"microsoft.hybridcloud/cloudconnectors": { "SingularDisplayName": "Microsoft.HybridCloud cloud connector" }
-        ,"microsoft.hybridcompute/arcserverwithwac": { "SingularDisplayName": "Machine - Azure Arc" }
-        ,"microsoft.hybridcompute/gateways": { "SingularDisplayName": "Arc gateway" }
-        ,"microsoft.hybridcompute/licenses": { "SingularDisplayName": "Extended Security Updates - Windows Server 2012/R2" }
-        ,"microsoft.hybridcompute/machines": { "SingularDisplayName": "Machine - Azure Arc" }
-        ,"microsoft.hybridcompute/machines/microsoft.awsconnector/ec2instances": { "SingularDisplayName": "Microsoft.AwsConnector ec2 instance" }
-        ,"microsoft.hybridcompute/machines/microsoft.connectedvmwarevsphere/virtualmachineinstances": { "SingularDisplayName": "VMware + AVS virtual machine" }
-        ,"microsoft.hybridcompute/machines/providers/guestconfigurationassignments": { "SingularDisplayName": "Guest Assignment" }
-        ,"microsoft.hybridcompute/machinesesu": { "SingularDisplayName": "Machine - Azure Arc" }
-        ,"microsoft.hybridcompute/machinespaygo": { "SingularDisplayName": "Machine - Azure Arc" }
-        ,"microsoft.hybridcompute/machinessoftwareassurance": { "SingularDisplayName": "Machine - Azure Arc" }
-        ,"microsoft.hybridcompute/machinessovereign": { "SingularDisplayName": "Machine - Azure Arc" }
-        ,"microsoft.hybridcompute/privatelinkscopes": { "SingularDisplayName": "Azure Arc Private Link Scope" }
-        ,"microsoft.hybridcompute/settings": { "SingularDisplayName": "Microsoft.HybridCompute setting" }
-        ,"microsoft.hybridconnectivity/endpoints": { "SingularDisplayName": "Microsoft.HybridConnectivity endpoint" }
-        ,"microsoft.hybridconnectivity/endpoints/serviceconfigurations": { "SingularDisplayName": "Microsoft.HybridConnectivity endpoints service configuration" }
-        ,"microsoft.hybridconnectivity/publiccloudconnectors": { "SingularDisplayName": "Multicloud connector" }
-        ,"microsoft.hybridconnectivity/solutionconfigurations": { "SingularDisplayName": "Microsoft.HybridConnectivity solution configuration" }
-        ,"microsoft.hybridconnectivity/solutionconfigurations/inventory": { "SingularDisplayName": "Microsoft.HybridConnectivity solution configurations inventory" }
-        ,"microsoft.hybridconnectivity/solutiontypes": { "SingularDisplayName": "Microsoft.HybridConnectivity solution type" }
-        ,"microsoft.hybridcontainerservice/kubernetesversions": { "SingularDisplayName": "Microsoft.HybridContainerService kubernetes version" }
-        ,"microsoft.hybridcontainerservice/provisionedclusterinstances": { "SingularDisplayName": "Microsoft.HybridContainerService provisioned cluster instance" }
-        ,"microsoft.hybridcontainerservice/provisionedclusterinstances/agentpools": { "SingularDisplayName": "Microsoft.HybridContainerService provisioned cluster instances agent pool" }
-        ,"microsoft.hybridcontainerservice/provisionedclusterinstances/hybrididentitymetadata": { "SingularDisplayName": "Microsoft.HybridContainerService provisioned cluster instances hybrid identity metadata" }
-        ,"microsoft.hybridcontainerservice/provisionedclusterinstances/upgradeprofiles": { "SingularDisplayName": "Microsoft.HybridContainerService provisioned cluster instances upgrade profile" }
-        ,"microsoft.hybridcontainerservice/provisionedclusters": { "SingularDisplayName": "Kubernetes hybrid - Azure Arc" }
-        ,"microsoft.hybridcontainerservice/skus": { "SingularDisplayName": "Microsoft.HybridContainerService SKU" }
-        ,"microsoft.hybridcontainerservice/storagespaces": { "SingularDisplayName": "Microsoft.HybridContainerService storage space" }
-        ,"microsoft.hybridcontainerservice/virtualnetworks": { "SingularDisplayName": "Microsoft.HybridContainerService virtual network" }
-        ,"microsoft.hybriddata/datamanagers": { "SingularDisplayName": "Microsoft.HybridData data manager" }
-        ,"microsoft.hybriddata/datamanagers/dataservices": { "SingularDisplayName": "Microsoft.HybridData data managers data service" }
-        ,"microsoft.hybriddata/datamanagers/dataservices/jobdefinitions": { "SingularDisplayName": "Microsoft.HybridData data managers data services job definition" }
-        ,"microsoft.hybriddata/datamanagers/dataservices/jobdefinitions/jobs": { "SingularDisplayName": "Microsoft.HybridData data managers data services job definitions job" }
-        ,"microsoft.hybriddata/datamanagers/datastores": { "SingularDisplayName": "Microsoft.HybridData data managers data store" }
-        ,"microsoft.hybriddata/datamanagers/datastoretypes": { "SingularDisplayName": "Microsoft.HybridData data managers data store type" }
-        ,"microsoft.hybriddata/datamanagers/publickeys": { "SingularDisplayName": "Microsoft.HybridData data managers public key" }
-        ,"microsoft.hybridnetwork/configurationgroupvalues": { "SingularDisplayName": "Configuration Group Value" }
-        ,"microsoft.hybridnetwork/devices": { "SingularDisplayName": "Azure Network Function Manager ? Device" }
-        ,"microsoft.hybridnetwork/networkfunctions": { "SingularDisplayName": "Azure Network Function Manager ? Network Function" }
-        ,"microsoft.hybridnetwork/proxypublishers": { "SingularDisplayName": "Microsoft.HybridNetwork proxy publisher" }
-        ,"microsoft.hybridnetwork/proxypublishers/artifactstores": { "SingularDisplayName": "Microsoft.HybridNetwork proxy publishers artifact store" }
-        ,"microsoft.hybridnetwork/proxypublishers/configurationgroupschemas": { "SingularDisplayName": "Microsoft.HybridNetwork proxy publishers configuration group schema" }
-        ,"microsoft.hybridnetwork/proxypublishers/networkfunctiondefinitiongroups": { "SingularDisplayName": "Microsoft.HybridNetwork proxy publishers network function definition group" }
-        ,"microsoft.hybridnetwork/proxypublishers/networkfunctiondefinitiongroups/networkfunctiondefinitionversions": { "SingularDisplayName": "Microsoft.HybridNetwork proxy publishers network function definition groups network function definition version" }
-        ,"microsoft.hybridnetwork/proxypublishers/networkservicedesigngroups": { "SingularDisplayName": "Microsoft.HybridNetwork proxy publishers network service design group" }
-        ,"microsoft.hybridnetwork/proxypublishers/networkservicedesigngroups/networkservicedesignversions": { "SingularDisplayName": "Microsoft.HybridNetwork proxy publishers network service design groups network service design version" }
-        ,"microsoft.hybridnetwork/publishers": { "SingularDisplayName": "Publisher" }
-        ,"microsoft.hybridnetwork/publishers/artifactstores": { "SingularDisplayName": "Publisher Artifact Store" }
-        ,"microsoft.hybridnetwork/publishers/artifactstores/artifactmanifests": { "SingularDisplayName": "Publisher Artifact Manifest" }
-        ,"microsoft.hybridnetwork/publishers/configurationgroupschemas": { "SingularDisplayName": "Configuration Group Schema" }
-        ,"microsoft.hybridnetwork/publishers/networkfunctiondefinitiongroups": { "SingularDisplayName": "Network Function Definition" }
-        ,"microsoft.hybridnetwork/publishers/networkfunctiondefinitiongroups/networkfunctiondefinitionversions": { "SingularDisplayName": "Network Function Definition Version" }
-        ,"microsoft.hybridnetwork/publishers/networkservicedesigngroups": { "SingularDisplayName": "Network Service Design" }
-        ,"microsoft.hybridnetwork/publishers/networkservicedesigngroups/networkservicedesignversions": { "SingularDisplayName": "Network Service Design Version" }
-        ,"microsoft.hybridnetwork/servicemanagementcontainers": { "SingularDisplayName": "Microsoft.HybridNetwork service management container" }
-        ,"microsoft.hybridnetwork/servicemanagementcontainers/rolloutsequences": { "SingularDisplayName": "Microsoft.HybridNetwork service management containers rollout sequence" }
-        ,"microsoft.hybridnetwork/servicemanagementcontainers/rollouttiers": { "SingularDisplayName": "Microsoft.HybridNetwork service management containers rollout tier" }
-        ,"microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications": { "SingularDisplayName": "Microsoft.HybridNetwork service management containers update specification" }
-        ,"microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications/rollouts": { "SingularDisplayName": "Microsoft.HybridNetwork service management containers update specifications rollout" }
-        ,"microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications/rollouts/statuses": { "SingularDisplayName": "Microsoft.HybridNetwork service management containers update specifications rollouts statuse" }
-        ,"microsoft.hybridnetwork/sitenetworkservices": { "SingularDisplayName": "Site Network Service" }
-        ,"microsoft.hybridnetwork/sites": { "SingularDisplayName": "Site" }
-        ,"microsoft.hybridnetwork/vendors": { "SingularDisplayName": "Azure Network Function Manager ? vendor" }
-        ,"microsoft.hybridonboarding/extensionmanagers": { "SingularDisplayName": "Microsoft.HybridOnboarding extension manager" }
-        ,"microsoft.impact/connectors": { "SingularDisplayName": "Impact Reporting Connector" }
-        ,"microsoft.impact/impactcategories": { "SingularDisplayName": "Microsoft.Impact impact category" }
-        ,"microsoft.impact/topologyimpacts": { "SingularDisplayName": "Microsoft.Impact topology impact" }
-        ,"microsoft.impact/workloadimpacts": { "SingularDisplayName": "Microsoft.Impact workload impact" }
-        ,"microsoft.impact/workloadimpacts/insights": { "SingularDisplayName": "Microsoft.Impact workload impacts insight" }
         ,"microsoft.importexport/jobs": { "SingularDisplayName": "Microsoft.ImportExport job" }
         ,"microsoft.insights/actiongroups": { "SingularDisplayName": "Action group" }
         ,"microsoft.insights/activitylogalerts": { "SingularDisplayName": "Activity log alert rule" }
@@ -959,31 +490,6 @@ resource_type(id: string) {
         ,"microsoft.intelligentitdigitaltwin/digitaltwins/testplans": { "SingularDisplayName": "Microsoft.IntelligentITDigitalTwin digital twins test plan" }
         ,"microsoft.intelligentitdigitaltwin/digitaltwins/tests": { "SingularDisplayName": "Microsoft.IntelligentITDigitalTwin digital twins test" }
         ,"microsoft.inventory/subscriptioninternalproperties": { "SingularDisplayName": "Microsoft.Inventory subscription internal property" }
-        ,"microsoft.iotcentral/iotapps": { "SingularDisplayName": "IoT Central Application" }
-        ,"microsoft.iotfirmwaredefense/workspaces": { "SingularDisplayName": "Microsoft.IoTFirmwareDefense workspace" }
-        ,"microsoft.iotfirmwaredefense/workspaces/firmwares": { "SingularDisplayName": "Microsoft.IoTFirmwareDefense workspaces firmware" }
-        ,"microsoft.iotfirmwaredefense/workspaces/firmwares/summaries": { "SingularDisplayName": "Microsoft.IoTFirmwareDefense workspaces firmwares summary" }
-        ,"microsoft.iotoperations/instances": { "SingularDisplayName": "Azure IoT Operations" }
-        ,"microsoft.iotoperations/instances/brokers": { "SingularDisplayName": "Microsoft.IoTOperations instances broker" }
-        ,"microsoft.iotoperations/instances/brokers/authentications": { "SingularDisplayName": "Microsoft.IoTOperations instances brokers authentication" }
-        ,"microsoft.iotoperations/instances/brokers/authorizations": { "SingularDisplayName": "Microsoft.IoTOperations instances brokers authorization" }
-        ,"microsoft.iotoperations/instances/brokers/listeners": { "SingularDisplayName": "Microsoft.IoTOperations instances brokers listener" }
-        ,"microsoft.iotoperations/instances/dataflowendpoints": { "SingularDisplayName": "Microsoft.IoTOperations instances dataflow endpoint" }
-        ,"microsoft.iotoperations/instances/dataflowprofiles": { "SingularDisplayName": "Microsoft.IoTOperations instances dataflow profile" }
-        ,"microsoft.iotoperations/instances/dataflowprofiles/dataflows": { "SingularDisplayName": "Microsoft.IoTOperations instances dataflow profiles dataflow" }
-        ,"microsoft.iotoperationsdataprocessor/instances": { "SingularDisplayName": "Microsoft.IoTOperationsDataProcessor instance" }
-        ,"microsoft.iotoperationsdataprocessor/instances/datasets": { "SingularDisplayName": "Microsoft.IoTOperationsDataProcessor instances dataset" }
-        ,"microsoft.iotoperationsdataprocessor/instances/pipelines": { "SingularDisplayName": "Microsoft.IoTOperationsDataProcessor instances pipeline" }
-        ,"microsoft.iotoperationsmq/mq": { "SingularDisplayName": "IoT Operations Ops MQ" }
-        ,"microsoft.iotoperationsorchestrator/instances": { "SingularDisplayName": "Microsoft.IoTOperationsOrchestrator instance" }
-        ,"microsoft.iotoperationsorchestrator/solutions": { "SingularDisplayName": "Microsoft.IoTOperationsOrchestrator solution" }
-        ,"microsoft.iotoperationsorchestrator/targets": { "SingularDisplayName": "Microsoft.IoTOperationsOrchestrator target" }
-        ,"microsoft.iotsecurity/alerttypes": { "SingularDisplayName": "Microsoft.IoTSecurity alert type" }
-        ,"microsoft.iotsecurity/defendersettings": { "SingularDisplayName": "Microsoft.IoTSecurity defender setting" }
-        ,"microsoft.iotsecurity/onpremisesensors": { "SingularDisplayName": "Microsoft.IoTSecurity on premise sensor" }
-        ,"microsoft.iotsecurity/recommendationtypes": { "SingularDisplayName": "Microsoft.IoTSecurity recommendation type" }
-        ,"microsoft.iotsecurity/sensors": { "SingularDisplayName": "Microsoft.IoTSecurity sensor" }
-        ,"microsoft.iotsecurity/sites": { "SingularDisplayName": "Microsoft.IoTSecurity site" }
         ,"microsoft.keyvault/managedhsms": { "SingularDisplayName": "Azure Key Vault Managed HSM" }
         ,"microsoft.keyvault/vaults": { "SingularDisplayName": "Key vault" }
         ,"microsoft.kubernetes/connectedclusters": { "SingularDisplayName": "kubernetes 1 - Azure Arc" }
@@ -1005,13 +511,6 @@ resource_type(id: string) {
         ,"microsoft.kubernetesruntime/storageclasses": { "SingularDisplayName": "Microsoft.KubernetesRuntime storage class" }
         ,"microsoft.kusto/clusters": { "SingularDisplayName": "Azure Data Explorer Cluster" }
         ,"microsoft.kusto/clusters/databases": { "SingularDisplayName": "Azure Data Explorer Database" }
-        ,"microsoft.labservices/labaccounts": { "SingularDisplayName": "Lab account" }
-        ,"microsoft.labservices/labaccounts/labs": { "SingularDisplayName": "Lab" }
-        ,"microsoft.labservices/labplans": { "SingularDisplayName": "Lab plan" }
-        ,"microsoft.labservices/labs": { "SingularDisplayName": "Lab" }
-        ,"microsoft.loadtestservice/loadtestmappings": { "SingularDisplayName": "Microsoft.LoadTestService load test mapping" }
-        ,"microsoft.loadtestservice/loadtestprofilemappings": { "SingularDisplayName": "Microsoft.LoadTestService load test profile mapping" }
-        ,"microsoft.loadtestservice/loadtests": { "SingularDisplayName": "Azure Load Testing" }
         ,"microsoft.logic/businessprocesses": { "SingularDisplayName": "Business Process" }
         ,"microsoft.logic/integrationaccounts": { "SingularDisplayName": "Logic app integration account" }
         ,"microsoft.logic/integrationserviceenvironments": { "SingularDisplayName": "Integration Service Environment" }
@@ -1038,31 +537,31 @@ resource_type(id: string) {
         ,"microsoft.maintenance/publicmaintenanceconfigurations": { "SingularDisplayName": "Microsoft.Maintenance public maintenance configuration" }
         ,"microsoft.managedidentity/identities": { "SingularDisplayName": "Microsoft.ManagedIdentity identity" }
         ,"microsoft.managedidentity/userassignedidentities": { "SingularDisplayName": "Managed Identity" }
-        ,"microsoft.managednetwork/managednetworks": { "SingularDisplayName": "Microsoft.ManagedNetwork managed network" }
-        ,"microsoft.managednetwork/managednetworks/managednetworkgroups": { "SingularDisplayName": "Microsoft.ManagedNetwork managed networks managed network group" }
-        ,"microsoft.managednetwork/managednetworks/managednetworkpeeringpolicies": { "SingularDisplayName": "Microsoft.ManagedNetwork managed networks managed network peering policy" }
-        ,"microsoft.managednetworkfabric/accesscontrollists": { "SingularDisplayName": "Access Control List (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/internetgatewayrules": { "SingularDisplayName": "Internet Gateway Rule (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/internetgateways": { "SingularDisplayName": "Internet Gateway (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/ipcommunities": { "SingularDisplayName": "IP Community (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/ipextendedcommunities": { "SingularDisplayName": "IP Extended Community (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/ipprefixes": { "SingularDisplayName": "IP Prefix (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/l2isolationdomains": { "SingularDisplayName": "Layer 2 Isolation Domain (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/l3isolationdomains": { "SingularDisplayName": "Layer 3 Isolation Domain (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/l3isolationdomains/externalnetworks": { "SingularDisplayName": "External Network (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/l3isolationdomains/internalnetworks": { "SingularDisplayName": "Internal Network (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/neighborgroups": { "SingularDisplayName": "Neighbor Group (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networkdevices": { "SingularDisplayName": "Network Device (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networkdevices/networkinterfaces": { "SingularDisplayName": "Network Interface (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networkfabriccontrollers": { "SingularDisplayName": "Network Fabric Controller (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networkfabrics": { "SingularDisplayName": "Network Fabric (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networkfabrics/networktonetworkinterconnects": { "SingularDisplayName": "Network to Network Interconnect (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networkfabricskus": { "SingularDisplayName": "Network Fabric SKU (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networkpacketbrokers": { "SingularDisplayName": "Network Packet Broker (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networkracks": { "SingularDisplayName": "Network Rack (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networktaprules": { "SingularDisplayName": "Network Tap Rule (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/networktaps": { "SingularDisplayName": "Network Tap (Operator Nexus)" }
-        ,"microsoft.managednetworkfabric/routepolicies": { "SingularDisplayName": "Route Policy (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetwork/manageSingularDisplayNameetworks": { "SingularDisplayName": "Microsoft.ManageSingularDisplayNameetwork managed network" }
+        ,"microsoft.manageSingularDisplayNameetwork/manageSingularDisplayNameetworks/manageSingularDisplayNameetworkgroups": { "SingularDisplayName": "Microsoft.ManageSingularDisplayNameetwork managed networks managed network group" }
+        ,"microsoft.manageSingularDisplayNameetwork/manageSingularDisplayNameetworks/manageSingularDisplayNameetworkpeeringpolicies": { "SingularDisplayName": "Microsoft.ManageSingularDisplayNameetwork managed networks managed network peering policy" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/accesscontrollists": { "SingularDisplayName": "Access Control List (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/internetgatewayrules": { "SingularDisplayName": "Internet Gateway Rule (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/internetgateways": { "SingularDisplayName": "Internet Gateway (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/ipcommunities": { "SingularDisplayName": "IP Community (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/ipextendedcommunities": { "SingularDisplayName": "IP Extended Community (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/ipprefixes": { "SingularDisplayName": "IP Prefix (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/l2isolationdomains": { "SingularDisplayName": "Layer 2 Isolation Domain (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/l3isolationdomains": { "SingularDisplayName": "Layer 3 Isolation Domain (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/l3isolationdomains/externalnetworks": { "SingularDisplayName": "External Network (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/l3isolationdomains/internalnetworks": { "SingularDisplayName": "Internal Network (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/neighborgroups": { "SingularDisplayName": "Neighbor Group (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networkdevices": { "SingularDisplayName": "Network Device (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networkdevices/networkinterfaces": { "SingularDisplayName": "Network Interface (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networkfabriccontrollers": { "SingularDisplayName": "Network Fabric Controller (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networkfabrics": { "SingularDisplayName": "Network Fabric (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networkfabrics/networktonetworkinterconnects": { "SingularDisplayName": "Network to Network Interconnect (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networkfabricskus": { "SingularDisplayName": "Network Fabric SKU (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networkpacketbrokers": { "SingularDisplayName": "Network Packet Broker (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networkracks": { "SingularDisplayName": "Network Rack (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networktaprules": { "SingularDisplayName": "Network Tap Rule (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/networktaps": { "SingularDisplayName": "Network Tap (Operator Nexus)" }
+        ,"microsoft.manageSingularDisplayNameetworkfabric/routepolicies": { "SingularDisplayName": "Route Policy (Operator Nexus)" }
         ,"microsoft.managedservices/marketplaceregistrationdefinitions": { "SingularDisplayName": "Microsoft.ManagedServices marketplace registration definition" }
         ,"microsoft.managedservices/registrationassignments": { "SingularDisplayName": "Microsoft.ManagedServices registration assignment" }
         ,"microsoft.managedservices/registrationdefinitions": { "SingularDisplayName": "Azure Lighthouse" }
@@ -1085,86 +584,6 @@ resource_type(id: string) {
         ,"microsoft.media/mediaservices": { "SingularDisplayName": "Media service" }
         ,"microsoft.media/mediaservices/liveevents": { "SingularDisplayName": "Live event" }
         ,"microsoft.media/mediaservices/streamingendpoints": { "SingularDisplayName": "Streaming Endpoint" }
-        ,"microsoft.mesh/worlds": { "SingularDisplayName": "Microsoft.Mesh world" }
-        ,"microsoft.mesh/worlds/events": { "SingularDisplayName": "Microsoft.Mesh worlds event" }
-        ,"microsoft.mesh/worlds/events/accesspolicies": { "SingularDisplayName": "Microsoft.Mesh worlds events access policy" }
-        ,"microsoft.mesh/worlds/spaces": { "SingularDisplayName": "Microsoft.Mesh worlds space" }
-        ,"microsoft.mesh/worlds/spaces/accesspolicies": { "SingularDisplayName": "Microsoft.Mesh worlds spaces access policy" }
-        ,"microsoft.mesh/worlds/templates": { "SingularDisplayName": "Microsoft.Mesh worlds template" }
-        ,"microsoft.mesh/worlds/templates/accesspolicies": { "SingularDisplayName": "Microsoft.Mesh worlds templates access policy" }
-        ,"microsoft.messagingcatalog/catalogs": { "SingularDisplayName": "Microsoft.MessagingCatalog catalog" }
-        ,"microsoft.messagingconnectors/connectors": { "SingularDisplayName": "Microsoft.MessagingConnectors connector" }
-        ,"microsoft.metaverse/metaverses": { "SingularDisplayName": "Microsoft.Metaverse metaverse" }
-        ,"microsoft.metaverse/metaverses/events": { "SingularDisplayName": "Microsoft.Metaverse metaverses event" }
-        ,"microsoft.metaverse/metaverses/events/accesspolicies": { "SingularDisplayName": "Microsoft.Metaverse metaverses events access policy" }
-        ,"microsoft.metaverse/metaverses/spaces": { "SingularDisplayName": "Microsoft.Metaverse metaverses space" }
-        ,"microsoft.metaverse/metaverses/spaces/accesspolicies": { "SingularDisplayName": "Microsoft.Metaverse metaverses spaces access policy" }
-        ,"microsoft.metaverse/metaverses/templates": { "SingularDisplayName": "Microsoft.Metaverse metaverses template" }
-        ,"microsoft.metaverse/metaverses/templates/accesspolicies": { "SingularDisplayName": "Microsoft.Metaverse metaverses templates access policy" }
-        ,"microsoft.migrate/assessmentprojects": { "SingularDisplayName": "Microsoft.Migrate assessment project" }
-        ,"microsoft.migrate/assessmentprojects/aksassessmentoptions": { "SingularDisplayName": "Microsoft.Migrate assessment projects aks assessment option" }
-        ,"microsoft.migrate/assessmentprojects/aksassessments": { "SingularDisplayName": "Microsoft.Migrate assessment projects aks assessment" }
-        ,"microsoft.migrate/assessmentprojects/aksassessments/assessedwebapps": { "SingularDisplayName": "Microsoft.Migrate assessment projects aks assessments assessed web app" }
-        ,"microsoft.migrate/assessmentprojects/aksassessments/clusters": { "SingularDisplayName": "Microsoft.Migrate assessment projects aks assessments cluster" }
-        ,"microsoft.migrate/assessmentprojects/aksassessments/summaries": { "SingularDisplayName": "Microsoft.Migrate assessment projects aks assessments summary" }
-        ,"microsoft.migrate/assessmentprojects/assessmentoptions": { "SingularDisplayName": "Microsoft.Migrate assessment projects assessment option" }
-        ,"microsoft.migrate/assessmentprojects/avsassessmentoptions": { "SingularDisplayName": "Microsoft.Migrate assessment projects avs assessment option" }
-        ,"microsoft.migrate/assessmentprojects/businesscases": { "SingularDisplayName": "Microsoft.Migrate assessment projects business case" }
-        ,"microsoft.migrate/assessmentprojects/businesscases/avssummaries": { "SingularDisplayName": "Microsoft.Migrate assessment projects business cases avs summary" }
-        ,"microsoft.migrate/assessmentprojects/businesscases/evaluatedavsmachines": { "SingularDisplayName": "Microsoft.Migrate assessment projects business cases evaluated avs machine" }
-        ,"microsoft.migrate/assessmentprojects/businesscases/evaluatedmachines": { "SingularDisplayName": "Microsoft.Migrate assessment projects business cases evaluated machine" }
-        ,"microsoft.migrate/assessmentprojects/businesscases/evaluatedsqlentities": { "SingularDisplayName": "Microsoft.Migrate assessment projects business cases evaluated sql entity" }
-        ,"microsoft.migrate/assessmentprojects/businesscases/evaluatedwebapps": { "SingularDisplayName": "Microsoft.Migrate assessment projects business cases evaluated web app" }
-        ,"microsoft.migrate/assessmentprojects/businesscases/iaassummaries": { "SingularDisplayName": "Microsoft.Migrate assessment projects business cases iaas summary" }
-        ,"microsoft.migrate/assessmentprojects/businesscases/overviewsummaries": { "SingularDisplayName": "Microsoft.Migrate assessment projects business cases overview summary" }
-        ,"microsoft.migrate/assessmentprojects/businesscases/paassummaries": { "SingularDisplayName": "Microsoft.Migrate assessment projects business cases paas summary" }
-        ,"microsoft.migrate/assessmentprojects/groups": { "SingularDisplayName": "Microsoft.Migrate assessment projects group" }
-        ,"microsoft.migrate/assessmentprojects/groups/assessments": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups assessment" }
-        ,"microsoft.migrate/assessmentprojects/groups/assessments/assessedmachines": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups assessments assessed machine" }
-        ,"microsoft.migrate/assessmentprojects/groups/avsassessments": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups avs assessment" }
-        ,"microsoft.migrate/assessmentprojects/groups/avsassessments/avsassessedmachines": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups avs assessments avs assessed machine" }
-        ,"microsoft.migrate/assessmentprojects/groups/sqlassessments": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups sql assessment" }
-        ,"microsoft.migrate/assessmentprojects/groups/sqlassessments/assessedsqldatabases": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups sql assessments assessed sql database" }
-        ,"microsoft.migrate/assessmentprojects/groups/sqlassessments/assessedsqlinstances": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups sql assessments assessed sql instance" }
-        ,"microsoft.migrate/assessmentprojects/groups/sqlassessments/assessedsqlmachines": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups sql assessments assessed sql machine" }
-        ,"microsoft.migrate/assessmentprojects/groups/sqlassessments/recommendedassessedentities": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups sql assessments recommended assessed entity" }
-        ,"microsoft.migrate/assessmentprojects/groups/sqlassessments/summaries": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups sql assessments summary" }
-        ,"microsoft.migrate/assessmentprojects/groups/webappassessments": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups web app assessment" }
-        ,"microsoft.migrate/assessmentprojects/groups/webappassessments/assessedwebapps": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups web app assessments assessed web app" }
-        ,"microsoft.migrate/assessmentprojects/groups/webappassessments/summaries": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups web app assessments summary" }
-        ,"microsoft.migrate/assessmentprojects/groups/webappassessments/webappserviceplans": { "SingularDisplayName": "Microsoft.Migrate assessment projects groups web app assessments web app service plan" }
-        ,"microsoft.migrate/assessmentprojects/hypervcollectors": { "SingularDisplayName": "Microsoft.Migrate assessment projects hypervcollector" }
-        ,"microsoft.migrate/assessmentprojects/importcollectors": { "SingularDisplayName": "Microsoft.Migrate assessment projects importcollector" }
-        ,"microsoft.migrate/assessmentprojects/machines": { "SingularDisplayName": "Microsoft.Migrate assessment projects machine" }
-        ,"microsoft.migrate/assessmentprojects/privateendpointconnections": { "SingularDisplayName": "Microsoft.Migrate assessment projects private endpoint connection" }
-        ,"microsoft.migrate/assessmentprojects/privatelinkresources": { "SingularDisplayName": "Microsoft.Migrate assessment projects private link resource" }
-        ,"microsoft.migrate/assessmentprojects/projectsummary": { "SingularDisplayName": "Microsoft.Migrate assessment projects project summary" }
-        ,"microsoft.migrate/assessmentprojects/servercollectors": { "SingularDisplayName": "Microsoft.Migrate assessment projects servercollector" }
-        ,"microsoft.migrate/assessmentprojects/sqlassessmentoptions": { "SingularDisplayName": "Microsoft.Migrate assessment projects sql assessment option" }
-        ,"microsoft.migrate/assessmentprojects/sqlcollectors": { "SingularDisplayName": "Microsoft.Migrate assessment projects sqlcollector" }
-        ,"microsoft.migrate/assessmentprojects/vmwarecollectors": { "SingularDisplayName": "Microsoft.Migrate assessment projects vmwarecollector" }
-        ,"microsoft.migrate/assessmentprojects/webappassessmentoptions": { "SingularDisplayName": "Microsoft.Migrate assessment projects web app assessment option" }
-        ,"microsoft.migrate/assessmentprojects/webappcollectors": { "SingularDisplayName": "Microsoft.Migrate assessment projects web app collector" }
-        ,"microsoft.migrate/migrateprojects": { "SingularDisplayName": "Microsoft.Migrate migrate project" }
-        ,"microsoft.migrate/migrateprojects/databaseinstances": { "SingularDisplayName": "Microsoft.Migrate migrate projects database instance" }
-        ,"microsoft.migrate/migrateprojects/databases": { "SingularDisplayName": "Microsoft.Migrate migrate projects database" }
-        ,"microsoft.migrate/migrateprojects/machines": { "SingularDisplayName": "Microsoft.Migrate migrate projects machine" }
-        ,"microsoft.migrate/migrateprojects/migrateevents": { "SingularDisplayName": "Microsoft.Migrate migrate projects migrate event" }
-        ,"microsoft.migrate/migrateprojects/solutions": { "SingularDisplayName": "Microsoft.Migrate migrate projects solution" }
-        ,"microsoft.migrate/modernizeprojects": { "SingularDisplayName": "Microsoft.Migrate modernize project" }
-        ,"microsoft.migrate/modernizeprojects/deployedresources": { "SingularDisplayName": "Microsoft.Migrate modernize projects deployed resource" }
-        ,"microsoft.migrate/modernizeprojects/jobs": { "SingularDisplayName": "Microsoft.Migrate modernize projects job" }
-        ,"microsoft.migrate/modernizeprojects/jobs/operations": { "SingularDisplayName": "Microsoft.Migrate modernize projects jobs operation" }
-        ,"microsoft.migrate/modernizeprojects/migrateagents": { "SingularDisplayName": "Microsoft.Migrate modernize projects migrate agent" }
-        ,"microsoft.migrate/modernizeprojects/migrateagents/operations": { "SingularDisplayName": "Microsoft.Migrate modernize projects migrate agents operation" }
-        ,"microsoft.migrate/modernizeprojects/operations": { "SingularDisplayName": "Microsoft.Migrate modernize projects operation" }
-        ,"microsoft.migrate/modernizeprojects/workloaddeployments": { "SingularDisplayName": "Microsoft.Migrate modernize projects workload deployment" }
-        ,"microsoft.migrate/modernizeprojects/workloaddeployments/operations": { "SingularDisplayName": "Microsoft.Migrate modernize projects workload deployments operation" }
-        ,"microsoft.migrate/modernizeprojects/workloadinstances": { "SingularDisplayName": "Microsoft.Migrate modernize projects workload instance" }
-        ,"microsoft.migrate/modernizeprojects/workloadinstances/operations": { "SingularDisplayName": "Microsoft.Migrate modernize projects workload instances operation" }
-        ,"microsoft.migrate/movecollections": { "SingularDisplayName": "Microsoft.Migrate move collection" }
-        ,"microsoft.migrate/movecollections/moveresources": { "SingularDisplayName": "Microsoft.Migrate move collections move resource" }
-        ,"microsoft.migrate/projects": { "SingularDisplayName": "Migration project" }
         ,"microsoft.mission/catalogs": { "SingularDisplayName": "Catalog" }
         ,"microsoft.mission/communities": { "SingularDisplayName": "Community" }
         ,"microsoft.mission/communities/communityendpoints": { "SingularDisplayName": "Community endpoint" }
@@ -1176,52 +595,6 @@ resource_type(id: string) {
         ,"microsoft.mission/virtualenclaves/enclaveendpoints": { "SingularDisplayName": "Enclave endpoint" }
         ,"microsoft.mission/virtualenclaves/endpoints": { "SingularDisplayName": "Endpoint" }
         ,"microsoft.mission/virtualenclaves/workloads": { "SingularDisplayName": "Workload" }
-        ,"microsoft.mixedreality/objectanchorsaccounts": { "SingularDisplayName": "Object Anchors Account" }
-        ,"microsoft.mixedreality/objectunderstandingaccounts": { "SingularDisplayName": "Object Understanding Account" }
-        ,"microsoft.mixedreality/remoterenderingaccounts": { "SingularDisplayName": "Remote Rendering Account" }
-        ,"microsoft.mixedreality/spatialanchorsaccounts": { "SingularDisplayName": "Spatial Anchors Account" }
-        ,"microsoft.mixedreality/spatialmapsaccounts": { "SingularDisplayName": "Microsoft.MixedReality spatial maps account" }
-        ,"microsoft.mobilenetwork/amfdeployments": { "SingularDisplayName": "Microsoft.MobileNetwork amf deployment" }
-        ,"microsoft.mobilenetwork/clusterservices": { "SingularDisplayName": "Microsoft.MobileNetwork cluster service" }
-        ,"microsoft.mobilenetwork/mobilenetworks": { "SingularDisplayName": "Mobile Network" }
-        ,"microsoft.mobilenetwork/mobilenetworks/datanetworks": { "SingularDisplayName": "Data Network" }
-        ,"microsoft.mobilenetwork/mobilenetworks/services": { "SingularDisplayName": "Service" }
-        ,"microsoft.mobilenetwork/mobilenetworks/simpolicies": { "SingularDisplayName": "SIM Policy" }
-        ,"microsoft.mobilenetwork/mobilenetworks/sites": { "SingularDisplayName": "Mobile Network Site" }
-        ,"microsoft.mobilenetwork/mobilenetworks/slices": { "SingularDisplayName": "Slice" }
-        ,"microsoft.mobilenetwork/nrfdeployments": { "SingularDisplayName": "Microsoft.MobileNetwork nrf deployment" }
-        ,"microsoft.mobilenetwork/nssfdeployments": { "SingularDisplayName": "Microsoft.MobileNetwork nssf deployment" }
-        ,"microsoft.mobilenetwork/observabilityservices": { "SingularDisplayName": "Microsoft.MobileNetwork observability service" }
-        ,"microsoft.mobilenetwork/packetcorecontrolplanes": { "SingularDisplayName": "Packet Core Control Plane" }
-        ,"microsoft.mobilenetwork/packetcorecontrolplanes/packetcoredataplanes": { "SingularDisplayName": "Packet Core Data Plane" }
-        ,"microsoft.mobilenetwork/packetcorecontrolplanes/packetcoredataplanes/attacheddatanetworks": { "SingularDisplayName": "Attached Data Network" }
-        ,"microsoft.mobilenetwork/packetcorecontrolplaneversions": { "SingularDisplayName": "Microsoft.MobileNetwork packet core control plane version" }
-        ,"microsoft.mobilenetwork/radioaccessnetworks": { "SingularDisplayName": "Radio Access Network Insights" }
-        ,"microsoft.mobilenetwork/sdmdeployments": { "SingularDisplayName": "Microsoft.MobileNetwork sdm deployment" }
-        ,"microsoft.mobilenetwork/simgroups": { "SingularDisplayName": "SIM Group" }
-        ,"microsoft.mobilenetwork/simgroups/sims": { "SingularDisplayName": "SIM" }
-        ,"microsoft.mobilenetwork/sims": { "SingularDisplayName": "Microsoft.MobileNetwork sim" }
-        ,"microsoft.mobilenetwork/smfdeployments": { "SingularDisplayName": "Microsoft.MobileNetwork smf deployment" }
-        ,"microsoft.mobilenetwork/upfdeployments": { "SingularDisplayName": "Microsoft.MobileNetwork upf deployment" }
-        ,"microsoft.mobilenetwork/virtualizedmmedeployments": { "SingularDisplayName": "Microsoft.MobileNetwork virtualized mme deployment" }
-        ,"microsoft.mobilenetwork/vnfagentdeployments": { "SingularDisplayName": "Microsoft.MobileNetwork vnf agent deployment" }
-        ,"microsoft.mobilepacketcore/amfdeployments": { "SingularDisplayName": "Microsoft.MobilePacketCore amf deployment" }
-        ,"microsoft.mobilepacketcore/clusterservices": { "SingularDisplayName": "Microsoft.MobilePacketCore cluster service" }
-        ,"microsoft.mobilepacketcore/networkfunctions": { "SingularDisplayName": "Microsoft.MobilePacketCore network function" }
-        ,"microsoft.mobilepacketcore/nrfdeployments": { "SingularDisplayName": "Microsoft.MobilePacketCore nrf deployment" }
-        ,"microsoft.mobilepacketcore/nssfdeployments": { "SingularDisplayName": "Microsoft.MobilePacketCore nssf deployment" }
-        ,"microsoft.mobilepacketcore/observabilityservices": { "SingularDisplayName": "Microsoft.MobilePacketCore observability service" }
-        ,"microsoft.mobilepacketcore/smfdeployments": { "SingularDisplayName": "Microsoft.MobilePacketCore smf deployment" }
-        ,"microsoft.mobilepacketcore/upfdeployments": { "SingularDisplayName": "Microsoft.MobilePacketCore upf deployment" }
-        ,"microsoft.modsimworkbench/workbenches": { "SingularDisplayName": "Modeling and Simulation Workbench" }
-        ,"microsoft.modsimworkbench/workbenches/chambers": { "SingularDisplayName": "Chamber" }
-        ,"microsoft.modsimworkbench/workbenches/chambers/connectors": { "SingularDisplayName": "Chamber Connector" }
-        ,"microsoft.modsimworkbench/workbenches/chambers/filerequests": { "SingularDisplayName": "Chamber Data Pipeline File Request" }
-        ,"microsoft.modsimworkbench/workbenches/chambers/files": { "SingularDisplayName": "Chamber Data Pipeline File" }
-        ,"microsoft.modsimworkbench/workbenches/chambers/licenses": { "SingularDisplayName": "Chamber License" }
-        ,"microsoft.modsimworkbench/workbenches/chambers/storages": { "SingularDisplayName": "Chamber Storage" }
-        ,"microsoft.modsimworkbench/workbenches/chambers/workloads": { "SingularDisplayName": "Chamber VM" }
-        ,"microsoft.modsimworkbench/workbenches/sharedstorages": { "SingularDisplayName": "Shared Storage" }
         ,"microsoft.monitor/accounts": { "SingularDisplayName": "Azure Monitor workspace" }
         ,"microsoft.monitor/investigations": { "SingularDisplayName": "Microsoft.Monitor investigation" }
         ,"microsoft.monitor/pipelinegroups": { "SingularDisplayName": "Azure Monitor pipeline" }
@@ -1250,11 +623,11 @@ resource_type(id: string) {
         ,"microsoft.network/customipprefixes": { "SingularDisplayName": "Custom IP Prefix" }
         ,"microsoft.network/ddoscustompolicies": { "SingularDisplayName": "Microsoft.Network DDoS custom policy" }
         ,"microsoft.network/ddosprotectionplans": { "SingularDisplayName": "DDoS protection plan" }
-        ,"microsoft.network/dnsforwardingrulesets": { "SingularDisplayName": "DNS forwarding ruleset" }
-        ,"microsoft.network/dnsresolverdomainlists": { "SingularDisplayName": "DNS Domain List" }
-        ,"microsoft.network/dnsresolverpolicies": { "SingularDisplayName": "DNS Security Policy" }
-        ,"microsoft.network/dnsresolvers": { "SingularDisplayName": "DNS private resolver" }
-        ,"microsoft.network/dnszones": { "SingularDisplayName": "DNS zone" }
+        ,"microsoft.network/SingularDisplayNamesforwardingrulesets": { "SingularDisplayName": "SingularDisplayNameS forwarding ruleset" }
+        ,"microsoft.network/SingularDisplayNamesresolverdomainlists": { "SingularDisplayName": "SingularDisplayNameS Domain List" }
+        ,"microsoft.network/SingularDisplayNamesresolverpolicies": { "SingularDisplayName": "SingularDisplayNameS Security Policy" }
+        ,"microsoft.network/SingularDisplayNamesresolvers": { "SingularDisplayName": "SingularDisplayNameS private resolver" }
+        ,"microsoft.network/SingularDisplayNameszones": { "SingularDisplayName": "SingularDisplayNameS zone" }
         ,"microsoft.network/dscpconfigurations": { "SingularDisplayName": "Microsoft.Network DSCP configuration" }
         ,"microsoft.network/expressroutecircuits": { "SingularDisplayName": "ExpressRoute circuit" }
         ,"microsoft.network/expressroutecrossconnections": { "SingularDisplayName": "Microsoft.Network express route cross connection" }
@@ -1264,7 +637,7 @@ resource_type(id: string) {
         ,"microsoft.network/expressrouteports": { "SingularDisplayName": "ExpressRoute Direct" }
         ,"microsoft.network/expressrouteportslocations": { "SingularDisplayName": "Microsoft.Network express route ports location" }
         ,"microsoft.network/firewallpolicies": { "SingularDisplayName": "Firewall Policy" }
-        ,"microsoft.network/frontdoors": { "SingularDisplayName": "Front Door and CDN profiles" }
+        ,"microsoft.network/frontdoors": { "SingularDisplayName": "Front Door and CSingularDisplayName profiles" }
         ,"microsoft.network/frontdoorwebapplicationfirewallpolicies": { "SingularDisplayName": "Front Door WAF policy" }
         ,"microsoft.network/ipallocations": { "SingularDisplayName": "Microsoft.Network IP allocation" }
         ,"microsoft.network/ipgroups": { "SingularDisplayName": "IP Group" }
@@ -1292,7 +665,7 @@ resource_type(id: string) {
         ,"microsoft.network/networkwatchers": { "SingularDisplayName": "Network Watcher" }
         ,"microsoft.network/networkwatchers/flowlogs": { "SingularDisplayName": "Flow log" }
         ,"microsoft.network/p2svpngateways": { "SingularDisplayName": "Microsoft.Network P2S VPN gateway" }
-        ,"microsoft.network/privatednszones": { "SingularDisplayName": "Private DNS zone" }
+        ,"microsoft.network/privateSingularDisplayNameszones": { "SingularDisplayName": "Private SingularDisplayNameS zone" }
         ,"microsoft.network/privateendpoints": { "SingularDisplayName": "Private endpoint" }
         ,"microsoft.network/privatelinkservices": { "SingularDisplayName": "Private link service" }
         ,"microsoft.network/publicipaddresses": { "SingularDisplayName": "Public IP address" }
@@ -1346,7 +719,7 @@ resource_type(id: string) {
         ,"microsoft.networkcloud/registrationhubs/images": { "SingularDisplayName": "Microsoft.NetworkCloud registration hubs image" }
         ,"microsoft.networkcloud/registrationhubs/machines": { "SingularDisplayName": "Microsoft.NetworkCloud registration hubs machine" }
         ,"microsoft.networkcloud/storageappliances": { "SingularDisplayName": "Storage Appliance (Operator Nexus)" }
-        ,"microsoft.networkcloud/trunkednetworks": { "SingularDisplayName": "Trunked Network (Operator Nexus)" }
+        ,"microsoft.networkcloud/trunkeSingularDisplayNameetworks": { "SingularDisplayName": "Trunked Network (Operator Nexus)" }
         ,"microsoft.networkcloud/virtualmachines": { "SingularDisplayName": "Virtual Machine (Operator Nexus)" }
         ,"microsoft.networkcloud/virtualmachines/consoles": { "SingularDisplayName": "Virtual Machine Console (Operator Nexus)" }
         ,"microsoft.networkcloud/volumes": { "SingularDisplayName": "Volume (Operator Nexus)" }
@@ -1358,59 +731,6 @@ resource_type(id: string) {
         ,"microsoft.notificationhubs/namespaces": { "SingularDisplayName": "Notification Hub Namespace" }
         ,"microsoft.notificationhubs/namespaces/notificationhubs": { "SingularDisplayName": "Notification Hub" }
         ,"microsoft.objectstore/osnamespaces": { "SingularDisplayName": "Microsoft.ObjectStore os namespace" }
-        ,"microsoft.offazure/hypervsites": { "SingularDisplayName": "Microsoft.OffAzure hyperv site" }
-        ,"microsoft.offazure/hypervsites/clusters": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites cluster" }
-        ,"microsoft.offazure/hypervsites/hosts": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites host" }
-        ,"microsoft.offazure/hypervsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites job" }
-        ,"microsoft.offazure/hypervsites/machines": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites machine" }
-        ,"microsoft.offazure/hypervsites/machines/softwareinventories": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites machines software inventory" }
-        ,"microsoft.offazure/hypervsites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites operations statu" }
-        ,"microsoft.offazure/hypervsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites run as account" }
-        ,"microsoft.offazure/importsites": { "SingularDisplayName": "Microsoft.OffAzure import site" }
-        ,"microsoft.offazure/importsites/deletejobs": { "SingularDisplayName": "Microsoft.OffAzure import sites delete job" }
-        ,"microsoft.offazure/importsites/exportjobs": { "SingularDisplayName": "Microsoft.OffAzure import sites export job" }
-        ,"microsoft.offazure/importsites/importjobs": { "SingularDisplayName": "Microsoft.OffAzure import sites import job" }
-        ,"microsoft.offazure/importsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure import sites job" }
-        ,"microsoft.offazure/importsites/machines": { "SingularDisplayName": "Microsoft.OffAzure import sites machine" }
-        ,"microsoft.offazure/mastersites": { "SingularDisplayName": "Microsoft.OffAzure master site" }
-        ,"microsoft.offazure/mastersites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure master sites operations statu" }
-        ,"microsoft.offazure/mastersites/privateendpointconnections": { "SingularDisplayName": "Microsoft.OffAzure master sites private endpoint connection" }
-        ,"microsoft.offazure/mastersites/privatelinkresources": { "SingularDisplayName": "Microsoft.OffAzure master sites private link resource" }
-        ,"microsoft.offazure/mastersites/sqlsites": { "SingularDisplayName": "Microsoft.OffAzure master sites sql site" }
-        ,"microsoft.offazure/mastersites/sqlsites/discoverysitedatasources": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites discovery site data source" }
-        ,"microsoft.offazure/mastersites/sqlsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites job" }
-        ,"microsoft.offazure/mastersites/sqlsites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites operations statu" }
-        ,"microsoft.offazure/mastersites/sqlsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites run as account" }
-        ,"microsoft.offazure/mastersites/sqlsites/sqlavailabilitygroups": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql availability group" }
-        ,"microsoft.offazure/mastersites/sqlsites/sqldatabases": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql database" }
-        ,"microsoft.offazure/mastersites/sqlsites/sqlservers": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql server" }
-        ,"microsoft.offazure/mastersites/webappsites": { "SingularDisplayName": "Microsoft.OffAzure master sites web app site" }
-        ,"microsoft.offazure/mastersites/webappsites/discoverysitedatasources": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites discovery site data source" }
-        ,"microsoft.offazure/mastersites/webappsites/extendedmachines": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites extended machine" }
-        ,"microsoft.offazure/mastersites/webappsites/iiswebapplications": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites iis web application" }
-        ,"microsoft.offazure/mastersites/webappsites/iiswebservers": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites iis web server" }
-        ,"microsoft.offazure/mastersites/webappsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites runasaccount" }
-        ,"microsoft.offazure/mastersites/webappsites/tomcatwebapplications": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites tomcat web application" }
-        ,"microsoft.offazure/mastersites/webappsites/tomcatwebservers": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites tomcat web server" }
-        ,"microsoft.offazure/serversites": { "SingularDisplayName": "Microsoft.OffAzure server site" }
-        ,"microsoft.offazure/serversites/jobs": { "SingularDisplayName": "Microsoft.OffAzure server sites job" }
-        ,"microsoft.offazure/serversites/machines": { "SingularDisplayName": "Microsoft.OffAzure server sites machine" }
-        ,"microsoft.offazure/serversites/machines/softwareinventories": { "SingularDisplayName": "Microsoft.OffAzure server sites machines software inventory" }
-        ,"microsoft.offazure/serversites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure server sites operations statu" }
-        ,"microsoft.offazure/serversites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure server sites run as account" }
-        ,"microsoft.offazure/vmwaresites": { "SingularDisplayName": "Microsoft.OffAzure vmware site" }
-        ,"microsoft.offazure/vmwaresites/hosts": { "SingularDisplayName": "Microsoft.OffAzure vmware sites host" }
-        ,"microsoft.offazure/vmwaresites/jobs": { "SingularDisplayName": "Microsoft.OffAzure vmware sites job" }
-        ,"microsoft.offazure/vmwaresites/machines": { "SingularDisplayName": "Microsoft.OffAzure vmware sites machine" }
-        ,"microsoft.offazure/vmwaresites/machines/softwareinventories": { "SingularDisplayName": "Microsoft.OffAzure vmware sites machines software inventory" }
-        ,"microsoft.offazure/vmwaresites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure vmware sites operations statu" }
-        ,"microsoft.offazure/vmwaresites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure vmware sites run as account" }
-        ,"microsoft.offazure/vmwaresites/vcenters": { "SingularDisplayName": "Microsoft.OffAzure vmware sites vcenter" }
-        ,"microsoft.offazurespringboot/springbootsites": { "SingularDisplayName": "Microsoft.OffAzureSpringBoot springbootsite" }
-        ,"microsoft.offazurespringboot/springbootsites/errorsummaries": { "SingularDisplayName": "Microsoft.OffAzureSpringBoot springbootsites error summary" }
-        ,"microsoft.offazurespringboot/springbootsites/springbootapps": { "SingularDisplayName": "Microsoft.OffAzureSpringBoot springbootsites springbootapp" }
-        ,"microsoft.offazurespringboot/springbootsites/springbootservers": { "SingularDisplayName": "Microsoft.OffAzureSpringBoot springbootsites springbootserver" }
-        ,"microsoft.offazurespringboot/springbootsites/summaries": { "SingularDisplayName": "Microsoft.OffAzureSpringBoot springbootsites summary" }
         ,"microsoft.openenergyplatform/energyservices": { "SingularDisplayName": "Azure Data Manager for Energy" }
         ,"microsoft.openlogisticsplatform/workspaces": { "SingularDisplayName": "Microsoft.OpenLogisticsPlatform workspace" }
         ,"microsoft.openlogisticsplatform/workspaces/applicationregistrations": { "SingularDisplayName": "Microsoft.OpenLogisticsPlatform workspaces application registration" }
@@ -1757,7 +1077,7 @@ resource_type(id: string) {
         ,"microsoft.vmware/virtualmachines": { "SingularDisplayName": "Microsoft.VMware virtual machine" }
         ,"microsoft.vmware/virtualmachinetemplates": { "SingularDisplayName": "Microsoft.VMware virtual machine template" }
         ,"microsoft.vmware/virtualnetworks": { "SingularDisplayName": "Microsoft.VMware virtual network" }
-        ,"microsoft.vmwarecloudsimple/dedicatedcloudnodes": { "SingularDisplayName": "Microsoft.VMwareCloudSimple dedicated cloud node" }
+        ,"microsoft.vmwarecloudsimple/dedicatedclouSingularDisplayNameodes": { "SingularDisplayName": "Microsoft.VMwareCloudSimple dedicated cloud node" }
         ,"microsoft.vmwarecloudsimple/dedicatedcloudservices": { "SingularDisplayName": "Microsoft.VMwareCloudSimple dedicated cloud service" }
         ,"microsoft.vmwarecloudsimple/virtualmachines": { "SingularDisplayName": "Microsoft.VMwareCloudSimple virtual machine" }
         ,"microsoft.vnfmanager/devices": { "SingularDisplayName": "Microsoft.VnfManager device" }
@@ -1784,58 +1104,5 @@ resource_type(id: string) {
         ,"microsoft.web/sites/slots": { "SingularDisplayName": "App Service deployment slot" }
         ,"microsoft.web/sourcecontrols": { "SingularDisplayName": "Microsoft.Web sourcecontrol" }
         ,"microsoft.web/staticsites": { "SingularDisplayName": "Static Web App" }
-        ,"microsoft.weightsandbiases/instances": { "SingularDisplayName": "Azure Native WeightsAndBiases Cloud Service" }
-        ,"microsoft.whiteboxcadlprovider/whiteboxresources": { "SingularDisplayName": "Microsoft.WhiteBoxCadlProvider white box resource" }
-        ,"microsoft.windows365/cloudpcdelegatedmsis": { "SingularDisplayName": "Microsoft.Windows365 cloud pc delegated msi" }
-        ,"microsoft.windowsesu/multipleactivationkeys": { "SingularDisplayName": "Microsoft.WindowsESU multiple activation key" }
-        ,"microsoft.windowsiot/deviceservices": { "SingularDisplayName": "Microsoft.WindowsIoT device service" }
-        ,"microsoft.windowspushnotificationservices/registrations": { "SingularDisplayName": "Microsoft.WindowsPushNotificationServices registration" }
-        ,"microsoft.workloadmonitor/monitors": { "SingularDisplayName": "Microsoft.WorkloadMonitor monitor" }
-        ,"microsoft.workloadmonitor/monitors/history": { "SingularDisplayName": "Microsoft.WorkloadMonitor monitors history" }
-        ,"microsoft.workloads/connectors": { "SingularDisplayName": "Microsoft.Workloads connector" }
-        ,"microsoft.workloads/connectors/acssbackups": { "SingularDisplayName": "Microsoft.Workloads connectors acss backup" }
-        ,"microsoft.workloads/connectors/amsinsights": { "SingularDisplayName": "Microsoft.Workloads connectors ams insight" }
-        ,"microsoft.workloads/connectors/sapvirtualinstancemonitors": { "SingularDisplayName": "Microsoft.Workloads connectors sap virtual instance monitor" }
-        ,"microsoft.workloads/epicvirtualinstances": { "SingularDisplayName": "Virtual Instance for Epic solution" }
-        ,"microsoft.workloads/insights": { "SingularDisplayName": "Microsoft.Workloads insight" }
-        ,"microsoft.workloads/monitors": { "SingularDisplayName": "Azure Monitor for SAP solutions" }
-        ,"microsoft.workloads/oraclevirtualinstances": { "SingularDisplayName": "Microsoft.Workloads oracle virtual instance" }
-        ,"microsoft.workloads/oraclevirtualinstances/databaseinstances": { "SingularDisplayName": "Microsoft.Workloads oracle virtual instances database instance" }
-        ,"microsoft.workloads/phpworkloads": { "SingularDisplayName": "Microsoft.Workloads php workload" }
-        ,"microsoft.workloads/phpworkloads/wordpressinstances": { "SingularDisplayName": "Microsoft.Workloads php workloads wordpress instance" }
-        ,"microsoft.workloads/sapdiscoverysites": { "SingularDisplayName": "Microsoft.Workloads sap discovery site" }
-        ,"microsoft.workloads/sapdiscoverysites/sapinstances": { "SingularDisplayName": "Microsoft.Workloads sap discovery sites sap instance" }
-        ,"microsoft.workloads/sapdiscoverysites/sapinstances/serverinstances": { "SingularDisplayName": "Microsoft.Workloads sap discovery sites sap instances server instance" }
-        ,"microsoft.workloads/sapvirtualinstances": { "SingularDisplayName": "Virtual Instance for SAP solutions" }
-        ,"microsoft.workloads/sapvirtualinstances/applicationinstances": { "SingularDisplayName": "App server instance for SAP solutions" }
-        ,"microsoft.workloads/sapvirtualinstances/centralinstances": { "SingularDisplayName": "Central service instance for SAP solutions" }
-        ,"microsoft.workloads/sapvirtualinstances/databaseinstances": { "SingularDisplayName": "Database for SAP solutions" }
-        ,"neon.postgres/organizations": { "SingularDisplayName": "Neon Serverless Postgres Resource" }
-        ,"newrelic.observability/monitors": { "SingularDisplayName": "New Relic" }
-        ,"nginx.nginxplus/nginxdeployments": { "SingularDisplayName": "NGINXaaS" }
-        ,"oracle.database/autonomousdatabases": { "SingularDisplayName": "Autonomous Database" }
-        ,"oracle.database/cloudexadatainfrastructures": { "SingularDisplayName": "Oracle Exadata Infrastructure" }
-        ,"oracle.database/cloudvmclusters": { "SingularDisplayName": "Oracle Exadata VM Cluster" }
-        ,"oracle.database/oraclesubscriptions": { "SingularDisplayName": "OracleSubscription" }
-        ,"paloaltonetworks.cloudngfw/firewalls": { "SingularDisplayName": "Cloud NGFW by Palo Alto Networks" }
-        ,"paloaltonetworks.cloudngfw/globalrulestacks": { "SingularDisplayName": "Global Rulestack" }
-        ,"paloaltonetworks.cloudngfw/localrulestacks": { "SingularDisplayName": "Local Rulestack for Cloud NGFW by Palo Alto Networks" }
-        ,"pinecone.vectordb/organizations": { "SingularDisplayName": "Azure Native Pinecone Cloud Service" }
-        ,"purestorage.block/reservations": { "SingularDisplayName": "Azure Native Pure Storage Cloud Service" }
-        ,"purestorage.block/storagepools": { "SingularDisplayName": "Storage pool" }
-        ,"purestorage.block/storagepools/avsstoragecontainers": { "SingularDisplayName": "PureStorage.Block storage pools avs storage container" }
-        ,"qumulo.qaas/storages": { "SingularDisplayName": "Qumulo.QaaS storage" }
-        ,"qumulo.storage/filesystems": { "SingularDisplayName": "Azure Native Qumulo Scalable File Service" }
-        ,"solarwinds.observability/organizations": { "SingularDisplayName": "SolarWinds Observability" }
-        ,"splitio.experimentation/experimentationworkspaces": { "SingularDisplayName": "Split Experimentation Workspace" }
-        ,"wandisco.fusion/migrators": { "SingularDisplayName": "LiveData Migrator" }
-        ,"wandisco.fusion/migrators/datatransferagents": { "SingularDisplayName": "Data Transfer Agent" }
-        ,"wandisco.fusion/migrators/exclusiontemplates": { "SingularDisplayName": "Exclusion" }
-        ,"wandisco.fusion/migrators/livedatamigrations": { "SingularDisplayName": "Migration" }
-        ,"wandisco.fusion/migrators/metadatamigrations": { "SingularDisplayName": "Metadata Migration" }
-        ,"wandisco.fusion/migrators/metadatatargets": { "SingularDisplayName": "Metadata Target" }
-        ,"wandisco.fusion/migrators/pathmappings": { "SingularDisplayName": "Path Mapping" }
-        ,"wandisco.fusion/migrators/targets": { "SingularDisplayName": "Target" }
-        ,"wandisco.fusion/migrators/verifications": { "SingularDisplayName": "Verification" }
     })[tolower(id)]
 }
