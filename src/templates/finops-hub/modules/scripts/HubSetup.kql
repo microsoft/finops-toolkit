@@ -57,6 +57,14 @@ Recommendations_v1_0()
     database('Ingestion').Recommendations_final_v1_0
 }
 
+// Recommendations_final_v1_0r2
+.create-or-alter function
+with (docstring = 'Gets all recommendations aligned to FOCUS 1.0.', folder = 'Recommendations')
+Recommendations_v1_0r2()
+{
+    database('Ingestion').Recommendations_final_v1_0r2
+}
+
 
 // Transactions_final_v1_0
 .create-or-alter function

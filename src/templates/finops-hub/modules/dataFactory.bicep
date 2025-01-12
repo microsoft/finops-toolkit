@@ -113,15 +113,13 @@ var exportManifestAddedTriggerName = '${safeExportContainerName}_ManifestAdded'
 var ingestionManifestAddedTriggerName = '${safeIngestionContainerName}_ManifestAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
-var dailyQueriesDateTime = dateTimeAdd(triggersBaseTime, 'PT1H')
-var dailyQueriesTriggerName = 'queries_DailySchedule'
+var dailyTriggerDateTime = dateTimeAdd(triggersBaseTime, 'PT1H')
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
   exportManifestAddedTriggerName
   ingestionManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
-  dailyQueriesTriggerName
   monthlyTriggerName
 ]
 
@@ -998,27 +996,6 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
           Recurrence: 'Daily'
         }
       }
-    ]
-    type: 'ScheduleTrigger'
-    typeProperties: {
-      recurrence: {
-        frequency: 'Hour'
-        interval: 24
-        startTime: '2023-01-01T01:01:00'
-        timeZone: azuretimezones.outputs.Timezone
-      }
-    }
-  }
-}
-
-resource trigger_QueriesDailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: dailyQueriesTriggerName
-  parent: dataFactory
-  dependsOn: [
-    stopTriggers
-  ]
-  properties: {
-    pipelines: [
       {
         pipelineReference: {
           referenceName: pipeline_ExecuteQueries.name
@@ -1034,7 +1011,7 @@ resource trigger_QueriesDailySchedule 'Microsoft.DataFactory/factories/triggers@
       recurrence: {
         frequency: 'Day'
         interval: 1
-        startTime: dailyQueriesDateTime
+        startTime: dailyTriggerDateTime
         timeZone: azuretimezones.outputs.Timezone
       }
     }
@@ -4978,7 +4955,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
 
 //------------------------------------------------------------------------------
 // queries export pipeline
-// Triggered by dailyQueries trigger
+// Triggered by daily trigger
 //------------------------------------------------------------------------------
 @description('Queues the queries_ETL_ingestion pipeline to extract query results from multiple sources (e.g., Resource Graph)')
 resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
@@ -5500,7 +5477,6 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     trigger_IngestionManifestAdded
     trigger_SettingsUpdated
     trigger_DailySchedule
-    trigger_QueriesDailySchedule
     trigger_MonthlySchedule
   ]
   properties: {
