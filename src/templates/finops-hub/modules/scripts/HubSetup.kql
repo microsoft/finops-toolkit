@@ -99,7 +99,7 @@ Prices()
 with (docstring = 'Gets all recommendations with the latest supported version of the FOCUS schema.', folder = 'Recommendations')
 Recommendations()
 {
-    Recommendations_v1_0()
+    Recommendations_v1_0r2()
 }
 
 
