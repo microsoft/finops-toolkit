@@ -161,6 +161,21 @@ Legend:
 >
 > 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
 
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> Remove-FinOpsHub
+> ➕ Added:
+>
+> 1. Resource Deletion Confirmation: Users are now shown a list of resources to be deleted before confirming the action.
+> 1. Improved Logging: The name of each deleted resource is printed for better visibility during the deletion process.
+>
+>  ✏️ Changed:
+> 
+> Yes to All Handling: Selecting "Yes to All" now deletes all resources without further prompts.
+>
+
 <br>
 
 ## 🪛 v0.7 Update 1
