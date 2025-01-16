@@ -10,19 +10,6 @@
       "nodes": [
         {
           "location": {
-            "x": 6311.34775799383,
-            "y": 904.34282136186243
-          },
-          "nodeIndex": "CostDetails",
-          "nodeLineageTag": "4b9830c4-e7c7-43ee-823c-d6b15359c25f",
-          "size": {
-            "height": 381.28571428571433,
-            "width": 234
-          },
-          "zIndex": 2
-        },
-        {
-          "location": {
             "x": 7366.96492519873,
             "y": 507.69996421900527
           },
@@ -369,6 +356,18 @@
           "nodeLineageTag": "d66ce6f9-eeff-48b4-8b10-825ead39a54d",
           "size": {
             "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6311.34775799383,
+            "y": 904.34282136186243
+          },
+          "nodeIndex": "Costs",
+          "size": {
+            "height": 381.28571428571433,
             "width": 234
           },
           "zIndex": 0

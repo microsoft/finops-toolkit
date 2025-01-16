@@ -207,7 +207,7 @@ table ReservationRecomendations
 	column RecommendedQuantityNormlized
 		dataType: string
 		lineageTag: 82c2150a-82ae-444d-b275-0f7b54c94115
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: RecommendedQuantityNormlized
 
 		annotation SummarizationSetBy = Automatic
@@ -215,7 +215,7 @@ table ReservationRecomendations
 	column TotaCostWithReservedInstances
 		dataType: string
 		lineageTag: df9cfff5-baa5-453a-b8db-539d5b97c952
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: TotaCostWithReservedInstances
 
 		annotation SummarizationSetBy = Automatic

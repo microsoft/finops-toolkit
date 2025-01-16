@@ -265,6 +265,12 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_ResourceGroupId = "/subscriptions/" & Resources[subscriptionId] & "/resourcegroups/" & Resources[resourceGroup]
+		lineageTag: f883fc6b-724f-405d-a7bd-86b2bebcae26
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
 	partition Resources = m
 		mode: import
 		queryGroup: 'Resource Graph'
