@@ -234,6 +234,9 @@ function New-FinOpsCostExport
             $StoragePath = $Scope
         }
 
+        # Set granularity based on dataset type
+        $granularity = if ($Dataset -eq "PriceSheet") { "Monthly" } else { "Daily" }
+
         $props = @{
             properties = @{
                 definition    = @{
@@ -241,7 +244,7 @@ function New-FinOpsCostExport
                     timeframe = "Custom"
                     dataSet   = @{
                         configuration = @{}
-                        granularity   = "Daily"
+                        granularity   = $granularity
                     }
                 }
                 schedule      = @{ status = "Inactive" }
