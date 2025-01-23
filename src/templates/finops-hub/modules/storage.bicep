@@ -388,6 +388,7 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: identity.properties.principalId
     principalType: 'ServicePrincipal'
+    delegatedManagedIdentityResourceId: identity.id
   }
 }]
 

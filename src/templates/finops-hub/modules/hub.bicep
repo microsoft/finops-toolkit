@@ -285,6 +285,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     tags: resourceTags
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
+    dataFactoryManagedIdentityName: dataFactoryUserAssignedManagedIdentity.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
     virtualNetworkId: safeVnetId
     privateEndpointSubnetId: safeDataExplorerSubnetId
@@ -297,6 +298,13 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
 // Data Factory and pipelines
 //------------------------------------------------------------------------------
 
+// Create managed identity for Azure Data Factory
+resource dataFactoryUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${dataFactoryName}_uami'
+  location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+}
+
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   name: dataFactoryName
   location: location
@@ -304,7 +312,12 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
     resourceTags,
     contains(tagsByResource, 'Microsoft.DataFactory/factories') ? tagsByResource['Microsoft.DataFactory/factories'] : {}
   )
-  identity: { type: 'SystemAssigned' }
+  identity: { 
+    type: 'UserAssigned'
+    userAssignedIdentities:{
+      '${dataFactoryUserAssignedManagedIdentity.id}': {}
+    }
+  }
   properties: any({ // Using any() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet
       globalConfigurations: {
         PipelineBillingEnabled: 'true'
@@ -317,6 +330,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
   params: {
     hubName: hubName
     dataFactoryName: dataFactory.name
+    dataFactoryManagedIdentityName: dataFactoryUserAssignedManagedIdentity.name
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
@@ -354,7 +368,7 @@ module keyVault 'keyVault.bicep' = {
     privateEndpointSubnetId:safeFinopsHubSubnetId
     accessPolicies: [
       {
-        objectId: dataFactory.identity.principalId
+        objectId: dataFactoryUserAssignedManagedIdentity.properties.principalId // dataFactory.identity.principalId
         tenantId: subscription().tenantId
         permissions: {
           secrets: [
@@ -401,7 +415,7 @@ output ingestionDbName string = !deployDataExplorer ? '' : dataExplorer.outputs.
 output hubDbName string = !deployDataExplorer ? '' : dataExplorer.outputs.hubDbName
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output managedIdentityId string = dataFactory.identity.principalId
+output managedIdentityId string = dataFactoryUserAssignedManagedIdentity.properties.principalId // dataFactory.identity.principalId
 
 @description('Azure AD tenant ID. This will be needed when configuring managed exports.')
 output managedIdentityTenantId string = tenant().tenantId

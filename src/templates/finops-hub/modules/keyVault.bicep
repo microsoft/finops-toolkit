@@ -73,8 +73,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
     enabledForDeployment: true
     enabledForTemplateDeployment: true
     enabledForDiskEncryption: true
-    enableSoftDelete: true
-    softDeleteRetentionInDays: 90
+    enableSoftDelete: false
     enableRbacAuthorization: false
     createMode: 'default'
     tenantId: subscription().tenantId
