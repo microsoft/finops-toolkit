@@ -8,7 +8,7 @@ cultureInfo en-US
 			    "cost_detail": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails"
+			          "ConceptualEntity": "Costs"
 			        }
 			      },
 			      "State": "Generated",
@@ -136,7 +136,7 @@ cultureInfo en-US
 			    "cost_detail.x_account_owner_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_AccountOwnerId"
 			        }
 			      },
@@ -289,7 +289,7 @@ cultureInfo en-US
 			    "cost_detail.x_account_name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_AccountName"
 			        }
 			      },
@@ -430,7 +430,7 @@ cultureInfo en-US
 			    "cost_detail.sub_account_type": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "SubAccountType"
 			        }
 			      },
@@ -559,7 +559,7 @@ cultureInfo en-US
 			    "cost_detail.sub_account_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "SubAccountId"
 			        }
 			      },
@@ -700,7 +700,7 @@ cultureInfo en-US
 			    "cost_detail.sku_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "SkuId"
 			        }
 			      },
@@ -763,7 +763,7 @@ cultureInfo en-US
 			    "cost_detail.pricing_unit": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "PricingUnit"
 			        }
 			      },
@@ -892,7 +892,7 @@ cultureInfo en-US
 			    "cost_detail.pricing_category": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "PricingCategory"
 			        }
 			      },
@@ -1001,8 +1001,8 @@ cultureInfo en-US
 			    "cost_detail.commitment_savings_running_total": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_CommitmentCostSavingsRunningTotal"
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_CommitmentDiscountSavingsRunningTotal"
 			        }
 			      },
 			      "State": "Generated",
@@ -1128,7 +1128,7 @@ cultureInfo en-US
 			    "cost_detail.cost_running_total": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "EffectiveCostRunningTotal"
 			        }
 			      },
@@ -1217,23 +1217,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
-			        },
-			        {
-			          "Cost": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "cost_detail.effective_cost": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "EffectiveCost"
 			        }
 			      },
@@ -1362,7 +1352,7 @@ cultureInfo en-US
 			    "costdetails.chargeperiodstart.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -1399,7 +1389,7 @@ cultureInfo en-US
 			    "costdetails.chargeperiodstart.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -1476,7 +1466,7 @@ cultureInfo en-US
 			    "costdetails.chargeperiodstart.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -1553,7 +1543,7 @@ cultureInfo en-US
 			    "costdetails.chargeperiodstart.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -1630,7 +1620,7 @@ cultureInfo en-US
 			    "cost_detail.discount_savings_running_total": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_DiscountCostSavingsRunningTotal"
 			        }
 			      },
@@ -1757,7 +1747,7 @@ cultureInfo en-US
 			    "costdetails.chargeperiodstart.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -1794,7 +1784,7 @@ cultureInfo en-US
 			    "cost_detail.resource_type": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ResourceType"
 			        }
 			      },
@@ -1911,23 +1901,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
-			        },
-			        {
-			          "Type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "cost_detail.commitment_discount_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "CommitmentDiscountId"
 			        }
 			      },
@@ -2068,7 +2048,7 @@ cultureInfo en-US
 			    "cost_detail.list_cost": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ListCost"
 			        }
 			      },
@@ -2197,8 +2177,8 @@ cultureInfo en-US
 			    "cost_detail.negotiated_savings_running_total": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_NegotiatedCostSavingsRunningTotal"
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_NegotiatedDiscountSavingsRunningTotal"
 			        }
 			      },
 			      "State": "Generated",
@@ -2220,7 +2200,7 @@ cultureInfo en-US
 			    "cost_detail.resource_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ResourceId"
 			        }
 			      },
@@ -2286,7 +2266,7 @@ cultureInfo en-US
 			    "cost_detail.tag": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "Tags"
 			        }
 			      },
@@ -2362,7 +2342,7 @@ cultureInfo en-US
 			    "costdetails.billingaccountname": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "BillingAccountName"
 			        }
 			      },
@@ -2503,7 +2483,7 @@ cultureInfo en-US
 			    "costdetails.billingcurrency": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "BillingCurrency"
 			        }
 			      },
@@ -2632,7 +2612,7 @@ cultureInfo en-US
 			    "costdetails.billingperiodstart": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "BillingPeriodStart"
 			        }
 			      },
@@ -2774,7 +2754,7 @@ cultureInfo en-US
 			    "costdetails.chargedescription": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ChargeDescription"
 			        }
 			      },
@@ -2867,7 +2847,7 @@ cultureInfo en-US
 			    "costdetails.chargeperiodstart": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ChargePeriodStart"
 			        }
 			      },
@@ -3002,16 +2982,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.485
 			          }
-			        },
-			        {
-			          "Charge Period": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ],
 			      "SemanticType": "Time"
@@ -3019,7 +2989,7 @@ cultureInfo en-US
 			    "cost_detail.billed_cost": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "BilledCost"
 			        }
 			      },
@@ -3148,7 +3118,7 @@ cultureInfo en-US
 			    "costdetails.commitmentdiscountname": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "CommitmentDiscountName"
 			        }
 			      },
@@ -3283,23 +3253,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.5
 			          }
-			        },
-			        {
-			          "Commitment": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.commitmentdiscounttype": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "CommitmentDiscountType"
 			        }
 			      },
@@ -3422,34 +3382,14 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
-			        },
-			        {
-			          "Type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Commitment": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.commitmentutilization": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_CommitmentUtilization"
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_CommitmentDiscountUtilization"
 			        }
 			      },
 			      "State": "Generated",
@@ -3583,7 +3523,7 @@ cultureInfo en-US
 			    "costdetails.invoiceissuername": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "InvoiceIssuerName"
 			        }
 			      },
@@ -3704,7 +3644,7 @@ cultureInfo en-US
 			    "costdetails.listunitprice": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ListUnitPrice"
 			        }
 			      },
@@ -3827,23 +3767,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.591
 			          }
-			        },
-			        {
-			          "List": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.providername": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ProviderName"
 			        }
 			      },
@@ -3972,7 +3902,7 @@ cultureInfo en-US
 			    "costdetails.publishername": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "PublisherName"
 			        }
 			      },
@@ -4081,7 +4011,7 @@ cultureInfo en-US
 			    "costdetails.resourcename": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ResourceName"
 			        }
 			      },
@@ -4138,33 +4068,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
-			        },
-			        {
-			          "Resource": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.servicecategory": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ServiceCategory"
 			        }
 			      },
@@ -4293,7 +4203,7 @@ cultureInfo en-US
 			    "costdetails.servicename": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ServiceName"
 			        }
 			      },
@@ -4422,7 +4332,7 @@ cultureInfo en-US
 			    "costdetails.subaccountname": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "SubAccountName"
 			        }
 			      },
@@ -4557,23 +4467,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.6
 			          }
-			        },
-			        {
-			          "Subscription": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.termlabel": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuTermLabel"
 			        }
 			      },
@@ -4702,23 +4602,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.604
 			          }
-			        },
-			        {
-			          "Term": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.x_effectiveunitprice": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_EffectiveUnitPrice"
 			        }
 			      },
@@ -4847,63 +4737,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.599
 			          }
-			        },
-			        {
-			          "Effective": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
-			    },
-			    "costdetails.x_month": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_Month"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x month": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_Month": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "date": {
-			            "State": "Generated",
-			            "Weight": 0.7
-			          }
-			        },
-			        {
-			          "x mth": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        }
-			      ],
-			      "SemanticType": "Time"
 			    },
 			    "costdetails.x_publishercategory": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_PublisherCategory"
 			        }
 			      },
@@ -5038,7 +4878,7 @@ cultureInfo en-US
 			    "costdetails.x_resourcegroupname": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ResourceGroupName"
 			        }
 			      },
@@ -5173,23 +5013,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
-			        },
-			        {
-			          "Resource Group": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.x_resourcemachinename": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ResourceMachineName"
 			        }
 			      },
@@ -5336,68 +5166,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
-			        },
-			        {
-			          "VM": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
-			    },
-			    "costdetails.x_skucpus": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_SkuCPUs"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x sku CP us": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_SkuCPUs": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "CP us": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "sku CP us": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "vCPUs": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.x_skudescription": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuDescription"
 			        }
 			      },
@@ -5520,23 +5295,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
-			        },
-			        {
-			          "SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.x_skulicensestatus": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuLicenseStatus"
 			        }
 			      },
@@ -5671,23 +5436,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.75
 			          }
-			        },
-			        {
-			          "AHB Status": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.x_skumetercategory": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuMeterCategory"
 			        }
 			      },
@@ -5822,23 +5577,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
-			        },
-			        {
-			          "Service": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.x_skumetername": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuMeterName"
 			        }
 			      },
@@ -5991,7 +5736,7 @@ cultureInfo en-US
 			    "costdetails.x_skumetersubcategory": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuMeterSubcategory"
 			        }
 			      },
@@ -6032,7 +5777,7 @@ cultureInfo en-US
 			    "costdetails.x_skuordername": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuOrderName"
 			        }
 			      },
@@ -6179,23 +5924,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
-			        },
-			        {
-			          "Product order": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "costdetails.x_skutype": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuType"
 			        }
 			      },
@@ -6317,16 +6052,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -6586,7 +6311,7 @@ cultureInfo en-US
 			    "cost_detail.x_billed_cost_in_usd": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_BilledCostInUsd"
 			        }
 			      },
@@ -6709,7 +6434,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_account_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_BillingAccountId"
 			        }
 			      },
@@ -6856,7 +6581,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_account_name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_BillingAccountName"
 			        }
 			      },
@@ -7003,7 +6728,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_exchange_rate": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_BillingExchangeRate"
 			        }
 			      },
@@ -7144,7 +6869,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_exchange_rate_date": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_BillingExchangeRateDate"
 			        }
 			      },
@@ -7272,7 +6997,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_exchange_rate_date.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_BillingExchangeRateDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -7315,7 +7040,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_exchange_rate_date.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_BillingExchangeRateDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -7487,7 +7212,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_exchange_rate_date.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_BillingExchangeRateDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -7659,7 +7384,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_exchange_rate_date.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_BillingExchangeRateDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -7831,7 +7556,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_exchange_rate_date.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_BillingExchangeRateDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -7983,7 +7708,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_profile_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_BillingProfileId"
 			        }
 			      },
@@ -8136,7 +7861,7 @@ cultureInfo en-US
 			    "cost_detail.x_billing_profile_name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_BillingProfileName"
 			        }
 			      },
@@ -8289,7 +8014,7 @@ cultureInfo en-US
 			    "cost_detail.x_capacity_commitment_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_CapacityCommitmentId"
 			        }
 			      },
@@ -8439,286 +8164,10 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail.x_commitment_utilization_amount": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_CommitmentUtilizationAmount"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x commitment utilization amount": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_CommitmentUtilizationAmount": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "utilization amount": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "commitment utilization amount": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x commitment utilization quantity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "x commitment utilization volume": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "x commitment utilization expanse": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "x commitment utilization extent": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "commitment utilization quantity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "commitment utilization volume": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "commitment utilization expanse": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "commitment utilization extent": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "utilization quantity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "utilization volume": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_commitment_utilization_potential": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_CommitmentUtilizationPotential"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x commitment utilization potential": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_CommitmentUtilizationPotential": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "potential": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "utilization potential": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "commitment utilization potential": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x commitment utilization ability": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.489
-			          }
-			        },
-			        {
-			          "x commitment utilization possibility": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.489
-			          }
-			        },
-			        {
-			          "x commitment utilization aptitude": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.489
-			          }
-			        },
-			        {
-			          "x commitment utilization capability": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.489
-			          }
-			        },
-			        {
-			          "commitment utilization ability": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.482
-			          }
-			        },
-			        {
-			          "commitment utilization possibility": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.482
-			          }
-			        },
-			        {
-			          "commitment utilization aptitude": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.482
-			          }
-			        },
-			        {
-			          "commitment utilization capability": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.482
-			          }
-			        },
-			        {
-			          "budding": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "impending": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        }
-			      ]
-			    },
 			    "cost_detail.x_cost_allocation_rule_name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_CostAllocationRuleName"
 			        }
 			      },
@@ -8883,7 +8332,7 @@ cultureInfo en-US
 			    "cost_detail.x_cost_center": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_CostCenter"
 			        }
 			      },
@@ -9018,7 +8467,7 @@ cultureInfo en-US
 			    "cost_detail.x_customer_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_CustomerId"
 			        }
 			      },
@@ -9159,7 +8608,7 @@ cultureInfo en-US
 			    "cost_detail.x_customer_name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_CustomerName"
 			        }
 			      },
@@ -9300,7 +8749,7 @@ cultureInfo en-US
 			    "cost_detail.x_effective_cost_in_usd": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_EffectiveCostInUsd"
 			        }
 			      },
@@ -9459,7 +8908,7 @@ cultureInfo en-US
 			    "cost_detail.x_invoice_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_InvoiceId"
 			        }
 			      },
@@ -9600,7 +9049,7 @@ cultureInfo en-US
 			    "cost_detail.x_invoice_section_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_InvoiceSectionId"
 			        }
 			      },
@@ -9753,7 +9202,7 @@ cultureInfo en-US
 			    "cost_detail.x_invoice_section_name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_InvoiceSectionName"
 			        }
 			      },
@@ -9906,7 +9355,7 @@ cultureInfo en-US
 			    "cost_detail.x_partner_credit_applied": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_PartnerCreditApplied"
 			        }
 			      },
@@ -10029,7 +9478,7 @@ cultureInfo en-US
 			    "cost_detail.x_partner_credit_rate": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_PartnerCreditRate"
 			        }
 			      },
@@ -10170,7 +9619,7 @@ cultureInfo en-US
 			    "cost_detail.x_pricing_currency": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_PricingCurrency"
 			        }
 			      },
@@ -10305,7 +9754,7 @@ cultureInfo en-US
 			    "cost_detail.x_pricing_unit_description": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_PricingUnitDescription"
 			        }
 			      },
@@ -10440,7 +9889,7 @@ cultureInfo en-US
 			    "cost_detail.x_publisher_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_PublisherId"
 			        }
 			      },
@@ -10581,7 +10030,7 @@ cultureInfo en-US
 			    "cost_detail.x_reseller_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ResellerId"
 			        }
 			      },
@@ -10702,7 +10151,7 @@ cultureInfo en-US
 			    "cost_detail.x_reseller_name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ResellerName"
 			        }
 			      },
@@ -10823,7 +10272,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_end": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ServicePeriodEnd"
 			        }
 			      },
@@ -10971,7 +10420,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_end.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -11014,7 +10463,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_end.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -11157,7 +10606,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_end.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -11300,7 +10749,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_end.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -11443,7 +10892,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_end.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -11586,7 +11035,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_start": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ServicePeriodStart"
 			        }
 			      },
@@ -11734,7 +11183,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_start.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -11777,7 +11226,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_start.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -11920,7 +11369,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_start.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -12063,7 +11512,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_start.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -12206,7 +11655,7 @@ cultureInfo en-US
 			    "cost_detail.x_service_period_start.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_ServicePeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -12349,7 +11798,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_detail": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuDetails"
 			        }
 			      },
@@ -12484,7 +11933,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_image_type": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuImageType"
 			        }
 			      },
@@ -12616,51 +12065,10 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail.x_sku_license_CP_us": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_SkuLicenseCPUs"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x sku license CP us": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_SkuLicenseCPUs": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "CP us": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "license CP us": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "sku license CP us": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        }
-			      ]
-			    },
 			    "cost_detail.x_sku_meter_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuMeterId"
 			        }
 			      },
@@ -12813,7 +12221,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_offer_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuOfferId"
 			        }
 			      },
@@ -12966,7 +12374,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_order_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuOrderId"
 			        }
 			      },
@@ -13119,7 +12527,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_part_number": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuPartNumber"
 			        }
 			      },
@@ -13254,7 +12662,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_region": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuRegion"
 			        }
 			      },
@@ -13383,7 +12791,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_service_family": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuServiceFamily"
 			        }
 			      },
@@ -13524,7 +12932,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_term": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuTerm"
 			        }
 			      },
@@ -13653,7 +13061,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_usage_type": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuUsageType"
 			        }
 			      },
@@ -13788,7 +13196,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_VM_property": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuVMProperties"
 			        }
 			      },
@@ -13926,145 +13334,10 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail.x_usage_CPU_hour": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_UsageCPUHours"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x usage CPU hour": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_UsageCPUHours": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "CPU hour": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "usage CPU hour": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x usage cpu period": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "usage cpu period": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "x usage cpu era": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.489
-			          }
-			        },
-			        {
-			          "x usage cpu epoch": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.489
-			          }
-			        },
-			        {
-			          "cpu period": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "usage cpu era": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.482
-			          }
-			        },
-			        {
-			          "usage cpu epoch": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.482
-			          }
-			        },
-			        {
-			          "cpu era": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.475
-			          }
-			        },
-			        {
-			          "cpu epoch": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.475
-			          }
-			        },
-			        {
-			          "x usage cpu age": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.474
-			          }
-			        }
-			      ]
-			    },
 			    "cost_detail.x_pricing_subcategory": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_PricingSubcategory"
 			        }
 			      },
@@ -14099,7 +13372,7 @@ cultureInfo en-US
 			    "cost_detail.x_commitment_discount_key": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_CommitmentDiscountKey"
 			        }
 			      },
@@ -14240,7 +13513,7 @@ cultureInfo en-US
 			    "cost_detail.billing_account_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "BillingAccountId"
 			        }
 			      },
@@ -14381,7 +13654,7 @@ cultureInfo en-US
 			    "cost_detail.billing_account_type": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "BillingAccountType"
 			        }
 			      },
@@ -14510,7 +13783,7 @@ cultureInfo en-US
 			    "cost_detail.billing_period_end": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "BillingPeriodEnd"
 			        }
 			      },
@@ -14652,7 +13925,7 @@ cultureInfo en-US
 			    "cost_detail.billing_period_end.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -14689,7 +13962,7 @@ cultureInfo en-US
 			    "cost_detail.billing_period_end.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -14826,7 +14099,7 @@ cultureInfo en-US
 			    "cost_detail.billing_period_end.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -14963,7 +14236,7 @@ cultureInfo en-US
 			    "cost_detail.billing_period_end.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -15100,7 +14373,7 @@ cultureInfo en-US
 			    "cost_detail.billing_period_end.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -15237,7 +14510,7 @@ cultureInfo en-US
 			    "costdetails.billingperiodstart.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -15274,7 +14547,7 @@ cultureInfo en-US
 			    "costdetails.billingperiodstart.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -15351,7 +14624,7 @@ cultureInfo en-US
 			    "costdetails.billingperiodstart.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -15428,7 +14701,7 @@ cultureInfo en-US
 			    "costdetails.billingperiodstart.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -15505,7 +14778,7 @@ cultureInfo en-US
 			    "costdetails.billingperiodstart.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "BillingPeriodStart",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -15542,7 +14815,7 @@ cultureInfo en-US
 			    "cost_detail.charge_category": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ChargeCategory"
 			        }
 			      },
@@ -15631,7 +14904,7 @@ cultureInfo en-US
 			    "cost_detail.charge_frequency": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ChargeFrequency"
 			        }
 			      },
@@ -15730,7 +15003,7 @@ cultureInfo en-US
 			    "cost_detail.charge_period_end": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ChargePeriodEnd"
 			        }
 			      },
@@ -15872,7 +15145,7 @@ cultureInfo en-US
 			    "cost_detail.charge_period_end.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -15909,7 +15182,7 @@ cultureInfo en-US
 			    "cost_detail.charge_period_end.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -16046,7 +15319,7 @@ cultureInfo en-US
 			    "cost_detail.charge_period_end.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -16183,7 +15456,7 @@ cultureInfo en-US
 			    "cost_detail.charge_period_end.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -16320,7 +15593,7 @@ cultureInfo en-US
 			    "cost_detail.charge_period_end.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "ChargePeriodEnd",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -16457,7 +15730,7 @@ cultureInfo en-US
 			    "cost_detail.commitment_discount_category": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "CommitmentDiscountCategory"
 			        }
 			      },
@@ -16592,7 +15865,7 @@ cultureInfo en-US
 			    "costdetails.x_month.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_Month",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -16617,7 +15890,7 @@ cultureInfo en-US
 			    "costdetails.x_month.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_Month",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -16672,7 +15945,7 @@ cultureInfo en-US
 			    "costdetails.x_month.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_Month",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -16727,7 +16000,7 @@ cultureInfo en-US
 			    "costdetails.x_month.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_Month",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -16782,7 +16055,7 @@ cultureInfo en-US
 			    "costdetails.x_month.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "VariationSource": "x_Month",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -16817,7 +16090,7 @@ cultureInfo en-US
 			    "cost_detail.pricing_quantity": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "PricingQuantity"
 			        }
 			      },
@@ -16920,7 +16193,7 @@ cultureInfo en-US
 			    "cost_detail.sku_price_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "SkuPriceId"
 			        }
 			      },
@@ -17055,7 +16328,7 @@ cultureInfo en-US
 			    "cost_detail.x_billed_unit_price": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_BilledUnitPrice"
 			        }
 			      },
@@ -17178,7 +16451,7 @@ cultureInfo en-US
 			    "cost_detail.x_dataset_type": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_DatasetType"
 			        }
 			      },
@@ -17307,7 +16580,7 @@ cultureInfo en-US
 			    "cost_detail.x_dataset_version": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_DatasetVersion"
 			        }
 			      },
@@ -17430,7 +16703,7 @@ cultureInfo en-US
 			    "cost_detail.x_invoice_issuer_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_InvoiceIssuerId"
 			        }
 			      },
@@ -17583,7 +16856,7 @@ cultureInfo en-US
 			    "cost_detail.x_pricing_block_size": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_PricingBlockSize"
 			        }
 			      },
@@ -17718,7 +16991,7 @@ cultureInfo en-US
 			    "cost_detail.x_resource_type": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ResourceType"
 			        }
 			      },
@@ -17841,7 +17114,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_is_credit_eligible": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuIsCreditEligible"
 			        }
 			      },
@@ -17964,7 +17237,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_tier": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuTier"
 			        }
 			      },
@@ -18099,7 +17372,7 @@ cultureInfo en-US
 			    "cost_detail.x_sku_details_dictionary": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_SkuDetailsDictionary"
 			        }
 			      },
@@ -18261,7 +17534,7 @@ cultureInfo en-US
 			    "cost_detail.x_tags_dictionary": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_TagsDictionary"
 			        }
 			      },
@@ -18407,792 +17680,10 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail.x_commitment_cost_savings": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_CommitmentCostSavings"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x commitment cost savings": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_CommitmentCostSavings": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "cost savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "commitment cost savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x commitment cost investment": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "x commitment cost money": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "commitment cost investment": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "commitment cost money": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "cost investment": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "cost money": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "x commitment cost reserve": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x commitment cost fund": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x commitment cost hoard": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x commitment cost stash": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_commitment_unit_price_savings": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_CommitmentUnitPriceSavings"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x commitment unit price savings": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_CommitmentUnitPriceSavings": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "price savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "unit price savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "commitment unit price savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x commitment module price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x commitment element price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x commitment entity price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "commitment module price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.617
-			          }
-			        },
-			        {
-			          "commitment element price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.617
-			          }
-			        },
-			        {
-			          "commitment entity price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.617
-			          }
-			        },
-			        {
-			          "module price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.609
-			          }
-			        },
-			        {
-			          "element price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.609
-			          }
-			        },
-			        {
-			          "entity price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.609
-			          }
-			        },
-			        {
-			          "x commitment group price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_discount_cost_savings": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_DiscountCostSavings"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x discount cost savings": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_DiscountCostSavings": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "cost savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "discount cost savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x discount cost investment": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "x discount cost money": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "discount cost investment": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "discount cost money": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "cost investment": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "cost money": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "x discount cost reserve": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x discount cost fund": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x discount cost hoard": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x discount cost stash": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_discount_unit_price_savings": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_DiscountUnitPriceSavings"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x discount unit price savings": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_DiscountUnitPriceSavings": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "price savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "unit price savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "discount unit price savings": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x discount module price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x discount element price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x discount entity price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "discount module price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.617
-			          }
-			        },
-			        {
-			          "discount element price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.617
-			          }
-			        },
-			        {
-			          "discount entity price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.617
-			          }
-			        },
-			        {
-			          "module price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.609
-			          }
-			        },
-			        {
-			          "element price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.609
-			          }
-			        },
-			        {
-			          "entity price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.609
-			          }
-			        },
-			        {
-			          "x discount group price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_negotiated_cost_savings": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_NegotiatedCostSavings"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x negotiated cost savings": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_NegotiatedCostSavings": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "x negotiated cost investment": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "x negotiated cost money": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.514
-			          }
-			        },
-			        {
-			          "x negotiated cost reserve": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x negotiated cost fund": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x negotiated cost hoard": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        },
-			        {
-			          "x negotiated cost stash": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.499
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_negotiated_unit_price_savings": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_NegotiatedUnitPriceSavings"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x negotiated unit price savings": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_NegotiatedUnitPriceSavings": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "x negotiated module price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x negotiated element price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x negotiated entity price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x negotiated group price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x negotiated component price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x negotiated constituent price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x negotiated item price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x negotiated part price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x negotiated section price savings": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x negotiated unit price investment": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.52
-			          }
-			        }
-			      ]
-			    },
 			    "cost_detail.effective_cost_variance": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "EffectiveCostVariance"
 			        }
 			      },
@@ -19327,7 +17818,7 @@ cultureInfo en-US
 			    "cost_detail.charge_period": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ChargePeriod"
 			        }
 			      },
@@ -19456,7 +17947,7 @@ cultureInfo en-US
 			    "cost_detail.billing_period": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "BillingPeriod"
 			        }
 			      },
@@ -26976,7 +25467,7 @@ cultureInfo en-US
 			    "cost_detail.charge_class": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ChargeClass"
 			        }
 			      },
@@ -27105,7 +25596,7 @@ cultureInfo en-US
 			    "cost_detail.commitment_discount_status": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "CommitmentDiscountStatus"
 			        }
 			      },
@@ -27240,7 +25731,7 @@ cultureInfo en-US
 			    "cost_detail.consumed_quantity": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ConsumedQuantity"
 			        }
 			      },
@@ -27343,7 +25834,7 @@ cultureInfo en-US
 			    "cost_detail.consumed_unit": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ConsumedUnit"
 			        }
 			      },
@@ -27472,7 +25963,7 @@ cultureInfo en-US
 			    "cost_detail.contracted_cost": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ContractedCost"
 			        }
 			      },
@@ -27601,7 +26092,7 @@ cultureInfo en-US
 			    "cost_detail.contracted_unit_price": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "ContractedUnitPrice"
 			        }
 			      },
@@ -27730,7 +26221,7 @@ cultureInfo en-US
 			    "cost_detail.region_name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "RegionName"
 			        }
 			      },
@@ -27847,23 +26338,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.582
 			          }
-			        },
-			        {
-			          "Region": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "cost_detail.x_contracted_cost_in_usd": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ContractedCostInUsd"
 			        }
 			      },
@@ -27986,7 +26467,7 @@ cultureInfo en-US
 			    "cost_detail.x_incremental_refresh_date": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_IncrementalRefreshDate"
 			        }
 			      },
@@ -28029,7 +26510,7 @@ cultureInfo en-US
 			    "cost_detail.x_effective_cost_per_resource": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_EffectiveCostPerResource"
 			        }
 			      },
@@ -28158,23 +26639,13 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.492
 			          }
-			        },
-			        {
-			          "Cost / resource": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
 			    "cost_detail.region_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "RegionId"
 			        }
 			      },
@@ -28297,7 +26768,7 @@ cultureInfo en-US
 			    "cost_detail.x_account_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_AccountId"
 			        }
 			      },
@@ -28438,7 +26909,7 @@ cultureInfo en-US
 			    "cost_detail.x_list_cost_in_usd": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ListCostInUsd"
 			        }
 			      },
@@ -42342,7 +40813,7 @@ cultureInfo en-US
 			    "cost_detail.x_dataset_change": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_DatasetChanges"
 			        }
 			      },
@@ -42477,7 +40948,7 @@ cultureInfo en-US
 			    "cost_detail.region": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "Region"
 			        }
 			      },
@@ -42533,7 +41004,7 @@ cultureInfo en-US
 			    "cost_detail.x_on_demand_cost": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_OnDemandCost"
 			        }
 			      },
@@ -42556,7 +41027,7 @@ cultureInfo en-US
 			    "cost_detail.x_on_demand_cost_in_usd": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_OnDemandCostInUsd"
 			        }
 			      },
@@ -42579,7 +41050,7 @@ cultureInfo en-US
 			    "cost_detail.x_on_demand_unit_price": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_OnDemandUnitPrice"
 			        }
 			      },
@@ -44425,6 +42896,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -45078,6 +43559,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Current SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -45100,6 +43591,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Target SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -45756,6 +44257,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Resource name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -46912,6 +45423,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Resource": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -47001,6 +45522,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Type code": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -47345,6 +45876,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -51695,6 +50236,26 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Subscription": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Subscription name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -53378,6 +51939,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.5
 			          }
+			        },
+			        {
+			          "Resource type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -54624,6 +53195,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.582
 			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -54816,6 +53397,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Virtual machine name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ],
@@ -57002,6 +55593,26 @@ cultureInfo en-US
 			          "storageProfile.osDisk.osType": {
 			            "State": "Generated"
 			          }
+			        },
+			        {
+			          "OS": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "OS type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -57072,6 +55683,16 @@ cultureInfo en-US
 			        {
 			          "hardwareProfile.vmSize": {
 			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "Size": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -57197,6 +55818,26 @@ cultureInfo en-US
 			        {
 			          "powerState.displayStatus": {
 			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "State": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Power state": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -57840,6 +56481,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Disk name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -58268,6 +56919,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -58502,6 +57163,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -58843,6 +57514,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Disk size GB": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -59171,6 +57852,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "State": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -59988,6 +58679,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Network interface": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -60415,6 +59116,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -61421,6 +60132,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Private IP address": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -62721,6 +61442,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Public IP name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -63587,6 +62318,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Public IP address": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -67529,6 +66270,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Resource name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -67955,6 +66706,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -69547,6 +68308,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Destination address prefix": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -69616,6 +68387,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Source address prefix": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -69638,6 +68419,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Destination port range": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -69685,6 +68476,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Source port range": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -69731,6 +68532,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Direction": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -69754,6 +68565,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Priority": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -69776,6 +68597,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Access": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -71860,6 +70691,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Policy": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -75679,6 +74520,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Scope": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -77391,6 +76242,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -77623,6 +76484,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
+			        },
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -77708,6 +76579,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.492
+			          }
+			        },
+			        {
+			          "Tier": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -77824,6 +76705,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.468
+			          }
+			        },
+			        {
+			          "Capacity": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -78130,6 +77021,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
+			        },
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -78152,6 +77053,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Backup storage redundancy": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -78756,6 +77667,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "License type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -83754,6 +82675,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.99
 			          }
+			        },
+			        {
+			          "Non-compliant": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -83899,8 +82830,53 @@ cultureInfo en-US
 			    "costdetails.x_resourceparentname": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
+			          "ConceptualEntity": "Costs",
 			          "ConceptualProperty": "x_ResourceParentName"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.resourcenameunique": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "ResourceNameUnique"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.subaccountnameunique": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "SubAccountNameUnique"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.x_resourcegroupnameunique": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_ResourceGroupNameUnique"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.x_chargemonth": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_ChargeMonth"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.x_totalsavingsrunningtotal": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_TotalSavingsRunningTotal"
 			        }
 			      },
 			      "State": "Generated"
@@ -83942,7 +82918,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_x_month_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -83975,7 +82951,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_x_month_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84008,7 +82984,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_x_month_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84041,7 +83017,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_x_month_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84074,7 +83050,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_x_month_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84107,7 +83083,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_charge_period_end_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84140,7 +83116,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_charge_period_end_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84173,7 +83149,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_charge_period_end_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84206,7 +83182,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_charge_period_end_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84239,7 +83215,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_charge_period_end_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84272,7 +83248,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_billingperiodstart_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84305,7 +83281,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_billingperiodstart_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84338,7 +83314,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_billingperiodstart_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84371,7 +83347,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_billingperiodstart_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84404,7 +83380,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_billingperiodstart_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84437,7 +83413,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_billing_period_end_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84470,7 +83446,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_billing_period_end_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84503,7 +83479,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_billing_period_end_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84536,7 +83512,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_billing_period_end_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84569,7 +83545,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_billing_period_end_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84602,7 +83578,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_start_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84635,7 +83611,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_start_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84668,7 +83644,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_start_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84701,7 +83677,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_start_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84734,7 +83710,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_start_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84767,7 +83743,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_end_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84800,7 +83776,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_end_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84833,7 +83809,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_end_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84866,7 +83842,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_end_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84899,7 +83875,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_service_period_end_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84932,7 +83908,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_billing_exchange_rate_date_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84965,7 +83941,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_billing_exchange_rate_date_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -84998,7 +83974,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_billing_exchange_rate_date_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -85031,7 +84007,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_billing_exchange_rate_date_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -85064,7 +84040,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_x_billing_exchange_rate_date_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -85097,7 +84073,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_chargeperiodstart_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -85130,7 +84106,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_chargeperiodstart_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -85163,7 +84139,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_chargeperiodstart_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -85196,7 +84172,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_chargeperiodstart_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -85229,7 +84205,7 @@ cultureInfo en-US
 			    },
 			    "costdetails_chargeperiodstart_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -86078,7 +85054,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_disk": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -106647,7 +105623,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_on_demand_unit_price": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -106680,7 +105656,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_on_demand_cost_in_usd": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -106713,7 +105689,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_on_demand_cost": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -106746,7 +105722,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_region": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -106779,7 +105755,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_dataset_change": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110457,7 +109433,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_list_cost_in_usd": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110541,7 +109517,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_account_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110574,7 +109550,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_region_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110607,7 +109583,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_effective_cost_per_resource": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110667,7 +109643,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_incremental_refresh_date": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110700,7 +109676,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_contracted_cost_in_usd": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110733,7 +109709,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_region_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110766,7 +109742,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_contracted_unit_price": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110799,7 +109775,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_contracted_cost": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110859,7 +109835,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_consumed_unit": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110892,7 +109868,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_consumed_quantity": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110925,7 +109901,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_commitment_discount_status": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -110971,7 +109947,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_charge_class": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112621,7 +111597,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_billing_period": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112654,7 +111630,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_charge_period": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112687,7 +111663,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_effective_cost_variance": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112720,7 +111696,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_free_reason": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112753,7 +111729,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_negotiated_unit_price_savings": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112786,7 +111762,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_negotiated_cost_savings": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112819,7 +111795,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_discount_unit_price_savings": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112852,7 +111828,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_discount_cost_savings": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112885,7 +111861,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_commitment_unit_price_savings": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112918,7 +111894,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_commitment_cost_savings": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112951,7 +111927,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_tags_dictionary": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -112984,7 +111960,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_details_dictionary": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113017,7 +111993,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_toolkit_version": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113050,7 +112026,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_toolkit_tool": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113083,7 +112059,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_resource_parent_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113116,7 +112092,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_resource_parent_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113149,7 +112125,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_tier": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113182,7 +112158,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_is_credit_eligible": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113228,7 +112204,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_resource_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113261,7 +112237,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_pricing_block_size": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113294,7 +112270,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_invoice_issuer_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113327,7 +112303,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_dataset_version": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113360,7 +112336,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_dataset_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113393,7 +112369,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_billed_unit_price": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113426,7 +112402,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_sku_price_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113459,7 +112435,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_pricing_quantity": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113492,7 +112468,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_availability_zone": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113525,7 +112501,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_commitment_discount_category": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113558,7 +112534,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_charge_period_end": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113591,7 +112567,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_charge_frequency": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113624,7 +112600,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_charge_category": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113657,7 +112633,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_billing_period_end": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113690,7 +112666,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_billing_account_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113723,7 +112699,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_billing_account_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113756,7 +112732,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_commitment_discount_key": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113789,7 +112765,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_pricing_subcategory": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113822,7 +112798,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_usage_CPU_hour": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113855,7 +112831,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_VM_property": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113888,7 +112864,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_usage_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113921,7 +112897,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_term": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113954,7 +112930,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_service_family": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -113987,7 +112963,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_region": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114020,7 +112996,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_part_number": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114053,7 +113029,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_order_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114086,7 +113062,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_offer_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114119,7 +113095,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_meter_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114152,7 +113128,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_license_CP_us": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114185,7 +113161,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_image_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114218,7 +113194,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_sku_detail": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114251,7 +113227,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_service_period_start": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114284,7 +113260,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_service_period_end": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114317,7 +113293,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_reseller_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114383,7 +113359,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_reseller_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114449,7 +113425,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_publisher_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114515,7 +113491,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_pricing_unit_description": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114548,7 +113524,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_pricing_currency": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114581,7 +113557,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_partner_credit_rate": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114614,7 +113590,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_partner_credit_applied": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114660,7 +113636,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_invoice_section_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114693,7 +113669,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_invoice_section_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114726,7 +113702,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_invoice_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114759,7 +113735,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_effective_cost_in_usd": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114819,7 +113795,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_customer_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114852,7 +113828,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_customer_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114885,7 +113861,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_cost_center": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114918,7 +113894,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_cost_allocation_rule_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114951,7 +113927,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_commitment_utilization_potential": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -114984,7 +113960,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_commitment_utilization_amount": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115017,7 +113993,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_capacity_commitment_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115050,7 +114026,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_billing_profile_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115083,7 +114059,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_billing_profile_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115116,7 +114092,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_billing_exchange_rate_date": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115149,7 +114125,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_billing_exchange_rate": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115182,7 +114158,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_billing_account_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115215,7 +114191,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_billing_account_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115248,7 +114224,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_billed_cost_in_usd": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115347,7 +114323,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_skutype": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115380,7 +114356,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_skuordername": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115413,7 +114389,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_skumetersubcategory": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115446,7 +114422,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_skumetername": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115479,7 +114455,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_skumetercategory": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115512,7 +114488,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_skulicensestatus": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115558,7 +114534,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_skudescription": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115591,7 +114567,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_skucpus": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115624,7 +114600,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_resourceparentname": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115657,7 +114633,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_resourcemachinename": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115690,7 +114666,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_resourcegroupnameunique": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115723,7 +114699,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_resourcegroupname": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115756,7 +114732,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_publishercategory": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115789,7 +114765,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_month": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115822,7 +114798,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_x_effectiveunitprice": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115855,7 +114831,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_termlabel": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115888,7 +114864,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_subaccountnameunique": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115921,7 +114897,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_subaccountname": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115954,7 +114930,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_servicename": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -115987,7 +114963,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_servicecategory": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116020,7 +114996,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_resourcenameunique": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116053,7 +115029,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_resourcename": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116086,7 +115062,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_publishername": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116152,7 +115128,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_providername": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116218,7 +115194,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_listunitprice": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116251,7 +115227,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_invoiceissuername": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116284,7 +115260,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_commitmentutilization": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116317,7 +115293,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_commitmentdiscounttype": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116350,7 +115326,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_commitmentdiscountname": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116383,7 +115359,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_billed_cost": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116443,7 +115419,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_chargeperiodstart": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116476,7 +115452,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_chargedescription": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116509,7 +115485,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_billingperiodstart": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116542,7 +115518,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_billingcurrency": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116575,7 +115551,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_costdetails_billingaccountname": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116608,7 +115584,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_tag": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116641,7 +115617,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_negotiated_savings_running_total": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116674,7 +115650,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_list_cost": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116734,7 +115710,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_commitment_discount_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116767,7 +115743,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_commitment_discount_name_unique": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116800,7 +115776,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_resource_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116833,7 +115809,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_discount_savings_running_total": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116866,7 +115842,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_effective_cost": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116926,7 +115902,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_cost_running_total": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116959,7 +115935,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_commitment_savings_running_total": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -116992,7 +115968,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_pricing_category": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -117025,7 +116001,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_pricing_unit": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -117058,7 +116034,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_sku_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -117091,7 +116067,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_sub_account_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -117124,7 +116100,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_sub_account_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -117157,7 +116133,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_account_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -117190,7 +116166,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_account_owner_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -117256,7 +116232,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_has_x_account_type": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -119224,7 +118200,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_in_region": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -119404,7 +118380,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_in_region_id": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -119449,7 +118425,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_in_region_name": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -119494,7 +118470,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_in_x_sku_region": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -119878,7 +118854,7 @@ cultureInfo en-US
 			    },
 			    "cost_detail_is_rated_on_x_billing_exchange_rate_date": {
 			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
+			        "ConceptualEntity": "Costs"
 			      },
 			      "State": "Generated",
 			      "Roles": {

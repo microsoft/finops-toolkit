@@ -1,0 +1,91 @@
+table ResourceTypes
+	lineageTag: ac01cf9d-360d-46af-b370-4093c135f5fa
+
+	column ResourceType
+		dataType: string
+		lineageTag: c4e92184-cd2e-4c38-9aed-926a99415e74
+		summarizeBy: none
+		sourceColumn: ResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column SingularDisplayName
+		dataType: string
+		lineageTag: 6c670105-386c-4c37-aefc-cdc1ba0c3da7
+		summarizeBy: none
+		sourceColumn: SingularDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column PluralDisplayName
+		dataType: string
+		lineageTag: 9c09699e-642f-48c2-a209-f6d28508182a
+		summarizeBy: none
+		sourceColumn: PluralDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column LowerSingularDisplayName
+		dataType: string
+		lineageTag: 79ce05a6-d710-4aa6-8d3c-4382b7f40f83
+		summarizeBy: none
+		sourceColumn: LowerSingularDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column LowerPluralDisplayName
+		dataType: string
+		lineageTag: f20f616d-021a-4079-90b0-e33f93d9506c
+		summarizeBy: none
+		sourceColumn: LowerPluralDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsPreview
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7fc6e3cf-cefb-4852-95ff-aca3d40e8587
+		summarizeBy: none
+		sourceColumn: IsPreview
+
+		annotation SummarizationSetBy = Automatic
+
+	column Description
+		dataType: string
+		lineageTag: 18c94eb5-94e5-4953-ac08-25d3f63ee010
+		summarizeBy: none
+		sourceColumn: Description
+
+		annotation SummarizationSetBy = Automatic
+
+	column Icon
+		dataType: string
+		lineageTag: ab1cc890-b1a1-43cc-9fc0-994fa19ab189
+		summarizeBy: none
+		sourceColumn: Icon
+
+		annotation SummarizationSetBy = Automatic
+
+	column Links
+		dataType: string
+		lineageTag: fb0aff16-5c8a-4fc6-9147-7706ab3a68df
+		summarizeBy: none
+		sourceColumn: Links
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ResourceTypes = m
+		mode: import
+		queryGroup: 'Open data'
+		source =
+				let
+				  Source = Csv.Document(Web.Contents("https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv"), [Delimiter = ",", Columns = 9, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"ResourceType", type text}, {"SingularDisplayName", type text}, {"PluralDisplayName", type text}, {"LowerSingularDisplayName", type text}, {"LowerPluralDisplayName", type text}, {"IsPreview", type logical}, {"Description", type text}, {"Icon", type text}, {"Links", type text}}, "en-US")
+				in
+				  #"Changed column type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
