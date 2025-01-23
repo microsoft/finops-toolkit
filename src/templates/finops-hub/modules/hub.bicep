@@ -109,6 +109,9 @@ param dataExplorerSku string = 'Dev(No SLA)_Standard_D11_v2'
 @maxValue(1000)
 param dataExplorerCapacity int = 1
 
+@description('Optional. The clusters external tenants (array of AAD tenant GUIDs).')
+param dataExplorerTrustedExternalTenants string[] = []
+
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -116,7 +119,7 @@ param tags object = {}
 param tagsByResource object = {}
 
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
-param scopesToMonitor array
+param scopesToMonitor array = []
 
 @description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
 param exportRetentionInDays int = 0
@@ -281,6 +284,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
+    clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
