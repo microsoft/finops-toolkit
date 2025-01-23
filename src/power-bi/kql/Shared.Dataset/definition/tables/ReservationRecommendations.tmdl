@@ -189,7 +189,7 @@ table ReservationRecommendations
 		queryGroup: 'Data Explorer'
 		source =
 				let
-				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
 				
 				    Recommendations_v1_0
 				    | where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'

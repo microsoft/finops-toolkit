@@ -41,42 +41,6 @@ table TagCosts
 
 		annotation SummarizationSetBy = Automatic
 
-	column CommitmentDiscountCategory
-		dataType: string
-		sourceProviderType: nvarchar(max)
-		lineageTag: ad0ee74c-6d44-4747-bb7d-54e963271b8e
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountCategory
-
-		annotation SummarizationSetBy = Automatic
-
-	column CommitmentDiscountId
-		dataType: string
-		sourceProviderType: nvarchar(max)
-		lineageTag: d63de78c-1c16-4b0f-a635-eb28d911cdb3
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountId
-
-		annotation SummarizationSetBy = Automatic
-
-	column CommitmentDiscountName
-		dataType: string
-		sourceProviderType: nvarchar(max)
-		lineageTag: 3cdd59bb-5ff8-4b9e-9c3e-38ac44005191
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountName
-
-		annotation SummarizationSetBy = Automatic
-
-	column CommitmentDiscountType
-		dataType: string
-		sourceProviderType: nvarchar(max)
-		lineageTag: 1e709d01-352c-4244-89b4-dc62ebe6aac6
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountType
-
-		annotation SummarizationSetBy = Automatic
-
 	column ContractedCost
 		dataType: double
 		sourceProviderType: decimal
@@ -120,17 +84,6 @@ table TagCosts
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_CommitmentDiscountSavings
-		dataType: double
-		sourceProviderType: decimal
-		lineageTag: e841c61c-0ab8-456b-b286-3790132c1a67
-		summarizeBy: sum
-		sourceColumn: x_CommitmentDiscountSavings
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column x_CostCategories
 		dataType: string
 		sourceProviderType: nvarchar(max)
@@ -149,17 +102,6 @@ table TagCosts
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_NegotiatedDiscountSavings
-		dataType: double
-		sourceProviderType: decimal
-		lineageTag: 42ae9655-83d4-4c24-9448-e76e9f86c578
-		summarizeBy: sum
-		sourceColumn: x_NegotiatedDiscountSavings
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column x_ReportingDate
 		dataType: dateTime
 		formatString: General Date
@@ -169,17 +111,6 @@ table TagCosts
 		sourceColumn: x_ReportingDate
 
 		annotation SummarizationSetBy = Automatic
-
-	column x_TotalSavings
-		dataType: double
-		sourceProviderType: decimal
-		lineageTag: bba7b248-c52f-4bc5-be09-85a7d3e2d638
-		summarizeBy: sum
-		sourceColumn: x_TotalSavings
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column tag_Untagged
 		dataType: boolean
@@ -291,7 +222,7 @@ table TagCosts
 				    // Init report parameters
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
 				    promotedTagsObject = "dynamic(['" & Text.Combine(PromotedTags, "', '") & "'])",
-				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
 				
 				    let checktag = (key: string) {
 				        let tagColumn = print tag = promotedTags | mv-expand tag | where tag == key or (caseInsensitive and tag =~ key) | project tag = strcat('tag_', tag);
@@ -312,10 +243,10 @@ table TagCosts
 				        ListCost = sum(ListCost)
 				        by
 				            BillingCurrency,
-				            CommitmentDiscountCategory,
-				            CommitmentDiscountId,
-				            CommitmentDiscountName,
-				            CommitmentDiscountType,
+				            // CommitmentDiscountCategory,
+				            // CommitmentDiscountId,
+				            // CommitmentDiscountName,
+				            // CommitmentDiscountType,
 				            RegionName,
 				            Tags,
 				            x_ChargePeriodMonth,
@@ -337,34 +268,16 @@ table TagCosts
 				    | evaluate bag_unpack(tmp_Tags)
 				    | extend tag_Untagged = isempty(Tags) or tostring(Tags) == '{}'
 				    //
-				    | extend x_CommitmentDiscountSavings = ContractedCost - EffectiveCost
-				    | extend x_NegotiatedDiscountSavings = ListCost - ContractedCost
-				    | extend x_TotalSavings = ListCost - EffectiveCost
-				    | project-reorder
-				        BilledCost,
-				        BillingCurrency,
-				        ChargePeriodEnd,
-				        ChargePeriodStart,
-				        CommitmentDiscountCategory,
-				        CommitmentDiscountId,
-				        CommitmentDiscountName,
-				        CommitmentDiscountType,
-				        ContractedCost,
-				        EffectiveCost,
-				        ListCost,
-				        RegionName,
-				        x_ChargePeriodMonth,
-				        x_CommitmentDiscountSavings,
-				        x_CostCategories,
-				        x_CostCenter,
-				        x_NegotiatedDiscountSavings,
-				        x_ReportingDate,
-				        x_TotalSavings,
-				        tag_Untagged
+				    // | extend x_CommitmentDiscountSavings = ContractedCost - EffectiveCost
+				    // | extend x_NegotiatedDiscountSavings = ListCost - ContractedCost
+				    // | extend x_TotalSavings = ListCost - EffectiveCost
 				
-				    ", [MaxRows=null, MaxSize=1073741824, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-PowerBI-TagCosts"])
+				    ", [MaxRows=null, MaxSize=1073741824, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-PowerBI-TagCosts"]),
+				
+				    // Sort columns alphabetically
+				    Output = Table.ReorderColumns(Source, List.Sort(Table.ColumnNames(Source)))
 				in
-				    Source
+				    Output
 
 	annotation PBI_NavigationStepName = Navigation
 

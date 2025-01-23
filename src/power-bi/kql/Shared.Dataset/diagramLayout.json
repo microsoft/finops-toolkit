@@ -153,19 +153,6 @@
         },
         {
           "location": {
-            "x": 2163.9689040237085,
-            "y": 705.28795583266447
-          },
-          "nodeIndex": "Advisor for disks",
-          "nodeLineageTag": "98ceee9a-da76-4d64-9d74-1165ec1b28c4",
-          "size": {
-            "height": 200,
-            "width": 377.90425083439527
-          },
-          "zIndex": 21
-        },
-        {
-          "location": {
             "x": 0,
             "y": 1587.1812560941887
           },

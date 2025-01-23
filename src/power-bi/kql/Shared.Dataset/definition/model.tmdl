@@ -34,7 +34,7 @@ annotation __PBI_TimeIntelligenceEnabled = 0
 
 annotation PBIDesktopVersion = 2.139.1701.0 (24.12)+2a034ab280bddf891eb7bb9ebfe6996f9c3a3196
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URI","Storage URL","Number of Months","Default Granularity","ftk_DemoFilter","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","TagCosts"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URL","Storage URL","Number of Months","Default Granularity","ftk_DemoFilter","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","TagCosts"]
 
 annotation PBI_ProTooling = ["DevMode","DaxQueryView_Desktop"]
 
@@ -59,7 +59,6 @@ ref table PolicyAssignments
 ref table PolicyDefinitions
 ref table PolicyStates
 ref table SqlDatabases
-ref table 'Advisor for disks'
 ref table 'Compliance calculation'
 ref table PricingUnits
 ref table Costs

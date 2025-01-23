@@ -1537,6 +1537,16 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_ResourceTop1K
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		sourceProviderType: bit
+		lineageTag: 689a2501-051f-4494-946f-51c62a99c694
+		summarizeBy: none
+		sourceColumn: x_ResourceTop1K
+
+		annotation SummarizationSetBy = Automatic
+
 	hierarchy 'Service Hierarchy'
 		lineageTag: 039a7b6d-f19d-4a79-91b3-a05fbc778704
 
@@ -1558,13 +1568,14 @@ table Costs
 		source =
 				let
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
-				    Source = AzureDataExplorer.Contents(#"Cluster URI", "Hub", "
+				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
 				
 				
 				    Costs_v1_0
 				    //
 				    // Apply summarization settings
 				    | where ChargePeriodStart >= monthsago(" & lookback & ")
+				    | as filteredCosts
 					| extend x_ChargeMonth = startofmonth(ChargePeriodStart)
 					| extend x_ReportingDate = " & (if (#"Default Granularity" = "Monthly") then "x_ChargeMonth" else "startofday(ChargePeriodStart)") & "
 				    //
@@ -1663,6 +1674,15 @@ table Costs
 				    //
 				    | extend Tags = tostring(Tags)
 				    | extend x_SkuDetails = tostring(x_SkuDetails)
+				    //
+				    | extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (
+				        filteredCosts
+				        | where isnotempty(ResourceId) and ChargeCategory == 'Usage'
+				        | summarize sum(EffectiveCost) by ResourceId
+				        | order by sum_EffectiveCost desc
+				        | limit 1000
+				        | distinct ResourceId
+				    )
 				    //
 				    | project-away tmp_IsSQLAHB, tmp_IsVMUsage, tmp_ResourceParent
 				
