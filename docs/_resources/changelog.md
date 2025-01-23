@@ -108,6 +108,7 @@ Legend:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
 > 2. Update docs to provide context on the available datasets
+> 3. Updated the default setting for ADX trusted external tenants from 'All tenants' to 'My tenant only'. This change may cause breaking issues for ADX clusters accessed by users from external tenants.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
