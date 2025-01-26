@@ -154,6 +154,10 @@ table StorageData
 		queryGroup: Storage
 		source = ```
 				let
+					// Parameter placeholders to keep the rest of the query aligned with storage reports
+					RangeStart = null,
+					RangeEnd = null,
+				
 					urlSegments = Text.Split(#"Storage URL", "/"),
 					ADLS = if #"Storage URL" = "" or #"Storage URL" = null then null
 						else if List.Count(urlSegments) = 4 and urlSegments{3} = "ingestion" then AzureStorage.DataLake(#"Storage URL" & "/..")
@@ -187,13 +191,15 @@ table StorageData
 							)
 						),
 				
+					FilterKnownExternalFiles = Table.SelectRows(Files, each Text.StartsWith([StorageContainer], "insights-") = false),
+				
 					// NOTE: Do not convert to UTC - UTC dates can show as the previous month based on the local timezone
 					_toMonth   = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
 				
 					// Update segments to handle differences
 					_swapCol     = (tbl, oldCol, newCol, newValFunc, optional newType) => let add = Table.AddColumn(tbl, newCol, newValFunc, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
 					_updateCol   = (tbl, col, newValFunc, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newValFunc, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
-					FixSegments  = _updateCol(_updateCol(Files,
+					FixSegments  = _updateCol(_updateCol(FilterKnownExternalFiles,
 						"Segments", each
 							let
 								count = List.Count([Segments]),
@@ -208,7 +214,7 @@ table StorageData
 				
 					_supportedDatasets = {"CommitmentDiscountUsage","Costs","Prices","Recommendations","Transactions"},
 					_supportedExportTypes = {"focuscost","pricesheet","reservationdetails","reservationrecommendations","reservationtransactions"},
-					Details = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(FixSegments,
+					InitialDetails = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(FixSegments,
 						"IsConfig",          each [StorageContainer] = "config" and [Name] = "settings.json"),
 						"IsManifest",        each [IsExport] and ([Name] = "manifest.json" or [Name] = "_manifest.json")),
 						"IsLegacyManifest",  each [IsManifest] and [Name] = "_manifest.json"),
@@ -255,6 +261,18 @@ table StorageData
 							else null,
 							type date
 						),
+				
+					// Filter files to speed up load times
+					end   = if RangeEnd <> null then Date.From(RangeEnd, Culture.Current) else null,
+					start = 
+						if RangeStart <> null then Date.From(RangeStart, Culture.Current)
+						else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if end <> null then end else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -(#"Number of Months"+1))
+						else null,
+					FilterFilesByDate =
+						if start = null and end = null then InitialDetails
+						else Table.SelectRows(InitialDetails, each [Month] = null or ([Month] >= Date.StartOfMonth(start) and [Month] <= Date.EndOfMonth(end))),
+				
+					AddlDetails = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(FilterFilesByDate,
 						"Json",       each if [IsConfig] or ([IsExport] and [IsManifest]) then try Json.Document([Content]) otherwise null else null),
 						"HubVersion", each if [IsConfig] and [Json] <> null then Record.FieldOrDefault([Json], "version", null) else null),
 						// TODO: If checking retention
@@ -341,7 +359,7 @@ table StorageData
 					Finalize   = Table.ReorderColumns(
 						Table.SelectColumns(
 							Table.Group(
-								Table.RenameColumns(Details, {{"Date modified", "Updated"}, {"Name", "FileName"}}), {
+								Table.RenameColumns(AddlDetails, {{"Date modified", "Updated"}, {"Name", "FileName"}}), {
 									"Scope", "Month", "StorageAccount", "StorageContainer", "StoragePath", "ExportName"// "ApiVersion"
 								}, {
 									{"Dataset", each List.First(List.Distinct(List.RemoveNulls([Dataset]))), type text},
@@ -367,8 +385,6 @@ table StorageData
 				```
 
 	annotation PBI_ResultType = Exception
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_NavigationStepName = Navigation
 
