@@ -83,6 +83,8 @@ In summary, a Windows VM generates, in average, 245 bytes per performance counte
 
 ## 🎯 Using multiple workspaces for performance logs
 
-If you have VMs onboarded to multiple Log Analytics workspaces and you want them to be fully included in the VM right-size recommendations report, you can add those workspaces to the solution just by adding a new variable to the AOE Azure Automation account. In the Automation Account _Shared Resources - Variables_ menu option, click on the _Add a variable button_ and enter `AzureOptimization_RightSizeAdditionalPerfWorkspaces` as the variable name and fill in the comma-separated list of workspace IDs (see example below). Finally, click on _Create_.
+If you have VMs onboarded to multiple Log Analytics workspaces and you want them to be fully included in the VM right-size recommendations report, you can add those workspaces to the solution just by adding a new variable to the AOE Azure Automation account (see below). You can add whatever workspace to the scope of AOE, provided the AOE Managed Identity has Reader permissions over that workspace. The workspace can be in the same subscription or in any other subscription in the same tenant or even in a different tenant ([with the help of Lighthouse](./customize.md#-widen-the-engine-scope)).
+
+In the Automation Account _Shared Resources - Variables_ menu option, click on the _Add a variable button_ and enter `AzureOptimization_RightSizeAdditionalPerfWorkspaces` as the variable name and fill in the comma-separated list of workspace IDs (see example below). Finally, click on _Create_.
 
 ![Adding an Automation Account variable with a list of additional workspace IDs for the VM right-size recommendations](../assets/images/aoe/loganalytics-additionalperfworkspaces.jpg "Additional workspace IDs variable creation")

@@ -90,13 +90,25 @@ Legend:
 
 <sup>Released January 2025</sup>
 
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added the Learning FOCUS blog series to the [FOCUS overview doc](../_docs/focus/README.md).
+
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. Added Data Explorer dashboard template.
+>
 > ✏️ Changed:
 >
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
 > 1. Change the Data Explorer `numberstring()` function to support decimal numbers.
+> 1. Expand details about supported datasets in documentation.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -110,6 +122,14 @@ Legend:
 >    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
 > 1. Added the Pricing units open dataset to support price sheet data cleanup.
 > 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
+> 1. Added Effective Savings Rate (ESR).
+>
+> ✏️ Changed:
+>
+> 1. Updated the visual design of all storage and KQL reports.
+> 1. Updated the KQL reports to use Direct Query to support larger datasets.
+> 1. Updated storage reports to match the updated visuals from the KQL reports.
+> 1. Expanded the columns in the commitment discount purchases page and updated to show recurring purchases separately.
 >
 > 🛠️ Fixed:
 >
@@ -385,7 +405,7 @@ This release is a minor patch to update documentation and fix Rate optimization 
 >
 > - General
 >   1. Improved import performance by using parquet metadata to filter files by date (if configured).
->   2. Improved performance of column updates in CostDetails and Prices queries.
+>   2. Improved performance of column updates in Costs and Prices queries.
 >   3. In the Prices query, fixed bug where `SkuID` was not merged into `x_SkuId`.
 
 🏦 FinOps hubs
@@ -701,7 +721,7 @@ This release is a minor patch to Power BI files. These files were updated in the
 > - General:
 >   1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
 >   2. Simplified formatting for the `BillingPeriod` and `ChargePeriod` measures in Power BI.
->   3. Improved error handling for derived savings columns in the CostDetails query.
+>   3. Improved error handling for derived savings columns in the Costs query.
 >   4. Simplified queries and improved error handling in the START HERE query for report setup steps.
 >   5. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
 >      - This change makes it easier to review changes to the data model in Power BI.
