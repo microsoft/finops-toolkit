@@ -273,6 +273,12 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       }
     }
 
+    // Open data functions are split to keep size under the 131KB limit for loadTextContent()
+    resource OpenDataFunctions_resource_type_1 'scripts' = { name: 'OpenDataFunctions_resource_type_1', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_1.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_2 'scripts' = { name: 'OpenDataFunctions_resource_type_2', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_3 'scripts' = { name: 'OpenDataFunctions_resource_type_3', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_4 'scripts' = { name: 'OpenDataFunctions_resource_type_4', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+  
     resource commonScript 'scripts' = {
       name: 'CommonFunctions'
       properties: {
