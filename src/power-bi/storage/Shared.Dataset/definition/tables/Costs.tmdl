@@ -95,17 +95,23 @@ table Costs
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	measure x_DiscountCostSavingsRunningTotal =
-			
-			CALCULATE(
-				SUM('CostDetails'[x_DiscountCostSavings]),
-				FILTER(
-					ALLSELECTED('CostDetails'[ChargePeriodStart]),
-					ISONORAFTER('CostDetails'[ChargePeriodStart], MAX('CostDetails'[ChargePeriodStart]), DESC)
-				)
-			)
-		formatString: #,0.00
+	measure x_EffectiveSavingsRate = IFERROR(SUMX(FILTER(Costs, Costs[x_AmortizationCategory] <> "Principal"), Costs[x_TotalSavings]) / SUMX(FILTER(Costs, Costs[x_AmortizationCategory] <> "Principal"), Costs[ListCost]), "")
+		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: 5b5450f4-95c7-4e04-aca7-f19a55b329a7
+
+	measure x_CommitmentDiscountMeterCategory =
+			
+			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
+			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterCategory]), AND(NOT ISBLANK(Costs[x_SkuMeterCategory]), Costs[x_SkuMeterCategory] <> "")), Costs[x_SkuMeterCategory], ", ")
+			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
+		lineageTag: 68a30841-fc05-44b3-8301-40314ef2f7b1
+
+	measure x_CommitmentDiscountMeterSubcategory =
+			
+			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
+			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterSubcategory]), AND(NOT ISBLANK(Costs[x_SkuMeterSubcategory]), Costs[x_SkuMeterSubcategory] <> "")), Costs[x_SkuMeterSubcategory], ", ")
+			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
+		lineageTag: 74d98d87-946b-4dcf-a2fe-1eaa1cb21157
 
 	column ResourceId
 		dataType: string
@@ -1221,7 +1227,7 @@ table Costs
 
 	column x_ChargeMonth
 		dataType: dateTime
-		formatString: Long Date
+		formatString: Mmm yyyy
 		lineageTag: 0ccdf3b8-a622-4c98-b7b4-4721b3fa8d4a
 		summarizeBy: none
 		sourceColumn: x_ChargeMonth
@@ -1229,6 +1235,8 @@ table Costs
 		annotation SummarizationSetBy = Automatic
 
 		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isCustom":true}
 
 	column x_CommitmentDiscountSavings
 		dataType: double
@@ -1311,7 +1319,7 @@ table Costs
 
 	column x_ReportingDate
 		dataType: dateTime
-		formatString: Long Date
+		formatString: Mmm d, yyyy
 		lineageTag: 8bc0d600-86de-451a-a002-cefc73f17e6d
 		summarizeBy: none
 		sourceColumn: x_ReportingDate
@@ -1319,6 +1327,40 @@ table Costs
 		annotation SummarizationSetBy = Automatic
 
 		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_AmortizationCategory
+		dataType: string
+		lineageTag: 54d3103d-1ea7-42a7-af47-00d7a1e05f00
+		summarizeBy: none
+		sourceColumn: x_AmortizationCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountPercent
+		dataType: string
+		lineageTag: 08c65062-9e33-4505-a5f0-772ef5b3fff2
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountPercent
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_NegotiatedDiscountPercent
+		dataType: string
+		lineageTag: 9ff03db4-474c-4a7b-be46-4d527a7eb038
+		summarizeBy: none
+		sourceColumn: x_NegotiatedDiscountPercent
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_TotalDiscountPercent
+		dataType: string
+		lineageTag: b76bd084-6c48-4565-aab2-a3524214ecba
+		summarizeBy: none
+		sourceColumn: x_TotalDiscountPercent
+
+		annotation SummarizationSetBy = Automatic
 
 	hierarchy 'Service Hierarchy'
 		lineageTag: ef3437d8-e727-4aa8-a94c-3ebdc5134c53
@@ -1501,7 +1543,7 @@ table Costs
 				            {{"ContractedCost", type number}, {"ContractedUnitPrice", type number}, {"ListCost", type number}, {"ListUnitPrice", type number}}
 				        ),
 				
-				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
 				        PopulateMissingPrices,
 				        // Parse arrays
 				        "x_SkuDetailsDictionary", each if _isBlank([x_SkuDetails]) then [] else try Json.Document([x_SkuDetails]) otherwise []),
@@ -1515,6 +1557,10 @@ table Costs
 				// TODO: Remove or make a % -- "x_DiscountUnitPriceSavings",   each if [ListUnitPrice]       <> null and [ListUnitPrice]       > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),
 				        "x_CommitmentDiscountSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [ContractedCost] <> null and [ContractedCost] > 0 and [EffectiveCost] <> null and [EffectiveCost] > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
 				        "x_NegotiatedDiscountSavings",      each if [ListCost]            <> null and [ListCost]            > 0 and [ContractedCost]       <> null and [ContractedCost]       > 0 and [ListCost]            >= [ContractedCost]       then [ListCost]            - [ContractedCost] else null, type number),
+				        "x_AmortizationCategory",           each if [ChargeCategory] = "Purchase" and _isNotBlank([CommitmentDiscountId]) then "Principal" else if _isNotBlank([CommitmentDiscountId]) then "Amortized Charge" else ""),
+				        "x_CommitmentDiscountPercent",      each if [ContractedUnitPrice] = 0 then 0 else ([ContractedUnitPrice] - [x_EffectiveUnitPrice]) / [ContractedUnitPrice]),
+				        "x_NegotiatedDiscountPercent",      each if [ListUnitPrice] = 0       then 0 else ([ListUnitPrice] - [ContractedUnitPrice]) / [ListUnitPrice]),
+				        "x_TotalDiscountPercent",           each if [ListUnitPrice] = 0       then 0 else ([ListUnitPrice] - [x_EffectiveUnitPrice]) / [ListUnitPrice]),
 				        "x_TotalSavings",
 				            each if [ListCost]            <> null and [ListCost]            > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ListCost]       >= [EffectiveCost] then [ListCost]       - [EffectiveCost]  
 				            else if [ContractedCost]      <> null and [ContractedCost]      > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
@@ -1639,7 +1685,7 @@ table Costs
 
 	annotation PBI_QueryRelationships = {"columnCount":50,"keyColumnNames":[],"queryRelationships":[],"columnIdentities":["Section1/Usage details amortized/usagedetailsamortized.{BillingAccountId,0}","Section1/Usage details amortized/usagedetailsamortized.{BillingAccountName,1}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodStartDate,2}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodEndDate,3}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileId,4}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileName,5}","Section1/Usage details amortized/usagedetailsamortized.{AccountOwnerId,6}","Section1/Usage details amortized/usagedetailsamortized.{AccountName,7}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionId,8}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionName,9}","Section1/Usage details amortized/usagedetailsamortized.{Date,10}","Section1/Usage details amortized/usagedetailsamortized.{Product,11}","Section1/Usage details amortized/usagedetailsamortized.{PartNumber,12}","Section1/Usage details amortized/usagedetailsamortized.{MeterId,13}","Section1/Usage details amortized/usagedetailsamortized.{ServiceFamily,14}","Section1/Usage details amortized/usagedetailsamortized.{MeterCategory,15}","Section1/Usage details amortized/usagedetailsamortized.{MeterSubCategory,16}","Section1/Usage details amortized/usagedetailsamortized.{MeterRegion,17}","Section1/Usage details amortized/usagedetailsamortized.{MeterName,18}","Section1/Usage details amortized/usagedetailsamortized.{Quantity,19}","Section1/Usage details amortized/usagedetailsamortized.{EffectivePrice,20}","Section1/Usage details amortized/usagedetailsamortized.{Cost,21}","Section1/Usage details amortized/usagedetailsamortized.{UnitPrice,22}","Section1/Usage details amortized/usagedetailsamortized.{BillingCurrency,23}","Section1/Usage details amortized/usagedetailsamortized.{ResourceLocation,24}","Section1/Usage details amortized/usagedetailsamortized.{AvailabilityZone,25}","Section1/Usage details amortized/usagedetailsamortized.{ConsumedService,26}","Section1/Usage details amortized/usagedetailsamortized.{ResourceId,27}","Section1/Usage details amortized/usagedetailsamortized.{ResourceName,28}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo1,29}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo2,30}","Section1/Usage details amortized/usagedetailsamortized.{AdditionalInfo,31}","Section1/Usage details amortized/usagedetailsamortized.{Tags,32}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSectionId,33}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSection,34}","Section1/Usage details amortized/usagedetailsamortized.{CostCenter,35}","Section1/Usage details amortized/usagedetailsamortized.{UnitOfMeasure,36}","Section1/Usage details amortized/usagedetailsamortized.{ResourceGroup,37}","Section1/Usage details amortized/usagedetailsamortized.{ReservationId,38}","Section1/Usage details amortized/usagedetailsamortized.{ReservationName,39}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderId,40}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderName,41}","Section1/Usage details amortized/usagedetailsamortized.{OfferId,42}","Section1/Usage details amortized/usagedetailsamortized.{IsAzureCreditEligible,43}","Section1/Usage details amortized/usagedetailsamortized.{Term,44}","Section1/Usage details amortized/usagedetailsamortized.{PublisherName,45}","Section1/Usage details amortized/usagedetailsamortized.{PlanName,46}","Section1/Usage details amortized/usagedetailsamortized.{ChargeType,47}","Section1/Usage details amortized/usagedetailsamortized.{Frequency,48}","Section1/Usage details amortized/usagedetailsamortized.{PublisherType,49}"],"ColumnCount":50,"KeyColumnNames":[],"ColumnIdentities":["Section1/Usage details amortized/usagedetailsamortized.{BillingAccountId,0}","Section1/Usage details amortized/usagedetailsamortized.{BillingAccountName,1}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodStartDate,2}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodEndDate,3}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileId,4}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileName,5}","Section1/Usage details amortized/usagedetailsamortized.{AccountOwnerId,6}","Section1/Usage details amortized/usagedetailsamortized.{AccountName,7}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionId,8}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionName,9}","Section1/Usage details amortized/usagedetailsamortized.{Date,10}","Section1/Usage details amortized/usagedetailsamortized.{Product,11}","Section1/Usage details amortized/usagedetailsamortized.{PartNumber,12}","Section1/Usage details amortized/usagedetailsamortized.{MeterId,13}","Section1/Usage details amortized/usagedetailsamortized.{ServiceFamily,14}","Section1/Usage details amortized/usagedetailsamortized.{MeterCategory,15}","Section1/Usage details amortized/usagedetailsamortized.{MeterSubCategory,16}","Section1/Usage details amortized/usagedetailsamortized.{MeterRegion,17}","Section1/Usage details amortized/usagedetailsamortized.{MeterName,18}","Section1/Usage details amortized/usagedetailsamortized.{Quantity,19}","Section1/Usage details amortized/usagedetailsamortized.{EffectivePrice,20}","Section1/Usage details amortized/usagedetailsamortized.{Cost,21}","Section1/Usage details amortized/usagedetailsamortized.{UnitPrice,22}","Section1/Usage details amortized/usagedetailsamortized.{BillingCurrency,23}","Section1/Usage details amortized/usagedetailsamortized.{ResourceLocation,24}","Section1/Usage details amortized/usagedetailsamortized.{AvailabilityZone,25}","Section1/Usage details amortized/usagedetailsamortized.{ConsumedService,26}","Section1/Usage details amortized/usagedetailsamortized.{ResourceId,27}","Section1/Usage details amortized/usagedetailsamortized.{ResourceName,28}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo1,29}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo2,30}","Section1/Usage details amortized/usagedetailsamortized.{AdditionalInfo,31}","Section1/Usage details amortized/usagedetailsamortized.{Tags,32}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSectionId,33}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSection,34}","Section1/Usage details amortized/usagedetailsamortized.{CostCenter,35}","Section1/Usage details amortized/usagedetailsamortized.{UnitOfMeasure,36}","Section1/Usage details amortized/usagedetailsamortized.{ResourceGroup,37}","Section1/Usage details amortized/usagedetailsamortized.{ReservationId,38}","Section1/Usage details amortized/usagedetailsamortized.{ReservationName,39}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderId,40}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderName,41}","Section1/Usage details amortized/usagedetailsamortized.{OfferId,42}","Section1/Usage details amortized/usagedetailsamortized.{IsAzureCreditEligible,43}","Section1/Usage details amortized/usagedetailsamortized.{Term,44}","Section1/Usage details amortized/usagedetailsamortized.{PublisherName,45}","Section1/Usage details amortized/usagedetailsamortized.{PlanName,46}","Section1/Usage details amortized/usagedetailsamortized.{ChargeType,47}","Section1/Usage details amortized/usagedetailsamortized.{Frequency,48}","Section1/Usage details amortized/usagedetailsamortized.{PublisherType,49}"],"RelationshipInfo":[]}
 
-	annotation PBI_ResultType = Table
+	annotation PBI_ResultType = Exception
 
 	annotation PBI_NavigationStepName = Navigation
 

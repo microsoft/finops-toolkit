@@ -95,6 +95,20 @@ table Costs
 		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: 72a33a20-17f6-4216-b831-4af6cc0eb052
 
+	measure x_CommitmentDiscountMeterCategory =
+			
+			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
+			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterCategory]), AND(NOT ISBLANK(Costs[x_SkuMeterCategory]), Costs[x_SkuMeterCategory] <> "")), Costs[x_SkuMeterCategory], ", ")
+			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
+		lineageTag: 6f7fb3cd-1a13-49a4-be44-5ee60d78a19b
+
+	measure x_CommitmentDiscountMeterSubcategory =
+			
+			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
+			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterSubcategory]), AND(NOT ISBLANK(Costs[x_SkuMeterSubcategory]), Costs[x_SkuMeterSubcategory] <> "")), Costs[x_SkuMeterSubcategory], ", ")
+			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
+		lineageTag: ac79fd49-6124-47a6-8538-0d4cc28df316
+
 	column AvailabilityZone
 		dataType: string
 		sourceProviderType: nvarchar(max)
@@ -1480,24 +1494,6 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_CommitmentDiscountMeterCategory
-		dataType: string
-		sourceProviderType: nvarchar(max)
-		lineageTag: 0b43df38-ab23-474c-839a-fce468726130
-		summarizeBy: none
-		sourceColumn: x_CommitmentDiscountMeterCategory
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_CommitmentDiscountMeterSubcategory
-		dataType: string
-		sourceProviderType: nvarchar(max)
-		lineageTag: a4d02914-35b4-4e67-b3ef-a3fef5048ea6
-		summarizeBy: none
-		sourceColumn: x_CommitmentDiscountMeterSubcategory
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_CommitmentDiscountPercent
 		dataType: double
 		formatString: 0.00%;-0.00%;0.00%
@@ -1547,6 +1543,105 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
+	column tag_Application
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: dd7d82a7-1ceb-461f-9718-8330492bbef5
+		summarizeBy: none
+		sourceColumn: tag_Application
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_BusinessUnit
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 864f2ab6-bdad-4111-9ced-927a47c26930
+		summarizeBy: none
+		sourceColumn: tag_BusinessUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_CostCenter
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 362fc2e6-62d4-4e61-9deb-1b92b7eb8bd4
+		summarizeBy: none
+		sourceColumn: tag_CostCenter
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Department
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 623ebb4d-2e15-44ef-b86b-90bff4c4b4ba
+		summarizeBy: none
+		sourceColumn: tag_Department
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Division
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2838ecfe-4b85-4afd-a21c-82c111cf5ad0
+		summarizeBy: none
+		sourceColumn: tag_Division
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Env
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 62df6e5c-c8ee-47eb-8aa7-df7587ea6fb1
+		summarizeBy: none
+		sourceColumn: tag_Env
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Owner
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2212d8aa-b1a2-46e9-81b5-c54703826408
+		summarizeBy: none
+		sourceColumn: tag_Owner
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Product
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 86a2a731-1d82-4914-8907-9416e1abe7ea
+		summarizeBy: none
+		sourceColumn: tag_Product
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Project
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6a65d0be-c483-42c9-bf6b-3769759dabfb
+		summarizeBy: none
+		sourceColumn: tag_Project
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Purpose
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 9182534f-fb65-4792-9b86-243be3913998
+		summarizeBy: none
+		sourceColumn: tag_Purpose
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Service
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: d8388dba-15b7-4017-8411-6a7aee288fe2
+		summarizeBy: none
+		sourceColumn: tag_Service
+
+		annotation SummarizationSetBy = Automatic
+
 	hierarchy 'Service Hierarchy'
 		lineageTag: 039a7b6d-f19d-4a79-91b3-a05fbc778704
 
@@ -1567,6 +1662,20 @@ table Costs
 		queryGroup: 'Data Explorer'
 		source =
 				let
+				    // Customize the following settings to tune how tags are handled
+				
+				        // Set the tags you want to promote as 'tag_*' columns in this array
+				        PromotedTags = {"Application", "BusinessUnit", "CostCenter", "Department", "Division", "Env", "Owner", "Product", "Project", "Purpose", "Service"},
+				
+				        // This option matches tag keys that may have different case (e.g., 'env' and 'ENV')
+				        // NOTE: This option slows down the query significantly. Disable it if tag queries are failing.
+				        Handle_mixed_case_tags = true,
+				
+				        // This option removes any unwanted spaces before or after the tag key
+				        // NOTE: This option slows down the query significantly. Disable it if tag queries are failing.
+				        Trim_spaces_from_tags = true,
+				
+				    // Init report parameters
 				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
 				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
 				
@@ -1612,8 +1721,6 @@ table Costs
 				    | extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')
 				    //
 				    | extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
-				    | extend x_CommitmentDiscountMeterCategory = iff(ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute', x_SkuMeterCategory)
-				    | extend x_CommitmentDiscountMeterSubcategory = iff(ProviderName == 'Microsoft' and CommitmentDiscountCategory == 'Spend', 'Compute', x_SkuMeterSubcategory)
 				    | extend x_CommitmentDiscountUtilizationPotential = case(
 				        ChargeCategory == 'Purchase', decimal(0),
 				        ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
@@ -1671,6 +1778,21 @@ table Costs
 				        ),
 				        'Unknown'
 				    )
+				    //" & (if List.Count(PromotedTags) > 0 then (
+				        if Handle_mixed_case_tags or Trim_spaces_from_tags then ("
+				            | extend keys = bag_keys(Tags)
+				            | extend cleankeys = " & (
+				                if Handle_mixed_case_tags and Trim_spaces_from_tags then "parse_json(replace_string(tolower(keys), ' ', ''))"
+				                else if Handle_mixed_case_tags                      then "parse_json(tolower(keys))"
+				                else if Trim_spaces_from_tags                       then "parse_json(replace_string(keys, ' ', ''))"
+				                else "keys"
+				            ) & "
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & _ & " = iff(array_index_of(cleankeys, tolower('" & _ & "')) < 0, '', tostring(Tags[tostring(keys[toint(array_index_of(cleankeys, tolower('" & _ & "')))])]))"), ", ") & "
+				            | project-away keys, cleankeys"
+				        ) else ("
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & _ & " = tostring(Tags['" & _ & "'])"), ", ")
+				        )
+				    ) else "") & "
 				    //
 				    | extend Tags = tostring(Tags)
 				    | extend x_SkuDetails = tostring(x_SkuDetails)

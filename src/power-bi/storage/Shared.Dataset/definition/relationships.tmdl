@@ -56,11 +56,6 @@ relationship f2289f99-f546-f6c2-3c36-724c25d99e09
 	fromColumn: Disks.managedBy
 	toColumn: VirtualMachines.id
 
-relationship bdf6c03b-4982-e859-788c-8a358b10259a
-	crossFilteringBehavior: bothDirections
-	fromColumn: 'Advisor for disks'.'properties.resourceMetadata.resourceId'
-	toColumn: Disks.id
-
 relationship 26e1c802-749f-5e32-3d1c-82aba5427b7e
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
@@ -102,22 +97,15 @@ relationship dc2e16b5-6032-35e9-77da-7ce3d0749c18
 	fromColumn: Costs.ResourceId
 	toColumn: Disks.id
 
-relationship b0066f28-aca7-4267-9118-bbf5c3242f58
+relationship d24a198f-d257-c9fe-6e1a-d4ae438dae6a
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
-	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
-	toColumn: Costs.x_CommitmentDiscountKey
+	fromColumn: Costs.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
 
-relationship 16f8655d-027a-3c5b-5b0c-afe528c03d59
-	isActive: false
+relationship 80e3e297-25c3-e88a-1b45-44cbbd9f2a68
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
-	fromColumn: ReservationRecomendations.x_CommitmentDiscountKeyNormalized
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
-
-relationship 59d51fbf-fd6f-a956-d7cb-3f19e7e25394
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: ReservationRecomendations.x_CommitmentDiscountKey
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
+	fromColumn: ReservationRecommendations.x_CommitmentDiscountKey
+	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
 
