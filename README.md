@@ -106,6 +106,7 @@ There are many ways to participate. From reporting bugs and requesting features 
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/RolandKrummenacher"><img src="https://avatars.githubusercontent.com/u/1803486?v=4?s=100" width="100px;" alt="Roland Krummenacher"/><br /><sub><b>Roland Krummenacher</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3ARolandKrummenacher" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3ARolandKrummenacher" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/JayAreP"><img src="https://avatars.githubusercontent.com/u/43276115?v=4?s=100" width="100px;" alt="J.R. Phillips"/><br /><sub><b>J.R. Phillips</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=JayAreP" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
