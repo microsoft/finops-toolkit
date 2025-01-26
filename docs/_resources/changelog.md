@@ -175,6 +175,14 @@ Legend:
 >
 > 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
 
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 2 new Microsoft.Network DNS resolver resource types.
+
 <br>
 
 ## 🪛 v0.7 Update 1
