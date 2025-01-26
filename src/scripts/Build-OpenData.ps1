@@ -87,9 +87,12 @@ function Write-Command($Command, $File)
     Write-Output "    param()"
     Write-Output "    return [PSCustomObject]@("
 
+    $script:rowNum = 0
     $first = $true
     $data | ForEach-Object {
         $row = $_
+        $script:rowNum++
+        Write-Debug "Row $($script:rowNum) = '$($row.UnitOfMeasure)'"
         $props = $columns | ForEach-Object {
             $column = $_
             $value = $row.$column
