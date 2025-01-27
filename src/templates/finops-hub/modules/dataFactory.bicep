@@ -315,6 +315,7 @@ resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@
   name: guid(dataFactory.id, role, triggerManagerIdentity.id)
   scope: dataFactory
   properties: {
+    description: 'Managed Identity to execute start / stop trigger script for engine'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: triggerManagerIdentity.properties.principalId
     principalType: 'ServicePrincipal'
@@ -327,6 +328,7 @@ resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssi
   name: guid(storageAccount.id, role, dataFactory.id)
   scope: storageAccount
   properties: {
+    description: 'Grant ADF identity access to manage data in storage'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: dataFactoryManagedIdentity.properties.principalId // dataFactory.identity.principalId
     principalType: 'ServicePrincipal'

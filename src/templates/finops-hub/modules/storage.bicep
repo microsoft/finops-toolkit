@@ -385,6 +385,7 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
   name: guid(storageAccount.id, role, identity.id)
   scope: resourceGroup()
   properties: {
+    description: 'Managed identity to upload files'
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: identity.properties.principalId
     principalType: 'ServicePrincipal'
