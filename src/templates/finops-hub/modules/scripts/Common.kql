@@ -136,9 +136,9 @@ diffstring(oldval: double, newval: double, places: int = 1)
 // numberstring
 .create-or-alter function 
 with (docstring = 'Convert a number to a string', folder = 'Common')
-numberstring(num: long, abbrev: bool = true)
+numberstring(num: double, abbrev: bool = true)
 {
-    case(
+    replace_regex(case(
         num >= 10000000000000, strcat(round(1.0 * num / 1000000000000, 1), 'T'),
         num >= 1000000000000,  strcat(round(1.0 * num / 1000000000000, 2), 'T'),
         num >= 10000000000,    strcat(round(1.0 * num / 1000000000, 1), 'B'),
@@ -148,7 +148,8 @@ numberstring(num: long, abbrev: bool = true)
         num >= 10000,          strcat(round(1.0 * num / 1000, 1), 'K'),
         // Kusto doesn't support back-refs yet -- num > 1000, replace_regex(tostring(num), @'(\d)(?=(\d{3})+\.)', @'\1,'), // See https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/re2-library
         num > 1000, replace_regex(tostring(num), @'([0-9]{3})$', @',\1'), //num / 1000, ',', substring(tostring(num), 0) - (num / 1000 * 1000)),
-        tostring(num))
+        tostring(num)
+    ), @'\.0$', '')
 }
 
 
