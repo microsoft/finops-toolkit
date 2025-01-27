@@ -6,6 +6,9 @@
       "rules": {
         "no-deployments-resources": {
           "level": "off"
+        },
+        "nested-deployment-template-scoping": {
+          "level": "warning"
         }
       }
     }

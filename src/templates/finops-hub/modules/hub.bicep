@@ -130,8 +130,6 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
-param additionalTriggerNames string[] = []
-
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
@@ -349,7 +347,6 @@ module dataFactoryResources 'dataFactory.bicep' = {
     keyVaultName: keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
     enablePublicAccess: enablePublicAccess
-    additionalTriggerNames: additionalTriggerNames
   }
 }
 
@@ -394,7 +391,7 @@ output name string = hubName
 output location string = location
 
 @description('Name of the Data Factory.')
-output dataFactorytName string = dataFactory.name
+output dataFactoryName string = dataFactory.name
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storage.outputs.resourceId

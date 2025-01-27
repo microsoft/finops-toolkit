@@ -13,8 +13,6 @@ param dataFactoryName string
 
 param dataFactoryManagedIdentityName string
 
-param additionalTriggerNames string[] = []
-
 @description('Required. The name of the Azure Key Vault instance.')
 param keyVaultName string
 
@@ -105,13 +103,13 @@ var ingestionManifestAddedTriggerName = '${safeIngestionContainerName}_ManifestA
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
-var allHubTriggers = union([
+var allHubTriggers = [
   exportManifestAddedTriggerName
   ingestionManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
   monthlyTriggerName
-], additionalTriggerNames)
+]
 
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
@@ -126,7 +124,6 @@ var storageRbacRoles = [
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
   'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
   '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
-  //'0b962ed2-6d56-471c-bd5f-3477d83a7ba4' // Azure Resource Notifications System Topics Subscriber https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/integration#azure-resource-notifications-system-topics-subscriber
 ]
 
 //==============================================================================
