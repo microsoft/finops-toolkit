@@ -13,6 +13,8 @@ param dataFactoryName string
 
 param dataFactoryManagedIdentityName string
 
+param additionalTriggerNames string[] = []
+
 @description('Required. The name of the Azure Key Vault instance.')
 param keyVaultName string
 
@@ -103,13 +105,13 @@ var ingestionManifestAddedTriggerName = '${safeIngestionContainerName}_ManifestA
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
-var allHubTriggers = [
+var allHubTriggers = union([
   exportManifestAddedTriggerName
   ingestionManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
   monthlyTriggerName
-]
+], additionalTriggerNames)
 
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
