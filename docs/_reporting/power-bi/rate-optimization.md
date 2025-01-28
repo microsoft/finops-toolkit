@@ -19,8 +19,8 @@ Commitment discount chargeback, savings, and coverage.
 
 - [Working with this report](#working-with-this-report)
 - [Get started](#get-started)
-- [Commitments](#commitments)
-- [Savings](#savings)
+- [Commitment discounts](#commitment-discounts)
+- [Commitment discount savings](#commitment-discount-savings)
 - [Chargeback](#chargeback)
 - [Reservation recommendations](#reservation-recommendations)
 - [Purchases](#purchases)
@@ -80,7 +80,7 @@ The **Get started** page includes a basic introduction to the report with additi
 
 <br>
 
-## Commitments
+## Commitment discounts
 
 The **Commitments** page provides a list of your commitment discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
 
@@ -90,7 +90,7 @@ The chart breaks down the cost of used (utilized) vs. unused charges. Unused cha
 
 <br>
 
-## Savings
+## Commitment discount savings
 
 The **Savings** page summarizes cost savings obtained from commitment discounts. Commitments are grouped by program and service.
 
@@ -121,7 +121,7 @@ The chart shows the amortized cost for each subscription that used a commitment.
 ### 🛠️ Chargeback customization tips
 
 - Consider changing the columns in the table based on your chargeback needs.
-- If you use tags for cost allocation, create custom columns in the CostDetails table that extract their values, then add those as columns into the visual for reporting.
+- If you use tags for cost allocation, create custom columns in the Costs table that extract their values, then add those as columns into the visual for reporting.
 - Consider bringing in external data for additional allocation options.
 
 <br>
