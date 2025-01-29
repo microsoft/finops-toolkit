@@ -128,23 +128,22 @@ function Write-Test($DataType, $Command)
     Write-Output "}"
 }
 
-function Write-KqlFunction($Function, $File, $ColumnsToKeep)
+function Write-KqlSplitFunction($Function, $Rows, $Columns)
 {
-    $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') } `
-    | Where-Object { $ColumnsToKeep -contains $_ }
-    $data = Import-Csv $File
-
-    Write-Output "// $Function"
+    # Write header
+    Write-Output "// Copyright (c) Microsoft Corporation."
+    Write-Output "// Licensed under the MIT License."
+    Write-Output ""
     Write-Output ".create-or-alter function "
-    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData')"
+    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')"
     Write-Output "$Function(id: string) {"
     Write-Output "    dynamic({"
     
     $firstRow = $true
-    $data | ForEach-Object {
+    $Rows | ForEach-Object {
         $row = $_
         $firstColumn = $true
-        $props = $columns | ForEach-Object {
+        $props = $Columns | ForEach-Object {
             $column = $_
             $value = $row.$column
             if ($null -eq $value) { $value = '' }
@@ -160,6 +159,16 @@ function Write-KqlFunction($Function, $File, $ColumnsToKeep)
     }
     
     Write-Output "    })[tolower(id)]"
+    Write-Output "}"
+}
+
+function Write-KqlWrapperFunction($Function, $Parts)
+{
+    Write-Output "// $Function"
+    Write-Output ".create-or-alter function "
+    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData')"
+    Write-Output "$Function(id: string) {"
+    Write-Output "    coalesce($(($Parts | ForEach-Object { "$($_.Name)(id)" }) -join ', '))"
     Write-Output "}"
 }
 
@@ -510,6 +519,7 @@ if ($Test)
 if ($Hubs)
 {
     $outFile = "$hubsDir/OpenDataFunctions.kql"
+    $rowsPerFile = 500
 
     # Write header
     Write-Output "// Copyright (c) Microsoft Corporation." | Out-File $outFile -Encoding ascii -Append:$false
@@ -532,10 +542,35 @@ if ($Hubs)
         $dataType = $file.BaseName
         $function = ($dataType -creplace '([a-z])([A-Z])', '$1_$2').ToLower().TrimEnd('s')
     
+        Write-Verbose "Reading $dataType.csv..."
+        $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') } `
+        | Where-Object { $ColumnsToKeep -contains $_ }
+        $rows = Import-Csv $File
+        
+        # Split the array into groups
+        $parts = @()
+        for ($i = 0; $i -lt $rows.Count; $i += $rowsPerFile)
+        {
+            $parts += @{ Name = "_$($function)_$($parts.Count+1)"; Rows = $rows[$i..([math]::Min($i + $rowsPerFile - 1, $rows.Count - 1))] }
+        }
+        Write-Verbose "  $($rows.Count) rows split across $($parts.Count) files"
+
+        # Write the wrapper function
         Write-Verbose "Generating KQL $function() from $dataType.csv..."
         Write-Output "" | Out-File $outFile -Encoding ascii -Append
-        Write-KqlFunction -Function $function -File $file -ColumnsToKeep $columnsToKeep `
+        Write-KqlWrapperFunction -Function $function -Parts $parts `
         | Out-File $outFile -Encoding ascii -Append
+
+        # Write the internal functions
+        0..($parts.Count - 1) | ForEach-Object {
+            $index = $_
+            $part = $parts[$index]
+            $splitFunction = $part.Name
+            $splitFile = $outFile.Replace('.kql', "$splitFunction.kql")
+            Write-Verbose "Generating KQL $splitFunction()..."
+            Write-KqlSplitFunction -Function $splitFunction -Rows $part.Rows -Columns $columns `
+            | Out-File $splitFile -Encoding ascii -Append:$false
+        }
     }
 }
 
