@@ -19,7 +19,7 @@
     Required. Resource ID of the scope to export data for.
 
     .PARAMETER Dataset
-    Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = "FocusCost".
+    Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions". Default = "FocusCost".
     
     .PARAMETER DatasetVersion
     Optional. Schema version of the dataset to export. Default = "1.0" (applies to FocusCost only).
@@ -27,8 +27,17 @@
     .PARAMETER DatasetFilters
     Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (e.g., VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).
 
+    .PARAMETER CommitmentDiscountScope
+    Optional. Reservation scope filter to use when exporting reservation recommendations. Ignored for other export types. Allowed values: Shared, Single. Default: Shared.
+
+    .PARAMETER CommitmentDiscountResourceType
+    Optional. Reservation resource type filter to use when exporting reservation recommendations. Ignored for other export types. Default: VirtualMachines.
+
+    .PARAMETER CommitmentDiscountLookback
+    Optional. Reservation resource type filter to use when exporting reservation recommendations. Ignored for other export types. Allowed values: 7, 30, 60. Default: 30.
+
     .PARAMETER Monthly
-    Optional. Indicates that the export should be executed monthly (instead of daily). Default = false.
+    Optional. Indicates that the export should be executed monthly (instead of daily). Ignored for prices, reservation recommendations, and reservation transactions. Default = false.
 
     .PARAMETER OneTime
     Optional. Indicates that the export should only be executed once. When set, the start/end dates are the dates to query data for. Cannot be used in conjunction with the -Monthly option.
@@ -53,6 +62,9 @@
 
     .PARAMETER DoNotOverwrite
     Optional. Indicates whether to overwrite previously exported data for the current month. Overwriting is recommended to keep storage size and costs down so this option is to disable overwriting. If creating an export for FinOps hubs, we recommend you specify the -DoNotOverwrite option to improve troubleshooting. Default = false.
+
+    .PARAMETER SystemAssignedIdentity
+    Optional. Indicates that managed identity should be used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (e.g., Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty).
 
     .PARAMETER Location
     Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (e.g., Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty).
@@ -128,7 +140,7 @@ function New-FinOpsCostExport
         $Scope,
 
         [Parameter()]
-        [ValidateSet("ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations")]
+        [ValidateSet("ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions")]
         [string]
         $Dataset = "FocusCost",
 
@@ -139,6 +151,20 @@ function New-FinOpsCostExport
         [Parameter()]
         [hashtable]
         $DatasetFilters,
+
+        [Parameter()]
+        [ValidateSet("Shared", "Single")]
+        [string]
+        $CommitmentDiscountScope = "Shared",
+
+        [Parameter()]
+        [string]
+        $CommitmentDiscountResourceType = "VirtualMachines",
+
+        [Parameter()]
+        [ValidateSet(7, 30, 60)]
+        [int]
+        $CommitmentDiscountLookback = 30,
 
         [Parameter(ParameterSetName = "Scheduled")]
         [switch]
@@ -181,6 +207,10 @@ function New-FinOpsCostExport
         [Parameter()]
         [switch]
         $DoNotOverwrite,
+
+        [Parameter()]
+        [switch]
+        $SystemAssignedIdentity,
 
         [Parameter()]
         [switch]
@@ -234,9 +264,6 @@ function New-FinOpsCostExport
             $StoragePath = $Scope
         }
 
-        # Set granularity based on dataset type
-        $granularity = if ($Dataset -eq "PriceSheet") { "Monthly" } else { "Daily" }
-
         $props = @{
             properties = @{
                 definition    = @{
@@ -244,7 +271,6 @@ function New-FinOpsCostExport
                     timeframe = "Custom"
                     dataSet   = @{
                         configuration = @{}
-                        granularity   = $granularity
                     }
                 }
                 schedule      = @{ status = "Inactive" }
@@ -260,10 +286,20 @@ function New-FinOpsCostExport
                 partitionData = (-not $DoNotPartition)
             }
         }
+        
+        # Set granularity based on dataset type
+        if (-not @('PriceSheet', 'ReservationRecommendations', 'ReservationTransactions') -contains $Dataset)
+        {
+            $props.properties.definition.dataSet = $props.properties.definition.dataSet | Add-Member -Name granularity -Value 'Daily' -MemberType NoteProperty -Force -PassThru
+        }
 
         # Enable managed identity
-        if ($Location)
+        if ($SystemAssignedIdentity -or $Location)
         {
+            if (-not $Location)
+            {
+                $Location = 'global'
+            }
             $props | Add-Member -Name identity -Value @{ type = "SystemAssigned" } -MemberType NoteProperty -Force
             $props | Add-Member -Name location -Value $Location -MemberType NoteProperty -Force
         }
@@ -322,6 +358,16 @@ function New-FinOpsCostExport
             $props.properties = $props.properties | Add-Member -Name compressionMode -Value "None" -MemberType NoteProperty -Force -PassThru
             $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name dataVersion -Value $DatasetVersion -MemberType NoteProperty -Force -PassThru
             $props.properties.deliveryInfo.destination.type = "AzureBlob"
+
+            # Add reservation recommendation filters
+            if ($Dataset -eq 'ReservationRecommendations')
+            {
+                $DatasetFilters = @(
+                    @{ name = 'reservationScope'; value = ($DatasetFilters | Where-Object { $_.name -eq 'reservationScope' }).value ?? $CommitmentDiscountScope }
+                    @{ name = 'resourceType'; value = ($DatasetFilters | Where-Object { $_.name -eq 'resourceType' }).value ?? $CommitmentDiscountResourceType }
+                    @{ name = 'lookBackPeriod'; value = ($DatasetFilters | Where-Object { $_.name -eq 'lookBackPeriod' }).value ?? "Last$($CommitmentDiscountLookback)Days" }
+                )
+            }
             
             # Add dataset filters
             if ($DatasetFilters.Count -gt 0)
