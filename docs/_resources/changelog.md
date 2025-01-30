@@ -83,7 +83,6 @@ Legend:
 >   1. Enabled "Export to CSV" option on the **Idle backups** query.
 >   1. Corrected VM processor details on the **Compute** tab query.  
 
-
 <br><a name="latest"></a>
 
 ## 🚚 v0.8
@@ -160,6 +159,43 @@ Legend:
 > ➕ Added:
 >
 > 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added explicit `-CommitmentDiscountScope`, `-CommitmentDiscountResourceType`, and `-CommitmentDiscountLookback` parameters to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) for reservation recommendations.
+> 1. Added explicit `-SystemAssignedIdentity` switch parameter to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to enable system-assigned identity.
+>
+> ✏️ Changed:
+>
+> 1. Updated the following `RunHistory` array item properties in [Get-FinOpsCostExport command](../_automation/powershell/cost/Get-FinOpsCostExport.md) outputs:
+>    - Renamed `Id` to `ResourceId`
+>    - Renamed `StartTime` to `RunStartTime`
+>    - Renamed `EndTime` to `RunEndTime`
+>    - Added `RunId` with the GUID export run ID
+>    - Added `QueryStartDate` with the first day of the exported data
+>    - Added `QueryEndDate` with the last day of the exported data
+>    - Added `ErrorCode` with the error code of the run, if applicable
+>    - Added `ErrorMessage` with the error message of the run, if applicable
+> 1. Fixed the following [Get-FinOpsCostExport command](../_automation/powershell/cost/Get-FinOpsCostExport.md) outputs:
+>    - `DatasetVersion` string
+>    - `DatasetFilters` object
+>    - `OverwriteData` flag
+>    - `PartitionData` flag
+>    - `CompressionMode` flag
+>    - `RunHistory` array item properties:
+>      - `FileName` string
+>      - `SubmittedBy` string
+>      - `SubmittedTime` date/time
+>      - `Status` string
+>      - `StartTime` date/time (renamed to `RunStartTime`)
+>      - `EndTime` date/time (renamed to `RunEndTime`)
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions. ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
 
 <br>
 
