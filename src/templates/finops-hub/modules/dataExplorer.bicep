@@ -272,6 +272,12 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
 
     resource openDataScript 'scripts' = {
       name: 'OpenDataFunctions'
+      dependsOn: [
+        ingestionDb::OpenDataFunctions_resource_type_1
+        ingestionDb::OpenDataFunctions_resource_type_2
+        ingestionDb::OpenDataFunctions_resource_type_3
+        ingestionDb::OpenDataFunctions_resource_type_4
+      ]
       properties: {
         scriptContent: loadTextContent('scripts/OpenDataFunctions.kql')
         continueOnErrors: continueOnErrors
@@ -281,6 +287,9 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
 
     resource commonScript 'scripts' = {
       name: 'CommonFunctions'
+      dependsOn: [
+        ingestionDb::openDataScript
+      ]
       properties: {
         scriptContent: loadTextContent('scripts/Common.kql')
         continueOnErrors: continueOnErrors
