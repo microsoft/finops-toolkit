@@ -4,8 +4,8 @@
     {
       "ordinal": 0,
       "scrollPosition": {
-        "x": 0,
-        "y": 295.71428571428572
+        "x": 3422.8571428571431,
+        "y": 228.57142857142858
       },
       "nodes": [
         {
@@ -75,19 +75,6 @@
         },
         {
           "location": {
-            "x": 4803.8463686552477,
-            "y": 427.20375846697726
-          },
-          "nodeIndex": "ReservationRecomendations",
-          "nodeLineageTag": "e2acd751-9829-4624-bb15-d9a1cb22f057",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 6
-        },
-        {
-          "location": {
             "x": 5053.6559194566435,
             "y": 714.93113334179452
           },
@@ -101,10 +88,11 @@
         },
         {
           "location": {
-            "x": 6392.7763294224005,
-            "y": 505.69996421900532
+            "x": 5858.4906151366868,
+            "y": 494.27139279043388
           },
           "nodeIndex": "StorageData",
+          "nodeLineageTag": "4dbd4a61-a185-428e-83f1-b5b3dcb80134",
           "size": {
             "height": 300,
             "width": 234
@@ -113,10 +101,11 @@
         },
         {
           "location": {
-            "x": 6358.3834817422121,
-            "y": 468.59728194637643
+            "x": 5635.52633888507,
+            "y": 280.02585337494781
           },
           "nodeIndex": "StorageErrors",
+          "nodeLineageTag": "02d75203-d20c-4de5-92b5-9c4c062b96db",
           "size": {
             "height": 300,
             "width": 234
@@ -200,19 +189,6 @@
             "width": 234
           },
           "zIndex": 21
-        },
-        {
-          "location": {
-            "x": 1663.129962378782,
-            "y": 1164.5333227777255
-          },
-          "nodeIndex": "Advisor for disks",
-          "nodeLineageTag": "98ceee9a-da76-4d64-9d74-1165ec1b28c4",
-          "size": {
-            "height": 200,
-            "width": 377.90425083439527
-          },
-          "zIndex": 1
         },
         {
           "location": {
@@ -362,12 +338,26 @@
         },
         {
           "location": {
-            "x": 6311.34775799383,
-            "y": 904.34282136186243
+            "x": 4229.9191865652574,
+            "y": 692.9142499332911
           },
           "nodeIndex": "Costs",
+          "nodeLineageTag": "4b9830c4-e7c7-43ee-823c-d6b15359c25f",
           "size": {
             "height": 381.28571428571433,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4670.9892257981046,
+            "y": 755.77518703840587
+          },
+          "nodeIndex": "ReservationRecommendations",
+          "nodeLineageTag": "e2acd751-9829-4624-bb15-d9a1cb22f057",
+          "size": {
+            "height": 300,
             "width": 234
           },
           "zIndex": 0

@@ -8,9 +8,9 @@ expression 'Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/in
 	annotation PBI_NavigationStepName = Navigation
 
 expression '▶️  START HERE' = ```
-				let
+		let
 				    // Cluster
-				    ClusterUrl = #"Cluster URI",
+				    ClusterUrl = #"Cluster URL",
 				    ClusterUrlSegments = if ClusterUrl <> null then Text.Split(Text.Trim(ClusterUrl, "/"), "/") else {},
 				    ClusterUrlSegmentCount = List.Count(ClusterUrlSegments),
 				    ClusterCheck = 
@@ -98,7 +98,7 @@ expression '▶️  START HERE' = ```
 	lineageTag: 6cfe80b8-1c4b-4c11-9916-43fc98b49dac
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = Table
+	annotation PBI_ResultType = Exception
 
 	annotation PBI_NavigationStepName = Navigation
 
@@ -125,7 +125,7 @@ expression ftk_DemoFilter = () => if List.Contains({ "demohubupzaljui2bxfm", "ku
 /// URI of the FinOps hub Azure Data Explorer cluster to pull data from. Copy from the "clusterUri" deployment output.
 /// 
 /// Pro tip: As a shortcut, you can alternatively use the "{name}.{region}" subset of the URI.
-expression 'Cluster URI' = "ftk-mf.westcentralus" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression 'Cluster URL' = "ftk-mf.westcentralus" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: d8708cbe-5fb8-4e10-b96f-54e31a5e9665
 	queryGroup: '🛠️ Setup'
 

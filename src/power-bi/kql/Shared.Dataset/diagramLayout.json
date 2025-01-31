@@ -5,7 +5,7 @@
       "ordinal": 0,
       "scrollPosition": {
         "x": 0,
-        "y": 30.580316749909539
+        "y": 0
       },
       "nodes": [
         {
@@ -150,19 +150,6 @@
             "width": 234
           },
           "zIndex": 19
-        },
-        {
-          "location": {
-            "x": 2163.9689040237085,
-            "y": 705.28795583266447
-          },
-          "nodeIndex": "Advisor for disks",
-          "nodeLineageTag": "98ceee9a-da76-4d64-9d74-1165ec1b28c4",
-          "size": {
-            "height": 200,
-            "width": 377.90425083439527
-          },
-          "zIndex": 21
         },
         {
           "location": {
@@ -344,19 +331,6 @@
             "width": 234
           },
           "zIndex": 1
-        },
-        {
-          "location": {
-            "x": 0,
-            "y": 348.76388606286611
-          },
-          "nodeIndex": "TagCosts",
-          "nodeLineageTag": "0742a7c6-dcde-4bf1-8d77-b7e436e02f7e",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 2
         }
       ],
       "name": "All tables",
