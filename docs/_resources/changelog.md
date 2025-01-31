@@ -108,6 +108,8 @@ Legend:
 > 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
 > 1. Change the Data Explorer `numberstring()` function to support decimal numbers.
 > 1. Expand details about supported datasets in documentation.
+> 1. Updated the default setting for Data Explorer trusted external tenants from "All tenants" to "My tenant only".
+>    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
