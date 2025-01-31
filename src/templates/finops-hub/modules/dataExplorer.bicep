@@ -87,7 +87,7 @@ param clusterSku string = 'Dev(No SLA)_Standard_E2a_v4'
 @maxValue(1000)
 param clusterCapacity int = 1
 
-@description('Optional. The clusters external tenants (array of AAD tenant GUIDs).')
+@description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
 param clusterTrustedExternalTenants string[] = []
 
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
