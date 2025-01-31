@@ -590,6 +590,15 @@
         "review",
         "bug"
       ]
+    },
+    {
+      "login": "JayAreP",
+      "name": "J.R. Phillips",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43276115?v=4",
+      "profile": "https://github.com/JayAreP",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",

@@ -94,6 +94,8 @@ Examples:
   ./Build-OpenData -Hubs
   ```
 
+  After running this script, if new open data KQL files are created, you will need to also update dataExplorer.bicep to include them in the Data Explorer deployment.
+
 - Build data files and PowerShell functions:
 
   ```powershell
