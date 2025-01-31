@@ -28,6 +28,33 @@ Connect FinOps hubs to your billing accounts and subscriptions by configuring Co
 
 FinOps hubs uses Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you.
 
+The way hubs ingests data is through cost management exports, exports allows you to push data to a storage account. Cost management provides the following 5 types of exports:
+  
+- Cost and usage details (FOCUS)
+  - Exports all costs using the FOCUS version of the cost and usage details file  as they're defined in the FinOps Open Cost and Usage Specification (FOCUS) project.
+  - Maps to the Costs folder in the ingestion container.
+- Price sheet
+  - Exports prices for your Azure services.
+  - Maps to the Prices folder in the ingestion container.
+- Reservation details
+  - Exports reservation details for Azure services, including used and unused reservation hours.
+  - Maps to the CommitmentDiscountUsage folder in the ingestion container.
+- Reservation recommendations
+  - Exports all of the reservation recommendation details for savings. The savings are calculated in addition to your negotiated, or discounted, if applicable, prices.
+  - Maps to the Recommendations folder in the ingestion container.
+- Reservation transactions
+  - Exports reservation transaction for the Azure reservations bought.
+  - Maps to the Transactions folder in the ingestion container.
+
+FinOps hubs support the following dataset types, versions, and API versions:
+
+- FocusCost: 1.0r2, 1.0, 1.0-preview(v1)
+- PriceSheet: 2023-05-01
+- ReservationDetails: 2023-03-01
+- ReservationRecommendations: 2023-05-01
+- ReservationTransactions: 2023-05-01
+- API versions: 2023-07-01-preview
+
 <blockquote class="important" markdown="1">
   _Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts. Please [configure Cost Management exports manually](#️-configure-exports-manually)._
 </blockquote>
