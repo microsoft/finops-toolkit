@@ -162,7 +162,7 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> 1. Improved performance and memory consumption in the `parse_resourceid()` function to address out of memory errors during cost data ingestion ([#1188](https://github.com/microsoft/finops-toolkit/issues/1188))
+> 1. Improved performance and memory consumption in the `parse_resourceid()` function to address out of memory errors during cost data ingestion ([#1188](https://github.com/microsoft/finops-toolkit/issues/1188)).
 > 1. Fixed timezones for Data Factory triggers to resolve issue where triggers would not start due to unrecognized timezone.
 > 1. Fixed an issue where `x_ResourceType` is using the wrong value.
 >    - This fix resolves the issue for all newly ingested data.
@@ -182,6 +182,15 @@ Legend:
 >
 > - [Resource types](../_reporting/data/README.md#-resource-types)
 >   1. Added 2 new Microsoft.Network DNS resolver resource types.
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
+>    - The name of each deleted resource is printed for better visibility during the deletion process.
+>    - Added ability to confirm all deletions using a "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
 
 <br>
 
