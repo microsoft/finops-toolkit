@@ -110,6 +110,10 @@ Legend:
 > 1. Expand details about supported datasets in documentation.
 > 1. Updated the default setting for Data Explorer trusted external tenants from "All tenants" to "My tenant only".
 >    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
+>
+> 🛠️ Fixed:
+>
+> 1. Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
