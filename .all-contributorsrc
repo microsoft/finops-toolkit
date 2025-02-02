@@ -600,6 +600,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "ivanboscolo",
+      "name": "ivanboscolo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31936765?v=4",
+      "profile": "https://github.com/ivanboscolo",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
