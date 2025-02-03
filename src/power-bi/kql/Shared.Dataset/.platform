@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "FinOpsToolkit"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "e1884593-b568-4b44-b7d9-cd9f2ce727bd"
+  }
+}

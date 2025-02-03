@@ -22,6 +22,7 @@ Learn about the new billing data specification that will make it easier to under
 - [🤔 Why FOCUS?](#-why-focus)
 - [🌟 Benefits](#-benefits)
 - [▶️ Getting started](#️-getting-started)
+- [📗 Learning FOCUS blog series](#-learning-focus-blog-series)
 - [ℹ️ Important notes about FOCUS columns](#ℹ️-important-notes-about-focus-columns)
 - [🙋‍♀️ Feedback about FOCUS columns](#️-feedback-about-focus-columns)
 - [🧐 See also](#-see-also)
@@ -134,6 +135,19 @@ Each charge includes the **PricingQuantity** and **PricingUnit** based on how th
 </blockquote>
 
 Beyond these, each provider can include additional columns prefixed with **x\_** to denote them as extended columns that are not part of the FOCUS schema but provide useful details about your cost and usage. Microsoft Cost Management provides the same details within its FOCUS dataset as the native schemas by utilizing this prefix. FinOps toolkit reports add to these columns with additional details to facilitate reporting and optimization goals.
+
+<br>
+
+## 📗 Learning FOCUS blog series
+
+If you're interested in a more thorough walkthrough of all the FOCUS columns, check out the Learning FOCUS blog series on the FinOps blog:
+
+- [Introduction](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-introducing-an-open-billing-data-format/4321609)
+- [Cost columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-cost-columns/4352713)
+- [Charge types and pricing models](https://techcommunity.microsoft.com/blog/FinOpsBlog/learning-focus-charge-types-and-pricing-models/4357997)
+- [Date columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-date-columns/4366382)
+
+New blog posts are released periodically, so watch the [FinOps blog](https://aka.ms/finops/blog) for updates every couple of weeks.
 
 <br>
 

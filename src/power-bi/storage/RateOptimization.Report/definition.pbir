@@ -3,7 +3,6 @@
   "datasetReference": {
     "byPath": {
       "path": "../Shared.Dataset"
-    },
-    "byConnection": null
+    }
   }
 }

@@ -11,7 +11,7 @@ permalink: /power-bi/template-app
 Cost Management template app available for Enterprise Agreement billing accounts
 {: .fs-6 .fw-300 }
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementTemplateApp.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
