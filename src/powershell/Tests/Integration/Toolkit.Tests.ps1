@@ -6,8 +6,8 @@
 Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
-        $plannedRelease = '0.6'
-        $expected = @('0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+        $plannedRelease = '0.8'
+        $expected = @('0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
 
         # Act
         $result = Get-FinOpsToolkitVersion
@@ -36,7 +36,7 @@ Describe 'Get-FinOpsToolkitVersion' {
 
                 # Templates
                 CheckFile "finops-hub-v$verStr.zip"             $null $null
-                CheckFile "finops-workbook-v$verStr.zip"        '0.6' $null
+                CheckFile "finops-workbooks-v$verStr.zip"       '0.6' $null
                 CheckFile "governance-workbook-v$verStr.zip"    '0.1' '0.5'
                 CheckFile "optimization-engine-v$verStr.zip"    '0.4' $null
                 CheckFile "optimization-workbook-v$verStr.zip"  $null '0.5'
@@ -51,8 +51,12 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "CostSummary.pbix"                    $null '0.6'
                 CheckFile "DataIngestion.pbit"                  '0.3' '0.6'
                 CheckFile "DataIngestion.pbix"                  '0.3' '0.6'
+                CheckFile "Governance.pbit"                     '0.6' '0.6'
+                CheckFile "Governance.pbix"                     '0.6' '0.6'
                 CheckFile "RateOptimization.pbit"               '0.4' '0.6'
                 CheckFile "RateOptimization.pbix"               '0.4' '0.6'
+                CheckFile "WorkloadOptimization.pbit"           '0.6' '0.6'
+                CheckFile "WorkloadOptimization.pbix"           '0.6' '0.6'
             
                 # Open data
                 CheckFile "dataset-examples.zip"                '0.4' $null

@@ -17,6 +17,8 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.8](#-v08)
+- [🪛 v0.7 Update 1](#-v07-update-1)
 - [🚚 v0.7](#-v07)
 - [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
@@ -62,23 +64,6 @@ Legend:
 
 ## 🔄️ Unreleased
 
-🏦 FinOps hubs
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 1. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 1. ETL pipelile – Add support for parquet files created by Cost Management exports.
-
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> - General
->   1. Populate missing prices.
-
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -87,11 +72,192 @@ Legend:
 > 1. Cost Management export modules for subscriptions and resource groups.
 >
 
+📒 FinOps workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. Azure Arc Windows license management under the **Commitment Discounts** tab.  
+> 🛠️ **Fixed:**  
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. Enabled "Export to CSV" option on the **Idle backups** query.
+>   1. Corrected VM processor details on the **Compute** tab query.  
+
 <br><a name="latest"></a>
+
+## 🚚 v0.8
+
+<sup>Released January 2025</sup>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added the Learning FOCUS blog series to the [FOCUS overview doc](../_docs/focus/README.md).
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added Data Explorer dashboard template.
+>
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 1. Change the Data Explorer `numberstring()` function to support decimal numbers.
+> 1. Expand details about supported datasets in documentation.
+> 1. Updated the default setting for Data Explorer trusted external tenants from "All tenants" to "My tenant only".
+>    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added experimental feature to populate missing prices/costs.
+>    - This feature requires Cost Management price sheet exports be created and configured in the same FinOps hub instance or storage path.
+>    - This feature performs a large join between cost and price datasets and will slow down data refresh times.
+>    - If you run into any issues with data at scale, please disable the parameter.
+>    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
+> 1. Added the Pricing units open dataset to support price sheet data cleanup.
+> 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
+> 1. Added Effective Savings Rate (ESR).
+>
+> ✏️ Changed:
+>
+> 1. Updated the visual design of all storage and KQL reports.
+> 1. Updated the KQL reports to use Direct Query to support larger datasets.
+> 1. Updated storage reports to match the updated visuals from the KQL reports.
+> 1. Expanded the columns in the commitment discount purchases page and updated to show recurring purchases separately.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed date handling bug that resulted in a "We cannot apply operator >= to types List and Number" error ([#1180](https://github.com/microsoft/finops-toolkit/issues/1180))
+>    - Date parsing now uses the report locale. If you run into issues, set the report locale explicitly to the desired format.
+>
+> 🚫 Deprecated:
+>
+> 1. Cosmetic and informational transforms will be disabled by default in 0.9 and removed on or after July 1, 2025 to improve Power BI performance. If you rely on any of these changes, please let us know by [creating an issue in GitHub](https://aka.ms/ftk/ideas) to request an exemption. This includes:
+>    - Support for FOCUS 1.0 preview. Please create new FOCUS 1.0 exports and backfill historical data.
+>    - Fixing `x_SkuTerm` for MCA so it's the number of months rather than a display string.
+>    - Tracking changes in the `x_SourceChanges` column.
+>    - Explaining why rows have no cost in the `x_FreeReason` column.
+>    - Creating `*Unique` name columns for resources, resource groups, subscriptions, and commitment discounts.
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Add `resource_type()` KQL function to map internal resource type IDs to display names.
+> 1. Clean up `ResourceType` values that have internal resource type IDs (for example, microsoft.compute/virtualmachines).
+>
+> ✏️ Changed:
+>
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 1. Changed the **enablePublicAccess** parameter to exclude network components.
+>    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
+> 1. Updated `CommitmentDiscountUsage_transform_v1_0()` to use `parse_resourceid()`.
+>
+> 🛠️ Fixed:
+>
+> 1. Improved performance and memory consumption in the `parse_resourceid()` function to address out of memory errors during cost data ingestion ([#1188](https://github.com/microsoft/finops-toolkit/issues/1188)).
+> 1. Fixed timezones for Data Factory triggers to resolve issue where triggers would not start due to unrecognized timezone.
+> 1. Fixed an issue where `x_ResourceType` is using the wrong value.
+>    - This fix resolves the issue for all newly ingested data.
+>    - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added explicit `-CommitmentDiscountScope`, `-CommitmentDiscountResourceType`, and `-CommitmentDiscountLookback` parameters to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) for reservation recommendations.
+> 1. Added explicit `-SystemAssignedIdentity` switch parameter to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to enable system-assigned identity.
+>
+> ✏️ Changed:
+>
+> 1. Updated the following `RunHistory` array item properties in [Get-FinOpsCostExport command](../_automation/powershell/cost/Get-FinOpsCostExport.md) outputs:
+>    - Renamed `Id` to `ResourceId`
+>    - Renamed `StartTime` to `RunStartTime`
+>    - Renamed `EndTime` to `RunEndTime`
+>    - Added `RunId` with the GUID export run ID
+>    - Added `QueryStartDate` with the first day of the exported data
+>    - Added `QueryEndDate` with the last day of the exported data
+>    - Added `ErrorCode` with the error code of the run, if applicable
+>    - Added `ErrorMessage` with the error message of the run, if applicable
+> 1. Fixed the following [Get-FinOpsCostExport command](../_automation/powershell/cost/Get-FinOpsCostExport.md) outputs:
+>    - `DatasetVersion` string
+>    - `DatasetFilters` object
+>    - `OverwriteData` flag
+>    - `PartitionData` flag
+>    - `CompressionMode` flag
+>    - `RunHistory` array item properties:
+>      - `FileName` string
+>      - `SubmittedBy` string
+>      - `SubmittedTime` date/time
+>      - `Status` string
+>      - `StartTime` date/time (renamed to `RunStartTime`)
+>      - `EndTime` date/time (renamed to `RunEndTime`)
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions. ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 2 new Microsoft.Network DNS resolver resource types.
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
+>    - The name of each deleted resource is printed for better visibility during the deletion process.
+>    - Added ability to confirm all deletions using a "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
+
+<br>
+
+## 🪛 v0.7 Update 1
+
+<sup>Released December 9, 2024</sup>
+
+This release is a minor patch to update documentation and fix Power BI storage reports that are reporting all usage as $0. These files were updated in the existing 0.7 release. We are documenting this as a new patch release for transparency. If you downloaded the **PowerBI-storage.zip** file between December 1-9, 2024, please update to the latest version.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Corrected the EffectiveCost for usage records.
+> 2. Updated the download links in Power BI docs to the new files:
+>    - PowerBI-demo.zip for demo-only reports (not intended for connecting to customer data)
+>    - PowerBI-storage.zip for reports that connect to raw Cost Management exports or FinOps hubs storage.
+>    - PowerBI-kql.zip for reports that connect to FinOps hubs with Data Explorer.
+
+<blockquote class="important" markdown="1">
+  _Some have reported a 404 or "file not found" error in storage reports. The issue seems to be transient and can be resolved within a few hours. We have not been able to reproduce the issue and cannot pinpoint the source. If you are experiencing the error, please [submit an issue](https://aka.ms/ftk/ideas)._
+</blockquote>
+
+<br>
 
 ## 🚚 v0.7
 
-<sup>Released November 2024</sup>
+<sup>Released December 1, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -294,7 +460,7 @@ This release is a minor patch to update documentation and fix Rate optimization 
 >
 > - General
 >   1. Improved import performance by using parquet metadata to filter files by date (if configured).
->   2. Improved performance of column updates in CostDetails and Prices queries.
+>   2. Improved performance of column updates in Costs and Prices queries.
 >   3. In the Prices query, fixed bug where `SkuID` was not merged into `x_SkuId`.
 
 🏦 FinOps hubs
@@ -610,7 +776,7 @@ This release is a minor patch to Power BI files. These files were updated in the
 > - General:
 >   1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
 >   2. Simplified formatting for the `BillingPeriod` and `ChargePeriod` measures in Power BI.
->   3. Improved error handling for derived savings columns in the CostDetails query.
+>   3. Improved error handling for derived savings columns in the Costs query.
 >   4. Simplified queries and improved error handling in the START HERE query for report setup steps.
 >   5. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
 >      - This change makes it easier to review changes to the data model in Power BI.

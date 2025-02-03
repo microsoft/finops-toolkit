@@ -87,6 +87,9 @@ param clusterSku string = 'Dev(No SLA)_Standard_E2a_v4'
 @maxValue(1000)
 param clusterCapacity int = 1
 
+@description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
+param clusterTrustedExternalTenants string[] = []
+
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
 param forceUpdateTag string = utcNow()
 
@@ -247,6 +250,9 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     enableStreamingIngest: true
     enableAutoStop: false
     publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
+    trustedExternalTenants: [for tenantId in clusterTrustedExternalTenants: {
+        value:tenantId
+    }]
   }
 
   resource adfClusterAdmin 'principalAssignments' = {
@@ -263,9 +269,33 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     name: 'Ingestion'
     location: location
     kind: 'ReadWrite'
+    
+    // Open data functions are split to keep size under the 131KB limit for loadTextContent()
+    resource OpenDataFunctions_resource_type_1 'scripts' = { name: 'OpenDataFunctions_resource_type_1', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_1.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_2 'scripts' = { name: 'OpenDataFunctions_resource_type_2', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_3 'scripts' = { name: 'OpenDataFunctions_resource_type_3', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_4 'scripts' = { name: 'OpenDataFunctions_resource_type_4', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+
+    resource openDataScript 'scripts' = {
+      name: 'OpenDataFunctions'
+      dependsOn: [
+        ingestionDb::OpenDataFunctions_resource_type_1
+        ingestionDb::OpenDataFunctions_resource_type_2
+        ingestionDb::OpenDataFunctions_resource_type_3
+        ingestionDb::OpenDataFunctions_resource_type_4
+      ]
+      properties: {
+        scriptContent: loadTextContent('scripts/OpenDataFunctions.kql')
+        continueOnErrors: continueOnErrors
+        forceUpdateTag: forceUpdateTag
+      }
+    }
 
     resource commonScript 'scripts' = {
       name: 'CommonFunctions'
+      dependsOn: [
+        ingestionDb::openDataScript
+      ]
       properties: {
         scriptContent: loadTextContent('scripts/Common.kql')
         continueOnErrors: continueOnErrors
@@ -340,7 +370,7 @@ resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-0
 }
 
 // DNS zone
-resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: dataExplorerPrivateDnsZoneName
   location: 'global'
   tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones') ? tagsByResource['Microsoft.Network/privateDnsZones'] : {})
@@ -348,7 +378,7 @@ resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-0
 }
 
 // Link DNS zone to VNet
-resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   name: '${replace(dataExplorerPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   parent: dataExplorerPrivateDnsZone
@@ -362,7 +392,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 }
 
 // Private endpoint
-resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: '${cluster.name}-ep'
   location: location
   tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
@@ -383,7 +413,7 @@ resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = 
 }
 
 // DNS records for private endpoint
-resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
   name: 'dataExplorer-endpoint-zone'
   parent: dataExplorerEndpoint
   properties: {
