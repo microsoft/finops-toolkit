@@ -627,6 +627,14 @@
       "contributions": [
         "bug",
         "question"
+    },
+    {
+      "login": "danyhoterms",
+      "name": "Dany Hoter",
+      "avatar_url": "https://avatars.githubusercontent.com/u/155433721?v=4",
+      "profile": "https://github.com/DanyhoterMS",
+      "contributions": [
+        "code"
       ]
     }
   ],
