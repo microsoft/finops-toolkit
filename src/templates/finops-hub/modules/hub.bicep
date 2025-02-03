@@ -109,6 +109,9 @@ param dataExplorerSku string = 'Dev(No SLA)_Standard_D11_v2'
 @maxValue(1000)
 param dataExplorerCapacity int = 1
 
+@description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
+param dataExplorerTrustedExternalTenants string[] = []
+
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -116,7 +119,7 @@ param tags object = {}
 param tagsByResource object = {}
 
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
-param scopesToMonitor array
+param scopesToMonitor array = []
 
 @description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
 param exportRetentionInDays int = 0
@@ -161,7 +164,7 @@ var dataFactoryName = replace(
   '-'
 )
 
-// Do not reference the dataExplorer deployment directly or indirectly to avoid a DeploymentNotFound error
+// Do not reference these deployments directly or indirectly to avoid a DeploymentNotFound error
 var deployDataExplorer = !empty(dataExplorerName)
 var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clusterName
 var safeDataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
@@ -169,6 +172,12 @@ var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.cluster
 var safeDataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
 var safeDataExplorerIngestionCapacity =  !deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity
 var safeDataExplorerPrincipalId =  !deployDataExplorer ? '' : dataExplorer.outputs.principalId
+var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
+var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
+var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
+var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
+
+// var eventGridName = 'finops-hub-eventgrid-${uniqueSuffix}'
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
 // var eventGridSuffix = '-${uniqueSuffix}'
@@ -228,7 +237,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 // Virtual network
 //------------------------------------------------------------------------------
 
-module vnet 'vnet.bicep' = {
+module vnet 'vnet.bicep' = if (!enablePublicAccess) {
   name: 'vnet'
   params: {
     hubName: hubName
@@ -258,9 +267,9 @@ module storage 'storage.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
-    virtualNetworkId: vnet.outputs.vNetId
-    privateEndpointSubnetId: vnet.outputs.finopsHubSubnetId
-    scriptSubnetId: vnet.outputs.scriptSubnetId
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId: safeFinopsHubSubnetId
+    scriptSubnetId: safeScriptSubnetId
     enablePublicAccess: enablePublicAccess
   }
 }
@@ -275,13 +284,14 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
+    clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
-    virtualNetworkId: vnet.outputs.vNetId
-    privateEndpointSubnetId: vnet.outputs.dataExplorerSubnetId
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId: safeDataExplorerSubnetId
     enablePublicAccess: enablePublicAccess
     storageAccountName: storage.outputs.name
   }
@@ -343,8 +353,9 @@ module keyVault 'keyVault.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     storageAccountKey: remoteHubStorageKey
-    virtualNetworkId: vnet.outputs.vNetId
-    privateEndpointSubnetId: vnet.outputs.finopsHubSubnetId
+    enablePublicAccess: enablePublicAccess
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId:safeFinopsHubSubnetId
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId

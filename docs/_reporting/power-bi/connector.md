@@ -11,7 +11,7 @@ permalink: /power-bi/connector
 Power BI report covering cost summaries, breakdowns, and commitment discounts using the Cost Management connector
 {: .fs-6 .fw-300 }
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Connect your data](./README.md#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">

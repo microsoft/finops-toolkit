@@ -44,7 +44,7 @@
               }
             },
             {
-              "id": "e560c503-9664-4cea-977e-8dbec62ddd64",
+              "id": "40bacdd9-f9b9-4d42-b91b-624007f65182",
               "version": "KqlParameterItem/1.0",
               "name": "Subscriptions",
               "type": 2,
@@ -52,20 +52,15 @@
               "multiSelect": true,
               "quote": "'",
               "delimiter": ",",
-              "query": "resourcecontainers\r\n| where type == 'microsoft.resources/subscriptions'\r\n| project subscriptionId, name\r\n| order by name asc",
-              "crossComponentResources": [
-                "value::tenant"
-              ],
+              "query": "AzureOptimizationResourceContainersV1_CL | where todatetime(StatusDate_s) > datetime('{LookbackPeriod:startISO}') | where ContainerType_s =~ 'microsoft.resources/subscriptions' | project subscriptionId = SubscriptionGuid_g, SubscriptionName = ContainerName_s | distinct subscriptionId, SubscriptionName | order by SubscriptionName asc",
               "typeSettings": {
                 "additionalResourceOptions": [
                   "value::all"
-                ]
+                ],
+                "showDefault": false
               },
-              "timeContext": {
-                "durationMs": 86400000
-              },
-              "queryType": 1,
-              "resourceType": "microsoft.resources/tenants",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
               "value": [
                 "value::all"
               ]
