@@ -109,6 +109,7 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/JayAreP"><img src="https://avatars.githubusercontent.com/u/43276115?v=4?s=100" width="100px;" alt="J.R. Phillips"/><br /><sub><b>J.R. Phillips</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=JayAreP" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ivanboscolo"><img src="https://avatars.githubusercontent.com/u/31936765?v=4?s=100" width="100px;" alt="ivanboscolo"/><br /><sub><b>ivanboscolo</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aivanboscolo" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/buxel"><img src="https://avatars.githubusercontent.com/u/331779?v=4?s=100" width="100px;" alt="buxel"/><br /><sub><b>buxel</b></sub></a><br /><a href="#question-buxel" title="Answering Questions">💬</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/DanyhoterMS"><img src="https://avatars.githubusercontent.com/u/155433721?v=4?s=100" width="100px;" alt="Dany Hoter"/><br /><sub><b>Dany Hoter</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=danyhoterms" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
