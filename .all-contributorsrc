@@ -587,7 +587,54 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/1803486?v=4",
       "profile": "https://github.com/RolandKrummenacher",
       "contributions": [
+        "code",
+        "review",
         "bug"
+      ]
+    },
+    {
+      "login": "JayAreP",
+      "name": "J.R. Phillips",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43276115?v=4",
+      "profile": "https://github.com/JayAreP",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ivanboscolo",
+      "name": "ivanboscolo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31936765?v=4",
+      "profile": "https://github.com/ivanboscolo",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "buxel",
+      "name": "buxel",
+      "avatar_url": "https://avatars.githubusercontent.com/u/331779?v=4",
+      "profile": "https://github.com/buxel",
+      "contributions": [
+        "question"
+      ]
+    },
+    {
+      "login": "danyhoterms",
+      "name": "Dany Hoter",
+      "avatar_url": "https://avatars.githubusercontent.com/u/155433721?v=4",
+      "profile": "https://github.com/DanyhoterMS",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "lmoscinski",
+      "name": "lmoscinski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/135173807?v=4",
+      "profile": "https://github.com/lmoscinski",
+      "contributions": [
+        "design"
       ]
     }
   ],

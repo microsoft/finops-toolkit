@@ -211,7 +211,7 @@ function Deploy-FinOpsHub
             
             if ($Version -eq 'latest' -or [version]$Version -ge '0.7')
             {
-                $parameterSplat.TemplateParameterObject.Add('enableInfrastructureEncryption', $EnableInfrastructureEncryption)
+                $parameterSplat.TemplateParameterObject.Add('enableInfrastructureEncryption', $EnableInfrastructureEncryption.IsPresent)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerName', $DataExplorerName)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerSku', $DataExplorerSku)
                 $parameterSplat.TemplateParameterObject.Add('dataExplorerCapacity', $DataExplorerCapacity)

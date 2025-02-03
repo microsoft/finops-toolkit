@@ -126,7 +126,7 @@ FinOps toolkit reports manipulate the raw data to facilitate specific types of r
 1. Download one of the FinOps toolkit reports.
 2. Open the report in Power BI Desktop.
 3. Select **Transform data** in the toolbar.
-4. In the Queries list on the left, right-click **CostDetails** (or other query) and select **Copy**.
+4. In the Queries list on the left, right-click **Costs** (or other query) and select **Copy**.
 5. Open your report in Power BI Desktop.
 6. Select **Transform data** in the toolbar.
 7. Right-click the empty space in the bottom of the **Queries** pane and select **New group...**.
@@ -136,12 +136,12 @@ FinOps toolkit reports manipulate the raw data to facilitate specific types of r
 
 At this point, you have the core data from the FinOps toolkit reports, extended to support Azure Hybrid Benefit and FOCUS reports. In addition to these, you may also be interested in the custom columns and measures that summarize savings, utilization, cost over time, and more. Unfortunately, Power BI doesn't provide a simple way to copy columns and measures. Perform the following for each column and measure you'd like to copy:
 
-1. In the FinOps toolkit report, expand the **CostDetails** (or other table) table in the **Data** pane on the right.
+1. In the FinOps toolkit report, expand the **Costs** (or other table) table in the **Data** pane on the right.
 2. Select a custom column or measure, then copy the formula from the editor at the top of the window, under the toolbar.
    <blockquote class="note" markdown="1">
      _Be sure to make note if this is a column or a measure. Columns have a table icon with a "Σ" or "fx" symbol and measures have a calculator icon._<br>![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
    </blockquote>
-3. In your report, right click the **CostDetails** table and select **New measure** or **New column** based on what you just copied.
+3. In your report, right click the **Costs** table and select **New measure** or **New column** based on what you just copied.
 4. When the formula editor is shown, paste the formula using <kbd>Ctrl+V</kbd> or <kbd>Cmd+V</kbd>.
 5. Repeat steps 2-4 for each desired column and measure.
 
@@ -194,23 +194,23 @@ The Cost Management template app does not support customization in Power BI Desk
 
 ## 🏗️ Migrate from the Cost Management connector
 
-The Cost Management connector provides separate queries for actual (billed) and amortized costs. In an effort to minimize data size and improve performance, the FinOps toolkit reports combine these into a single query. The best way to migrate from the Cost Management connector is to copy the queries from a FinOps toolkit report and then update your visuals to use the **CostDetails** table.
+The Cost Management connector provides separate queries for actual (billed) and amortized costs. In an effort to minimize data size and improve performance, the FinOps toolkit reports combine these into a single query. The best way to migrate from the Cost Management connector is to copy the queries from a FinOps toolkit report and then update your visuals to use the **Costs** table.
 
 1. Download one of the FinOps toolkit reports.
 2. Open the report in Power BI Desktop.
 3. Select **Transform data** in the toolbar.
-4. In the **Queries** list on the left, right-click **CostDetails** and select **Copy**.
+4. In the **Queries** list on the left, right-click **Costs** and select **Copy**.
 5. Before you change your report, make a copy first to ensure you can rollback if needed.
 6. Open your report in Power BI Desktop.
 7. Select **Transform data** in the toolbar.
 8. Right-click the empty space in the bottom of the **Queries** pane and select **New group...**.
 9. Set the name to `FinOps toolkit` and select **OK**.
 10. Right-click the **FinOps toolkit** folder and select **Paste**.
-11. Right-click the **CostDetails** query and select **Advanced Editor**.
+11. Right-click the **Costs** query and select **Advanced Editor**.
 12. Copy all text and close the editor dialog.
 13. Right-click the **Usage details** query and select **Advanced Editor**.
-14. Replace all text with the copied text from CostDetails and select the **Done** button.
-15. Rename the **Usage details** query to `CostDetails` and drag it into the `FinOps toolkit` folder.
+14. Replace all text with the copied text from Costs and select the **Done** button.
+15. Rename the **Usage details** query to `Costs` and drag it into the `FinOps toolkit` folder.
 16. Delete the **Usage details amortized** query.
 17. Select **Close & Apply** in the toolbar for both reports.
 18. Review each page to ensure the visuals are still working as expected. Update any references to old columns or measures to the new names.
@@ -237,15 +237,15 @@ See [Queries and datasets](#️-queries-and-datasets) below for additional detai
 <!--
 ## 🗃️ Queries and datasets
 
-FinOps toolkit reports offer multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use CostDetails or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
+FinOps toolkit reports offer multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use Costs or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
 
 <blockquote class="warning" markdown="1">
    _FinOps hubs will eventually adopt the [FOCUS standard](https://aka.ms/finops/focus) when available._
 </blockquote>
 
-### CostDetails
+### Costs
 
-The **CostDetails** dataset is a reference to the latest version of the schema. All visuals in FinOps hub reports are connected to this latest version. If you do not want to point to the latest version, you can edit the CostDetails query in the Power Query editor and change it to reference a different schema version.
+The **Costs** dataset is a reference to the latest version of the schema. All visuals in FinOps hub reports are connected to this latest version. If you do not want to point to the latest version, you can edit the Costs query in the Power Query editor and change it to reference a different schema version.
 
 ### CMExports
 
