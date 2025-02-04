@@ -110,6 +110,10 @@ Legend:
 > 1. Expand details about supported datasets in documentation.
 > 1. Updated the default setting for Data Explorer trusted external tenants from "All tenants" to "My tenant only".
 >    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
+>
+> 🛠️ Fixed:
+>
+> 1. Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -183,6 +187,9 @@ Legend:
 >
 > 1. Added explicit `-CommitmentDiscountScope`, `-CommitmentDiscountResourceType`, and `-CommitmentDiscountLookback` parameters to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) for reservation recommendations.
 > 1. Added explicit `-SystemAssignedIdentity` switch parameter to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to enable system-assigned identity.
+> 1. Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
+>    - The name of each deleted resource is printed for better visibility during the deletion process.
+>    - Added ability to confirm all deletions using a "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
 >
 > ✏️ Changed:
 >
@@ -211,28 +218,22 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> 1. Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions. ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
+> 1. Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
+
 > - [Regions](../_reporting/data/README.md#️-regions)
 >   1. Added the following new region values: "ase", "aue", "southeastus", "taiwannorthwest".
+> - [Pricing units](../_reporting/data/README.md#-pricing-units)
+>   1. Added the "1000 TB" unit of measure ([#1181](https://github.com/microsoft/finops-toolkit/issues/1181)).
 > - [Resource types](../_reporting/data/README.md#-resource-types)
 >   1. Added 2 new Microsoft.Network DNS resolver resource types.
 > - [Services](../_reporting/data/README.md#-services)
 >   1. Added 4 resource types to new services: microsoft.azurefleet/fleets, microsoft.hybridnetwork/sitenetworkservices, microsoft.iotoperations/instances, and microsoft.networkcloud/baremetalmachines.
-
-🖥️ PowerShell
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
->    - The name of each deleted resource is printed for better visibility during the deletion process.
->    - Added ability to confirm all deletions using a "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
 
 <br>
 
