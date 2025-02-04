@@ -114,7 +114,7 @@ else
 
     $testsToRun = @()
     if ($Cost) { $testsToRun += '*-FinOpsCost*', 'Cost*' }
-    if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
+    if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRecommendationType*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
     if ($Exports) { $testsToRun += '*-FinOpsCostExport*', 'CostExports.Tests.ps1' }
     if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
     if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs.Tests.ps1' }

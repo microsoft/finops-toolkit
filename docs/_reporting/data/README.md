@@ -17,6 +17,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [📏 Pricing units](#-pricing-units)
+- [💡 Recommendation types](#-recommendation-types)
 - [🗺️ Regions](#️-regions)
 - [📚 Resource types](#-resource-types)
 - [🎛️ Services](#️-services)
@@ -62,6 +63,30 @@ A few important notes about the data:
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
 [See PowerShell](../../_automation/powershell/data/Get-FinOpsPricingUnit.md){: .btn .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## 💡 Recommendation types
+
+Microsoft Azure Advisor has over 300 different recommendation types, but does not include details about the recommendations in a structured way. The recommendations types file provides a list of Azure Advisor recommendation types you may find to provide additional context like names, descriptions, documentation links, and more.
+
+Sample data:
+
+<!-- cSpell:disable -->
+
+| RecommendationTypeId                 | Category               | Impact | ServiceName                | ResourceType                              | Key                                        | Message                                                                                                             | Version | LearnMoreLink                                                                                                                       |
+| ------------------------------------ | ---------------------- | ------ | -------------------------- | ----------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| a205074f-8049-48b3-903f-556f5e530ae3 | Cost                   | High   | ReservedInstances          | microsoft.subscriptions/subscriptions     | CosmosDBReservedCapacity                   | Buy reserved instance                                                                                               | 9.1     | https://aka.ms/rirecommendations                                                                                                    |
+| 94aea435-ef39-493f-a547-8408092c22a7 | Cost                   | High   | Virtual Machine Scale Sets | microsoft.compute/virtualmachinescalesets | LowUsageVmss                               | Shut down or resize your virtual machine scale sets                                                                 | 9.9     | https://aka.ms/aa_lowusagerec_vmss_learnmore                                                                                        |
+| afdf4c1a-e46b-4817-a5d6-4b9909f58e2a | Cost                   | Low    | Azure Synapse Analytics    | microsoft.synapse/workspaces              | EnableSynapseSparkComputeAutoPauseGuidance | Consider enabling automatic pause feature on spark compute                                                          | 3.1     | https://aka.ms/EnableSynapseSparkComputeAutoPauseGuidance                                                                           |
+| ed651749-cd37-4fd5-9897-01b416926745 | High Availability      | Medium | Site Recovery              | microsoft.compute/virtualmachines         | ASRUnprotectedVMs                          | Enable virtual machine replication                                                                                  | 7       | https://aka.ms/azure-site-recovery-dr-azure-vms                                                                                     |
+| 9c0c3708-17f6-4108-9aff-f0e052c3cd41 | Operational Excellence | Low    | Azure App Service          | microsoft.subscriptions/subscriptions     | AzureApplicationService                    | Eliminate replica staging environments and ship new versions and features with zero downtime using deployment slots | 1.0     | https://docs.microsoft.com/azure/app-service/deploy-staging-slots                                                                   |
+| a06456ed-afb7-4d16-86fd-0054e25268ed | Performance            | Medium | Virtual Machines           | microsoft.compute/virtualmachines         | AccelNetDisengaged                         | Enable Accelerated Networking to improve network performance and latency                                            | 2.1     | https://docs.microsoft.com/azure/virtual-network/create-vm-accelerated-networking-cli#enable-accelerated-networking-on-existing-vms |
+
+<!-- cSpell:enable -->
+
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/RecommendationTypes.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../../_automation/powershell/data/Get-FinOpsRecommendationType.md){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

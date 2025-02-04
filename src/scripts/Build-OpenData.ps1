@@ -472,6 +472,7 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
 
     # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
     function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
+    Write-Host "Updated $($newTypes.Count) new resource types"
 
     # Save files
     $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8    
@@ -490,6 +491,118 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
         }
     } `
     | Export-Csv "$srcDir/ResourceTypes.csv" -UseQuotes Always -NoTypeInformation -Encoding utf8
+}
+
+if (($Name -eq "RecommendationTypes" -or $Name -eq "*") -and $Data)
+{
+    $recommendationTypes = @()
+
+    Write-Verbose "Parsing Advisor recommendation types..."
+    $folders = Get-ChildItem "$PSScriptRoot/../../../SelfHelpContent/articles/advisor?ecommendation.*"
+    Write-Verbose "Found $($folders.Count) folders"
+    
+    $files = $folders | ForEach-Object { Get-ChildItem "$_/*-public.md" }
+    Write-Verbose "Found $($files.Count) files"
+
+    $files
+    | ForEach-Object {
+        $fileName = "$($_.Directory.Name)/$($_.Name)"
+        Write-Verbose "Reading $_"
+
+        # Initialize a flag to indicate when to start and stop reading
+        $reading = $false
+
+        # Initialize an array to store the contents
+        $content = @()
+
+        # Read the file line by line
+        Get-Content $_ | ForEach-Object {
+            # Check for the "---" line
+            if ($_ -eq "---")
+            {
+                # Toggle the reading flag
+                $reading = -not $reading
+            }
+            elseif ($reading)
+            {
+                # Add the line to the content array if reading is true
+                $content += $_
+            }
+        }
+
+        # Fix bad JSON
+        $content = $content -join '' -replace '"condition": "cohort == \\"MongoDB API\\""\s+"condition": "cohort == \\"Only on .NET V3 SDK \(mergeproof\)\\""', '"condition": ""'
+
+        # Output the content
+        $json = $content | ConvertFrom-Json -Depth 100
+        # TODO: Should we filter on $schema == "AdvisorRecommendation"?
+
+        # Clean up offering names
+        if (-not ($json.PSObject.Properties.Name -contains 'recommendationOfferingName'))
+        {
+            $json | Add-Member -MemberType NoteProperty -Name recommendationOfferingName -Value $null
+        }
+        $json.recommendationOfferingName = $json.recommendationOfferingName `
+            -replace 'AzureAppService', 'Azure App Service' `
+            -replace '^App Service$', 'Azure App Service' `
+            -replace 'AzureDataExplorer_Kusto', 'Azure Data Explorer' `
+            -replace 'AzureDataExplorer_Kusto', 'Azure Data Explorer'
+        if (-not $json.recommendationOfferingName)
+        {
+            $resourceTypeMappings = @{
+                'microsoft.classiccompute/virtualmachines'  = 'Virtual Machines'
+                'microsoft.compute/virtualmachines'         = 'Virtual Machines'
+                'microsoft.compute/virtualmachinescalesets' = 'Virtual Machine Scale Sets'
+            }
+            $friendlyNameMappings = @{
+                EphemeralOsDisk     = 'Virtual Machines'
+                ResourceHealthAlert = 'Microsoft Support'
+                ServiceHealthAlert  = 'Microsoft Support'
+                SupportPlan         = 'Microsoft Support'
+            }
+            if (($json.PSObject.Properties.Name -contains 'recommendationFriendlyName') -and $friendlyNameMappings.ContainsKey($json.recommendationFriendlyName))
+            {
+                $json.recommendationOfferingName = $friendlyNameMappings[$json.recommendationFriendlyName]
+                Write-Verbose "- Using fallback service name based on friendly name: $($json.recommendationFriendlyName) -> $($json.recommendationOfferingName)"
+            }
+            elseif (($json.PSObject.Properties.Name -contains 'recommendationResourceType') -and $resourceTypeMappings.ContainsKey($json.recommendationResourceType))
+            {
+                $json.recommendationOfferingName = $resourceTypeMappings[$json.recommendationResourceType]
+                Write-Verbose "- Using fallback service name based on resource type: $($json.recommendationResourceType) -> $($json.recommendationOfferingName)"
+            }
+        }
+
+        # Clean up category/control names
+        $json.Category = $json.Category -creplace "([a-z])And([A-Z])", "`$1 and `$2" -creplace "([a-z])([A-Z])", "`$1 `$2"
+        $json.Control = $json.Control -creplace "([a-z])And([A-Z])", "`$1 and `$2" -creplace "([a-z])([A-Z])", "`$1 `$2"
+
+        $recommendationTypes += @(
+            [PSCustomObject]@{
+                Id              = $json.recommendationTypeId
+                Category        = $json.recommendationCategory
+                Control         = $json.recommendationControl
+                Impact          = $json.recommendationImpact
+                ServiceName     = $json.recommendationOfferingName
+                ResourceType    = ($json.recommendationResourceType + '').ToLower()
+                Key             = $json.recommendationFriendlyName
+                Message         = $json.displayLabel
+                State           = $json.recommendationMetadataState
+                Version         = $json.version
+                Description     = $json.description -replace "`n", "\n" -replace "`r", "\r"
+                LongDescription = $json.longDescription -replace "`n", "\n" -replace "`r", "\r"
+                Benefits        = $json.potentialBenefits
+                Tip             = $json.tip
+                LearnMoreLink   = $json.learnMoreLink
+                # File            = $fileName
+                # portalFeatures: [],
+                # additionalColumns: [{ name, title }],
+                # actions: [{ description }],
+                # resourceMetadata: [{ actionType:Blade, extensionName, bladeName, metadata.id }],
+            }
+        )
+    }
+
+    $recommendationTypes | Export-Csv "$srcDir/RecommendationTypes.csv" -UseQuotes Always -NoTypeInformation -Encoding utf8
 }
 
 # Generate PowerShell functions from data files
