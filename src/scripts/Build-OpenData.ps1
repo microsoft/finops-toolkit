@@ -278,7 +278,8 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
     Write-Verbose "Extracting images, CSV, and JSON from $tempMetadata..."
     $metadataJson = Get-Content $tempMetadata -Raw | ConvertFrom-Json -Depth 100
     $overrides = Get-Content "$srcDir/ResourceTypes.Overrides.json" -Raw | ConvertFrom-Json -Depth 5
-    $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach-Object {
+    $newTypes = @{}
+    ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach-Object {
         $asset = $_
         $defaultIcon = (Get-Content "$svgDir/microsoft.resources/resources.svg" -Raw)
 
@@ -383,19 +384,20 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
             
             [array]$links = $asset.links | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
             $typeInfo = [PSCustomObject]@{
-                resourceType             = $resourceType
-                singularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
-                pluralDisplayName        = noPreview ($override.plural ?? $asset.pluralDisplayName)
-                lowerSingularDisplayName = noPreview ($override.lowerSingular ?? $asset.lowerSingularDisplayName ?? $override.singular ?? $asset.singularDisplayName)
-                lowerPluralDisplayName   = noPreview ($override.lowerPlural ?? $asset.lowerPluralDisplayName ?? $override.plural ?? $asset.pluralDisplayName)
-                isPreview                = $isPreview
-                description              = ($asset.description ?? '') -replace '[\n\r]', ' ' -replace '  *', ' ' ?? $null
-                icon                     = $icon ? "https://microsoft.github.io/finops-toolkit/svg/$resourceType.svg" : $null
-                links                    = $links
+                ResourceType             = $resourceType.ToLower()
+                SingularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
+                PluralDisplayName        = noPreview ($override.plural ?? $asset.pluralDisplayName)
+                LowerSingularDisplayName = noPreview ($override.lowerSingular ?? $asset.lowerSingularDisplayName ?? $override.singular ?? $asset.singularDisplayName)
+                LowerPluralDisplayName   = noPreview ($override.lowerPlural ?? $asset.lowerPluralDisplayName ?? $override.plural ?? $asset.pluralDisplayName)
+                IsPreview                = $isPreview
+                Description              = ($asset.description ?? '') -replace '[\n\r]', ' ' -replace '  *', ' ' ?? $null
+                Icon                     = $icon ? "https://microsoft.github.io/finops-toolkit/svg/$resourceType.svg" : $null
+                Links                    = $links
+                Updated                  = [datetime]::Now.ToUniversalTime().ToString('yyyy-MM-dd')
             }
 
             # Warn if names are missing
-            if ($asset.resourceType -and (-not $typeInfo.singularDisplayName -or -not $typeInfo.pluralDisplayName -or -not $typeInfo.lowerSingularDisplayName -or -not $typeInfo.lowerPluralDisplayName))
+            if ($asset.resourceType -and (-not $typeInfo.SingularDisplayName -or -not $typeInfo.PluralDisplayName -or -not $typeInfo.LowerSingularDisplayName -or -not $typeInfo.LowerPluralDisplayName))
             {
                 Write-Warning "Missing display name for $($resourceType): $($typeInfo | ConvertTo-Json -Depth 10)"
             }
@@ -413,7 +415,7 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                     Write-Information "Skipping $($_.type) override"
                     return
                 }
-                return processResourceType $_.type @{} $_
+                $newTypes | Add-Member -MemberType NoteProperty -Name $_.type -Value (processResourceType $_.type @{} $_) -Force
             }
         }
         elseif ($asset.resourceType.resourceTypeName.ToLower().StartsWith('private.') `
@@ -442,53 +444,34 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                 $overrides = $overrides | Where-Object { $_.type.ToLower() -ne $resourceType }
             }
 
-            return processResourceType $resourceType $asset $override
+            $newTypes | Add-Member -MemberType NoteProperty -Name $resourceType -Value (processResourceType $resourceType $asset $override) -Force
         }
     }
-    Write-Host "Found $($resourceTypes.Count) portal resource types"
+    Write-Host "Found $($newTypes.Keys.Count) portal resource types"
 
-    # Keep retired resource types for historical reporting
-    $uniqueTypes = $resourceTypes | Select-Object -ExpandProperty resourceType -Unique
-    $oldTypes = Get-Content "$srcDir/ResourceTypes.json" -Raw | ConvertFrom-Json -Depth 100
-    Write-Host "Found $($oldTypes.Count) published resource types"
-    $missingTypes = $oldTypes `
-    | Where-Object { $uniqueTypes -notcontains $_.resourceType } `
-    | ForEach-Object {
-        if (($_.PSObject.Properties | Select-Object -ExpandProperty Name) -contains "missingMetadata")
-        {
-            $_.missingMetadata = $true
+    # Update resource types
+    $updatedTypes = @()
+    $finalTypes = Import-Csv "$srcDir/ResourceTypes.csv" -Encoding utf8 | ForEach-Object {
+        $row = $_
+        $newTypes[$row.ResourceType].PSObject.Properties | ForEach-Object {
+            $prop = $_
+            if ($null -ne $prop.Name)
+            {
+                $row | Add-Member -MemberType NoteProperty -Name $prop.Name -Value $prop.Value -Force
+            }
         }
-        else
-        {
-            $_ | Add-Member -MemberType NoteProperty -Name missingMetadata -Value $true
-        }
-        return $_
+        $updatedTypes += $row.ResourceType
+        return $row
     }
-    Write-Host "Adding $($missingTypes.Count) missing resource types..."
-    $resourceTypes += $missingTypes
-    
-    # Sort resource types
-    $resourceTypes = $resourceTypes | Sort-Object -Property resourceType
+    Write-Host "Updated $updateCount existing resource types"
 
-    # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
-    function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
+    # Add new resource types
+    $updatedTypes | ForEach-Object { $newTypes.Remove($_) }
+    $finalTypes += $newTypes.Values
 
-    # Save files
-    $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8    
-    $resourceTypes `
-    | ForEach-Object {
-        return [ordered]@{
-            ResourceType             = $_.resourceType
-            SingularDisplayName      = $_.singularDisplayName
-            PluralDisplayName        = $_.pluralDisplayName
-            LowerSingularDisplayName = $_.lowerSingularDisplayName
-            LowerPluralDisplayName   = $_.lowerPluralDisplayName
-            IsPreview                = $_.isPreview ? 'true' : 'false'
-            Description              = $_.description ?? '' # Convert null to empty string for Export-Csv
-            Icon                     = $_.icon
-            Links                    = ($null -eq $_.links -or $_.links.Count -eq 0) ? '' : (forceArray ($_.links | ConvertTo-Json -Depth 2 -Compress))
-        }
-    } `
+    # Sort and save file
+    $finalTypes `
+    | Sort-Object -Property ResourceType `
     | Export-Csv "$srcDir/ResourceTypes.csv" -UseQuotes Always -NoTypeInformation -Encoding utf8
 }
 
