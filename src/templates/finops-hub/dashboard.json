@@ -1,7 +1,7 @@
 {
   "$schema": "https://dataexplorer.azure.com/static/d/schema/52/dashboard.json",
   "id": "a20bfb32-a3e1-4854-bc9f-e93b86e40813",
-  "eTag": "b33a0cc6-40e5-48d1-8eef-0cfe87d14653",
+  "eTag": "9d0d10a6-73e5-442d-852c-54c476106e31",
   "schema_version": "52",
   "title": "FinOps hub",
   "tiles": [
@@ -954,7 +954,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 102, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 117, "width": 22, "height": 4 },
       "markdownText": "# SKU prices\r\nSummary of the SKUs used and their applicable discounts\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563)",
       "visualOptions": {}
     },
@@ -1008,7 +1008,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 91, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 106, "width": 22, "height": 4 },
       "markdownText": "# Purchases\r\nCosts from commitment discount, Marketplace, and other purchases\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563)",
       "visualOptions": {}
     },
@@ -1072,7 +1072,7 @@
       "title": "SKUs with negotiated discounts (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 106, "width": 14, "height": 6 },
+      "layout": { "x": 0, "y": 121, "width": 14, "height": 6 },
       "queryRef": { "kind": "query", "queryId": "af6424d4-8f73-4b81-bfdd-f0287ebcaaca" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1091,7 +1091,7 @@
       "title": "SKUs with commitment discounts (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 112, "width": 14, "height": 6 },
+      "layout": { "x": 0, "y": 127, "width": 14, "height": 6 },
       "queryRef": { "kind": "query", "queryId": "c4f6542d-a9cb-4284-bd4e-b9f94ad02192" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1110,7 +1110,7 @@
       "title": "SKUs with no discounts (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 118, "width": 14, "height": 6 },
+      "layout": { "x": 0, "y": 133, "width": 14, "height": 6 },
       "queryRef": { "kind": "query", "queryId": "00ae3917-c783-45f6-a04e-9113e4c5d445" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1129,7 +1129,7 @@
       "title": "Most used SKUs (last n days)",
       "visualType": "bar",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 14, "y": 106, "width": 8, "height": 18 },
+      "layout": { "x": 14, "y": 121, "width": 8, "height": 18 },
       "queryRef": { "kind": "query", "queryId": "d8a4634e-7ebe-47ce-83b5-ff7f50f6bee6" },
       "visualOptions": {
         "multipleYAxes": {
@@ -1184,7 +1184,7 @@
       "title": "Purchases",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 95, "width": 22, "height": 7 },
+      "layout": { "x": 0, "y": 110, "width": 22, "height": 7 },
       "queryRef": { "kind": "query", "queryId": "35a3a2b3-4ab0-4449-96f7-c78db789089e" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1259,7 +1259,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 51, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 66, "width": 22, "height": 4 },
       "markdownText": "# Commitment discounts\r\nCommitment discount usage and costs\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563)",
       "visualOptions": {}
     },
@@ -1268,7 +1268,7 @@
       "title": "Commitment discount usage (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 55, "width": 13, "height": 6 },
+      "layout": { "x": 0, "y": 70, "width": 13, "height": 6 },
       "queryRef": { "kind": "query", "queryId": "d7f31381-ba44-46a1-ad3e-dc6b8826706d" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1381,7 +1381,7 @@
       "title": "Savings summary (last n days)",
       "visualType": "multistat",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 36, "width": 15, "height": 9 },
+      "layout": { "x": 0, "y": 47, "width": 15, "height": 9 },
       "queryRef": { "kind": "query", "queryId": "f1ef29df-7a1d-4dd0-8619-0c0164707b31" },
       "visualOptions": {
         "multiStat__textSize": "auto",
@@ -1493,7 +1493,7 @@
       "title": "Commitment discount breakdown (last n days)",
       "visualType": "multistat",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 15, "y": 36, "width": 7, "height": 9 },
+      "layout": { "x": 15, "y": 47, "width": 7, "height": 9 },
       "queryRef": { "kind": "query", "queryId": "84ecad69-79ac-45b9-a8af-60be28dcc748" },
       "visualOptions": {
         "multiStat__textSize": "auto",
@@ -1511,7 +1511,7 @@
       "title": "Monthly trend by service category",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 26, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 37, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "85320475-730b-411f-98d5-fbc345bf5e68" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1530,7 +1530,7 @@
       "title": "Monthly savings trend",
       "visualType": "stackedcolumn",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 20, "width": 15, "height": 6 },
+      "layout": { "x": 0, "y": 24, "width": 15, "height": 6 },
       "queryRef": { "kind": "query", "queryId": "5bbb5369-ac95-45fc-853c-a6a2ce6a9e7b" },
       "visualOptions": {
         "multipleYAxes": {
@@ -1566,11 +1566,11 @@
       "title": "Total savings (last n months)",
       "visualType": "pie",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 15, "y": 20, "width": 7, "height": 6 },
+      "layout": { "x": 15, "y": 20, "width": 7, "height": 10 },
       "queryRef": { "kind": "query", "queryId": "93f0eb9f-fa4d-4c54-96c2-8c1d3387d13a" },
       "visualOptions": {
         "hideLegend": false,
-        "legendLocation": "right",
+        "legendLocation": "bottom",
         "xColumn": "Type",
         "yColumns": null,
         "seriesColumns": null,
@@ -1592,7 +1592,7 @@
       "title": "Daily savings trend",
       "visualType": "stackedcolumn",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 45, "width": 15, "height": 6 },
+      "layout": { "x": 0, "y": 60, "width": 15, "height": 6 },
       "queryRef": { "kind": "query", "queryId": "5c442903-65b0-4b53-9e7c-3ea9c1af7be5" },
       "visualOptions": {
         "multipleYAxes": {
@@ -1619,11 +1619,11 @@
       "title": "Total savings (last n days)",
       "visualType": "pie",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 15, "y": 45, "width": 7, "height": 6 },
+      "layout": { "x": 15, "y": 56, "width": 7, "height": 10 },
       "queryRef": { "kind": "query", "queryId": "9a9ee4b0-a37d-475f-bf1d-f51573243491" },
       "visualOptions": {
         "hideLegend": false,
-        "legendLocation": "right",
+        "legendLocation": "bottom",
         "xColumn": "Type",
         "yColumns": null,
         "seriesColumns": null,
@@ -1654,7 +1654,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 34, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 45, "width": 22, "height": 2 },
       "markdownText": "## Daily trend (last n days)",
       "visualOptions": {}
     },
@@ -1663,7 +1663,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 61, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 76, "width": 22, "height": 2 },
       "markdownText": "## Subscription chargeback (last n months)",
       "visualOptions": {}
     },
@@ -1672,7 +1672,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 71, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 86, "width": 22, "height": 2 },
       "markdownText": "## Resource group chargeback (last n months)",
       "visualOptions": {}
     },
@@ -1681,7 +1681,7 @@
       "title": "Commitment discount chargeback by resource group",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 73, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 88, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "377e3693-0738-45d7-97d9-4b6e71ec5b36" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1700,7 +1700,7 @@
       "title": "Commitment discount chargeback by subscription",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 63, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 78, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "13cad52d-91e7-4ab4-aad5-4aae21c1019a" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1719,7 +1719,7 @@
       "title": "Commitment discount usage by resource (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 83, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 98, "width": 22, "height": 8 },
       "queryRef": { "kind": "query", "queryId": "dcf69b47-233e-4bc4-b914-3f6f09f4cb82" },
       "visualOptions": {
         "table__enableRenderLinks": true,
@@ -1738,7 +1738,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 81, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 96, "width": 22, "height": 2 },
       "markdownText": "## Resources usage (last n days)",
       "visualOptions": {}
     },
@@ -2384,6 +2384,243 @@
         "crossFilter": [],
         "drillthrough": []
       }
+    },
+    {
+      "id": "961b8980-213f-4bc7-9512-8a08614229e0",
+      "title": "Effective Savings Rate (last n months)",
+      "visualType": "multistat",
+      "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
+      "layout": { "x": 0, "y": 20, "width": 15, "height": 4 },
+      "queryRef": { "kind": "query", "queryId": "e1bc2d51-44af-4dd9-8b0d-a71088b551f5" },
+      "visualOptions": {
+        "multiStat__textSize": "auto",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "multiStat__displayOrientation": "horizontal",
+        "multiStat__labelColumn": "Label",
+        "multiStat__slot": { "width": 5, "height": 1 },
+        "colorRules": [
+          {
+            "id": "a45d5307-a815-4baa-9743-d142253dc699",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["List"] }],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "red",
+            "tag": "List cost",
+            "icon": null,
+            "ruleName": "List cost",
+            "visualType": "multistat"
+          },
+          {
+            "id": "a1307a22-3b48-48a9-9c1b-ef6b6a228796",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["Contracted"] }],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "yellow",
+            "tag": "Contracted cost",
+            "icon": null,
+            "ruleName": "Contracted cost",
+            "visualType": "multistat"
+          },
+          {
+            "id": "65c6cac8-64f6-4029-bca0-b09dbfef9516",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["Effective"] }],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "green",
+            "tag": "Effective cost",
+            "icon": null,
+            "ruleName": "Effective cost",
+            "visualType": "multistat"
+          },
+          {
+            "id": "33f99591-c8a6-4aae-be3f-a613bbc85c28",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["PartialSavings"] }],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "blue",
+            "tag": "Partial savings",
+            "icon": null,
+            "ruleName": "Partial savings",
+            "visualType": "multistat"
+          },
+          {
+            "id": "55430568-c3ef-4ff7-84b9-f3f82fe1a05a",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["TotalSavings"] }],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "green",
+            "tag": "Total savings",
+            "icon": null,
+            "ruleName": "Total savings",
+            "visualType": "multistat"
+          },
+          {
+            "id": "852c731e-90ec-4438-8bb7-00be0127b802",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["EffectiveSavingsRate"] }],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "yellow",
+            "tag": "ESR",
+            "icon": null,
+            "ruleName": "ESR",
+            "visualType": "multistat"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6367a5d7-99ca-4afc-b9d4-4c77ec259a07",
+      "title": "Savings breakdown by month",
+      "visualType": "table",
+      "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
+      "layout": { "x": 0, "y": 30, "width": 22, "height": 7 },
+      "queryRef": { "kind": "query", "queryId": "3b3f0a58-2d84-4e3e-bebc-3e747a7d5ede" },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "69e3a7e2-9477-4b63-8c86-9d66a782501b",
+      "title": "Effective Savings Rate (last n days)",
+      "visualType": "multistat",
+      "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
+      "layout": { "x": 0, "y": 56, "width": 15, "height": 4 },
+      "queryRef": { "kind": "query", "queryId": "cb34f22b-9370-460c-9658-3e73d220bbc7" },
+      "visualOptions": {
+        "multiStat__textSize": "auto",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "multiStat__displayOrientation": "horizontal",
+        "multiStat__labelColumn": "Label",
+        "multiStat__slot": { "width": 5, "height": 1 },
+        "colorRules": [
+          {
+            "id": "a45d5307-a815-4baa-9743-d142253dc699",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["List"] }],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "red",
+            "tag": "List cost",
+            "icon": null,
+            "ruleName": "List cost",
+            "visualType": "multistat"
+          },
+          {
+            "id": "a1307a22-3b48-48a9-9c1b-ef6b6a228796",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["Contracted"] }],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "yellow",
+            "tag": "Contracted cost",
+            "icon": null,
+            "ruleName": "Contracted cost",
+            "visualType": "multistat"
+          },
+          {
+            "id": "65c6cac8-64f6-4029-bca0-b09dbfef9516",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["Effective"] }],
+            "chainingOperator": "and",
+            "colorStyle": "light",
+            "color": "green",
+            "tag": "Effective cost",
+            "icon": null,
+            "ruleName": "Effective cost",
+            "visualType": "multistat"
+          },
+          {
+            "id": "33f99591-c8a6-4aae-be3f-a613bbc85c28",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["PartialSavings"] }],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "blue",
+            "tag": "Partial savings",
+            "icon": null,
+            "ruleName": "Partial savings",
+            "visualType": "multistat"
+          },
+          {
+            "id": "55430568-c3ef-4ff7-84b9-f3f82fe1a05a",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["TotalSavings"] }],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "green",
+            "tag": "Total savings",
+            "icon": null,
+            "ruleName": "Total savings",
+            "visualType": "multistat"
+          },
+          {
+            "id": "852c731e-90ec-4438-8bb7-00be0127b802",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [{ "operator": "==", "column": "Type", "values": ["EffectiveSavingsRate"] }],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "yellow",
+            "tag": "ESR",
+            "icon": null,
+            "ruleName": "ESR",
+            "visualType": "multistat"
+          }
+        ]
+      }
     }
   ],
   "baseQueries": [
@@ -2391,7 +2628,8 @@
     { "id": "21512220-154c-4646-a188-72e8c437d8ed", "queryId": "cb1f5404-c0b1-42fd-99fb-3cff7b08daaa", "variableName": "CostsLastMonth" },
     { "id": "5fa73857-4e92-4a16-8179-f94563e5f605", "queryId": "4ce0f587-2d45-436c-8f79-102c6b382439", "variableName": "CostsByMonth" },
     { "id": "4880346a-0a24-48f9-bf25-b7427df29d69", "queryId": "6b598467-8c31-4693-b1eb-7ed683fcfc3a", "variableName": "CostsByDay" },
-    { "id": "8ca40660-3fbc-4a08-b12e-92e7382d9449", "queryId": "4a1973bf-08e9-4e82-b8e6-6edff81cf0a5", "variableName": "CostsByDayAHB" }
+    { "id": "8ca40660-3fbc-4a08-b12e-92e7382d9449", "queryId": "4a1973bf-08e9-4e82-b8e6-6edff81cf0a5", "variableName": "CostsByDayAHB" },
+    { "id": "48ebd897-d085-490f-8b4b-9b43d4fb2efc", "queryId": "eb9259cc-05b7-4441-a66d-a29026fe371b", "variableName": "CostsPlus" }
   ],
   "parameters": [
     {
@@ -2884,34 +3122,53 @@
       "usedVariables": ["numberOfDays"]
     },
     {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "let data = materialize(\n    CostsPlus\n    //\n    // Don't double-count commitment discount purchases\n    | where x_AmortizationCategory != 'Principal'\n    //\n    | summarize \n        ListCost = sum(ListCost),\n        ContractedCost = sum(ContractedCost),\n        EffectiveCost = sum(EffectiveCost)\n    | extend TotalSavings = ListCost - EffectiveCost\n    | extend EffectiveSavingsRate = TotalSavings / ListCost\n    | project json = todynamic(strcat('[',\n        '{ \"order\":11, \"type\":\"TotalSavings\", \"label\":\"Total savings\", \"value\":\"', numberstring(round(TotalSavings, 2)), '\" },',\n        '{ \"order\":12, \"type\":\"\", \"label\":\"\", \"value\":\"➗\" },',\n        '{ \"order\":13, \"type\":\"List\", \"label\":\"Cost without discounts\", \"value\":\"', numberstring(round(ListCost, 2)), '\" },',\n        '{ \"order\":14, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":15, \"type\":\"EffectiveSavingsRate\", \"label\":\"Effective savings rate\", \"value\":\"', percentstring(EffectiveSavingsRate), '\" }',\n    ']'))\n    | mv-expand json\n    | order by toint(json.order) asc\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\n);\ndata",
+      "id": "e1bc2d51-44af-4dd9-8b0d-a71088b551f5",
+      "usedVariables": ["CostsPlus"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "CostsByMonth\n| extend x_AmortizationCategory = case(\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\n    ''\n)\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)\n| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)\n| summarize\n    ['On-demand']    = round(sumif(EffectiveCost, x_PricingSubcategory == 'Standard'), 2),\n    Spot             = round(sumif(EffectiveCost, x_PricingSubcategory == 'Spot'), 2),\n    Reservation      = round(sumif(EffectiveCost, CommitmentDiscountType == 'Reservation'), 2),\n    ['Savings plan'] = round(sumif(EffectiveCost, CommitmentDiscountType == 'Savings Plan'), 2),\n    ['Total cost']   = round(sum(EffectiveCost), 2),\n    ['List cost']    = round(sumif(ListCost, x_AmortizationCategory != 'Principal'), 2),\n    Savings          = round(sum(x_TotalSavings), 2)\n    by\n    Account = x_BillingProfileId,\n    Month   = substring(startofmonth(ChargePeriodStart), 0, 7)\n| extend ESR = percentstring(Savings/ ['List cost'])\n| order by Month desc",
+      "id": "3b3f0a58-2d84-4e3e-bebc-3e747a7d5ede",
+      "usedVariables": ["CostsByMonth"]
+    },
+    {
+      "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
+      "text": "let data = materialize(\n    CostsByDay\n    //\n    // Don't double-count commitment discount purchases\n    | where x_AmortizationCategory != 'Principal'\n    //\n    | summarize \n        ListCost = sum(ListCost),\n        ContractedCost = sum(ContractedCost),\n        EffectiveCost = sum(EffectiveCost)\n    | extend TotalSavings = ListCost - EffectiveCost\n    | extend EffectiveSavingsRate = TotalSavings / ListCost\n    | project json = todynamic(strcat('[',\n        '{ \"order\":11, \"type\":\"TotalSavings\", \"label\":\"Total savings\", \"value\":\"', numberstring(round(TotalSavings, 2)), '\" },',\n        '{ \"order\":12, \"type\":\"\", \"label\":\"\", \"value\":\"➗\" },',\n        '{ \"order\":13, \"type\":\"List\", \"label\":\"Cost without discounts\", \"value\":\"', numberstring(round(ListCost, 2)), '\" },',\n        '{ \"order\":14, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":15, \"type\":\"EffectiveSavingsRate\", \"label\":\"Effective savings rate\", \"value\":\"', percentstring(EffectiveSavingsRate), '\" }',\n    ']'))\n    | mv-expand json\n    | order by toint(json.order) asc\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\n);\ndata",
+      "id": "cb34f22b-9370-460c-9658-3e73d220bbc7",
+      "usedVariables": ["CostsByDay"]
+    },
+    {
       "id": "43612ae4-c475-4f22-bb50-ce9d995abb8f",
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "Costs_v1_0\n| where startofmonth(BillingPeriodStart) == startofmonth(now())",
-      "usedVariables": []
+      "text": "CostsPlus\n| where startofmonth(BillingPeriodStart) == startofmonth(now())",
+      "usedVariables": ["CostsPlus"]
     },
     {
       "id": "cb1f5404-c0b1-42fd-99fb-3cff7b08daaa",
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "Costs_v1_0\n| where startofmonth(BillingPeriodStart) == startofmonth(startofmonth(now()) - 1d)",
-      "usedVariables": []
+      "text": "CostsPlus\n| where startofmonth(BillingPeriodStart) == startofmonth(startofmonth(now()) - 1d)",
+      "usedVariables": ["CostsPlus"]
     },
     {
       "id": "4ce0f587-2d45-436c-8f79-102c6b382439",
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "Costs_v1_0\r\n| where ChargePeriodStart >= monthsago(numberOfMonths) and ChargePeriodStart < startofday(ago(1d))\r\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\r\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)",
-      "usedVariables": ["numberOfMonths"]
+      "text": "CostsPlus\r\n| extend ChargePeriodStart = startofmonth(ChargePeriodStart)\r\n| extend BillingPeriodStart = startofmonth(BillingPeriodStart)",
+      "usedVariables": ["CostsPlus"]
     },
     {
       "id": "6b598467-8c31-4693-b1eb-7ed683fcfc3a",
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "Costs_v1_0\r\n| where ChargePeriodStart >= startofday(ago(numberOfDays * 1d) - 1d) and ChargePeriodStart < startofday(ago(1d))\r\n| extend ChargePeriodStart = startofday(ChargePeriodStart)",
-      "usedVariables": ["numberOfDays"]
+      "text": "CostsPlus\r\n| extend ChargePeriodStart = startofday(ChargePeriodStart)",
+      "usedVariables": ["CostsPlus"]
     },
+    { "id": "4a1973bf-08e9-4e82-b8e6-6edff81cf0a5", "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" }, "text": "CostsPlus", "usedVariables": ["CostsPlus"] },
     {
-      "id": "4a1973bf-08e9-4e82-b8e6-6edff81cf0a5",
+      "id": "eb9259cc-05b7-4441-a66d-a29026fe371b",
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "CostsByDay\n| extend tmp_SQLAHB = tolower(x_SkuDetails.AHB)\n| extend x_SkuType = tostring(x_SkuDetails.ServiceType)\n| extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))\n| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''))\n| extend x_SkuLicenseStatus = case(\n    ChargeCategory != 'Usage', '',\n    (x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and x_SkuMeterSubcategory contains 'Windows') or tmp_SQLAHB == 'false', 'Not Enabled',\n    x_SkuDetails.ImageType contains 'Windows Server BYOL' or tmp_SQLAHB == 'true' or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'Enabled',\n    ''\n)\n| extend x_SkuLicenseType = case(\n    ChargeCategory != 'Usage', '',\n    x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or x_SkuDetails.ImageType contains 'Windows Server BYOL'), 'Windows Server',\n    isnotempty(tmp_SQLAHB) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',\n    ''\n)\n| extend x_SkuLicenseQuantity = case(\n    isempty(x_SkuCoreCount), toint(''),\n    x_SkuCoreCount <= 8, 8,\n    x_SkuCoreCount <= 16, 16,\n    x_SkuCoreCount == 20, 24,\n    x_SkuCoreCount > 20, x_SkuCoreCount,\n    toint('')\n)\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount",
-      "usedVariables": ["CostsByDay"]
+      "text": "Costs_v1_0\n//\n// Apply summarization settings\n| where ChargePeriodStart >= monthsago(numberOfMonths)\n| as filteredCosts\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\n//\n//| extend x_SkuVMProperties = tostring(x_SkuDetails.VMProperties)\n| extend x_CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)\n//\n// Hybrid Benefit\n| extend tmp_SQLAHB = tolower(x_SkuDetails.AHB)\n| extend tmp_IsVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'\n| extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))\n| extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)\n| extend x_SkuImageType = tostring(x_SkuDetails.ImageType)\n| extend x_SkuType      = tostring(x_SkuDetails.ServiceType)\n| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''))\n| extend x_SkuLicenseStatus = case(\n    ChargeCategory != 'Usage', '',\n    (x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and x_SkuMeterSubcategory contains 'Windows') or tmp_SQLAHB == 'false', 'Not Enabled',\n    x_SkuDetails.ImageType contains 'Windows Server BYOL' or tmp_SQLAHB == 'true' or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'Enabled',\n    ''\n)\n| extend x_SkuLicenseType = case(\n    ChargeCategory != 'Usage', '',\n    x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or x_SkuDetails.ImageType contains 'Windows Server BYOL'), 'Windows Server',\n    isnotempty(tmp_SQLAHB) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',\n    ''\n)\n| extend x_SkuLicenseQuantity = case(\n    isempty(x_SkuCoreCount), toint(''),\n    x_SkuCoreCount <= 8, 8,\n    x_SkuCoreCount <= 16, 16,\n    x_SkuCoreCount == 20, 24,\n    x_SkuCoreCount > 20, x_SkuCoreCount,\n    toint('')\n)\n| extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\n//\n| extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')\n| extend x_CommitmentDiscountUtilizationPotential = case(\n    ChargeCategory == 'Purchase', decimal(0),\n    ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,\n    CommitmentDiscountCategory == 'Usage', ConsumedQuantity,\n    CommitmentDiscountCategory == 'Spend', EffectiveCost,\n    decimal(0)\n)\n| extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, decimal(0))\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\n//\n// CSP partners\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\n//\n// Savings\n| extend x_AmortizationCategory = case(\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\n    ''\n)\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)\n| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)\n| extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0, decimal(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)\n| extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)\n| extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)\n//\n// Toolkit\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\n//\n// TODO: Only add differentiators when the name is not unique\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\n//\n// Explain why cost is 0\n| extend x_FreeReason = case(\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\n        x_SkuDescription contains 'Trial', 'Trial',\n        x_SkuDescription contains 'Preview', 'Preview',\n        'Other'\n    ),\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\n        PricingQuantity > 0.0, 'Low Usage',\n        PricingQuantity == 0.0, 'No Usage',\n        'Unknown Negative Quantity'\n    ),\n    'Unknown'\n)\n//\n| project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent",
+      "usedVariables": ["numberOfMonths"]
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
