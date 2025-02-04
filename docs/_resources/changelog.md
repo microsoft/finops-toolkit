@@ -70,15 +70,17 @@ Legend:
 > ➕ Added:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
->
 
 📒 FinOps workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
+>
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. Azure Arc Windows license management under the **Commitment Discounts** tab.  
-> 🛠️ **Fixed:**  
+>
+> 🛠️ Fixed:
+>
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. Enabled "Export to CSV" option on the **Idle backups** query.
 >   1. Corrected VM processor details on the **Compute** tab query.  
@@ -102,6 +104,9 @@ Legend:
 > ➕ Added:
 >
 > 1. Added Data Explorer dashboard template.
+> 1. Added new KQL functions in Data Explorer:
+>    - `monthstring(datetime, [length])` returns the name of the month at a given string length (e.g., default = "January", 3 = "Jan", 1 = "J").
+>    - `datestring(datetime, [datetime])` returns a formatted date or date range abbreviated based on the current date (e.g., "Jan 1", "Jan-Feb 2025", "Dec 15, 2024-Jan 14, 2025"). This function replaces `daterange()` and improves the return values to fix issues and covers more scenarios.
 >
 > ✏️ Changed:
 >
@@ -111,9 +116,15 @@ Legend:
 > 1. Updated the default setting for Data Explorer trusted external tenants from "All tenants" to "My tenant only".
 >    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
 >
+> 🚫 Deprecated:
+>
+> 1. Deprecated the `daterange()` KQL function. Please use `datestring(datetime, [datetime])` instead.
+> 1. Deprecated the `monthsago()` KQL function. Please use `startofmonth(datetime, [offset])` instead.
+> 
 > 🛠️ Fixed:
 >
 > 1. Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
+
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
