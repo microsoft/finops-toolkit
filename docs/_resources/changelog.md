@@ -187,6 +187,9 @@ Legend:
 >
 > 1. Added explicit `-CommitmentDiscountScope`, `-CommitmentDiscountResourceType`, and `-CommitmentDiscountLookback` parameters to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) for reservation recommendations.
 > 1. Added explicit `-SystemAssignedIdentity` switch parameter to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to enable system-assigned identity.
+> 1. Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
+>    - The name of each deleted resource is printed for better visibility during the deletion process.
+>    - Added ability to confirm all deletions using a "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
 >
 > ✏️ Changed:
 >
@@ -215,24 +218,17 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> 1. Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions. ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
+> 1. Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
+> - [Pricing units](../_reporting/data/README.md#-pricing-units)
+>   1. Added the "1000 TB" unit of measure ([#1181](https://github.com/microsoft/finops-toolkit/issues/1181)).
 > - [Resource types](../_reporting/data/README.md#-resource-types)
 >   1. Added 2 new Microsoft.Network DNS resolver resource types.
-
-🖥️ PowerShell
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
->    - The name of each deleted resource is printed for better visibility during the deletion process.
->    - Added ability to confirm all deletions using a "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
 
 <br>
 
