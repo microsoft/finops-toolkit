@@ -2241,15 +2241,16 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
                     }
                     userProperties: []
                     typeProperties: {
+                      method: 'POST'
                       url: {
                         value: '@{replace(toLower(concat(variables(\'resourceManagementUri\'),item().id)), \'com//\', \'com/\')}/run?api-version=${exportApiVersion}'
                         type: 'Expression'
                       }
-                      method: 'POST'
                       headers: {
                         'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs@${ftkVersion}'
                         ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                       }
+                      body: '{}'
                       authentication: {
                         type: 'MSI'
                         resource: {
