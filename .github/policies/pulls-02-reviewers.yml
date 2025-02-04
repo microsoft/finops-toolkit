@@ -337,6 +337,44 @@ configuration:
                       reviewer: springstone
                   - assignTo:
                       user: springstone
+          # web
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^src\/web\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Web app'
+              # Ivan
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: ivanmtta
+                then:
+                  - requestReview:
+                      reviewer: ivanmtta
+                  - assignTo:
+                      user: ivanmtta
+              # Jamel
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: jamelachahbar
+                then:
+                  - requestReview:
+                      reviewer: jamelachahbar
+                  - assignTo:
+                      user: jamelachahbar
+              # Orthodoxos
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: akiskips
+                then:
+                  - requestReview:
+                      reviewer: akiskips
+                  - assignTo:
+                      user: akiskips
           # workbooks
           - if:
               - or:
