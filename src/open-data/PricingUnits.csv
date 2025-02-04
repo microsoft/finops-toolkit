@@ -226,7 +226,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1000 Relay Hours",EA,1000,Hours
 "1000 Relay Hrs",EA,1000,Hours
 "1000 Renders",EA,1000,Renders
-"1000 TB",,1000,TB
+"1000 TB",EA,1000,TB
 "1000 Transactions",EA,1000,Transactions
 "10000",EA,10000,Units
 "10000 ",EA,10000,Units
