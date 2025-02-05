@@ -242,9 +242,28 @@ Legend:
 > - [Pricing units](../_reporting/data/README.md#-pricing-units)
 >   1. Added the "1000 TB" unit of measure ([#1181](https://github.com/microsoft/finops-toolkit/issues/1181)).
 > - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 8 new Microsoft.AzureCIS resource types.
+>   1. Added 5 new Commvault.ContentStore resource types.
+>   1. Added 6 new Microsoft.ChangeSafety resource types.
+>   1. Added 2 new Microsoft.DeviceOnboarding resource types.
+>   1. Added 3 new Microsoft.DurableTask resource types.
 >   1. Added 2 new Microsoft.Network DNS resolver resource types.
+>   1. Added 2 new Microsoft.Relationships resource types.
+>   1. Added 3 new Microsoft.Workloads resource types.
+>   1. Added 14 new resource types: microsoft.baremetal/peeringsettings, microsoft.cdn/edgeactions, microsoft.compute/computefleetscalesets, microsoft.compute/virtualmachinescalesetscomputehub, microsoft.liftrpilot/organizations, microsoft.managednetworkfabric/networkmonitors, microsoft.mission/approvals, microsoft.mysqldiscovery/mysqlsites/agents, microsoft.portalservices/settings, microsoft.proposal/proposals, microsoft.zerotrustsegmentation/segmentationmanagers, mongodb.atlas/organizations.
 > - [Services](../_reporting/data/README.md#-services)
 >   1. Added 4 resource types to new services: microsoft.azurefleet/fleets, microsoft.hybridnetwork/sitenetworkservices, microsoft.iotoperations/instances, and microsoft.networkcloud/baremetalmachines.
+>
+> ✏️ Changed:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Updated 9 Microsoft.AzureStackHCI and Microsoft.All resource type to rebrand Azure Stack to Azure Local.
+>   1. Updated 8 Microsoft.AzureCIS resource types.
+>   1. Updated 3 Microsoft.DeviceRegistry resource types.
+>   1. Updated 7 Microsoft.MobilePacketCore resource types.
+>   1. Updated 5 Microsoft.StandByPool resource types.
+>   1. Updated 3 Microsoft.Workloads resource types.
+>   1. Updated 17 resource types: arizeai.observabilityeval/organizations, microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems, microsoft.azurelargeinstance/azurelargestorageinstances, microsoft.community/communitytrainings, microsoft.compute/images, microsoft.compute/imagescomputehub, microsoft.deviceonboarding/onboardingservices/policies, microsoft.devopsinfrastructure/pools, microsoft.hybridnetwork/publishers/networkfunctiondefinitiongroups, microsoft.kubernetes/connectedclusters, microsoft.machinelearningservices/aistudio, microsoft.manufacturingplatform/manufacturingdataservices, microsoft.messagingconnectors/connectors, microsoft.network/dnszones, microsoft.network/trafficmanagerprofiles, microsoft.network/virtualnetworktaps, microsoft.servicebus/namespaces.
 
 <br>
 
