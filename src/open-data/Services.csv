@@ -55,6 +55,7 @@ microsoft.azurearcdata,microsoft.azurearcdata/sqlmanagedinstances,Azure Arc,Mult
 microsoft.azurearcdata,microsoft.azurearcdata/sqlserveresulicenses,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.azurearcdata,microsoft.azurearcdata/sqlserverinstances,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.azurearcdata,microsoft.azurearcdata/sqlserverlicenses,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
+microsoft.azurefleet,microsoft.azurefleet/fleets,Azure Compute Fleet,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.azureplaywrightservice,microsoft.azureplaywrightservice/accounts,Playwright Testing,Developer Tools,Quality Assurance,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.azurestackhci,microsoft.azurestackhci/clusters,Azure Stack HCI,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,On-Premises,IaaS
 microsoft.baremetalinfrastructure,microsoft.baremetalinfrastructure/baremetalstorageinstances,BareMetal Infrastructure,Compute,Virtual Machines,Microsoft,Cloud Provider,Hybrid,IaaS
@@ -183,6 +184,7 @@ microsoft.healthdataaiservices,microsoft.healthdataaiservices/deidservices,Azure
 microsoft.hybridcompute,microsoft.hybridcompute/licenses,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.hybridcompute,microsoft.hybridcompute/machines,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.hybridcontainerservice,microsoft.kubernetes/connectedclusters,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
+microsoft.hybridnetwork,microsoft.hybridnetwork/sitenetworkservices,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.importexport,microsoft.importexport/jobs,Azure Import/Export,Migration,Data Migration,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.insights,microsoft.insights/actiongroups,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.insights,microsoft.insights/components,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
@@ -191,6 +193,7 @@ microsoft.insights,microsoft.insights/metricalerts,Azure Monitor,Management and 
 microsoft.insights,microsoft.insights/pricings,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.insights,microsoft.insights/scheduledqueryrules,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.iotcentral,microsoft.iotcentral/iotapps,Azure IoT Central,Internet of Things,IoT Platforms,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.iotoperations,microsoft.iotoperations/instances,Azure IoT Operations,Internet of Things,IoT Platforms,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.iotsecurity,microsoft.iotsecurity/defendersettings,Microsoft Defender for IoT,Internet of Things,IoT Platforms,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.keyvault,microsoft.keyvault/hsmpools,Key Vault,Security,Secret Management,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.keyvault,microsoft.keyvault/managedhsms,Key Vault,Security,Secret Management,Microsoft,Cloud Provider,Cloud,PaaS
@@ -254,6 +257,7 @@ microsoft.network,microsoft.network/virtualnetworks,Virtual Network,Networking,N
 microsoft.network,microsoft.network/vpngateways,VPN Gateway,Networking,Network Connectivity,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.networkanalytics,microsoft.networkanalytics/dataconnectors,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.networkanalytics,microsoft.networkanalytics/dataproducts,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.networkcloud,microsoft.networkcloud/baremetalmachines,Azure Operator Nexus,Compute,Virtual Machines,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.networkfunction,microsoft.networkfunction/azuretrafficcollectors,Azure ExpressRoute,Networking,Network Routing,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.notificationhubs,microsoft.notificationhubs/namespaces,Notification Hubs,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.nutanix,microsoft.nutanix/nodes,Azure VMWare Solution,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS

@@ -70,15 +70,17 @@ Legend:
 > ➕ Added:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
->
 
 📒 FinOps workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
+>
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. Azure Arc Windows license management under the **Commitment Discounts** tab.  
-> 🛠️ **Fixed:**  
+>
+> 🛠️ Fixed:
+>
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. Enabled "Export to CSV" option on the **Idle backups** query.
 >   1. Corrected VM processor details on the **Compute** tab query.  
@@ -102,6 +104,9 @@ Legend:
 > ➕ Added:
 >
 > 1. Added Data Explorer dashboard template.
+> 1. Added new KQL functions in Data Explorer:
+>    - `monthstring(datetime, [length])` returns the name of the month at a given string length (e.g., default = "January", 3 = "Jan", 1 = "J").
+>    - `datestring(datetime, [datetime])` returns a formatted date or date range abbreviated based on the current date (e.g., "Jan 1", "Jan-Feb 2025", "Dec 15, 2024-Jan 14, 2025"). This function replaces `daterange()` and improves the return values to fix issues and covers more scenarios.
 >
 > ✏️ Changed:
 >
@@ -110,6 +115,16 @@ Legend:
 > 1. Expand details about supported datasets in documentation.
 > 1. Updated the default setting for Data Explorer trusted external tenants from "All tenants" to "My tenant only".
 >    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
+>
+> 🚫 Deprecated:
+>
+> 1. Deprecated the `daterange()` KQL function. Please use `datestring(datetime, [datetime])` instead.
+> 1. Deprecated the `monthsago()` KQL function. Please use `startofmonth(datetime, [offset])` instead.
+> 
+> 🛠️ Fixed:
+>
+> 1. Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
+
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -183,6 +198,9 @@ Legend:
 >
 > 1. Added explicit `-CommitmentDiscountScope`, `-CommitmentDiscountResourceType`, and `-CommitmentDiscountLookback` parameters to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) for reservation recommendations.
 > 1. Added explicit `-SystemAssignedIdentity` switch parameter to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to enable system-assigned identity.
+> 1. Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
+>    - The name of each deleted resource is printed for better visibility during the deletion process.
+>    - Added ability to confirm all deletions using a "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
 >
 > ✏️ Changed:
 >
@@ -211,13 +229,18 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> 1. Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions. ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
+> 1. Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
+
+> - [Regions](../_reporting/data/README.md#️-regions)
+>   1. Added the following new region values: "ase", "aue", "southeastus", "taiwannorthwest".
+> - [Pricing units](../_reporting/data/README.md#-pricing-units)
+>   1. Added the "1000 TB" unit of measure ([#1181](https://github.com/microsoft/finops-toolkit/issues/1181)).
 > - [Resource types](../_reporting/data/README.md#-resource-types)
 >   1. Added 8 new Microsoft.AzureCIS resource types.
 >   1. Added 5 new Commvault.ContentStore resource types.
@@ -228,6 +251,8 @@ Legend:
 >   1. Added 2 new Microsoft.Relationships resource types.
 >   1. Added 3 new Microsoft.Workloads resource types.
 >   1. Added 14 new resource types: microsoft.baremetal/peeringsettings, microsoft.cdn/edgeactions, microsoft.compute/computefleetscalesets, microsoft.compute/virtualmachinescalesetscomputehub, microsoft.liftrpilot/organizations, microsoft.managednetworkfabric/networkmonitors, microsoft.mission/approvals, microsoft.mysqldiscovery/mysqlsites/agents, microsoft.portalservices/settings, microsoft.proposal/proposals, microsoft.zerotrustsegmentation/segmentationmanagers, mongodb.atlas/organizations.
+> - [Services](../_reporting/data/README.md#-services)
+>   1. Added 4 resource types to new services: microsoft.azurefleet/fleets, microsoft.hybridnetwork/sitenetworkservices, microsoft.iotoperations/instances, and microsoft.networkcloud/baremetalmachines.
 >
 > ✏️ Changed:
 >
@@ -239,15 +264,6 @@ Legend:
 >   1. Updated 5 Microsoft.StandByPool resource types.
 >   1. Updated 3 Microsoft.Workloads resource types.
 >   1. Updated 17 resource types: arizeai.observabilityeval/organizations, microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems, microsoft.azurelargeinstance/azurelargestorageinstances, microsoft.community/communitytrainings, microsoft.compute/images, microsoft.compute/imagescomputehub, microsoft.deviceonboarding/onboardingservices/policies, microsoft.devopsinfrastructure/pools, microsoft.hybridnetwork/publishers/networkfunctiondefinitiongroups, microsoft.kubernetes/connectedclusters, microsoft.machinelearningservices/aistudio, microsoft.manufacturingplatform/manufacturingdataservices, microsoft.messagingconnectors/connectors, microsoft.network/dnszones, microsoft.network/trafficmanagerprofiles, microsoft.network/virtualnetworktaps, microsoft.servicebus/namespaces.
-
-🖥️ PowerShell
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
->    - The name of each deleted resource is printed for better visibility during the deletion process.
->    - Added ability to confirm all deletions using a "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
 
 <br>
 
@@ -710,7 +726,7 @@ This release is a minor patch to Power BI files. These files were updated in the
 > - [Pricing units](../_reporting/data/README.md#-pricing-units)
 >   1. Added handling for the following new UnitOfMeasure values: "1 /Minute", "10 PiB/Hour", "100000 /Month", "Text".
 > - [Regions](../_reporting/data/README.md#️-regions)
->   1. Added the following new region values: "asiapacific", "australia", azure "stack", "eastsu2", "gbs", germany west "central", "japan", sweden "central", "unitedstates", us dod "central", us dod "east", us gov "iowa", us gov "virginia", "us2", "usa", "usv".
+>   1. Added the following new region values: "asiapacific", "australia", "azure stack", "eastsu2", "gbs", germany west "central", "japan", "sweden central", "unitedstates", "us dod central", "us dod east", "us gov iowa", "us gov virginia", "us2", "usa", "usv".
 > - [Resource types](../_reporting/data/README.md#️-resource-types)
 >   1. Added the following new resource types: "microsoft.app/logicapps", "microsoft.app/logicapps/workflows", "microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems", "microsoft.azurebusinesscontinuity/unifiedprotecteditems", "microsoft.azurecis/publishconfigvalues", "microsoft.compositesolutions/compositesolutiondefinitions", "microsoft.compositesolutions/compositesolutions", "microsoft.compute/capacityreservationgroups/capacityreservations", "microsoft.compute/virtualmachinescalesets/virtualmachines", "microsoft.datareplication/replicationvaults/alertsettings", "microsoft.datareplication/replicationvaults/events", "microsoft.datareplication/replicationvaults/jobs", "microsoft.datareplication/replicationvaults/jobs/operations", "microsoft.datareplication/replicationvaults/operations", "microsoft.datareplication/replicationvaults/protecteditems", "microsoft.datareplication/replicationvaults/protecteditems/operations", "microsoft.datareplication/replicationvaults/protecteditems/recoverypoints", "microsoft.datareplication/replicationvaults/replicationextensions", "microsoft.datareplication/replicationvaults/replicationextensions/operations", "microsoft.datareplication/replicationvaults/replicationpolicies", "microsoft.datareplication/replicationvaults/replicationpolicies/operations", "microsoft.deviceregistry/billingcontainers", "microsoft.deviceregistry/discoveredassetendpointprofiles", "microsoft.deviceregistry/discoveredassets", "microsoft.deviceregistry/schemaregistries", "microsoft.deviceregistry/schemaregistries/schemas", "microsoft.deviceregistry/schemaregistries/schemas/schemaversions", "microsoft.eventgrid/systemtopics/eventsubscriptions", "microsoft.hardware/orders", "microsoft.hybridcompute/machines/microsoft.awsconnector/ec2instances", "microsoft.hybridonboarding/extensionmanagers", "microsoft.iotoperations/instances", "microsoft.iotoperations/instances/brokers", "microsoft.iotoperations/instances/brokers/authentications", "microsoft.iotoperations/instances/brokers/authorizations", "microsoft.iotoperations/instances/brokers/listeners", "microsoft.iotoperations/instances/dataflowendpoints", "microsoft.iotoperations/instances/dataflowprofiles", "microsoft.iotoperations/instances/dataflowprofiles/dataflows", "microsoft.messagingconnectors/connectors", "microsoft.mobilepacketcore/networkfunctions", "microsoft.saashub/cloudservices/hidden", "microsoft.secretsynccontroller/azurekeyvaultsecretproviderclasses", "microsoft.secretsynccontroller/secretsyncs", "microsoft.storagepool/diskpools/iscsitargets", "microsoft.usagebilling/accounts/dataexports", "microsoft.usagebilling/accounts/metricexports", "microsoft.windowsesu/multipleactivationkeys".
 > - [Services](../_reporting/data/README.md#️-services)
