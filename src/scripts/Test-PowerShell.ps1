@@ -89,6 +89,7 @@ param (
     $RunFailed
 )
 
+throw "testing"
 # Select tests to run
 if ($RunFailed)
 {
