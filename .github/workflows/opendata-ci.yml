@@ -23,6 +23,8 @@ jobs:
         ref: ${{ github.event.pull_request.head.ref }}
     - name: Set environment variable "commit-message"
       run: echo "commit-message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+    - name: Set environment variable "build_url"
+      run: echo "build_url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
     - name: Set environment variable "commit-author"
       run: echo "commit-author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
     - name: Set environment variable "is-auto-commit"
@@ -54,5 +56,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: '👋 Thanks for reporting!'
+            body: '👋 Open Data CI task failed: ${{ env.build_url }}'
           })
