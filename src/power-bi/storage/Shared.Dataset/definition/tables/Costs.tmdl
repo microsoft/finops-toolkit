@@ -91,39 +91,38 @@ table Costs
 					ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
 				)
 			)
-		lineageTag: 6298991d-a36c-46ba-b179-f6809708e6ce
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+		formatString: #,0.00
+		lineageTag: 5b5450f4-95c7-4e04-aca7-f19a55b329a7
 
 	measure x_EffectiveSavingsRate = IFERROR(SUMX(FILTER(Costs, Costs[x_AmortizationCategory] <> "Principal"), Costs[x_TotalSavings]) / SUMX(FILTER(Costs, Costs[x_AmortizationCategory] <> "Principal"), Costs[ListCost]), "")
 		formatString: 0.00%;-0.00%;0.00%
-		lineageTag: 5b5450f4-95c7-4e04-aca7-f19a55b329a7
+		lineageTag: 72a33a20-17f6-4216-b831-4af6cc0eb052
 
 	measure x_CommitmentDiscountMeterCategory =
 			
 			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
 			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterCategory]), AND(NOT ISBLANK(Costs[x_SkuMeterCategory]), Costs[x_SkuMeterCategory] <> "")), Costs[x_SkuMeterCategory], ", ")
 			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
-		lineageTag: 68a30841-fc05-44b3-8301-40314ef2f7b1
+		lineageTag: 6f7fb3cd-1a13-49a4-be44-5ee60d78a19b
 
 	measure x_CommitmentDiscountMeterSubcategory =
 			
 			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
 			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterSubcategory]), AND(NOT ISBLANK(Costs[x_SkuMeterSubcategory]), Costs[x_SkuMeterSubcategory] <> "")), Costs[x_SkuMeterSubcategory], ", ")
 			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
-		lineageTag: 74d98d87-946b-4dcf-a2fe-1eaa1cb21157
+		lineageTag: ac79fd49-6124-47a6-8538-0d4cc28df316
 
 	column ResourceId
 		dataType: string
-		lineageTag: 7b7ed1e4-1b01-4d72-93be-80f2cf8bbc2b
-		summarizeBy: none
+		lineageTag: 62265a48-5fe0-4b5c-8440-16f5b641adc8
+		summarizeBy: distinctCount
 		sourceColumn: ResourceId
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column Tags
 		dataType: string
-		lineageTag: 8d43483f-d48f-45e9-9c72-cf1f4bb641e2
+		lineageTag: 418bfc95-fe13-4dfe-8a39-e82b59e6a61a
 		summarizeBy: none
 		sourceColumn: Tags
 
@@ -132,7 +131,7 @@ table Costs
 	column BilledCost
 		dataType: double
 		formatString: #,0.00
-		lineageTag: a1fcba11-fcd9-45ff-bfc0-0dda3262d5af
+		lineageTag: ac661802-c9ae-4729-bb8e-1c9847298728
 		summarizeBy: sum
 		sourceColumn: BilledCost
 
@@ -140,7 +139,7 @@ table Costs
 
 	column ListCost
 		dataType: double
-		lineageTag: 93c7a3c3-4c49-48ba-aa44-1f71b6059922
+		lineageTag: 6369c4d1-5e68-4dc5-a09d-c7154faeeaee
 		summarizeBy: sum
 		sourceColumn: ListCost
 
@@ -150,7 +149,7 @@ table Costs
 
 	column CommitmentDiscountId
 		dataType: string
-		lineageTag: 7f53c563-01eb-41dd-8cba-5ca8e0fa22e8
+		lineageTag: 4f98ec0e-3911-48ee-b8cd-3704149346cf
 		summarizeBy: none
 		sourceColumn: CommitmentDiscountId
 
@@ -158,7 +157,7 @@ table Costs
 
 	column CommitmentDiscountName
 		dataType: string
-		lineageTag: db3f192f-7359-429e-8aeb-7857c596c58e
+		lineageTag: 6c6f3e9f-71e5-4261-8103-91ba310c7e62
 		summarizeBy: none
 		sourceColumn: CommitmentDiscountName
 
@@ -166,7 +165,7 @@ table Costs
 
 	column BillingCurrency
 		dataType: string
-		lineageTag: 2b808b9b-0849-405b-baf8-29da9e46ab9e
+		lineageTag: e68de4b3-f40b-4eed-91ac-0337cf0b1b65
 		summarizeBy: none
 		sourceColumn: BillingCurrency
 
@@ -174,16 +173,14 @@ table Costs
 
 	column x_SkuTermLabel = FORMAT([x_SkuTerm]/12, "# Year") & IF([x_SkuTerm]>12, "s", "")
 		dataType: string
-		lineageTag: 72f5fd69-29d6-4fce-9b09-d18a9405cc92
+		lineageTag: 364cd520-ba1e-4744-aa83-b4a8434ee130
 		summarizeBy: none
-
-		changedProperty = DataType
 
 		annotation SummarizationSetBy = Automatic
 
 	column PublisherName
 		dataType: string
-		lineageTag: 6532fcfe-bb73-4a88-a235-b3064ed1586f
+		lineageTag: f7280fe8-41f2-40c4-af0b-d410d8f7efce
 		summarizeBy: none
 		sourceColumn: PublisherName
 
@@ -191,7 +188,7 @@ table Costs
 
 	column ResourceName
 		dataType: string
-		lineageTag: 50370d17-3cdc-4471-8739-567b862e0666
+		lineageTag: 863f225b-8ec9-44df-b569-0f0f77255cc8
 		summarizeBy: none
 		sourceColumn: ResourceName
 
@@ -199,16 +196,16 @@ table Costs
 
 	column ResourceType
 		dataType: string
-		lineageTag: e59f22c0-d22a-4797-b416-dba2b84d21a6
-		summarizeBy: none
+		lineageTag: 4b1b4346-4490-43b3-a3d7-9a4483051e61
+		summarizeBy: distinctCount
 		sourceColumn: ResourceType
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column ChargePeriodStart
 		dataType: dateTime
 		formatString: Mmm d, yyyy
-		lineageTag: d0c0bd47-7aa7-44e4-82cc-91109ebb2eb0
+		lineageTag: 015b4c1a-f072-4c68-8f1b-d5e10c54b97e
 		summarizeBy: none
 		sourceColumn: ChargePeriodStart
 
@@ -218,7 +215,7 @@ table Costs
 
 	column CommitmentDiscountType
 		dataType: string
-		lineageTag: 4c1fd275-aba2-46eb-aa8b-ad445d894ab5
+		lineageTag: db7e59b9-15b2-427f-846a-4843c89a340c
 		summarizeBy: none
 		sourceColumn: CommitmentDiscountType
 
@@ -227,7 +224,7 @@ table Costs
 	column EffectiveCost
 		dataType: double
 		formatString: #,0.00
-		lineageTag: 13c25b5f-483d-4508-a5b6-24db10ae794f
+		lineageTag: 98d8e433-676b-42a2-b109-1a7ba422136b
 		summarizeBy: sum
 		sourceColumn: EffectiveCost
 
@@ -235,7 +232,7 @@ table Costs
 
 	column InvoiceIssuerName
 		dataType: string
-		lineageTag: 6a757f71-5cdf-4cdf-8027-7b7f12cc59a3
+		lineageTag: 9a60acaa-b155-4d85-9488-427692d747a1
 		summarizeBy: none
 		sourceColumn: InvoiceIssuerName
 
@@ -243,7 +240,7 @@ table Costs
 
 	column ListUnitPrice
 		dataType: double
-		lineageTag: db17aa29-c7bf-4038-b91d-716d3f8bc4de
+		lineageTag: ee43bf1e-9c1a-4f7e-9cee-20a19771ee15
 		summarizeBy: sum
 		sourceColumn: ListUnitPrice
 
@@ -253,7 +250,7 @@ table Costs
 
 	column PricingCategory
 		dataType: string
-		lineageTag: 6344005f-d7da-405d-9c80-c3e1b0b476de
+		lineageTag: b8177938-349b-4dfa-ba84-a2972a5c8650
 		summarizeBy: none
 		sourceColumn: PricingCategory
 
@@ -261,7 +258,7 @@ table Costs
 
 	column PricingUnit
 		dataType: string
-		lineageTag: 50d010c6-9503-475f-a95b-5a2bce9c84b8
+		lineageTag: db07d767-b160-4cd5-900c-c3842090cf93
 		summarizeBy: none
 		sourceColumn: PricingUnit
 
@@ -269,7 +266,7 @@ table Costs
 
 	column ProviderName
 		dataType: string
-		lineageTag: 484d657d-16da-40a5-a203-1a3075e10c74
+		lineageTag: b225eb7a-4057-4e18-b658-5e1d7f59b55a
 		summarizeBy: none
 		sourceColumn: ProviderName
 
@@ -277,7 +274,7 @@ table Costs
 
 	column ServiceCategory
 		dataType: string
-		lineageTag: ff8c4744-441e-44c8-9cd0-6d16184366b2
+		lineageTag: 5294a046-228e-457b-a4c1-e9a117c267ff
 		summarizeBy: none
 		sourceColumn: ServiceCategory
 
@@ -285,7 +282,7 @@ table Costs
 
 	column ServiceName
 		dataType: string
-		lineageTag: f9453edd-2a47-489a-afb6-c022637140ba
+		lineageTag: 226f5f3a-3a41-45fd-afb7-e4d6d25680b5
 		summarizeBy: none
 		sourceColumn: ServiceName
 
@@ -293,7 +290,7 @@ table Costs
 
 	column SkuId
 		dataType: string
-		lineageTag: 1b4ea8ef-5a01-4741-a9e5-b3c7914eae1e
+		lineageTag: 48d4ba14-112e-4911-bd83-25081b17a47b
 		summarizeBy: none
 		sourceColumn: SkuId
 
@@ -301,7 +298,7 @@ table Costs
 
 	column SubAccountId
 		dataType: string
-		lineageTag: bd6d102f-1b82-4ec2-9171-35b28c967f20
+		lineageTag: cbdca833-983d-45f1-8fc3-0b84bcaeae42
 		summarizeBy: none
 		sourceColumn: SubAccountId
 
@@ -309,7 +306,7 @@ table Costs
 
 	column SubAccountName
 		dataType: string
-		lineageTag: 13a3a562-55ec-4c58-80ae-560abf5c368c
+		lineageTag: ca4afa22-076e-4ac2-a8ed-b63e76d9cc87
 		summarizeBy: none
 		sourceColumn: SubAccountName
 
@@ -317,7 +314,7 @@ table Costs
 
 	column SubAccountType
 		dataType: string
-		lineageTag: d88aae93-e75e-4e89-8d43-34d396ccac89
+		lineageTag: 70509ab4-64ef-4964-813f-a3478a775758
 		summarizeBy: none
 		sourceColumn: SubAccountType
 
@@ -325,7 +322,7 @@ table Costs
 
 	column x_AccountName
 		dataType: string
-		lineageTag: 89e8da04-3828-47a2-b83d-6b6e6ae9c43b
+		lineageTag: 7a930962-95d9-4055-8a81-0a8a57643b6c
 		summarizeBy: none
 		sourceColumn: x_AccountName
 
@@ -333,7 +330,7 @@ table Costs
 
 	column x_AccountOwnerId
 		dataType: string
-		lineageTag: 6ec0f40e-e569-43c5-8e79-99ffa4a707ef
+		lineageTag: 65d6a389-c91d-49b0-8255-27216e9273d1
 		summarizeBy: none
 		sourceColumn: x_AccountOwnerId
 
@@ -341,16 +338,17 @@ table Costs
 
 	column x_BilledCostInUsd
 		dataType: double
-		formatString: #,0.00
-		lineageTag: da9d3926-ac4e-447a-a626-25196028cf67
+		lineageTag: ce568580-31d9-49d1-8947-8c0419bcc75d
 		summarizeBy: sum
 		sourceColumn: x_BilledCostInUsd
 
 		annotation SummarizationSetBy = Automatic
 
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column x_BillingAccountId
 		dataType: string
-		lineageTag: 4f6cdee5-c332-4951-952f-ede593c7fe56
+		lineageTag: be0b9732-adbd-47ef-8513-6e799498cd49
 		summarizeBy: none
 		sourceColumn: x_BillingAccountId
 
@@ -358,7 +356,7 @@ table Costs
 
 	column x_BillingAccountName
 		dataType: string
-		lineageTag: 2313c135-4f70-4a46-a65c-302d87f9fb90
+		lineageTag: aaa730da-a9a5-4f09-a5b6-803f362909fc
 		summarizeBy: none
 		sourceColumn: x_BillingAccountName
 
@@ -366,18 +364,18 @@ table Costs
 
 	column x_BillingExchangeRate
 		dataType: double
-		lineageTag: 6b3e00e4-4ff7-47ac-8b2f-8bfc726ce2d1
-		summarizeBy: none
+		lineageTag: 6c9a16fc-35d9-4502-a879-e4a0303cbf17
+		summarizeBy: sum
 		sourceColumn: x_BillingExchangeRate
 
-		annotation SummarizationSetBy = User
+		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column x_BillingExchangeRateDate
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 7b0c8a90-630d-4437-9b63-92360a394650
+		lineageTag: 2893d668-3829-47cf-a552-46d23df290c5
 		summarizeBy: none
 		sourceColumn: x_BillingExchangeRateDate
 
@@ -385,7 +383,7 @@ table Costs
 
 	column x_BillingProfileId
 		dataType: string
-		lineageTag: 15402a48-00e7-430f-983f-a946ac80a22d
+		lineageTag: 108e35f9-08a6-4a37-ac3a-6c99acf20b07
 		summarizeBy: none
 		sourceColumn: x_BillingProfileId
 
@@ -393,7 +391,7 @@ table Costs
 
 	column x_BillingProfileName
 		dataType: string
-		lineageTag: ac82d64e-b1ab-4a5c-acb6-6773b1d060c3
+		lineageTag: bb693d7e-cdfc-4201-8371-3db195ae0ddd
 		summarizeBy: none
 		sourceColumn: x_BillingProfileName
 
@@ -401,7 +399,7 @@ table Costs
 
 	column x_CapacityCommitmentId
 		dataType: string
-		lineageTag: da57c4e0-58f5-4526-bfc7-d42ec903a191
+		lineageTag: 4083c91d-06df-42f8-acc1-c13355329c7d
 		summarizeBy: none
 		sourceColumn: x_CapacityCommitmentId
 
@@ -409,7 +407,7 @@ table Costs
 
 	column x_CostAllocationRuleName
 		dataType: string
-		lineageTag: 20cb3119-1dc1-496b-bebe-f5939288ede1
+		lineageTag: 44d67af4-3ffa-402e-b05b-322bdbeda341
 		summarizeBy: none
 		sourceColumn: x_CostAllocationRuleName
 
@@ -417,7 +415,7 @@ table Costs
 
 	column x_CostCenter
 		dataType: string
-		lineageTag: 062aa1eb-34b2-4738-9532-ba9461a10488
+		lineageTag: 91fc4ad4-41fb-4d21-b3b4-d2ab23c44bcc
 		summarizeBy: none
 		sourceColumn: x_CostCenter
 
@@ -425,7 +423,7 @@ table Costs
 
 	column x_CustomerId
 		dataType: string
-		lineageTag: d1439e8a-5507-41ff-9803-6318169e1e5f
+		lineageTag: 598857ac-e478-4d99-942a-3bd044f4f1f2
 		summarizeBy: none
 		sourceColumn: x_CustomerId
 
@@ -433,7 +431,7 @@ table Costs
 
 	column x_CustomerName
 		dataType: string
-		lineageTag: fcb170e6-b3c6-4584-a78e-e8dbfb639e00
+		lineageTag: 4094cb10-6617-4562-b115-cd65f49e6588
 		summarizeBy: none
 		sourceColumn: x_CustomerName
 
@@ -442,7 +440,7 @@ table Costs
 	column x_EffectiveCostInUsd
 		dataType: double
 		formatString: #,0.00
-		lineageTag: d456dce0-8883-46b1-b39d-660ae9afecaf
+		lineageTag: 1b6b0a5e-b667-43a4-b245-b382d39c2e6a
 		summarizeBy: sum
 		sourceColumn: x_EffectiveCostInUsd
 
@@ -450,7 +448,7 @@ table Costs
 
 	column x_InvoiceId
 		dataType: string
-		lineageTag: 3116a926-299e-4b24-9ac5-d9a22c4903df
+		lineageTag: 91280eae-aefb-4f93-a06b-9a897c33165d
 		summarizeBy: none
 		sourceColumn: x_InvoiceId
 
@@ -458,7 +456,7 @@ table Costs
 
 	column x_InvoiceSectionId
 		dataType: string
-		lineageTag: 155b4344-446d-4730-9a6e-77fcdb7bd02b
+		lineageTag: 863c64c4-abc6-455d-8075-49af4ba61240
 		summarizeBy: none
 		sourceColumn: x_InvoiceSectionId
 
@@ -466,7 +464,7 @@ table Costs
 
 	column x_InvoiceSectionName
 		dataType: string
-		lineageTag: 4596ba3c-0ae2-4aa5-892d-c8071d86e868
+		lineageTag: 69b31b96-26af-43a3-ad69-caa8bc5ed3b6
 		summarizeBy: none
 		sourceColumn: x_InvoiceSectionName
 
@@ -474,7 +472,7 @@ table Costs
 
 	column x_PartnerCreditApplied
 		dataType: string
-		lineageTag: 8749fee2-c5cc-4180-9882-9e76481d432f
+		lineageTag: 2b361646-50a8-4d1f-b95b-111541032ab7
 		summarizeBy: none
 		sourceColumn: x_PartnerCreditApplied
 
@@ -483,15 +481,15 @@ table Costs
 	column x_PartnerCreditRate
 		dataType: double
 		formatString: 0.000
-		lineageTag: 0a1d961a-8e4d-4f9c-90b4-2dae1dbeef46
-		summarizeBy: sum
+		lineageTag: 75e78962-cbcf-4ac8-b524-cd42347cc8a7
+		summarizeBy: none
 		sourceColumn: x_PartnerCreditRate
 
 		annotation SummarizationSetBy = Automatic
 
 	column x_PricingCurrency
 		dataType: string
-		lineageTag: e79d062c-06c7-46f6-a83e-ef1d18d36bb4
+		lineageTag: a4c21a5b-63d6-4ad7-b013-f2430964268d
 		summarizeBy: none
 		sourceColumn: x_PricingCurrency
 
@@ -499,7 +497,7 @@ table Costs
 
 	column x_PricingUnitDescription
 		dataType: string
-		lineageTag: 8585d1b9-db15-4e20-96f1-03347a08d91c
+		lineageTag: d75267d9-e4be-43fe-a567-5a231fcfed04
 		summarizeBy: none
 		sourceColumn: x_PricingUnitDescription
 
@@ -507,7 +505,7 @@ table Costs
 
 	column x_PublisherId
 		dataType: string
-		lineageTag: c2fe9800-1ae2-468c-9bec-ae8aac943897
+		lineageTag: 40c0dfdd-67b8-4ac2-a87a-9c5c56ee9526
 		summarizeBy: none
 		sourceColumn: x_PublisherId
 
@@ -515,7 +513,7 @@ table Costs
 
 	column x_ResellerId
 		dataType: string
-		lineageTag: ba3f2450-bb86-4046-9942-ab6b866cb3ed
+		lineageTag: 30fe4a4f-066e-4200-be49-3741ad95093b
 		summarizeBy: none
 		sourceColumn: x_ResellerId
 
@@ -523,7 +521,7 @@ table Costs
 
 	column x_ResellerName
 		dataType: string
-		lineageTag: 295e18fa-171e-4120-94e1-d3c122fd28ce
+		lineageTag: 766b6a0b-a955-4935-aa05-af89574a0da7
 		summarizeBy: none
 		sourceColumn: x_ResellerName
 
@@ -531,7 +529,7 @@ table Costs
 
 	column x_ResourceGroupName
 		dataType: string
-		lineageTag: 22de28d3-1902-4479-bc14-5963e13c4dec
+		lineageTag: 1b6b1f77-edc0-4961-b031-a0d0f6ae16f1
 		summarizeBy: none
 		sourceColumn: x_ResourceGroupName
 
@@ -548,7 +546,7 @@ table Costs
 	column x_ServicePeriodEnd
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: ce3224e0-9c28-46d2-9268-9f3f23134d34
+		lineageTag: 2e4d1a2f-aa85-405e-965e-d58485709fc0
 		summarizeBy: none
 		sourceColumn: x_ServicePeriodEnd
 
@@ -557,7 +555,7 @@ table Costs
 	column x_ServicePeriodStart
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 813988da-21b6-4c56-bcce-03b5128e4401
+		lineageTag: 69d1680a-4d98-429c-a88b-32ef173a94e5
 		summarizeBy: none
 		sourceColumn: x_ServicePeriodStart
 
@@ -565,7 +563,7 @@ table Costs
 
 	column x_SkuDescription
 		dataType: string
-		lineageTag: bbb84cfc-e0fa-4cac-9b1b-0fdec62bae32
+		lineageTag: 6242e8e9-26aa-4750-9982-989271ae7c4c
 		summarizeBy: none
 		sourceColumn: x_SkuDescription
 
@@ -573,7 +571,7 @@ table Costs
 
 	column x_SkuDetails
 		dataType: string
-		lineageTag: ae9d2e07-790d-4068-8555-7cf186c503a1
+		lineageTag: feb6bbe1-7c52-4bda-88e5-9448dc088883
 		summarizeBy: none
 		sourceColumn: x_SkuDetails
 
@@ -581,7 +579,7 @@ table Costs
 
 	column x_SkuImageType
 		dataType: string
-		lineageTag: 8fd53259-dfdb-4cc9-842f-13a5519d4fe2
+		lineageTag: fa61663b-13e5-4460-8ceb-f495db1b336c
 		summarizeBy: none
 		sourceColumn: x_SkuImageType
 
@@ -589,7 +587,7 @@ table Costs
 
 	column x_SkuLicenseStatus
 		dataType: string
-		lineageTag: d35952f7-1c6c-48ab-a52b-9726835d2856
+		lineageTag: 86d87994-b011-4838-a8e9-97ddb856d6fa
 		summarizeBy: none
 		sourceColumn: x_SkuLicenseStatus
 
@@ -597,7 +595,7 @@ table Costs
 
 	column x_SkuMeterCategory
 		dataType: string
-		lineageTag: 28d1b14d-4fcb-4d6f-9c14-5d578fc6d071
+		lineageTag: b27bd6bf-19c4-46c7-a7aa-74422241e744
 		summarizeBy: none
 		sourceColumn: x_SkuMeterCategory
 
@@ -605,7 +603,7 @@ table Costs
 
 	column x_SkuMeterId
 		dataType: string
-		lineageTag: 80cc231b-9a70-4652-9127-cc37011fbb39
+		lineageTag: 439c93e5-f6e4-4b98-a03c-1f866b51a7e6
 		summarizeBy: none
 		sourceColumn: x_SkuMeterId
 
@@ -613,7 +611,7 @@ table Costs
 
 	column x_SkuMeterName
 		dataType: string
-		lineageTag: ffc3d495-6005-4928-b654-e84940983d77
+		lineageTag: fe4f29cf-87b5-47bb-bdf9-13a13f4e060c
 		summarizeBy: none
 		sourceColumn: x_SkuMeterName
 
@@ -621,7 +619,7 @@ table Costs
 
 	column x_SkuMeterSubcategory
 		dataType: string
-		lineageTag: d863a418-8e10-4a5f-ab03-6f57eb4c3de5
+		lineageTag: 916d5b33-96c5-4677-969a-c2cdb4a9175a
 		summarizeBy: none
 		sourceColumn: x_SkuMeterSubcategory
 
@@ -629,7 +627,7 @@ table Costs
 
 	column x_SkuOfferId
 		dataType: string
-		lineageTag: b866a703-45fd-40ff-993d-aefe255223d6
+		lineageTag: f4d138d9-2af9-4431-bf27-16ca7d9db348
 		summarizeBy: none
 		sourceColumn: x_SkuOfferId
 
@@ -637,7 +635,7 @@ table Costs
 
 	column x_SkuOrderId
 		dataType: string
-		lineageTag: ed25ae50-75c5-4829-870c-e63890f7779f
+		lineageTag: 5f7743a5-0af3-42e8-b2b4-dce095733b0c
 		summarizeBy: none
 		sourceColumn: x_SkuOrderId
 
@@ -645,7 +643,7 @@ table Costs
 
 	column x_SkuOrderName
 		dataType: string
-		lineageTag: f80b7881-ebad-4848-abd5-bacd23407e34
+		lineageTag: e44ca2f8-f05e-492a-87e1-b8049f3553fc
 		summarizeBy: none
 		sourceColumn: x_SkuOrderName
 
@@ -653,7 +651,7 @@ table Costs
 
 	column x_SkuPartNumber
 		dataType: string
-		lineageTag: 8d77b5f5-af81-45de-b162-5d2227cee100
+		lineageTag: 7c4a46a5-7362-4714-a535-bb5d4d594e7b
 		summarizeBy: none
 		sourceColumn: x_SkuPartNumber
 
@@ -661,7 +659,7 @@ table Costs
 
 	column x_SkuRegion
 		dataType: string
-		lineageTag: 2fb75d13-11f6-4c45-b48a-ab8743c7461f
+		lineageTag: 4921b0aa-19c8-45d0-a0d7-349e8eb12022
 		summarizeBy: none
 		sourceColumn: x_SkuRegion
 
@@ -669,7 +667,7 @@ table Costs
 
 	column x_SkuServiceFamily
 		dataType: string
-		lineageTag: 296dde95-f167-46b0-a180-81c7d2de8c83
+		lineageTag: 3ad5471f-7e2a-459d-9ea3-ca6d71996a9e
 		summarizeBy: none
 		sourceColumn: x_SkuServiceFamily
 
@@ -678,19 +676,17 @@ table Costs
 	column x_SkuTerm
 		dataType: int64
 		formatString: 0
-		lineageTag: 693a0cf1-b610-42b5-8f84-de963522208f
-		summarizeBy: sum
+		lineageTag: 88eda475-e159-4b0b-a443-c6f8bfa23b72
+		summarizeBy: none
 		sourceColumn: x_SkuTerm
 
 		changedProperty = DataType
 
 		annotation SummarizationSetBy = Automatic
 
-		annotation PBI_FormatHint = {"isDecimal":true}
-
 	column x_SkuType
 		dataType: string
-		lineageTag: d76f6ea7-7a9f-412e-bddf-2f2b3f8a8e52
+		lineageTag: dbefcfca-0edb-40b8-b8cf-2ac64aa62ec9
 		summarizeBy: none
 		sourceColumn: x_SkuType
 
@@ -698,7 +694,7 @@ table Costs
 
 	column x_SkuUsageType
 		dataType: string
-		lineageTag: 364e9a86-4832-4617-88da-5a903fcf0c6e
+		lineageTag: 6ba53853-7904-4e3b-ab9f-b4f9644eea1a
 		summarizeBy: none
 		sourceColumn: x_SkuUsageType
 
@@ -706,7 +702,7 @@ table Costs
 
 	column x_SkuVMProperties
 		dataType: string
-		lineageTag: 7e202b1c-f405-4e2d-aa5d-30f24d9d29fc
+		lineageTag: fcd4e88b-a38e-4c8e-be85-370f6a6fff84
 		summarizeBy: none
 		sourceColumn: x_SkuVMProperties
 
@@ -714,7 +710,7 @@ table Costs
 
 	column x_PricingSubcategory
 		dataType: string
-		lineageTag: bbc67ab0-c603-497f-be46-43b20f9dd173
+		lineageTag: 5f454c6e-f6e7-4958-b045-83ac4d288235
 		summarizeBy: none
 		sourceColumn: x_PricingSubcategory
 
@@ -722,7 +718,7 @@ table Costs
 
 	column x_CommitmentDiscountKey
 		dataType: string
-		lineageTag: cd529fc3-da76-466c-94b3-9ec13adc76cb
+		lineageTag: 2a8675bb-895b-4fef-beb8-7d095da65a79
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountKey
 
@@ -730,7 +726,7 @@ table Costs
 
 	column BillingAccountId
 		dataType: string
-		lineageTag: 1969dc47-d85f-4a6b-9081-d7c7fe089577
+		lineageTag: 4b471755-61bc-474c-9b53-881bb32f5728
 		summarizeBy: none
 		sourceColumn: BillingAccountId
 
@@ -738,7 +734,7 @@ table Costs
 
 	column BillingAccountName
 		dataType: string
-		lineageTag: 26a2171b-1ebc-48ab-85cf-eb2cc2d815ac
+		lineageTag: 47de4766-ced1-40f9-ac16-f49b5b4cc102
 		summarizeBy: none
 		sourceColumn: BillingAccountName
 
@@ -746,7 +742,7 @@ table Costs
 
 	column BillingAccountType
 		dataType: string
-		lineageTag: 30f3d59b-cb1b-401e-a68c-cb9fa23b1300
+		lineageTag: 06bf2d34-ccc0-40f4-82b6-a676faba44b1
 		summarizeBy: none
 		sourceColumn: BillingAccountType
 
@@ -755,7 +751,7 @@ table Costs
 	column BillingPeriodEnd
 		dataType: dateTime
 		formatString: Long Date
-		lineageTag: 35c9937f-eb8c-4102-abfd-a6153b72b141
+		lineageTag: be61d8ab-3975-4366-b393-708ab4743403
 		summarizeBy: none
 		sourceColumn: BillingPeriodEnd
 
@@ -764,7 +760,7 @@ table Costs
 	column BillingPeriodStart
 		dataType: dateTime
 		formatString: Mmm yyyy
-		lineageTag: 5bd5447d-f0e4-4db7-9154-768c589aacc3
+		lineageTag: 831b36ac-173c-4384-91c2-9c53a057055c
 		summarizeBy: none
 		sourceColumn: BillingPeriodStart
 
@@ -774,7 +770,7 @@ table Costs
 
 	column ChargeCategory
 		dataType: string
-		lineageTag: 7b447da5-7c79-42e8-ac42-16e961d729ed
+		lineageTag: 669cea79-1e27-46c1-a88f-0ad859cee094
 		summarizeBy: none
 		sourceColumn: ChargeCategory
 
@@ -782,7 +778,7 @@ table Costs
 
 	column ChargeFrequency
 		dataType: string
-		lineageTag: 031df115-e693-4274-9a50-18b8818c2bb9
+		lineageTag: 4f2c2c26-e9a1-4d49-a25a-899b78c7c460
 		summarizeBy: none
 		sourceColumn: ChargeFrequency
 
@@ -791,7 +787,7 @@ table Costs
 	column ChargePeriodEnd
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: d3c22e34-9351-4df5-8c12-51b9b72c3ec0
+		lineageTag: 0d353195-2c13-4b43-ab97-8f691c508997
 		summarizeBy: none
 		sourceColumn: ChargePeriodEnd
 
@@ -799,7 +795,7 @@ table Costs
 
 	column CommitmentDiscountCategory
 		dataType: string
-		lineageTag: 6b394de6-f1d8-48e9-b694-0fba728470b3
+		lineageTag: 25b86c9c-6880-43ae-99d1-0b5829f2e4f2
 		summarizeBy: none
 		sourceColumn: CommitmentDiscountCategory
 
@@ -808,7 +804,7 @@ table Costs
 	column x_EffectiveUnitPrice
 		dataType: double
 		formatString: 0.000
-		lineageTag: c407cc4d-059b-42a8-8bd8-2ef740758530
+		lineageTag: 96cfe463-17ed-4714-9e4f-1051da992751
 		summarizeBy: none
 		sourceColumn: x_EffectiveUnitPrice
 
@@ -816,7 +812,7 @@ table Costs
 
 	column ChargeDescription
 		dataType: string
-		lineageTag: cb28c95c-b237-41c2-b596-f7c8e6283178
+		lineageTag: b0d9a145-d158-4b3d-98b2-afda16171ba2
 		summarizeBy: none
 		sourceColumn: ChargeDescription
 
@@ -825,7 +821,7 @@ table Costs
 	column PricingQuantity
 		dataType: double
 		formatString: #,0.000
-		lineageTag: e7f752f8-95d2-4fc2-9e86-19a2bc17d62b
+		lineageTag: 2813f679-1de8-46c2-a074-128049166233
 		summarizeBy: sum
 		sourceColumn: PricingQuantity
 
@@ -833,7 +829,7 @@ table Costs
 
 	column SkuPriceId
 		dataType: string
-		lineageTag: 22cb2e66-fd86-48f7-baf8-2381735335f8
+		lineageTag: eb717992-47eb-48a3-8f1e-046c6172fcfa
 		summarizeBy: none
 		sourceColumn: SkuPriceId
 
@@ -842,15 +838,17 @@ table Costs
 	column x_BilledUnitPrice
 		dataType: double
 		formatString: 0.000
-		lineageTag: 5c146585-99e9-439a-bf58-1b2a336514c3
+		lineageTag: 2cc5d2ee-9370-45b6-b1b6-61604964c9a2
 		summarizeBy: none
 		sourceColumn: x_BilledUnitPrice
 
 		annotation SummarizationSetBy = User
 
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column x_SourceType
 		dataType: string
-		lineageTag: 47fcf209-57d6-4c70-9b47-dc82f6ff4454
+		lineageTag: c7a6d25c-80b2-446d-9b34-40ee8bfdee19
 		summarizeBy: none
 		sourceColumn: x_SourceType
 
@@ -858,7 +856,7 @@ table Costs
 
 	column x_SourceVersion
 		dataType: string
-		lineageTag: ae4954b3-ca2a-44f8-8f32-38ca8619f4d3
+		lineageTag: 924c96ad-5ddb-45aa-a320-a32dd4631214
 		summarizeBy: none
 		sourceColumn: x_SourceVersion
 
@@ -866,7 +864,7 @@ table Costs
 
 	column x_InvoiceIssuerId
 		dataType: string
-		lineageTag: 8ca7b114-d9d4-4763-bdab-91c0ba2774d8
+		lineageTag: 05f12d75-3c4b-4054-96b6-311d1d1b0187
 		summarizeBy: none
 		sourceColumn: x_InvoiceIssuerId
 
@@ -875,7 +873,7 @@ table Costs
 	column x_PricingBlockSize
 		dataType: double
 		formatString: 0
-		lineageTag: 9be6db8b-9965-4da0-9abe-99e263894536
+		lineageTag: a0640089-3f5b-4a95-9a27-cd307fe35ae4
 		summarizeBy: none
 		sourceColumn: x_PricingBlockSize
 
@@ -883,7 +881,7 @@ table Costs
 
 	column x_PublisherCategory
 		dataType: string
-		lineageTag: 6047b550-ee95-45c7-9ca9-d15694df36f3
+		lineageTag: 11f296bf-7fba-4424-aca2-efeacea6181b
 		summarizeBy: none
 		sourceColumn: x_PublisherCategory
 
@@ -891,7 +889,7 @@ table Costs
 
 	column x_ResourceType
 		dataType: string
-		lineageTag: dc5e9c7e-404b-43d3-b8df-5fcd3566dd81
+		lineageTag: 276ea2f2-4eb8-40a8-b628-10b602ae500f
 		summarizeBy: none
 		sourceColumn: x_ResourceType
 
@@ -899,7 +897,7 @@ table Costs
 
 	column x_SkuIsCreditEligible
 		dataType: string
-		lineageTag: 2fad9447-3c42-44ff-8add-b5857a826802
+		lineageTag: 7fc9812d-c523-4d21-bad0-5b99e59e8dc7
 		summarizeBy: none
 		sourceColumn: x_SkuIsCreditEligible
 
@@ -907,7 +905,7 @@ table Costs
 
 	column x_SkuTier
 		dataType: string
-		lineageTag: a58ffae4-b0d9-4711-a0e0-b117334cbc81
+		lineageTag: 93308aba-d49f-4176-8128-5a8c4b890339
 		summarizeBy: none
 		sourceColumn: x_SkuTier
 
@@ -931,7 +929,7 @@ table Costs
 
 	column ChargeClass
 		dataType: string
-		lineageTag: ffc76289-6fe7-4d0f-91f0-7ba52feeaad8
+		lineageTag: 76f2b62a-ad35-4219-96f9-b2b08a8bad8a
 		summarizeBy: none
 		sourceColumn: ChargeClass
 
@@ -939,7 +937,7 @@ table Costs
 
 	column CommitmentDiscountStatus
 		dataType: string
-		lineageTag: 5a3529ac-9573-40c7-bca3-70c5354e40e9
+		lineageTag: 055311b9-0357-4c4f-9fa5-dc1db1e36f02
 		summarizeBy: none
 		sourceColumn: CommitmentDiscountStatus
 
@@ -947,7 +945,7 @@ table Costs
 
 	column ConsumedQuantity
 		dataType: double
-		lineageTag: c86ecbb7-2e3b-4e69-90ac-11a7ae7d3dda
+		lineageTag: b831564c-900c-47bf-8add-cace8b608e5b
 		summarizeBy: sum
 		sourceColumn: ConsumedQuantity
 
@@ -957,7 +955,7 @@ table Costs
 
 	column ConsumedUnit
 		dataType: string
-		lineageTag: 07064970-0a7b-463a-b1bc-2bbb53ed7b82
+		lineageTag: ff093a7f-f980-42f6-b064-a83c6c110f8e
 		summarizeBy: none
 		sourceColumn: ConsumedUnit
 
@@ -965,7 +963,7 @@ table Costs
 
 	column ContractedCost
 		dataType: double
-		lineageTag: 77ebe6d9-036a-4795-9c38-38fa9bb041c1
+		lineageTag: 009c96ef-a6dd-4c39-9ed1-8e6a1959a127
 		summarizeBy: sum
 		sourceColumn: ContractedCost
 
@@ -975,7 +973,7 @@ table Costs
 
 	column ContractedUnitPrice
 		dataType: double
-		lineageTag: bd34dcb2-f4fa-40e9-bf65-ccd246cd7767
+		lineageTag: 9b73dc17-a46e-4e2f-a35a-38e8df95ce5e
 		summarizeBy: sum
 		sourceColumn: ContractedUnitPrice
 
@@ -985,7 +983,7 @@ table Costs
 
 	column RegionName
 		dataType: string
-		lineageTag: 144100b3-6df8-4e1d-a372-6ec8facaf125
+		lineageTag: 6757c798-5e59-4806-91e9-0efe42dd9c10
 		summarizeBy: none
 		sourceColumn: RegionName
 
@@ -993,7 +991,7 @@ table Costs
 
 	column x_ContractedCostInUsd
 		dataType: double
-		lineageTag: 6dcaf085-76c5-4770-9a69-307034f76247
+		lineageTag: bcf15125-0795-4be7-9224-85074a19b80f
 		summarizeBy: sum
 		sourceColumn: x_ContractedCostInUsd
 
@@ -1011,7 +1009,7 @@ table Costs
 
 	column RegionId
 		dataType: string
-		lineageTag: d2ac0fa0-e284-4c48-888d-bea8ffbfb4f0
+		lineageTag: 09ccd99f-cbb0-4a74-a770-3f7e34339b83
 		summarizeBy: none
 		sourceColumn: RegionId
 
@@ -1019,7 +1017,7 @@ table Costs
 
 	column x_AccountId
 		dataType: string
-		lineageTag: dee15a89-6158-424c-80c9-c3683f92223e
+		lineageTag: d7e21d4e-8c48-4a35-a56a-c9f1815f3284
 		summarizeBy: none
 		sourceColumn: x_AccountId
 
@@ -1027,7 +1025,7 @@ table Costs
 
 	column x_ListCostInUsd
 		dataType: string
-		lineageTag: 0ae49ca5-1a12-4e33-8d20-f6adae5d4757
+		lineageTag: 3b424ba3-06ed-4960-9d4b-317beda16c1f
 		summarizeBy: none
 		sourceColumn: x_ListCostInUsd
 
@@ -1035,7 +1033,7 @@ table Costs
 
 	column tag_Application
 		dataType: string
-		lineageTag: fd4de6d8-dcc7-4095-a8d4-091d0d08ab9a
+		lineageTag: dd7d82a7-1ceb-461f-9718-8330492bbef5
 		summarizeBy: none
 		sourceColumn: tag_Application
 
@@ -1043,7 +1041,7 @@ table Costs
 
 	column tag_BusinessUnit
 		dataType: string
-		lineageTag: c9965d41-eb70-48a5-ba3d-8f7b47b40b35
+		lineageTag: 864f2ab6-bdad-4111-9ced-927a47c26930
 		summarizeBy: none
 		sourceColumn: tag_BusinessUnit
 
@@ -1051,7 +1049,7 @@ table Costs
 
 	column tag_CostCenter
 		dataType: string
-		lineageTag: 172b9a2c-e7d7-4226-b674-5ac1f3c3d8e5
+		lineageTag: 362fc2e6-62d4-4e61-9deb-1b92b7eb8bd4
 		summarizeBy: none
 		sourceColumn: tag_CostCenter
 
@@ -1059,7 +1057,7 @@ table Costs
 
 	column tag_Department
 		dataType: string
-		lineageTag: bdf8534f-136d-4c49-8e20-ee0147697816
+		lineageTag: 623ebb4d-2e15-44ef-b86b-90bff4c4b4ba
 		summarizeBy: none
 		sourceColumn: tag_Department
 
@@ -1067,7 +1065,7 @@ table Costs
 
 	column tag_Division
 		dataType: string
-		lineageTag: 1a71a266-f4dd-4965-8195-8e5e62eb8c3e
+		lineageTag: 2838ecfe-4b85-4afd-a21c-82c111cf5ad0
 		summarizeBy: none
 		sourceColumn: tag_Division
 
@@ -1075,7 +1073,7 @@ table Costs
 
 	column tag_Env
 		dataType: string
-		lineageTag: b0926ea8-afac-4f17-a82e-6f15447d50a1
+		lineageTag: 62df6e5c-c8ee-47eb-8aa7-df7587ea6fb1
 		summarizeBy: none
 		sourceColumn: tag_Env
 
@@ -1083,7 +1081,7 @@ table Costs
 
 	column tag_Owner
 		dataType: string
-		lineageTag: 6483dacb-0cd9-4a30-b193-56ffd07a65d4
+		lineageTag: 2212d8aa-b1a2-46e9-81b5-c54703826408
 		summarizeBy: none
 		sourceColumn: tag_Owner
 
@@ -1091,7 +1089,7 @@ table Costs
 
 	column tag_Product
 		dataType: string
-		lineageTag: 39afa398-8d9f-45d1-a7c9-18a396408da2
+		lineageTag: 86a2a731-1d82-4914-8907-9416e1abe7ea
 		summarizeBy: none
 		sourceColumn: tag_Product
 
@@ -1099,7 +1097,7 @@ table Costs
 
 	column tag_Project
 		dataType: string
-		lineageTag: 0c6fe63a-9cb6-45c2-bdf5-9498ae13b3e4
+		lineageTag: 6a65d0be-c483-42c9-bf6b-3769759dabfb
 		summarizeBy: none
 		sourceColumn: tag_Project
 
@@ -1107,7 +1105,7 @@ table Costs
 
 	column tag_Purpose
 		dataType: string
-		lineageTag: 0f18a438-44af-4800-8f19-4480118a3ca6
+		lineageTag: 9182534f-fb65-4792-9b86-243be3913998
 		summarizeBy: none
 		sourceColumn: tag_Purpose
 
@@ -1115,7 +1113,7 @@ table Costs
 
 	column tag_Service
 		dataType: string
-		lineageTag: 538b0bf9-9ac5-45a9-941b-e67b79354869
+		lineageTag: d8388dba-15b7-4017-8411-6a7aee288fe2
 		summarizeBy: none
 		sourceColumn: tag_Service
 
@@ -1123,7 +1121,7 @@ table Costs
 
 	column x_ResourceParentId
 		dataType: string
-		lineageTag: b6210f90-e80d-4933-8140-07d293888b93
+		lineageTag: e1ceea2e-1e2e-4452-970b-bc33e4f3d62f
 		summarizeBy: none
 		sourceColumn: x_ResourceParentId
 
@@ -1131,7 +1129,7 @@ table Costs
 
 	column x_ResourceParentName
 		dataType: string
-		lineageTag: 79861087-74b6-42e7-86bf-221702a4ba8a
+		lineageTag: a214b70e-3e17-4a9d-992b-4ee21fb5ecfb
 		summarizeBy: none
 		sourceColumn: x_ResourceParentName
 
@@ -1139,7 +1137,7 @@ table Costs
 
 	column x_ResourceParentType
 		dataType: string
-		lineageTag: 561677fb-42fd-4325-a6a2-278d78cb1346
+		lineageTag: c11b2369-9c93-4e52-af29-badaefbf787b
 		summarizeBy: none
 		sourceColumn: x_ResourceParentType
 
@@ -1147,7 +1145,7 @@ table Costs
 
 	column x_ToolkitTool
 		dataType: string
-		lineageTag: 1911b67b-0305-4079-bac7-3e0a0cc27149
+		lineageTag: 279487bf-f1e0-40d2-816a-9f66a2966cfa
 		summarizeBy: none
 		sourceColumn: x_ToolkitTool
 
@@ -1155,7 +1153,7 @@ table Costs
 
 	column x_ToolkitVersion
 		dataType: string
-		lineageTag: c0817ef1-b8fa-4060-98b3-8e68d1578fd8
+		lineageTag: 48194cad-1734-41c4-b4aa-d408b99b8952
 		summarizeBy: none
 		sourceColumn: x_ToolkitVersion
 
@@ -1163,7 +1161,7 @@ table Costs
 
 	column x_BillingAccountAgreement
 		dataType: string
-		lineageTag: 99be9246-b223-46ec-ad71-94a8014ef7c7
+		lineageTag: f6bfa0f8-4a76-4801-b6df-8b2aa0556dbb
 		summarizeBy: none
 		sourceColumn: x_BillingAccountAgreement
 
@@ -1171,7 +1169,7 @@ table Costs
 
 	column AvailabilityZone
 		dataType: string
-		lineageTag: fa8726de-d358-4cd6-bd5e-6f4dbd85f973
+		lineageTag: e5485098-84ca-47fd-ba5e-df3bd38128ba
 		summarizeBy: none
 		sourceColumn: AvailabilityZone
 
@@ -1179,7 +1177,7 @@ table Costs
 
 	column CommitmentDiscountNameUnique
 		dataType: string
-		lineageTag: fb06d900-9a45-49a4-9cc6-e4ca6336345c
+		lineageTag: fab2c83c-a0da-40d2-aeaf-3f147d997db8
 		summarizeBy: none
 		sourceColumn: CommitmentDiscountNameUnique
 
@@ -1187,7 +1185,7 @@ table Costs
 
 	column ResourceNameUnique
 		dataType: string
-		lineageTag: 92bd826c-d53a-44de-b61d-20420ed5b62a
+		lineageTag: 2f597d4c-4e4c-46ff-bf5c-451758ac5988
 		summarizeBy: none
 		sourceColumn: ResourceNameUnique
 
@@ -1195,7 +1193,7 @@ table Costs
 
 	column SubAccountNameUnique
 		dataType: string
-		lineageTag: f4e2b516-711a-4188-8ffd-3a30eb7582ec
+		lineageTag: 075b0376-91cf-4627-8408-7231aa14294c
 		summarizeBy: none
 		sourceColumn: SubAccountNameUnique
 
@@ -1203,7 +1201,7 @@ table Costs
 
 	column x_FreeReason
 		dataType: string
-		lineageTag: 84eb4444-b185-4b20-ae0a-9ba6688bc4e4
+		lineageTag: ae4d18e7-7ce7-453a-b5ae-6f33d44459fa
 		summarizeBy: none
 		sourceColumn: x_FreeReason
 
@@ -1211,7 +1209,7 @@ table Costs
 
 	column x_ResourceGroupNameUnique
 		dataType: string
-		lineageTag: 21f60ea1-91d9-47b7-83d6-e185b1a5015a
+		lineageTag: 8998d466-48f5-4f38-befa-ff5058fb71ff
 		summarizeBy: none
 		sourceColumn: x_ResourceGroupNameUnique
 
@@ -1219,7 +1217,7 @@ table Costs
 
 	column x_SourceChanges
 		dataType: string
-		lineageTag: 7162fa87-5d0f-45cd-b887-eadfe2748190
+		lineageTag: a4435a0f-a472-4469-be00-bd732eedae86
 		summarizeBy: none
 		sourceColumn: x_SourceChanges
 
@@ -1228,19 +1226,19 @@ table Costs
 	column x_ChargeMonth
 		dataType: dateTime
 		formatString: Mmm yyyy
-		lineageTag: 0ccdf3b8-a622-4c98-b7b4-4721b3fa8d4a
+		lineageTag: b9a52b0d-b4c9-4317-942f-82099c8b5549
 		summarizeBy: none
 		sourceColumn: x_ChargeMonth
 
 		annotation SummarizationSetBy = Automatic
 
-		annotation UnderlyingDateTimeDataType = Date
-
 		annotation PBI_FormatHint = {"isCustom":true}
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	column x_CommitmentDiscountSavings
 		dataType: double
-		lineageTag: 78da4153-bed9-47f4-926f-fd9aac2a032a
+		lineageTag: ca46edf9-4d06-4139-98f2-a8eab97902e9
 		summarizeBy: sum
 		sourceColumn: x_CommitmentDiscountSavings
 
@@ -1250,7 +1248,7 @@ table Costs
 
 	column x_CommitmentDiscountUtilizationAmount
 		dataType: double
-		lineageTag: a28aaa9d-307b-4ac9-9fd5-0de4c19ae1d8
+		lineageTag: 121b140f-0137-42d5-8682-26093ca56801
 		summarizeBy: sum
 		sourceColumn: x_CommitmentDiscountUtilizationAmount
 
@@ -1260,7 +1258,7 @@ table Costs
 
 	column x_CommitmentDiscountUtilizationPotential
 		dataType: double
-		lineageTag: 4ee557c3-fb6b-44ff-a6da-d10dc09a11e5
+		lineageTag: 8fe2c672-ba37-4072-aab9-60350af0bc19
 		summarizeBy: sum
 		sourceColumn: x_CommitmentDiscountUtilizationPotential
 
@@ -1270,7 +1268,7 @@ table Costs
 
 	column x_ConsumedCoreHours
 		dataType: double
-		lineageTag: 7731cbc2-9c59-4eff-ab4a-daf0fc0caecb
+		lineageTag: abcb0621-31c2-4d91-85ca-1ad8e329520a
 		summarizeBy: sum
 		sourceColumn: x_ConsumedCoreHours
 
@@ -1280,7 +1278,7 @@ table Costs
 
 	column x_NegotiatedDiscountSavings
 		dataType: double
-		lineageTag: e2643dff-87d1-4103-84aa-d6f9f68baba1
+		lineageTag: 5b0f5e62-d637-419a-80f2-cbe2ccd3468f
 		summarizeBy: sum
 		sourceColumn: x_NegotiatedDiscountSavings
 
@@ -1291,7 +1289,7 @@ table Costs
 	column x_SkuCoreCount
 		dataType: int64
 		formatString: 0
-		lineageTag: c6f31b39-8f83-448b-9bc3-1c84f029fd9b
+		lineageTag: 8976ed5f-83e6-4e39-a558-20b6987aa542
 		summarizeBy: sum
 		sourceColumn: x_SkuCoreCount
 
@@ -1299,17 +1297,16 @@ table Costs
 
 	column x_SkuLicenseQuantity
 		dataType: double
-		lineageTag: 41722345-2f83-4e3c-92a3-06a9cb86a69a
+		formatString: 0
+		lineageTag: 65dc94ba-474a-4414-a34e-ef20b93c27f4
 		summarizeBy: sum
 		sourceColumn: x_SkuLicenseQuantity
 
 		annotation SummarizationSetBy = Automatic
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column x_TotalSavings
 		dataType: double
-		lineageTag: 85cf3565-33cd-41bd-94b6-6bbf62401dfd
+		lineageTag: 32f5be98-f7c7-465a-aa70-e65d6352e7d1
 		summarizeBy: sum
 		sourceColumn: x_TotalSavings
 
@@ -1320,19 +1317,19 @@ table Costs
 	column x_ReportingDate
 		dataType: dateTime
 		formatString: Mmm d, yyyy
-		lineageTag: 8bc0d600-86de-451a-a002-cefc73f17e6d
+		lineageTag: c822c239-0bf5-4a4f-9ad6-bf39995745c2
 		summarizeBy: none
 		sourceColumn: x_ReportingDate
 
 		annotation SummarizationSetBy = Automatic
 
-		annotation UnderlyingDateTimeDataType = Date
-
 		annotation PBI_FormatHint = {"isCustom":true}
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	column x_AmortizationCategory
 		dataType: string
-		lineageTag: 54d3103d-1ea7-42a7-af47-00d7a1e05f00
+		lineageTag: 34bbbc8b-8d6f-4d74-b49e-7e0d221c87fe
 		summarizeBy: none
 		sourceColumn: x_AmortizationCategory
 
@@ -1340,7 +1337,7 @@ table Costs
 
 	column x_CommitmentDiscountPercent
 		dataType: string
-		lineageTag: 08c65062-9e33-4505-a5f0-772ef5b3fff2
+		lineageTag: 6e8d875c-31a6-4d3c-bce0-a0b2b636bc6b
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountPercent
 
@@ -1348,33 +1345,36 @@ table Costs
 
 	column x_NegotiatedDiscountPercent
 		dataType: string
-		lineageTag: 9ff03db4-474c-4a7b-be46-4d527a7eb038
+		lineageTag: 3c6f9220-5748-4082-b15c-51f589827a9f
 		summarizeBy: none
 		sourceColumn: x_NegotiatedDiscountPercent
 
 		annotation SummarizationSetBy = Automatic
 
 	column x_TotalDiscountPercent
-		dataType: string
-		lineageTag: b76bd084-6c48-4565-aab2-a3524214ecba
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 72920dc6-4141-449d-be83-28d5a282f9fc
 		summarizeBy: none
 		sourceColumn: x_TotalDiscountPercent
+
+		changedProperty = DataType
 
 		annotation SummarizationSetBy = Automatic
 
 	hierarchy 'Service Hierarchy'
-		lineageTag: ef3437d8-e727-4aa8-a94c-3ebdc5134c53
+		lineageTag: 039a7b6d-f19d-4a79-91b3-a05fbc778704
 
 		level ServiceCategory
-			lineageTag: 4793945e-b4ef-4817-bcba-c612badaff26
+			lineageTag: 66f92779-1a4c-4f01-88ed-66192f5598fd
 			column: ServiceCategory
 
 		level ServiceName
-			lineageTag: 92c2c9e3-c40e-458a-8ed7-ca029ba80546
+			lineageTag: 4cf55410-b191-4865-a39d-58dc6415e4ae
 			column: ServiceName
 
 		level ResourceType
-			lineageTag: afe2945b-c053-4f6a-90bd-d1be7de089a7
+			lineageTag: 48f006c2-0abc-4638-a82e-a49e3abfd302
 			column: ResourceType
 
 	partition Costs-9a19f60d-0b5b-47c3-9fdf-8f57811d24d2 = m
@@ -1382,310 +1382,310 @@ table Costs
 		queryGroup: Storage
 		source = ```
 				let
-				    // Tags to promote to explicit columns -- Tag names are case-sensitive and column names will be "tag_{TagName}"
-				    // Add any tags you need promoted to this list
-				    // For recommended tags, see https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging#minimum-suggested-tags
-				    PromotedTags = {"Application", "BusinessUnit", "CostCenter", "Department", "Division", "Env", "Owner", "Product", "Project", "Purpose", "Service"},
+								    // Tags to promote to explicit columns -- Tag names are case-sensitive and column names will be "tag_{TagName}"
+								    // Add any tags you need promoted to this list
+								    // For recommended tags, see https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging#minimum-suggested-tags
+								    PromotedTags = {"Application", "BusinessUnit", "CostCenter", "Department", "Division", "Env", "Owner", "Product", "Project", "Purpose", "Service"},
+								
+								    // Get the data
+								    RawData = ftk_Storage("focuscost"),
+								
+								    // Helper functions
+								    _exists     = (col) => Table.HasColumns(RawData, col),
+								    _isMissing  = (col) => _exists(col) = false,
+								    _isBlank    = (val) => val = null or val = "" or Text.Replace(val, " ", "") = "",
+								    _isNotBlank = (val) => _isBlank(val) = false,
+								    _stringValue = (val) => if _isBlank(val) then null else val,
+								    _swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
+								    _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
+								    
+								    // Update previous FOCUS versions
+								    PerformDeprecatedOptimizations = #"Deprecated: Perform Extra Query Optimizations",
+								    HasPreview = Table.HasColumns(RawData, {"ChargeSubcategory"}),
+								    Has10      = Table.HasColumns(RawData, {"ChargeClass"}),
+								    LatestSchema = if HasPreview = false then RawData
+								        else if PerformDeprecatedOptimizations = false then error "LegacyFocusVersion: Please enable the 'Perform Extra Query Optimizations' parameter"
+								        else (
+								            let
+								                ChargeClass         = if Has10
+								                    then Table.ReplaceValue(RawData,          null,                       each if [ChargeSubcategory] = "Refund" then "Correction" else null, Replacer.ReplaceValue, {"ChargeClass"})
+								                    else Table.AddColumn(   RawData,          "ChargeClass",              each if [ChargeSubcategory] = "Refund" then "Correction" else null),
+								                CDStatus            = if Has10
+								                    then Table.ReplaceValue(ChargeClass,      null,                       each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null, Replacer.ReplaceValue, {"CommitmentDiscountStatus"})
+								                    else Table.AddColumn(   ChargeClass,      "CommitmentDiscountStatus", each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null),
+								                ConsumedQuantity    = if Has10
+								                    then Table.ReplaceValue(CDStatus,         null,                       each if [ChargeCategory] = "Usage" then [UsageQuantity] else null, Replacer.ReplaceValue, {"ConsumedQuantity"})
+								                    else Table.AddColumn(   CDStatus,         "ConsumedQuantity",         each if [ChargeCategory] = "Usage" then [UsageQuantity] else null),
+								                ConsumedUnit        = if Has10
+								                    then Table.ReplaceValue(ConsumedQuantity, null,                       each if [ChargeCategory] = "Usage" then [UsageUnit] else null, Replacer.ReplaceValue, {"ConsumedUnit"})
+								                    else Table.AddColumn(   ConsumedQuantity, "ConsumedUnit",             each if [ChargeCategory] = "Usage" then [UsageUnit] else null),
+								                ChargeCategory      = Table.ReplaceValue(ConsumedUnit,   each [ChargeCategory],  each if [ChargeCategory] = "Adjustment" and [ChargeSubcategory] = "Refund" then "Purchase" else [ChargeCategory], Replacer.ReplaceValue, {"ChargeCategory"}),
+								                PricingCategory     = Table.ReplaceValue(ChargeCategory, each [PricingCategory], each if [PricingCategory] = "On-Demand" then "Standard" else if [PricingCategory] = "Commitment-Based" then "Committed" else [PricingCategory], Replacer.ReplaceValue, {"PricingCategory"}),
+								                RenamePreviewCols   = if Has10
+								                    then Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(PricingCategory, 
+								                        each [ContractedCost],        each if [ContractedCost] <> null        then [ContractedCost]        else [x_OnDemandCost],      Replacer.ReplaceValue, {"ContractedCost"}),
+								                        each [x_ContractedCostInUsd], each if [x_ContractedCostInUsd] <> null then [x_ContractedCostInUsd] else [x_OnDemandCostInUsd], Replacer.ReplaceValue, {"x_ContractedCostInUsd"}),
+								                        each [ContractedUnitPrice],   each if [ContractedUnitPrice] <> null   then [ContractedUnitPrice]   else [x_OnDemandUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+								                        each [RegionName],            each if [RegionName] <> null            then [RegionName]            else [Region],              Replacer.ReplaceValue, {"RegionName"})
+								                    else Table.RenameColumns(PricingCategory, {{"x_OnDemandCost", "ContractedCost"}, {"x_OnDemandCostInUsd", "x_ContractedCostInUsd"}, {"x_OnDemandUnitPrice", "ContractedUnitPrice"}, {"Region", "RegionName"}}),
+								                RemovePreviewCols   = Table.RemoveColumns(RenamePreviewCols, {"ChargeSubcategory", "UsageQuantity", "UsageUnit", "x_ChargeId"})
+								            in
+								                RemovePreviewCols
+								        ),
+								
+								    // Fix known bugs and set datatyps
+								    Fixes = Table.TransformColumnTypes(
+								        Table.ReplaceValue(Table.ReplaceValue(
+								            // Create AvailabilityZone column if missing to support non-Microsoft clouds
+								            if Table.HasColumns(LatestSchema, {"AvailabilityZone"}) then LatestSchema else Table.AddColumn(LatestSchema, "AvailabilityZone", each null),
+								            // Fix savings plan purchases -- Cost Management fix pending as of Dec 8, 2024
+								            each [EffectiveCost], each if [ChargeCategory] = "Purchase" and [CommitmentDiscountId] <> "" and [CommitmentDiscountId] <> null then 0.0 else [EffectiveCost], Replacer.ReplaceValue, {"EffectiveCost"}),
+								            // Fix PricingCategory values -- Remove after Oct 1, 2025
+								            "Standard", each if [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage" then "Committed" else [PricingCategory], Replacer.ReplaceValue, {"PricingCategory"}),
+								        {
+								            // Date columns
+								            {"BillingPeriodEnd",          type datetimezone},
+								            {"BillingPeriodStart",        type datetimezone},
+								            {"ChargePeriodEnd",           type datetimezone},
+								            {"ChargePeriodStart",         type datetimezone},
+								            {"x_BillingExchangeRateDate", type datetimezone},
+								            {"x_ServicePeriodStart",      type datetimezone},
+								            {"x_ServicePeriodEnd",        type datetimezone},
+								            // Cost/price columns
+								            {"BilledCost",                type number},
+								            {"ContractedCost",            type number},
+								            {"ContractedUnitPrice",       type number},
+								            {"EffectiveCost",             type number},
+								            {"ListCost",                  type number},
+								            {"ListUnitPrice",             type number},
+								            {"x_BilledCostInUsd",         type number},
+								            {"x_BilledUnitPrice",         type number},
+								            {"x_ContractedCostInUsd",     type number},
+								            {"x_EffectiveCostInUsd",      type number},
+								            {"x_EffectiveUnitPrice",      type number},
+								            // Other columns
+								            {"ConsumedQuantity",          type number},
+								            {"PricingQuantity",           type number},
+								            {"x_BillingExchangeRate",     type number},
+								            {"x_PartnerCreditRate",       type number},
+								            {"x_PricingBlockSize",        type number}
+								            // {"x_SkuTerm",                 type number}
+								            // {"x_SkuIsCreditEligible",   type logical}
+								            // {"x_PartnerCreditApplied",  type logical}
+								        }
+								    ),
+								    OptionalFixes = if PerformDeprecatedOptimizations = false then Fixes else Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+								        // Track all the changes we're about to make before we make them for transparency
+								        Table.AddColumn(
+														Fixes,
+								            "x_SourceChanges",
+								            each let
+								                value = Text.Combine(List.RemoveNulls({
+								                    if ([ContractedCost] = null      or [ContractedCost] = 0)      and [EffectiveCost] <> 0                                        then "MissingContractedCost"            else null,
+								                    if ([ContractedUnitPrice] = null or [ContractedUnitPrice] = 0) and [x_EffectiveUnitPrice] <> 0                                 then "MissingContractedUnitPrice"       else null,
+								                    if ([ListCost] = null            or [ListCost] = 0)            and ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then "MissingListCost"                  else null,
+								                    if ([ListUnitPrice] = null       or [ListUnitPrice] = 0)       and ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then "MissingListUnitPrice"             else null,
+								                    if [PricingCategory] = "Standard" and [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage"                            then "PricingCategoryShouldBeCommitted" else null,
+								                    if [x_SkuTerm] = "1Year" or [x_SkuTerm] = "3Years" or [x_SkuTerm] = "5Years"                                                   then "SkuTermShouldBeAnInteger"         else null
+								                }), ","),
+								                output = if _isBlank(value) then null else value
+								            in
+								                output
+								        ),
+								        // Fix inconsistent Microsoft x_SkuTerm values
+								        "1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
+								        "3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),
+								        "5Years", 60, Replacer.ReplaceValue, {"x_SkuTerm"}),
+								
+								    // Split CostDetails by what needs prices and what doesn't
+								    PopulateMissingPrices = 
+								        Table.TransformColumnTypes(
+								            if #"Experimental: Add Missing Prices" = false then
+								                // Copy prices/costs from related columns
+								                Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(OptionalFixes,
+								                    0.0, each if [x_EffectiveUnitPrice] <> 0                                 then [x_EffectiveUnitPrice] else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+								                    0.0, each if ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then [ContractedUnitPrice]  else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
+								                    0.0, each if [EffectiveCost] <> 0                                        then [EffectiveCost]        else [ContractedCost],      Replacer.ReplaceValue, {"ContractedCost"}),
+								                    0.0, each if ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then [ContractedCost]       else [ListCost],            Replacer.ReplaceValue, {"ListCost"})
+								            else
+								                Table.RemoveColumns(
+								                    Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+								                        // Join only the rows/columns that need to be joined
+								                        Table.ExpandTableColumn(
+								                            Table.NestedJoin(
+								                                Table.AddColumn(OptionalFixes, "tmp_MeterOfferStart", each [x_SkuMeterId] & [x_SkuOfferId] & DateTimeZone.ToText([ChargePeriodStart], [Format="yyyy-MM"])),
+								                                {"tmp_MeterOfferStart"},
+								                                // Join missing prices with the cost rows that are missing tose prices
+								                                Table.SelectColumns(
+								                                    Table.AddColumn(
+								                                        Table.SelectRows(Prices, each [x_SkuPriceType] = "Consumption" and [x_SkuMeterId] <> "" and [x_SkuMeterId] <> null),
+								                                        "tmp_MeterOfferStart",
+								                                        each [x_SkuMeterId] & [x_SkuOfferId] & DateTime.ToText([x_EffectivePeriodStart], [Format="yyyy-MM"])
+								                                    ),
+								                                    {"tmp_MeterOfferStart", "ListUnitPrice", "ContractedUnitPrice", "PricingUnit", "x_PricingBlockSize"}
+								                                ),
+								                                {"tmp_MeterOfferStart"},
+								                                "Prices",
+								                                JoinKind.LeftOuter
+								                            ),
+								                            "Prices",
+								                            {"ListUnitPrice", "ContractedUnitPrice", "PricingUnit", "x_PricingBlockSize"},
+								                            {"NewListUnitPrice", "NewContractedUnitPrice", "NewPricingUnit", "NewPricingBlockSize"}
+								                        ),
+								                        // Update missing prices
+								                        0.0, each if [x_EffectiveUnitPrice] <> 0                                 and [PricingUnit] = [NewPricingUnit] then [NewContractedUnitPrice] * [x_BillingExchangeRate] / [NewPricingBlockSize] * [x_PricingBlockSize] else [x_EffectiveUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+								                        0.0, each if ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) and [PricingUnit] = [NewPricingUnit] then [NewListUnitPrice]       * [x_BillingExchangeRate] / [NewPricingBlockSize] * [x_PricingBlockSize] else [ContractedUnitPrice],  Replacer.ReplaceValue, {"ListUnitPrice"}),
+								                        // Update missing costs
+								                        0.0, each if [EffectiveCost] <> 0                                        and [ContractedUnitPrice] <> null then [PricingQuantity] * [ContractedUnitPrice] else [ContractedCost], Replacer.ReplaceValue, {"ContractedCost"}),
+								                        0.0, each if ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        and [ListUnitPrice]       <> null then [PricingQuantity] * [ListUnitPrice]       else [ListCost],       Replacer.ReplaceValue, {"ListCost"}),
+								                    {"NewListUnitPrice", "NewContractedUnitPrice", "NewPricingUnit", "NewPricingBlockSize", "tmp_MeterOfferStart"}
+								                ),
+								            {{"ContractedCost", type number}, {"ContractedUnitPrice", type number}, {"ListCost", type number}, {"ListUnitPrice", type number}}
+								        ),
+								
+								    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+								        PopulateMissingPrices,
+								        // Parse arrays
+								        "x_SkuDetailsDictionary", each if _isBlank([x_SkuDetails]) then [] else try Json.Document([x_SkuDetails]) otherwise []),
+								        "x_TagsDictionary",       each if _isBlank([Tags])         then [] else try Json.Document([Tags])         otherwise []),
+								        // Commitment metadata
+								        "x_CommitmentDiscountUtilizationPotential", each if [CommitmentDiscountCategory] = "Usage" then [ConsumedQuantity] else if [CommitmentDiscountCategory] = "Spend" then [EffectiveCost] else 0, type number),
+								        "x_CommitmentDiscountUtilizationAmount",    each if [CommitmentDiscountStatus] = "Used" then [x_CommitmentDiscountUtilizationPotential] else 0, type number),
+								        // Savings calculations
+								// TODO: Remove or make a % -- "x_CommitmentDiscountPercent", each if [ContractedUnitPrice] <> null and [ContractedUnitPrice] > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ContractedUnitPrice] >= [x_EffectiveUnitPrice] then [ContractedUnitPrice] - [x_EffectiveUnitPrice] else null, type number),
+								// TODO: Remove or make a % -- "x_NegotiatedDiscountPercent", each if [ContractedUnitPrice] <> null and [ContractedUnitPrice] > 0 and [ListUnitPrice]        <> null and [ListUnitPrice]        > 0 and [ListUnitPrice]       >= [ContractedUnitPrice]  then [ListUnitPrice]       - [ContractedUnitPrice]  else null, type number),
+								// TODO: Remove or make a % -- "x_DiscountUnitPriceSavings",   each if [ListUnitPrice]       <> null and [ListUnitPrice]       > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),
+								        "x_CommitmentDiscountSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [ContractedCost] <> null and [ContractedCost] > 0 and [EffectiveCost] <> null and [EffectiveCost] > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
+								        "x_NegotiatedDiscountSavings",      each if [ListCost]            <> null and [ListCost]            > 0 and [ContractedCost]       <> null and [ContractedCost]       > 0 and [ListCost]            >= [ContractedCost]       then [ListCost]            - [ContractedCost] else null, type number),
+								        "x_AmortizationCategory",           each if [ChargeCategory] = "Purchase" and _isNotBlank([CommitmentDiscountId]) then "Principal" else if _isNotBlank([CommitmentDiscountId]) then "Amortized Charge" else ""),
+								        "x_CommitmentDiscountPercent",      each if [ContractedUnitPrice] = 0 then 0 else ([ContractedUnitPrice] - [x_EffectiveUnitPrice]) / [ContractedUnitPrice]),
+								        "x_NegotiatedDiscountPercent",      each if [ListUnitPrice] = 0       then 0 else ([ListUnitPrice] - [ContractedUnitPrice]) / [ListUnitPrice]),
+								        "x_TotalDiscountPercent",           each if [ListUnitPrice] = 0       then 0 else ([ListUnitPrice] - [x_EffectiveUnitPrice]) / [ListUnitPrice]),
+								        "x_TotalSavings",
+								            each if [ListCost]            <> null and [ListCost]            > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ListCost]       >= [EffectiveCost] then [ListCost]       - [EffectiveCost]  
+								            else if [ContractedCost]      <> null and [ContractedCost]      > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
+								        // Month column
+								        "x_ChargeMonth", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
+								        "x_ReportingDate", each if #"Default Granularity" = "Monthly" then [x_ChargeMonth] else DateTime.Date([ChargePeriodStart]), type date),
+								    OptionalAdd = if PerformDeprecatedOptimizations = false then Add else Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+								        Add,
+								        // Explain why cost is 0
+								        "x_FreeReason", 
+								            each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
+								            else if [PricingCategory] = "Committed" then "Unknown " & [CommitmentDiscountStatus] & " Commitment"
+								            else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [ContractedUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
+								                if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Trial") then "Trial" else if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
+								            )
+								            else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (
+								                if [PricingQuantity] > 0.0 then "Low Usage" else if [PricingQuantity] = 0.0 then "No Usage" else "Unknown Negative Quantity"
+								            )
+								            else "Unknown"
+								        ),
+								        // Unique names -- Must be after ResourceName cleanup and Commitment columns
+								        // TODO: Only add differentiators when the name is not unique
+								        "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
+								        "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
+								        "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
+								        "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & ftk_ParseResourceName([SubAccountId]) & ")"),
+								
+								    // FTK columns
+								    FTK = Table.RemoveColumns(
+								        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+								            Table.ExpandRecordColumn(
+								                Table.ReplaceErrorValues(Table.AddColumn(OptionalAdd, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
+								                "tmp_Tags",
+								                {"cm-resource-parent", "ms-resource-parent", "hidden-managedby", "costanalysis-parent", "ftk-version",      "ftk-tool"},
+								                {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}
+								            ),
+								            "x_ResourceParentId",   
+								                each _stringValue(Text.Replace("/" & (
+								                    if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] 
+								                    else if _isNotBlank([tmp_msParent])  then [tmp_msParent] 
+								                    else if _isNotBlank([tmp_ManagedBy]) then [tmp_ManagedBy] 
+								                    else if _isNotBlank([tmp_caParent])  then [tmp_caParent] 
+								                    else null
+								                ), "//", "/"))),
+								            "x_ResourceParentType", each ftk_ParseResourceType([x_ResourceParentId])),
+								            "x_ResourceParentName", each ftk_ParseResourceName([x_ResourceParentId])),
+								            "x_ToolkitTool", 
+								                each if _isNotBlank([tmp_ToolkitTool]) then [tmp_ToolkitTool] 
+								                else if _isBlank([x_ResourceParentId]) then null 
+								                else if Text.Contains(Text.Lower([x_ResourceParentId]), "/providers/microsoft.cloud/hubs/") then "FinOps hubs"
+								                else null
+								            ),
+								        { "tmp_cmParent", "tmp_msParent", "tmp_caParent", "tmp_ManagedBy", "tmp_ToolkitTool" }
+								    ),
+								
+								    // Extracted tags
+								    // TODO: Consider adding tag cleanup to this as well
+								    ExtractedTags = Table.ExpandRecordColumn(
+								        Table.ReplaceErrorValues(Table.AddColumn(FTK, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
+								        "tmp_Tags",
+								        PromotedTags,
+								        List.Transform(PromotedTags, each "tag_" & _)
+								    ),
+								
+								    // AHB columns
+								// TODO: Add SQL AHB handling
+								    AHB = Table.RemoveColumns(
+								        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+								            Table.TransformColumnTypes(
+								                Table.ExpandRecordColumn(
+								                    Table.ReplaceErrorValues(Table.AddColumn(ExtractedTags, "tmp_SkuDetails", each [x_SkuDetailsDictionary]), {{"tmp_SkuDetails", null}}),
+								                    "tmp_SkuDetails",
+								                    {"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
+								                    {"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
+								                ),
+								                {{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}
+								            ),
+								            "x_ResourceMachineName",   each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),
+								            "x_SkuCoreCount",               each if [tmp_VMvCPUs] <> null then [tmp_VMvCPUs] else if [tmp_SQLvCores] <> null then [tmp_SQLvCores] else null, Int64.Type),
+								            "x_ConsumedCoreHours",     each if [x_SkuCoreCount] <> null then [x_SkuCoreCount] * [ConsumedQuantity] else null, type number),
+								            "x_SkuLicenseQuantity",
+								                each if [x_SkuCoreCount] = null then 0
+								                else if [x_SkuCoreCount] <= 8 then 8
+								                else if [x_SkuCoreCount] <= 16 then 16
+								                else if [x_SkuCoreCount] = 20 then 24
+								                else if [x_SkuCoreCount] > 20 then [x_SkuCoreCount]
+								                else 0,
+								                type number
+								            ),
+								            "x_SkuLicenseStatus",      each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Windows") or [tmp_SQLAHB] = "False" then "Not enabled" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], "Windows Server BYOL")) or [tmp_SQLAHB] = "True" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Azure Hybrid Benefit")) then "Enabled" else "Not supported"),
+								            "x_CommitmentDiscountKey", each [x_SkuType] & [x_SkuMeterId]),
+								        { "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_SQLvCores", "tmp_VMName", "tmp_VMvCPUs" }
+								    ),
+								
+								    // Unique key for the record -- WARNING: This increases the data size significantly.
+								    /*
+								    ChargeId = Table.AddColumn(Month, "x_ChargeId", each Text.Combine(List.RemoveItems({
+								        Date.ToText([ChargePeriodStart]),
+								        [x_BillingAccountId],
+								        if [x_BillingProfileId] = [x_BillingAccountId] then null else [x_BillingProfileId], // Only add BP if not the same as the BA (all EA)
+								        [x_InvoiceSectionId],
+								        if _isNotBlank([ResourceId]) and Text.Contains([ResourceId], [x_SubscriptionId]) then null else [x_SubscriptionId], // Only add sub if not in the resource ID
+								        [ResourceId],
+								        [tmp_ResourceLocation],
+								        [x_SkuOfferId],
+								        [SkuPriceId],
+								        [x_SkuMeterId],
+								        [x_SkuPartNumber],
+								        if _isBlank([CommitmentDiscountId]) then null else List.Last(Text.Split([CommitmentDiscountId], "/")),
+								        [x_CostAllocationRuleName],
+								        [x_CostCenter],
+								        if _isBlank([Tags])                 then null else Text.Remove([Tags], {"{","""","}"}),
+								        if _isBlank([x_SkuDetails])         then null else Text.Remove([x_SkuDetails], {"{","""","}"})
+								    }, {null, ""}), "-")),
+								    */
+								
+								    // Sort columns alphabetically
+								    Output = Table.ReorderColumns(AHB, List.Sort(Table.ColumnNames(AHB)))
+								in
+								    Output
 				
-				    // Get the data
-				    RawData = ftk_Storage("focuscost"),
-				
-				    // Helper functions
-				    _exists     = (col) => Table.HasColumns(RawData, col),
-				    _isMissing  = (col) => _exists(col) = false,
-				    _isBlank    = (val) => val = null or val = "" or Text.Replace(val, " ", "") = "",
-				    _isNotBlank = (val) => _isBlank(val) = false,
-				    _stringValue = (val) => if _isBlank(val) then null else val,
-				    _swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
-				    _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
-				    
-				    // Update previous FOCUS versions
-				    PerformDeprecatedOptimizations = #"Deprecated: Perform Extra Query Optimizations",
-				    HasPreview = Table.HasColumns(RawData, {"ChargeSubcategory"}),
-				    Has10      = Table.HasColumns(RawData, {"ChargeClass"}),
-				    LatestSchema = if HasPreview = false then RawData
-				        else if PerformDeprecatedOptimizations = false then error "LegacyFocusVersion: Please enable the 'Perform Extra Query Optimizations' parameter"
-				        else (
-				            let
-				                ChargeClass         = if Has10
-				                    then Table.ReplaceValue(RawData,          null,                       each if [ChargeSubcategory] = "Refund" then "Correction" else null, Replacer.ReplaceValue, {"ChargeClass"})
-				                    else Table.AddColumn(   RawData,          "ChargeClass",              each if [ChargeSubcategory] = "Refund" then "Correction" else null),
-				                CDStatus            = if Has10
-				                    then Table.ReplaceValue(ChargeClass,      null,                       each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null, Replacer.ReplaceValue, {"CommitmentDiscountStatus"})
-				                    else Table.AddColumn(   ChargeClass,      "CommitmentDiscountStatus", each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null),
-				                ConsumedQuantity    = if Has10
-				                    then Table.ReplaceValue(CDStatus,         null,                       each if [ChargeCategory] = "Usage" then [UsageQuantity] else null, Replacer.ReplaceValue, {"ConsumedQuantity"})
-				                    else Table.AddColumn(   CDStatus,         "ConsumedQuantity",         each if [ChargeCategory] = "Usage" then [UsageQuantity] else null),
-				                ConsumedUnit        = if Has10
-				                    then Table.ReplaceValue(ConsumedQuantity, null,                       each if [ChargeCategory] = "Usage" then [UsageUnit] else null, Replacer.ReplaceValue, {"ConsumedUnit"})
-				                    else Table.AddColumn(   ConsumedQuantity, "ConsumedUnit",             each if [ChargeCategory] = "Usage" then [UsageUnit] else null),
-				                ChargeCategory      = Table.ReplaceValue(ConsumedUnit,   each [ChargeCategory],  each if [ChargeCategory] = "Adjustment" and [ChargeSubcategory] = "Refund" then "Purchase" else [ChargeCategory], Replacer.ReplaceValue, {"ChargeCategory"}),
-				                PricingCategory     = Table.ReplaceValue(ChargeCategory, each [PricingCategory], each if [PricingCategory] = "On-Demand" then "Standard" else if [PricingCategory] = "Commitment-Based" then "Committed" else [PricingCategory], Replacer.ReplaceValue, {"PricingCategory"}),
-				                RenamePreviewCols   = if Has10
-				                    then Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(PricingCategory, 
-				                        each [ContractedCost],        each if [ContractedCost] <> null        then [ContractedCost]        else [x_OnDemandCost],      Replacer.ReplaceValue, {"ContractedCost"}),
-				                        each [x_ContractedCostInUsd], each if [x_ContractedCostInUsd] <> null then [x_ContractedCostInUsd] else [x_OnDemandCostInUsd], Replacer.ReplaceValue, {"x_ContractedCostInUsd"}),
-				                        each [ContractedUnitPrice],   each if [ContractedUnitPrice] <> null   then [ContractedUnitPrice]   else [x_OnDemandUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
-				                        each [RegionName],            each if [RegionName] <> null            then [RegionName]            else [Region],              Replacer.ReplaceValue, {"RegionName"})
-				                    else Table.RenameColumns(PricingCategory, {{"x_OnDemandCost", "ContractedCost"}, {"x_OnDemandCostInUsd", "x_ContractedCostInUsd"}, {"x_OnDemandUnitPrice", "ContractedUnitPrice"}, {"Region", "RegionName"}}),
-				                RemovePreviewCols   = Table.RemoveColumns(RenamePreviewCols, {"ChargeSubcategory", "UsageQuantity", "UsageUnit", "x_ChargeId"})
-				            in
-				                RemovePreviewCols
-				        ),
-				
-				    // Fix known bugs and set datatyps
-				    Fixes = Table.TransformColumnTypes(
-				        Table.ReplaceValue(Table.ReplaceValue(
-				            // Create AvailabilityZone column if missing to support non-Microsoft clouds
-				            if Table.HasColumns(LatestSchema, {"AvailabilityZone"}) then LatestSchema else Table.AddColumn(LatestSchema, "AvailabilityZone", each null),
-				            // Fix savings plan purchases -- Cost Management fix pending as of Dec 8, 2024
-				            each [EffectiveCost], each if [ChargeCategory] = "Purchase" and [CommitmentDiscountId] <> "" and [CommitmentDiscountId] <> null then 0.0 else [EffectiveCost], Replacer.ReplaceValue, {"EffectiveCost"}),
-				            // Fix PricingCategory values -- Remove after Oct 1, 2025
-				            "Standard", each if [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage" then "Committed" else [PricingCategory], Replacer.ReplaceValue, {"PricingCategory"}),
-				        {
-				            // Date columns
-				            {"BillingPeriodEnd",          type datetimezone},
-				            {"BillingPeriodStart",        type datetimezone},
-				            {"ChargePeriodEnd",           type datetimezone},
-				            {"ChargePeriodStart",         type datetimezone},
-				            {"x_BillingExchangeRateDate", type datetimezone},
-				            {"x_ServicePeriodStart",      type datetimezone},
-				            {"x_ServicePeriodEnd",        type datetimezone},
-				            // Cost/price columns
-				            {"BilledCost",                type number},
-				            {"ContractedCost",            type number},
-				            {"ContractedUnitPrice",       type number},
-				            {"EffectiveCost",             type number},
-				            {"ListCost",                  type number},
-				            {"ListUnitPrice",             type number},
-				            {"x_BilledCostInUsd",         type number},
-				            {"x_BilledUnitPrice",         type number},
-				            {"x_ContractedCostInUsd",     type number},
-				            {"x_EffectiveCostInUsd",      type number},
-				            {"x_EffectiveUnitPrice",      type number},
-				            // Other columns
-				            {"ConsumedQuantity",          type number},
-				            {"PricingQuantity",           type number},
-				            {"x_BillingExchangeRate",     type number},
-				            {"x_PartnerCreditRate",       type number},
-				            {"x_PricingBlockSize",        type number}
-				            // {"x_SkuTerm",                 type number}
-				            // {"x_SkuIsCreditEligible",   type logical}
-				            // {"x_PartnerCreditApplied",  type logical}
-				        }
-				    ),
-				    OptionalFixes = if PerformDeprecatedOptimizations = false then Fixes else Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
-				        // Track all the changes we're about to make before we make them for transparency
-				        Table.AddColumn(
-										Fixes,
-				            "x_SourceChanges",
-				            each let
-				                value = Text.Combine(List.RemoveNulls({
-				                    if ([ContractedCost] = null      or [ContractedCost] = 0)      and [EffectiveCost] <> 0                                        then "MissingContractedCost"            else null,
-				                    if ([ContractedUnitPrice] = null or [ContractedUnitPrice] = 0) and [x_EffectiveUnitPrice] <> 0                                 then "MissingContractedUnitPrice"       else null,
-				                    if ([ListCost] = null            or [ListCost] = 0)            and ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then "MissingListCost"                  else null,
-				                    if ([ListUnitPrice] = null       or [ListUnitPrice] = 0)       and ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then "MissingListUnitPrice"             else null,
-				                    if [PricingCategory] = "Standard" and [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage"                            then "PricingCategoryShouldBeCommitted" else null,
-				                    if [x_SkuTerm] = "1Year" or [x_SkuTerm] = "3Years" or [x_SkuTerm] = "5Years"                                                   then "SkuTermShouldBeAnInteger"         else null
-				                }), ","),
-				                output = if _isBlank(value) then null else value
-				            in
-				                output
-				        ),
-				        // Fix inconsistent Microsoft x_SkuTerm values
-				        "1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
-				        "3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),
-				        "5Years", 60, Replacer.ReplaceValue, {"x_SkuTerm"}),
-				
-				    // Split CostDetails by what needs prices and what doesn't
-				    PopulateMissingPrices = 
-				        Table.TransformColumnTypes(
-				            if #"Experimental: Add Missing Prices" = false then
-				                // Copy prices/costs from related columns
-				                Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(OptionalFixes,
-				                    0.0, each if [x_EffectiveUnitPrice] <> 0                                 then [x_EffectiveUnitPrice] else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
-				                    0.0, each if ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then [ContractedUnitPrice]  else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
-				                    0.0, each if [EffectiveCost] <> 0                                        then [EffectiveCost]        else [ContractedCost],      Replacer.ReplaceValue, {"ContractedCost"}),
-				                    0.0, each if ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then [ContractedCost]       else [ListCost],            Replacer.ReplaceValue, {"ListCost"})
-				            else
-				                Table.RemoveColumns(
-				                    Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
-				                        // Join only the rows/columns that need to be joined
-				                        Table.ExpandTableColumn(
-				                            Table.NestedJoin(
-				                                Table.AddColumn(OptionalFixes, "tmp_MeterOfferStart", each [x_SkuMeterId] & [x_SkuOfferId] & DateTimeZone.ToText([ChargePeriodStart], [Format="yyyy-MM"])),
-				                                {"tmp_MeterOfferStart"},
-				                                // Join missing prices with the cost rows that are missing tose prices
-				                                Table.SelectColumns(
-				                                    Table.AddColumn(
-				                                        Table.SelectRows(Prices, each [x_SkuPriceType] = "Consumption" and [x_SkuMeterId] <> "" and [x_SkuMeterId] <> null),
-				                                        "tmp_MeterOfferStart",
-				                                        each [x_SkuMeterId] & [x_SkuOfferId] & DateTime.ToText([x_EffectivePeriodStart], [Format="yyyy-MM"])
-				                                    ),
-				                                    {"tmp_MeterOfferStart", "ListUnitPrice", "ContractedUnitPrice", "PricingUnit", "x_PricingBlockSize"}
-				                                ),
-				                                {"tmp_MeterOfferStart"},
-				                                "Prices",
-				                                JoinKind.LeftOuter
-				                            ),
-				                            "Prices",
-				                            {"ListUnitPrice", "ContractedUnitPrice", "PricingUnit", "x_PricingBlockSize"},
-				                            {"NewListUnitPrice", "NewContractedUnitPrice", "NewPricingUnit", "NewPricingBlockSize"}
-				                        ),
-				                        // Update missing prices
-				                        0.0, each if [x_EffectiveUnitPrice] <> 0                                 and [PricingUnit] = [NewPricingUnit] then [NewContractedUnitPrice] * [x_BillingExchangeRate] / [NewPricingBlockSize] * [x_PricingBlockSize] else [x_EffectiveUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
-				                        0.0, each if ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) and [PricingUnit] = [NewPricingUnit] then [NewListUnitPrice]       * [x_BillingExchangeRate] / [NewPricingBlockSize] * [x_PricingBlockSize] else [ContractedUnitPrice],  Replacer.ReplaceValue, {"ListUnitPrice"}),
-				                        // Update missing costs
-				                        0.0, each if [EffectiveCost] <> 0                                        and [ContractedUnitPrice] <> null then [PricingQuantity] * [ContractedUnitPrice] else [ContractedCost], Replacer.ReplaceValue, {"ContractedCost"}),
-				                        0.0, each if ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        and [ListUnitPrice]       <> null then [PricingQuantity] * [ListUnitPrice]       else [ListCost],       Replacer.ReplaceValue, {"ListCost"}),
-				                    {"NewListUnitPrice", "NewContractedUnitPrice", "NewPricingUnit", "NewPricingBlockSize", "tmp_MeterOfferStart"}
-				                ),
-				            {{"ContractedCost", type number}, {"ContractedUnitPrice", type number}, {"ListCost", type number}, {"ListUnitPrice", type number}}
-				        ),
-				
-				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
-				        PopulateMissingPrices,
-				        // Parse arrays
-				        "x_SkuDetailsDictionary", each if _isBlank([x_SkuDetails]) then [] else try Json.Document([x_SkuDetails]) otherwise []),
-				        "x_TagsDictionary",       each if _isBlank([Tags])         then [] else try Json.Document([Tags])         otherwise []),
-				        // Commitment metadata
-				        "x_CommitmentDiscountUtilizationPotential", each if [CommitmentDiscountCategory] = "Usage" then [ConsumedQuantity] else if [CommitmentDiscountCategory] = "Spend" then [EffectiveCost] else 0, type number),
-				        "x_CommitmentDiscountUtilizationAmount",    each if [CommitmentDiscountStatus] = "Used" then [x_CommitmentDiscountUtilizationPotential] else 0, type number),
-				        // Savings calculations
-				// TODO: Remove or make a % -- "x_CommitmentDiscountPercent", each if [ContractedUnitPrice] <> null and [ContractedUnitPrice] > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ContractedUnitPrice] >= [x_EffectiveUnitPrice] then [ContractedUnitPrice] - [x_EffectiveUnitPrice] else null, type number),
-				// TODO: Remove or make a % -- "x_NegotiatedDiscountPercent", each if [ContractedUnitPrice] <> null and [ContractedUnitPrice] > 0 and [ListUnitPrice]        <> null and [ListUnitPrice]        > 0 and [ListUnitPrice]       >= [ContractedUnitPrice]  then [ListUnitPrice]       - [ContractedUnitPrice]  else null, type number),
-				// TODO: Remove or make a % -- "x_DiscountUnitPriceSavings",   each if [ListUnitPrice]       <> null and [ListUnitPrice]       > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),
-				        "x_CommitmentDiscountSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [ContractedCost] <> null and [ContractedCost] > 0 and [EffectiveCost] <> null and [EffectiveCost] > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
-				        "x_NegotiatedDiscountSavings",      each if [ListCost]            <> null and [ListCost]            > 0 and [ContractedCost]       <> null and [ContractedCost]       > 0 and [ListCost]            >= [ContractedCost]       then [ListCost]            - [ContractedCost] else null, type number),
-				        "x_AmortizationCategory",           each if [ChargeCategory] = "Purchase" and _isNotBlank([CommitmentDiscountId]) then "Principal" else if _isNotBlank([CommitmentDiscountId]) then "Amortized Charge" else ""),
-				        "x_CommitmentDiscountPercent",      each if [ContractedUnitPrice] = 0 then 0 else ([ContractedUnitPrice] - [x_EffectiveUnitPrice]) / [ContractedUnitPrice]),
-				        "x_NegotiatedDiscountPercent",      each if [ListUnitPrice] = 0       then 0 else ([ListUnitPrice] - [ContractedUnitPrice]) / [ListUnitPrice]),
-				        "x_TotalDiscountPercent",           each if [ListUnitPrice] = 0       then 0 else ([ListUnitPrice] - [x_EffectiveUnitPrice]) / [ListUnitPrice]),
-				        "x_TotalSavings",
-				            each if [ListCost]            <> null and [ListCost]            > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ListCost]       >= [EffectiveCost] then [ListCost]       - [EffectiveCost]  
-				            else if [ContractedCost]      <> null and [ContractedCost]      > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
-				        // Month column
-				        "x_ChargeMonth", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
-				        "x_ReportingDate", each if #"Default Granularity" = "Monthly" then [x_ChargeMonth] else DateTime.Date([ChargePeriodStart]), type date),
-				    OptionalAdd = if PerformDeprecatedOptimizations = false then Add else Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
-				        Add,
-				        // Explain why cost is 0
-				        "x_FreeReason", 
-				            each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
-				            else if [PricingCategory] = "Committed" then "Unknown " & [CommitmentDiscountStatus] & " Commitment"
-				            else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [ContractedUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
-				                if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Trial") then "Trial" else if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
-				            )
-				            else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (
-				                if [PricingQuantity] > 0.0 then "Low Usage" else if [PricingQuantity] = 0.0 then "No Usage" else "Unknown Negative Quantity"
-				            )
-				            else "Unknown"
-				        ),
-				        // Unique names -- Must be after ResourceName cleanup and Commitment columns
-				        // TODO: Only add differentiators when the name is not unique
-				        "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
-				        "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
-				        "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
-				        "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & ftk_ParseResourceName([SubAccountId]) & ")"),
-				
-				    // FTK columns
-				    FTK = Table.RemoveColumns(
-				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
-				            Table.ExpandRecordColumn(
-				                Table.ReplaceErrorValues(Table.AddColumn(OptionalAdd, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
-				                "tmp_Tags",
-				                {"cm-resource-parent", "ms-resource-parent", "hidden-managedby", "costanalysis-parent", "ftk-version",      "ftk-tool"},
-				                {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}
-				            ),
-				            "x_ResourceParentId",   
-				                each _stringValue(Text.Replace("/" & (
-				                    if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] 
-				                    else if _isNotBlank([tmp_msParent])  then [tmp_msParent] 
-				                    else if _isNotBlank([tmp_ManagedBy]) then [tmp_ManagedBy] 
-				                    else if _isNotBlank([tmp_caParent])  then [tmp_caParent] 
-				                    else null
-				                ), "//", "/"))),
-				            "x_ResourceParentType", each ftk_ParseResourceType([x_ResourceParentId])),
-				            "x_ResourceParentName", each ftk_ParseResourceName([x_ResourceParentId])),
-				            "x_ToolkitTool", 
-				                each if _isNotBlank([tmp_ToolkitTool]) then [tmp_ToolkitTool] 
-				                else if _isBlank([x_ResourceParentId]) then null 
-				                else if Text.Contains(Text.Lower([x_ResourceParentId]), "/providers/microsoft.cloud/hubs/") then "FinOps hubs"
-				                else null
-				            ),
-				        { "tmp_cmParent", "tmp_msParent", "tmp_caParent", "tmp_ManagedBy", "tmp_ToolkitTool" }
-				    ),
-				
-				    // Extracted tags
-				    // TODO: Consider adding tag cleanup to this as well
-				    ExtractedTags = Table.ExpandRecordColumn(
-				        Table.ReplaceErrorValues(Table.AddColumn(FTK, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
-				        "tmp_Tags",
-				        PromotedTags,
-				        List.Transform(PromotedTags, each "tag_" & _)
-				    ),
-				
-				    // AHB columns
-				// TODO: Add SQL AHB handling
-				    AHB = Table.RemoveColumns(
-				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
-				            Table.TransformColumnTypes(
-				                Table.ExpandRecordColumn(
-				                    Table.ReplaceErrorValues(Table.AddColumn(ExtractedTags, "tmp_SkuDetails", each [x_SkuDetailsDictionary]), {{"tmp_SkuDetails", null}}),
-				                    "tmp_SkuDetails",
-				                    {"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
-				                    {"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
-				                ),
-				                {{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}
-				            ),
-				            "x_ResourceMachineName",   each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),
-				            "x_SkuCoreCount",               each if [tmp_VMvCPUs] <> null then [tmp_VMvCPUs] else if [tmp_SQLvCores] <> null then [tmp_SQLvCores] else null, Int64.Type),
-				            "x_ConsumedCoreHours",     each if [x_SkuCoreCount] <> null then [x_SkuCoreCount] * [ConsumedQuantity] else null, type number),
-				            "x_SkuLicenseQuantity",
-				                each if [x_SkuCoreCount] = null then 0
-				                else if [x_SkuCoreCount] <= 8 then 8
-				                else if [x_SkuCoreCount] <= 16 then 16
-				                else if [x_SkuCoreCount] = 20 then 24
-				                else if [x_SkuCoreCount] > 20 then [x_SkuCoreCount]
-				                else 0,
-				                type number
-				            ),
-				            "x_SkuLicenseStatus",      each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Windows") or [tmp_SQLAHB] = "False" then "Not enabled" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], "Windows Server BYOL")) or [tmp_SQLAHB] = "True" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Azure Hybrid Benefit")) then "Enabled" else "Not supported"),
-				            "x_CommitmentDiscountKey", each [x_SkuType] & [x_SkuMeterId]),
-				        { "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_SQLvCores", "tmp_VMName", "tmp_VMvCPUs" }
-				    ),
-				
-				    // Unique key for the record -- WARNING: This increases the data size significantly.
-				    /*
-				    ChargeId = Table.AddColumn(Month, "x_ChargeId", each Text.Combine(List.RemoveItems({
-				        Date.ToText([ChargePeriodStart]),
-				        [x_BillingAccountId],
-				        if [x_BillingProfileId] = [x_BillingAccountId] then null else [x_BillingProfileId], // Only add BP if not the same as the BA (all EA)
-				        [x_InvoiceSectionId],
-				        if _isNotBlank([ResourceId]) and Text.Contains([ResourceId], [x_SubscriptionId]) then null else [x_SubscriptionId], // Only add sub if not in the resource ID
-				        [ResourceId],
-				        [tmp_ResourceLocation],
-				        [x_SkuOfferId],
-				        [SkuPriceId],
-				        [x_SkuMeterId],
-				        [x_SkuPartNumber],
-				        if _isBlank([CommitmentDiscountId]) then null else List.Last(Text.Split([CommitmentDiscountId], "/")),
-				        [x_CostAllocationRuleName],
-				        [x_CostCenter],
-				        if _isBlank([Tags])                 then null else Text.Remove([Tags], {"{","""","}"}),
-				        if _isBlank([x_SkuDetails])         then null else Text.Remove([x_SkuDetails], {"{","""","}"})
-				    }, {null, ""}), "-")),
-				    */
-				
-				    // Sort columns alphabetically
-				    Output = Table.ReorderColumns(AHB, List.Sort(Table.ColumnNames(AHB)))
-				in
-				    Output
+				                // annotation PBI_QueryRelationships = {"columnCount":50,"keyColumnNames":[],"queryRelationships":[],"columnIdentities":["Section1/Usage details amortized/usagedetailsamortized.{BillingAccountId,0}","Section1/Usage details amortized/usagedetailsamortized.{BillingAccountName,1}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodStartDate,2}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodEndDate,3}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileId,4}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileName,5}","Section1/Usage details amortized/usagedetailsamortized.{AccountOwnerId,6}","Section1/Usage details amortized/usagedetailsamortized.{AccountName,7}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionId,8}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionName,9}","Section1/Usage details amortized/usagedetailsamortized.{Date,10}","Section1/Usage details amortized/usagedetailsamortized.{Product,11}","Section1/Usage details amortized/usagedetailsamortized.{PartNumber,12}","Section1/Usage details amortized/usagedetailsamortized.{MeterId,13}","Section1/Usage details amortized/usagedetailsamortized.{ServiceFamily,14}","Section1/Usage details amortized/usagedetailsamortized.{MeterCategory,15}","Section1/Usage details amortized/usagedetailsamortized.{MeterSubCategory,16}","Section1/Usage details amortized/usagedetailsamortized.{MeterRegion,17}","Section1/Usage details amortized/usagedetailsamortized.{MeterName,18}","Section1/Usage details amortized/usagedetailsamortized.{Quantity,19}","Section1/Usage details amortized/usagedetailsamortized.{EffectivePrice,20}","Section1/Usage details amortized/usagedetailsamortized.{Cost,21}","Section1/Usage details amortized/usagedetailsamortized.{UnitPrice,22}","Section1/Usage details amortized/usagedetailsamortized.{BillingCurrency,23}","Section1/Usage details amortized/usagedetailsamortized.{ResourceLocation,24}","Section1/Usage details amortized/usagedetailsamortized.{AvailabilityZone,25}","Section1/Usage details amortized/usagedetailsamortized.{ConsumedService,26}","Section1/Usage details amortized/usagedetailsamortized.{ResourceId,27}","Section1/Usage details amortized/usagedetailsamortized.{ResourceName,28}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo1,29}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo2,30}","Section1/Usage details amortized/usagedetailsamortized.{AdditionalInfo,31}","Section1/Usage details amortized/usagedetailsamortized.{Tags,32}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSectionId,33}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSection,34}","Section1/Usage details amortized/usagedetailsamortized.{CostCenter,35}","Section1/Usage details amortized/usagedetailsamortized.{UnitOfMeasure,36}","Section1/Usage details amortized/usagedetailsamortized.{ResourceGroup,37}","Section1/Usage details amortized/usagedetailsamortized.{ReservationId,38}","Section1/Usage details amortized/usagedetailsamortized.{ReservationName,39}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderId,40}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderName,41}","Section1/Usage details amortized/usagedetailsamortized.{OfferId,42}","Section1/Usage details amortized/usagedetailsamortized.{IsAzureCreditEligible,43}","Section1/Usage details amortized/usagedetailsamortized.{Term,44}","Section1/Usage details amortized/usagedetailsamortized.{PublisherName,45}","Section1/Usage details amortized/usagedetailsamortized.{PlanName,46}","Section1/Usage details amortized/usagedetailsamortized.{ChargeType,47}","Section1/Usage details amortized/usagedetailsamortized.{Frequency,48}","Section1/Usage details amortized/usagedetailsamortized.{PublisherType,49}"],"ColumnCount":50,"KeyColumnNames":[],"ColumnIdentities":["Section1/Usage details amortized/usagedetailsamortized.{BillingAccountId,0}","Section1/Usage details amortized/usagedetailsamortized.{BillingAccountName,1}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodStartDate,2}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodEndDate,3}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileId,4}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileName,5}","Section1/Usage details amortized/usagedetailsamortized.{AccountOwnerId,6}","Section1/Usage details amortized/usagedetailsamortized.{AccountName,7}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionId,8}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionName,9}","Section1/Usage details amortized/usagedetailsamortized.{Date,10}","Section1/Usage details amortized/usagedetailsamortized.{Product,11}","Section1/Usage details amortized/usagedetailsamortized.{PartNumber,12}","Section1/Usage details amortized/usagedetailsamortized.{MeterId,13}","Section1/Usage details amortized/usagedetailsamortized.{ServiceFamily,14}","Section1/Usage details amortized/usagedetailsamortized.{MeterCategory,15}","Section1/Usage details amortized/usagedetailsamortized.{MeterSubCategory,16}","Section1/Usage details amortized/usagedetailsamortized.{MeterRegion,17}","Section1/Usage details amortized/usagedetailsamortized.{MeterName,18}","Section1/Usage details amortized/usagedetailsamortized.{Quantity,19}","Section1/Usage details amortized/usagedetailsamortized.{EffectivePrice,20}","Section1/Usage details amortized/usagedetailsamortized.{Cost,21}","Section1/Usage details amortized/usagedetailsamortized.{UnitPrice,22}","Section1/Usage details amortized/usagedetailsamortized.{BillingCurrency,23}","Section1/Usage details amortized/usagedetailsamortized.{ResourceLocation,24}","Section1/Usage details amortized/usagedetailsamortized.{AvailabilityZone,25}","Section1/Usage details amortized/usagedetailsamortized.{ConsumedService,26}","Section1/Usage details amortized/usagedetailsamortized.{ResourceId,27}","Section1/Usage details amortized/usagedetailsamortized.{ResourceName,28}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo1,29}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo2,30}","Section1/Usage details amortized/usagedetailsamortized.{AdditionalInfo,31}","Section1/Usage details amortized/usagedetailsamortized.{Tags,32}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSectionId,33}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSection,34}","Section1/Usage details amortized/usagedetailsamortized.{CostCenter,35}","Section1/Usage details amortized/usagedetailsamortized.{UnitOfMeasure,36}","Section1/Usage details amortized/usagedetailsamortized.{ResourceGroup,37}","Section1/Usage details amortized/usagedetailsamortized.{ReservationId,38}","Section1/Usage details amortized/usagedetailsamortized.{ReservationName,39}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderId,40}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderName,41}","Section1/Usage details amortized/usagedetailsamortized.{OfferId,42}","Section1/Usage details amortized/usagedetailsamortized.{IsAzureCreditEligible,43}","Section1/Usage details amortized/usagedetailsamortized.{Term,44}","Section1/Usage details amortized/usagedetailsamortized.{PublisherName,45}","Section1/Usage details amortized/usagedetailsamortized.{PlanName,46}","Section1/Usage details amortized/usagedetailsamortized.{ChargeType,47}","Section1/Usage details amortized/usagedetailsamortized.{Frequency,48}","Section1/Usage details amortized/usagedetailsamortized.{PublisherType,49}"],"RelationshipInfo":[]}
 				```
 
-	annotation PBI_QueryRelationships = {"columnCount":50,"keyColumnNames":[],"queryRelationships":[],"columnIdentities":["Section1/Usage details amortized/usagedetailsamortized.{BillingAccountId,0}","Section1/Usage details amortized/usagedetailsamortized.{BillingAccountName,1}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodStartDate,2}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodEndDate,3}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileId,4}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileName,5}","Section1/Usage details amortized/usagedetailsamortized.{AccountOwnerId,6}","Section1/Usage details amortized/usagedetailsamortized.{AccountName,7}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionId,8}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionName,9}","Section1/Usage details amortized/usagedetailsamortized.{Date,10}","Section1/Usage details amortized/usagedetailsamortized.{Product,11}","Section1/Usage details amortized/usagedetailsamortized.{PartNumber,12}","Section1/Usage details amortized/usagedetailsamortized.{MeterId,13}","Section1/Usage details amortized/usagedetailsamortized.{ServiceFamily,14}","Section1/Usage details amortized/usagedetailsamortized.{MeterCategory,15}","Section1/Usage details amortized/usagedetailsamortized.{MeterSubCategory,16}","Section1/Usage details amortized/usagedetailsamortized.{MeterRegion,17}","Section1/Usage details amortized/usagedetailsamortized.{MeterName,18}","Section1/Usage details amortized/usagedetailsamortized.{Quantity,19}","Section1/Usage details amortized/usagedetailsamortized.{EffectivePrice,20}","Section1/Usage details amortized/usagedetailsamortized.{Cost,21}","Section1/Usage details amortized/usagedetailsamortized.{UnitPrice,22}","Section1/Usage details amortized/usagedetailsamortized.{BillingCurrency,23}","Section1/Usage details amortized/usagedetailsamortized.{ResourceLocation,24}","Section1/Usage details amortized/usagedetailsamortized.{AvailabilityZone,25}","Section1/Usage details amortized/usagedetailsamortized.{ConsumedService,26}","Section1/Usage details amortized/usagedetailsamortized.{ResourceId,27}","Section1/Usage details amortized/usagedetailsamortized.{ResourceName,28}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo1,29}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo2,30}","Section1/Usage details amortized/usagedetailsamortized.{AdditionalInfo,31}","Section1/Usage details amortized/usagedetailsamortized.{Tags,32}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSectionId,33}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSection,34}","Section1/Usage details amortized/usagedetailsamortized.{CostCenter,35}","Section1/Usage details amortized/usagedetailsamortized.{UnitOfMeasure,36}","Section1/Usage details amortized/usagedetailsamortized.{ResourceGroup,37}","Section1/Usage details amortized/usagedetailsamortized.{ReservationId,38}","Section1/Usage details amortized/usagedetailsamortized.{ReservationName,39}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderId,40}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderName,41}","Section1/Usage details amortized/usagedetailsamortized.{OfferId,42}","Section1/Usage details amortized/usagedetailsamortized.{IsAzureCreditEligible,43}","Section1/Usage details amortized/usagedetailsamortized.{Term,44}","Section1/Usage details amortized/usagedetailsamortized.{PublisherName,45}","Section1/Usage details amortized/usagedetailsamortized.{PlanName,46}","Section1/Usage details amortized/usagedetailsamortized.{ChargeType,47}","Section1/Usage details amortized/usagedetailsamortized.{Frequency,48}","Section1/Usage details amortized/usagedetailsamortized.{PublisherType,49}"],"ColumnCount":50,"KeyColumnNames":[],"ColumnIdentities":["Section1/Usage details amortized/usagedetailsamortized.{BillingAccountId,0}","Section1/Usage details amortized/usagedetailsamortized.{BillingAccountName,1}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodStartDate,2}","Section1/Usage details amortized/usagedetailsamortized.{BillingPeriodEndDate,3}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileId,4}","Section1/Usage details amortized/usagedetailsamortized.{BillingProfileName,5}","Section1/Usage details amortized/usagedetailsamortized.{AccountOwnerId,6}","Section1/Usage details amortized/usagedetailsamortized.{AccountName,7}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionId,8}","Section1/Usage details amortized/usagedetailsamortized.{SubscriptionName,9}","Section1/Usage details amortized/usagedetailsamortized.{Date,10}","Section1/Usage details amortized/usagedetailsamortized.{Product,11}","Section1/Usage details amortized/usagedetailsamortized.{PartNumber,12}","Section1/Usage details amortized/usagedetailsamortized.{MeterId,13}","Section1/Usage details amortized/usagedetailsamortized.{ServiceFamily,14}","Section1/Usage details amortized/usagedetailsamortized.{MeterCategory,15}","Section1/Usage details amortized/usagedetailsamortized.{MeterSubCategory,16}","Section1/Usage details amortized/usagedetailsamortized.{MeterRegion,17}","Section1/Usage details amortized/usagedetailsamortized.{MeterName,18}","Section1/Usage details amortized/usagedetailsamortized.{Quantity,19}","Section1/Usage details amortized/usagedetailsamortized.{EffectivePrice,20}","Section1/Usage details amortized/usagedetailsamortized.{Cost,21}","Section1/Usage details amortized/usagedetailsamortized.{UnitPrice,22}","Section1/Usage details amortized/usagedetailsamortized.{BillingCurrency,23}","Section1/Usage details amortized/usagedetailsamortized.{ResourceLocation,24}","Section1/Usage details amortized/usagedetailsamortized.{AvailabilityZone,25}","Section1/Usage details amortized/usagedetailsamortized.{ConsumedService,26}","Section1/Usage details amortized/usagedetailsamortized.{ResourceId,27}","Section1/Usage details amortized/usagedetailsamortized.{ResourceName,28}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo1,29}","Section1/Usage details amortized/usagedetailsamortized.{ServiceInfo2,30}","Section1/Usage details amortized/usagedetailsamortized.{AdditionalInfo,31}","Section1/Usage details amortized/usagedetailsamortized.{Tags,32}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSectionId,33}","Section1/Usage details amortized/usagedetailsamortized.{InvoiceSection,34}","Section1/Usage details amortized/usagedetailsamortized.{CostCenter,35}","Section1/Usage details amortized/usagedetailsamortized.{UnitOfMeasure,36}","Section1/Usage details amortized/usagedetailsamortized.{ResourceGroup,37}","Section1/Usage details amortized/usagedetailsamortized.{ReservationId,38}","Section1/Usage details amortized/usagedetailsamortized.{ReservationName,39}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderId,40}","Section1/Usage details amortized/usagedetailsamortized.{ProductOrderName,41}","Section1/Usage details amortized/usagedetailsamortized.{OfferId,42}","Section1/Usage details amortized/usagedetailsamortized.{IsAzureCreditEligible,43}","Section1/Usage details amortized/usagedetailsamortized.{Term,44}","Section1/Usage details amortized/usagedetailsamortized.{PublisherName,45}","Section1/Usage details amortized/usagedetailsamortized.{PlanName,46}","Section1/Usage details amortized/usagedetailsamortized.{ChargeType,47}","Section1/Usage details amortized/usagedetailsamortized.{Frequency,48}","Section1/Usage details amortized/usagedetailsamortized.{PublisherType,49}"],"RelationshipInfo":[]}
-
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Table
 
 	annotation PBI_NavigationStepName = Navigation
 
