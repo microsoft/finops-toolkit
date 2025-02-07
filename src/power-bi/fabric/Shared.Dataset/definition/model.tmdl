@@ -30,26 +30,26 @@ annotation PBI_QueryOrder = ["Storage URL","Number of Months","Default Granulari
 
 annotation PBI_ProTooling = ["DevMode","DaxQueryView_Desktop"]
 
-ref table AdvisorRecommendations
-ref table AdvisorReservationRecommendations
-ref table Costs
-ref table Disks
 ref table InstanceSizeFlexibility
+ref table AdvisorRecommendations
+ref table Resources
 ref table ManagementGroups
+ref table Subscriptions
+ref table ResourceTypes
+ref table Regions
+ref table VirtualMachines
+ref table Disks
 ref table NetworkInterfaces
+ref table PublicIPAddresses
+ref table AdvisorReservationRecommendations
 ref table NetworkSecurityGroups
 ref table PolicyAssignments
 ref table PolicyDefinitions
 ref table PolicyStates
-ref table PricingUnits
-ref table PublicIPAddresses
-ref table Regions
-ref table Resources
-ref table ResourceTypes
 ref table SqlDatabases
-ref table Subscriptions
-ref table VirtualMachines
 ref table 'Compliance calculation'
+ref table PricingUnits
+ref table Costs
 
 ref cultureInfo en-US
 

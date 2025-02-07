@@ -16,15 +16,6 @@ expression 'Number of Months' = 13 meta [IsParameterQuery=true, Type="Number", I
 
 	annotation PBI_ResultType = Number
 
-/// Indicate whether you want the default granularity to be daily or monthly in this report. This only impacts visuals configured to use the x_ReportingDate column. Use ChargePeriodStart for daily and x_ChargeMonth for monthly to ignore this setting.
-expression 'Default Granularity' = "Monthly" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
-	lineageTag: de3955a9-0b39-4a66-8351-661dba69609c
-	queryGroup: '🛠️ Setup'
-
-	annotation PBI_NavigationStepName = Navigation
-
-	annotation PBI_ResultType = Text
-
 /// Loads data from the configured storage account for FinOps hubs or with Cost Management exports.
 /// 
 /// Learn more about FinOps hubs @ https://aka.ms/finops/hubs
@@ -36,6 +27,15 @@ expression ftk_DemoFilter = () => if List.Contains({ "demohubupzaljui2bxfm", "ku
 
 	annotation PBI_ResultType = Function
 
+/// Indicate whether you want the default granularity to be daily or monthly in this report. This only impacts visuals configured to use the x_ReportingDate column. Use ChargePeriodStart for daily and x_ChargeMonth for monthly to ignore this setting.
+expression 'Default Granularity' = "Monthly" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
+	lineageTag: de3955a9-0b39-4a66-8351-661dba69609c
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
 expression 'DirectQuery to AS - bami_focus_cost' =
 		let
 		    Source = AnalysisServices.Database("powerbi://api.powerbi.com/v1.0/myorg/Finops%20workspace", "bami_focus_cost"),
@@ -46,4 +46,6 @@ expression 'DirectQuery to AS - bami_focus_cost' =
 	lineageTag: 7e6153fc-35a0-4218-b292-9a43250180e3
 
 	annotation PBI_IncludeFutureArtifacts = True
+
+	annotation PBI_RemovedChildren = [{"remoteItemId":{"analysisServicesObject":{"sourceName":null,"sourceLineageTag":"140d852e-d1eb-4f2c-9ac1-28d6bb2e888c"}},"objectType":"Table"}]
 
