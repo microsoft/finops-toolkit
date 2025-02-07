@@ -1,0 +1,1220 @@
+table Costs
+	lineageTag: 3edc89b8-c418-4403-8869-71a18007ee47
+	sourceLineageTag: 2af558bf-c5a2-4635-84b2-7472846f9db1
+
+	measure EffectiveCostRunningTotal =
+			CALCULATE(
+			    SUM('Costs'[EffectiveCost]),
+			    FILTER(
+			        ALLSELECTED('Costs'[ChargePeriodStart]),
+			        ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
+			    )
+			)
+		lineageTag: a4f17a40-8698-4865-9d8c-1b488dd52289
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure x_CommitmentDiscountUtilization = IFERROR(SUM([x_CommitmentDiscountUtilizationAmount]) / SUM([x_CommitmentDiscountUtilizationPotential]), "")
+		lineageTag: 75834d8e-5ec8-4b2c-8040-9a281c1dbbd6
+
+		changedProperty = Name
+
+	measure EffectiveCostVariance =
+			VARX.P(
+			    KEEPFILTERS(VALUES(Costs[ChargePeriodStart])),
+			    CALCULATE(SUM([EffectiveCost]))
+			)
+		lineageTag: 2ddd80d9-a014-4f65-86aa-fa7becc6938e
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure ChargePeriod = FORMAT(MIN([ChargePeriodStart]), IF(AND(FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(UTCTODAY(), "yyyy"), FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "yyyy")), "Mmm dd", "Mmm dd, yyyy")) & IF(FORMAT(MIN([ChargePeriodStart]), "Mmm dd, yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "Mmm dd, yyyy"), "", "-" & FORMAT(MAX([ChargePeriodEnd]), IF(AND(FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(UTCTODAY(), "yyyy"), FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "yyyy")), "Mmm dd", "Mmm dd, yyyy")))
+		lineageTag: 0339ba0f-af94-455a-ad78-3a36f97f3c92
+
+		changedProperty = Name
+
+	measure BillingPeriod = FORMAT(MIN([BillingPeriodStart]), "Mmm") & IF(FORMAT(MIN([BillingPeriodStart]), "Mmm yyyy") = FORMAT(MAX([BillingPeriodEnd])-1, "Mmm yyyy"), FORMAT(MIN([BillingPeriodStart]), " yyyy"), "-" & FORMAT(MAX([BillingPeriodEnd])-1, "Mmm yyyy"))
+		lineageTag: d7a1abf7-f0a8-45eb-86d7-883ac2b101c4
+
+		changedProperty = Name
+
+	measure x_TotalSavingsRunningTotal =
+			CALCULATE(
+			    SUM('Costs'[x_TotalSavings]),
+			    FILTER(
+			        ALLSELECTED('Costs'[ChargePeriodStart]),
+			        ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
+			    )
+			)
+		lineageTag: ea7fcbc0-b45c-4a1d-81c6-8b6ccd8724ba
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure x_CommitmentDiscountSavingsRunningTotal =
+			CALCULATE(
+			    SUM(Costs[x_CommitmentDiscountSavings]),
+			    FILTER(
+			        ALLSELECTED('Costs'[ChargePeriodStart]),
+			        ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
+			    )
+			)
+		formatString: 0.00
+		lineageTag: 07bab61f-8f94-418e-82a0-3599a3c08ecb
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure x_NegotiatedDiscountSavingsRunningTotal =
+			CALCULATE(
+			    SUM(Costs[x_NegotiatedDiscountSavings]),
+			    FILTER(
+			        ALLSELECTED('Costs'[ChargePeriodStart]),
+			        ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
+			    )
+			)
+		lineageTag: 29162665-c164-48c7-b747-7a0f547c748e
+
+		changedProperty = Name
+
+	measure x_EffectiveCostPerResource = SUM(Costs[EffectiveCost]) / COUNTROWS(VALUES(Costs[ResourceId]))
+		lineageTag: 1158d570-edbe-4630-baf7-3802e4701874
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure x_EffectiveSavingsRate = IFERROR(SUMX(FILTER(Costs, Costs[x_AmortizationCategory] <> "Principal"), Costs[x_TotalSavings]) / SUMX(FILTER(Costs, Costs[x_AmortizationCategory] <> "Principal"), Costs[ListCost]), "")
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 141e4008-dea7-43b3-87e8-8b0a837874ff
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure x_CommitmentDiscountMeterCategory =
+			
+			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
+			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterCategory]), AND(NOT ISBLANK(Costs[x_SkuMeterCategory]), Costs[x_SkuMeterCategory] <> "")), Costs[x_SkuMeterCategory], ", ")
+			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
+		lineageTag: 62fa4d98-8bde-4550-89fd-72db443c9fe8
+
+		changedProperty = Name
+
+	measure x_CommitmentDiscountMeterSubcategory =
+			
+			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
+			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterSubcategory]), AND(NOT ISBLANK(Costs[x_SkuMeterSubcategory]), Costs[x_SkuMeterSubcategory] <> "")), Costs[x_SkuMeterSubcategory], ", ")
+			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
+		lineageTag: a7b100d3-958e-40c5-9feb-723fe1493972
+
+		changedProperty = Name
+
+	column x_TotalSavings = IF([ListCost] = 0, 0, [ListCost] - [EffectiveCost])
+		lineageTag: ff753e2e-f6a9-4a87-aff9-6b6e512f5cde
+		summarizeBy: sum
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_AmortizationCategory = IF(AND([ChargeCategory] = "Purchase", ISBLANK([CommitmentDiscountCategory]) = FALSE), "Principal", IF(ISBLANK([CommitmentDiscountCategory]) = FALSE, "Amortized Charge", ""))
+		lineageTag: 314659da-6566-4f2a-8b82-6a2a3c0da7de
+		summarizeBy: none
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountUtilizationPotential =
+			IF([ChargeCategory] = "Purchase", 0,
+			IF(AND([ProviderName] = "Microsoft", ISBLANK([CommitmentDiscountCategory]) = FALSE), [EffectiveCost],
+			IF([CommitmentDiscountCategory] = "Usage", [ConsumedQuantity],
+			IF([CommitmentDiscountCategory] = "Spend", [EffectiveCost],
+			0))))
+		lineageTag: c5c7ca6b-d46c-4645-a78b-2fec83e47580
+		summarizeBy: sum
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountUtilizationAmount = IF([CommitmentDiscountStatus] = "Used", [x_CommitmentDiscountUtilizationPotential], 0)
+		lineageTag: c1c58591-beea-4dab-8a16-70b081e862a5
+		summarizeBy: sum
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountSavings = IF([ContractedCost] = 0, 0, [ContractedCost] - [EffectiveCost])
+		formatString: 0.00
+		lineageTag: cf883f29-6c93-48a9-addc-908d04a4e686
+		summarizeBy: sum
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_NegotiatedDiscountSavings = IF([ListCost] = 0, 0, [ListCost] - [ContractedCost])
+		lineageTag: 0162bc54-ef22-432b-9b14-ee54b1b0ec26
+		summarizeBy: sum
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_ChargeMonth = [ChargePeriodStart]
+		formatString: Mmm yyyy
+		lineageTag: 30e1084a-e4d3-4320-b633-77f3a219ef55
+		summarizeBy: none
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_ReportingDate = IF("Monthly" = "Monthly", [x_ChargeMonth], [ChargePeriodStart])
+		formatString: General Date
+		lineageTag: 9d45306d-0301-412c-a83a-5eb39764dbd5
+		summarizeBy: none
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column BilledCost
+		dataType: double
+		lineageTag: ee2b4482-9ed3-429f-a884-73aa8b28e120
+		sourceLineageTag: 2b289150-6b09-4f6b-bac8-8eb6b15470b4
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: BilledCost
+
+		annotation SummarizationSetBy = User
+
+	column BillingAccountId
+		dataType: string
+		lineageTag: 308aacdd-4004-4618-bb4f-d092402d1332
+		sourceLineageTag: 1b21b48a-ea62-4858-ae99-a2309dbf006d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: BillingAccountId
+
+		annotation SummarizationSetBy = User
+
+	column BillingAccountName
+		dataType: string
+		lineageTag: cc00604a-687d-43e1-a463-6a046252e316
+		sourceLineageTag: 6ed6541a-b8ce-4751-a8ac-4eeab45c0c89
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: BillingAccountName
+
+		annotation SummarizationSetBy = User
+
+	column BillingAccountType
+		dataType: string
+		lineageTag: 705126f1-ab25-4d32-915c-4283ea54fcef
+		sourceLineageTag: efc4f3e4-e9ef-465f-ba50-cddf600e06cc
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: BillingAccountType
+
+		annotation SummarizationSetBy = User
+
+	column BillingCurrency
+		dataType: string
+		lineageTag: 46719118-a293-407a-b645-ee8cb57c8775
+		sourceLineageTag: b87efbfd-1432-42a0-a90b-56dba50b05f9
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: BillingCurrency
+
+		annotation SummarizationSetBy = User
+
+	column BillingPeriodEnd
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: 62fe061a-be21-4b60-b9fe-8bb93081c44c
+		sourceLineageTag: 228f06aa-6354-4d8a-9224-6927757172ff
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: BillingPeriodEnd
+
+		annotation SummarizationSetBy = User
+
+	column BillingPeriodStart
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: e807ee0a-d28b-46a0-97d9-6999a433bef5
+		sourceLineageTag: bb6d4ecb-75a9-4e80-8667-22a50f2f6669
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: BillingPeriodStart
+
+		annotation SummarizationSetBy = User
+
+	column ChargeCategory
+		dataType: string
+		lineageTag: 51f9acf3-22c3-4d6c-8f1c-ff58a2990dfd
+		sourceLineageTag: 13207ac4-e324-4d39-afff-c152959ebff5
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ChargeCategory
+
+		annotation SummarizationSetBy = User
+
+	column ChargeClass
+		dataType: string
+		lineageTag: 9d52cda3-5eb3-47d5-bbea-719a8ecc3680
+		sourceLineageTag: 4fdad42e-e19f-4435-8126-54a55a240ae7
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ChargeClass
+
+		annotation SummarizationSetBy = User
+
+	column ChargeDescription
+		dataType: string
+		lineageTag: 6612864a-be60-4a60-8cad-cf141a134362
+		sourceLineageTag: 5138185e-5b20-4ad4-82dc-225ddab49f6c
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ChargeDescription
+
+		annotation SummarizationSetBy = User
+
+	column ChargeFrequency
+		dataType: string
+		lineageTag: 64d3dd05-e1a4-4122-a2c0-45fd30f7d982
+		sourceLineageTag: 56f7a9bf-4569-4579-bb5c-2fe38c2c7d51
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ChargeFrequency
+
+		annotation SummarizationSetBy = User
+
+	column ChargePeriodEnd
+		dataType: dateTime
+		formatString: Mmm d, yyyy
+		lineageTag: 39b210a0-bef6-4562-bbb2-c91974f34621
+		sourceLineageTag: 08a8eca8-14c5-4449-b45e-dcb47f01d93b
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ChargePeriodEnd
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column ChargePeriodStart
+		dataType: dateTime
+		formatString: Mmm d, yyyy
+		lineageTag: 52c2c632-b90e-441e-bd1c-daa739bf853d
+		sourceLineageTag: 6099b6aa-0c10-49bb-aadd-79b6d97a0d46
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ChargePeriodStart
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: 0d0fe4ee-4b9e-422b-b53b-7b0c0d6e1541
+		sourceLineageTag: 6e3e3980-0385-4981-88c9-b08c8f00c368
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = User
+
+	column CommitmentDiscountId
+		dataType: string
+		lineageTag: a8da2d60-adb7-4ff5-bd32-13a5a26d716c
+		sourceLineageTag: 1ea1f8b8-6714-4e52-86ee-bd494afeb866
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountId
+
+		annotation SummarizationSetBy = User
+
+	column CommitmentDiscountName
+		dataType: string
+		lineageTag: 254cf80f-ae04-413e-92eb-3eb5cd934aa6
+		sourceLineageTag: 602ae733-c956-4802-82eb-31bf4e19c6d0
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountName
+
+		annotation SummarizationSetBy = User
+
+	column CommitmentDiscountStatus
+		dataType: string
+		lineageTag: c97032d0-2f84-4b95-9980-5b02655ed0d2
+		sourceLineageTag: f86d697d-3cb6-45d3-baf0-03c232ba2616
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountStatus
+
+		annotation SummarizationSetBy = User
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: e1c78c47-dde5-4b71-bd18-b4c954b4225a
+		sourceLineageTag: 33f88075-00a5-4dbe-83ed-eb02843d3f5b
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = User
+
+	column ConsumedQuantity
+		dataType: double
+		lineageTag: c93bdfe7-7986-4e25-b1dc-264a579852e8
+		sourceLineageTag: 80d43a36-8e6b-4a59-9fa1-06464a3e684d
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: ConsumedQuantity
+
+		annotation SummarizationSetBy = User
+
+	column ConsumedUnit
+		dataType: string
+		lineageTag: 4251873b-e819-4f93-8c11-5bc7b3952517
+		sourceLineageTag: 5760006a-efdf-4212-ba0d-a1f0d10b8098
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ConsumedUnit
+
+		annotation SummarizationSetBy = User
+
+	column ContractedCost
+		dataType: double
+		lineageTag: 22aa9c3b-66b1-48c4-955b-8b01619efb90
+		sourceLineageTag: fa6754c5-7012-43e8-88ab-9f947e8cce4f
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: ContractedCost
+
+		annotation SummarizationSetBy = User
+
+	column ContractedUnitPrice
+		dataType: double
+		lineageTag: e2ba2771-406c-4ecf-8414-aad1dad59942
+		sourceLineageTag: 5575a703-6bdb-49f2-bc1b-455df99c66ab
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: ContractedUnitPrice
+
+		annotation SummarizationSetBy = User
+
+	column EffectiveCost
+		dataType: double
+		lineageTag: 30411cf9-d15d-4e76-9427-b24fd60df67b
+		sourceLineageTag: 5962d5c5-f779-4e54-9d95-3cba30fb6f89
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: EffectiveCost
+
+		annotation SummarizationSetBy = User
+
+	column InvoiceIssuerName
+		dataType: string
+		lineageTag: 516d0aff-23de-42e1-8e0c-f2fc9d24681c
+		sourceLineageTag: ad0fd34f-6c55-4a2d-aacf-726977684f05
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: InvoiceIssuerName
+
+		annotation SummarizationSetBy = User
+
+	column ListCost
+		dataType: double
+		lineageTag: 43dc1a08-e203-4372-93fc-99bbd6a79f1d
+		sourceLineageTag: c7460a6c-1333-4347-bd7c-0811c299b578
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: ListCost
+
+		annotation SummarizationSetBy = User
+
+	column ListUnitPrice
+		dataType: double
+		lineageTag: 06d83b71-e7b5-426c-b350-426a5c32967a
+		sourceLineageTag: a537660b-764d-42e0-b463-0e5195a35f3b
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: ListUnitPrice
+
+		annotation SummarizationSetBy = User
+
+	column PricingCategory
+		dataType: string
+		lineageTag: f8b41ed0-1578-4098-97c1-4fe7733b5616
+		sourceLineageTag: bd9b624e-c3c8-4010-9f45-d16d842359ba
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: PricingCategory
+
+		annotation SummarizationSetBy = User
+
+	column PricingQuantity
+		dataType: double
+		lineageTag: 68743efa-9a18-42bd-bb25-f87626a82a3a
+		sourceLineageTag: 9cc7350a-8b69-4563-b7f9-54b6dd133fa6
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: PricingQuantity
+
+		annotation SummarizationSetBy = User
+
+	column PricingUnit
+		dataType: string
+		lineageTag: ec876986-2041-4b1b-b09c-f19deceb3f12
+		sourceLineageTag: 18376065-268e-4401-9d5c-f8a45b88008e
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: PricingUnit
+
+		annotation SummarizationSetBy = User
+
+	column ProviderName
+		dataType: string
+		lineageTag: 8bca28d8-bb20-4d69-a31a-321608cf2c2e
+		sourceLineageTag: 4f2c6378-ffec-4409-817a-f909cb9d2319
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ProviderName
+
+		annotation SummarizationSetBy = User
+
+	column PublisherName
+		dataType: string
+		lineageTag: 00519d14-66dc-40ba-9fc8-c891ebadd56f
+		sourceLineageTag: 954cde03-10d8-4635-982f-f8ee1a485287
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: PublisherName
+
+		annotation SummarizationSetBy = User
+
+	column RegionId
+		dataType: string
+		lineageTag: e0448a41-1d16-477f-8527-2ca4549a1bed
+		sourceLineageTag: 1e618987-2458-4a64-9052-325edafb7b58
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = User
+
+	column RegionName
+		dataType: string
+		lineageTag: 008c332f-e12f-40cd-8fc4-875248a2e87c
+		sourceLineageTag: 37622a24-daeb-41b0-bf08-ebe9edde52f4
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = User
+
+	column ResourceId
+		dataType: string
+		lineageTag: ed2e1b75-66ed-4a6d-8112-bb44527597c6
+		sourceLineageTag: c0eb234a-aa68-47ce-b84f-fbbcbb71d144
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ResourceId
+
+		annotation SummarizationSetBy = User
+
+	column ResourceName
+		dataType: string
+		lineageTag: 82b27e74-a120-4950-8e1f-c68fad7a915c
+		sourceLineageTag: 0e3a187a-a45e-4097-92e4-b137f1b7e551
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ResourceName
+
+		annotation SummarizationSetBy = User
+
+	column ResourceType
+		dataType: string
+		lineageTag: 434d415b-8e98-4b0e-9b42-489b5f6dc653
+		sourceLineageTag: d1f351f9-37b8-494a-9a79-a56c30f62bab
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ResourceType
+
+		annotation SummarizationSetBy = User
+
+	column ServiceCategory
+		dataType: string
+		lineageTag: e1a7449f-b83a-4aae-a627-c8beee2b769a
+		sourceLineageTag: bb29d4ec-ebac-43ec-bdaa-e1ed917b9900
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ServiceCategory
+
+		annotation SummarizationSetBy = User
+
+	column ServiceName
+		dataType: string
+		lineageTag: c4cdb96e-0b5d-44a7-ba71-606139ec7cfd
+		sourceLineageTag: 78afbcb6-ed2c-409b-9d6f-f12cfe0be3e3
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: ServiceName
+
+		annotation SummarizationSetBy = User
+
+	column SkuId
+		dataType: string
+		lineageTag: f5a3a214-10e3-4f7d-8417-b3f049d70a9c
+		sourceLineageTag: ee0129c6-067d-4a0d-be55-1506c502cbcc
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: SkuId
+
+		annotation SummarizationSetBy = User
+
+	column SkuPriceId
+		dataType: string
+		lineageTag: 7762f447-6aa9-4411-a85d-4468ddbf3bce
+		sourceLineageTag: 06ec4761-2ac8-4a00-bff9-7a2b0b3a4700
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: SkuPriceId
+
+		annotation SummarizationSetBy = User
+
+	column SubAccountId
+		dataType: string
+		lineageTag: 780dfa89-9479-4b5b-a5fd-9f677b09826c
+		sourceLineageTag: 3dd95167-22d3-40eb-9e5e-0e13b14f2979
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: SubAccountId
+
+		annotation SummarizationSetBy = User
+
+	column SubAccountName
+		dataType: string
+		lineageTag: 0fb2664c-1803-4e9b-a3e0-3e704e01615e
+		sourceLineageTag: de67e186-e73c-4c53-a13d-c8ccbbbacba3
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: SubAccountName
+
+		annotation SummarizationSetBy = User
+
+	column SubAccountType
+		dataType: string
+		lineageTag: 622a7d83-ba2a-47c7-af60-9e3744a2d14e
+		sourceLineageTag: ecd541e7-c031-4662-9497-8d9fd2414c4b
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: SubAccountType
+
+		annotation SummarizationSetBy = User
+
+	column Tags
+		dataType: string
+		lineageTag: 105cdf1e-c563-4f51-99ba-724eb7de5ae0
+		sourceLineageTag: d7b00436-82bd-4112-88e8-d4979d7d49b2
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: Tags
+
+		annotation SummarizationSetBy = User
+
+	column x_AccountId
+		dataType: string
+		lineageTag: 07b3d488-e6b4-4745-9801-a7d41852a068
+		sourceLineageTag: c087923c-e278-4c90-b288-9805aae1a59d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_AccountId
+
+		annotation SummarizationSetBy = User
+
+	column x_AccountName
+		dataType: string
+		lineageTag: 22c0f13b-9986-491f-8729-9f0ab5b47a06
+		sourceLineageTag: 247937d5-7630-4995-9c7a-0741fd147831
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_AccountName
+
+		annotation SummarizationSetBy = User
+
+	column x_AccountOwnerId
+		dataType: string
+		lineageTag: 05425283-6c49-486e-8008-bdaaeb6602d5
+		sourceLineageTag: 9001cdc6-78b1-476e-8ef4-d792f49f187d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_AccountOwnerId
+
+		annotation SummarizationSetBy = User
+
+	column x_BilledCostInUsd
+		dataType: double
+		lineageTag: 63afaf98-8834-4f49-8ea1-b3de431cad1f
+		sourceLineageTag: 8c40aa7d-5368-44bc-9094-6fcef205501a
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: x_BilledCostInUsd
+
+		annotation SummarizationSetBy = User
+
+	column x_BilledUnitPrice
+		dataType: double
+		lineageTag: 452706ad-9659-45a9-b448-2137eae7689c
+		sourceLineageTag: d27ced57-f980-4ae7-95e2-2ff2decc094c
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: x_BilledUnitPrice
+
+		annotation SummarizationSetBy = User
+
+	column x_BillingAccountId
+		dataType: string
+		lineageTag: 21f5dc38-7be8-4c7c-bd46-33f10b9445c1
+		sourceLineageTag: b0b1d9ae-c396-4abc-b1e1-4d67b1226da6
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_BillingAccountId
+
+		annotation SummarizationSetBy = User
+
+	column x_BillingAccountName
+		dataType: string
+		lineageTag: d12452e5-7050-447e-9dd6-f882c27fac9d
+		sourceLineageTag: e76a73c9-e446-4b1a-965f-4bd03cb91cba
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_BillingAccountName
+
+		annotation SummarizationSetBy = User
+
+	column x_BillingExchangeRate
+		dataType: string
+		lineageTag: 6e7edac5-ccbd-4d47-8883-3a5b3a6c95a8
+		sourceLineageTag: 0f60e64a-aedc-4655-8ab7-ade4e03d2d56
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_BillingExchangeRate
+
+		annotation SummarizationSetBy = User
+
+	column x_BillingExchangeRateDate
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: fa06adaa-0bd4-4ece-976d-a05e79a265e3
+		sourceLineageTag: 062b5f92-e91e-4760-b63c-f019aa313a16
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_BillingExchangeRateDate
+
+		annotation SummarizationSetBy = User
+
+	column x_BillingProfileId
+		dataType: string
+		lineageTag: 07c6f31b-7466-4bda-8bce-2d8cc5beeee0
+		sourceLineageTag: 00313987-2fed-4d54-9d98-46d375247be5
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_BillingProfileId
+
+		annotation SummarizationSetBy = User
+
+	column x_BillingProfileName
+		dataType: string
+		lineageTag: 709795e9-fedb-4145-8b4f-08a353b9266d
+		sourceLineageTag: b84dcb5d-a101-400b-ad1d-c1fee0cd80f6
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_BillingProfileName
+
+		annotation SummarizationSetBy = User
+
+	column x_ContractedCostInUsd
+		dataType: double
+		lineageTag: 4914ab9e-2bc6-43d7-9563-50d62250379f
+		sourceLineageTag: a6af003a-a77b-49b5-8d00-fd59be4040b6
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: x_ContractedCostInUsd
+
+		annotation SummarizationSetBy = User
+
+	column x_CostAllocationRuleName
+		dataType: string
+		lineageTag: 7b29d665-e0d8-4d2b-8664-2e699e271bc2
+		sourceLineageTag: b17f4aab-5281-4e9b-96ef-0a5386a80ff8
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_CostAllocationRuleName
+
+		annotation SummarizationSetBy = User
+
+	column x_CostCenter
+		dataType: string
+		lineageTag: 29ee713a-ff94-4ab4-a236-3503d601526a
+		sourceLineageTag: 0abec77b-4784-4263-8d01-a77232f7bdcf
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_CostCenter
+
+		annotation SummarizationSetBy = User
+
+	column x_CustomerId
+		dataType: string
+		lineageTag: daaf1663-8ebf-4f9c-88f6-c961d40255ce
+		sourceLineageTag: 66657f7e-051a-480a-ba54-05add9555e91
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_CustomerId
+
+		annotation SummarizationSetBy = User
+
+	column x_CustomerName
+		dataType: string
+		lineageTag: dc5b19b6-50d5-459b-bf7e-6c03fc49a101
+		sourceLineageTag: 0e04833f-3eb7-4fb1-96a7-51c8167e53b9
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_CustomerName
+
+		annotation SummarizationSetBy = User
+
+	column x_EffectiveCostInUsd
+		dataType: double
+		lineageTag: 86135d1c-ab84-43c8-89d0-5a214b3b8492
+		sourceLineageTag: fc7408e4-5721-4604-a828-6c7210d612b0
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: x_EffectiveCostInUsd
+
+		annotation SummarizationSetBy = User
+
+	column x_EffectiveUnitPrice
+		dataType: double
+		lineageTag: d4b7e19d-9b67-4460-9d4d-39cdda2e2513
+		sourceLineageTag: 3f4ed2ab-1792-4d47-9a4e-d49b06d88633
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: x_EffectiveUnitPrice
+
+		annotation SummarizationSetBy = User
+
+	column x_InvoiceId
+		dataType: string
+		lineageTag: 2af1b5aa-0020-48b3-9429-bcaa03dea86c
+		sourceLineageTag: 41037848-7b25-4cb3-8480-ba96dc00bc6d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_InvoiceId
+
+		annotation SummarizationSetBy = User
+
+	column x_InvoiceIssuerId
+		dataType: string
+		lineageTag: b1a63920-f5e4-4a2b-9f2f-3c0f3a0f5299
+		sourceLineageTag: 75c19dd7-da33-44fa-82cd-4bca706e2b6c
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_InvoiceIssuerId
+
+		annotation SummarizationSetBy = User
+
+	column x_InvoiceSectionId
+		dataType: string
+		lineageTag: 59f2aca4-3423-4324-a45d-633c01e9109a
+		sourceLineageTag: eb890b65-cdba-464a-bff6-3f50a74c136c
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_InvoiceSectionId
+
+		annotation SummarizationSetBy = User
+
+	column x_InvoiceSectionName
+		dataType: string
+		lineageTag: 3016e597-f7d7-429c-8abf-1560fc73054a
+		sourceLineageTag: bceaabb3-5cef-4db3-87f7-99ee4e7f1aa1
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_InvoiceSectionName
+
+		annotation SummarizationSetBy = User
+
+	column x_ListCostInUsd
+		dataType: double
+		lineageTag: c6396c01-793f-4d86-843c-35640eeb1657
+		sourceLineageTag: 6b169c49-01de-49e8-92ed-86f12f12f907
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: x_ListCostInUsd
+
+		annotation SummarizationSetBy = User
+
+	column x_PartnerCreditApplied
+		dataType: string
+		lineageTag: 6fe1d043-3bd7-4a61-911a-9a4de9f96a39
+		sourceLineageTag: 9c7de146-611d-49fc-8845-ae76be108799
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_PartnerCreditApplied
+
+		annotation SummarizationSetBy = User
+
+	column x_PartnerCreditRate
+		dataType: double
+		lineageTag: 556b2d44-3c9a-4817-be69-56e04d809cbc
+		sourceLineageTag: 1de48d75-614f-4281-aca0-5fb85de90771
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: x_PartnerCreditRate
+
+		annotation SummarizationSetBy = User
+
+	column x_PricingBlockSize
+		dataType: double
+		lineageTag: 36e3f443-98e4-41b8-8e83-152a6a5f7b05
+		sourceLineageTag: 9a131301-af78-4a61-9964-8b0f50cc4567
+		dataCategory: Uncategorized
+		summarizeBy: sum
+		sourceColumn: x_PricingBlockSize
+
+		annotation SummarizationSetBy = User
+
+	column x_PricingCurrency
+		dataType: string
+		lineageTag: 3d37b7d0-e32c-4e02-b62d-cdd39fcab674
+		sourceLineageTag: afb22f79-1b07-4f52-a7c2-8c8146a72cae
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_PricingCurrency
+
+		annotation SummarizationSetBy = User
+
+	column x_PricingSubcategory
+		dataType: string
+		lineageTag: 6aaa3217-68ee-4d2b-9408-ed74d74b82ad
+		sourceLineageTag: 830ba61f-b8b9-4513-9de3-2ceb0ad810e6
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_PricingSubcategory
+
+		annotation SummarizationSetBy = User
+
+	column x_PricingUnitDescription
+		dataType: string
+		lineageTag: c28bf0e7-958c-4b62-91d2-11e3e33b2994
+		sourceLineageTag: e9d5c74e-45db-410f-8f75-67f73ffabfe7
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_PricingUnitDescription
+
+		annotation SummarizationSetBy = User
+
+	column x_PublisherCategory
+		dataType: string
+		lineageTag: 51dc4c63-c61e-4e4d-90dd-5f3af1b6fbc2
+		sourceLineageTag: 2787e239-b4ac-4261-9ec9-6404c609563b
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_PublisherCategory
+
+		annotation SummarizationSetBy = User
+
+	column x_PublisherId
+		dataType: string
+		lineageTag: 205394cf-5d6b-415c-95c5-073bad4ea99e
+		sourceLineageTag: 577a109d-7398-4728-b8a8-76636c196a0c
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_PublisherId
+
+		annotation SummarizationSetBy = User
+
+	column x_ResellerId
+		dataType: string
+		lineageTag: 5d6140d5-82fa-4666-a5a8-4561fb854931
+		sourceLineageTag: 742fd162-2c9b-468e-a36b-694901dd68a6
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_ResellerId
+
+		annotation SummarizationSetBy = User
+
+	column x_ResellerName
+		dataType: string
+		lineageTag: efa95952-a427-4b86-97be-6706ce573884
+		sourceLineageTag: 69e7ce84-8d3b-48e7-bfc2-54be2fc7a77b
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_ResellerName
+
+		annotation SummarizationSetBy = User
+
+	column x_ResourceGroupName
+		dataType: string
+		lineageTag: 69934d9f-1139-4501-a945-43dbefb28c68
+		sourceLineageTag: f8d8c3f7-8fe4-43d2-97d4-5aae793d975d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_ResourceGroupName
+
+		annotation SummarizationSetBy = User
+
+	column x_ResourceType
+		dataType: string
+		lineageTag: 7c632029-a27a-4191-9ad7-1a297c161a18
+		sourceLineageTag: 09bd41cc-ff73-4fb6-9781-beee450803cd
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_ResourceType
+
+		annotation SummarizationSetBy = User
+
+	column x_ServicePeriodEnd
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: aef6945a-3a21-4caf-98fd-f45efa9f638b
+		sourceLineageTag: 6e4d584c-fb03-4279-bdab-b08b02ae9570
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_ServicePeriodEnd
+
+		annotation SummarizationSetBy = User
+
+	column x_ServicePeriodStart
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: c2b79328-6cd2-4e00-828d-7953f3721eb7
+		sourceLineageTag: ac271ca7-a281-4da3-8bee-2944626be936
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_ServicePeriodStart
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuDescription
+		dataType: string
+		lineageTag: 8af7d750-59e2-4b53-85fe-19fb51e6b5f9
+		sourceLineageTag: 79a12d4a-f6c1-467c-9a2e-1fa2259fed75
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuDescription
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuDetails
+		dataType: string
+		lineageTag: 9e221a25-21e7-45cb-bf2c-b827d27aa753
+		sourceLineageTag: ae7b0321-7c1e-443d-964c-84b934c7657d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuDetails
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuIsCreditEligible
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 44ce1b91-3b0c-4258-a119-fec786c55202
+		sourceLineageTag: aff9fedc-c4d3-4b2b-b898-692cb501f85f
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuIsCreditEligible
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuMeterCategory
+		dataType: string
+		lineageTag: 84d41204-43a6-4015-8122-1cf922f97f54
+		sourceLineageTag: 49b74e6f-fc1d-4fe8-b27a-52294a970c65
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuMeterCategory
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuMeterId
+		dataType: string
+		lineageTag: 42a2c1c8-8872-41d8-9fba-3d977d4cc44b
+		sourceLineageTag: 3aa75230-35d6-4a16-907c-f2c0bf519413
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuMeterId
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuMeterName
+		dataType: string
+		lineageTag: 472e924f-6965-42a3-afe3-71b8e531b004
+		sourceLineageTag: 5819cefe-0661-4a80-8bef-02f9b92576ed
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuMeterName
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuMeterSubcategory
+		dataType: string
+		lineageTag: e04c3b77-d007-4355-91cf-cfe17d37e3fb
+		sourceLineageTag: e242cbe5-3593-4e14-991e-2944e5be399f
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuMeterSubcategory
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuOfferId
+		dataType: string
+		lineageTag: 6dbd2d08-40d0-4e60-8d7b-89686765beaa
+		sourceLineageTag: 5f9b79d0-9340-4fac-972d-c77d746a8d71
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuOfferId
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuOrderId
+		dataType: string
+		lineageTag: 6465d5d8-fa74-4712-905e-f52a9214ed0c
+		sourceLineageTag: 25585c71-93be-4b17-a52b-b47b1af42091
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuOrderId
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuOrderName
+		dataType: string
+		lineageTag: 20528065-08d2-401e-9c9a-be115b4b22d3
+		sourceLineageTag: 58b843b2-1f11-4dad-8ab1-0f0a3b3dc41e
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuOrderName
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuPartNumber
+		dataType: string
+		lineageTag: 7ac741f6-7694-4a2a-a03c-126decb973d1
+		sourceLineageTag: 8abe44a3-eeee-450b-af54-fe671a0abef5
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuPartNumber
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuRegion
+		dataType: string
+		lineageTag: 5a74bd0b-d089-4b0b-9a7f-75dea3ddb85b
+		sourceLineageTag: 01679180-b129-477c-9a44-1f30ff435403
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuRegion
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuServiceFamily
+		dataType: string
+		lineageTag: df3a1466-303b-47a2-966c-594c7a8a4238
+		sourceLineageTag: 04e3c84a-81f2-4f72-9aad-7b03a497a563
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuServiceFamily
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuTerm
+		dataType: string
+		lineageTag: 799310aa-b95f-469e-bd5f-0daa5c1448ec
+		sourceLineageTag: 4f523940-2bfd-4b31-8f81-0753877c53ac
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuTier
+		dataType: string
+		lineageTag: c6a25e91-01aa-4dca-8075-f96ef0d32a4c
+		sourceLineageTag: 121a4f15-33ad-4f98-ac6a-b276010a658d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: x_SkuTier
+
+		annotation SummarizationSetBy = User
+
+	column x_SkuTermLabel = ```
+			
+			IF(OR(ISBLANK([x_SkuTerm]), VALUE([x_SkuTerm]) <= 0), "", 
+			IF(VALUE([x_SkuTerm]) = 1, "1 month", 
+			IF(VALUE([x_SkuTerm]) < 12, VALUE([x_SkuTerm]) & " months", 
+			IF(VALUE([x_SkuTerm]) = 12, "1 year", 
+			IF(VALUE([x_SkuTerm]) > 12, VALUE([x_SkuTerm]) / 12 & " years", "")))))
+			```
+		lineageTag: e6781642-0e90-441f-ba82-6497fe902a5a
+		summarizeBy: none
+
+		changedProperty = Name
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Service Hierarchy'
+		lineageTag: c2411d15-2a9e-4b2e-b40a-ad98a77b5892
+
+		level ServiceCategory
+			lineageTag: a66385eb-347f-44b7-bd1d-ecd3930d0ffe
+			column: ServiceCategory
+
+		level ServiceName
+			lineageTag: a88d2a78-7c5c-4011-b448-169afc852a31
+			column: ServiceName
+
+		level ResourceType
+			lineageTag: 532ea5d3-0803-421f-a014-740669c7a506
+			column: ResourceType
+
+		changedProperty = Name
+
+	partition Costs = entity
+		mode: directQuery
+		source
+			entityName: bami_focus_cost
+			expressionSource: 'DirectQuery to AS - bami_focus_cost'
+
+	changedProperty = Name
+
