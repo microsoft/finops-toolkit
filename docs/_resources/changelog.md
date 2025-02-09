@@ -125,7 +125,6 @@ Legend:
 >
 > 1. Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
 
-
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -138,6 +137,7 @@ Legend:
 >    - If you notice prices or costs that are not correct, please [submit an issue in GitHub](https://aka.ms/ftk/ideas). Do not file a support request.
 > 1. Added the Pricing units open dataset to support price sheet data cleanup.
 > 1. Added `PricingUnit` and `x_PricingBlockSize` columns to the **Prices** table.
+> 1. Added Total savings page to the Rate optimization report.
 > 1. Added Effective Savings Rate (ESR).
 >
 > ✏️ Changed:

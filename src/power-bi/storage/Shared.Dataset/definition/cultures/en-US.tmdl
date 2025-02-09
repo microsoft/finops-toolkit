@@ -1743,7 +1743,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "Effective Savings Rate (ESR)": {
+			          "Effective Savings Rate": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -1753,7 +1753,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "Effective Savings Rate": {
+			          "Effective Savings Rate (ESR)": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
