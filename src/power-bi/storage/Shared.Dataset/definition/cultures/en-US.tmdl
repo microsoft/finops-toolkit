@@ -1753,6 +1753,16 @@ cultureInfo en-US
 			          }
 			        },
 			        {
+			          "Effective Savings Rate": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
 			          "ESR": {
 			            "State": "Suggested",
 			            "Source": {
@@ -39290,6 +39300,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.499
+			          }
+			        },
+			        {
+			          "Scope": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -76895,7 +76915,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_ChargeMonth"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Month": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "costdetails.x_totalsavingsrunningtotal": {
 			      "Definition": {
@@ -76959,6 +76991,90 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "Meter subcategory": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservationrecommendations.regionname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "RegionName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservationrecommendations.x_commitmentdiscountnormalizedsize": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "x_CommitmentDiscountNormalizedSize"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Normalized size": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservationrecommendations.x_commitmentdiscountnormalizedgroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "x_CommitmentDiscountNormalizedGroup"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Flexibility group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservationrecommendations.x_skutermlabel": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "x_SkuTermLabel"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Term": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

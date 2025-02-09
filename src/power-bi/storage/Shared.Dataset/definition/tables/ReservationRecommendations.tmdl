@@ -1,9 +1,6 @@
-/// Cost and usage (FOCUS) data from Cost Management exports.
-/// 
-/// Data version = 1.0-preview(v1)
-/// Learn more @ https://aka.ms/finops/hubs
+/// Reservation recommendations data from Cost Management exports.
 table ReservationRecommendations
-	lineageTag: e2acd751-9829-4624-bb15-d9a1cb22f057
+	lineageTag: a9b8f96b-84d0-4176-95a1-65eade30a2ef
 
 	column x_IncrementalRefreshDate
 		dataType: string
@@ -15,13 +12,12 @@ table ReservationRecommendations
 
 	column x_RecommendedQuantity
 		dataType: double
-		lineageTag: d89a1d79-6b29-44e5-b003-6bad08adcffa
+		formatString: 0
+		lineageTag: 48fcb8f6-401b-4cb7-b878-660313ef2fbc
 		summarizeBy: sum
 		sourceColumn: x_RecommendedQuantity
 
 		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column x_SkuDetails
 		dataType: string
@@ -33,7 +29,7 @@ table ReservationRecommendations
 
 	column x_SkuMeterId
 		dataType: string
-		lineageTag: 14a30bac-3352-45af-9908-a8b6753d594d
+		lineageTag: 668de058-26a0-4dd2-a494-6692df36b0ac
 		summarizeBy: none
 		sourceColumn: x_SkuMeterId
 
@@ -41,17 +37,16 @@ table ReservationRecommendations
 
 	column x_SkuTerm
 		dataType: double
-		lineageTag: 1013a5ec-8dd1-41b6-828c-3303f799c754
+		formatString: 0
+		lineageTag: 7d757c95-21f3-4521-9391-00c4c3ce1b18
 		summarizeBy: sum
 		sourceColumn: x_SkuTerm
 
 		annotation SummarizationSetBy = Automatic
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column x_CommitmentDiscountResourceType
 		dataType: string
-		lineageTag: 0c1be146-3120-4a5e-844b-48957c6b547a
+		lineageTag: 9d751780-dfb3-43a6-8008-83fd13719439
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountResourceType
 
@@ -59,7 +54,7 @@ table ReservationRecommendations
 
 	column x_CommitmentDiscountScope
 		dataType: string
-		lineageTag: d4ac4964-0805-4398-bc73-9dd7db4bae61
+		lineageTag: ca9d5395-8a0b-4f43-b34f-a7ab79eac477
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountScope
 
@@ -99,7 +94,7 @@ table ReservationRecommendations
 
 	column x_CommitmentDiscountKey
 		dataType: string
-		lineageTag: f9bdd4d5-2ce1-4695-9ad8-3dab26dc5704
+		lineageTag: f1ced707-0b0c-4864-a228-780c35ca891e
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountKey
 
@@ -107,7 +102,7 @@ table ReservationRecommendations
 
 	column x_CommitmentDiscountNormalizedGroup
 		dataType: string
-		lineageTag: c4bdcd8c-1129-4e54-b7d0-ec7175c9835e
+		lineageTag: 00d1a67f-4fd1-4a06-ade4-c3260bfbe31d
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountNormalizedGroup
 
@@ -115,7 +110,7 @@ table ReservationRecommendations
 
 	column x_CommitmentDiscountNormalizedRatio
 		dataType: string
-		lineageTag: 544af3ab-80e0-49e6-a92b-c1f54118b724
+		lineageTag: 035e8df5-b562-48e1-bb20-62a578fee69a
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountNormalizedRatio
 
@@ -123,7 +118,7 @@ table ReservationRecommendations
 
 	column x_CommitmentDiscountNormalizedSize
 		dataType: string
-		lineageTag: ebd33780-267b-44db-9d1f-020393371ced
+		lineageTag: 14375b85-698f-432e-86eb-64fd914b1e80
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountNormalizedSize
 
@@ -131,7 +126,7 @@ table ReservationRecommendations
 
 	column x_CommitmentDiscountSavings
 		dataType: double
-		lineageTag: 67b2d6b3-7a63-4c50-9f4a-fcd6fd837eee
+		lineageTag: 4e513408-c07c-4781-8a6f-1177339f5ed4
 		summarizeBy: sum
 		sourceColumn: x_CommitmentDiscountSavings
 
@@ -141,7 +136,7 @@ table ReservationRecommendations
 
 	column x_LookbackPeriodLabel
 		dataType: string
-		lineageTag: 789e0a73-9314-4f16-8e31-aff3df20cb2f
+		lineageTag: 2fad7f44-aca5-45a0-9c9c-c4cdfdff422b
 		summarizeBy: none
 		sourceColumn: x_LookbackPeriodLabel
 
@@ -166,7 +161,7 @@ table ReservationRecommendations
 
 	column x_SkuTermLabel
 		dataType: string
-		lineageTag: cf4e9e4d-348b-4190-a450-ebaf0cb542da
+		lineageTag: db39890b-583d-41ab-9795-de32274627dd
 		summarizeBy: none
 		sourceColumn: x_SkuTermLabel
 
@@ -174,17 +169,16 @@ table ReservationRecommendations
 
 	column x_RecommendedQuantityNormalized
 		dataType: double
-		lineageTag: f4ec9dc7-642e-4998-9bad-ac611223dfae
+		formatString: 0
+		lineageTag: bb94d481-2f71-4894-b9a5-e04f5f2ad0a3
 		summarizeBy: sum
 		sourceColumn: x_RecommendedQuantityNormalized
 
 		annotation SummarizationSetBy = Automatic
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column x_EffectiveCostAfter
 		dataType: double
-		lineageTag: ba8d80ec-c779-4da4-9a86-a404e5d4fe80
+		lineageTag: 39925233-3d71-4a7e-af0a-3cf3a67827f6
 		summarizeBy: sum
 		sourceColumn: x_EffectiveCostAfter
 
@@ -194,13 +188,29 @@ table ReservationRecommendations
 
 	column x_EffectiveCostBefore
 		dataType: double
-		lineageTag: 9fd1e8fb-d027-4ab3-8a09-9f55efaa7409
+		lineageTag: f89a879f-16c5-4d1e-9687-85ff45d9b7e6
 		summarizeBy: sum
 		sourceColumn: x_EffectiveCostBefore
 
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RecommendedQuantityNormlized
+		dataType: string
+		lineageTag: b5b5042f-35e1-449d-93ff-2303c281ab5a
+		summarizeBy: none
+		sourceColumn: RecommendedQuantityNormlized
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotaCostWithReservedInstances
+		dataType: string
+		lineageTag: bef2059d-6f01-4caa-aa95-42248227957c
+		summarizeBy: none
+		sourceColumn: TotaCostWithReservedInstances
+
+		annotation SummarizationSetBy = Automatic
 
 	partition ReservationRecommendations = m
 		mode: import
