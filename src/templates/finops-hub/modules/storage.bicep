@@ -30,6 +30,7 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array
 
+// cSpell:ignore msexport
 @description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
 param msexportRetentionInDays int = 0
 
@@ -67,6 +68,7 @@ var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
 var scriptStorageAccountName = '${take(safeHubName, 16 - length(storageAccountSuffix))}script${storageAccountSuffix}'
 var schemaFiles = {
+  // cSpell:ignore focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
   'focuscost_1.0r2': loadTextContent('../schemas/focuscost_1.0r2.json')
   'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
   'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
@@ -100,7 +102,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: sku
   }
   kind: 'BlockBlobStorage'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Storage/storageAccounts'] ?? {})
   properties: union(!enableInfrastructureEncryption ? {} : {
     encryption: {
       keySource: 'Microsoft.Storage'
@@ -127,7 +129,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' =  
     name: 'Standard_LRS' //sku
   }
   kind: 'StorageV2'// 'BlockBlobStorage'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Storage/storageAccounts'] ?? {})
   properties: {
     supportsHttpsTrafficOnly: true
     allowSharedKeyAccess: true
@@ -149,30 +151,31 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' =  
 }
 
 resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
+  // cSpell:ignore privatelink
   name: 'privatelink.blob.${environment().suffixes.storage}'
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/privateDnsZones') ? tagsByResource['Microsoft.Storage/privateDnsZones'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
   properties: {}
 }
 
 resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.dfs.${environment().suffixes.storage}'
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/privateDnsZones') ? tagsByResource['Microsoft.Storage/privateDnsZones'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
   properties: {}
 }
 
 resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.queue.${environment().suffixes.storage}'
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/privateDnsZones') ? tagsByResource['Microsoft.Storage/privateDnsZones'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
   properties: {}
 }
 
 resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.table.${environment().suffixes.storage}'
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/privateDnsZones') ? tagsByResource['Microsoft.Storage/privateDnsZones'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
   properties: {}
 }
 
@@ -180,7 +183,7 @@ resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwor
   parent: blobPrivateDnsZone
   name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -193,7 +196,7 @@ resource dfsPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwork
   parent: dfsPrivateDnsZone
   name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -206,7 +209,7 @@ resource queuePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwo
   parent: queuePrivateDnsZone
   name: '${replace(queuePrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -219,7 +222,7 @@ resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwo
   parent: tablePrivateDnsZone
   name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
   properties: {
     registrationEnabled: false
     virtualNetwork: {
@@ -231,7 +234,7 @@ resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwo
 resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: '${storageAccount.name}-blob-ep'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId
@@ -251,7 +254,7 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!ena
 resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: '${scriptStorageAccount.name}-blob-ep'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId
@@ -271,7 +274,7 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!e
 resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: '${storageAccount.name}-dfs-ep'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId
@@ -376,7 +379,7 @@ resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
 // Create managed identity to upload files
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${storageAccountName}_blobManager'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
   location: location
 }
 
@@ -394,9 +397,10 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: '${storageAccountName}_uploadSettings'
   kind: 'AzurePowerShell'
+  // cSpell:ignore chinaeast
   // chinaeast2 is the only region in China that supports deployment scripts
   location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -428,6 +432,7 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     retentionInterval: 'PT1H'
     environmentVariables: [
       {
+        // cSpell:ignore ftkver
         name: 'ftkVersion'
         value: loadTextContent('./ftkver.txt')
       }
