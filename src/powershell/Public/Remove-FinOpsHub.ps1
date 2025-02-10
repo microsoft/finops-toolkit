@@ -48,7 +48,11 @@ function Remove-FinOpsHub
 
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'Object')]
-        [switch]$KeepStorageAccount
+        [switch]$KeepStorageAccount,
+        
+        [Parameter(ParameterSetName = 'Name')]
+        [Parameter(ParameterSetName = 'Object')]
+        [switch]$Force
     )
 
     $context = Get-AzContext
@@ -105,7 +109,7 @@ function Remove-FinOpsHub
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
             # Initialize a flag to track if "Yes to All" was selected
-            $yesToAll = $false
+            $yesToAll = $Force
 
             # Loop through each resource
             $success = $true
@@ -126,21 +130,31 @@ function Remove-FinOpsHub
                         # Handle the user's choice
                         switch ($confirmation)
                         {
-                            0 { # Yes
+                            0
+                            {
+                                # Yes
                                 # Continue with deletion
                             }
-                            1 { # Yes to All
+                            1
+                            {
+                                # Yes to All
                                 $yesToAll = $true
                             }
-                            2 { # No
+                            2
+                            {
+                                # No
                                 Write-Verbose -Message "Skipping resource: $($resource.Name)"
                                 continue
                             }
-                            3 { # No to All
+                            3
+                            {
+                                # No to All
                                 Write-Verbose -Message "Skipping all resources."
                                 return $false
                             }
-                            4 { # Suspend
+                            4
+                            {
+                                # Suspend
                                 Write-Verbose -Message "Operation suspended."
                                 return $false
                             }
