@@ -32,6 +32,9 @@
 
     .PARAMETER All
     Installs optional apps and modules.
+
+    .PARAMETER Upgrade
+    Indicates whether specified components should be upgraded, if already installed.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 Param(
@@ -39,7 +42,8 @@ Param(
     [switch] $BicepPowerShell,
     [switch] $NPM,
     [switch] $Pester,
-    [switch] $All
+    [switch] $All,
+    [switch] $Upgrade
 )
 
 # winget (check only)
@@ -51,7 +55,7 @@ Write-Verbose "...$(if (-not $winget) { 'not ' })installed"
 if ($VSCode -or $All)
 {
     Write-Verbose "Checking for VS Code..."
-    if ((pwsh -NoProfile -Command 'code --version' | Join-String).Contains('not recognized') -eq $false)
+    if ((pwsh -NoProfile -Command 'code --version' | Join-String).Contains('not recognized') -eq $false -and -not $Upgrade)
     {
         Write-Verbose "...already installed"
     }
@@ -75,7 +79,7 @@ if ($VSCode -or $All)
 
 # Az -- required for testing
 Write-Verbose "Checking for Az PowerShell..."
-if (Get-Module -Name Az -ListAvailable)
+if ((Get-Module -Name Az -ListAvailable) -and -not $Upgrade)
 {
     Write-Verbose "...installed"
 }
@@ -93,7 +97,7 @@ else
 if ($BicepPowerShell -or $All)
 {
     Write-Verbose "Checking for Bicep PowerShell..."
-    if (Get-Module -Name Bicep -ListAvailable)
+    if ((Get-Module -Name Bicep -ListAvailable) -and -not $Upgrade)
     {
         Write-Verbose "...installed"
     }
@@ -110,7 +114,7 @@ if ($BicepPowerShell -or $All)
 
 # Bicep CLI -- required for testing
 Write-Verbose "Checking for bicep..."
-if ((pwsh -NoProfile -Command 'bicep --version' | Join-String).Contains('not recognized') -eq $false)
+if ((pwsh -NoProfile -Command 'bicep --version' | Join-String).Contains('not recognized') -eq $false -and -not $Upgrade)
 {
     Write-Verbose "...already installed"
 }

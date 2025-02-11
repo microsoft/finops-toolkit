@@ -289,14 +289,35 @@ table Disks
 
 		annotation SummarizationSetBy = Automatic
 
+	column apiVersion
+		dataType: string
+		lineageTag: 9119af66-9eac-4189-a9ef-4e638296163a
+		summarizeBy: none
+		sourceColumn: apiVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column systemData
+		dataType: string
+		lineageTag: 23170a02-4cd5-4a36-94e6-7def321f9cf4
+		summarizeBy: none
+		sourceColumn: systemData
+
+		annotation SummarizationSetBy = Automatic
+
 	partition Disks = m
 		mode: import
 		queryGroup: 'Resource Graph'
-		source =
+		source = ```
 				let
 				  Source = AzureResourceGraph.Query("
-				    Resources
+				    
+				    
+				    resources
 				    | where type =~ 'microsoft.compute/disks'
+				    | extend id = tolower(id)
+				
+				
 				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
 				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "publicNetworkAccess", "encryption", "networkAccessPolicy", "timeCreated", "diskSizeGB", "hyperVGeneration", "diskSizeBytes", "creationData", "osType", "LastOwnershipUpdateTime", "diskState", "uniqueId", "diskMBpsReadWrite", "diskIOPSReadWrite", "tier"}, {"properties.provisioningState", "properties.publicNetworkAccess", "properties.encryption", "properties.networkAccessPolicy", "properties.timeCreated", "properties.diskSizeGB", "properties.hyperVGeneration", "properties.diskSizeBytes", "properties.creationData", "properties.osType", "properties.LastOwnershipUpdateTime", "properties.diskState", "properties.uniqueId", "properties.diskMBpsReadWrite", "properties.diskIOPSReadWrite", "properties.tier"}),
 				  #"Expanded sku" = Table.ExpandRecordColumn(#"Expanded properties", "sku", {"name", "tier"}, {"sku.name", "sku.tier"}),
@@ -310,6 +331,7 @@ table Disks
 				  #"Renamed columns" = Table.RenameColumns(#"Extracted text after delimiter", {{"managedBy - Copy", "parentVM"}})
 				in
 				  #"Renamed columns"
+				```
 
 	annotation PBI_NavigationStepName = Navigation
 

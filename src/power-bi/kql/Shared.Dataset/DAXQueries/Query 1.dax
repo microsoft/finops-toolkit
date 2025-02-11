@@ -1,6 +1,0 @@
-// Welcome to DAX query view! Learn more about DAX queries at https://aka.ms/dax-queries.
-// Right-click on tables, columns, or measures in the data pane to access quick queries, or ask Copilot for help writing DAX.
-
-// Select "Run" to try this sample DAX query.
-EVALUATE
-    TOPN(100, 'CostDetails')

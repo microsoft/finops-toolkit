@@ -266,14 +266,14 @@ table Resources
 		annotation SummarizationSetBy = Automatic
 
 	column x_ResourceGroupId = "/subscriptions/" & Resources[subscriptionId] & "/resourcegroups/" & Resources[resourceGroup]
-		lineageTag: f883fc6b-724f-405d-a7bd-86b2bebcae26
+		lineageTag: dfd516fd-8d25-441f-93a3-190abe05d572
 		summarizeBy: none
 
 		annotation SummarizationSetBy = Automatic
 
 	column apiVersion
 		dataType: string
-		lineageTag: fecb7276-1942-495c-b539-b2c305ab0f1f
+		lineageTag: 22da013b-0116-4415-8fe4-a288c66b7b92
 		summarizeBy: none
 		sourceColumn: apiVersion
 
@@ -281,7 +281,7 @@ table Resources
 
 	column sku
 		dataType: string
-		lineageTag: 597580a3-8451-4fd5-ad3f-9c0c8c5cce1a
+		lineageTag: c8dbd384-f7e8-4689-8029-8f4a8bd33032
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -289,7 +289,7 @@ table Resources
 
 	column properties
 		dataType: string
-		lineageTag: 23bd2b31-795f-4595-92ad-9d2754f31ff3
+		lineageTag: 07423930-a72b-4179-97e4-fc0b73c3a98e
 		summarizeBy: none
 		sourceColumn: properties
 
@@ -297,7 +297,7 @@ table Resources
 
 	column systemData
 		dataType: string
-		lineageTag: c67afc3b-56c5-47a7-b4fa-b32f876e4a65
+		lineageTag: 73c902d4-f897-4221-a809-60284686c465
 		summarizeBy: none
 		sourceColumn: systemData
 

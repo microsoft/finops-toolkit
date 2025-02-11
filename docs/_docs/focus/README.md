@@ -146,6 +146,7 @@ If you're interested in a more thorough walkthrough of all the FOCUS columns, ch
 - [Cost columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-cost-columns/4352713)
 - [Charge types and pricing models](https://techcommunity.microsoft.com/blog/FinOpsBlog/learning-focus-charge-types-and-pricing-models/4357997)
 - [Date columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-date-columns/4366382)
+- [Resource columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-resource-columns/4372954)
 
 New blog posts are released periodically, so watch the [FinOps blog](https://aka.ms/finops/blog) for updates every couple of weeks.
 
