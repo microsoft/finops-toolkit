@@ -58,7 +58,6 @@ relationship f2289f99-f546-f6c2-3c36-724c25d99e09
 
 relationship 26e1c802-749f-5e32-3d1c-82aba5427b7e
 	crossFilteringBehavior: bothDirections
-	toCardinality: many
 	fromColumn: Resources.type
 	toColumn: ResourceTypes.ResourceType
 
@@ -93,19 +92,19 @@ relationship 923fe473-f344-7b97-3b8a-c6b009d13973
 	fromColumn: PolicyStates.'properties.policyAssignmentId'
 	toColumn: 'Compliance calculation'.id
 
-relationship dc2e16b5-6032-35e9-77da-7ce3d0749c18
-	fromColumn: Costs.ResourceId
-	toColumn: Disks.id
-
-relationship d24a198f-d257-c9fe-6e1a-d4ae438dae6a
+relationship b4df7db2-17c9-dcef-7d32-4d6aaf3b4f3c
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
 	fromColumn: Costs.x_CommitmentDiscountKey
 	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
 
-relationship 80e3e297-25c3-e88a-1b45-44cbbd9f2a68
+relationship c0c15128-2725-100f-2945-f99368d742f6
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
-	fromColumn: ReservationRecommendations.x_CommitmentDiscountKey
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
+	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+
+relationship e0505491-3bd3-169a-45cc-988f783a8946
+	fromColumn: Costs.ResourceId
+	toColumn: Disks.id
 
