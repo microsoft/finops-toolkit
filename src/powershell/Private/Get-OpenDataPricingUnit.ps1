@@ -232,6 +232,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '1000 Relay Hours'; AccountTypes = 'EA'; PricingBlockSize = 1000; DistinctUnits = 'Hours'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1000 Relay Hrs'; AccountTypes = 'EA'; PricingBlockSize = 1000; DistinctUnits = 'Hours'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1000 Renders'; AccountTypes = 'EA'; PricingBlockSize = 1000; DistinctUnits = 'Renders'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '1000 TB'; AccountTypes = 'EA'; PricingBlockSize = 1000; DistinctUnits = 'TB'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1000 Transactions'; AccountTypes = 'EA'; PricingBlockSize = 1000; DistinctUnits = 'Transactions'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10000'; AccountTypes = 'EA'; PricingBlockSize = 10000; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10000 '; AccountTypes = 'EA'; PricingBlockSize = 10000; DistinctUnits = 'Units'; }

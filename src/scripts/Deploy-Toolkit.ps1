@@ -64,6 +64,7 @@ function iff([bool]$Condition, $IfTrue, $IfFalse)
 # Build toolkit if requested
 if ($Build)
 {
+    Write-Verbose "Building $Template template..."
     & "$PSScriptRoot/Build-Toolkit" -Template $Template
 }
 
@@ -120,6 +121,7 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
     {
         "resourceGroup"
         {
+            Write-Verbose 'Starting resource group deployment...'
 
             # Set default RG name
             if ($Demo)
@@ -143,9 +145,11 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
             else
             {
                 # Create resource group if it doesn't exist
+                Write-Verbose 'Checking resource group $ResourceGroup...'
                 $rg = Get-AzResourceGroup $ResourceGroup -ErrorAction SilentlyContinue
                 if ($null -eq $rg)
                 {
+                    Write-Verbose 'Creating resource group $ResourceGroup...'
                     New-AzResourceGroup `
                         -Name $ResourceGroup `
                         -Location $Location `
@@ -168,6 +172,7 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
         }
         "subscription"
         {
+            Write-Verbose 'Starting subscription deployment...'
 
             Write-Host "  → [sub] $((Get-AzContext).Subscription.Name)..."
             $Parameters.Keys | ForEach-Object { Write-Host "          $($_) = $($Parameters[$_])" }
@@ -197,6 +202,8 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
         }
         "tenant"
         {
+            Write-Verbose 'Starting tenant deployment...'
+    
             $azContext = (Get-AzContext).Tenant
             Write-Host "  → [tenant] $(iff ([string]::IsNullOrWhitespace($azContext.Name)) $azContext.Id $azContext.Name)..."
             $Parameters.Keys | ForEach-Object { Write-Host "             $($_) = $($Parameters[$_])" }

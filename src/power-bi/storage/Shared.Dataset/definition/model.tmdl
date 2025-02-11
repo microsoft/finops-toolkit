@@ -12,7 +12,7 @@ queryGroup '🛠️ Setup'
 
 queryGroup Storage
 
-	annotation PBI_QueryGroupOrder = 3
+	annotation PBI_QueryGroupOrder = 2
 
 queryGroup Functions
 
@@ -20,7 +20,7 @@ queryGroup Functions
 
 queryGroup 'Resource Graph'
 
-	annotation PBI_QueryGroupOrder = 4
+	annotation PBI_QueryGroupOrder = 3
 
 queryGroup 'Open data'
 
@@ -28,9 +28,9 @@ queryGroup 'Open data'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.140.356.0 (25.02)+34a7eeacd0df8b5924a98d4049544cf31db4fd94
+annotation PBIDesktopVersion = 2.140.679.0 (25.02)+e2f7796f7ddf473b3f87e4d9e2bee0b29f9956bf
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","Default Granularity","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","Prices","ReservationDetails","ReservationRecommendations","ReservationTransactions","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","Experimental: Add Missing Prices","Deprecated: Perform Extra Query Optimizations"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","Default Granularity","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","Costs","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","Prices","Experimental: Add Missing Prices","Deprecated: Perform Extra Query Optimizations","HubScopes","HubSettings","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","ReservationDetails","ReservationTransactions"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
