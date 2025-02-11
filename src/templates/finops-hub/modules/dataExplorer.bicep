@@ -127,6 +127,7 @@ param enablePublicAccess bool
 // Variables
 //------------------------------------------------------------------------------
 
+// cSpell:ignore ftkver, privatelink
 var ftkver = any(loadTextContent('ftkver.txt')) // any() is used to suppress a warning the array size (only happens when version does not contain a dash)
 var ftkVersion = contains(ftkver, '-') ? split(ftkver, '-')[0] : ftkver
 var ftkBranch = contains(ftkver, '-') ? split(ftkver, '-')[1] : ''
@@ -237,7 +238,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   name: clusterName
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Kusto/clusters') ? tagsByResource['Microsoft.Kusto/clusters'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Kusto/clusters'] ?? {})
   sku: {
     name: clusterSku
     tier: startsWith(clusterSku, 'Dev(No SLA)_') ? 'Basic' : 'Standard'
@@ -373,7 +374,7 @@ resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-0
 resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: dataExplorerPrivateDnsZoneName
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones') ? tagsByResource['Microsoft.Network/privateDnsZones'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones'] ?? {})
   properties: {}
 }
 
@@ -382,7 +383,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
   name: '${replace(dataExplorerPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   parent: dataExplorerPrivateDnsZone
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
   properties: {
     virtualNetwork: {
       id: virtualNetworkId
@@ -395,7 +396,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: '${cluster.name}-ep'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId

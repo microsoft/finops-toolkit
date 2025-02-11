@@ -369,12 +369,14 @@ table AdvisorRecommendations
 
 	column 'properties.lastUpdated'
 		dataType: dateTime
-		formatString: General Date
+		formatString: Mmm d h:nn AM/PM
 		lineageTag: d3bf7cce-83bc-4589-a2da-ece0e146e1d3
 		summarizeBy: none
 		sourceColumn: properties.lastUpdated
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
 
 	column 'properties.category'
 		dataType: string
@@ -436,11 +438,35 @@ table AdvisorRecommendations
 		annotation SummarizationSetBy = Automatic
 
 	column SortOrder
-		dataType: int64
+		dataType: double
 		formatString: 0
 		lineageTag: 4d8ca85e-f35a-4e71-866b-188c3de4f284
 		summarizeBy: sum
 		sourceColumn: SortOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column properties
+		dataType: string
+		lineageTag: 127ca951-d584-45ca-90c4-7e21f35e1dcd
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.shortDescription'
+		dataType: string
+		lineageTag: db36be30-e93a-4d83-8723-cfd5fef8ec31
+		summarizeBy: none
+		sourceColumn: properties.shortDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceMetadata'
+		dataType: string
+		lineageTag: d1efb6c5-bd4f-40af-a43e-69e7576a48a1
+		summarizeBy: none
+		sourceColumn: properties.resourceMetadata
 
 		annotation SummarizationSetBy = Automatic
 
@@ -450,25 +476,66 @@ table AdvisorRecommendations
 		source = ```
 				let
 				  Source = AzureResourceGraph.Query("
-				    advisorresources 
-				    | where type == 'microsoft.advisor/recommendations'
-				    | where properties['category'] == 'Cost'
+				
+				
+				  advisorresources 
+				  | where type == 'microsoft.advisor/recommendations'
+				  | where properties.category == 'Cost'
+				  | extend
+				    ['properties.recommendationTypeId'] = properties.recommendationTypeId,
+				    ['properties.shortDescription'] = properties.shortDescription,
+				    ['properties.resourceMetadata'] = properties.resourceMetadata,
+				    ['properties.suppressionIds'] = properties.suppressionIds,
+				    ['properties.impactedField'] = properties.impactedField,
+				    ['properties.impactedValue'] = properties.impactedValue,
+				    ['properties.lastUpdated'] = properties.lastUpdated,
+				    ['properties.category'] = properties.category,
+				    ['properties.metadata'] = properties.metadata,
+				    ['properties.impact'] = properties.impact,
+				    ['properties.shortDescription.problem'] = properties.shortDescription.problem,
+				    ['properties.shortDescription.solution'] = properties.shortDescription.solution,
+				    ['properties.extendedProperties.ObservationPeriodStartDate'] = properties.extendedProperties.ObservationPeriodStartDate,
+				    ['properties.extendedProperties.ObservationPeriodEndDate'] = properties.extendedProperties.ObservationPeriodEndDate,
+				    ['properties.extendedProperties.annualSavingsAmount'] = coalesce(properties.extendedProperties.annualSavingsAmount, 0),
+				    ['properties.extendedProperties.HasRecommendation'] = properties.extendedProperties.HasRecommendation,
+				    ['properties.extendedProperties.savingsCurrency'] = properties.extendedProperties.savingsCurrency,
+				    ['properties.extendedProperties.IsInReplication'] = properties.extendedProperties.IsInReplication,
+				    ['properties.extendedProperties.Recommended_DTU'] = properties.extendedProperties.Recommended_DTU,
+				    ['properties.extendedProperties.Recommended_SKU'] = properties.extendedProperties.Recommended_SKU,
+				    ['properties.extendedProperties.ResourceGroup'] = tolower(properties.extendedProperties.ResourceGroup),
+				    ['properties.extendedProperties.savingsAmount'] = coalesce(properties.extendedProperties.savingsAmount, 0),
+				    ['properties.extendedProperties.DatabaseSize'] = properties.extendedProperties.DatabaseSize,
+				    ['properties.extendedProperties.DatabaseName'] = properties.extendedProperties.DatabaseName,
+				    ['properties.extendedProperties.ServerName'] = properties.extendedProperties.ServerName,
+				    ['properties.extendedProperties.Region'] = properties.extendedProperties.Region,
+				    ['properties.extendedProperties.lookbackPeriod'] = properties.extendedProperties.lookbackPeriod,
+				    ['properties.extendedProperties.subId'] = properties.extendedProperties.subId,
+				    ['properties.extendedProperties.scope'] = properties.extendedProperties.scope,
+				    ['properties.extendedProperties.term'] = properties.extendedProperties.term,
+				    ['properties.extendedProperties.sku'] = properties.extendedProperties.sku,
+				    ['properties.extendedProperties.commitment'] = properties.extendedProperties.commitment,
+				    ['properties.extendedProperties.currentSku'] = properties.extendedProperties.currentSku,
+				    ['properties.extendedProperties.targetSku'] = properties.extendedProperties.targetSku,
+				    ['properties.extendedProperties.recommendationMessage'] = properties.extendedProperties.recommendationMessage,
+				    ['properties.resourceMetadata.resourceId'] = tolower(properties.resourceMetadata.resourceId),
+				    ['properties.resourceMetadata.singular'] = properties.resourceMetadata.singular,
+				    ['properties.resourceMetadata.plural'] = properties.resourceMetadata.plural,
+				    ['properties.resourceMetadata.action'] = properties.resourceMetadata.action,
+				    ['properties.resourceMetadata.source'] = properties.resourceMetadata.source,
+				    SortOrder = case(properties.impact == 'High', 1, properties.impact == 'Medium', 2, properties.impact == 'Low', 3, 9)
+				
+				
 				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = true]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"recommendationTypeId", "extendedProperties", "shortDescription", "resourceMetadata", "suppressionIds", "impactedField", "impactedValue", "lastUpdated", "category", "metadata", "impact"}, {"properties.recommendationTypeId", "properties.extendedProperties", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact"}),
-				  #"Expanded properties.extendedProperties" = Table.ExpandRecordColumn(#"Expanded properties", "properties.extendedProperties", {"ObservationPeriodStartDate", "ObservationPeriodEndDate", "annualSavingsAmount", "HasRecommendation", "savingsCurrency", "IsInReplication", "Recommended_DTU", "Recommended_SKU", "ResourceGroup", "savingsAmount", "DatabaseSize", "DatabaseName", "ServerName", "Region", "lookbackPeriod", "subId", "scope", "term", "sku", "commitment", "currentSku", "targetSku", "recommendationMessage"}, {"properties.extendedProperties.ObservationPeriodStartDate", "properties.extendedProperties.ObservationPeriodEndDate", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.HasRecommendation", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.IsInReplication", "properties.extendedProperties.Recommended_DTU", "properties.extendedProperties.Recommended_SKU", "properties.extendedProperties.ResourceGroup", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.DatabaseSize", "properties.extendedProperties.DatabaseName", "properties.extendedProperties.ServerName", "properties.extendedProperties.Region", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.commitment", "properties.extendedProperties.currentSku", "properties.extendedProperties.targetSku", "properties.extendedProperties.recommendationMessage"}),
-				  #"Changed column type 2" = Table.TransformColumnTypes(#"Expanded properties.extendedProperties", {{"properties.extendedProperties.annualSavingsAmount", type number}}, "en-US"),
-				  #"Replaced errors" = Table.ReplaceErrorValues(#"Changed column type 2", {{"properties.extendedProperties.annualSavingsAmount", null}}),
-				  #"Changed column type 1" = Table.TransformColumnTypes(#"Replaced errors", {{"properties.extendedProperties.savingsAmount", type number}}, "en-US"),
-				  #"Replaced errors 1" = Table.ReplaceErrorValues(#"Changed column type 1", {{"properties.extendedProperties.savingsAmount", null}}),
-				  #"Expanded properties.shortDescription" = Table.ExpandRecordColumn(#"Replaced errors 1", "properties.shortDescription", {"solution", "problem"}, {"properties.shortDescription.solution", "properties.shortDescription.problem"}),
-				  #"Expanded properties.resourceMetadata" = Table.ExpandRecordColumn(#"Expanded properties.shortDescription", "properties.resourceMetadata", {"resourceId", "singular", "plural", "action", "source"}, {"properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source"}),
-				  #"Replaced value" = Table.ReplaceValue(#"Expanded properties.resourceMetadata", null, 0, Replacer.ReplaceValue, {"properties.extendedProperties.savingsAmount"}),
-				  #"Replaced value 1" = Table.ReplaceValue(#"Replaced value", null, 0, Replacer.ReplaceValue, {"properties.extendedProperties.annualSavingsAmount"}),
-				  #"Changed column type" = Table.TransformColumnTypes(#"Replaced value 1", {{"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone}, {"properties.extendedProperties.ObservationPeriodEndDate", type datetimezone}, {"properties.lastUpdated", type datetimezone}}),
-				  #"Inserted conditional column" = Table.AddColumn(#"Changed column type", "SortOrder", each if [properties.impact] = "High" then 1 else if [properties.impact] = "Medium" then 2 else if [properties.impact] = "Low" then 3 else ""),
-				  #"Changed column type 3" = Table.TransformColumnTypes(#"Inserted conditional column", {{"SortOrder", Int64.Type}})
+				  Types = Table.TransformColumnTypes(Source, {
+				    {"properties.extendedProperties.annualSavingsAmount", type number},
+				    {"properties.extendedProperties.savingsAmount",       type number},
+				    {"SortOrder",                                         type number},
+				    {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
+				    {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
+				    {"properties.lastUpdated",                                   type datetimezone}
+				  }, "en-US")
 				in
-				  #"Changed column type 3"
+				  Types
 				```
 
 	annotation PBI_NavigationStepName = Navigation

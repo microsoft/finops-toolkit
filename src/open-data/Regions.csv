@@ -10,6 +10,7 @@ ap east,eastasia,East Asia
 ap southeast,southeastasia,Southeast Asia
 apeast,eastasia,East Asia
 apsoutheast,southeastasia,Southeast Asia
+ase,eastasia,East Asia
 asiaeast,eastasia,East Asia
 asiapacific,asiapacific,Asia Pacific
 asiasoutheast,southeastasia,Southeast Asia
@@ -21,6 +22,7 @@ au east,australiaeast,Australia East
 au southeast,australiasoutheast,Australia Southeast
 aucentral,australiacentral,Australia Central
 aucentral2,australiacentral2,Australia Central 2
+aue,australiaeast,Australia East
 aueast,australiaeast,Australia East
 auh,uaecentral,UAE Central
 ausoutheast,australiasoutheast,Australia Southeast
@@ -356,6 +358,7 @@ southcentralusstg,southcentralusstg,South Central US STG
 southeast asia,southeastasia,Southeast Asia
 southeast_asia,southeastasia,Southeast Asia
 southeastasia,southeastasia,Southeast Asia
+southeastus,southeastus,Southeast US
 southindia,southindia,South India
 southsoutheastasia,southeastasia,Southeast Asia
 spainc,spaincentral,Spain Central
@@ -374,6 +377,7 @@ syd,australiaeast,Australia East
 sydney,australiaeast,Australia East
 taiwann,taiwannorth,Taiwan North
 taiwannorth,taiwannorth,Taiwan North
+taiwannorthwest,taiwannorthwest,Taiwan Northwest
 tokyo,japaneast,Japan East
 toronto,canadacentral,Canada Central
 tw north,taiwannorth,Taiwan North
