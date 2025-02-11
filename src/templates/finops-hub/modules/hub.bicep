@@ -146,6 +146,7 @@ param enableDefaultTelemetry bool = true
 // Variables
 //------------------------------------------------------------------------------
 
+// cSpell:ignore ftkver
 // Add cm-resource-parent to group resources in Cost Management
 var finOpsToolkitVersion = loadTextContent('ftkver.txt')
 var resourceTags = union(tags, {
@@ -177,6 +178,7 @@ var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplor
 var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
 var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 
+// cSpell:ignore eventgrid
 // var eventGridName = 'finops-hub-eventgrid-${uniqueSuffix}'
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
@@ -190,6 +192,7 @@ var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 // EventGrid Contributor role
 // var eventGridContributorRoleId = '1e241071-0855-49ea-94dc-649edcd759de'
 
+// cSpell:ignore israelcentral, uaenorth, italynorth, switzerlandnorth, mexicocentral, southcentralus, polandcentral, swedencentral, spaincentral, francecentral, usdodeast, usdodcentral
 // Find a fallback region for EventGrid
 // var eventGridLocationFallback = {
 //   israelcentral: 'uaenorth'
@@ -225,7 +228,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
       metadata: {
         _generator: {
           name: 'FinOps toolkit'
-          version: finOpsToolkitVersion
+          version: loadTextContent('ftkver.txt')
         }
       }
       resources: []
@@ -237,6 +240,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 // Virtual network
 //------------------------------------------------------------------------------
 
+// cSpell:ignore vnet
 module vnet 'vnet.bicep' = if (!enablePublicAccess) {
   name: 'vnet'
   params: {
@@ -263,6 +267,7 @@ module storage 'storage.bicep' = {
     tagsByResource: tagsByResource
     enableInfrastructureEncryption: enableInfrastructureEncryption
     scopesToMonitor: scopesToMonitor
+    // cSpell:ignore msexport
     msexportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
@@ -306,7 +311,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   location: location
   tags: union(
     resourceTags,
-    contains(tagsByResource, 'Microsoft.DataFactory/factories') ? tagsByResource['Microsoft.DataFactory/factories'] : {}
+    tagsByResource[?'Microsoft.DataFactory/factories'] ?? {}
   )
   identity: { type: 'SystemAssigned' }
   properties: any({ // Using any() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet
@@ -381,7 +386,7 @@ output name string = hubName
 output location string = location
 
 @description('Name of the Data Factory.')
-output dataFactorytName string = dataFactory.name
+output dataFactoryName string = dataFactory.name
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storage.outputs.resourceId
