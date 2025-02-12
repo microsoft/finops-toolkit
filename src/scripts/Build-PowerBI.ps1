@@ -49,8 +49,8 @@ $version = & "$PSScriptRoot/Get-Version"
 
 # Cleanup
 Write-Verbose "Removing existing ZIP files..."
-Remove-Item "$relDir/../*.zip" -Force
-Remove-Item "$relDir/*.pbit" -Force
+Remove-Item "$relDir/../*.zip" -Force -ErrorAction SilentlyContinue
+Remove-Item "$relDir/*.pbit" -Force -ErrorAction SilentlyContinue
 
 # Select report types
 $types = @()
@@ -60,7 +60,7 @@ if ($Storage) { $types += "*$Name*.storage.pbip" }
 
 # Get reports
 $reports = Get-ChildItem $srcDir -Recurse -Include $types
-Write-Verbose "Processing $($reports.Count) file(s)..."
+Write-Host "Building $($reports.Count) Power BI report template$(if ($reports.Count -ne 1) { 's' })..."
 
 function Write-UTF16LE($File, $Content, $Json)
 {
