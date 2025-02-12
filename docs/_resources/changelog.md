@@ -141,7 +141,7 @@ Legend:
 >    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
 > 1. Change the Data Explorer `numberstring()` function to support decimal numbers.
 > 1. Updated `CommitmentDiscountUsage_transform_v1_0()` to use `parse_resourceid()`.
-> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 1. Update [required permissions](../_reporting/hubs/README.md#-required-permissions) documentation.
 > 1. Expand details about supported datasets in documentation.
 > 1. Clean up bicep warnings in the FinOps hub deployment template.
 >
