@@ -1,13 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom'; // Ensure routing context
+import { BrowserRouter } from 'react-router-dom';
 import { SamplePage } from '../SamplePage';
 
-// Adjust the paths as needed to match your project structure
-jest.mock('../../components/Sidebar', () => () => <div data-testid="sidebar" />);
-jest.mock('../../components/TopMenuBar', () => () => <div data-testid="top-menu-bar" />);
+// Mock dependencies
+jest.mock('../../components/SideBar', () => () => <div data-testid="sidebar" />);
+jest.mock('../../components/TopMenuBar/TopMenuBar', () => () => <div data-testid="top-menu-bar" />);
 
 describe('SamplePage', () => {
-  it('renders the SamplePage layout correctly', () => {
+  it('renders the layout with TopMenuBar and Sidebar', () => {
+    // Render the SamplePage inside a BrowserRouter (for routing context)
     render(
       <BrowserRouter>
         <SamplePage />
@@ -22,12 +23,16 @@ describe('SamplePage', () => {
     const sidebar = screen.getByTestId('sidebar');
     expect(sidebar).toBeInTheDocument();
 
-    // Check if the main content area is rendered with the heading "SamplePage"
-    const mainContent = screen.getByRole('heading', { name: /samplepage/i });
+    // Check if the main content area is rendered
+    const mainContent = screen.getByTestId('main-content');
     expect(mainContent).toBeInTheDocument();
+
+    // Check if the heading is rendered
+    const heading = screen.getByRole('heading', { name: /samplepage/i });
+    expect(heading).toBeInTheDocument();
   });
 
-  it('applies correct layout and styling properties', () => {
+  it('applies correct styles to the root container', () => {
     render(
       <BrowserRouter>
         <SamplePage />
@@ -40,19 +45,26 @@ describe('SamplePage', () => {
       display: 'flex',
       flexDirection: 'column',
       height: '100vh',
+      width: '100%',
       overflowX: 'hidden',
       backgroundColor: '#f4f6f8',
     });
+  });
 
-    // Verify the sidebar and main content area layout
-    const sidebar = screen.getByTestId('sidebar');
-    expect(sidebar.parentElement).toHaveStyle({ display: 'flex', flexGrow: 1 });
+  it('renders and styles the main content area correctly', () => {
+    render(
+      <BrowserRouter>
+        <SamplePage />
+      </BrowserRouter>
+    );
 
-    const mainContentContainer = screen.getByTestId('main-content');
-    expect(mainContentContainer).toHaveStyle({
+    const mainContent = screen.getByTestId('main-content');
+    expect(mainContent).toHaveStyle({
       flexGrow: 1,
       display: 'flex',
       flexDirection: 'column',
+      overflowY: 'auto',
+      overflowX: 'hidden',
       backgroundColor: '#ffffff',
     });
   });

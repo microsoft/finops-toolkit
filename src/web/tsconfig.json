@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["@testing-library/jest-dom"],
+    "types": ["jest", "@testing-library/jest-dom"], // Include Jest types
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "strict": true,
     "jsx": "react-jsx", // or "react" for older versions of React
-    "module": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
   },
   "include": ["src"],

@@ -1,5 +1,5 @@
 import Sidebar from '../components/SideBar';
-import TopMenuBar from '../components/TopMenuBar';
+import TopMenuBar from '../components/TopMenuBar/TopMenuBar';
 
 export function SamplePage() {
     return (
