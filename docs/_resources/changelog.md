@@ -84,35 +84,6 @@ Legend:
 >
 > 1. Added the Learning FOCUS blog series to the [FOCUS overview doc](../_docs/focus/README.md).
 
-🏦 FinOps hubs
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-<!-- cSpell:ignore daterange, datestring, monthsago, monthstring, numberstring, startofmonth -->
-> ➕ Added:
->
-> 1. Added Data Explorer dashboard template.
-> 1. Added new KQL functions in Data Explorer:
->    - `monthstring(datetime, [length])` returns the name of the month at a given string length (e.g., default = "January", 3 = "Jan", 1 = "J").
->    - `datestring(datetime, [datetime])` returns a formatted date or date range abbreviated based on the current date (e.g., "Jan 1", "Jan-Feb 2025", "Dec 15, 2024-Jan 14, 2025"). This function replaces `daterange()` and improves the return values to fix issues and covers more scenarios.
->
-> ✏️ Changed:
->
-> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
-> 1. Change the Data Explorer `numberstring()` function to support decimal numbers.
-> 1. Expand details about supported datasets in documentation.
-> 1. Updated the default setting for Data Explorer trusted external tenants from "All tenants" to "My tenant only".
->    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
-> 1. Clean up bicep warnings in the FinOps hub deployment template.
->
-> 🚫 Deprecated:
->
-> 1. Deprecated the `daterange()` KQL function. Please use `datestring(datetime, [datetime])` instead.
-> 1. Deprecated the `monthsago()` KQL function. Please use `startofmonth(datetime, [offset])` instead.
->
-> 🛠️ Fixed:
->
-> 1. Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
-
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -152,18 +123,32 @@ Legend:
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-<!-- cSpell:ignore virtualmachines, resourceid -->
+<!-- cSpell:ignore daterange, datestring, monthsago, monthstring, numberstring, resourceid, startofmonth, virtualmachines -->
 > ➕ Added:
 >
+> 1. Added Data Explorer dashboard template.
+> 1. Added new KQL functions in Data Explorer:
+>    - `monthstring(datetime, [length])` returns the name of the month at a given string length (e.g., default = "January", 3 = "Jan", 1 = "J").
+>    - `datestring(datetime, [datetime])` returns a formatted date or date range abbreviated based on the current date (e.g., "Jan 1", "Jan-Feb 2025", "Dec 15, 2024-Jan 14, 2025"). This function replaces `daterange()` and improves the return values to fix issues and covers more scenarios.
 > 1. Add `resource_type()` KQL function to map internal resource type IDs to display names.
 > 1. Clean up `ResourceType` values that have internal resource type IDs (for example, microsoft.compute/virtualmachines).
 >
 > ✏️ Changed:
 >
-> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
 > 1. Changed the **enablePublicAccess** parameter to exclude network components.
 >    - When disabled, a VNet will be created along with the required private endpoints and DNS zones to function in a fully private manner.
+> 1. Updated the default setting for Data Explorer trusted external tenants from "All tenants" to "My tenant only".
+>    - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
+> 1. Change the Data Explorer `numberstring()` function to support decimal numbers.
 > 1. Updated `CommitmentDiscountUsage_transform_v1_0()` to use `parse_resourceid()`.
+> 1. Update required permissions on hubs page [Required permissions](../docs/_reporting/hubs/README.md).
+> 1. Expand details about supported datasets in documentation.
+> 1. Clean up bicep warnings in the FinOps hub deployment template.
+>
+> 🚫 Deprecated:
+>
+> 1. Deprecated the `daterange()` KQL function. Please use `datestring(datetime, [datetime])` instead.
+> 1. Deprecated the `monthsago()` KQL function. Please use `startofmonth(datetime, [offset])` instead.
 >
 > 🛠️ Fixed:
 >
@@ -172,6 +157,7 @@ Legend:
 > 1. Fixed an issue where `x_ResourceType` is using the wrong value.
 >    - This fix resolves the issue for all newly ingested data.
 >    - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
+> 1. Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
 
 📒 FinOps workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
