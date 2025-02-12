@@ -271,18 +271,73 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
+	column apiVersion
+		dataType: string
+		lineageTag: 22da013b-0116-4415-8fe4-a288c66b7b92
+		summarizeBy: none
+		sourceColumn: apiVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: c8dbd384-f7e8-4689-8029-8f4a8bd33032
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column properties
+		dataType: string
+		lineageTag: 07423930-a72b-4179-97e4-fc0b73c3a98e
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column systemData
+		dataType: string
+		lineageTag: 73c902d4-f897-4221-a809-60284686c465
+		summarizeBy: none
+		sourceColumn: systemData
+
+		annotation SummarizationSetBy = Automatic
+
 	partition Resources = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query(
-				    "Resources
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "privateEndpointConnections", "encryption", "creationTime", "supportsHttpsTrafficOnly", "allowBlobPublicAccess", "minimumTlsVersion", "primaryEndpoints", "keyCreationTime", "primaryLocation", "statusOfPrimary", "networkAcls", "allowCrossTenantReplication", "allowSharedKeyAccess", "accessTier", "isHnsEnabled", "isBlueShiftAccount"}, {"provisioningState", "privateEndpointConnections", "encryption", "creationTime", "supportsHttpsTrafficOnly", "allowBlobPublicAccess", "minimumTlsVersion", "primaryEndpoints", "keyCreationTime", "primaryLocation", "statusOfPrimary", "networkAcls", "allowCrossTenantReplication", "allowSharedKeyAccess", "accessTier", "isHnsEnabled", "isBlueShiftAccount"}),
-				  #"Expanded sku" = Table.ExpandRecordColumn(#"Expanded properties", "sku", {"name", "tier"}, {"sku.name", "sku.tier"})
+				  Source = AzureResourceGraph.Query("
+				
+				
+				    resources
+				    | extend
+				      id = tolower(id),
+				      ['sku.name'] = sku.name,
+				      ['sku.tier'] = sku.tier,
+				      ['provisioningState'] = properties.provisioningState,
+				      ['privateEndpointConnections'] = properties.privateEndpointConnections,
+				      ['encryption'] = properties.encryption,
+				      ['creationTime'] = properties.creationTime,
+				      ['supportsHttpsTrafficOnly'] = properties.supportsHttpsTrafficOnly,
+				      ['allowBlobPublicAccess'] = properties.allowBlobPublicAccess,
+				      ['minimumTlsVersion'] = properties.minimumTlsVersion,
+				      ['primaryEndpoints'] = properties.primaryEndpoints,
+				      ['keyCreationTime'] = properties.keyCreationTime,
+				      ['primaryLocation'] = properties.primaryLocation,
+				      ['statusOfPrimary'] = properties.statusOfPrimary,
+				      ['networkAcls'] = properties.networkAcls,
+				      ['allowCrossTenantReplication'] = properties.allowCrossTenantReplication,
+				      ['allowSharedKeyAccess'] = properties.allowSharedKeyAccess,
+				      ['accessTier'] = properties.accessTier,
+				      ['isHnsEnabled'] = properties.isHnsEnabled,
+				      ['isBlueShiftAccount'] = properties.isBlueShiftAccount
+				
+				
+				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false])
 				in
-				  #"Expanded sku"
+				  Source
 
 	annotation PBI_NavigationStepName = Navigation
 

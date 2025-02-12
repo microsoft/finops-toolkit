@@ -87,6 +87,9 @@ param clusterSku string = 'Dev(No SLA)_Standard_E2a_v4'
 @maxValue(1000)
 param clusterCapacity int = 1
 
+@description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
+param clusterTrustedExternalTenants string[] = []
+
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
 param forceUpdateTag string = utcNow()
 
@@ -126,6 +129,7 @@ param enablePublicAccess bool
 // Variables
 //------------------------------------------------------------------------------
 
+// cSpell:ignore ftkver, privatelink
 var ftkver = any(loadTextContent('ftkver.txt')) // any() is used to suppress a warning the array size (only happens when version does not contain a dash)
 var ftkVersion = contains(ftkver, '-') ? split(ftkver, '-')[0] : ftkver
 var ftkBranch = contains(ftkver, '-') ? split(ftkver, '-')[1] : ''
@@ -246,7 +250,7 @@ resource kustoClusterUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/user
 resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   name: clusterName
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Kusto/clusters') ? tagsByResource['Microsoft.Kusto/clusters'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Kusto/clusters'] ?? {})
   sku: {
     name: clusterSku
     tier: startsWith(clusterSku, 'Dev(No SLA)_') ? 'Basic' : 'Standard'
@@ -262,6 +266,9 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     enableStreamingIngest: true
     enableAutoStop: false
     publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
+    trustedExternalTenants: [for tenantId in clusterTrustedExternalTenants: {
+        value:tenantId
+    }]
   }
 
   resource adfClusterAdmin 'principalAssignments' = {
@@ -278,9 +285,21 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     name: 'Ingestion'
     location: location
     kind: 'ReadWrite'
+    
+    // Open data functions are split to keep size under the 131KB limit for loadTextContent()
+    resource OpenDataFunctions_resource_type_1 'scripts' = { name: 'OpenDataFunctions_resource_type_1', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_1.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_2 'scripts' = { name: 'OpenDataFunctions_resource_type_2', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_3 'scripts' = { name: 'OpenDataFunctions_resource_type_3', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
+    resource OpenDataFunctions_resource_type_4 'scripts' = { name: 'OpenDataFunctions_resource_type_4', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
 
     resource openDataScript 'scripts' = {
       name: 'OpenDataFunctions'
+      dependsOn: [
+        ingestionDb::OpenDataFunctions_resource_type_1
+        ingestionDb::OpenDataFunctions_resource_type_2
+        ingestionDb::OpenDataFunctions_resource_type_3
+        ingestionDb::OpenDataFunctions_resource_type_4
+      ]
       properties: {
         scriptContent: loadTextContent('scripts/OpenDataFunctions.kql')
         continueOnErrors: continueOnErrors
@@ -290,6 +309,9 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
 
     resource commonScript 'scripts' = {
       name: 'CommonFunctions'
+      dependsOn: [
+        ingestionDb::openDataScript
+      ]
       properties: {
         scriptContent: loadTextContent('scripts/Common.kql')
         continueOnErrors: continueOnErrors
@@ -368,7 +390,7 @@ resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-0
 resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: dataExplorerPrivateDnsZoneName
   location: 'global'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones') ? tagsByResource['Microsoft.Network/privateDnsZones'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones'] ?? {})
   properties: {}
 }
 
@@ -377,7 +399,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
   name: '${replace(dataExplorerPrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   parent: dataExplorerPrivateDnsZone
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks') ? tagsByResource['Microsoft.Network/privateDnsZones/virtualNetworkLinks'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
   properties: {
     virtualNetwork: {
       id: virtualNetworkId
@@ -390,7 +412,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: '${cluster.name}-ep'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Network/privateEndpoints') ? tagsByResource['Microsoft.Network/privateEndpoints'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
     subnet: {
       id: privateEndpointSubnetId

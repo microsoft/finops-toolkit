@@ -8,35 +8,40 @@
     .PARAMETER Name
     Name of the data to build. Allowed = PricingUnits, Regions, ResourceTypes, Services. Default = * (all).
 
-    .PARAMETER Data
-    Indicates that data files should be generated. Only applies to resource types. Default = false, if -PowerShell is not specified.
+    .PARAMETER Json
+    Indicates that JSON files should be generated. Only applies to resource types. Default = false, if -PowerShell is not specified.
+    
+    .PARAMETER Csv
+    Indicates that CSV files should be generated from JSON files. Only applies to resource types. Default = false, if -PowerShell is not specified.
 
     .PARAMETER PowerShell
-    Indicates that PowerShell functions should be generated from data files. Default = true, unless -Data is specified.
+    Indicates that PowerShell functions should be generated from data files. Default = true, unless -Json or -Csv is specified.
 
     .PARAMETER Hubs
-    Indicates that FinOps hubs KQL functions should be generated from data files. Default = true, unless -Data is specified.
-
-    .PARAMETER All
-    Indicates that all data files and PowerShell functions should be generated. Shortcut for -Data -PowerShell. Default = false.
+    Indicates that FinOps hubs KQL functions should be generated from data files. Default = true, unless -Json or -Csv is specified.
 
     .PARAMETER Test
     Indicates that data tests should be run after the build completes. Default = false.
 
     .EXAMPLE
+    ./Build-OpenData -Json
+
+    Step 1: Generates JSON files for all applicable datasets.
+
+    .EXAMPLE
+    ./Build-OpenData -Csv
+
+    Step 2: Generates data files for all applicable datasets.
+
+    .EXAMPLE
+    ./Build-OpenData -PowerShell -Test
+
+    Step 3: Generates PowerShell commands and run tests for all datasets.
+
+    .EXAMPLE
     ./Build-OpenData Services
 
     Generates a private Get-FinOpsServicesData PowerShell function from the contents of open-data/Services.csv.
-
-    .EXAMPLE
-    ./Build-OpenData -Data
-
-    Generates data files for all applicable datasets.
-
-    .EXAMPLE
-    ./Build-OpenData -All
-
-    Generates data files and PowerShell functions for all datasets.
 
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-opendata
@@ -47,7 +52,10 @@ Param(
     $Name = "*",
 
     [switch]
-    $Data,
+    $Json,
+
+    [switch]
+    $Csv,
 
     [switch]
     $PowerShell,
@@ -56,17 +64,10 @@ Param(
     $Hubs,
 
     [switch]
-    $All,
-
-    [switch]
     $Test
 )
 
-if ($All)
-{
-    $Data = $PowerShell = $Hubs = $true
-}
-elseif (-not $Data -and -not $PowerShell -and -not $Hubs)
+if (-not $Json -and -not $Csv -and -not $PowerShell -and -not $Hubs)
 {
     $PowerShell = $true
 }
@@ -128,23 +129,22 @@ function Write-Test($DataType, $Command)
     Write-Output "}"
 }
 
-function Write-KqlFunction($Function, $File, $ColumnsToKeep)
+function Write-KqlSplitFunction($Function, $Rows, $Columns)
 {
-    $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') } `
-    | Where-Object { $ColumnsToKeep -contains $_ }
-    $data = Import-Csv $File
-
-    Write-Output "// $Function"
+    # Write header
+    Write-Output "// Copyright (c) Microsoft Corporation."
+    Write-Output "// Licensed under the MIT License."
+    Write-Output ""
     Write-Output ".create-or-alter function "
-    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData')"
+    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')"
     Write-Output "$Function(id: string) {"
     Write-Output "    dynamic({"
     
     $firstRow = $true
-    $data | ForEach-Object {
+    $Rows | ForEach-Object {
         $row = $_
         $firstColumn = $true
-        $props = $columns | ForEach-Object {
+        $props = $Columns | ForEach-Object {
             $column = $_
             $value = $row.$column
             if ($null -eq $value) { $value = '' }
@@ -163,12 +163,22 @@ function Write-KqlFunction($Function, $File, $ColumnsToKeep)
     Write-Output "}"
 }
 
+function Write-KqlWrapperFunction($Function, $Parts)
+{
+    Write-Output "// $Function"
+    Write-Output ".create-or-alter function "
+    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData')"
+    Write-Output "$Function(id: string) {"
+    Write-Output "    coalesce($(($Parts | ForEach-Object { "$($_.Name)(id)" }) -join ', '))"
+    Write-Output "}"
+}
+
 $hubsDir = "$PSScriptRoot/../templates/finops-hub/modules/scripts"
 $psDir = "$PSScriptRoot/../powershell"
 $srcDir = "$PSScriptRoot/../open-data"
 $svgDir = "$PSScriptRoot/../../docs/svg"
 
-if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
+if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
 {
     # Pull resource types from the Azure app
     # $azureAppMetadataDir = '<devops>/_git/AzureUX-Mobile?path=/AzureMobile/AzureMobile.Core/Resources'
@@ -461,12 +471,16 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
     # Sort resource types
     $resourceTypes = $resourceTypes | Sort-Object -Property resourceType
 
-    # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
-    function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
-
     # Save files
     $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8    
-    $resourceTypes `
+}
+
+if ($Csv)
+{
+    # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
+    function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
+    
+    Get-Content "$srcDir/ResourceTypes.json" -Raw | ConvertFrom-Json -Depth 5 `
     | ForEach-Object {
         return [ordered]@{
             ResourceType             = $_.resourceType
@@ -510,6 +524,7 @@ if ($Test)
 if ($Hubs)
 {
     $outFile = "$hubsDir/OpenDataFunctions.kql"
+    $rowsPerFile = 500
 
     # Write header
     Write-Output "// Copyright (c) Microsoft Corporation." | Out-File $outFile -Encoding ascii -Append:$false
@@ -532,10 +547,35 @@ if ($Hubs)
         $dataType = $file.BaseName
         $function = ($dataType -creplace '([a-z])([A-Z])', '$1_$2').ToLower().TrimEnd('s')
     
+        Write-Verbose "Reading $dataType.csv..."
+        $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') } `
+        | Where-Object { $ColumnsToKeep -contains $_ }
+        $rows = Import-Csv $File
+        
+        # Split the array into groups
+        $parts = @()
+        for ($i = 0; $i -lt $rows.Count; $i += $rowsPerFile)
+        {
+            $parts += @{ Name = "_$($function)_$($parts.Count+1)"; Rows = $rows[$i..([math]::Min($i + $rowsPerFile - 1, $rows.Count - 1))] }
+        }
+        Write-Verbose "  $($rows.Count) rows split across $($parts.Count) files"
+
+        # Write the wrapper function
         Write-Verbose "Generating KQL $function() from $dataType.csv..."
         Write-Output "" | Out-File $outFile -Encoding ascii -Append
-        Write-KqlFunction -Function $function -File $file -ColumnsToKeep $columnsToKeep `
+        Write-KqlWrapperFunction -Function $function -Parts $parts `
         | Out-File $outFile -Encoding ascii -Append
+
+        # Write the internal functions
+        0..($parts.Count - 1) | ForEach-Object {
+            $index = $_
+            $part = $parts[$index]
+            $splitFunction = $part.Name
+            $splitFile = $outFile.Replace('.kql', "$splitFunction.kql")
+            Write-Verbose "Generating KQL $splitFunction()..."
+            Write-KqlSplitFunction -Function $splitFunction -Rows $part.Rows -Columns $columns `
+            | Out-File $splitFile -Encoding ascii -Append:$false
+        }
     }
 }
 

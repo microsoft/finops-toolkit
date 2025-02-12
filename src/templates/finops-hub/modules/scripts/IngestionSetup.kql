@@ -1247,10 +1247,10 @@ CommitmentDiscountUsage_transform_v1_0()
     // Handle resource columns
     | extend ResourceId = tolower(InstanceId)
     | extend tmp_ResourceDetails = parse_resourceid(ResourceId)
-    | extend SubAccountId = tostring(tmp_ResourceDetails.SubAccountId)
-    | extend ResourceName = tostring(tmp_ResourceDetails.ResourceName)
+    | extend ResourceName        = tostring(tmp_ResourceDetails.ResourceName)
+    | extend SubAccountId        = tostring(tmp_ResourceDetails.SubAccountId)
     | extend x_ResourceGroupName = tostring(tmp_ResourceDetails.x_ResourceGroupName)
-    | extend x_ResourceType = tostring(tmp_ResourceDetails.x_ResourceType)
+    | extend x_ResourceType      = tostring(tmp_ResourceDetails.x_ResourceType)
     | lookup kind=leftouter (ResourceTypes | distinct x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
     | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, x_ServiceModel) on x_ResourceType
     //

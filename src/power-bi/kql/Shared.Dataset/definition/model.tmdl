@@ -12,7 +12,7 @@ queryGroup '🛠️ Setup'
 
 queryGroup Storage
 
-	annotation PBI_QueryGroupOrder = 4
+	annotation PBI_QueryGroupOrder = 3
 
 queryGroup Functions
 
@@ -20,11 +20,11 @@ queryGroup Functions
 
 queryGroup 'Resource Graph'
 
-	annotation PBI_QueryGroupOrder = 5
+	annotation PBI_QueryGroupOrder = 4
 
 queryGroup 'Open data'
 
-	annotation PBI_QueryGroupOrder = 3
+	annotation PBI_QueryGroupOrder = 5
 
 queryGroup 'Data Explorer'
 
@@ -32,11 +32,11 @@ queryGroup 'Data Explorer'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.139.1701.0 (24.12)+2a034ab280bddf891eb7bb9ebfe6996f9c3a3196
+annotation PBIDesktopVersion = 2.140.679.0 (25.02)+e2f7796f7ddf473b3f87e4d9e2bee0b29f9956bf
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URI","Storage URL","Number of Months","Default Granularity","ftk_DemoFilter","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","TagCosts"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URL","Storage URL","Number of Months","Default Granularity","ftk_DemoFilter","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations"]
 
-annotation PBI_ProTooling = ["DevMode","DaxQueryView_Desktop"]
+annotation PBI_ProTooling = ["DevMode"]
 
 ref table HubSettings
 ref table HubScopes
@@ -59,12 +59,10 @@ ref table PolicyAssignments
 ref table PolicyDefinitions
 ref table PolicyStates
 ref table SqlDatabases
-ref table 'Advisor for disks'
 ref table 'Compliance calculation'
 ref table PricingUnits
 ref table Costs
 ref table ReservationRecommendations
-ref table TagCosts
 
 ref cultureInfo en-US
 

@@ -8,9 +8,9 @@ expression 'Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/in
 	annotation PBI_NavigationStepName = Navigation
 
 expression '▶️  START HERE' = ```
-				let
+		let
 				    // Cluster
-				    ClusterUrl = #"Cluster URI",
+				    ClusterUrl = #"Cluster URL",
 				    ClusterUrlSegments = if ClusterUrl <> null then Text.Split(Text.Trim(ClusterUrl, "/"), "/") else {},
 				    ClusterUrlSegmentCount = List.Count(ClusterUrlSegments),
 				    ClusterCheck = 
@@ -111,10 +111,17 @@ expression 'Number of Months' = 13 meta [IsParameterQuery=true, Type="Number", I
 
 	annotation PBI_ResultType = Number
 
-/// Loads data from the configured storage account for FinOps hubs or with Cost Management exports.
-/// 
-/// Learn more about FinOps hubs @ https://aka.ms/finops/hubs
-expression ftk_DemoFilter = () => if List.Contains({ "demohubupzaljui2bxfm", "kustohubbngtbihvy5t4a" }, Text.SplitAny(#"Storage URL", "/."){2}) then "| where subscriptionId in ('51f73f67-1f29-4120-863e-dd315f743fc1', '586f1d47-9dd9-43d5-b196-6e28f8405ff8', '64e355d7-997c-491d-b0c1-8414dccfcf42', '736af2bf-9fcb-4145-a19b-5b30b2b8949d', '73c0021f-a37d-433f-8baa-7450cb54eea6', '9ec51cfd-5ca7-4d76-8101-dd0a4abc5674', 'ed570627-0265-4620-bb42-bae06bcfa914')" else ""
+/// Generates a KQL filter to be used in Resource Graph queries to filter out test data.
+expression ftk_DemoFilter =
+				() =>
+		        if List.Contains(
+		            {
+		                "demohubupzaljui2bxfm",
+		                "hubdssjcx4ai7tjs",
+		                "kustohubbngtbihvy5t4a"
+		            }, Text.SplitAny(#"Storage URL", "/."){2})
+		        then "| where subscriptionId in ('51f73f67-1f29-4120-863e-dd315f743fc1', '586f1d47-9dd9-43d5-b196-6e28f8405ff8', '64e355d7-997c-491d-b0c1-8414dccfcf42', '736af2bf-9fcb-4145-a19b-5b30b2b8949d', '73c0021f-a37d-433f-8baa-7450cb54eea6', '9ec51cfd-5ca7-4d76-8101-dd0a4abc5674', 'ed570627-0265-4620-bb42-bae06bcfa914')"
+		        else ""
 	lineageTag: 4d4c22f9-d4dc-4c2e-9730-dbc47fa53b05
 	queryGroup: Functions
 
@@ -125,7 +132,7 @@ expression ftk_DemoFilter = () => if List.Contains({ "demohubupzaljui2bxfm", "ku
 /// URI of the FinOps hub Azure Data Explorer cluster to pull data from. Copy from the "clusterUri" deployment output.
 /// 
 /// Pro tip: As a shortcut, you can alternatively use the "{name}.{region}" subset of the URI.
-expression 'Cluster URI' = "ftk-mf.westcentralus" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression 'Cluster URL' = "ftk-mf.westcentralus" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: d8708cbe-5fb8-4e10-b96f-54e31a5e9665
 	queryGroup: '🛠️ Setup'
 
