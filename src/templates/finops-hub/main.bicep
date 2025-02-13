@@ -179,7 +179,7 @@ output name string = hubName
 output location string = location
 
 @description('Name of the Data Factory instance.')
-output dataFactorytName string = hub.outputs.dataFactorytName
+output dataFactoryName string = hub.outputs.dataFactoryName
 
 @description('Resource ID of the deployed storage account.')
 output storageAccountId string = hub.outputs.storageAccountId

@@ -154,6 +154,8 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `Regions` table – [Regions mapping file](../open-data.md#regions) from the FinOps toolkit. Used for data normalization and cleanup.
       - `ResourceTypes` table – [ResourceTypes mapping file](../open-data.md#resource-types) from the FinOps toolkit. Used for data normalization and cleanup.
       - `Services` table – [Services mapping file](../open-data.md#services) from the FinOps toolkit. Used for data normalization and cleanup.
+      - `resource_type` function – Simple function to map internal resource type IDs to display names based on the [ResourceTypes mapping file](../data/README.md#resource-types).
+        - Use this function to map a single values and join with the `ResourceTypes` table to update many rows or map other values.
     - Datasets:
       - `<dataset>_raw` table – Raw data directly from the ingestion source. Uses a union schema for data from multiple sources.
       - `<dataset>_transform_vX_Y` function – Normalizes and cleans raw data to align to the targeted FOCUS version using open data tables as needed.

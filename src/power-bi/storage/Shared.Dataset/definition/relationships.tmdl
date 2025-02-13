@@ -1,9 +1,3 @@
-relationship b0066f28-aca7-4267-9118-bbf5c3242f58
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
-	toColumn: CostDetails.x_CommitmentDiscountKey
-
 relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
 	fromColumn: StorageData.Scope
 	toColumn: HubScopes.Scope
@@ -11,19 +5,6 @@ relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
 relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
 	fromColumn: StorageErrors.Scope
 	toColumn: HubScopes.Scope
-
-relationship 16f8655d-027a-3c5b-5b0c-afe528c03d59
-	isActive: false
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: ReservationRecomendations.x_CommitmentDiscountKeyNormalized
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
-
-relationship 59d51fbf-fd6f-a956-d7cb-3f19e7e25394
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: ReservationRecomendations.x_CommitmentDiscountKey
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
 
 relationship 825aa0af-00ee-1186-a33b-6f4fa0067d40
 	crossFilteringBehavior: bothDirections
@@ -75,14 +56,8 @@ relationship f2289f99-f546-f6c2-3c36-724c25d99e09
 	fromColumn: Disks.managedBy
 	toColumn: VirtualMachines.id
 
-relationship bdf6c03b-4982-e859-788c-8a358b10259a
-	crossFilteringBehavior: bothDirections
-	fromColumn: 'Advisor for disks'.'properties.resourceMetadata.resourceId'
-	toColumn: Disks.id
-
 relationship 26e1c802-749f-5e32-3d1c-82aba5427b7e
 	crossFilteringBehavior: bothDirections
-	toCardinality: many
 	fromColumn: Resources.type
 	toColumn: ResourceTypes.ResourceType
 
@@ -116,4 +91,20 @@ relationship 923fe473-f344-7b97-3b8a-c6b009d13973
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.'properties.policyAssignmentId'
 	toColumn: 'Compliance calculation'.id
+
+relationship b4df7db2-17c9-dcef-7d32-4d6aaf3b4f3c
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Costs.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+
+relationship c0c15128-2725-100f-2945-f99368d742f6
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+
+relationship e0505491-3bd3-169a-45cc-988f783a8946
+	fromColumn: Costs.ResourceId
+	toColumn: Disks.id
 

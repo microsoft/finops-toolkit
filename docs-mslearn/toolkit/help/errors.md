@@ -191,9 +191,17 @@ The export path isn't a valid scope ID. FinOps hubs expect the export path to be
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_SourceChanges` column when the ingested data uses an older version of FOCUS. FinOps hubs converts data to the latest FOCUS version so this should not cause an issue; however, the modernization transform cannot account for all scenarios and may result in unexpected results in some cases. Refer to documentation for known issues.
+This error code is shown when the ingested data uses an older version of FOCUS. When found in the `x_SourceChanges` column, the code is informational only. When shown in Power BI storage reports when the Costs query fails to load, this means the **Deprecated: Perform Extra Query Optimizations** parameter is disabled.
 
-**Mitigation**: Update configured exports to use the latest FOCUS version. If the latest FOCUS version is not supported by the provider, please request official support for the latest FOCUS version.
+FinOps hubs converts data to the latest FOCUS version so this should not cause an issue; however, the modernization transform cannot account for all scenarios and may result in unexpected results in some cases. Refer to documentation for known issues.
+
+**Mitigation**: There are several ways to mitigate this message, depending on which tool you're using.
+
+If using FinOps hubs with Data Explorer and seeing this in the `x_SourceChanges` column of the Costs table or related functions, update Cost Management cost exports to use the latest FOCUS version. No additional changes need to be made &nbsp; all data will be merged during Data Explorer ingestion.
+
+If using storage reports and seeing this in the `x_SourceChanges` column of the Costs query, this message is a warning that this FOCUS version will be removed in a future update. While you can safely ignore this message, it will require an update in a future release. To avoid the message, update Cost Management exports to the latest FOCUS version, delete or move any older data using an older FOCUS version, and reexport historical data. If using FinOps hubs, delete or move data outside of the **ingestion** container. If hosting your own exports in storage, change the **Storage URL** parameter to a different folder path that does not include older FOCUS versions.
+
+As of FinOps toolkit 0.7, support for older FOCUS versions has been deprecated to improve performance and scalability. We recommend updating to the latest FOCUS version and reexporting data to improve your experience. Set the **Deprecated: Perform Extra Query Optimizations** parameter to `TRUE` to ensure older FOCUS versions are supported and set it to `FALSE` to speed up performance and support larger datasets covering more cost or time. As of 0.7, this parameter is enabled by default for backwards compatibility. In FinOps toolkit 0.8, it will be disabled by default, but still available for backwards compatibility until on or after June 2025. If you cannot move off of old FOCUS versions or for the best performance and support for larger accounts or longer periods of time, we recommend using FinOps hubs with Data Explorer.
 
 <br>
 

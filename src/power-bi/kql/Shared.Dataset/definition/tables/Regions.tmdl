@@ -1,0 +1,41 @@
+table Regions
+	lineageTag: 4d14c13f-1a1f-4d48-831d-3d1aa829bc80
+
+	column OriginalValue
+		dataType: string
+		lineageTag: ddaa7197-a965-4a75-9410-590fab17af96
+		summarizeBy: none
+		sourceColumn: OriginalValue
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionId
+		dataType: string
+		lineageTag: b0cc7fcb-8240-4304-b59e-f05bd778af29
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionName
+		dataType: string
+		lineageTag: df24cf4f-bf8f-456c-bbc1-82286c32dc1b
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Regions = m
+		mode: import
+		queryGroup: 'Open data'
+		source =
+				let
+				  Source = Csv.Document(Web.Contents("https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv"), [Delimiter = ",", Columns = 3, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true])
+				in
+				  #"Promoted headers"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
