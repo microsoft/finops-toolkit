@@ -3,13 +3,14 @@ title: FinOps toolkit Governance report
 description: Summarize cloud governance posture including areas like compliance, security, operations, and resource management in Power BI.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/03/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the Governance report so that I can better understand compliance, security, operations, and resource management.
 ---
 
+<!-- cSpell:ignore nextstepaction -->
 <!-- markdownlint-disable-next-line MD025 -->
 # Governance report
 
@@ -26,14 +27,10 @@ This report pulls data from:
 - Cost Management exports or FinOps hubs
 - Azure Resource Graph
 
-> [!NOTE]
-> The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
+The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
-<!--
 > [!div class="nextstepaction"]
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
--->
-
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 

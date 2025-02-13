@@ -3,13 +3,14 @@ title: FinOps toolkit Cost summary report
 description: Learn about the Cost Summary Report in Power BI to identify top cost contributors, review cost changes over time, and summarize savings.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/03/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the Cost summary report so that I can understand my costs.
 ---
 
+<!-- cSpell:ignore nextstepaction -->
 <!-- markdownlint-disable-next-line MD025 -->
 # Cost summary report
 

@@ -1,9 +1,9 @@
 ---
-title: Configure scopes
+title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/13/2025
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -17,16 +17,50 @@ Connect FinOps hubs to your billing accounts and subscriptions by configuring Co
 
 FinOps hubs use Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you.
 
-> [!IMPORTANT]
-> Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts. For more information, see [configure Cost Management exports manually](#configure-exports-manually).
+<br>
 
-For the most seamless experience, we recommend allowing FinOps hubs to manage exports for you when possible. This option requires the least effort to maintain over time.
+## About Cost Management exports
+
+Cost Management provides the following 5 types of exports:
+
+- Cost and usage details (FOCUS)
+  - Exports all costs using the FOCUS version of the cost and usage details file  as they're defined in the FinOps Open Cost and Usage Specification (FOCUS) project.
+  - Maps to the Costs folder in the ingestion container.
+- Price sheet
+  - Exports prices for your Azure services.
+  - Maps to the Prices folder in the ingestion container.
+- Reservation details
+  - Exports reservation details for Azure services, including used and unused reservation hours.
+  - Maps to the CommitmentDiscountUsage folder in the ingestion container.
+- Reservation recommendations
+  - Exports all of the reservation recommendation details for savings. The savings are calculated in addition to your negotiated, or discounted, if applicable, prices.
+  - Maps to the Recommendations folder in the ingestion container.
+- Reservation transactions
+  - Exports reservation transaction for the Azure reservations bought.
+  - Maps to the Transactions folder in the ingestion container.
+
+FinOps hubs support the following dataset types, versions, and API versions:
+
+- FocusCost: 1.0r2, 1.0, 1.0-preview(v1)
+- PriceSheet: 2023-05-01
+- ReservationDetails: 2023-03-01
+- ReservationRecommendations: 2023-05-01
+- ReservationTransactions: 2023-05-01
+- API versions: 2023-07-01-preview
+
+For the most seamless experience, we recommend [allowing FinOps hubs to manage exports](#configure-managed-exports) for you. This option requires the least effort to maintain over time. Please note that Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts or billing profiles.
 
 <br>
 
 ## Configure exports manually
 
 If you can't grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
+
+1. Determine the scope for your data export.
+
+   - We recommend exporting from either an **EA billing account** or **MCA billing profile** scope to access additional datasets, including price sheets and reservation recommendations.
+   - Price sheet exports are required to populate missing prices and costs.
+   - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
 
 1. [Create a new FOCUS cost export](/azure/cost-management-billing/costs/tutorial-export-acm-data) using the following settings:
 
@@ -44,8 +78,8 @@ If you can't grant permissions for your scope, you can create Cost Management ex
      - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
    - **File partitioning** = On
    - **Overwrite data** = Off⁴
-2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
-3. Create exports for any other data you would like to include in your reports.
+1. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
+1. Create exports for any other data you would like to include in your reports.
    - Supported datasets and versions:
      - Price sheet `2023-05-01`
        - Required to populate missing prices/costs and calculate savings when using Azure Data Explorer.
@@ -55,12 +89,12 @@ If you can't grant permissions for your scope, you can create Cost Management ex
      - Reservation transactions `2023-05-01`
    - Supported formats: Parquet (preferred) or CSV
    - Supported compression: Snappy (preferred), GZip, or uncompressed
-4. To initialize the dataset, run your exports.
+1. To initialize the dataset, run your exports.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how large your account is.
    - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
-5. Repeat steps 1-4 for each scope you want to monitor.
+1. Repeat steps 1-4 for each scope you want to monitor.
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
 

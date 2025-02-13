@@ -3,7 +3,7 @@ title: What is FOCUS?
 description: Learn about FOCUS, a cloud-agnostic billing data specification that helps optimize cost and usage across cloud, SaaS, and on-premises providers.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/30/2024
+ms.date: 02/13/2025
 ms.topic: overview
 ms.service: finops
 ms.reviewer: micflan
@@ -45,40 +45,54 @@ The benefits of using FOCUS are wide-reaching, from streamlined operations withi
 
 FOCUS is the **best** version of cost and usage data you can get from Cost Management. Some of the benefits you see with FOCUS compared to actual and amortized cost data include:
 
+<!-- markdownlint-disable MD036 -->
+
 **Save 30% on storage and compute costs**
+
 - FOCUS combines actual (billed) and amortized (effective) costs in a single row, which results in 49% fewer rows compared to actual and amortized datasets together. When you consider the new FOCUS columns, the total data size is ~30% smaller than actual and amortized datasets, which is a direct savings on storage costs. You also save on compute costs since fewer rows get processed. Exact compute savings vary, depending on your solution.
 
 **Designed to handle multiple accounts and clouds**
+
 - If you use multiple clouds or have different account types within a single cloud (like EA and MCA), FOCUS standardizes your cost data into a single schema with consistent terminology. It helps to understand and optimize your costs across all your accounts. For organizations still on EA, switching to FOCUS now puts you in control of timing so you're not "offline" after your account is transitioned to MCA.
 
 **Easier to learn and aligned with the FinOps Framework**
+
 - FOCUS is the new "language" of FinOps. All FinOps Framework guidance is updated to use FOCUS terminology and also include FOCUS queries and examples. FOCUS makes it easier to understand and implement FinOps best practices without requiring an extra layer of translation from cloud-agnostic guidance to cloud-specific implementation details. FOCUS enables cloud-agnostic patterns and guidance to go deeper and help you accomplish more with less effort.
 
 **Clean, human-readable display names**
+
 - FOCUS uses clean, human-readable display names for all names, types, and categories. Friendly display names are available for services, resource types, regions, pricing, commitment discounts, and more.
 
 **Uniquely identify the exact price-point**
+
 - FOCUS includes an identifier for the specific SKU price-point used for each charge (SkuPriceId). It's a unique identifier for the SKU inclusive of all pricing variations, like tiering and discounts, which isn't currently available in actual or amortized datasets. Each charge also includes the unit prices you need to understand how you get or how you might be charged. List (or retail) unit price is what you would pay per unit without any negotiated discounts. Your contracted (or on-demand) unit price is after negotiated discounts are applied. Your effective (or amortized) unit price shows the conceptual price after prepurchase commitment discounts were applied. Your billed (or actual) unit price represents what was or what gets invoiced.
 
 **Easier to quantify cost savings**
+
 - In addition to unit prices, FOCUS also includes columns to identify the specific pricing model used for each charge with list, contracted, effective, and billed cost which makes it easier to quantify cost savings from negotiated and commitment discounts.
 
 **All prices and costs in a consistent currency**
+
 - FOCUS uses the billing currency for all prices and costs, which makes it easier to verify costs within the cost and usage data. It differs from the prices in the native Cost Management datasets, which use the pricing currency.
 
 **Organize and differentiate costs by service, resource, and SKU**
+
 - FOCUS clearly delineates between services, resources, and SKUs, which makes it easier to organize and differentiate costs. Service categorization is consistent across providers and offers a new perspective as it groups all resources consumed for a specific service together, regardless of the underlying product or SKU (for example, bandwidth and compute costs both fall under the Virtual Machines service).
 
 **More consistent regions**
+
 - The FOCUS dataset in Cost Management provides an extra layer of data cleansing to ensure regions are consistent with Azure Resource Manager. This means you see the same region names in FOCUS as you do in the Azure portal and Azure Resource Manager APIs.
 
 **Simpler date logic**
+
 - FOCUS uses exclusive end dates and industry standard ISO 8601 date formats for billing and charge periods. It helps make it easier to filter and compare dates. It's especially useful when comparing to other dates, like the current date, since you don't have to guess about time zones or time of day.
 
 **Tags and SKU details are provided in a consistent JSON format**
+
 - If you have an Enterprise Agreement account, you might know that tags aren't formatted as JSON in actual and amortized datasets. FOCUS fixes this issue by providing tags and SKU details (`AdditionalInfo`) in a consistent JSON format.
 
 **Identify and break usage down to discrete units**
+
 - FOCUS provides discrete pricing and usage units for each charge to help you understand how you're being charged compared to real-world usage units. It accounts for different pricing strategies like block pricing and makes it easier to verify pricing and usage quantities by providing data in separate columns.
 
 <br>
@@ -112,6 +126,20 @@ Beyond these points, each provider can include more columns prefixed with **x\_*
 
 <br>
 
+## Learning FOCUS blog series
+
+If you're interested in a more thorough walkthrough of all the FOCUS columns, check out the Learning FOCUS blog series on the FinOps blog:
+
+- [Introduction](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-introducing-an-open-billing-data-format/4321609)
+- [Cost columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-cost-columns/4352713)
+- [Charge types and pricing models](https://techcommunity.microsoft.com/blog/FinOpsBlog/learning-focus-charge-types-and-pricing-models/4357997)
+- [Date columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-date-columns/4366382)
+- [Resource columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-resource-columns/4372954)
+
+New blog posts are released periodically, so watch the [FinOps blog](https://aka.ms/finops/blog) for updates every couple of weeks.
+
+<br>
+
 ## Important notes about FOCUS columns
 
 Note the following points when working with FOCUS data:
@@ -119,21 +147,21 @@ Note the following points when working with FOCUS data:
 - FOCUS relies on the billing currency for all prices and costs while Cost Management uses the pricing currency. Prices in FOCUS might be in a different currency than native Cost Management schemas.
 - FOCUS combines "actual" and "amortized" cost into a single dataset. It produces a smaller dataset compared to managing both datasets separately. Data size is on par with the amortized cost data plus any commitment discount purchases and refunds.
 - `BillingAccountId` and `BillingAccountName` map to the billing profile ID and name for Microsoft Customer Agreement accounts.
-   - We're looking for feedback about it to understand if it's a problem and determine the best way to address it.
--  `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is helpful for filtering.
--  `SubAccountId` and `SubAccountName` map to the subscription ID and name, respectively.
--  All FOCUS `*Id` columns (not the `x_` extension columns) use fully qualified resource IDs.
--  `ServiceName` and `ServiceCategory` are using a custom mapping that might not account for all services yet.
-   - We're working on updating this list to account for all services. It requires ongoing work to keep up with the pace at which Microsoft is enabling new services.
-   - Let us know if you find any missed services or if you have any feedback about the mapping.
--  `ServiceName` uses "Azure Savings Plan for Compute" for savings plan records due to missing service details.
-   - It's an underlying data issue and must get resolved by the service that generates the data.
--  `ServiceName` attempts to map Azure Kubernetes Service (AKS) charges based on a simple resource group name check, which might catch false positives.
-   - We're working on updating the resource group check to be more targeted.
-   - Let us know if you find any false positives.
-   - If we find we're unable to accurately identify AKS charges, we expect to fall back to the service name for the actual resource (for example, Load Balancer).
--  `SkuPriceId` for Microsoft Customer Agreement accounts uses "{ProductId}\_{SkuId}_{MeterType}" from the price sheet.
-   - If you need to join FOCUS cost data with the price sheet, you can either split `SkuPriceId` or manually construct a similar key in the price sheet.
+  - We're looking for feedback about it to understand if it's a problem and determine the best way to address it.
+- `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is helpful for filtering.
+- `SubAccountId` and `SubAccountName` map to the subscription ID and name, respectively.
+- All FOCUS `*Id` columns (not the `x_` extension columns) use fully qualified resource IDs.
+- `ServiceName` and `ServiceCategory` are using a custom mapping that might not account for all services yet.
+  - We're working on updating this list to account for all services. It requires ongoing work to keep up with the pace at which Microsoft is enabling new services.
+  - Let us know if you find any missed services or if you have any feedback about the mapping.
+- `ServiceName` uses "Azure Savings Plan for Compute" for savings plan records due to missing service details.
+  - It's an underlying data issue and must get resolved by the service that generates the data.
+- `ServiceName` attempts to map Azure Kubernetes Service (AKS) charges based on a simple resource group name check, which might catch false positives.
+  - We're working on updating the resource group check to be more targeted.
+  - Let us know if you find any false positives.
+  - If we find we're unable to accurately identify AKS charges, we expect to fall back to the service name for the actual resource (for example, Load Balancer).
+- `SkuPriceId` for Microsoft Customer Agreement accounts uses "{ProductId}\_{SkuId}_{MeterType}" from the price sheet.
+  - If you need to join FOCUS cost data with the price sheet, you can either split `SkuPriceId` or manually construct a similar key in the price sheet.
 
 <br>
 

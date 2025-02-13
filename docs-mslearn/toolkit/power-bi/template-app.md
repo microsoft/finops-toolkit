@@ -3,19 +3,23 @@ title: Cost Management template app for Enterprise Agreement
 description: Learn about the Cost Management template app for Enterprise Agreement accounts, including its features, usage insights, and available reports.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/03/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the Cost Management template app so that I can determine if should use it.
 ---
 
+<!-- cSpell:ignore nextstepaction -->
 <!-- markdownlint-disable-next-line MD025 -->
 # Cost Management template app for Enterprise Agreement accounts
 
 The **EA template app** is the .pbix version of the "Cost Management app" in Microsoft AppSource. The template app isn't customizable or downloadable, so we're making the PBIX file available here. We don't recommend using this report as it only works for Enterprise Agreement billing accounts and is no longer being updated. You're welcome to download and customize it as needed. However, you might want to check out the other [FinOps toolkit reports](reports.md), which were updated to cover new scenarios. The [Cost summary](cost-summary.md) and [Rate optimization](rate-optimization.md) reports were both created based on the template app, so you should find most capabilities within those reports. If you feel something is missing, [let us know](https://aka.ms/ftk/ideas)!
 
 You can download the Cost Management template app from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
+
+> [!div class="nextstepaction"]
+> [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementTemplateApp.pbix)
 
 <br>
 

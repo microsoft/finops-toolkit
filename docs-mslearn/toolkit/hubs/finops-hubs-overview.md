@@ -3,7 +3,7 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/30/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -86,7 +86,10 @@ Here are some examples of the reports:
 
 :::image type="content" source="./media/finops-hubs-overview/commitment-discounts-coverage-report.png" border="true" alt-text="Screenshot showing the Commitment discounts coverage report." lightbox="./media/finops-hubs-overview/commitment-discounts-coverage-report.png" :::
 
-[Browse reports](../power-bi/reports.md) &nbsp; [See the template](template.md)
+> [!div class="nextstepaction"]
+> [Browse reports](../power-bi/reports.md)
+> [!div class="nextstepaction"]
+> [See the template](template.md)
 
 <br>
 
@@ -180,16 +183,20 @@ If you access data in storage or are creating or customizing Power BI reports, p
 
 ## Required permissions
 
-Required permissions for deploying or updating hub instances are covered in the [template details](template.md#prerequisites).
+Configuring and managing FinOps hubs requires the following permissions:
 
-You need one or more of the following to export your cost data:
-
-| Scope                                                 | Permission                                                                                                  |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Subscriptions and resource groups (all account types) | [Cost Management Contributor](/azure/role-based-access-control/built-in-roles#cost-management-contributor). |
-| EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (also known as enrollment account).                  |
-| MCA billing scopes                                    | Contributor on the billing account, billing profile, or invoice section.                                    |
-| MPA billing scopes                                    | Contributor on the billing account, billing profile, or customer.                                           |
+- Configuring exports requires one of the following, depending on scope:
+  - Subscriptions and resource groups: [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor).
+  - EA billing scopes: Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).
+  - MCA billing scopes: Contributor on the billing account, billing profile, or invoice section.
+  - MPA billing scopes: Contributor on the billing account, billing profile, or customer.
+- Deploying the FinOps hubs template requires one of the following:
+  - [Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
+  - [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
+  - For least-privileged access, see  [template details](template.md#-prerequisites).
+- Configuring Power BI requires one of the following
+  - Storage reports: [Storage Blob Data Reader](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
+  - KQL reports: Viewer on the Hub database.
 
 CSP customers need to configure exports for each subscription in order to ingest their total cost into FinOps hubs. Cost Management doesn't support management group exports for MCA or CSP subscriptions (as of May 2024).
 

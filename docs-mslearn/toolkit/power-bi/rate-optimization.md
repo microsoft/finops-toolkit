@@ -3,13 +3,14 @@ title: FinOps toolkit Rate optimization report
 description: Learn about the Rate Optimization Report in Power BI, which summarizes savings from commitment discounts like reservations and savings plans.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/03/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the Rate optimization report so that I can understand savings from discounts.
 ---
 
+<!-- cSpell:ignore nextstepaction -->
 <!-- markdownlint-disable-next-line MD025 -->
 # Rate optimization report
 
@@ -60,17 +61,17 @@ The **Get started** page includes a basic introduction to the report with links 
 
 <br>
 
-## Commitments
+## Commitment discounts
 
-The **Commitments** page provides a list of your commitment discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
+The **Commitment discounts** page provides a list of your commitment discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
 
 The chart breaks down the cost of used (utilized) vs. unused charges. The commitment type (for example, reservation and savings plan) splits unused charges.
 
-:::image type="content" source="./media/rate-optimization/commitment-discounts.png" border="true" alt-text="Screenshot of the Commitments page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discounts.png" :::
+:::image type="content" source="./media/rate-optimization/commitment-discounts.png" border="true" alt-text="Screenshot of the Commitment discounts page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discounts.png" :::
 
 <br>
 
-## Savings
+## Commitment discount savings
 
 The **Savings** page summarizes cost savings obtained from commitment discounts. Commitments get grouped by program and service.
 
@@ -97,7 +98,7 @@ The chart shows the amortized cost for each subscription that used a commitment.
 ### Chargeback customization tips
 
 - Change the columns in the table based on your chargeback needs.
-- Create custom columns in the CostDetails table that extract tags for cost allocation, then add them as columns into the visual for reporting.
+- Create custom columns in the Costs table that extract tags for cost allocation, then add them as columns into the visual for reporting.
 - Integrate external data for more allocation options.
 
 <br>

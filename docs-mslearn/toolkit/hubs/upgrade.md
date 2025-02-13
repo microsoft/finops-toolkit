@@ -3,7 +3,7 @@ title: Upgrade your FinOps hubs
 description: Learn how to upgrade your existing FinOps hub instance to the latest version, including necessary steps and considerations.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/13/2025
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -151,6 +151,21 @@ If you are leveraging the Azure Data Explorer option, you will need to re-ingest
 > If you re-export any historical data in 0.7 that was previously exported in an earlier release, FinOps hubs will not clean up the old data, which will result in duplicated data. The simplest way to resolve this is to delete the older data in the **ingestion** container. FinOps hubs 0.7 moves all content into a folder based on the dataset type: **CommitmentDiscountUsage**, **Costs**, **Prices**, **Recommendations**, or **Transactions**. Any other folders can be safely removed. Once removed, re-run your historical data backfill.
 
 [Download 0.7](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7) &nbsp; [View changes](https://aka.ms/ftk/changes#-v07)
+
+<br>
+
+## Upgrading 0.7
+
+<!-- cSpell:ignore resourceid -->
+
+To upgrade FinOps hubs 0.7 to 0.8:
+
+1. Redeploy the template.
+2. Update Power BI reports.
+3. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
+   - The `ResourceType` property in `parse_resourceid(ResourceId)` is deprecated in 0.8 and will be removed in 0.9.
+
+[Download 0.8](https://github.com/microsoft/finops-toolkit/releases/tag/v0.8) &nbsp; [View changes](https://aka.ms/ftk/changes#-v08)
 
 <br>
 

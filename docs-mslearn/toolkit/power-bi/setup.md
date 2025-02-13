@@ -3,7 +3,7 @@ title: Set up Power BI reports
 description: Learn how to set up Power BI FinOps reports using the FinOps toolkit, customize visuals, and connect to your cost data for detailed analysis.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/03/2024
+ms.date: 02/13/2025
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -120,7 +120,7 @@ FinOps toolkit reports manipulate the raw data to facilitate specific types of r
 1. Download one of the FinOps toolkit reports.
 2. Open the report in Power BI Desktop.
 3. Select **Transform data** in the toolbar.
-4. In the Queries list on the left, right-click **CostDetails** (or other query) and select **Copy**.
+4. In the Queries list on the left, right-click **Costs** (or other query) and select **Copy**.
 5. Open your report in Power BI Desktop.
 6. Select **Transform data** in the toolbar.
 7. Right-click the empty space in the bottom of the **Queries** pane and select **New group...**.
@@ -130,13 +130,13 @@ FinOps toolkit reports manipulate the raw data to facilitate specific types of r
 
 At this point, you have the core data from the FinOps toolkit reports, extended to support Azure Hybrid Benefit and FOCUS reports. In addition, you might also be interested in the custom columns and measures that summarize savings, utilization, cost over time, and more. Unfortunately, Power BI doesn't provide an easy way to copy columns and measures. Perform the steps for each column and measure you'd like to copy:
 
-1. In the FinOps toolkit report, expand the **CostDetails** (or other table) table in the **Data** pane on the right.
+1. In the FinOps toolkit report, expand the **Costs** (or other table) table in the **Data** pane on the right.
 2. Select a custom column or measure, then copy the formula from the editor at the top of the window, under the toolbar.
    > [!NOTE]
    > Be sure to make note if this is a column or a measure. Columns have a table symbol with a "Σ" or "fx" symbol and measures have a calculator symbol.
    >
    > :::image type="content" source="./media/setup/column-icons.png" border="true" alt-text="Screenshot showing the calculated column and measure icons in Power BI." lightbox="./media/setup/column-icons.png" :::
-3. In your report, right select the **CostDetails** table and select **New measure** or **New column** based on what you copied.
+3. In your report, right select the **Costs** table and select **New measure** or **New column** based on what you copied.
 4. When the formula editor is shown, paste the formula using `Ctrl+V` or `Cmd+V`.
 5. Repeat steps 2-4 for each desired column and measure.
 
@@ -190,23 +190,23 @@ The Cost Management template app doesn't support customization in Power BI Deskt
 
 ## Migrate from the Cost Management connector
 
-The Cost Management connector provides separate queries for actual (billed) and amortized costs. To minimize data size and improve performance, the FinOps toolkit reports combine them into a single query. The best way to migrate from the Cost Management connector is to copy the queries from a FinOps toolkit report and then update your visuals to use the **CostDetails** table.
+The Cost Management connector provides separate queries for actual (billed) and amortized costs. To minimize data size and improve performance, the FinOps toolkit reports combine them into a single query. The best way to migrate from the Cost Management connector is to copy the queries from a FinOps toolkit report and then update your visuals to use the **Costs** table.
 
 1. Download one of the FinOps toolkit reports.
 2. Open the report in Power BI Desktop.
 3. Select **Transform data** in the toolbar.
-4. In the **Queries** list on the left, right-click **CostDetails** and select **Copy**.
+4. In the **Queries** list on the left, right-click **Costs** and select **Copy**.
 5. Before you change your report, make a copy first to ensure you can roll back if needed.
 6. Open your report in Power BI Desktop.
 7. Select **Transform data** in the toolbar.
 8. Right-click the empty space in the bottom of the **Queries** pane and select **New group...**.
 9. Set the name to `FinOps toolkit` and select **OK**.
 10. Right-click the **FinOps toolkit** folder and select **Paste**.
-11. Right-click the **CostDetails** query and select **Advanced Editor**.
+11. Right-click the **Costs** query and select **Advanced Editor**.
 12. Copy all text and close the editor dialog.
 13. Right-click the **Usage details** query and select **Advanced Editor**.
-14. Replace all text with the copied text from CostDetails and select **Done**.
-15. Rename the **Usage details** query to `CostDetails` and drag it into the `FinOps toolkit` folder.
+14. Replace all text with the copied text from Costs and select **Done**.
+15. Rename the **Usage details** query to `Costs` and drag it into the `FinOps toolkit` folder.
 16. Delete the **Usage details amortized** query.
 17. Select **Close & Apply** in the toolbar for both reports.
 18. Review each page to ensure the visuals are still working as expected. Update any references to old columns or measures to the new names.
