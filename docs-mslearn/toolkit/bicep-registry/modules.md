@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 10/30/2024
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what Bicep registry modules are available from the FinOps toolkit.
 ---

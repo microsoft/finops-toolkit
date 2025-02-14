@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 12/02/2024
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what Cost Management scheduled action bicep modules can help me accomplish.
 ---

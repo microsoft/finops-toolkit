@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 10/31/2024
 ms.topic: troubleshooting
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to resolve common issues with Azure optimization engine.
 ---

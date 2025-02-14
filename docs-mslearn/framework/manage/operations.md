@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 07/14/2024
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 # customer intent: As a FinOps practitioner, I want to understand the FinOps practice operations capability so that I can implement it in the Microsoft Cloud.
 ---
@@ -57,7 +58,7 @@ Most organizations find it's important to establish a FinOps team as they near $
   - Promote and celebrate your wins with early adopters.
 - Integrate with existing data sources, teams, and processes to minimize startup time.
   - Report on FinOps metrics in recurring engineering, business, and financial reviews.
-  - Build relationships with key stakeholders and find ways to help them achieve their goals through FinOps (e.g., help justify additional budget or find opportunities to free up budget) to promote a FinOps culture.
+  - Build relationships with key stakeholders and find ways to help them achieve their goals through FinOps (for example, help justify additional budget or find opportunities to free up budget) to promote a FinOps culture.
 
 <br>
 

@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the Cost Management template app so that I can determine if should use it.
 ---

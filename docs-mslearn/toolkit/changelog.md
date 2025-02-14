@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 02/13/2025
 ms.topic: reference
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what changes were made in the latest FinOps toolkit releases.
 ---
@@ -74,8 +75,8 @@ _Released February 12, 2025_
 - **Added**
   - Added Data Explorer dashboard template.
   - Added new KQL functions in Data Explorer:
-    - `monthstring(datetime, [length])` returns the name of the month at a given string length (e.g., default = "January", 3 = "Jan", 1 = "J").
-    - `datestring(datetime, [datetime])` returns a formatted date or date range abbreviated based on the current date (e.g., "Jan 1", "Jan-Feb 2025", "Dec 15, 2024-Jan 14, 2025"). This function replaces `daterange()` and improves the return values to fix issues and covers more scenarios.
+    - `monthstring(datetime, [length])` returns the name of the month at a given string length (for example, default = "January", 3 = "Jan", 1 = "J").
+    - `datestring(datetime, [datetime])` returns a formatted date or date range abbreviated based on the current date (for example, "Jan 1", "Jan-Feb 2025", "Dec 15, 2024-Jan 14, 2025"). This function replaces `daterange()` and improves the return values to fix issues and covers more scenarios.
   - Add `resource_type()` KQL function to map internal resource type IDs to display names.
   - Clean up `ResourceType` values that have internal resource type IDs (for example, microsoft.compute/virtualmachines).
 - **Changed**

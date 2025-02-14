@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 02/13/2025
 ms.topic: troubleshooting
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to validate FinOps toolkit solutions are deployed and configured correctly.
 ---

@@ -3,9 +3,10 @@ title: FinOps best practices library
 description: Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/29/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with Microsoft Cloud services.
 ---

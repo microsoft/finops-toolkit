@@ -3,9 +3,10 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how data is processed in FinOps hubs so that I can better understand how to use the tool.
 ---
@@ -187,7 +188,7 @@ ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original
 ```
 
 - `ingestion` is the container where the data pipeline saves data.
-- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, this must have a matching, case-sensitive "_raw" table (e.g., "Costs_raw"). FinOps hubs supports the following datasets in this release:
+- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, this must have a matching, case-sensitive "_raw" table (for example, "Costs_raw"). FinOps hubs supports the following datasets in this release:
   - **CommitmentDiscountUsage** - Cost Management reservation details export.
   - **Costs** - FOCUS cost and usage data.
   - **Prices** - Cost Management price sheet export.
@@ -199,7 +200,7 @@ ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original
   - `{yyyy}` as a 4-digit year of the exported dataset to only retain the latest ingestion per year. Not supported in storage-based Power BI reports.
   - `{yyyy}/{mm}` as a 4-digit year and 2-digit month of the exported dataset to retain the latest ingestion per month.
   - `{yyyy}/{mm}/{dd}` as a 4-digit year, 2-digit month, and 2-digit day of the exported dataset to retain the latest ingestion per day. Not supported in storage-based Power BI reports.
-- `{scope-id-path}` is the fully-qualified resource ID of the scope the data is from. If ingesting non-Azure data, we recommend using a logical hierarchy based on the scope of data (e.g., "aws/{account-id}", "gcp/{project-name}", "oci/{component-id}/{component-id}").
+- `{scope-id-path}` is the fully-qualified resource ID of the scope the data is from. If ingesting non-Azure data, we recommend using a logical hierarchy based on the scope of data (for example, "aws/{account-id}", "gcp/{project-name}", "oci/{component-id}/{component-id}").
 - `{ingestion-id}` is a unique ID for the ingested dataset. This can be a GUID, a timestamp, or any value as long as it is consistent across all files for the ingested dataset. This value is used to remove previously ingested data in the same folder path.
 - `{original-file-name}` is intended to be the original file name or other identifier to indicate where the data in the file originated. This value is for your troubleshooting purposes only.
 
@@ -354,7 +355,7 @@ ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original
 ```
 
 - `ingestion` is the container where the data pipeline saves data.
-- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, this must have a matching, case-sensitive "_raw" table (e.g., "Costs_raw"). FinOps hubs supports the following datasets in this release:
+- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, this must have a matching, case-sensitive "_raw" table (for example, "Costs_raw"). FinOps hubs supports the following datasets in this release:
   - **CommitmentDiscountUsage** - Cost Management reservation details export.
   - **Costs** - FOCUS cost and usage data.
   - **Prices** - Cost Management price sheet export.
@@ -366,7 +367,7 @@ ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original
   - `{yyyy}` as a 4-digit year of the exported dataset to only retain the latest ingestion per year. Not supported in storage-based Power BI reports.
   - `{yyyy}/{mm}` as a 4-digit year and 2-digit month of the exported dataset to retain the latest ingestion per month.
   - `{yyyy}/{mm}/{dd}` as a 4-digit year, 2-digit month, and 2-digit day of the exported dataset to retain the latest ingestion per day. Not supported in storage-based Power BI reports.
-- `{scope-id-path}` is the fully-qualified resource ID of the scope the data is from. If ingesting non-Azure data, we recommend using a logical hierarchy based on the scope of data (e.g., "aws/{account-id}", "gcp/{project-name}", "oci/{component-id}/{component-id}").
+- `{scope-id-path}` is the fully-qualified resource ID of the scope the data is from. If ingesting non-Azure data, we recommend using a logical hierarchy based on the scope of data (for example, "aws/{account-id}", "gcp/{project-name}", "oci/{component-id}/{component-id}").
 - `{ingestion-id}` is a unique ID for the ingested dataset. This can be a GUID, a timestamp, or any value as long as it is consistent across all files for the ingested dataset. This value is used to remove previously ingested data in the same folder path.
 - `{original-file-name}` is intended to be the original file name or other identifier to indicate where the data in the file originated. This value is for your troubleshooting purposes only.
 

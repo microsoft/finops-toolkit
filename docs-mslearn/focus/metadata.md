@@ -3,9 +3,10 @@ title: FOCUS metadata
 description: This article provides general information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/30/2024
+ms.date: 02/13/2025
 ms.topic: reference
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 ---
 

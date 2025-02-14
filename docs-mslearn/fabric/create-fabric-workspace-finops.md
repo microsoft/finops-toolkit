@@ -3,9 +3,10 @@ title: Create a Fabric workspace for FinOps
 description: This article guides you through creating and configuring a Microsoft Fabric workspace for FinOps. When completed, you can use Power BI to build reports.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 01/16/2025
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-workspaces
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with web services.
 ---
@@ -73,6 +74,7 @@ Here are the high-level steps to create an export:
    - Storage account = *Contoso-storage-account*
    - Container = *msexports*
    - Directory = focuscost/&lt;*scope-id*&gt;
+   - Compression type = **None**.
    - Overwrite data = **Enabled**
 7. On the Review + Create tab, select **Create**.
 8. Run the export by selecting **Run now** on the export page.

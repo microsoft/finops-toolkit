@@ -282,13 +282,13 @@ Example:
 
 Examples:
 
-- Increments the major version number (e.g., `1.0` to `2.0`).
+- Increments the major version number (for example, `1.0` to `2.0`).
 
   ```powershell
   ./Update-Version -Major
   ```
 
-- Increments the prerelease version number with an "alpha" preview label (e.g., `1.0` to `1.0.1-alpha`).
+- Increments the prerelease version number with an "alpha" preview label (for example, `1.0` to `1.0.1-alpha`).
 
   ```powershell
   ./Update-Version -Prerelease -Label "alpha"

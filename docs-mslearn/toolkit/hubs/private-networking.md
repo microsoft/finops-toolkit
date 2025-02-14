@@ -77,13 +77,13 @@ These estimates are based on list prices without discounts based on the followin
 
 The following table compares the network access options available in FinOps hubs:
 
-| Component           | Public                        | Private                                                                                                         | Benefit                                                        |
-| ------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Storage             | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (e.g., corporate vNet), and trusted Azure services | Data only accessible when at work or on the corporate VPN      |
-| Azure Data Explorer | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (e.g., corporate vNet), and trusted Azure services | Data only accessible when at work or on the corporate VPN      |
-| Key vault           | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (e.g., corporate vNet), and trusted Azure services | Keys and secrets are never accessible via to the open internet |
-| Azure Data Factory  | Uses public compute pool      | Managed integration runtime in a private network with Data Explorer, storage, and key vault                     | All data processing happens inside the network                 |
-| Virtual Network     | Not used                      | FinOps hub traffic happens within an isolated vNet                                                              | Everything remains private; ideal for regulated environments   |
+| Component           | Public                        | Private                                                                                                                | Benefit                                                        |
+| ------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Storage             | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (for example, corporate vNet), and trusted Azure services | Data only accessible when at work or on the corporate VPN      |
+| Azure Data Explorer | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (for example, corporate vNet), and trusted Azure services | Data only accessible when at work or on the corporate VPN      |
+| Key vault           | Accessible over the internet¹ | Access restricted to the FinOps hub network, peered networks (for example, corporate vNet), and trusted Azure services | Keys and secrets are never accessible via to the open internet |
+| Azure Data Factory  | Uses public compute pool      | Managed integration runtime in a private network with Data Explorer, storage, and key vault                            | All data processing happens inside the network                 |
+| Virtual Network     | Not used                      | FinOps hub traffic happens within an isolated vNet                                                                     | Everything remains private; ideal for regulated environments   |
 
 _¹ While resources are accessible over the internet, access is still protected by role-based access control (RBAC)._
 

@@ -6,6 +6,7 @@ author: bandersmsft
 ms.author: banders
 ms.date: 07/14/2024
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 # customer intent: As a FinOps practitioner, I want to understand the FinOps assessment capability so that I can implement it in the Microsoft Cloud.
 ---

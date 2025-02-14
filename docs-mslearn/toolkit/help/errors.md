@@ -3,9 +3,10 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/13/2025
 ms.topic: troubleshooting
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand and resolve common errors I might experience with the FinOps toolkit.
 ---
@@ -334,7 +335,7 @@ To calculate complete savings, you can join cost and usage data with prices. For
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (e.g., Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.
+This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (for example, Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports attempt to identify the provider based on the available columns.
 

@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 12/02/2024
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 # customer intent: As a FinOps practitioner, I want to understand the FinOps practice operations capability so that I can implement it in the Microsoft Cloud.
 ---

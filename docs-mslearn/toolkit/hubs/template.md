@@ -3,9 +3,10 @@ title: FinOps hub template
 description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/30/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps hubs are so that I can use them in my organization.
 ---
@@ -140,13 +141,13 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
 - `<dataExplorerName>` Data Explorer cluster
   - `Hub` database – Public-facing functions to abstract internals.
     - Includes 2 sets of functions:
-      - Dataset-specific functions for the latest supported FOCUS version (e.g., `Costs`, `Prices`).
-      - Dataset-specific functions for each supported FOCUS version (e.g., `Costs_v1_0` for FOCUS 1.0). These functions are provided for backwards compatibility. All functions return all data aligned to the targeted FOCUS version.
+      - Dataset-specific functions for the latest supported FOCUS version (for example, `Costs`, `Prices`).
+      - Dataset-specific functions for each supported FOCUS version (for example, `Costs_v1_0` for FOCUS 1.0). These functions are provided for backwards compatibility. All functions return all data aligned to the targeted FOCUS version.
     - Datasets include: `Costs`, `Prices`.
     - Supported FOCUS versions include: `v1_0`.
   - `Ingestion` database – Stores ingested data.
     - Settings:
-      - `HubSettingsLog` table – Stores a history of high-level configuration changes (e.g., versions, scopes).
+      - `HubSettingsLog` table – Stores a history of high-level configuration changes (for example, versions, scopes).
       - `HubSettings` function – Gets the latest version of the hub instance settings.
       - `HubScopes` function – Gets the currently configured scopes for this hub instance.
     - Open data:

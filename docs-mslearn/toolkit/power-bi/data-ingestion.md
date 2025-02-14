@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the Data ingestion report so that I can understand my incoming data.
 ---
@@ -21,6 +22,7 @@ The **Data ingestion report** provides details about the data that got ingested 
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 
+Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 <br>
 
 ## Get started

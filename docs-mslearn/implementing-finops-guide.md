@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 # customer intent: As a cloud customer, I want to understand what resources are available so that I can learn how to implement FinOps within my organization.
 ---

@@ -6,6 +6,7 @@ author: bandersmsft
 ms.author: banders
 ms.date: 10/03/2024
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 ms.custom: references_regions
 # customer intent: As a FinOps practitioner, I want to understand FinOps reporting so that I can clean or normalize my data.

@@ -7,7 +7,7 @@
 //
 // Data ingestion workflow:
 // - All data is ingested into tables named "*_raw". These tables have a union schema to support multiple sources and versions.
-// - All data is transformed to the latest FOCUS schema using an update policy into a table named after the version (e.g., "1.0" = "_v1_0").
+// - All data is transformed to the latest FOCUS schema using an update policy into a table named after the version (for example, "1.0" = "_v1_0").
 // - Data ingestion from previous version of hubs will remain in the versioned tables.
 // - Data is read from versioned functions in the Hub database. See HubSetup.kql for details.
 //

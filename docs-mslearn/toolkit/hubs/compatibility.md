@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 12/02/2024
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 # customer intent: As a FinOps toolkit user, I want to learn about which versions of Power BI reports work with each version of FinOps hubs so that I can use them.
 ---

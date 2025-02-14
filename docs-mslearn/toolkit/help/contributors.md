@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 12/02/2024
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn how to contribute to the FinOps toolkit by fixing bugs, suggesting new features, reviewing pull requests, and updating documentation.
 ---

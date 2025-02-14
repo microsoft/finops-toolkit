@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 11/01/2024
 ms.topic: reference
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the what New-FinOpsCostExport command in the FinOpsToolkit module.
 ---

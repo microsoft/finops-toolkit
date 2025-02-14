@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 10/30/2024
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what options I have to deploy FinOps toolkit tools.
 ---

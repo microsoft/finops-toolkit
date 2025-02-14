@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 12/02/2024
 ms.topic: reference
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 ---
 

@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 10/31/2024
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to understand what the FinOps toolkit is and how it help me automate and extend the Microsoft Cloud.
 ---

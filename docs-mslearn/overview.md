@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 12/02/2024
 ms.topic: overview
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 # customer intent: As a cloud customer, I want to understand what FinOps is so that can learn how to leverage it to accelerate my business growth through the cloud.
 ---

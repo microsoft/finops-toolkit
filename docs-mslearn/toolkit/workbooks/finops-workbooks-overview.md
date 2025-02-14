@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 11/01/2024
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps workbooks are and how they can help me accomplish my goals.
 ---

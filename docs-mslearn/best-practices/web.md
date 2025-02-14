@@ -3,9 +3,10 @@ title: FinOps best practices for Web
 description: This article outlines a collection of proven FinOps practices for web services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/29/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with web services.
 ---

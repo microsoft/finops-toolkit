@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 11/01/2024
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to learn how to install and customize FinOps workbooks to achieve cost optimization and other FinOps goals.
 ---

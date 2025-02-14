@@ -5,6 +5,7 @@ author: bandersmsft
 ms.author: banders
 ms.date: 08/15/2024
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 ms.topic: concept-article
 # customer intent: As a FinOps practitioner, I want to understand the invoicing and chargeback capability so that I can implement it in the Microsoft Cloud.

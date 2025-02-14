@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 02/13/2025
 ms.topic: overview
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FOCUS is and how it can help me optimize cost and usage across various cloud, SaaS, and on-premises providers.
 ---

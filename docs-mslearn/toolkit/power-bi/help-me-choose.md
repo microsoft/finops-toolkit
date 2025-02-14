@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 12/03/2024
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the different ways to connect Power BI to your data so that I can do it.
 ---

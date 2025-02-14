@@ -8,7 +8,11 @@ metadata:
   title: FinOps documentation
   description: FinOps combines financial management principles with cloud engineering and operations to provide organizations with a better understanding of their cloud spending. It also helps you make informed decisions on how to allocate and manage your cloud costs.
   ms.topic: landing-page
-  ms.date: 10/04/2024
+  ms.author: banders
+  ms.reviewer: micflan
+  author: bandersmsft
+  ms.service: finops
+  ms.date: 12/13/2024
   ms.custom: intro-landing-hub
 
 # highlightedContent section (optional)
@@ -159,7 +163,7 @@ tools:
       url: /azure/migrate
     - title: FinOps toolkit
       imageSrc: ./media/toolkit.svg
-      url: https://microsoft.github.io/finops-toolkit/
+      url: toolkit/finops-toolkit-overview.md
     - title: Microsoft Fabric
       imageSrc: ./media/capacities.svg
       url: /fabric/get-started/microsoft-fabric-overview

@@ -23,7 +23,7 @@ The board is responsible for identifying short-, medium-, and long-term goals an
   - Outlining a [[high-level roadmap|Roadmap]] with key focus areas and opportunities to expand.
 - **Strategy**: Defining how we'll implement the vision, including:
   - Defining board roles and responsibilities.
-  - Managing the GitHub community (e.g., triaging issues, answering discussions, reviewing PRs).
+  - Managing the GitHub community (for example, triaging issues, answering discussions, reviewing PRs).
   - Establishing an official support process.
   - Managing and supporting contributors and engaging with new contributions.
   - Identifying and prioritizing initiatives.

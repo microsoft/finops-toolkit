@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 02/13/2025
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 # customer intent: As a FinOps toolkit user, I want to learn about how to connect FinOps hubs to billing accounts and subscriptions so that I can do it.
 ---

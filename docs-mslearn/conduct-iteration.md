@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 06/11/2024
 ms.topic: tutorial
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 # customer intent: As a finops practitioner, I want to adopt FinOps in my organization so that we can create a plan to adopt.
 ---

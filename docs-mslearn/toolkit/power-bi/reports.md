@@ -3,9 +3,10 @@ title: FinOps toolkit Power BI reports
 description: Learn about the Power BI reports in the FinOps toolkit to customize and enhance your FinOps reporting and connect to Cost Management exports or FinOps hubs.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/03/2024
+ms.date: 02/13/2025
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about FinOps reports so that I can use them to better understand my cost data.
 ---
@@ -15,7 +16,7 @@ ms.reviewer: micflan
 
 The FinOps toolkit Power BI reports provide a great starting point for your FinOps reporting. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed. You can also copy and paste visuals between reports to create your own custom reports.
 
-FinOps toolkit reports support several ways to connect to your cost data. We generally recommend starting with Cost Management exports, which support up to $2-5 million in monthly spend depending on your Power BI license. If you experience data refresh timeouts or need to report on data across multiple directories or tenants, use [FinOps hubs](../hubs/finops-hubs-overview.md). It's a data pipeline solution that optimizes data and offers more functionality. For more information about choosing the right backend, see [Help me choose](help-me-choose.md).
+FinOps toolkit reports use data from various sources and support several ways to connect to that data. We generally recommend starting with Cost Management exports, which support up to $2-5 million in monthly spend depending on your Power BI license. If you experience data refresh timeouts or need to report on data across multiple directories or tenants, use [FinOps hubs](../hubs/finops-hubs-overview.md). It's a data pipeline solution that optimizes data and offers more functionality. For more information about choosing the right backend, see [Help me choose](help-me-choose.md).
 
 Support for the [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management) is available for backwards compatibility but isn't recommended. There are no plans to update the Cost Management connector or the Cost Management app for Enterprise Agreement accounts. The Cost Management team recommends exporting data and using the Azure Data Lake Storage Gen2 connector to build custom reports. The FinOps toolkit reports do it for you and normalize data across Enterprise Agreement and Microsoft Customer Agreement accounts.
 
@@ -43,9 +44,41 @@ In addition, the following reports use the Cost Management connector for Power B
 
 <br>
 
+## Data sources
+
+Here's a summary of each data source for the reports. For more information about choosing the right data source for your organization, see [Help me choose](help-me-choose.md).
+
+**Cost Management connector**
+
+It connects to Azure to retrieve usage and charges data for Power BI reports. The connector is available for backwards compatibility but isn't recommended. There are no plans to update the Cost Management connector, so we recommend that you use a different data source.
+
+**Cost Management exports**
+
+Cost Management pushes cost and usage data to Azure Data Lake Storage in your subscription. Power BI will connect to your data using the Azure Data Lake Storage connector.
+
+**FinOps hubs with Azure storage**
+
+Cost Management pushes cost and usage data to Azure Data Lake Storage in your subscription. Power BI will connect to your data using the Azure Data Lake Storage connector. The difference between exports and FinOps hubs is that FinOps hubs include data pipelines to prepare and ingest data. FinOps hubs can also manage Cost Management exports on your behalf or push data to a remote hub instance in another tenant.
+
+If you use more than $2 million in monthly spend, we generally recommend using FinOps hubs with Data Explorer for the best performance.
+
+**FinOps hubs with Azure Data Explorer**
+
+Cost Management pushes cost and usage data to Azure Data Lake Storage in your subscription. FinOps hubs includes an Azure Data Factory pipeline that will prepare, normalize, and ingest data into Azure Data Explorer. Power BI will connect to your data using the Azure Data Explorer connector.
+
+Azure Data Explorer offers the best performance and additional capabilities, like populating missing prices and costs. We recommend using FinOps hubs with Data Explorer for the best experience.
+
+**Microsoft Fabric**
+
+While FinOps toolkit Power BI reports don't support Microsoft Fabric yet, you can customize them to connect to data stored in OneLake. Customizing reports to connect to OneLake would require experience with Power Query M language.
+
+<br>
+
 ## Connect to your data
 
-The FinOps toolkit includes three sets of reports. [Demo reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip) include sample data to explore without connecting to your account. When you're ready to connect to your account, download the correct report template:
+The core reports in the FinOps toolkit are available in two versions. One that connects to Azure storage and another that connects to FinOps hubs with Azure Data Explorer. Each report is focused on a specific FinOps capability and provides the same functionally. The main difference between versions is in performance and scalability for larger datasets. FinOps hubs also provides additional benefits with Data Explorer that streamline reporting by improving data quality and providing more backwards compatibility on top of Cost Management exports.
+
+Reports are provided as Power BI template (.pbit) files that do not include sample data. To explore sample reports without connecting your data, download the [demo reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip). When you're ready to connect to your account, download the set of report templates based on your backend data source.
 
 | Data source                                | Download                                                                                                                             | Notes                                                                                                    |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
