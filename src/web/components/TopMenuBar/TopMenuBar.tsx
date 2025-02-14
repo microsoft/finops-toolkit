@@ -1,6 +1,5 @@
 import { Text, Image, Divider } from "@fluentui/react-components";
-import "./TopMenuBar.css"; // Regular CSS file
-
+import "./TopMenuBar.css";
 const TopMenuBar = () => {
   return (
     <header className="ftk-topmenubar">
