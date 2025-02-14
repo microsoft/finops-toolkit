@@ -1,54 +1,45 @@
-/* TopMenuBar.module.css */
-
-.fullWidthContainer {
-    width: 100vw;
+.ftk-topmenubar {
+    width: 100dvw;
     height: 40px;
     padding: 0;
+    background-color: var(--colorNeutralBackground1);
 }
 
-.commandBar {
+.ftk-topmenubar .ftk-commandbar {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     width: 100%;
-    background-color: #f4f6f8;
+    background-color: var(--colorNeutralBackground1Hover);
     overflow-x: hidden;
 }
 
-.logoTextContainer {
+.ftk-topmenubar .ftk-logo-section {
     display: flex;
     align-items: center;
     margin: 8px;
 }
 
-.logo {
+.ftk-topmenubar .ftk-logo {
     width: 24px;
     height: 24px;
     margin-right: 8px;
 }
 
-.divider {
+.ftk-topmenubar .ftk-divider {
     height: 20px;
     margin: 0 8px;
-}
-
-.textContainer {
-    font-size: 12px;
-    color: #333;
+    background-color: var(--colorNeutralForeground3);
 }
 
 @media (max-width: 768px) {
-    .commandBar {
+    .ftk-topmenubar .ftk-commandbar {
         flex-direction: column;
         align-items: center;
     }
 
-    .logoTextContainer {
+    .ftk-topmenubar .ftk-logo-section {
         flex-direction: row;
         align-items: center;
-    }
-
-    .textContainer {
-        text-align: center;
     }
 }

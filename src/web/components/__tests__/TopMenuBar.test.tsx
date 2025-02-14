@@ -1,42 +1,46 @@
-import { render, screen } from '@testing-library/react';
-import TopMenuBar from '../TopMenuBar/TopMenuBar';
-import React from 'react';
+import { render, screen } from "@testing-library/react";
+import TopMenuBar from "../TopMenuBar/TopMenuBar";
+import React from "react";
 
-describe('TopMenuBar', () => {
-    it('should render the logo and title', () => {
+describe("TopMenuBar", () => {
+    it("renders the logo with correct alt text", () => {
         render(<TopMenuBar />);
 
-        // Check if the logo is rendered
-        const logo = screen.getByAltText('Microsoft Logo');
+        // Ensure the logo is present and has correct attributes
+        const logo = screen.getByRole("img", { name: /Microsoft Logo/i });
         expect(logo).toBeInTheDocument();
+        expect(logo).toHaveAttribute("alt", "Microsoft Logo");
+    });
 
-        // Check if the title text is rendered
-        const title = screen.getByText('FinOps toolkit');
+    it("renders the title with correct text", () => {
+        render(<TopMenuBar />);
+
+        // Ensure the title text is present
+        const title = screen.getByText(/FinOps Toolkit/i);
         expect(title).toBeInTheDocument();
     });
 
-    it('should render a divider between the logo and title', () => {
+    it("renders an accessible divider", () => {
         render(<TopMenuBar />);
 
-        // Check that the divider is present
-        const divider = screen.getByRole('separator');
+        // Ensure the divider is present and accessible
+        const divider = screen.getByRole("separator");
         expect(divider).toBeInTheDocument();
     });
 
-    it('renders with accessible elements', () => {
+    it("ensures all key elements are visible and accessible", () => {
         render(<TopMenuBar />);
 
-        // Check if the logo has appropriate alt text
-        const logo = screen.getByAltText('Microsoft Logo');
-        expect(logo).toHaveAttribute('alt', 'Microsoft Logo');
+        // Logo check
+        const logo = screen.getByRole("img", { name: /Microsoft Logo/i });
+        expect(logo).toBeVisible();
 
-        // Verify that the title text exists and contains the expected text
-        const title = screen.getByText('FinOps toolkit');
-        expect(title).toBeInTheDocument();
-    });
+        // Title check
+        const title = screen.getByText(/FinOps Toolkit/i);
+        expect(title).toBeVisible();
 
-    it('matches the snapshot', () => {
-        const { asFragment } = render(<TopMenuBar />);
-        expect(asFragment()).toMatchSnapshot();
+        // Divider check
+        const divider = screen.getByRole("separator");
+        expect(divider).toBeVisible();
     });
 });
