@@ -149,7 +149,7 @@ Costs
 | order by CoveragePercent desc
 ```
 
-Use the following query to measure how coverage per VM.
+Use the following query to measure the cost breakdown per VM, including coverage of commitment discounts.
 
 ```kusto
 Costs
