@@ -187,16 +187,16 @@ If you access data in storage or are creating or customizing Power BI reports, p
 Configuring and managing FinOps hubs requires the following permissions:
 
 - Configuring exports requires one of the following, depending on scope:
-  - Subscriptions and resource groups: [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor).
+  - Subscriptions and resource groups: [Cost Management Contributor](/azure/role-based-access-control/built-in-roles#cost-management-contributor).
   - EA billing scopes: Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).
   - MCA billing scopes: Contributor on the billing account, billing profile, or invoice section.
   - MPA billing scopes: Contributor on the billing account, billing profile, or customer.
 - Deploying the FinOps hubs template requires one of the following:
-  - [Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
-  - [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner)
-  - For least-privileged access, see  [template details](template.md#-prerequisites).
+  - [Contributor](/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
+  - [Owner](/azure/role-based-access-control/built-in-roles#owner)
+  - For least-privileged access, see  [template details](template.md#prerequisites).
 - Configuring Power BI requires one of the following
-  - Storage reports: [Storage Blob Data Reader](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
+  - Storage reports: [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
   - KQL reports: Viewer on the Hub database.
 
 CSP customers need to configure exports for each subscription in order to ingest their total cost into FinOps hubs. Cost Management doesn't support management group exports for MCA or CSP subscriptions (as of May 2024).
