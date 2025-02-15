@@ -39,7 +39,7 @@ _Released February 12, 2025_
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v0.8
 
 - **Added**
-  - Added the Learning FOCUS blog series to the [FOCUS overview doc](../_docs/focus/README.md).
+  - Added the Learning FOCUS blog series to the [FOCUS overview doc](../focus/what-is-focus.md).
 
 ### [Power BI reports](power-bi/reports.md) v0.8
 
@@ -86,7 +86,7 @@ _Released February 12, 2025_
     - This change may cause breaking issues for Data Explorer clusters accessed by users from external tenants.
   - Change the Data Explorer `numberstring()` function to support decimal numbers.
   - Updated `CommitmentDiscountUsage_transform_v1_0()` to use `parse_resourceid()`.
-  - Update [required permissions](../_reporting/hubs/README.md#-required-permissions) documentation.
+  - Update [required permissions](hubs/finops-hubs-overview.md#required-permissions) documentation.
   - Expand details about supported datasets in documentation.
   - Clean up bicep warnings in the FinOps hub deployment template.
 - **Deprecated**
@@ -118,13 +118,13 @@ _Released February 12, 2025_
 ### [PowerShell module](powershell/powershell-commands.md) v0.8
 
 - **Added**
-  - Added explicit `-CommitmentDiscountScope`, `-CommitmentDiscountResourceType`, and `-CommitmentDiscountLookback` parameters to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) for reservation recommendations.
-  - Added explicit `-SystemAssignedIdentity` switch parameter to the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to enable system-assigned identity.
-  - Updated the [Remove-FinOpsHub command](../_automation/powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
+  - Added explicit `-CommitmentDiscountScope`, `-CommitmentDiscountResourceType`, and `-CommitmentDiscountLookback` parameters to the [New-FinOpsCostExport command](powershell/cost/New-FinOpsCostExport.md) for reservation recommendations.
+  - Added explicit `-SystemAssignedIdentity` switch parameter to the [New-FinOpsCostExport command](powershell/cost/New-FinOpsCostExport.md) to enable system-assigned identity.
+  - Updated the [Remove-FinOpsHub command](powershell/hubs/Remove-FinOpsHub.md) to show a list of resources before confirming delete.
     - The name of each deleted resource is printed for better visibility during the deletion process.
     - Added ability to confirm all deletions using a `-Force` parameter or "Yes to All" option ([#1187](https://github.com/microsoft/finops-toolkit/issues/1187)).
 - **Changed**
-  - Updated the following `RunHistory` array item properties in [Get-FinOpsCostExport command](../_automation/powershell/cost/Get-FinOpsCostExport.md) outputs:
+  - Updated the following `RunHistory` array item properties in [Get-FinOpsCostExport command](powershell/cost/Get-FinOpsCostExport.md) outputs:
     - Renamed `Id` to `ResourceId`
     - Renamed `StartTime` to `RunStartTime`
     - Renamed `EndTime` to `RunEndTime`
@@ -133,7 +133,7 @@ _Released February 12, 2025_
     - Added `QueryEndDate` with the last day of the exported data
     - Added `ErrorCode` with the error code of the run, if applicable
     - Added `ErrorMessage` with the error message of the run, if applicable
-  - Fixed the following [Get-FinOpsCostExport command](../_automation/powershell/cost/Get-FinOpsCostExport.md) outputs:
+  - Fixed the following [Get-FinOpsCostExport command](powershell/cost/Get-FinOpsCostExport.md) outputs:
     - `DatasetVersion` string
     - `DatasetFilters` object
     - `OverwriteData` flag
@@ -147,7 +147,7 @@ _Released February 12, 2025_
       - `StartTime` date/time (renamed to `RunStartTime`)
       - `EndTime` date/time (renamed to `RunEndTime`)
 - **Fixed**
-  - Fixed the [New-FinOpsCostExport command](../_automation/powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
+  - Fixed the [New-FinOpsCostExport command](powershell/cost/New-FinOpsCostExport.md) to work for prices, reservation recommendations, and reservation transactions ([#1193](https://github.com/microsoft/finops-toolkit/issues/1193)).
 
 ### [Open data](open-data.md) v0.8
 
@@ -489,7 +489,7 @@ _Released October 2, 2024_
   - Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014)).
 - Deprecated
   - With the deprecation of the legacy Log Analytics agent in August 31, the `Setup-LogAnalyticsWorkspaces` script is no longer being maintained and will be removed in a future update.
-    - The script was used to set up performance counters collection for machines connected to Log Analytics workspaces with the legacy agent. 
+    - The script was used to set up performance counters collection for machines connected to Log Analytics workspaces with the legacy agent.
     - We recommend migrating to the [Azure Monitor Agent](/azure/azure-monitor/agents/azure-monitor-agent-migration) and use the `Setup-DataCollectionRules` script to [setup performance counters collection with Data Collection Rules](optimization-engine/configure-workspaces.md).
 
 ### [PowerShell module](powershell/powershell-commands.md) v0.6
