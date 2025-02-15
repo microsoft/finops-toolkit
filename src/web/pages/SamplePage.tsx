@@ -1,5 +1,6 @@
 import Sidebar from '../components/SideBar';
 import TopMenuBar from '../components/TopMenuBar/TopMenuBar';
+import Showcase from '../components/Showcase/Showcase';
 
 export function SamplePage() {
     return (
@@ -40,9 +41,8 @@ export function SamplePage() {
                         boxSizing: 'border-box', // Include padding and border in width calculation
                     }}
                 >
-                    <main style={{ padding: '20px', flexGrow: 1 }}>
-                        <h1>SamplePage</h1>
-                        {/* Add your components or content here */}
+                    <main style={{ padding: '20px', flexGrow: 1, width: '100%' }}>
+                        <Showcase />
                     </main>
                 </div>
             </div>
