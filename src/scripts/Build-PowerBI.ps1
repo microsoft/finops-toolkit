@@ -103,36 +103,37 @@ $reports | ForEach-Object {
     $folder = $inputFile.DirectoryName
     $reportDir = "$folder/$reportName.Report"
     $datasetDir = "$folder/Shared.Dataset"
+    $reportType = $inputFile.Name.Split('.')[1] # Extract "kql" or "storage" from filename
     Write-Verbose "Processing $($inputFile.Name)..."
 
     $metadata = @{
         CostSummary          = @{
             Intro       = "The Cost summary report provides several summaries of your effective (amortized) and billed costs based on the FinOps Open Cost and Usage Specification (FOCUS). Amortization breaks down reservation and savings plan purchases and allocates costs to the resources that received the benefit. Effective costs will not match your invoice."
             Tables      = @("Costs", "Prices", "PricingUnits")
-            Expressions = @("▶️  START HERE", "Cluster URL", "Default Granularity", "Number of Months", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
+            Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
         }
         DataIngestion        = @{
             Intro       = "The Data ingestion report provides details about the data you've ingested into your FinOps hub storage account."
             Tables      = @("Costs", "HubScopes", "HubSettings", "Prices", "PricingUnits", "StorageData", "StorageErrors")
-            Expressions = @("▶️  START HERE", "Cluster URL", "Default Granularity", "Number of Months", "Storage URL", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
+            Expressions = @("▶️  START HERE", "Cluster URL", "Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
         }
         Governance           = @{
             Intro       = "The Cloud policy and governance report summarizes your Microsoft Cloud governance posture. It offers the standard metrics aligned with the Cloud Adoption Framework to facilitate identifying issues, applying recommendations, and resolving compliance gaps."
-            Tables      = @("AdvisorRecommendations", "Compliance calculation", "Costs", "Disks", "ManagementGroups", "NetworkInterfaces", "NetworkSecurityGroups", "PolicyAssignments", "PolicyDefinitions", "PolicyStates", "PricingUnits", "PublicIPAddresses", "Regions", "Resources", "ResourceTypes", "SqlDatabases", "Subscriptions", "VirtualMachines")
-            Expressions = @("▶️  START HERE", "Cluster URL", "Default Granularity", "Number of Months", "ftk_DemoFilter", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
+            Tables      = @("AdvisorRecommendations", "Compliance calculation", "Costs", "Disks", "ManagementGroups", "NetworkInterfaces", "NetworkSecurityGroups", "PolicyAssignments", "PolicyDefinitions", "PolicyStates", "Prices", "PricingUnits", "PublicIPAddresses", "Regions", "Resources", "ResourceTypes", "SqlDatabases", "Subscriptions", "VirtualMachines")
+            Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DemoFilter", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
         }
         RateOptimization     = @{
             Intro       = "The Rate optimization report provides insights into any workload optimization opportunities, like reservations, savings plans, and Azure Hybrid Benefit. This reports uses effective cost, which amortizes and breaks reservation and savings plan purchases down and allocates costs out to the resources that received the benefit. Effective cost will not match your invoice."
-            Tables      = @("Costs", "Prices", "PricingUnits", "ReservationRecommendations")
-            Expressions = @("▶️  START HERE", "Cluster URL", "Default Granularity", "Number of Months", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
+            Tables      = @("Costs", "InstanceSizeFlexibility", "Prices", "PricingUnits", "ReservationRecommendations")
+            Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
         }
         WorkloadOptimization = @{
             Intro       = "The Workload optimization report provides insights into resource utilization and efficiency opportunities based on historical usage patterns. Use this report to determine if resources can be scaled down or even shutdown during off-peak hours to minimize wasteful usage and spending. Also consider cheaper alternatives when available and ensure all workloads have some direct or indirect link to business value to avoid unnecessary usage and costs that don't contribute to the mission."
-            Tables      = @("AdvisorRecommendations", "Costs", "Disks", "Prices", "PricingUnits", "Resources")
-            Expressions = @("▶️  START HERE", "Cluster URL", "Default Granularity", "Number of Months", "ftk_DemoFilter", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
+            Tables      = @("AdvisorRecommendations", "Costs", "Disks", "Prices", "PricingUnits", "Resources", "Subscriptions", "VirtualMachines")
+            Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DemoFilter", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
         }
     }[$reportName]
-
+    
     # Create folder structure
     $targetFile = "$relDir/$($inputFile.Name.Replace('.pbip', ''))"
     Remove-Item $targetFile -Recurse -Force -ErrorAction SilentlyContinue
@@ -151,9 +152,9 @@ $reports | ForEach-Object {
             $exp.expression = $exp.expression -replace '^\\"[^\\"]+\\" meta ', 'null meta '
         }
     }
-    $modelJson.model.tables = $modelJson.model.tables | Where-Object { $metadata.Tables -contains $_.name }
-    $modelJson.model.relationships = @($modelJson.model.relationships | Where-Object { $metadata.Tables -contains $_.fromTable -and $metadata.Tables -contains $_.toTable })
-    $modelJson.model.expressions = $modelJson.model.expressions | Where-Object { $metadata.Expressions -contains $_.name }
+    $modelJson.model.tables = $modelJson.model.tables | Where-Object { $metadata.Tables -contains $_.name -or $metadata.Tables -contains "[$reportType]$($_.name)" }
+    $modelJson.model.relationships = @($modelJson.model.relationships | Where-Object { ($metadata.Tables -contains $_.fromTable -or $metadata.Tables -contains "[$reportType]$($_.fromTable)") -and ($metadata.Tables -contains $_.toTable -or $metadata.Tables -contains "[$reportType]$($_.toTable)") })
+    $modelJson.model.expressions = $modelJson.model.expressions | Where-Object { $metadata.Expressions -contains $_.name -or $metadata.Expressions -contains "[$reportType]$($_.name)" }
     $modelJson.model.annotations = $modelJson.model.annotations `
     | ForEach-Object {
         $ann = $_
@@ -194,11 +195,10 @@ $reports | ForEach-Object {
     # TODO: Where does "ShouldNotifyUserOfNameConflictResolution" come from?
     # TODO: Where does "QueriesSettings.Version" come from?
     $editorSettings = Get-Content "$datasetDir/.pbi/editorSettings.json" | ConvertFrom-Json
-    $localSettings = Get-Content "$datasetDir/.pbi/localSettings.json" | ConvertFrom-Json
     Write-UTF16LE -File "$targetFile/Settings" -Json @{
         Version         = 4
         ReportSettings  = @{
-            UserConsentsToCompositeModels            = $localSettings.userConsent.compositeModel
+            UserConsentsToCompositeModels            = $true
             ShouldNotifyUserOfNameConflictResolution = $false
         }
         QueriesSettings = @{
