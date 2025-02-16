@@ -8,7 +8,8 @@ const Showcase = () => {
   }
 
   function handleLearnAboutFinOpsClick() {
-    window.open('https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/finops-toolkit-overview', '_blank');
+    window.open('https://learn.microsoft.com/cloud-computing/finops/toolkit/finops-toolkit-overview', '_blank');
+
   }
 
   return (
