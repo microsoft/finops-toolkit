@@ -25,7 +25,12 @@ The **Cost Management connector** report provides a general overview of cost, co
 - Determine which resources used commitment discounts, also called chargeback.
 - Summarize cost savings from negotiated and commitment discounts.
 
-You can download the Cost Management connector report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.pbix)
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Cost%20Management%20connector%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Cost%20Management%20connector%20report%3F/surveyId/FTK0.8/bladeName/PowerBI.Docs.CMConnector/featureName/General)
+
+<br>
 
 > [!WARNING]
 > The Cost Management connector uses an older API that doesn't include all details about savings plans. You'll see unused savings plan charges that don't have identifiable usage for due to this gap. This issue  skews numbers, if you have savings plans. Consider using [FinOps hubs](../hubs/finops-hubs-overview.md) to use savings plans.

@@ -39,6 +39,8 @@ Power BI reports are provided as template (.PBIT) files. Template files are not 
 
 The **Get started** page includes a basic introduction to the report with links to learn more.
 
+For instructions on how to connect this report to your data, including details about supported parameters, select the **Connect your data** button. Hold <kbd>Ctrl</kbd> when clicking the button in Power BI Desktop. If you need assistance, select the **Get help** button.
+
 :::image type="content" source="./media/workload-optimization/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows basic information and links to learn more." lightbox="./media/workload-optimization/get-started.png" :::
 
 <br>

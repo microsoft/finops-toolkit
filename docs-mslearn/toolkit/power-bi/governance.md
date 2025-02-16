@@ -34,6 +34,8 @@ The Governance report is new and still being fleshed out. We will continue to ex
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Policy%20and%20governance%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Policy%20and%20governance%20report%3F/surveyId/FTK0.8/bladeName/PowerBI.Docs.Governance/featureName/General)
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
@@ -42,6 +44,8 @@ Power BI reports are provided as template (.PBIT) files. Template files are not 
 ## Get started
 
 The **Get started** page includes a basic introduction to the report with links to learn more.
+
+For instructions on how to connect this report to your data, including details about supported parameters, select the **Connect your data** button. Hold <kbd>Ctrl</kbd> when clicking the button in Power BI Desktop. If you need assistance, select the **Get help** button.
 
 :::image type="content" source="./media/governance/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows basic information." lightbox="./media/governance/get-started.png" :::
 
@@ -98,15 +102,6 @@ The **Network security groups** page lists network security groups and network s
 :::image type="content" source="./media/governance/network-security-groups.png" border="true" alt-text="Screenshot of the Network security groups page that lists network security groups and network security group rules." lightbox="./media/governance/network-security-groups.png" :::
 
 <br>
-
-<!-- TODO: Uncomment when files are added
-## See also
-
-- [Common terms](../../_resources/terms.md)
-- [Data dictionary](../../_resources/data-dictionary.md)
-
-<br>
--->
 
 ## Looking for more?
 

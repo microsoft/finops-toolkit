@@ -341,6 +341,16 @@ This error code is shown in the `x_SourceChanges` column when `ProviderName` is 
 
 <br>
 
+## Query '...' references other queries steps
+
+<sup>Severity: Minor</sup>
+
+The source of this error is unknown. This error may be surfaced randomly.
+
+**Mitigation**: If you receive this error, select **Apply change** again.
+
+<br>
+
 ## ResourceAccessForbiddenException
 
 Power BI: An exception of the 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' type was thrown
