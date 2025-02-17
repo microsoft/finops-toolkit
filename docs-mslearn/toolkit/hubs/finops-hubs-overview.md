@@ -188,7 +188,7 @@ Configuring and managing FinOps hubs requires the following permissions:
 
 - Configuring exports requires one of the following, depending on scope:
   - Subscriptions and resource groups: [Cost Management Contributor](/azure/role-based-access-control/built-in-roles#cost-management-contributor).
-  - EA billing scopes: Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).
+  - EA billing scopes: Enterprise Reader, Department Reader, or Account Owner (also known as enrollment account).
   - MCA billing scopes: Contributor on the billing account, billing profile, or invoice section.
   - MPA billing scopes: Contributor on the billing account, billing profile, or customer.
 - Deploying the FinOps hubs template requires one of the following:

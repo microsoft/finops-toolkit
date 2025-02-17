@@ -36,7 +36,7 @@ If you have multiple Entra ID directories (also known as tenants), you can exten
 | More scalable coverage of secondary tenant, just by granting permissions to the service principal on a higher-level scope                  | Deployment is done per subscription in secondary tenant; needs Azure Policy to scale                                                                                                                                                                                                                             |
 | Less cost-effective, as job schedules are duplicated for the secondary tenant                                                              | More cost-effective, as existing job schedules will automatically cover the secondary tenant                                                                                                                                                                                                                     |
 
-### Multi-tenant with service principal in secondary tenant
+### Multitenant with service principal in secondary tenant
 
 To widen the engine scope using the service principal-based approach, you must ensure the following pre-requisites:
 
@@ -49,7 +49,7 @@ To widen the engine scope using the service principal-based approach, you must e
 ./Register-MultitenantAutomationSchedules.ps1 -AutomationAccountName <AOE automation account> -ResourceGroupName <AOE resource group> -TargetSchedulesSuffix <suffix to append to every new job schedules, e.g., Tenant2> -TargetTenantId <secondary tenant GUID> -TargetTenantCredentialName <name of the Automation credential created in the previous step> [-TargetSchedulesOffsetMinutes <offset in minutes relative to original schedules, defaults to 0>] [-TargetAzureEnvironment <AzureUSGovernment|AzureGermanCloud|AzureCloud>] [-ExcludedRunbooks <An array of runbook names to exclude from the process>] [-IncludedRunbooks <An array of runbook names to include in the process>]
 ```
 
-### Multi-tenant with Azure Lighthouse
+### Multitenant with Azure Lighthouse
 
 To widen the engine scope using the Azure Lighthouse-based approach, you must ensure the following pre-requisites:
 
@@ -58,7 +58,7 @@ To widen the engine scope using the Azure Lighthouse-based approach, you must en
 - If you need to deploy at scale to multiple subscriptions, you can leverage Azure Policy, by following the instructions available [here](/azure/lighthouse/how-to/onboard-management-group) and adjusting the policy definition code to follow the reference template above.
 - No matter the deployment approach, the template parameters you must provide are the following:
   - `managedByTenantId` - Microsoft Entra tenant ID of the tenant where AOE was deployed in.
-  - `principalId` - Microsoft Entra object id of the AOE automation account system managed identity.
+  - `principalId` - Microsoft Entra object ID of the AOE automation account system managed identity.
   - `principalIdDisplayName` - AOE automation account name.
 
 <br>

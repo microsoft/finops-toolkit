@@ -30,11 +30,11 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <sup>Severity: Critical</sup>
 
-This error typically occurs when updating a FinOps hub deployment with a different storage account configuration than was originally used during creation. While most properties can be changed, there are a few properties that can only be set once when the storage account is created and cannot change. The one known case of this for FinOps hubs is the "requireInfrastructureEncryption" property. If was enabled or disabled during the first FinOps hub deployment, then it cannot be changed. You will see the following error when this happens:
+This error typically occurs when updating a FinOps hub deployment with a different storage account configuration than was originally used during creation. While most properties can be changed, there are a few properties that can only be set once when the storage account is created and cannot change. The one known case of this for FinOps hubs is the "requireInfrastructureEncryption" property. If this property was enabled or disabled during the first FinOps hub deployment, then it cannot be changed. You will see the following error when this happens:
 
 > The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
 
-**Mitigation**: If you did not mean to change this setting, confirm whether your storage account is configured to use infrastructure encryption and re-deploy the FinOps hub template with the same value (either on or off). If you want to change the setting, we recommend deploying a new FinOps hub instance, as this will require re-ingesting all data.
+**Mitigation**: If you did not mean to change this setting, confirm whether your storage account is configured to use infrastructure encryption and re-deploy the FinOps hub template with the same value (either on or off). If you want to change the setting, we recommend deploying a new FinOps hub instance, as this will require reingesting all data.
 
 You can try to delete the existing storage account and redeploy the template with infrastructure encryption changed; however, we have not thoroughly tested this. While we do not anticipate issues, we cannot confirm if it will cause problems.
 

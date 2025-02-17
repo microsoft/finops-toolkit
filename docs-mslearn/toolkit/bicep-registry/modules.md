@@ -1,5 +1,5 @@
 ---
-title: Bicep registry
+title: Bicep Registry modules for FinOps
 description: This article summarizes the Bicep modules available from the FinOps toolkit and provides guidance on how to reference them in your templates.
 author: bandersmsft
 ms.author: banders
@@ -12,9 +12,9 @@ ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Bicep registry modules
+# Bicep Registry modules
 
-Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules aren't included directly in the toolkit release.
+Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules aren't included directly in the toolkit release. To use a module, reference the desired module from your bicep code.
 
 <br>
 
@@ -31,11 +31,13 @@ module <name> 'br/public:cost/<scope>-<type>:<version>' {
 }
 ```
 
-For details about the parameters for each module, see the following module details.
+For details about the parameters for each module, refer to the module details.
 
 <br>
 
 ## Modules
+
+The FinOps toolkit maintains the following Bicep Registry modules:
 
 <!--
 - [Exports](exports.md) – Publish Cost Management datasets to a storage account ad-hoc or on a recurring schedule.
@@ -49,7 +51,10 @@ For details about the parameters for each module, see the following module detai
 
 We'd love to hear about any modules or templates you're looking for. To suggest a new idea, vote up existing ideas or create a new issue. We focus on ideas with the most votes.
 
-[Vote on ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Solution%3A+Bicep+Registry%22+sort%3Areactions-%2B1-desc) &nbsp; [Suggest an idea](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Solution%3A+Bicep+Registry%22+sort%3Areactions-%2B1-desc)
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/surveyId/FTK0.8/bladeName/PowerBI.RateOptimization/featureName/Documentation)
 
 <br>
 

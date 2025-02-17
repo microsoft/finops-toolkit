@@ -27,7 +27,9 @@ Public access in FinOps hubs has the following traits:
 - Key Vault is accessible via public IP addresses (firewall set to public).
 - Azure Data Factory is configured to use the public integration runtime.
 
-:::image type="content" source="./media/private-networking/finops-hubs-public-network.png" border="false" alt-text="Screenshot of publicly accessible deployments" lightbox="./media/private-networking/finops-hubs-public-network.png" :::
+<!--
+:::image type="content" source="./media/private-networking/finops-hubs-public-network.png" border="false" alt-text="Screenshot of publicly accessible deployments." lightbox="./media/private-networking/finops-hubs-public-network.png" :::
+-->
 
 <br>
 
@@ -42,34 +44,11 @@ Private access is a more secure option that places FinOps hubs resources on an i
 - Azure  Data Factory is configured to use the public integration runtime, which helps reduce costs.
 - A virtual network is deployed to ensure communication between all components during deployment and at runtime remains private.
 
-:::image type="content" source="./media/private-networking/finops-hubs-private-network.png" border="false" alt-text="Screenshot of privately accessible deployments" lightbox="./media/private-networking/finops-hubs-private-network.png" :::
+<!--
+:::image type="content" source="./media/private-networking/finops-hubs-private-network.png" border="false" alt-text="Screenshot of privately accessible deployments." lightbox="./media/private-networking/finops-hubs-private-network.png" :::
+-->
 
-Note that private networking incurs extra cost for networking resources, connectivity, and dedicated compute in Azure Data Factory. The following table portrays the added cost when private networking is enabled:
-
-| Service category | Service             | Description                                       | Estimated monthly cost |
-| ---------------- | ------------------- | ------------------------------------------------- | ---------------------- |
-| Analytics        | Azure Data Explorer | Data Factory p Pipeline execution & data movement | $444.13                |
-| Networking       | Azure private link  | Private endpoint costs                            | $38.50                 |
-
-These estimates are based on list prices without discounts based on the following monthly usage patterns:
-
-- Azure Data Factory V2, Data Pipeline Service Type, Azure Integration Runtime
-  - Activity runs: 0
-  - Data movement units: 0
-  - Pipeline activities: 100
-  - Pipeline activities – External: 100
-- Azure vNet integration runtime
-  - Activity runs: 0
-  - Data movement units: 100
-  - Pipeline activities: 100
-  - Pipeline activities – External: 100
-- Data Flow
-  - 1 x 8 general purpose vCores x 100 hours
-  - 0 x 8 memory optimized vCores x 730 hours
-- Azure Private Link
-  - 5 endpoints x 730 hours
-  - Outbound data processed: 100 GB
-  - Inbound data processed: 100 GB
+Note that private networking incurs extra cost for networking resources, connectivity, and dedicated compute in Azure Data Factory. For a detailed cost estimate, please refer to the Azure pricing calculator.
 
 <br>
 
@@ -93,7 +72,7 @@ _¹ While resources are accessible over the internet, access is still protected 
 
 To enable private networking when deploying a new or updating an existing FinOps hub instance, set **Access** to **Private** on the **Advanced** tab.
 
-:::image type="content" source="./media/private-networking/finops-hubs-private-deployment.png" border="false" alt-text="Screenshot of secure private deployments" lightbox="./media/private-networking/finops-hubs-private-deployment.png" :::
+:::image type="content" source="./media/private-networking/finops-hubs-private-deployment.png" alt-text="Screenshot of secure private deployments." lightbox="./media/private-networking/finops-hubs-private-deployment.png" :::
 
 Before enabling private access, review the networking details on this page to understand the extra configuration required in order to connect to your hub instance. Once enabled, your FinOps hub instance is inaccessible until network access is configured outside of the FinOps hub instance. We recommend sharing this with your network admins to ensure the IP range meets network standards and they understand how to connect your hub instance to the existing network.
 
@@ -138,11 +117,11 @@ Communication between the various FinOps hub components is encrypted using TLS. 
 
 When private access is selected, the FinOps hub instance is deployed to an isolated spoke virtual network. Multiple options exist to enable private connectivity to the FinOps hub virtual network including:
 
-1. Peering the FinOps hub network with another Azure vNet.
-1. Peering the FinOps hub network with an Azure vWAN hub.
-1. Extending the FinOps hub network address space and deploying a VPN gateway.
-1. Extending the FinOps hub network address space and deploying a Power BI data gateway.
-1. Allowing one's corporate firewall and VPN IP ranges access over the public internet via the storage and Data Explorer firewalls.
+- Peering the FinOps hub network with another Azure vNet.
+- Peering the FinOps hub network with an Azure vWAN hub.
+- Extending the FinOps hub network address space and deploying a VPN gateway.
+- Extending the FinOps hub network address space and deploying a Power BI data gateway.
+- Allowing one's corporate firewall and VPN IP ranges access over the public internet via the storage and Data Explorer firewalls.
 
 To access FinOps hub data from an existing virtual network, configure **A** records in your existing virtual network to access storage or Data Explorer. **CNAME** records may also be required depending on your DNS solution.
 
@@ -164,7 +143,9 @@ In this example:
 - DNS entries for storage and Data Explorer are added to Azure DNS Resolver to ensure reliable name resolution.
 - A route table is attached to the network gateway subnet to ensure traffic from on-premises can route to the peered vNet.
 
-:::image type="content" source="./media/private-networking/finops-hubs-network-peering.png" border="false" alt-text="Screenshot of network peering configuration" lightbox="./media/private-networking/finops-hubs-network-peering.png" :::
+<!--
+:::image type="content" source="./media/private-networking/finops-hubs-network-peering.png" border="false" alt-text="Screenshot of network peering configuration." lightbox="./media/private-networking/finops-hubs-network-peering.png" :::
+-->
 
 This network topology follows the Hub-Spoke network architecture guidance outlined in the [Cloud Adoption Framework](/azure/cloud-adoption-framework/ready/azure-best-practices/hub-spoke-network-topology) for Azure and the [Azure Architecture Center](/azure/architecture/networking/architecture/hub-spoke).
 

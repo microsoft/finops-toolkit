@@ -14,7 +14,7 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Upgrading FinOps hubs
 
-This article helps you upgrade a existing FinOps hub instance to the latest version to use new capabilities.
+This article helps you upgrade an existing FinOps hub instance to the latest version to use new capabilities.
 
 Upgrading a FinOps hub instance is usually the same as the initial setup. However, depending on what version you're moving from or to, you might have specific steps that are needed. Use the following sections to move from one version to another. If you have any questions, [start a discussion](https://aka.ms/discuss).
 

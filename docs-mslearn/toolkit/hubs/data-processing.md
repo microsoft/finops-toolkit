@@ -24,7 +24,7 @@ A **scope** is a level within the cloud resource and account hierarchy that prov
 
 FinOps hubs support configuring scopes by manually configuring Cost Management exports or by granting FinOps hubs access to manage scopes on your behalf. Managed scopes are configured in the **config/settings.json** file in hub storage. The information describes what happens when a new, managed scope is added into this file. Unmanaged scopes, where Cost Management exports are manually configured, don't require other setup.
 
-:::image type="content" source="./media/data-processing/scope-setup.png" border="false" alt-text="Diagram depicting the scope setup process" lightbox="./media/data-processing/scope-setup.png" :::
+:::image type="content" source="./media/data-processing/scope-setup.png" border="false" alt-text="Diagram depicting the scope setup process." lightbox="./media/data-processing/scope-setup.png" :::
 
 1. The **config_SettingsUpdated** trigger runs when the **settings.json** file is updated.
 2. The **config_ConfigureExports** pipeline creates new exports for any new scopes that were added.
@@ -35,7 +35,7 @@ FinOps hubs support configuring scopes by manually configuring Cost Management e
 
 The following diagram depicts the end-to-end data ingestion process within FinOps hubs:
 
-:::image type="content" source="./media/data-processing/data-ingestion.png" border="false" alt-text="Diagram depicting the data ingestion process" lightbox="./media/data-processing/data-ingestion.png" :::
+:::image type="content" source="./media/data-processing/data-ingestion.png" border="false" alt-text="Diagram depicting the data ingestion process." lightbox="./media/data-processing/data-ingestion.png" :::
 
 1. (Optional) If using managed exports:
    1. The **config_DailySchedule** and **config_MonthlySchedule** triggers run on their respective schedules to kick off data ingestion.

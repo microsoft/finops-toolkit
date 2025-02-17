@@ -159,7 +159,7 @@ Decide whether want to connect to storage using a user or service principal acco
 
 1. If the Power BI report doesn't include entire months of data, confirm the date parameters in the Power BI report by checking **Transform data** > **Edit parameters** in the ribbon. See [Set up your first report](../power-bi/setup.md) for details.
    - **Number of Months** defines how many closed months (before the current month) get shown in reports. Even if data is exported, data outside this range isn't shown. If defined, this parameter overrides others.
-   - **RangeStart** and **RangeEnd define an explicit date range of data to show in the reports. Anything before or after these dates isn't shown.
+   - **RangeStart** and **RangeEnd** define an explicit date range of data to show in the reports. Anything before or after these dates isn't shown.
    - If **RangeStart** is empty, all historical data before **RangeEnd** is included.
    - If **RangeEnd** is empty, all new data after **RangeStart** is included.
    - If all date parameters are empty, all available data is included.
