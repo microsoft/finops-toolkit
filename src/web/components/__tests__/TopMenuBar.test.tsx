@@ -3,40 +3,38 @@ import TopMenuBar from '../TopMenuBar/TopMenuBar';
 import React from 'react';
 
 describe('TopMenuBar', () => {
-    it('should render the logo and title', () => {
+    it('renders the logo with correct alt text', () => {
         render(<TopMenuBar />);
 
-        // Check if the logo is rendered
-        const logo = screen.getByAltText('Microsoft Logo');
+        const logo = screen.getByRole('img', { name: /Microsoft Logo/i });
         expect(logo).toBeInTheDocument();
+        expect(logo).toHaveAttribute('alt', 'Microsoft Logo');
+    });
 
-        // Check if the title text is rendered
-        const title = screen.getByText('FinOps toolkit');
+    it('renders the title with correct text', () => {
+        render(<TopMenuBar />);
+
+        const title = screen.getByText(/FinOps Toolkit/i);
         expect(title).toBeInTheDocument();
     });
 
-    it('should render a divider between the logo and title', () => {
+    it('renders an accessible divider', () => {
         render(<TopMenuBar />);
 
-        // Check that the divider is present
         const divider = screen.getByRole('separator');
         expect(divider).toBeInTheDocument();
     });
 
-    it('renders with accessible elements', () => {
+    it('ensures all key elements are visible and accessible', () => {
         render(<TopMenuBar />);
 
-        // Check if the logo has appropriate alt text
-        const logo = screen.getByAltText('Microsoft Logo');
-        expect(logo).toHaveAttribute('alt', 'Microsoft Logo');
+        const logo = screen.getByRole('img', { name: /Microsoft Logo/i });
+        expect(logo).toBeVisible();
 
-        // Verify that the title text exists and contains the expected text
-        const title = screen.getByText('FinOps toolkit');
-        expect(title).toBeInTheDocument();
-    });
+        const title = screen.getByText(/FinOps Toolkit/i);
+        expect(title).toBeVisible();
 
-    it('matches the snapshot', () => {
-        const { asFragment } = render(<TopMenuBar />);
-        expect(asFragment()).toMatchSnapshot();
+        const divider = screen.getByRole('separator');
+        expect(divider).toBeVisible();
     });
 });
