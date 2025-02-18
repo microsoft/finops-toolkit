@@ -74,21 +74,8 @@ The FinOps hub template includes the following resources:
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
 
-Once deployed, you can report on the data directly using Data Explorer queries, Data Explorer dashboards, Power BI, or by connecting to the database or storage account directly.
+Once deployed, you can query data directly using Data Explorer queries, visualize data using the available Data Explorer dashboards or Power BI reports, or connect to the database or storage account directly from your own tools.
 
-> [!NOTE]
-> This article contains images showing example data. Any price data is for test purposes only.
-
-Here are some examples of the reports:
-
-:::image type="content" source="./media/finops-hubs-overview/cost-summary-report.png" border="true" alt-text="Screenshot showing the Cost summary report." lightbox="./media/finops-hubs-overview/cost-summary-report.png" :::
-
-:::image type="content" source="./media/finops-hubs-overview/services-cost-report.png" border="true" alt-text="Screenshot showing the Services cost report." lightbox="./media/finops-hubs-overview/services-cost-report.png" :::
-
-:::image type="content" source="./media/finops-hubs-overview/commitment-discounts-coverage-report.png" border="true" alt-text="Screenshot showing the Commitment discounts coverage report." lightbox="./media/finops-hubs-overview/commitment-discounts-coverage-report.png" :::
-
-> [!div class="nextstepaction"]
-> [Browse reports](../power-bi/reports.md)
 > [!div class="nextstepaction"]
 > [See the template](template.md)
 
@@ -96,11 +83,25 @@ Here are some examples of the reports:
 
 ## Explore the FinOps reports
 
-Each report in the FinOps toolkit is available as a PBIX or PBIT file. The PBIX file contains sample data that can be viewed in Power BI desktop without connecting to your account.
+The FinOps toolkit includes five Power BI reports that are available in three sets:
 
-To visualize the reports available, download the PBIX Power BI report file from the desired [release](https://github.com/microsoft/finops-toolkit/releases) and open the report in Power BI Desktop. From there, you can navigate through the different pages of the report, which are prefilled with test data.
+- [PowerBI-demo.zip](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip) includes reports with sample data.
+- [PowerBI-kql.zip](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip) for templates that connect to Data Explorer.
+- [PowerBI-storage.zip](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip) for templates that connect to the storage account.
 
-:::image type="content" source="./media/finops-hubs-overview/rate-optimization-commitment-discounts.png" border="true" alt-text="Screenshot of the Rate optimization report with test data." lightbox="./media/finops-hubs-overview/rate-optimization-commitment-discounts.png" :::
+> [!NOTE]
+> This article contains images showing example data. Any price data is for test purposes only.
+
+:::image type="content" source="../power-bi/media/cost-summary/charge-breakdown.png" border="true" alt-text="Screenshot of the Charge breakdown page that shows a breakdown of all charges." lightbox="../power-bi/media/cost-summary/charge-breakdown.png" :::
+
+:::image type="content" source="../power-bi/media/rate-optimization/summary.png" border="true" alt-text="Screenshot of the Summary page that shows cost and savings breakdown." lightbox="../power-bi/media/rate-optimization/summary.png" :::
+
+:::image type="content" source="../power-bi/media/workload-optimization/advisor-recommendations.png" border="true" alt-text="Screenshot of the Recommendations page that shows a list of Azure Advisor cost recommendations." lightbox="../power-bi/media/workload-optimization/advisor-recommendations.png" :::
+
+:::image type="content" source="../power-bi/media/governance/summary.png" border="true" alt-text="Screenshot of the Governance report Summary page that shows a summary of subscriptions, resource types, and other information." lightbox="../power-bi/media/governance/summary.png" :::
+
+> [!div class="nextstepaction"]
+> [Browse reports](../power-bi/reports.md)
 
 <br>
 

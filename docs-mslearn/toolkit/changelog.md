@@ -1071,7 +1071,7 @@ _**Breaking change**_
   - Updated reports to [FOCUS 1.0 preview](../focus/what-is-focus.md).
   - Updated reports to only use [FinOps hubs](hubs/finops-hubs-overview.md).
   - Removed unused custom visualizations.
-  - Organized set up instructions in Cost summary to match other reports.
+  - Organized setup instructions in Cost summary to match other reports.
   - Updated troubleshooting documentation.
 - **Fixed**
   - Removed sensitivity labels.
