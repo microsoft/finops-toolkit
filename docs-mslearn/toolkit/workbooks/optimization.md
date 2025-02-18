@@ -3,7 +3,7 @@ title: FinOps toolkit Optimization workbook
 description: The Azure Monitor workbook focuses on cost optimization, providing insights and recommendations for improving cost efficiency in your Azure environment.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/18/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -48,6 +48,20 @@ Here's an example of the Usage optimization section for Azure Kubernetes Service
 :::image type="content" source="./media/optimization/usage-optimization-example.png" alt-text="Screenshot showing the Usage optimization section for AKS." lightbox="./media/optimization/usage-optimization-example.png" :::
 
 For more information about the Cost optimization workbook, see [Understand and optimize your Azure costs using the Cost optimization workbook](/azure/advisor/advisor-cost-optimization-workbook).
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks.Optimization/featureName/Overview)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20Workbooks%22%20sort%3A"reactions-%2B1-desc")
 
 <br>
 

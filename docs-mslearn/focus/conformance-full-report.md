@@ -3,7 +3,7 @@ title: FOCUS conformance report
 description: Comprehensive analysis of the Microsoft Cost Management FOCUS dataset's adherence to FOCUS requirements.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/18/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -772,6 +772,20 @@ The rest of this document lists the FOCUS requirements grouped by attribute and 
 | T9  | MUST        | Providers MUST NOT alter user-defined Tag keys or values.                                                                                 | Supports         |                                                                                                                                  |
 | T10 | MUST        | Provider-defined tags MUST be prefixed with a provider-specified tag key prefix.                                                          | Does Not Support | Provider-specified tags can't be differentiated from user-defined tags. Tags aren't modified to support backwards compatibility. |
 | T11 | SHOULD      | Providers SHOULD publish all provider-specified tag key prefixes within their respective documentation.                                   | Not Applicable   | Provider prefixes aren't currently specified.                                                                                    |
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.FOCUS/featureName/Conformance.Report)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>
 

@@ -3,7 +3,7 @@ title: FinOps toolkit roadmap
 description: Explore the FinOps toolkit roadmap to learn about upcoming features, key themes, and initiatives planned for the future.
 author: bandersmsft
 ms.author: banders
-ms.date: 11/01/2024
+ms.date: 02/18/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -120,6 +120,20 @@ While our community is growing, we don't have a dedicated staff and can't commit
 ## New tools
 
 - In development - **New tool**: Cost optimization notifications ([Milestone #24](https://github.com/microsoft/finops-toolkit/milestone/24)) – Email notifications when optimization opportunities are identified.<br>
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Roadmap)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
 
 <br>
 

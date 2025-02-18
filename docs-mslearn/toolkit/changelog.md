@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: bandersmsft
 ms.author: banders
-ms.date: 02/13/2025
+ms.date: 02/18/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -1251,5 +1251,19 @@ _Released May 27, 2023_
 > [Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1)
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Changelog)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>

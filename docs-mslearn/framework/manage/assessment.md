@@ -4,7 +4,7 @@ description: This article helps you understand the FinOps assessment capability 
 ms.topic: concept-article
 author: bandersmsft
 ms.author: banders
-ms.date: 07/14/2024
+ms.date: 02/18/2025
 ms.service: finops
 ms.subservice: finops-learning-resources
 ms.reviewer: micflan
@@ -46,6 +46,8 @@ When you first start managing cost in the cloud, use the native assessment tools
 
 ## Building on the basics
 
+As you establish a solid foundation, consider ways to automate and extend your work.
+
 - Review KPIs periodically in cross-functional meetings or dashboards.
 - To make adoption and measurement easier, automate KPIs, dashboards, and alerts.
 - Scale the assessment out across divisions and deeper into each division for breadth and completeness.
@@ -56,6 +58,20 @@ When you first start managing cost in the cloud, use the native assessment tools
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps assessment capability](https://www.finops.org/framework/capabilities/finops-assessment/) article in the FinOps Framework documentation.
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.Framework/featureName/Capabilities.Manage.Assessment)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>
 

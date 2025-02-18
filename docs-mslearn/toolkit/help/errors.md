@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: bandersmsft
 ms.author: banders
-ms.date: 02/13/2025
+ms.date: 02/18/2025
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -541,6 +541,20 @@ If you're facing an error not listed above or need more help, file a [support re
 
 <br>
 -->
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Help.DataDictionary)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+
+<br>
 
 ## Related content
 

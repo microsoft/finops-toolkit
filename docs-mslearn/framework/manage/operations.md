@@ -3,7 +3,7 @@ title: FinOps practice operations
 description: This article helps you understand the FinOps practice operations capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/14/2024
+ms.date: 02/18/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -85,6 +85,20 @@ At this point, you have a regular cadence of meetings with a steering committee 
 ## Learn more at the FinOps Foundation
 
 This capability is part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps Practice and Operations](https://www.finops.org/framework/capabilities/finops-practice-operations/) article in the FinOps Framework documentation.
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.Framework/featureName/Capabilities.Manage.Operations)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>
 

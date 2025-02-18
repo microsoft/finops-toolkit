@@ -3,7 +3,7 @@ title: Cost Management scheduled action bicep modules
 description: This article describes the Cost Management scheduled actions Bicep Registry modules that help you send an email on a schedule or when an anomaly is detected.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/18/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -152,6 +152,20 @@ module anomalyAlert 'br/public:cost/subscription-scheduled-action:1.0.2' = {
   }
 }
 ```
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20deploy%20Cost%20Management%20scheduled%20actions%20with%20the%20FinOps%20toolkit%20bicep%20modules%3F/cvaQuestion/How%20valuable%20are%20the%20Cost%20Management%20scheduled%20actions%20bicep%20modules%3F/surveyId/FTK0.8/bladeName/BicepRegistry/featureName/CostManagement.ScheduledActions)
+
+If you're looking for a specific module or template, vote for an existing or create a new idea. Share your ideas with others. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Tool%3A+Bicep+Registry%22+sort%3Areactions-%2B1-desc)
 
 <br>
 

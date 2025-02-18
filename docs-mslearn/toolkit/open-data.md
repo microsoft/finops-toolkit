@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: bandersmsft
 ms.author: banders
-ms.date: 10/03/2024
+ms.date: 02/18/2025
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -42,10 +42,12 @@ A few important notes about the data:
 - Some default units might include a more specific unit in the meter name, which isn't accounted here since meter names aren't included.
 - Marketplace meters aren't included due to inconsistencies that would affect data size.
 
-> [!NOTE]
-> In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column.
+In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `ConsumedUnit` in FOCUS are set to the `DistinctUnits` column.
 
-[Download PricingUnits.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv) &nbsp; [See PowerShell](powershell/data/get-finopspricingunit.md)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopspricingunit.md)
 
 <br>
 
@@ -69,8 +71,12 @@ Sample data:
 
 [Download Regions.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv) &nbsp; [See PowerShell](powershell/data/get-finopsregion.md)
 
-> [!NOTE]
-> Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
+Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopsregion.md)
 
 <br>
 
@@ -96,14 +102,18 @@ Sample data:
 
 <!-- cSpell:enable -->
 
-> [!NOTE]
-> Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
+Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
-[Download ResourceTypes.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv) &nbsp; [Download ResourceTypes.json](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json) &nbsp; [See PowerShell](powershell/data/get-finopsresourcetype.md)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopsresourcetype.md)
 
 <br>
 
-##  Services
+## Services
 
 In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. It's roughly the same as `ServiceName` in [FOCUS](../focus/what-is-focus.md). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService` and `ResourceType` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
 
@@ -127,8 +137,12 @@ A few important notes about the data:
 - `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and can't be distinguished from the resource type alone (for example, Azure functions show as App Service).
 - `ServiceCategory` values are aligned with the allowed values in FOCUS.
 
->[!NOTE]
-> Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else.
+Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else.
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv)
+> [!div class="nextstepaction"]
+> [See PowerShell](powershell/data/get-finopsservice.md)
 
 <br>
 
@@ -146,7 +160,8 @@ The following files are examples of what you see when you export data from Micro
 - Reservation transactions (`2023-05-01`)
 - Reservation recommendations (`2023-05-01`)
 
-[Download all examples](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip)
+> [!div class="nextstepaction"]
+> [Download all examples](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip)
 
 <br>
 
@@ -171,15 +186,22 @@ Metadata is available for the following datasets:
   - [FOCUS 1.0](../focus/metadata.md#focuscost-10)
   - [FOCUS 1.0-preview(v1)](../focus/metadata.md#focuscost-10-previewv1)
 
-[Download all metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
+> [!div class="nextstepaction"]
+> [Download all metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
 
 <br>
 
-## Looking for more?
+## Give feedback
 
-We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new datasets.
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/OpenData/featureName/Overview)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
 
 <br>
 

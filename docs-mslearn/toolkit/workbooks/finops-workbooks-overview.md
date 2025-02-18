@@ -3,7 +3,7 @@ title: Deploy FinOps workbooks
 description: FinOps workbooks are Azure Monitor workbooks that help you implement FinOps capabilities, including optimization and governance, to achieve your FinOps goals.
 author: bandersmsft
 ms.author: banders
-ms.date: 11/01/2024
+ms.date: 02/18/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -45,11 +45,17 @@ This template includes the following workbooks:
 
 <br>
 
-## Looking for more?
+## Give feedback
 
-We'd love to hear about any workbooks you need or general questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new workbooks.
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
-[Share feedback](https://aka.ms/ftk/ideas)
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Overview)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20Workbooks%22%20sort%3A"reactions-%2B1-desc")
 
 <br>
 

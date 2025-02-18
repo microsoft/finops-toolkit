@@ -3,7 +3,7 @@ title: Bicep Registry modules for FinOps
 description: This article summarizes the Bicep modules available from the FinOps toolkit and provides guidance on how to reference them in your templates.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/30/2024
+ms.date: 02/18/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -47,14 +47,17 @@ The FinOps toolkit maintains the following Bicep Registry modules:
 
 <br>
 
-## Looking for more?
+## Give feedback
 
-We'd love to hear about any modules or templates you're looking for. To suggest a new idea, vote up existing ideas or create a new issue. We focus on ideas with the most votes.
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Solution%3A+Bicep+Registry%22+sort%3Areactions-%2B1-desc)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20deploy%20Cost%20Management%20scheduled%20actions%20with%20the%20FinOps%20toolkit%20bicep%20modules%3F/cvaQuestion/How%20valuable%20are%20the%20Cost%20Management%20scheduled%20actions%20bicep%20modules%3F/surveyId/FTK0.8/bladeName/BicepRegistry/featureName/Overview)
+
+If you're looking for a specific module or template, vote for an existing or create a new idea. Share your ideas with others. We focus on ideas with the most votes.
+
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/surveyId/FTK0.8/bladeName/PowerBI.RateOptimization/featureName/Documentation)
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Tool%3A+Bicep+Registry%22+sort%3Areactions-%2B1-desc)
 
 <br>
 

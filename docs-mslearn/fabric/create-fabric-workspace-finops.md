@@ -3,7 +3,7 @@ title: Create a Fabric workspace for FinOps
 description: This article guides you through creating and configuring a Microsoft Fabric workspace for FinOps. When completed, you can use Power BI to build reports.
 author: bandersmsft
 ms.author: banders
-ms.date: 01/16/2025
+ms.date: 02/18/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-workspaces
@@ -253,6 +253,20 @@ After the data is ingested into Fabric and tables are ready, you can move on to 
 
 >[!NOTE]
 > The Power BI demo uses simulated cost data for illustration purposes.
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Workspaces/featureName/Documentation.Create)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>
 
