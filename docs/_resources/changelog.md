@@ -158,6 +158,7 @@ Legend:
 >    - This fix resolves the issue for all newly ingested data.
 >    - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
 > 1. Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
+> 1. Fixing tags not being applied to stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
 
 📒 FinOps workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
