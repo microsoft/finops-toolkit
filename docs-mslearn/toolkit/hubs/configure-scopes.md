@@ -20,6 +20,19 @@ FinOps hubs use Cost Management exports to import cost data for the billing acco
 
 <br>
 
+## Prerequisites
+
+Before you begin, you must have:
+
+- [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub).
+
+This walkthrough will trigger the following indirect costs:
+
+- Cost Management exports do not have a direct cost, but push data to storage, which does incur cost for the number of GB stored.
+- When exports complete, Data Factory pipelines start to process the data, which incurs cost for the time the pipelines are running.
+
+<br>
+
 ## About Cost Management exports
 
 Cost Management provides the following 5 types of exports:

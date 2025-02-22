@@ -132,12 +132,16 @@
       items:
         - name: Overview
           href: toolkit/hubs/finops-hubs-overview.md
-        - name: How to configure scopes
-          href: toolkit/hubs/configure-scopes.md
-        - name: How to configure private networking
+        - name: Configure private networking
           href: toolkit/hubs/private-networking.md
+        - name: Configure scopes
+          href: toolkit/hubs/configure-scopes.md
+        - name: Configure dashboards
+          href: toolkit/hubs/configure-dashboards.md
         - name: Deployment template
           href: toolkit/hubs/template.md
+        - name: Data model
+          href: toolkit/hubs/data-model.md
         - name: Data processing
           href: toolkit/hubs/data-processing.md
         - name: Upgrade guide
