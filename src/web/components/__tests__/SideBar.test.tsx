@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import SideBar from '../../components/SideBar';
+import SideBar from '../SideBar/SideBar';
 
 // Helper function to render with Router
 const renderWithRouter = (component: React.ReactNode) => {
