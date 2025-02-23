@@ -184,7 +184,7 @@ Whether you're looking for a little assistance or are interested in contributing
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/lmoscinski"><img src="https://avatars.githubusercontent.com/u/135173807?v=4?s=100" width="100px;" alt="lmoscinski"/><br /><sub><b>lmoscinski</b></sub></a><br /><a href="#design-lmoscinski" title="Design">🎨</a></td>
     </tr>
   </tbody>
-</table>
+</div>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->

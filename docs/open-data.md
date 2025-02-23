@@ -71,7 +71,7 @@ February introduced 1 new pricing unit, 4 new region mappings, 4 new services, a
         <div>📃 FOCUS metadata</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-</table>
+</div>
 
 <a name="docs"></a>
 

@@ -68,7 +68,7 @@ February introduced Azure Arc Windows license management, enabled CSV exports fo
         <div>⚖️ Monitor policy compliance</div>
         <div>Review Azure Policy assignments and compliance status per subscription.</div>
     </div>
-</table>
+</div>
 
 <br>
 
@@ -108,7 +108,7 @@ FinOps workbooks do not incur any cost.
         <div>⚙️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></div>
         <div>Learn how to install and edit FinOps workbooks to tune them to meet your unique needs.</div>
     </div>
-</table>
+</div>
 
 [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/finops-workbooks-overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 }

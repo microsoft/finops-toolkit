@@ -60,7 +60,7 @@ February introduced new options in the New-FinOpsCostExport command and fixed su
         <div>Get FinOps toolkit versions or download specific releases.</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/toolkit/finops-toolkit-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-</table>
+</div>
 
 <br>
 
@@ -93,7 +93,7 @@ Create a new or update an existing FinOps hub instance.
         <div>You're now ready to run FinOps toolkit commands. Browse available commands and examples to build your scripts.</div>
         [Explore commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/commands#commands){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-</table>
+</div>
 
 <a name="docs"></a>
 

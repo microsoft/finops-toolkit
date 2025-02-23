@@ -47,7 +47,7 @@ TODO
         <div>Create anomaly alerts for subscriptions or scheduled alerts for resource groups or subscriptions.</div>
         [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/scheduled-actions){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-</table>
+</div>
 
 <br>
 

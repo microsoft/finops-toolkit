@@ -68,7 +68,7 @@ February improved multi-tenancy support with Azure Lighthouse guidance.
         <div>📋 Monitor policy compliance</div>
         <div>Monitor Azure Policy compliance across the whole tenant.</div>
     </div>
-</table>
+</div>
 
 <br>
 
@@ -123,7 +123,7 @@ TODO
         <div>🙋‍♀️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Upgrade guide</a></div>
         <div>Common questions and answers about Azure Optimization Engine support, subscriptions, currency, and more.</div>
     </div>
-</table>
+</div>
 
 [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 }

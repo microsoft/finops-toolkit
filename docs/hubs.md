@@ -64,7 +64,7 @@ February introduced a simpler public networking architecture, a new Data Explore
         <div>🪛 Data cleansing and augmentation</div>
         <div>FinOps hubs tunes data to fill gaps and improve overall data quality and completeness.</div>
     </div>
-</table>
+</div>
 
 <br>
 
@@ -96,7 +96,7 @@ Create a new or update an existing FinOps hub instance.
         [Set up Power BI](https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report){: .btn .mb-4 .mb-md-0 .mr-4 }
         [Set up ADX dashboard](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-</table>
+</div>
 
 [💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Marketing.Deploy){: .btn .mb-4 .mb-md-0 .mr-4 }
 
@@ -141,7 +141,7 @@ Costs may be lower depending on your negotiated and commitment discounts.
         <div>🛠️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/upgrade">Upgrade guide</a></div>
         <div>Things to keep in mind when upgrading an existing FinOps hub instance.</div>
     </div>
-</table>
+</div>
 
 [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 }
