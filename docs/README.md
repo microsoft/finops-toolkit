@@ -30,43 +30,43 @@ February introduces major Power BI optimizations, a simplified FinOps hubs archi
 
 ## Automate and extend the Microsoft Cloud
 
-<div id="tile-gallery">
-    <div class="tile-borderless">
+<div class="ftk-gallery">
+    <div class="ftk-tile-borderless">
         <div>📗 FinOps guide</div>
         <div>Learn the FinOps practices and tools you need to be successful.</div>
         <a href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
     </div>
-    <div class="tile-borderless">
+    <div class="ftk-tile-borderless">
         <div>🏦 FinOps hubs</div>
         <div>Open, extensible, and scalable cost reporting.</div>
         <a href="./hubs">Learn more</a>
     </div>
-    <div class="tile-borderless">
+    <div class="ftk-tile-borderless">
         <div>📊 Power BI</div>
         <div>Accelerate your reporting with Power BI starter kits.</div>
         <a href="./power-bi">Learn more</a>
     </div>
-    <div class="tile-borderless">
+    <div class="ftk-tile-borderless">
         <div>📒 FinOps workbooks</div>
         <div>Customizable home for engineers to maximize cloud ROI.</div>
         <a href="./workbooks">Learn more</a>
     </div>
-    <div class="tile-borderless">
+    <div class="ftk-tile-borderless">
         <div>🔍 Optimization Engine</div>
         <div>Extensible solution for custom optimization recommendations.</div>
         <a href="./optimization-engine">Learn more</a>
     </div>
-    <div class="tile-borderless">
+    <div class="ftk-tile-borderless">
         <div>🌐 Open data</div>
         <div>Useful data for anyone to access, use, and share.</div>
         <a href="./open-data">Learn more</a>
     </div>
-    <div class="tile-borderless">
+    <div class="ftk-tile-borderless">
         <div>🖥️ PowerShell</div>
         <div>Automate and manage FinOps solutions and capabilities.</div>
         <a href="./powershell">Learn more</a>
     </div>
-    <div class="tile-borderless">
+    <div class="ftk-tile-borderless">
         <div>🦾 Bicep Registry</div>
         <div>Official repository for Bicep modules.</div>
         <a href="./bicep">Learn more</a>

@@ -41,8 +41,8 @@ TODO
 
 ## Explore the commands
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>📨 Cost Management scheduled actions</div>
         <div>Create anomaly alerts for subscriptions or scheduled alerts for resource groups or subscriptions.</div>
         [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/scheduled-actions){: .btn .mb-4 .mb-md-0 .mr-4 }

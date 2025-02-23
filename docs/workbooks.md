@@ -39,32 +39,32 @@ February introduced Azure Arc Windows license management, enabled CSV exports fo
 
 ## A central hub for efficiency and control
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>🦉 Monitor cost, security, and reliability</div>
         <div>Review Azure Advisor cost, security, and reliability recommendations from a central engineering hub.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>💤 Identify idle resources</div>
         <div>Identify idle and unused resources to reduce waste.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📈 Maximize commitment discounts</div>
         <div>Monitor reservations and savings plans usage across subscriptions.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>☁️ Expand Azure Hybrid Benefit coverage</div>
         <div>Identify opportunities to use Azure Hybrid Benefit for Windows, Linux, and SQL Server.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🧮 Review resource inventory</div>
         <div>Summarize and review resource inventory across multiple areas.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🪦 Review retired services</div>
         <div>Review retired services and impacted resources.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>⚖️ Monitor policy compliance</div>
         <div>Review Azure Policy assignments and compliance status per subscription.</div>
     </div>
@@ -95,16 +95,16 @@ FinOps workbooks do not incur any cost.
 
 ## Learn more from documentation
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>💹 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/optimization">Cost optimization</a></div>
         <div>Monitor resource utilization and maximize cost efficiency across your Azure environment.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>⚖️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/governance">Governance</a></div>
         <div>Monitor resources, service alerts, and policy compliance across your Azure environment.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>⚙️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></div>
         <div>Learn how to install and edit FinOps workbooks to tune them to meet your unique needs.</div>
     </div>

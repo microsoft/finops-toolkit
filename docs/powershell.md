@@ -39,23 +39,23 @@ February introduced new options in the New-FinOpsCostExport command and fixed su
 
 ## Explore the commands
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>📊 Cost Management</div>
         <div>Manage Cost Management exports using the latest features. (Not available in Az PowerShell.)</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/cost/cost-management-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🏦 FinOps hubs</div>
         <div>Deploy and manage FinOps hubs and configured scopes.</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/hubs/finops-hubs-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🌐 Open data</div>
         <div>Query FinOps toolkit open data to integrate with your own data.</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/open-data-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🧰 FinOps toolkit</div>
         <div>Get FinOps toolkit versions or download specific releases.</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/toolkit/finops-toolkit-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
@@ -72,14 +72,14 @@ February introduced new options in the New-FinOpsCostExport command and fixed su
 
 Create a new or update an existing FinOps hub instance.
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>1️⃣ Install PowerShell 7+</div>
         <div>FinOps toolkit requires PowerShell 7, which is built into Azure Cloud Shell and supported on all major operating systems.</div>
         [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell){: .btn .mb-4 .mb-md-0 .mr-4 }
         [Launch Azure Cloud Shell](https://portal.azure.com/#cloudshell){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>2️⃣ Install modules and sign in</div>
         ```powershell
         Install-Module -Name Az.Accounts
@@ -88,7 +88,7 @@ Create a new or update an existing FinOps hub instance.
         Connect-AzAccount
         ```
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>3️⃣ Run your commands</div>
         <div>You're now ready to run FinOps toolkit commands. Browse available commands and examples to build your scripts.</div>
         [Explore commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/commands#commands){: .btn .mb-4 .mb-md-0 .mr-4 }

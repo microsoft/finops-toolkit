@@ -41,33 +41,33 @@ February introduced 1 new pricing unit, 4 new region mappings, 4 new services, a
 
 ## Download open data
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>📏 Pricing units</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
         [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsPricingUnit){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📚 Resource types</div>
         [Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
         [Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json){: .btn .mb-4 .mb-md-0 .mr-4 }
         [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsResourceType){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🗺️ Regions</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
         [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsRegion){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🎛️ Services</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
         [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsService){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>⬇️ Dataset examples</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📃 FOCUS metadata</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
     </div>

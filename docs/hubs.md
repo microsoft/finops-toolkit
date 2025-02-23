@@ -39,28 +39,28 @@ February introduced a simpler public networking architecture, a new Data Explore
 
 ## Understand and optimize cost and usage
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>📥 Ingest FinOps data</div>
         <div>Automate data ingestion into Azure Data Explorer to facilitate big data analytics at scale.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📊 Standardized reporting</div>
         <div>Flexible Power BI reports and Data Explorer dashboards using the FinOps Open Cost and Usage Specification (FOCUS).</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🏗️ Extensible platform</div>
         <div>Bring your own data or customize data pipelines to build a custom allocation model, specialized alerts, and more.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>☁️ Consolidate accounts and clouds</div>
         <div>Centralize FinOps data across multiple subscriptions, accounts, and clouds.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🛡️ Secure processing</div>
         <div>Secure financial and organizational data on a private, isolated network you control and govern.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🪛 Data cleansing and augmentation</div>
         <div>FinOps hubs tunes data to fill gaps and improve overall data quality and completeness.</div>
     </div>
@@ -74,24 +74,24 @@ February introduced a simpler public networking architecture, a new Data Explore
 
 Create a new or update an existing FinOps hub instance.
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>1️⃣ Register EventGrid</div>
         <div>Open the desired subscription in the Azure portal, select <b>Settings</b> > <b>Resource providers</b>, select the <b>Microsoft.EventGrid</b> row, then select the <b>Register</b> command at the top of the page. Registration might take a few minutes.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>2️⃣ Plan your network architecture</div>
         <div>If interested in private networking, work with your network admin to configure network peering and routing. FinOps hubs run on an isolated network, so this is critical to accessing. [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking)</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>3️⃣ Deploy the template</div>
         [Deploy to Azure](https://aka.ms/finops/hubs/deploy){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>4️⃣ Configure scopes to monitor</div>
         <div>FinOps hubs use Cost Management exports to load the data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you. [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-scopes)</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>5️⃣ Set up reports and dashboards</div>
         [Set up Power BI](https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report){: .btn .mb-4 .mb-md-0 .mr-4 }
         [Set up ADX dashboard](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard){: .btn .mb-4 .mb-md-0 .mr-4 }
@@ -116,28 +116,28 @@ Costs may be lower depending on your negotiated and commitment discounts.
 
 ## Learn more from documentation
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>🗃️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/data-model">Data model</a></div>
         <div>Tables and functions available in FinOps hubs to support custom queries and reports.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📗 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/data-dictionary">Data dictionary</a></div>
         <div>Explore the columns available in FinOps hubs with Data Explorer and Power BI reports.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>⚙️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/data-processing">Data processing</a></div>
         <div>How data is processed in Data Factory pipelines and Data Explorer ingestion.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📦 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">Deployment template</a></div>
         <div>What's included in the FinOps hub deployment template &ndash; inputs, deployed resources, and output values.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🧮 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/compatibility">Compatibility guide</a></div>
         <div>Identify breaking changes in each release that may require additional work when upgrading.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🛠️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/upgrade">Upgrade guide</a></div>
         <div>Things to keep in mind when upgrading an existing FinOps hub instance.</div>
     </div>

@@ -39,32 +39,32 @@ February improved multi-tenancy support with Azure Lighthouse guidance.
 
 ## AOE features
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>🎛️ Extend Azure Advisor</div>
         <div>Augment Azure Advisor recommendations with additional details.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🧩 Generate custom recommendations</div>
         <div>Identify cost, availability, performance, security, and operational excellence optimization opportunities.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📊 Monitor commitment discounts</div>
         <div>Monitor commitment discount usage and recommendations for added savings.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📃 Review resource utilization</div>
         <div>Track resource inventory and utilization of targeted services.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>💹 Monitor cost anomalies</div>
         <div>Monitor changes in cost by subscriptions, resource groups, resources, and SKUs.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🔐 Monitor access</div>
         <div>Monitor Microsoft Entra ID objects (users, groups, and applications) and their respective roles across the tenant and Azure resources.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📋 Monitor policy compliance</div>
         <div>Monitor Azure Policy compliance across the whole tenant.</div>
     </div>
@@ -98,28 +98,28 @@ TODO
 
 ## Learn more from documentation
 
-<div id="tile-gallery">
-    <div class="tile" markdown="1">
+<div class="ftk-gallery">
+    <div class="ftk-tile" markdown="1">
         <div>📊 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/reports">Reports and workbooks</a></div>
         <div>Explore AOE reports and workbooks to review recommendations and optimize your environment.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📝 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">How to customize AOE</a></div>
         <div>Learn how to customize and tune Azure Optimization Engine to meet your specific needs.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🪛 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">How to configure workspaces</a></div>
         <div>Learn how to configure Log Analytics workspaces for Azure Optimization Engine.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🛑 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">How to suppress recommendations</a></div>
         <div>Learn how to select the recommendations to include or exclude in AOE.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>📦 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/setup-options">Deployment options</a></div>
         <div>Advanced scenarios for setting up or upgrading Azure Optimization Engine.</div>
     </div>
-    <div class="tile" markdown="1">
+    <div class="ftk-tile" markdown="1">
         <div>🙋‍♀️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Upgrade guide</a></div>
         <div>Common questions and answers about Azure Optimization Engine support, subscriptions, currency, and more.</div>
     </div>
