@@ -1,6 +1,7 @@
 ---
 layout: default
-title: FinOps toolkit PowerShell - Automate your FinOps efforts
+title: PowerShell
+browser: FinOps toolkit PowerShell - Automate your FinOps efforts
 nav_order: 6
 description: 'FinOps toolkit PowerShell helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.'
 permalink: /powershell
@@ -38,29 +39,27 @@ February introduced new options in the New-FinOpsCostExport command and fixed su
 
 ## Explore the commands
 
-<table border="0">
-<tr>
-    <td>
-        <strong>📊 Cost Management</strong><br>
-        Manage Cost Management exports using the latest features. (Not available in Az PowerShell.)
+<div id="tile-gallery">
+    <div class="tile" markdown="1">
+        <div>📊 Cost Management</div>
+        <div>Manage Cost Management exports using the latest features. (Not available in Az PowerShell.)</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/cost/cost-management-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-    <td>
-        <strong>🏦 FinOps hubs</strong><br>
-        Deploy and manage FinOps hubs and configured scopes.
+    </div>
+    <div class="tile" markdown="1">
+        <div>🏦 FinOps hubs</div>
+        <div>Deploy and manage FinOps hubs and configured scopes.</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/hubs/finops-hubs-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-    <td>
-        <strong>🌐 Open data</strong><br>
-        Query FinOps toolkit open data to integrate with your own data.
+    </div>
+    <div class="tile" markdown="1">
+        <div>🌐 Open data</div>
+        <div>Query FinOps toolkit open data to integrate with your own data.</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/open-data-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-    <td>
-        <strong>🧰 FinOps toolkit</strong><br>
-        Get FinOps toolkit versions or download specific releases.
+    </div>
+    <div class="tile" markdown="1">
+        <div>🧰 FinOps toolkit</div>
+        <div>Get FinOps toolkit versions or download specific releases.</div>
         [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/toolkit/finops-toolkit-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-</tr>
+    </div>
 </table>
 
 <br>
@@ -73,29 +72,27 @@ February introduced new options in the New-FinOpsCostExport command and fixed su
 
 Create a new or update an existing FinOps hub instance.
 
-<table border="0">
-<tr>
-    <td>
-        <strong>1️⃣ Install PowerShell 7+</strong><br>
-        FinOps toolkit requires PowerShell 7, which is built into Azure Cloud Shell and supported on all major operating systems.<br>
+<div id="tile-gallery">
+    <div class="tile" markdown="1">
+        <div>1️⃣ Install PowerShell 7+</div>
+        <div>FinOps toolkit requires PowerShell 7, which is built into Azure Cloud Shell and supported on all major operating systems.</div>
         [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell){: .btn .mb-4 .mb-md-0 .mr-4 }
         [Launch Azure Cloud Shell](https://portal.azure.com/#cloudshell){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-    <td>
-        <strong>2️⃣ Install modules and sign in</strong><br>
+    </div>
+    <div class="tile" markdown="1">
+        <div>2️⃣ Install modules and sign in</div>
         ```powershell
         Install-Module -Name Az.Accounts
         Install-Module -Name Az.Resources
         Install-Module -Name FinOpsToolkit
         Connect-AzAccount
         ```
-    </td>
-    <td>
-        <strong>3️⃣ Run your commands</strong><br>
-        You're now ready to run FinOps toolkit commands. Browse available commands and examples to build your scripts.
+    </div>
+    <div class="tile" markdown="1">
+        <div>3️⃣ Run your commands</div>
+        <div>You're now ready to run FinOps toolkit commands. Browse available commands and examples to build your scripts.</div>
         [Explore commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/commands#commands){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-</tr>
+    </div>
 </table>
 
 <a name="docs"></a>

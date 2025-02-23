@@ -1,6 +1,7 @@
 ---
 layout: default
-title: FinOps toolkit bicep - Reusable modules for deployments
+title: Bicep Registry
+browser: FinOps toolkit bicep - Reusable modules for deployments
 nav_order: 7
 description: 'Leverage reusable bicep modules in your Azure deployment templates to accelerate your FinOps efforts.'
 permalink: /bicep
@@ -40,14 +41,12 @@ TODO
 
 ## Explore the commands
 
-<table border="0">
-<tr>
-    <td>
-        <strong>📨 Cost Management scheduled actions</strong><br>
-        Create anomaly alerts for subscriptions or scheduled alerts for resource groups or subscriptions.
+<div id="tile-gallery">
+    <div class="tile" markdown="1">
+        <div>📨 Cost Management scheduled actions</div>
+        <div>Create anomaly alerts for subscriptions or scheduled alerts for resource groups or subscriptions.</div>
         [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/scheduled-actions){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-</tr>
+    </div>
 </table>
 
 <br>

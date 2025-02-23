@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Azure Optimization Engine - Optimize your Azure environment
+title: Optimization Engine
+browser: Azure Optimization Engine - Optimize your Azure environment
 nav_order: 5
 description: 'Azure optimization engine is an extensible solution designed to generate optimization recommendations for your Azure environment.'
 permalink: /optimization-engine
@@ -38,39 +39,35 @@ February improved multi-tenancy support with Azure Lighthouse guidance.
 
 ## AOE features
 
-<table border="0">
-<tr>
-    <td>
-        <strong>🎛️ Extend Azure Advisor</strong><br>
-        Augment Azure Advisor recommendations with additional details.
-    </td>
-    <td>
-        <strong>🧩 Generate custom recommendations</strong><br>
-        Identify cost, availability, performance, security, and operational excellence optimization opportunities.
-    </td>
-    <td>
-        <strong>📊 Monitor commitment discounts</strong><br>
-        Monitor commitment discount usage and recommendations for added savings.
-    </td>
-    <td>
-        <strong>📃 Review resource utilization</strong><br>
-        Track resource inventory and utilization of targeted services.
-    </td>
-</tr>
-<tr>
-    <td>
-        <strong>💹 Monitor cost anomalies</strong><br>
-        Monitor changes in cost by subscriptions, resource groups, resources, and SKUs.
-    </td>
-    <td>
-        <strong>🔐 Monitor access</strong><br>
-        Monitor Microsoft Entra ID objects (users, groups, and applications) and their respective roles across the tenant and Azure resources.
-    </td>
-    <td>
-        <strong>📋 Monitor policy compliance</strong><br>
-        Monitor Azure Policy compliance across the whole tenant.
-    </td>
-</tr>
+<div id="tile-gallery">
+    <div class="tile" markdown="1">
+        <div>🎛️ Extend Azure Advisor</div>
+        <div>Augment Azure Advisor recommendations with additional details.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🧩 Generate custom recommendations</div>
+        <div>Identify cost, availability, performance, security, and operational excellence optimization opportunities.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>📊 Monitor commitment discounts</div>
+        <div>Monitor commitment discount usage and recommendations for added savings.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>📃 Review resource utilization</div>
+        <div>Track resource inventory and utilization of targeted services.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>💹 Monitor cost anomalies</div>
+        <div>Monitor changes in cost by subscriptions, resource groups, resources, and SKUs.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🔐 Monitor access</div>
+        <div>Monitor Microsoft Entra ID objects (users, groups, and applications) and their respective roles across the tenant and Azure resources.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>📋 Monitor policy compliance</div>
+        <div>Monitor Azure Policy compliance across the whole tenant.</div>
+    </div>
 </table>
 
 <br>
@@ -101,35 +98,31 @@ TODO
 
 ## Learn more from documentation
 
-<table border="0">
-<tr>
-    <td>
-        <strong>📊 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/reports">Reports and workbooks</a></strong><br>
-        Explore AOE reports and workbooks to review recommendations and optimize your environment.
-    </td>
-    <td>
-        <strong>📝 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">How to customize AOE</a></strong><br>
-        Learn how to customize and tune Azure Optimization Engine to meet your specific needs.
-    </td>
-    <td>
-        <strong>🪛 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">How to configure workspaces</a></strong><br>
-        Learn how to configure Log Analytics workspaces for Azure Optimization Engine.
-    </td>
-</tr>
-<tr>
-    <td>
-        <strong>🛑 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">How to suppress recommendations</a></strong><br>
-        Learn how to select the recommendations to include or exclude in AOE.
-    </td>
-    <td>
-        <strong>📦 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/setup-options">Deployment options</a></strong><br>
-        Advanced scenarios for setting up or upgrading Azure Optimization Engine.
-    </td>
-    <td>
-        <strong>🙋‍♀️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Upgrade guide</a></strong><br>
-        Common questions and answers about Azure Optimization Engine support, subscriptions, currency, and more.
-    </td>
-</tr>
+<div id="tile-gallery">
+    <div class="tile" markdown="1">
+        <div>📊 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/reports">Reports and workbooks</a></div>
+        <div>Explore AOE reports and workbooks to review recommendations and optimize your environment.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>📝 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">How to customize AOE</a></div>
+        <div>Learn how to customize and tune Azure Optimization Engine to meet your specific needs.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🪛 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">How to configure workspaces</a></div>
+        <div>Learn how to configure Log Analytics workspaces for Azure Optimization Engine.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🛑 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">How to suppress recommendations</a></div>
+        <div>Learn how to select the recommendations to include or exclude in AOE.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>📦 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/setup-options">Deployment options</a></div>
+        <div>Advanced scenarios for setting up or upgrading Azure Optimization Engine.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🙋‍♀️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Upgrade guide</a></div>
+        <div>Common questions and answers about Azure Optimization Engine support, subscriptions, currency, and more.</div>
+    </div>
 </table>
 
 [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }

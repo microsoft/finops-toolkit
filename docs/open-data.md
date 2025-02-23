@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Open data - Normalize and enhance your FinOps data
+title: Open data
+browser: Open data - Normalize and enhance your FinOps data
 nav_order: 8
 description: 'Leverage open data to normalize and enhance your FinOps reporting.'
 permalink: /open-data
@@ -40,40 +41,36 @@ February introduced 1 new pricing unit, 4 new region mappings, 4 new services, a
 
 ## Download open data
 
-<table border="0">
-<tr>
-    <td>
-        <strong>📏 Pricing units</strong><br>
+<div id="tile-gallery">
+    <div class="tile" markdown="1">
+        <div>📏 Pricing units</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
         [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsPricingUnit){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-    <td>
-        <strong>📚 Resource types</strong><br>
+    </div>
+    <div class="tile" markdown="1">
+        <div>📚 Resource types</div>
         [Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
         [Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json){: .btn .mb-4 .mb-md-0 .mr-4 }
         [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsResourceType){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-    <td>
-        <strong>🗺️ Regions</strong><br>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🗺️ Regions</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
         [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsRegion){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-</tr>
-<tr>
-    <td>
-        <strong>🎛️ Services</strong><br>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🎛️ Services</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
         [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsService){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-    <td>
-        <strong>⬇️ Dataset examples</strong><br>
+    </div>
+    <div class="tile" markdown="1">
+        <div>⬇️ Dataset examples</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-    <td>
-        <strong>📃 FOCUS metadata</strong><br>
+    </div>
+    <div class="tile" markdown="1">
+        <div>📃 FOCUS metadata</div>
         [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
-    </td>
-</tr>
+    </div>
 </table>
 
 <a name="docs"></a>

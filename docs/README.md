@@ -22,7 +22,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
 
-[See all changes](https://aka.ms/ftk/changes){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See all changes](https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -30,52 +30,48 @@ February introduces major Power BI optimizations, a simplified FinOps hubs archi
 
 ## Automate and extend the Microsoft Cloud
 
-<table border="0">
-<tr>
-    <td>
-        <strong>📗 Implementing FinOps guide</strong><br>
-        Learn the FinOps practices and tools you need to be successful.<br>
+<div id="tile-gallery">
+    <div class="tile-borderless">
+        <div>📗 FinOps guide</div>
+        <div>Learn the FinOps practices and tools you need to be successful.</div>
         <a href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
-    </td>
-    <td>
-        <strong>🏦 FinOps hubs</strong><br>
-        Open, extensible, and scalable cost reporting.<br>
-        <a href="./hubs.md">Learn more</a>
-    </td>
-    <td>
-        <strong>📊 Power BI reports</strong><br>
-        Accelerate your reporting with Power BI starter kits.<br>
-        <a href="./power-bi.md">Learn more</a>
-    </td>
-    <td>
-        <strong>📒 FinOps workbooks</strong><br>
-        Customizable home for engineers to maximize cloud ROI through FinOps.<br>
-        <a href="./workbooks.md">Learn more</a>
-    </td>
-</tr>
-<tr>
-    <td>
-        <strong>🔍 Azure Optimization Engine</strong><br>
-        Extensible solution for custom optimization recommendations.<br>
-        <a href="./optimization-engine.md">Learn more</a>
-    </td>
-    <td>
-        <strong>🖥️ PowerShell module</strong><br>
-        Automate and manage FinOps solutions and capabilities.<br>
-        <a href="./powershell.md">Learn more</a>
-    </td>
-    <td>
-        <strong>🦾 Bicep Registry modules</strong><br>
-        Official repository for Bicep modules.<br>
-        <a href="./bicep.md">Learn more</a>
-    </td>
-    <td>
-        <strong>🌐 Open data</strong><br>
-        Data available for anyone to access, use, and share without restriction.<br>
-        <a href="./open-data.md">Learn more</a>
-    </td>
-</tr>
-</table>
+    </div>
+    <div class="tile-borderless">
+        <div>🏦 FinOps hubs</div>
+        <div>Open, extensible, and scalable cost reporting.</div>
+        <a href="./hubs">Learn more</a>
+    </div>
+    <div class="tile-borderless">
+        <div>📊 Power BI</div>
+        <div>Accelerate your reporting with Power BI starter kits.</div>
+        <a href="./power-bi">Learn more</a>
+    </div>
+    <div class="tile-borderless">
+        <div>📒 FinOps workbooks</div>
+        <div>Customizable home for engineers to maximize cloud ROI.</div>
+        <a href="./workbooks">Learn more</a>
+    </div>
+    <div class="tile-borderless">
+        <div>🔍 Optimization Engine</div>
+        <div>Extensible solution for custom optimization recommendations.</div>
+        <a href="./optimization-engine">Learn more</a>
+    </div>
+    <div class="tile-borderless">
+        <div>🌐 Open data</div>
+        <div>Useful data for anyone to access, use, and share.</div>
+        <a href="./open-data">Learn more</a>
+    </div>
+    <div class="tile-borderless">
+        <div>🖥️ PowerShell</div>
+        <div>Automate and manage FinOps solutions and capabilities.</div>
+        <a href="./powershell">Learn more</a>
+    </div>
+    <div class="tile-borderless">
+        <div>🦾 Bicep Registry</div>
+        <div>Official repository for Bicep modules.</div>
+        <a href="./bicep">Learn more</a>
+    </div>
+</div>
 
 [Download FinOps toolkit {% include ftkver.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
 [💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Marketing){: .btn .mb-4 .mb-md-0 .mr-4 }

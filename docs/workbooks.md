@@ -1,6 +1,7 @@
 ---
 layout: default
-title: FinOps workbooks - Engineering hub to maximize cloud ROI
+title: FinOps workbooks
+browser: FinOps workbooks - Engineering hub to maximize cloud ROI
 nav_order: 4
 description: ''
 permalink: /workbooks
@@ -38,39 +39,35 @@ February introduced Azure Arc Windows license management, enabled CSV exports fo
 
 ## A central hub for efficiency and control
 
-<table border="0">
-<tr>
-    <td>
-        <strong>🦉 Monitor cost, security, and reliability</strong><br>
-        Review Azure Advisor cost, security, and reliability recommendations from a central engineering hub.
-    </td>
-    <td>
-        <strong>💤 Identify idle resources</strong><br>
-        Identify idle and unused resources to reduce waste.
-    </td>
-    <td>
-        <strong>📈 Maximize commitment discounts</strong><br>
-        Monitor reservations and savings plans usage across subscriptions.
-    </td>
-    <td>
-        <strong>☁️ Expand Azure Hybrid Benefit coverage</strong><br>
-        Identify opportunities to use Azure Hybrid Benefit for Windows, Linux, and SQL Server.
-    </td>
-</tr>
-<tr>
-    <td>
-        <strong>🧮 Review resource inventory</strong><br>
-        Summarize and review resource inventory across multiple areas.
-    </td>
-    <td>
-        <strong>🪦 Review retired services</strong><br>
-        Review retired services and impacted resources.
-    </td>
-    <td>
-        <strong>⚖️ Monitor policy compliance</strong><br>
-        Review Azure Policy assignments and compliance status per subscription.
-    </td>
-</tr>
+<div id="tile-gallery">
+    <div class="tile" markdown="1">
+        <div>🦉 Monitor cost, security, and reliability</div>
+        <div>Review Azure Advisor cost, security, and reliability recommendations from a central engineering hub.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>💤 Identify idle resources</div>
+        <div>Identify idle and unused resources to reduce waste.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>📈 Maximize commitment discounts</div>
+        <div>Monitor reservations and savings plans usage across subscriptions.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>☁️ Expand Azure Hybrid Benefit coverage</div>
+        <div>Identify opportunities to use Azure Hybrid Benefit for Windows, Linux, and SQL Server.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🧮 Review resource inventory</div>
+        <div>Summarize and review resource inventory across multiple areas.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>🪦 Review retired services</div>
+        <div>Review retired services and impacted resources.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>⚖️ Monitor policy compliance</div>
+        <div>Review Azure Policy assignments and compliance status per subscription.</div>
+    </div>
 </table>
 
 <br>
@@ -98,21 +95,19 @@ FinOps workbooks do not incur any cost.
 
 ## Learn more from documentation
 
-<table border="0">
-<tr>
-    <td>
-        <strong>💹 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/optimization">Cost optimization</a></strong><br>
-        Monitor resource utilization and maximize cost efficiency across your Azure environment.
-    </td>
-    <td>
-        <strong>⚖️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/governance">Governance</a></strong><br>
-        Monitor resources, service alerts, and policy compliance across your Azure environment.
-    </td>
-    <td>
-        <strong>⚙️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></strong><br>
-        Learn how to install and edit FinOps workbooks to tune them to meet your unique needs.
-    </td>
-</tr>
+<div id="tile-gallery">
+    <div class="tile" markdown="1">
+        <div>💹 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/optimization">Cost optimization</a></div>
+        <div>Monitor resource utilization and maximize cost efficiency across your Azure environment.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>⚖️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/governance">Governance</a></div>
+        <div>Monitor resources, service alerts, and policy compliance across your Azure environment.</div>
+    </div>
+    <div class="tile" markdown="1">
+        <div>⚙️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></div>
+        <div>Learn how to install and edit FinOps workbooks to tune them to meet your unique needs.</div>
+    </div>
 </table>
 
 [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/finops-workbooks-overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
