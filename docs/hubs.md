@@ -74,33 +74,45 @@ February introduced a simpler public networking architecture, a new Data Explore
 
 Create a new or update an existing FinOps hub instance.
 
-<div class="ftk-gallery">
-    <div class="ftk-tile">
-        <div>1️⃣ Register EventGrid</div>
+<div class="ftk-instructions">
+    <div class="ftk-step">
+        <button class="ftk-accordion">1️⃣ Register EventGrid</button>
         <div>
-            Open the desired subscription in the Azure portal, select <b>Settings</b> > <b>Resource providers</b>, select the <b>Microsoft.EventGrid</b> row, then select the <b>Register</b> command at the top of the page. Registration might take a few minutes.
+            <p>
+                Register the <b>Microsoft.EventGrid</b> resource provider for your subscription.
+            </p>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2">Go to subscriptions</a>
         </div>
     </div>
-    <div class="ftk-tile">
-        <div>2️⃣ Plan your network architecture</div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">2️⃣ Plan your network architecture</button>
         <div>
-            If interested in private networking, work with your network admin to configure network peering and routing. FinOps hubs run on an isolated network, so this is critical to accessing. <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Learn more</a>
+            <p>
+                If interested in private networking, work with your network admin to configure network peering and routing. FinOps hubs run on an isolated network, so this is critical to accessing.
+            </p>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>
         </div>
     </div>
-    <div class="ftk-tile">
-        <div>3️⃣ Deploy the template</div>
-        <a class="btn mb-4 mb-md-0 mr-4" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
-    </div>
-    <div class="ftk-tile">
-        <div>4️⃣ Configure scopes to monitor</div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">3️⃣ Deploy the template</button>
         <div>
-            FinOps hubs use Cost Management exports to load the data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you. <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-scopes">Learn more</a>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
         </div>
     </div>
-    <div class="ftk-tile" markdown="1">
-        <div>5️⃣ Set up reports and dashboards</div>
-        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report">Set up Power BI</a>
-        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard">Set up ADX dashboard</a>
+    <div class="ftk-step">
+        <button class="ftk-accordion">4️⃣ Configure scopes to monitor</button>
+        <div>
+            <p>
+                FinOps hubs use Cost Management exports to load the data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you. <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-scopes">Learn more</a>
+            </p>
+        </div>
+    </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">5️⃣ Set up reports and dashboards</button>
+        <div>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard">Set up ADX dashboard</a>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report">Set up Power BI</a>
+        </div>
     </div>
 </div>
 
