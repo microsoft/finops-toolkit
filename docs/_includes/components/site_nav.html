@@ -17,6 +17,10 @@
         | where_exp:"item", "item.nav_exclude != true"
         | size %}
 
+  <ul class="nav-list">
+    <li class="nav-list-item"><a href="/finops-toolkit" class="nav-list-link">Home</a></li>
+  </ul>
+
   {% if pages_top_size > 0 %}
     {% include components/nav/pages.html pages=site.html_pages all=include.all %}
   {% endif %}
@@ -83,7 +87,7 @@
     </ul>
   {%- endif -%}
 
-  <ul class="nav-list mt-10">
+  <ul class="nav-list mt-6">
     <li class="nav-list-item"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/support" class="nav-list-link">❓ Get help</a></li>
     <li class="nav-list-item"><a href="https://aka.ms/ftk/feedback" target="_blank" class="nav-list-link">❤️ Give feedback</a></li>
   </ul>

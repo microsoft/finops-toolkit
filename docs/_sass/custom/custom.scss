@@ -1,10 +1,10 @@
 .ftk-gallery {
+  font-size: 14px;
+  line-height: 20px;
   margin: 24px -20px 0 0;
 
   .ftk-tile {
     display: inline-block;
-    font-size: 14px;
-    line-height: 18px;
     margin: 0 20px 24px 0;
     width: 30%;
 
@@ -12,7 +12,8 @@
       margin-bottom: 8px;
 
       &:first-child {
-        font-size: 18px;
+        font-size: 16px;
+        line-height: 22px;
         font-weight: 500;
       }
     }
