@@ -2,21 +2,22 @@
   background-color: #6f4bb2;
   color: #fff;
   position: absolute;
-  top: -0.125rem;
-  margin-left: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  top: -0.125em;
+  margin-left: 0.75em;
+  padding: 0.25em 0.5em;
+  border-radius: 0.5em;
+  font-size: 0.875em;
   font-weight: 500;
   display: inline-block;
 }
 
 a.ftk-externallink::after {
-  content: ' ↗';
+  content: '🡥';
   font-size: 0.8em;
   opacity: 0.8;
-  margin-left: 1em;
+  margin-left: 0.5em;
   text-decoration: none;
+  vertical-align: 0.15em;
 }
 
 .ftk-gallery {

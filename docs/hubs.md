@@ -30,7 +30,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
     <p class="mt-2 mb-0">
         February introduced a simpler public networking architecture, a new Data Explorer dashboard, major Power BI optimizations and design improvements, and many small fixes and improvements.
     </p>
-    <p class="mt-2 mb-0"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
@@ -80,7 +80,7 @@ Create a new or update an existing FinOps hub instance.
                 Register the <b>Microsoft.EventGrid</b> resource provider for your subscription.
             </p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2">Go to subscriptions</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2">Go to subscriptions</a>
             </p>
         </div>
     </div>
@@ -91,7 +91,7 @@ Create a new or update an existing FinOps hub instance.
                 Work with your network admin to configure peering and routing. FinOps hubs run on an isolated network, so this is critical to accessing.
             </p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>
             </p>
         </div>
     </div>
@@ -99,7 +99,7 @@ Create a new or update an existing FinOps hub instance.
         <button class="ftk-accordion">3️⃣&nbsp; Deploy the template</button>
         <div>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
             </p>
         </div>
     </div>
@@ -110,7 +110,7 @@ Create a new or update an existing FinOps hub instance.
                 Configure exports manually or grant access to your hub to manage exports for you.
             </p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-scopes">Configure scopes</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-scopes">Configure scopes</a>
             </p>
         </div>
     </div>
@@ -118,14 +118,14 @@ Create a new or update an existing FinOps hub instance.
         <button class="ftk-accordion">5️⃣&nbsp; Set up reports and dashboards</button>
         <div>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard">Set up ADX dashboard</a>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report">Set up Power BI</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard">Set up ADX dashboard</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report">Set up Power BI</a>
             </p>
         </div>
     </div>
 </div>
 
-<br><a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
+<br><a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
 
 <br>
 
@@ -143,32 +143,32 @@ Create a new or update an existing FinOps hub instance.
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>🗃️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/data-model">Data model</a></div>
+        <div>🗃️ <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/data-model">Data model</a></div>
         <div>Tables and functions available in FinOps hubs to support custom queries and reports.</div>
     </div>
     <div class="ftk-tile">
-        <div>📗 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/data-dictionary">Data dictionary</a></div>
+        <div>📗 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/data-dictionary">Data dictionary</a></div>
         <div>Explore the columns available in FinOps hubs with Data Explorer and Power BI reports.</div>
     </div>
     <div class="ftk-tile">
-        <div>⚙️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/data-processing">Data processing</a></div>
+        <div>⚙️ <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/data-processing">Data processing</a></div>
         <div>How data is processed in Data Factory pipelines and Data Explorer ingestion.</div>
     </div>
     <div class="ftk-tile">
-        <div>📦 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">Deployment template</a></div>
+        <div>📦 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">Deployment template</a></div>
         <div>Details about what's included in the FinOps hub deployment template.</div>
     </div>
     <div class="ftk-tile">
-        <div>🧮 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/compatibility">Compatibility guide</a></div>
+        <div>🧮 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/compatibility">Compatibility guide</a></div>
         <div>Identify breaking changes in each release that may require additional work when upgrading.</div>
     </div>
     <div class="ftk-tile">
-        <div>🛠️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/upgrade">Upgrade guide</a></div>
+        <div>🛠️ <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/upgrade">Upgrade guide</a></div>
         <div>Things to keep in mind when upgrading an existing FinOps hub instance.</div>
     </div>
 </div>
 
-<a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview">Learn more</a>
-<a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Marketing.Docs">💜 Give feedback</a>
+<a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview">Learn more</a>
+<a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>

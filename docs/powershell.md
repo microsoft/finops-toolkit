@@ -30,7 +30,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
     <p class="mt-2 mb-0">
         February introduced new options in the New-FinOpsCostExport command and fixed support or price and reservation exports, cleaned up the Get-FinOpsCostExport command output, and added a delete confirmation for Remove-FinOpsHub.
     </p>
-    <p class="mt-2 mb-0"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
@@ -41,22 +41,22 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
     <div class="ftk-tile">
         <div>📊 Cost Management</div>
         <div>Manage Cost Management exports using the latest features.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/cost/cost-management-commands">See commands</a>
+        <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/cost/cost-management-commands">See commands</a>
     </div>
     <div class="ftk-tile">
         <div>🏦 FinOps hubs</div>
         <div>Deploy and manage FinOps hubs and configured scopes.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/hubs/finops-hubs-commands">See commands</a>
+        <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/hubs/finops-hubs-commands">See commands</a>
     </div>
     <div class="ftk-tile">
         <div>🌐 Open data</div>
         <div>Query FinOps toolkit open data to integrate with your own data.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/open-data-commands">See commands</a>
+        <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/open-data-commands">See commands</a>
     </div>
     <div class="ftk-tile">
         <div>🧰 FinOps toolkit</div>
         <div>Get FinOps toolkit versions or download specific releases.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/toolkit/finops-toolkit-commands">See commands</a>
+        <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/toolkit/finops-toolkit-commands">See commands</a>
     </div>
 </div>
 
@@ -74,8 +74,8 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         <div>FinOps toolkit requires PowerShell 7, which is built into Azure Cloud Shell and supported on all major operating systems.</div>
         <div>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/powershell/scripting/install/installing-powershell">Install PowerShell</a>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#cloudshell">Launch Azure Cloud Shell</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/powershell/scripting/install/installing-powershell">Install PowerShell</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://portal.azure.com/#cloudshell">Launch Azure Cloud Shell</a>
             </p>
         </div>
     </div>
@@ -97,7 +97,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         <div>You're now ready to run FinOps toolkit commands. Browse available commands and examples to build your scripts.</div>
         <div>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands#commands">Explore commands</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands#commands">Explore commands</a>
             </p>
         </div>
     </div>

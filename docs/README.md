@@ -21,7 +21,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     <p class="mt-2 mb-0">
         February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
     </p>
-    <p class="mt-2 mb-0"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="available-tools"></a>
@@ -32,7 +32,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     <div class="ftk-tile">
         <div>📗 FinOps guide</div>
         <div>Learn the FinOps practices and tools you need to be successful.</div>
-        <a href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
+        <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
     </div>
     <div class="ftk-tile">
         <div>🏦 FinOps hubs</div>

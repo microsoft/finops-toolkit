@@ -30,7 +30,7 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
     <p class="mt-2 mb-0">
         February introduced Azure Arc Windows license management, enabled CSV exports for idle backups, and tuned VM processor details.
     </p>
-    <p class="mt-2 mb-0"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
@@ -95,15 +95,15 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>💹 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/optimization">Cost optimization</a></div>
+        <div>💹 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/optimization">Cost optimization</a></div>
         <div>Monitor resource utilization and maximize cost efficiency across your Azure environment.</div>
     </div>
     <div class="ftk-tile">
-        <div>⚖️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/governance">Governance</a></div>
+        <div>⚖️ <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/governance">Governance</a></div>
         <div>Monitor resources, service alerts, and policy compliance across your Azure environment.</div>
     </div>
     <div class="ftk-tile">
-        <div>⚙️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></div>
+        <div>⚙️ <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></div>
         <div>Learn how to install and edit FinOps workbooks to tune them to meet your unique needs.</div>
     </div>
 </div>

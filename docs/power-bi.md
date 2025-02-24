@@ -30,7 +30,7 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
     <p class="mt-2 mb-0">
         February introduced a new visual design for Power BI reports, new options to populate missing prices for storage reports, and a complete performance overhaul for KQL reports, plus many small fixes and improvements.
     </p>
-    <p class="mt-2 mb-0"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
@@ -80,7 +80,7 @@ Create a new or update an existing FinOps hub instance.
         <div>
             <p>Export data to storage for quick setup with small accounts or deploy FinOps hubs with Data Explorer for high performance analytics and year-over-year reporting.<br></p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Help me choose</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Help me choose</a>
             </p>
         </div>
     </div>
@@ -89,8 +89,8 @@ Create a new or update an existing FinOps hub instance.
         <div>
             <p>Export FOCUS data to a storage account or deploy FinOps hubs for added functionality.<br></p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports/openedBy/FinOpsToolkit.PowerBI.CreateExports">Create exports</a>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Deploy FinOps hubs</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports/openedBy/FinOpsToolkit.PowerBI.CreateExports">Create exports</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Deploy FinOps hubs</a>
             </p>
         </div>
     </div>
@@ -109,7 +109,7 @@ Create a new or update an existing FinOps hub instance.
         <div>
             <p>Connect reports to your storage account or Data Explorer cluster and publish to the Power BI service to share with your stakeholders.<br></p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup">Connect to your data</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup">Connect to your data</a>
             </p>
         </div>
     </div>
