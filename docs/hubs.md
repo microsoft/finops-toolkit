@@ -156,7 +156,7 @@ Create a new or update an existing FinOps hub instance.
     </div>
     <div class="ftk-tile">
         <div>📦 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">Deployment template</a></div>
-        <div>Details about what's included in the FinOps hub deployment template.</div>
+        <div>Details about what's included in the FinOps hub deployment template.<br>&nbsp;</div>
     </div>
     <div class="ftk-tile">
         <div>🧮 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/compatibility">Compatibility guide</a></div>

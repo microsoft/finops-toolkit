@@ -6,18 +6,16 @@
   margin-left: 0.75em;
   padding: 0.25em 0.5em;
   border-radius: 0.5em;
-  font-size: 0.875em;
+  font-size: 0.75em;
   font-weight: 500;
   display: inline-block;
 }
 
-a.ftk-externallink::after {
+a.ftk-externallink:hover::after {
   content: '🡥';
-  font-size: 0.8em;
   opacity: 0.8;
   margin-left: 0.5em;
   text-decoration: none;
-  vertical-align: 0.15em;
 }
 
 .ftk-gallery {
