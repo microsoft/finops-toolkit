@@ -26,14 +26,12 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 <br>
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
     <p class="mt-2 mb-0">
         February introduced Azure Arc Windows license management, enabled CSV exports for idle backups, and tuned VM processor details.
     </p>
     <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
 </div>
-
-<br>
 
 <a name="features"></a>
 
@@ -41,28 +39,28 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>🦉 Monitor cost, security, and reliability</div>
+        <div>🦉 Holistic view</div>
         <div>Review Azure Advisor cost, security, and reliability recommendations from a central engineering hub.</div>
     </div>
     <div class="ftk-tile">
         <div>💤 Identify idle resources</div>
-        <div>Identify idle and unused resources to reduce waste.</div>
+        <div>Identify idle and unused resources to reduce waste.<br></div>
     </div>
     <div class="ftk-tile">
-        <div>📈 Maximize commitment discounts</div>
-        <div>Monitor reservations and savings plans usage across subscriptions.</div>
+        <div>📈 Maximize commitments</div>
+        <div>Monitor reservation and savings plan usage across subscriptions.<br></div>
     </div>
     <div class="ftk-tile">
-        <div>☁️ Expand Azure Hybrid Benefit coverage</div>
+        <div>☁️ Expand Hybrid Benefit</div>
         <div>Identify opportunities to use Azure Hybrid Benefit for Windows, Linux, and SQL Server.</div>
     </div>
     <div class="ftk-tile">
         <div>🧮 Review resource inventory</div>
-        <div>Summarize and review resource inventory across multiple areas.</div>
+        <div>Summarize and review resource inventory across multiple areas.<br></div>
     </div>
     <div class="ftk-tile">
         <div>🪦 Review retired services</div>
-        <div>Review retired services and impacted resources.</div>
+        <div>Review retired services and impacted resources.<br></div>
     </div>
     <div class="ftk-tile">
         <div>⚖️ Monitor policy compliance</div>
@@ -76,10 +74,9 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 
 ## Deploy FinOps workspaces
 
+<br>
 [Deploy to Azure](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
 [Deploy to Azure Gov](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json){: .btn .mb-4 .mb-md-0 .mr-4 }
-
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Marketing.Deploy)
 
 <br>
 

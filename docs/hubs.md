@@ -26,14 +26,12 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 <br>
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
     <p class="mt-2 mb-0">
         February introduced a simpler public networking architecture, a new Data Explorer dashboard, major Power BI optimizations and design improvements, and many small fixes and improvements.
     </p>
     <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
 </div>
-
-<br>
 
 <a name="features"></a>
 
@@ -81,7 +79,9 @@ Create a new or update an existing FinOps hub instance.
             <p>
                 Register the <b>Microsoft.EventGrid</b> resource provider for your subscription.
             </p>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2">Go to subscriptions</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2">Go to subscriptions</a>
+            </p>
         </div>
     </div>
     <div class="ftk-step">
@@ -90,13 +90,17 @@ Create a new or update an existing FinOps hub instance.
             <p>
                 Work with your network admin to configure peering and routing. FinOps hubs run on an isolated network, so this is critical to accessing.
             </p>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>
+            </p>
         </div>
     </div>
     <div class="ftk-step">
         <button class="ftk-accordion">3️⃣&nbsp; Deploy the template</button>
         <div>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
+            </p>
         </div>
     </div>
     <div class="ftk-step">
@@ -105,14 +109,18 @@ Create a new or update an existing FinOps hub instance.
             <p>
                 Configure exports manually or grant access to your hub to manage exports for you.
             </p>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-scopes">Configure scopes</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-scopes">Configure scopes</a>
+            </p>
         </div>
     </div>
     <div class="ftk-step">
         <button class="ftk-accordion">5️⃣&nbsp; Set up reports and dashboards</button>
         <div>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard">Set up ADX dashboard</a>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report">Set up Power BI</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard">Set up ADX dashboard</a>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report">Set up Power BI</a>
+            </p>
         </div>
     </div>
 </div>

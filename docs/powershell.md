@@ -26,14 +26,12 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
 <br>
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
     <p class="mt-2 mb-0">
         February introduced new options in the New-FinOpsCostExport command and fixed support or price and reservation exports, cleaned up the Get-FinOpsCostExport command output, and added a delete confirmation for Remove-FinOpsHub.
     </p>
     <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
 </div>
-
-<br>
 
 <a name="features"></a>
 
@@ -74,29 +72,35 @@ Create a new or update an existing FinOps hub instance.
 
 <div class="ftk-instructions">
     <div class="ftk-step">
-        <button class="ftk-accordion">1️⃣&nbsp; Install PowerShell 7+</div>
+        <button class="ftk-accordion">1️⃣&nbsp; Install PowerShell 7+</button>
         <div>FinOps toolkit requires PowerShell 7, which is built into Azure Cloud Shell and supported on all major operating systems.</div>
         <div>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/powershell/scripting/install/installing-powershell">Install PowerShell</a>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#cloudshell">Launch Azure Cloud Shell</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/powershell/scripting/install/installing-powershell">Install PowerShell</a>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#cloudshell">Launch Azure Cloud Shell</a>
+            </p>
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">2️⃣&nbsp; Install modules and sign in</div>
+        <button class="ftk-accordion">2️⃣&nbsp; Install modules and sign in</button>
         <div>
-            ```powershell
-            Install-Module -Name Az.Accounts
-            Install-Module -Name Az.Resources
-            Install-Module -Name FinOpsToolkit
-            Connect-AzAccount
-            ```
+            <p>
+                ```powershell
+                Install-Module -Name Az.Accounts
+                Install-Module -Name Az.Resources
+                Install-Module -Name FinOpsToolkit
+                Connect-AzAccount
+                ```
+            </p>
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">3️⃣&nbsp; Run your commands</div>
+        <button class="ftk-accordion">3️⃣&nbsp; Run your commands</button>
         <div>You're now ready to run FinOps toolkit commands. Browse available commands and examples to build your scripts.</div>
         <div>
-            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/commands#commands">Explore commands</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/commands#commands">Explore commands</a>
+            </p>
         </div>
     </div>
 </div>

@@ -26,45 +26,43 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
 <br>
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
     <p class="mt-2 mb-0">
         February improved multi-tenancy support with Azure Lighthouse guidance.
     </p>
     <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
 </div>
 
-<br>
-
 <a name="features"></a>
 
-## AOE features
+## Azure Optimization Engine features
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🎛️ Extend Azure Advisor</div>
         <div>Augment Azure Advisor recommendations with additional details.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🧩 Generate custom recommendations</div>
         <div>Identify cost, availability, performance, security, and operational excellence optimization opportunities.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📊 Monitor commitment discounts</div>
         <div>Monitor commitment discount usage and recommendations for added savings.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📃 Review resource utilization</div>
         <div>Track resource inventory and utilization of targeted services.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>💹 Monitor cost anomalies</div>
         <div>Monitor changes in cost by subscriptions, resource groups, resources, and SKUs.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🔐 Monitor access</div>
         <div>Monitor Microsoft Entra ID objects (users, groups, and applications) and their respective roles across the tenant and Azure resources.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📋 Monitor policy compliance</div>
         <div>Monitor Azure Policy compliance across the whole tenant.</div>
     </div>

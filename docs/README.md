@@ -17,14 +17,12 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
     <p class="mt-2 mb-0">
         February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
     </p>
     <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
 </div>
-
-<br>
 
 <a name="available-tools"></a>
 
@@ -184,7 +182,7 @@ Whether you're looking for a little assistance or are interested in contributing
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/lmoscinski"><img src="https://avatars.githubusercontent.com/u/135173807?v=4?s=100" width="100px;" alt="lmoscinski"/><br /><sub><b>lmoscinski</b></sub></a><br /><a href="#design-lmoscinski" title="Design">🎨</a></td>
     </tr>
   </tbody>
-</div>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->

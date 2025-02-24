@@ -26,14 +26,12 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
 <br>
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
     <p class="mt-2 mb-0">
         February introduced 1 new pricing unit, 4 new region mappings, 4 new services, and 45 new and 42 updated resource types.
     </p>
     <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
 </div>
-
-<br>
 
 <a name="features"></a>
 <a name="deploy"></a>
@@ -46,6 +44,7 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
         <div>📏 Pricing units</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv">Download</a>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsPricingUnit">See PowerShell</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden">&nbsp;</a>
     </div>
     <div class="ftk-tile">
         <div>📚 Resource types</div>
@@ -57,6 +56,7 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
         <div>🗺️ Regions</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv">Download</a>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsRegion">See PowerShell</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden">&nbsp;</a>
     </div>
     <div class="ftk-tile">
         <div>🎛️ Services</div>
@@ -66,10 +66,12 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
     <div class="ftk-tile">
         <div>⬇️ Dataset examples</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip">Download</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden">&nbsp;</a>
     </div>
     <div class="ftk-tile">
         <div>📃 FOCUS metadata</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip">Download</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden">&nbsp;</a>
     </div>
 </div>
 

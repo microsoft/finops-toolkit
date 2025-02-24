@@ -26,14 +26,12 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
 <br>
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
     <p class="mt-2 mb-0">
         February introduced a new visual design for Power BI reports, new options to populate missing prices for storage reports, and a complete performance overhaul for KQL reports, plus many small fixes and improvements.
     </p>
     <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
 </div>
-
-<br>
 
 <a name="features"></a>
 
@@ -42,27 +40,27 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
 [Try the demo](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📥 Pre-built reports</div>
         <div>Jump start your FinOps reporting with over 30 pre-built pages across 5 reports.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📊 Built on open standards</div>
         <div>Get started with the FinOps Open Cost and Usage Specification (FOCUS) with almost no effort.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>💰 Calculate savings</div>
         <div>Extend Cost Management data to add missing prices, calculate savings, and more.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🏦 Go further with FinOps hubs</div>
         <div>Pair with FinOps hubs for increased performance, security, and data quality.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>☁️ Consolidate accounts and clouds</div>
         <div>Centralize FinOps data across multiple subscriptions, accounts, and clouds.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🏗️ Extensible platform</div>
         <div>Build on an established platform with a rich ecosystem. Leverage familiar tools and integrations.</div>
     </div>
@@ -77,27 +75,35 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
 Create a new or update an existing FinOps hub instance.
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>1️⃣ Pick your data source</div>
         <div>Export data to storage for quick setup with small accounts or deploy FinOps hubs with Data Explorer for high performance analytics and year-over-year reporting.<br></div>
-        [Help me choose](https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <div>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Help me choose</a>
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>2️⃣ Set up your data source</div>
         <div>Export FOCUS data to a storage account or deploy FinOps hubs for added functionality.<br></div>
-        [Create exports](https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports/openedBy/FinOpsToolkit.PowerBI.CreateExports){: .btn .mb-4 .mb-md-0 .mr-4 }
-        [Deploy FinOps hubs](https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <div>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports/openedBy/FinOpsToolkit.PowerBI.CreateExports">Create exports</a>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Deploy FinOps hubs</a>
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>3️⃣ Download the reports</div>
         <div>Download KQL reports for FinOps hubs with Data Explorer or download storage reports to connect to data in a storage account (with or without FinOps hubs).<br></div>
-        [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
-        [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <div>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip">Download for KQL</a>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip">Download for storage</a>
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>4️⃣ Connect and publish reports</div>
         <div>Connect reports to your storage account or Data Explorer cluster and publish to the Power BI service to share with your stakeholders.<br></div>
-        [Connect to your data](https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <div>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup">Connect to your data</a>
+        </div>
     </div>
 </div>
 
