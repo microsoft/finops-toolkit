@@ -16,13 +16,13 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 ---
 
-<a name="whats-new"></a>
-
-## What's new in February 2025 (v0.8)
-
-February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
-
-[See all changes](https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide){: .btn .mb-4 .mb-md-0 .mr-4 }
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <p class="mt-2 mb-0">
+        February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
+    </p>
+    <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
+</div>
 
 <br>
 
@@ -31,42 +31,42 @@ February introduces major Power BI optimizations, a simplified FinOps hubs archi
 ## Automate and extend the Microsoft Cloud
 
 <div class="ftk-gallery">
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>📗 FinOps guide</div>
         <div>Learn the FinOps practices and tools you need to be successful.</div>
         <a href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🏦 FinOps hubs</div>
         <div>Open, extensible, and scalable cost reporting.</div>
         <a href="./hubs">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>📊 Power BI</div>
         <div>Accelerate your reporting with Power BI starter kits.</div>
         <a href="./power-bi">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>📒 FinOps workbooks</div>
         <div>Customizable home for engineers to maximize cloud ROI.</div>
         <a href="./workbooks">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🔍 Optimization Engine</div>
         <div>Extensible solution for custom optimization recommendations.</div>
         <a href="./optimization-engine">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🌐 Open data</div>
         <div>Useful data for anyone to access, use, and share.</div>
         <a href="./open-data">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🖥️ PowerShell</div>
         <div>Automate and manage FinOps solutions and capabilities.</div>
         <a href="./powershell">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🦾 Bicep Registry</div>
         <div>Official repository for Bicep modules.</div>
         <a href="./bicep">Learn more</a>

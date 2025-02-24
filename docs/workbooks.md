@@ -25,13 +25,13 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 
 <br>
 
-<a name="whats-new"></a>
-
-## What's new in February 2025 (v0.8)
-
-February introduced Azure Arc Windows license management, enabled CSV exports for idle backups, and tuned VM processor details.
-
-[See all changes](https://aka.ms/ftk/changes#finops-workbooks-v08){: .btn .mb-4 .mb-md-0 .mr-4 }
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <p class="mt-2 mb-0">
+        February introduced Azure Arc Windows license management, enabled CSV exports for idle backups, and tuned VM processor details.
+    </p>
+    <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
+</div>
 
 <br>
 
@@ -40,31 +40,31 @@ February introduced Azure Arc Windows license management, enabled CSV exports fo
 ## A central hub for efficiency and control
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🦉 Monitor cost, security, and reliability</div>
         <div>Review Azure Advisor cost, security, and reliability recommendations from a central engineering hub.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>💤 Identify idle resources</div>
         <div>Identify idle and unused resources to reduce waste.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📈 Maximize commitment discounts</div>
         <div>Monitor reservations and savings plans usage across subscriptions.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>☁️ Expand Azure Hybrid Benefit coverage</div>
         <div>Identify opportunities to use Azure Hybrid Benefit for Windows, Linux, and SQL Server.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🧮 Review resource inventory</div>
         <div>Summarize and review resource inventory across multiple areas.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🪦 Review retired services</div>
         <div>Review retired services and impacted resources.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>⚖️ Monitor policy compliance</div>
         <div>Review Azure Policy assignments and compliance status per subscription.</div>
     </div>
@@ -83,11 +83,12 @@ February introduced Azure Arc Windows license management, enabled CSV exports fo
 
 <br>
 
-<a name="pricing"></a>
-
-## FinOps workbooks are free
-
-FinOps workbooks do not incur any cost.
+<div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
+    <h2 class="m-0 mb-4">Estimated cost for FinOps hubs</h2>
+    <p class="mt-2 mb-0">
+        FinOps workbooks do not incur any cost.
+    </p>
+</div>
 
 <br>
 
@@ -96,15 +97,15 @@ FinOps workbooks do not incur any cost.
 ## Learn more from documentation
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>💹 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/optimization">Cost optimization</a></div>
         <div>Monitor resource utilization and maximize cost efficiency across your Azure environment.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>⚖️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/governance">Governance</a></div>
         <div>Monitor resources, service alerts, and policy compliance across your Azure environment.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>⚙️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></div>
         <div>Learn how to install and edit FinOps workbooks to tune them to meet your unique needs.</div>
     </div>

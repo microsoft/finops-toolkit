@@ -25,13 +25,13 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
 
 <br>
 
-<a name="whats-new"></a>
-
-## What's new in February 2025 (v0.8)
-
-February introduced new options in the New-FinOpsCostExport command and fixed support or price and reservation exports, cleaned up the Get-FinOpsCostExport command output, and added a delete confirmation for Remove-FinOpsHub.
-
-[See all changes](https://aka.ms/ftk/changes#powershell-v08){: .btn .mb-4 .mb-md-0 .mr-4 }
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <p class="mt-2 mb-0">
+        February introduced new options in the New-FinOpsCostExport command and fixed support or price and reservation exports, cleaned up the Get-FinOpsCostExport command output, and added a delete confirmation for Remove-FinOpsHub.
+    </p>
+    <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
+</div>
 
 <br>
 
@@ -40,25 +40,25 @@ February introduced new options in the New-FinOpsCostExport command and fixed su
 ## Explore the commands
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📊 Cost Management</div>
         <div>Manage Cost Management exports using the latest features. (Not available in Az PowerShell.)</div>
-        [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/cost/cost-management-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/cost/cost-management-commands">See commands</a>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🏦 FinOps hubs</div>
         <div>Deploy and manage FinOps hubs and configured scopes.</div>
-        [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/hubs/finops-hubs-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/hubs/finops-hubs-commands">See commands</a>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🌐 Open data</div>
         <div>Query FinOps toolkit open data to integrate with your own data.</div>
-        [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/open-data-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/open-data-commands">See commands</a>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🧰 FinOps toolkit</div>
         <div>Get FinOps toolkit versions or download specific releases.</div>
-        [See commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/toolkit/finops-toolkit-commands){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/toolkit/finops-toolkit-commands">See commands</a>
     </div>
 </div>
 
@@ -72,32 +72,38 @@ February introduced new options in the New-FinOpsCostExport command and fixed su
 
 Create a new or update an existing FinOps hub instance.
 
-<div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
-        <div>1️⃣ Install PowerShell 7+</div>
+<div class="ftk-instructions">
+    <div class="ftk-step">
+        <button class="ftk-accordion">1️⃣&nbsp; Install PowerShell 7+</div>
         <div>FinOps toolkit requires PowerShell 7, which is built into Azure Cloud Shell and supported on all major operating systems.</div>
-        [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell){: .btn .mb-4 .mb-md-0 .mr-4 }
-        [Launch Azure Cloud Shell](https://portal.azure.com/#cloudshell){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <div>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/powershell/scripting/install/installing-powershell">Install PowerShell</a>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#cloudshell">Launch Azure Cloud Shell</a>
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
-        <div>2️⃣ Install modules and sign in</div>
-        ```powershell
-        Install-Module -Name Az.Accounts
-        Install-Module -Name Az.Resources
-        Install-Module -Name FinOpsToolkit
-        Connect-AzAccount
-        ```
+    <div class="ftk-step">
+        <button class="ftk-accordion">2️⃣&nbsp; Install modules and sign in</div>
+        <div>
+            ```powershell
+            Install-Module -Name Az.Accounts
+            Install-Module -Name Az.Resources
+            Install-Module -Name FinOpsToolkit
+            Connect-AzAccount
+            ```
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
-        <div>3️⃣ Run your commands</div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">3️⃣&nbsp; Run your commands</div>
         <div>You're now ready to run FinOps toolkit commands. Browse available commands and examples to build your scripts.</div>
-        [Explore commands](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/commands#commands){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <div>
+            <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/commands#commands">Explore commands</a>
+        </div>
     </div>
 </div>
 
 <a name="docs"></a>
 
 [Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/commands){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20PowerShell%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20PowerShell%3F/surveyId/FTK0.8/bladeName/PowerShell/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 }
+[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20PowerShell%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20PowerShell%3F/surveyId/FTK0.8/bladeName/PowerShell/featureName/Marketing.Docs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>

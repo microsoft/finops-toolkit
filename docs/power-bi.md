@@ -25,13 +25,13 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
 
 <br>
 
-<a name="whats-new"></a>
-
-## What's new in February 2025 (v0.8)
-
-February introduced a new visual design for Power BI reports, new options to populate missing prices for storage reports, and a complete performance overhaul for KQL reports, plus many small fixes and improvements.
-
-[See all changes](https://aka.ms/ftk/changes#power-bi-reports-v08){: .btn .mb-4 .mb-md-0 .mr-4 }
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <p class="mt-2 mb-0">
+        February introduced a new visual design for Power BI reports, new options to populate missing prices for storage reports, and a complete performance overhaul for KQL reports, plus many small fixes and improvements.
+    </p>
+    <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
+</div>
 
 <br>
 
@@ -105,11 +105,12 @@ Create a new or update an existing FinOps hub instance.
 
 <br>
 
-<a name="pricing"></a>
-
-## Power BI reports are free
-
-FinOps toolkit Power BI reports do not incur any cost beyond the required Power BI licenses and underlying data storage costs.
+<div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
+    <h2 class="m-0 mb-4">Estimated cost for FinOps toolkit Power BI reports</h2>
+    <p class="mt-2 mb-0">
+        FinOps toolkit Power BI reports do not incur any cost beyond the required Power BI licenses and underlying data storage costs.
+    </p>
+</div>
 
 <br>
 
@@ -118,25 +119,35 @@ FinOps toolkit Power BI reports do not incur any cost beyond the required Power 
 ## Explore the reports
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📊 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/cost-summary">Cost summary</a></div>
-        <div>Track cost over time and get a general overview of cost and savings with common breakdowns to get you started.</div>
+        <div>
+            Track cost over time and get a general overview of cost and savings with common breakdowns to get you started.
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🪙 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/rate-optimization">Rate optimization</a></div>
-        <div>Review cost savings from negotiated and commitment discounts and identify opportunities to increase savings with Azure reservations and Azure Hybrid Benefit.</div>
+        <div>
+            Review cost savings from negotiated and commitment discounts and identify opportunities to increase savings.
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>⚖️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/governance">Policy + governance</a></div>
-        <div>Summarize your Microsoft Cloud governance posture with standard metrics aligned with the Cloud Adoption Framework (CAF) to help identify issues, apply recommendations, and resolve compliance gaps.</div>
+        <div>
+            Summarize your governance posture with standard metrics aligned with the Cloud Adoption Framework.
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>☁️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/workload-optimization">Workload optimization</a></div>
-        <div>Gain insights into resource utilization and efficiency opportunities based on historical usage patterns.</div>
+        <div>
+            Gain insights into resource utilization and efficiency opportunities based on historical usage patterns.
+        </div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📥 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/data-ingestion">Data ingestion</a></div>
-        <div>Review FinOps hubs cost and monitor Cost Management exports to identify and resolve common issues.</div>
+        <div>
+            Review FinOps hubs cost and monitor Cost Management exports to identify and resolve common issues.
+        </div>
     </div>
 </div>
 

@@ -25,13 +25,13 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
 
 <br>
 
-<a name="whats-new"></a>
-
-## What's new in February 2025 (v0.8)
-
-February improved multi-tenancy support with Azure Lighthouse guidance.
-
-[See all changes](https://aka.ms/ftk/changes#optimization-engine-v08){: .btn .mb-4 .mb-md-0 .mr-4 }
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <p class="mt-2 mb-0">
+        February improved multi-tenancy support with Azure Lighthouse guidance.
+    </p>
+    <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
+</div>
 
 <br>
 
@@ -85,11 +85,12 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
 <br>
 
 <!--
-<a name="pricing"></a>
-
-## Estimated cost for Azure Optimization Engine
-
-TODO
+<div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
+    <h2 class="m-0 mb-4">Estimated cost for Azure Optimization Engine</h2>
+    <p class="mt-2 mb-0">
+        TODO
+    </p>
+</div>
 
 <br>
 -->
@@ -99,29 +100,29 @@ TODO
 ## Learn more from documentation
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📊 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/reports">Reports and workbooks</a></div>
         <div>Explore AOE reports and workbooks to review recommendations and optimize your environment.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📝 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">How to customize AOE</a></div>
         <div>Learn how to customize and tune Azure Optimization Engine to meet your specific needs.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🪛 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">How to configure workspaces</a></div>
         <div>Learn how to configure Log Analytics workspaces for Azure Optimization Engine.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🛑 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">How to suppress recommendations</a></div>
         <div>Learn how to select the recommendations to include or exclude in AOE.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📦 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/setup-options">Deployment options</a></div>
         <div>Advanced scenarios for setting up or upgrading Azure Optimization Engine.</div>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🙋‍♀️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Upgrade guide</a></div>
-        <div>Common questions and answers about Azure Optimization Engine support, subscriptions, currency, and more.</div>
+        <div>Common questions and answers about support, subscriptions, currency, and more.</div>
     </div>
 </div>
 

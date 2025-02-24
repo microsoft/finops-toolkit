@@ -25,13 +25,13 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
 
 <br>
 
-<a name="whats-new"></a>
-
-## What's new in February 2025 (v0.8)
-
-February introduced 1 new pricing unit, 4 new region mappings, 4 new services, and 45 new and 42 updated resource types.
-
-[See all changes](https://aka.ms/ftk/changes#open-data-v08){: .btn .mb-4 .mb-md-0 .mr-4 }
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h2 class="m-0 mb-4">What's new in February 2025 (v0.8)</h2>
+    <p class="mt-2 mb-0">
+        February introduced 1 new pricing unit, 4 new region mappings, 4 new services, and 45 new and 42 updated resource types.
+    </p>
+    <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
+</div>
 
 <br>
 
@@ -42,34 +42,34 @@ February introduced 1 new pricing unit, 4 new region mappings, 4 new services, a
 ## Download open data
 
 <div class="ftk-gallery">
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📏 Pricing units</div>
-        [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-        [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsPricingUnit){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv">Download</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsPricingUnit">See PowerShell</a>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📚 Resource types</div>
-        [Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-        [Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json){: .btn .mb-4 .mb-md-0 .mr-4 }
-        [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsResourceType){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv">Download CSV</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json">Download JSON</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsResourceType">See PowerShell</a>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🗺️ Regions</div>
-        [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-        [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsRegion){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv">Download</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsRegion">See PowerShell</a>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>🎛️ Services</div>
-        [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-        [See PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsService){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv">Download</a>
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsService">See PowerShell</a>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>⬇️ Dataset examples</div>
-        [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip">Download</a>
     </div>
-    <div class="ftk-tile" markdown="1">
+    <div class="ftk-tile">
         <div>📃 FOCUS metadata</div>
-        [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+        <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip">Download</a>
     </div>
 </div>
 
