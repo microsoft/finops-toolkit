@@ -43,16 +43,16 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
         <div>Augment Azure Advisor recommendations with additional details.</div>
     </div>
     <div class="ftk-tile">
-        <div>🧩 Generate custom recommendations</div>
-        <div>Identify cost, availability, performance, security, and operational excellence optimization opportunities.</div>
+        <div>🧩 Custom recommendations</div>
+        <div>A single home to optimize for cost, availability, performance, security, and operational excellence.</div>
     </div>
     <div class="ftk-tile">
-        <div>📊 Monitor commitment discounts</div>
+        <div>📊 Monitor commitments</div>
         <div>Monitor commitment discount usage and recommendations for added savings.</div>
     </div>
     <div class="ftk-tile">
         <div>📃 Review resource utilization</div>
-        <div>Track resource inventory and utilization of targeted services.</div>
+        <div>Track resource inventory and utilization of targeted services.<br>&nbsp;</div>
     </div>
     <div class="ftk-tile">
         <div>💹 Monitor cost anomalies</div>
@@ -60,11 +60,11 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
     </div>
     <div class="ftk-tile">
         <div>🔐 Monitor access</div>
-        <div>Monitor Microsoft Entra ID objects (users, groups, and applications) and their respective roles across the tenant and Azure resources.</div>
+        <div>Monitor Microsoft Entra ID objects and their respective roles across the tenant and Azure resources.</div>
     </div>
     <div class="ftk-tile">
         <div>📋 Monitor policy compliance</div>
-        <div>Monitor Azure Policy compliance across the whole tenant.</div>
+        <div>Monitor Azure Policy compliance across the whole tenant.<br>&nbsp;</div>
     </div>
 </div>
 
@@ -76,7 +76,7 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
 
 Azure Optimization Engine requires a command line deployment via a PowerShell script.
 
-[Deploy to Azure](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
+[Deploy via PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
 
 [💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy)
 
@@ -103,15 +103,15 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
         <div>Explore AOE reports and workbooks to review recommendations and optimize your environment.</div>
     </div>
     <div class="ftk-tile">
-        <div>📝 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">How to customize AOE</a></div>
+        <div>📝 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">Customize AOE</a></div>
         <div>Learn how to customize and tune Azure Optimization Engine to meet your specific needs.</div>
     </div>
     <div class="ftk-tile">
-        <div>🪛 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">How to configure workspaces</a></div>
+        <div>🪛 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">Configure workspaces</a></div>
         <div>Learn how to configure Log Analytics workspaces for Azure Optimization Engine.</div>
     </div>
     <div class="ftk-tile">
-        <div>🛑 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">How to suppress recommendations</a></div>
+        <div>🛑 <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">Select recommendations</a></div>
         <div>Learn how to select the recommendations to include or exclude in AOE.</div>
     </div>
     <div class="ftk-tile">
@@ -119,7 +119,7 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
         <div>Advanced scenarios for setting up or upgrading Azure Optimization Engine.</div>
     </div>
     <div class="ftk-tile">
-        <div>🙋‍♀️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Upgrade guide</a></div>
+        <div>🙋‍♀️ <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Common questions</a></div>
         <div>Common questions and answers about support, subscriptions, currency, and more.</div>
     </div>
 </div>

@@ -11,6 +11,14 @@
   display: inline-block;
 }
 
+a.ftk-externallink::after {
+  content: ' ↗';
+  font-size: 0.8em;
+  opacity: 0.8;
+  margin-left: 1em;
+  text-decoration: none;
+}
+
 .ftk-gallery {
   font-size: 0.875rem;
   line-height: 1.5rem;

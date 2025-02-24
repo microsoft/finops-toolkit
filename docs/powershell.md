@@ -40,7 +40,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
 <div class="ftk-gallery">
     <div class="ftk-tile">
         <div>📊 Cost Management</div>
-        <div>Manage Cost Management exports using the latest features. (Not available in Az PowerShell.)</div>
+        <div>Manage Cost Management exports using the latest features.</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/cost/cost-management-commands">See commands</a>
     </div>
     <div class="ftk-tile">
@@ -67,8 +67,6 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
 <a name="install"></a>
 
 ## Install the module
-
-Create a new or update an existing FinOps hub instance.
 
 <div class="ftk-instructions">
     <div class="ftk-step">

@@ -44,11 +44,11 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
     </div>
     <div class="ftk-tile">
         <div>💤 Identify idle resources</div>
-        <div>Identify idle and unused resources to reduce waste.<br></div>
+        <div>Identify idle and unused resources to reduce waste.<br>&nbsp;</div>
     </div>
     <div class="ftk-tile">
         <div>📈 Maximize commitments</div>
-        <div>Monitor reservation and savings plan usage across subscriptions.<br></div>
+        <div>Monitor reservation and savings plan usage across subscriptions.<br>&nbsp;</div>
     </div>
     <div class="ftk-tile">
         <div>☁️ Expand Hybrid Benefit</div>
@@ -56,11 +56,11 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
     </div>
     <div class="ftk-tile">
         <div>🧮 Review resource inventory</div>
-        <div>Summarize and review resource inventory across multiple areas.<br></div>
+        <div>Summarize and review resource inventory across multiple areas.<br>&nbsp;</div>
     </div>
     <div class="ftk-tile">
         <div>🪦 Review retired services</div>
-        <div>Review retired services and impacted resources.<br></div>
+        <div>Review retired services and impacted resources.<br>&nbsp;</div>
     </div>
     <div class="ftk-tile">
         <div>⚖️ Monitor policy compliance</div>

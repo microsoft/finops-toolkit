@@ -8,7 +8,7 @@ permalink: /bicep
 #customer intent: As a Finops practitioner, I need to learn about FinOps hubs
 ---
 
-<span class="fs-9 d-block mb-4">FinOps toolkit PowerShell</span>
+<span class="fs-9 d-block mb-4">FinOps toolkit bicep</span>
 Accelerate your FinOps efforts with reusable bicep modules for your Azure deployment templates.
 {: .fs-6 .fw-300 }
 
@@ -21,7 +21,7 @@ Accelerate your FinOps efforts with reusable bicep modules for your Azure deploy
 
 ## Reusable bicep modules
 
-The FinOps toolkit PowerShell module helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.
+The FinOps toolkit bicep modules help you deploy resources to manage, monitor, and optimize cost and usage.
 
 <br>
 
