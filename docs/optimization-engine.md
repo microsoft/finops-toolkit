@@ -30,7 +30,7 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
     <p class="mt-2 mb-0">
         February improved multi-tenancy support with Azure Lighthouse guidance.
     </p>
-    <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
+    <p class="mt-2 mb-0"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>

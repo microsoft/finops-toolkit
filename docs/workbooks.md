@@ -30,7 +30,7 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
     <p class="mt-2 mb-0">
         February introduced Azure Arc Windows license management, enabled CSV exports for idle backups, and tuned VM processor details.
     </p>
-    <p class="mt-2 mb-0"><a href="https://aka.ms/ftk/changes">See all changes</a></p>
+    <p class="mt-2 mb-0"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>

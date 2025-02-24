@@ -32,7 +32,7 @@ The FinOps toolkit bicep modules help you deploy resources to manage, monitor, a
 
 TODO
 
-[See all changes](https://aka.ms/ftk/changes#bicep-registry-modules-v08){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See all changes](https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog#bicep-registry-modules-v08){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 -->
