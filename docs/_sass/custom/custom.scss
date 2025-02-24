@@ -51,16 +51,16 @@ a.ftk-externallink:hover::after {
   .ftk-step {
     .ftk-accordion,
     & > div {
-      padding: 1.5rem;
-      width: 100%;
     }
     .ftk-accordion {
       background-color: #eef;
       cursor: pointer;
       border: none;
       outline: none;
+      padding: 1.5rem;
       text-align: left;
       transition: 0.4s;
+      width: 100%;
 
       &:after {
         content: '\02795'; /* Unicode plus (+) */
@@ -82,8 +82,9 @@ a.ftk-externallink:hover::after {
     & > div {
       background-color: #f9f9ff;
       display: none;
-      overflow: hidden;
       margin-bottom: 1.5rem 1.5rem;
+      overflow: hidden;
+      padding: 0.5rem 1.5rem;
     }
     &.ftk-active > div {
       display: block;
