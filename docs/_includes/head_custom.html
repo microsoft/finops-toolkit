@@ -25,9 +25,7 @@
     var i;
     for (i = 0; i < acc.length; i++) {
       acc[i].addEventListener('click', function () {
-        this.classList.toggle('ftk-active');
-        var panel = this.nextElementSibling;
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        this.parent.classList.toggle('ftk-active');
       });
     }
   });

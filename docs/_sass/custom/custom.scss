@@ -18,6 +18,13 @@ a.ftk-externallink:hover::after {
   text-decoration: none;
 }
 
+.ftk-btnlink {
+  background-color: transparent;
+  box-shadow: none;
+  font-weight: normal;
+  text-decoration: default;
+}
+
 .ftk-gallery {
   font-size: 0.875rem;
   line-height: 1.5rem;
@@ -52,13 +59,6 @@ a.ftk-externallink:hover::after {
       outline: none;
       transition: 0.4s;
 
-      &.ftk-active {
-        background-color: #ddf;
-      }
-      &:hover {
-        background-color: #ccf;
-      }
-
       &:after {
         content: '\02795'; /* Unicode plus (+) */
         font-size: 0.8125rem;
@@ -66,15 +66,21 @@ a.ftk-externallink:hover::after {
         float: right;
         margin-left: 5px;
       }
-
-      &.ftk-active:after {
-        content: '\2796'; /* Unicode minus (-) */
-      }
+    }
+    &.ftk-active .ftk-accordion {
+      background-color: #ddf;
+    }
+    .ftk-accordion:hover {
+      background-color: #ccf;
+    }
+    &.ftk-active .ftk-accordion:after {
+      content: '\2796'; /* Unicode minus (-) */
     }
     & > div {
-      padding: 0 1.5rem 1.5rem;
+      background-color: #f9f9ff;
       display: none;
       overflow: hidden;
+      margin-bottom: 1.5rem 1.5rem;
     }
   }
 }
