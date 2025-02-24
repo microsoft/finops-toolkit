@@ -49,14 +49,17 @@ a.ftk-externallink:hover::after {
 
 .ftk-instructions {
   .ftk-step {
+    .ftk-accordion,
+    & > div {
+      padding: 1.5rem;
+      width: 100%;
+    }
     .ftk-accordion {
       background-color: #eef;
       cursor: pointer;
-      padding: 1.5rem;
-      width: 100%;
-      text-align: left;
       border: none;
       outline: none;
+      text-align: left;
       transition: 0.4s;
 
       &:after {
