@@ -25,7 +25,7 @@
     var i;
     for (i = 0; i < acc.length; i++) {
       acc[i].addEventListener('click', function () {
-        this.parent.classList.toggle('ftk-active');
+        event.target.parentElement.classList.toggle('ftk-active');
       });
     }
   });
