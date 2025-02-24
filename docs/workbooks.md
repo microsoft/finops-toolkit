@@ -81,7 +81,7 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 <br>
 
 <div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
-    <h2 class="m-0 mb-4">Estimated cost for FinOps hubs</h2>
+    <h3 class="m-0 mb-4">Estimated cost for FinOps hubs</h3>
     <p class="mt-2 mb-0">
         FinOps workbooks do not incur any cost.
     </p>

@@ -84,7 +84,7 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
 
 <!--
 <div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
-    <h2 class="m-0 mb-4">Estimated cost for Azure Optimization Engine</h2>
+    <h3 class="m-0 mb-4">Estimated cost for Azure Optimization Engine</h3>
     <p class="mt-2 mb-0">
         TODO
     </p>

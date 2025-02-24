@@ -125,12 +125,12 @@ Create a new or update an existing FinOps hub instance.
     </div>
 </div>
 
-<a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
+<br><a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
 
 <br>
 
 <div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
-    <h2 class="m-0 mb-4">Estimated cost for FinOps hubs</h2>
+    <h3 class="m-0 mb-4">Estimated cost for FinOps hubs</h3>
     <p class="mt-2 mb-0">FinOps hubs starts at $120/mo + $10 per $1 million in monitored spend.</p>
     <p class="mt-2 mb-0">Costs may be lower depending on your negotiated and commitment discounts.</p>
 </div>
