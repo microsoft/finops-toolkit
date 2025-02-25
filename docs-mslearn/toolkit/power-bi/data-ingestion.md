@@ -3,13 +3,15 @@ title: Data ingestion report
 description: Learn about the Data Ingestion Report, which provides insights into the data ingested into your FinOps hub storage account.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/03/2024
+ms.date: 02/13/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the Data ingestion report so that I can understand my incoming data.
 ---
 
+<!-- cSpell:ignore nextstepaction -->
 <!-- markdownlint-disable-next-line MD025 -->
 # Data ingestion report
 
@@ -19,6 +21,10 @@ The **Data ingestion report** provides details about the data that got ingested 
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Data%20ingestion%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Data%20ingestion%20report%3F/surveyId/FTK0.8/bladeName/PowerBI.DataIngestion/featureName/Documentation)
+
+Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
 <br>
 
@@ -26,20 +32,22 @@ The **Data ingestion report** provides details about the data that got ingested 
 
 The **Get started** page includes a basic introduction to the report with other links to learn more.
 
+For instructions on how to connect this report to your data, including details about supported parameters, select the **Connect your data** button. Hold <kbd>Ctrl</kbd> when clicking the button in Power BI Desktop. If you need assistance, select the **Get help** button.
+
 :::image type="content" source="./media/data-ingestion/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows basic information and links to learn more." lightbox="./media/data-ingestion/get-started.png" :::
 
 <br>
 
-## Hubs
+## FinOps hubs
 
-The **Hubs** page shows the cost of any FinOps hubs instances. Expand each instance to see the cost broken down by service (for example, Storage or Key Vault). Most organizations only have one hub instance. This page can be helpful in confirming how much your hub instance is costing you. And it helps confirm if there are other hub instances deployed within the organization, which could possibly be centralized.
+The **FinOps hubs** page shows the cost of any FinOps hubs instances. Expand each instance to see the cost broken down by service (for example, Storage or Key Vault). Most organizations only have one hub instance. This page can be helpful in confirming how much your hub instance is costing you. And it helps confirm if there are other hub instances deployed within the organization, which could possibly be centralized.
 
 This page includes the same KPIs as most pages within the [Cost summary report](cost-summary.md):
 
 - **Effective cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
 - **Total savings** shows how much you're saving compared to list prices.
 
-:::image type="content" source="./media/data-ingestion/hubs.png" border="true" alt-text="Screenshot of the Hubs page that shows the cost of FinOps hubs instances." lightbox="./media/data-ingestion/hubs.png" :::
+:::image type="content" source="./media/data-ingestion/finops-hubs.png" border="true" alt-text="Screenshot of the Hubs page that shows the cost of FinOps hubs instances." lightbox="./media/data-ingestion/finops-hubs.png" :::
 
 <br>
 

@@ -3,9 +3,10 @@ title: Use and customize FinOps workbooks
 description: Learn how to install and customize FinOps workbooks to achieve FinOps goals, including cost recommendations, idle resource identification, and more.
 author: bandersmsft
 ms.author: banders
-ms.date: 11/01/2024
+ms.date: 02/18/2025
 ms.topic: how-to
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to learn how to install and customize FinOps workbooks to achieve cost optimization and other FinOps goals.
 ---
@@ -149,6 +150,20 @@ ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where t
 ## Learn more about workbooks
 
 For more information about Azure Monitor workbooks, see the [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](/training/modules/visualize-data-workbooks/) training module.
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Customize)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20Workbooks%22%20sort%3A"reactions-%2B1-desc")
 
 <br>
 

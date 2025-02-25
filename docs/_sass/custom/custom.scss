@@ -1,0 +1,60 @@
+.ftk-gallery {
+  font-size: 14px;
+  line-height: 20px;
+  margin: 24px -20px 0 0;
+
+  .ftk-tile {
+    display: inline-block;
+    margin: 0 20px 24px 0;
+    width: 30%;
+
+    div {
+      margin-bottom: 8px;
+
+      &:first-child {
+        font-size: 16px;
+        line-height: 22px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.ftk-instructions {
+  .ftk-step {
+    .ftk-accordion {
+      background-color: #eee;
+      cursor: pointer;
+      padding: 18px;
+      width: 100%;
+      text-align: left;
+      border: none;
+      outline: none;
+      transition: 0.4s;
+
+      &.ftk-active,
+      &:hover {
+        background-color: #ccc;
+      }
+
+      &:after {
+        content: '\02795'; /* Unicode character for "plus" sign (+) */
+        font-size: 13px;
+        color: #777;
+        float: right;
+        margin-left: 5px;
+      }
+
+      &.ftk-active:after {
+        content: '\2796'; /* Unicode character for "minus" sign (-) */
+      }
+    }
+
+    /* Style the accordion panel. Note: hidden by default */
+    & > div {
+      padding: 0 18px;
+      display: none;
+      overflow: hidden;
+    }
+  }
+}

@@ -3,9 +3,10 @@ title: FinOps hub template
 description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/30/2024
+ms.date: 02/18/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps hubs are so that I can use them in my organization.
 ---
@@ -71,10 +72,10 @@ Here are the parameters you can use to customize the deployment:
 | **hubName**                            | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                                                                                                                                                                       | "finops-hub"       |
 | **location**                           | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                                                                                                                                                                       | Same as deployment |
 | **storageSku**                         | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`.                                                                                                                                                      | "Premium_LRS"      |
-| **dataExplorerName**                   | String | Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).                                                                                  |
-| **dataExplorerSkuName**                | String | Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".                                                                                                                                                                                                                                                 |
-| **dataExplorerSkuTier**                | String | Optional. SKU tier for the Azure Data Explorer cluster. Use Basic for the lowest cost with no SLA (due to a single node). Use Standard for high availability and improved performance. Allowed values: Basic, Standard. Default: "Basic".                                                                                              |
-| **dataExplorerSkuCapacity**            | Int    | Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1.                                                                                                                                                                                                         |
+| **dataExplorerName**                   | String | Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).                                                                                  |                    |
+| **dataExplorerSkuName**                | String | Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".                                                                                                                                                                                                                                                 |                    |
+| **dataExplorerSkuTier**                | String | Optional. SKU tier for the Azure Data Explorer cluster. Use Basic for the lowest cost with no SLA (due to a single node). Use Standard for high availability and improved performance. Allowed values: Basic, Standard. Default: "Basic".                                                                                              |                    |
+| **dataExplorerSkuCapacity**            | Int    | Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1.                                                                                                                                                                                                         |                    |
 | **tags**                               | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                                                                                                                                                                                 |                    |
 | **tagsByResource**                     | Object | Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.                                                                                                                                                                                             |                    |
 | **scopesToMonitor**                    | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                                                                                                                                                            |                    |
@@ -84,7 +85,7 @@ Here are the parameters you can use to customize the deployment:
 | **dataExplorerFinalRetentionInMonths** | Int    | Optional. Number of months of data to retain in the Data Explorer \*_final_v\* tables.                                                                                                                                                                                                                                                 | 13                 |
 | **remoteHubStorageUri**                | String | Optional. Storage account to push data to for ingestion into a remote hub.                                                                                                                                                                                                                                                             |                    |
 | **remoteHubStorageKey**                | String | Optional. Storage account key to use when pushing data to a remote hub.                                                                                                                                                                                                                                                                |                    |
-| **enablePublicAccess**                 | string | Optional. Disable public access to the datalake (storage firewall).                                                                                                                                                                                                                                                                    | False              |
+| **enablePublicAccess**                 | string | Optional. Disable public access to the data lake (storage firewall).                                                                                                                                                                                                                                                                   | False              |
 | **virtualNetworkAddressPrefix**        | String | Optional. IP Address range for the private virtual network used by FinOps hubs. `/26` is recommended to avoid wasting IPs. Internally, the following subnets will be created: `/28` for private endpoints, another `/28` subnet for temporary deployment scripts (container instances), and `/27` for Azure Data Explorer, if enabled. | '10.20.30.0/26'    |
 
 <br>
@@ -107,7 +108,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `schemas/focuscost_1.0-preview(v1).json` – FOCUS 1.0-preview schema definition for parquet conversion.
       - `schemas/pricesheet_2023-05-01_ea.json` – Price sheet EA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/pricesheet_2023-05-01_mca.json` – Price sheet MCA schema definition version 2023-05-01 for parquet conversion.
-      - `schemas/reservationdeatils_2023-03-01.json` – Reservation details schema definition version 2023-03-01 for parquet conversion.
+      - `schemas/reservationdetails_2023-03-01.json` – Reservation details schema definition version 2023-03-01 for parquet conversion.
       - `schemas/reservationrecommendations_2023-05-01_ea.json` – Reservation recommendations EA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/reservationrecommendations_2023-05-01_mca.json` – Reservation recommendations MCA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/reservationtransactions_2023-05-01_ea.json` – Reservation transactions EA schema definition version 2023-05-01 for parquet conversion.
@@ -140,13 +141,13 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
 - `<dataExplorerName>` Data Explorer cluster
   - `Hub` database – Public-facing functions to abstract internals.
     - Includes 2 sets of functions:
-      - Dataset-specific functions for the latest supported FOCUS version (e.g., `Costs`, `Prices`).
-      - Dataset-specific functions for each supported FOCUS version (e.g., `Costs_v1_0` for FOCUS 1.0). These functions are provided for backwards compatibility. All functions return all data aligned to the targeted FOCUS version.
+      - Dataset-specific functions for the latest supported FOCUS version (for example, `Costs`, `Prices`).
+      - Dataset-specific functions for each supported FOCUS version (for example, `Costs_v1_0` for FOCUS 1.0). These functions are provided for backwards compatibility. All functions return all data aligned to the targeted FOCUS version.
     - Datasets include: `Costs`, `Prices`.
     - Supported FOCUS versions include: `v1_0`.
   - `Ingestion` database – Stores ingested data.
     - Settings:
-      - `HubSettingsLog` table – Stores a history of high-level configuration changes (e.g., versions, scopes).
+      - `HubSettingsLog` table – Stores a history of high-level configuration changes (for example, versions, scopes).
       - `HubSettings` function – Gets the latest version of the hub instance settings.
       - `HubScopes` function – Gets the currently configured scopes for this hub instance.
     - Open data:
@@ -154,7 +155,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `Regions` table – [Regions mapping file](../open-data.md#regions) from the FinOps toolkit. Used for data normalization and cleanup.
       - `ResourceTypes` table – [ResourceTypes mapping file](../open-data.md#resource-types) from the FinOps toolkit. Used for data normalization and cleanup.
       - `Services` table – [Services mapping file](../open-data.md#services) from the FinOps toolkit. Used for data normalization and cleanup.
-      - `resource_type` function – Simple function to map internal resource type IDs to display names based on the [ResourceTypes mapping file](../data/README.md#resource-types).
+      - `resource_type` function – Simple function to map internal resource type IDs to display names based on the [ResourceTypes mapping file](../open-data.md#resource-types).
         - Use this function to map a single values and join with the `ResourceTypes` table to update many rows or map other values.
     - Datasets:
       - `<dataset>_raw` table – Raw data directly from the ingestion source. Uses a union schema for data from multiple sources.
@@ -162,6 +163,8 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `<dataset>_final_vX_Y` table – Clean version of the corresponding raw table aligned to the targeted FOCUS version. Populated via an update policy that uses the corresponding transform function when data is ingested into raw tables.
 
 In addition to the preceding information, the following resources are created to automate the deployment process. The deployment scripts should be deleted automatically. However, don't delete the managed identities as it might cause errors when upgrading to the next release.
+
+<!-- cSpell:ignore datafactory -->
 
 - Managed identities:
   - `<storage>_blobManager` ([Storage Blob Data Contributor](/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
@@ -182,7 +185,7 @@ Here are the outputs generated by the deployment:
 | ------ | ---- | ----------- ||
 | **name**                    | String | Name of the resource group.                                                                                                               |
 | **location**                | String | Azure resource location resources were deployed to.                                                                                       |
-| **dataFactorytName**        | String | Name of the Data Factory.                                                                                                                 |
+| **dataFactoryName**        | String | Name of the Data Factory.                                                                                                                 |
 | **storageAccountId**        | String | Resource ID of the deployed storage account.                                                                                              |
 | **storageAccountName**      | String | Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data. |
 | **storageUrlForPowerBI**    | String | URL to use when connecting custom Power BI reports to your data.                                                                          |
@@ -193,7 +196,21 @@ Here are the outputs generated by the deployment:
 | **managedIdentityId**       | String | Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.                                     |
 | **managedIdentityTenantId** | String | Azure AD tenant ID. This will be needed when configuring managed exports.                                                                 |
 
----
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Template)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3A"reactions-%2B1-desc")
+
+<br>
 
 ## Related content
 

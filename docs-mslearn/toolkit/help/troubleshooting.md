@@ -1,11 +1,12 @@
 ---
-title: Troubleshooting
+title: Troubleshooting FinOps toolkit issues
 description: This article describes how to validate that FinOps toolkit solutions are deployed and configured correctly, including troubleshooting common errors.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/18/2025
 ms.topic: troubleshooting
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to validate FinOps toolkit solutions are deployed and configured correctly.
 ---
@@ -57,37 +58,41 @@ Use the following steps to validate your FinOps hub deployment:
 - Error: "Invalid Billing Account ID" - Ensure the correct billing account ID is used in the Commitment Discounts report.
 -->
 
-### Step 1: Verify Cost Management export
+### Step 1: Verify Cost Management exports
 
 1. Go to Cost Management exports and make sure the export status is `Successful`.
 2. If it isn't successful, ensure you have the Cost Management resource provider registered for the subscription where your hub is deployed.
+3. File a support request with the Cost Management team to investigate further.
 
 ### Step 2: Verify Data Factory pipelines
 
-1. Go to Data Factory studio, then go to Monitor and make sure both pipelines are running.
-2. Compare the last run time with the time of the last cost export. They should be close.
-3. Open the Data Factory instance in Data Factory Studio and select Manage > Author > Triggers. Verify the `msexports_FileAdded` trigger is started. If not, start it.
-4. If the trigger fails to start with a “resource provider isn't registered” error, open the subscription in the Azure portal, then select Settings > Resource providers, select the Microsoft.EventGrid row, then select Register. Registration might take a few minutes.
-5. After registration completes, start the `msexports_FileAdded` trigger again.
-6. After the trigger is started, rerun all connected Cost Management exports. Data should be fully ingested within 10-20 minutes.
-7. If the ingestion pipeline isn't running and it's showing a `MappingColumnNameNotFoundInSourceFile` error message, verify the export is configured for FOCUS `1.0-preview(v1)` and not `1.0`.
+1. From Data Factory Studio, select Monitor on the left menu and confirm pipelines are running successfully.
+2. If pipelines are failing, review the error code and message and check [common errors](errors.md) for mitigation steps.
+3. Compare the last run time with the time of the last export. They should be close.
+4. Select **Manage** > **Author** > **Triggers** and verify the `msexports_ManifestAdded` trigger is started. If not, start it.
+5. If the trigger fails to start with a "resource provider is not registered" error, open the subscription in the Azure portal, select **Settings** > **Resource providers**, select the **Microsoft.EventGrid** row, then select **Register**. Registration may take a few minutes.
+6. After registration completes, start the `msexports_ManifestAdded` trigger again.
+7. After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes.
+8. If the ingestion pipeline is not running and it is showing a `MappingColumnNameNotFoundInSourceFile` error message, verify the export is configured for a [supported dataset and version](../hubs/data-processing.md#datasets).
 
 ### Step 3: Verify storage account – msexports container
 
-1. The **msexports** container is where the Cost Management pushes "raw" export to. This container shouldn't have CSV files as hubs transforms them into parquet files.
-2. If you see CSV files in the msexports container, refer back to [Verify Data Factory pipelines](#step-2-verify-data-factory-pipelines).
+1. The **msexports** container is where Cost Management pushes "raw" exports to.
+2. Confirm there are no CSV or parquet files in the most recent export path.
+3. If there are CSV or parquet files from Cost Management exports, open Data Factory Studio and confirm the **msexports_ExecuteETL** and **msexports_ETL_ingestion** pipelines are successful.
+   - Exported files are removed when ingestion completes unless the **msexports** container is configured to have a positive retention policy.
 
 ### Step 4: Verify storage account – ingestion container
 
 1. The **ingestion** container is where clients, like Power BI, connect to pull data. This container should always have one or more parquet files for each month.
-2. If you don't see any parquet files in the ingestion container, check for CSV files in the `mseports` container.
-3. If you find CSV files inside the msexports container, it means that Data Factory pipeline isn't working. Refer back to [Verify Data Factory pipelines](#step-2-verify-data-factory-pipelines).
-4. If there are no CSV files in the msexports container and no parquet files inside the ingestion container, it means the Cost Management export isn't running properly. Refer back to [Verify Cost Management export](#step-1-verify-cost-management-export).
+2. If you don't see any parquet files in the ingestion container, check for files in the **msexports** container.
+3. If you find CSV or parquet files in the **msexports** container, it means that Data Factory pipeline is not working. Refer back to [Verify Data Factory pipelines](#step-2-verify-data-factory-pipelines).
+4. If there are no files in the **msexports** container and no parquet files inside the ingestion container, it means the Cost Management export is not running properly. Refer back to [Verify Cost Management exports](#step-1-verify-cost-management-exports).
 
 <!--
 ### Step 5: Confirm data ingestion is working
 
-1. If you have a parquet file in the ingestion container, it means the "Data Ingestion" component is working fine.
+1. TODO
 -->
 
 <br>
@@ -154,7 +159,7 @@ Decide whether want to connect to storage using a user or service principal acco
 
 1. If the Power BI report doesn't include entire months of data, confirm the date parameters in the Power BI report by checking **Transform data** > **Edit parameters** in the ribbon. See [Set up your first report](../power-bi/setup.md) for details.
    - **Number of Months** defines how many closed months (before the current month) get shown in reports. Even if data is exported, data outside this range isn't shown. If defined, this parameter overrides others.
-   - **RangeStart** and **RangeEnd define an explicit date range of data to show in the reports. Anything before or after these dates isn't shown.
+   - **RangeStart** and **RangeEnd** define an explicit date range of data to show in the reports. Anything before or after these dates isn't shown.
    - If **RangeStart** is empty, all historical data before **RangeEnd** is included.
    - If **RangeEnd** is empty, all new data after **RangeStart** is included.
    - If all date parameters are empty, all available data is included.
@@ -168,6 +173,21 @@ If you're facing an error not listed above or need more help, file a [support re
 
 <br>
 -->
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Help.Troubleshooting)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+
+<br>
+
 ## Related content
 
 Related solutions:

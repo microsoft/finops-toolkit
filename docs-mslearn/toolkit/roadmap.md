@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 02/20/2025
 ms.topic: reference
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 # customer intent: As a FinOps practitioner, I want to learn about the future plans for FinOps to better understand how those plans might affect my FinOps practice..
 ---

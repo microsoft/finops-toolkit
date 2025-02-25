@@ -3,9 +3,10 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/30/2024
+ms.date: 02/18/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps hubs are so that I can use them in my organization.
 ---
@@ -73,30 +74,34 @@ The FinOps hub template includes the following resources:
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
 
-Once deployed, you can report on the data directly using Data Explorer queries, Data Explorer dashboards, Power BI, or by connecting to the database or storage account directly.
+Once deployed, you can query data directly using Data Explorer queries, visualize data using the available Data Explorer dashboards or Power BI reports, or connect to the database or storage account directly from your own tools.
 
-> [!NOTE]
-> This article contains images showing example data. Any price data is for test purposes only.
-
-Here are some examples of the reports:
-
-:::image type="content" source="./media/finops-hubs-overview/cost-summary-report.png" border="true" alt-text="Screenshot showing the Cost summary report." lightbox="./media/finops-hubs-overview/cost-summary-report.png" :::
-
-:::image type="content" source="./media/finops-hubs-overview/services-cost-report.png" border="true" alt-text="Screenshot showing the Services cost report." lightbox="./media/finops-hubs-overview/services-cost-report.png" :::
-
-:::image type="content" source="./media/finops-hubs-overview/commitment-discounts-coverage-report.png" border="true" alt-text="Screenshot showing the Commitment discounts coverage report." lightbox="./media/finops-hubs-overview/commitment-discounts-coverage-report.png" :::
-
-[Browse reports](../power-bi/reports.md) &nbsp; [See the template](template.md)
+> [!div class="nextstepaction"]
+> [See the template](template.md)
 
 <br>
 
 ## Explore the FinOps reports
 
-Each report in the FinOps toolkit is available as a PBIX or PBIT file. The PBIX file contains sample data that can be viewed in Power BI desktop without connecting to your account.
+The FinOps toolkit includes five Power BI reports that are available in three sets:
 
-To visualize the reports available, download the PBIX Power BI report file from the desired [release](https://github.com/microsoft/finops-toolkit/releases) and open the report in Power BI Desktop. From there, you can navigate through the different pages of the report, which are prefilled with test data.
+- [PowerBI-demo.zip](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip) includes reports with sample data.
+- [PowerBI-kql.zip](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip) for templates that connect to Data Explorer.
+- [PowerBI-storage.zip](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip) for templates that connect to the storage account.
 
-:::image type="content" source="./media/finops-hubs-overview/rate-optimization-commitment-discounts.png" border="true" alt-text="Screenshot of the Rate optimization report with test data." lightbox="./media/finops-hubs-overview/rate-optimization-commitment-discounts.png" :::
+> [!NOTE]
+> This article contains images showing example data. Any price data is for test purposes only.
+
+:::image type="content" source="../power-bi/media/cost-summary/charge-breakdown.png" border="true" alt-text="Screenshot of the Charge breakdown page that shows a breakdown of all charges." lightbox="../power-bi/media/cost-summary/charge-breakdown.png" :::
+
+:::image type="content" source="../power-bi/media/rate-optimization/summary.png" border="true" alt-text="Screenshot of the Summary page that shows cost and savings breakdown." lightbox="../power-bi/media/rate-optimization/summary.png" :::
+
+:::image type="content" source="../power-bi/media/workload-optimization/advisor-recommendations.png" border="true" alt-text="Screenshot of the Recommendations page that shows a list of Azure Advisor cost recommendations." lightbox="../power-bi/media/workload-optimization/advisor-recommendations.png" :::
+
+:::image type="content" source="../power-bi/media/governance/summary.png" border="true" alt-text="Screenshot of the Governance report Summary page that shows a summary of subscriptions, resource types, and other information." lightbox="../power-bi/media/governance/summary.png" :::
+
+> [!div class="nextstepaction"]
+> [Browse reports](../power-bi/reports.md)
 
 <br>
 
@@ -180,20 +185,38 @@ If you access data in storage or are creating or customizing Power BI reports, p
 
 ## Required permissions
 
-Required permissions for deploying or updating hub instances are covered in the [template details](template.md#prerequisites).
+Configuring and managing FinOps hubs requires the following permissions:
 
-You need one or more of the following to export your cost data:
-
-| Scope                                                 | Permission                                                                                                  |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Subscriptions and resource groups (all account types) | [Cost Management Contributor](/azure/role-based-access-control/built-in-roles#cost-management-contributor). |
-| EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (also known as enrollment account).                  |
-| MCA billing scopes                                    | Contributor on the billing account, billing profile, or invoice section.                                    |
-| MPA billing scopes                                    | Contributor on the billing account, billing profile, or customer.                                           |
+- Configuring exports requires one of the following, depending on scope:
+  - Subscriptions and resource groups: [Cost Management Contributor](/azure/role-based-access-control/built-in-roles#cost-management-contributor).
+  - EA billing scopes: Enterprise Reader, Department Reader, or Account Owner (also known as enrollment account).
+  - MCA billing scopes: Contributor on the billing account, billing profile, or invoice section.
+  - MPA billing scopes: Contributor on the billing account, billing profile, or customer.
+- Deploying the FinOps hubs template requires one of the following:
+  - [Contributor](/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
+  - [Owner](/azure/role-based-access-control/built-in-roles#owner)
+  - For least-privileged access, see  [template details](template.md#prerequisites).
+- Configuring Power BI requires one of the following
+  - Storage reports: [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
+  - KQL reports: Viewer on the Hub database.
 
 CSP customers need to configure exports for each subscription in order to ingest their total cost into FinOps hubs. Cost Management doesn't support management group exports for MCA or CSP subscriptions (as of May 2024).
 
 For for information, see [Cost Management documentation](/azure/cost-management-billing/costs/tutorial-export-acm-data).
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/Overview)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
 
 <br>
 

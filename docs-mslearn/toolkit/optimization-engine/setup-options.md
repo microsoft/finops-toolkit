@@ -6,6 +6,7 @@ ms.author: banders
 ms.date: 10/31/2024
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to understand how to setup Azure optimization engine (AOE).
 ---
@@ -22,7 +23,7 @@ This article describes advance scenarios for setting up or upgrading Azure optim
 If you choose to deploy all the dependencies from your own local repository, you must publish the solution files into a publicly reachable URL. You must ensure the entire AOE project structure is available at the same base URL. Storage Account SAS Token-based URLs aren't supported.
 
 ```powershell
-.\Deploy-AzureOptimizationEngine.ps1 -TemplateUri <URL to the Bicep file (e.g., https://contoso.com/azuredeploy.bicep)> [-AzureEnvironment <AzureUSGovernment|AzureGermanCloud|AzureCloud>]
+.\Deploy-AzureOptimizationEngine.ps1 -TemplateUri <URL to the Bicep file (for example, https://contoso.com/azuredeploy.bicep)> [-AzureEnvironment <AzureUSGovernment|AzureGermanCloud|AzureCloud>]
 
 # Example - Deploying from a public endpoint
 .\Deploy-AzureOptimizationEngine.ps1 -TemplateUri "https://contoso.com/azuredeploy.bicep"

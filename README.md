@@ -116,7 +116,7 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/lundejd"><img src="https://avatars.githubusercontent.com/u/8152933?v=4?s=100" width="100px;" alt="John Lundell"/><br /><sub><b>John Lundell</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Alundejd" title="Bug reports">🐛</a> <a href="#question-lundejd" title="Answering Questions">💬</a></td>
     </tr>
   </tbody>
-</table>
+</div>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->

@@ -3,13 +3,15 @@ title: FinOps toolkit Rate optimization report
 description: Learn about the Rate Optimization Report in Power BI, which summarizes savings from commitment discounts like reservations and savings plans.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/03/2024
+ms.date: 02/16/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about the Rate optimization report so that I can understand savings from discounts.
 ---
 
+<!-- cSpell:ignore nextstepaction -->
 <!-- markdownlint-disable-next-line MD025 -->
 # Rate optimization report
 
@@ -25,6 +27,13 @@ The **Rate optimization report** summarizes existing and potential savings from 
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/surveyId/FTK0.8/bladeName/PowerBI.RateOptimization/featureName/Documentation)
+
+Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
+
+> [!NOTE]
+> This article contains images showing example data. Any price data is for test purposes only.
 
 <br>
 
@@ -45,7 +54,7 @@ A few common key performance indicators (KPIs) in this report are:
 - **Utilization** shows the percentage of your current commitments were used during the period.
 - **Commitment savings** shows how much you're saving with commitment discounts.
   > [!IMPORTANT]
-  > Microsoft Cost Management does not include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated when using storage reports. Use KQL reports for FinOps hubs with Data Explorer to work around this limitation.
+  > Microsoft Cost Management does not include the list and contracted prices for all accounts. To calculate accurate and complete savings, you will need to export prices. If using storage reports, enable the "Experimental: Populate Missing Prices" parameter in each report. If using KQL reports, missing prices will be populated automatically when prices are exported.
 
 <br>
 
@@ -53,33 +62,68 @@ A few common key performance indicators (KPIs) in this report are:
 
 The **Get started** page includes a basic introduction to the report with links to learn more.
 
-> [!NOTE]
-> This article contains images showing example data. Any price data is for test purposes only.
+For instructions on how to connect this report to your data, including details about supported parameters, select the **Connect your data** button. Hold <kbd>Ctrl</kbd> when clicking the button in Power BI Desktop. If you need assistance, select the **Get help** button.
 
 :::image type="content" source="./media/rate-optimization/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows basic information about commitment discounts." lightbox="./media/rate-optimization/get-started.png" :::
 
 <br>
 
-## Commitments
+## Summary
 
-The **Commitments** page provides a list of your commitment discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
+The **Summary** page provides a high-level breakdown of cost and savings.
 
-The chart breaks down the cost of used (utilized) vs. unused charges. The commitment type (for example, reservation and savings plan) splits unused charges.
+There are three cost numbers used on this page:
 
-:::image type="content" source="./media/rate-optimization/commitment-discounts.png" border="true" alt-text="Screenshot of the Commitments page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discounts.png" :::
+- **List cost** is the amount you would have paid with _no_ discounts.
+- **Contracted cost** is the amount you would have paid with negotiated discounts but no commitment discounts.
+- **Effective cost** is the amount paid to date after commitment discount purchases are amortized over the commitment term.
+
+There are four savings numbers shown on this page:
+
+- **Negotiated discount savings** is the difference between list and contracted cost, excluding commitment discount purchases. This number helps show the impact of rate negotiation efforts.
+- **Commitment discount savings** is the difference between contracted and effective cost, excluding commitment discount purchases. This number helps show the impact of commitment discount efforts.
+- **Total savings** is the difference between list and effective cost, excluding commitment discount purchases, which is the same as the sum of negotiated and commitment discount savings.
+- **Effective Savings Rate (ESR)** compares savings to the list cost to calculate an overall percentage savings. This number helps show the overall impact of all discounts.
+
+:::image type="content" source="./media/rate-optimization/summary.png" border="true" alt-text="Screenshot of the Summary page that shows cost and savings breakdown." lightbox="./media/rate-optimization/summary.png" :::
 
 <br>
 
-## Savings
+## Total savings
 
-The **Savings** page summarizes cost savings obtained from commitment discounts. Commitments get grouped by program and service.
+The **Total savings** page summarizes cost savings obtained from negotiated and commitment discounts. Savings is evaluated by comparing list cost and effective cost and includes Effective Savings Rate (ESR), which shows the percentage savings compared to list cost.
+
+The chart shows effective cost and savings over time, based on the default granularity configured for the report.
+
+The table shows cost, savings, and ESR per month with a breakdown by billing account. Select one or more rows to see a breakdown of on-demand (standard), spot, and committed usage (reservations) and spend (savings plans). Unused usage and spend is from the portion of commitment discounts that were not consumed during each charge period.
+
+> [!IMPORTANT]
+> Microsoft Cost Management does not include the list and contracted prices for all accounts. To calculate accurate and complete savings, you will need to export prices. If using storage reports, enable the "Experimental: Populate Missing Prices" parameter in each report. If using KQL reports, missing prices will be populated automatically when prices are exported.
+
+:::image type="content" source="./media/rate-optimization/total-savings.png" border="true" alt-text="Screenshot of the Total savings page that shows cost savings from negotiated and commitment discounts." lightbox="./media/rate-optimization/total-savings.png" :::
+
+<br>
+
+## Commitment discount savings
+
+The **Commitment discount savings** page summarizes cost savings obtained from commitment discounts. Commitments get grouped by program and service.
 
 The chart shows total cost savings for the period split out by commitment type (for example, reservation and savings plan).
 
 > [!IMPORTANT]
-> Microsoft Cost Management does not include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated when using storage reports. Use KQL reports for FinOps hubs with Data Explorer to work around this limitation.
+> Microsoft Cost Management does not include the list and contracted prices for all accounts. To calculate accurate and complete savings, you will need to export prices. If using storage reports, enable the "Experimental: Populate Missing Prices" parameter in each report. If using KQL reports, missing prices will be populated automatically when prices are exported.
 
-:::image type="content" source="./media/rate-optimization/savings.png" border="true" alt-text="Screenshot of the Savings page that shows cost savings from commitment discounts." lightbox="./media/rate-optimization/savings.png" :::
+:::image type="content" source="./media/rate-optimization/commitment-discount-savings.png" border="true" alt-text="Screenshot of the Commitment discount savings page that shows cost savings from commitment discounts." lightbox="./media/rate-optimization/commitment-discount-savings.png" :::
+
+<br>
+
+## Commitment discounts
+
+The **Commitment discounts** page provides a list of your commitment discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
+
+The chart breaks down the cost of used (utilized) vs. unused charges. The commitment type (for example, reservation and savings plan) splits unused charges.
+
+:::image type="content" source="./media/rate-optimization/commitment-discounts.png" border="true" alt-text="Screenshot of the Commitment discounts page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discounts.png" :::
 
 <br>
 
@@ -97,7 +141,7 @@ The chart shows the amortized cost for each subscription that used a commitment.
 ### Chargeback customization tips
 
 - Change the columns in the table based on your chargeback needs.
-- Create custom columns in the CostDetails table that extract tags for cost allocation, then add them as columns into the visual for reporting.
+- Create custom columns in the Costs table that extract tags for cost allocation, then add them as columns into the visual for reporting.
 - Integrate external data for more allocation options.
 
 <br>

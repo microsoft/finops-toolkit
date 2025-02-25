@@ -37,7 +37,7 @@ param dataset string = 'FocusCost'
 @sys.description('Optional. Schema version of the dataset to export. Default = "1.0" (applies to FocusCost only).')
 param datasetVersion string = ''
 
-// TODO: Add billing account (tenant) support -- @sys.description('Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (e.g., VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).')
+// TODO: Add billing account (tenant) support -- @sys.description('Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (for example, VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).')
 // TODO: Add billing account (tenant) support -- param datasetFilters object = {}
 
 @sys.description('Optional. Indicates that the export should be executed monthly (instead of daily). Default = false.')
@@ -67,7 +67,7 @@ param doNotPartition bool = false
 @sys.description('Optional. Indicates whether to overwrite previously exported data for the current month. Overwriting is recommended to keep storage size and costs down so this option is to disable overwriting. If creating an export for FinOps hubs, we recommend you specify the doNotOverwrite option to improve troubleshooting. Default = false.')
 param doNotOverwrite bool = false
 
-@sys.description('Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (e.g., Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty).')
+@sys.description('Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (for example, Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty).')
 param location string = ''
 
 @sys.description('Ignore. Used to capture UTC time for smart defaults. Only used when startDate is not set.')

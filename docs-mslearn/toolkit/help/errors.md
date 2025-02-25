@@ -3,9 +3,10 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/02/2024
+ms.date: 02/18/2025
 ms.topic: troubleshooting
 ms.service: finops
+ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand and resolve common errors I might experience with the FinOps toolkit.
 ---
@@ -29,11 +30,11 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <sup>Severity: Critical</sup>
 
-This error typically occurs when updating a FinOps hub deployment with a different storage account configuration than was originally used during creation. While most properties can be changed, there are a few properties that can only be set once when the storage account is created and cannot change. The one known case of this for FinOps hubs is the "requireInfrastructureEncryption" property. If was enabled or disabled during the first FinOps hub deployment, then it cannot be changed. You will see the following error when this happens:
+This error typically occurs when updating a FinOps hub deployment with a different storage account configuration than was originally used during creation. While most properties can be changed, there are a few properties that can only be set once when the storage account is created and cannot change. The one known case of this for FinOps hubs is the "requireInfrastructureEncryption" property. If this property was enabled or disabled during the first FinOps hub deployment, then it cannot be changed. You will see the following error when this happens:
 
 > The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
 
-**Mitigation**: If you did not mean to change this setting, confirm whether your storage account is configured to use infrastructure encryption and re-deploy the FinOps hub template with the same value (either on or off). If you want to change the setting, we recommend deploying a new FinOps hub instance, as this will require re-ingesting all data.
+**Mitigation**: If you did not mean to change this setting, confirm whether your storage account is configured to use infrastructure encryption and re-deploy the FinOps hub template with the same value (either on or off). If you want to change the setting, we recommend deploying a new FinOps hub instance, as this will require reingesting all data.
 
 You can try to delete the existing storage account and redeploy the template with infrastructure encryption changed; however, we have not thoroughly tested this. While we do not anticipate issues, we cannot confirm if it will cause problems.
 
@@ -334,9 +335,19 @@ To calculate complete savings, you can join cost and usage data with prices. For
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (e.g., Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.
+This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (for example, Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports attempt to identify the provider based on the available columns.
+
+<br>
+
+## Query '...' references other queries steps
+
+<sup>Severity: Minor</sup>
+
+The source of this error is unknown. This error may be surfaced randomly.
+
+**Mitigation**: If you receive this error, select **Apply change** again.
 
 <br>
 
@@ -530,6 +541,20 @@ If you're facing an error not listed above or need more help, file a [support re
 
 <br>
 -->
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Help.DataDictionary)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+
+<br>
 
 ## Related content
 

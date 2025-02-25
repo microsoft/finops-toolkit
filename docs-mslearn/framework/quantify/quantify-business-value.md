@@ -3,9 +3,10 @@ title: Quantify business value
 description: Learn about the FinOps capabilities that help you measure product and cloud performance and map to organizational KPIs so you can make data-driven decisions with increased accuracy and velocity.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/30/2024
+ms.date: 02/18/2025
 ms.topic: conceptual
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 ---
 
@@ -55,6 +56,20 @@ To learn more, see [Benchmarking](./benchmarking.md).
 Unit economics refers to the process of calculating the cost and carbon emissions of a single unit of a business that can show the business value of the cloud. With this capability, you break down cost, usage, and carbon emissions and compare that with the business value per unit to identify high- and low-value workloads. This capability helps you identify areas that can be scaled out to accelerate business value through specific technology decisions.
 
 To learn more, see [Unit economics](./unit-economics.md).
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.Framework/featureName/Capabilities.Quantify)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>
 

@@ -3,9 +3,10 @@ title: FinOps best practices for compute
 description: This article provides FinOps best practices for compute services, including cost optimization, efficiency improvements, and insights into Azure resources.
 author: bandersmsft
 ms.author: banders
-ms.date: 12/30/2024
+ms.date: 02/18/2025
 ms.topic: concept-article
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with compute services.
 ---
@@ -64,7 +65,7 @@ An Azure VM gives you the flexibility of virtualization without having to buy an
 
 Related resources:
 
-- [About virtual machines](https://azure.microsoft.com/products/virtual-machines)
+- [Virtual machines product page](https://azure.microsoft.com/products/virtual-machines)
 - [Virtual machine pricing](https://azure.microsoft.com/pricing/details/virtual-machines)
 - [Virtual machine documentation](/azure/virtual-machines)
 - [Azure services for on-demand, scalable compute](/azure/architecture/guide/technology-choices/compute-decision-tree)
@@ -73,18 +74,19 @@ Related resources:
 
 Recommendation: Deallocate VMs to avoid unused compute charges. Avoid stopping VMs without deallocating them.
 
-#### About non-running VMs
+#### About inactive VMs
 
-VMs have 2 non-running states: Stopped and Deallocated.
+VMs have two inactive states: Stopped and Deallocated.
 
-Stopped VMs have been shut down from within the operating system (e.g., using the shut down command). Stopped VMs are powered off, but Azure still reserves compute resources, like CPU and memory. Since compute resources are reserved and cannot be used by other VMs, these VMs continue to incur compute charges.
+Stopped VMs were shut down from within the operating system (for example, using the **Shut down** command). Stopped VMs are powered off, but Azure still reserves compute resources, like CPU and memory. Since compute resources are reserved and aren't available to for use with other VMs, these VMs continue to incur compute charges.
 
-Deallocated VMs are stopped via cloud management APIs in the Azure portal, CLI, PowerShell, or other client tool. When a VM is deallocated, Azure releases the corresponding compute resources. Since compute resources are released, these VMs will not incur compute charges; however, it is important to note that both stopped and deallocated VMs will incur non-compute charges, like storage charges from disks.
+Deallocated VMs are stopped via cloud management APIs in the Azure portal, CLI, PowerShell, or other client tool. When a VM is deallocated, Azure releases the corresponding compute resources. Since compute resources are released, these VMs don't incur compute charges; however, it's important to note that both stopped and deallocated VMs continue to incur charges unrelated to compute, like storage charges from disks.
 
 #### Identify stopped VMs
 
-Use the following Azure Resource Graph (ARG) query to identify stopped VMs that have not been deallocated. It retrieves details about their power state, location, resource group, and subscription ID.
+Use the following Azure Resource Graph (ARG) query to identify stopped VMs that aren't deallocated. It retrieves details about their power state, location, resource group, and subscription ID.
 
+<!-- cSpell:ignore tostring, virtualmachines -->
 ```kusto
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
@@ -98,9 +100,9 @@ resources
     SubscriptionId = subscriptionId
 ```
 
-### Leverage commitment discounts
+### Use commitment discounts
 
-Recommendation: Leverage commitment discounts to save up to 72% compared to list costs.
+Recommendation: Use commitment discounts to save up to 72% compared to list costs.
 
 #### About commitment discounts
 
@@ -112,6 +114,7 @@ To learn more about commitment discounts, refer to the [Rate optimization capabi
 
 Use the following FinOps hub query to measure overall VM commitment discount coverage.
 
+<!-- cSpell:ignore countif, leftover, strcat -->
 ```kusto
 Costs
 | where ResourceType =~ 'Virtual machine'
@@ -146,7 +149,7 @@ Costs
 | order by CoveragePercent desc
 ```
 
-Use the following query to measure how coverage per VM.
+Use the following query to measure the cost breakdown per VM, including coverage of commitment discounts.
 
 ```kusto
 Costs
@@ -248,9 +251,17 @@ resources
 
 <br>
 
-## Looking for more?
+## Give feedback
 
-Did we miss anything? Would you like to see something added? We'd love to hear about any questions, problems, or solutions you'd like to see covered here. [Create a new issue](https://aka.ms/ftk/ideas) with the details that you'd like to see either included here.
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.BestPractices/featureName/Compute)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>
 

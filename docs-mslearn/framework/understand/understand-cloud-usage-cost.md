@@ -3,9 +3,10 @@ title: Understand cloud usage and cost
 description: Learn about the FinOps capabilities that help you collect, normalize, analyze, and monitor cost, usage, and carbon across the organization.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/30/2024
+ms.date: 02/18/2025
 ms.topic: conceptual
 ms.service: finops
+ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 ---
 
@@ -47,6 +48,20 @@ To learn more, see [Reporting and analytics](./reporting.md).
 Anomaly management refers to the practice of detecting and addressing abnormal or unexpected cost and usage patterns in a timely manner. With this capability, you identify, triage, and address unexpected changes in cost, usage, and carbon. This capability is especially important with usage-based billing and sustainability models, where small fluctuations in usage can result in large fiscal and environmental impact.
 
 To learn more, see [Anomaly management](./anomalies.md).
+
+<br>
+
+## Give feedback
+
+Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
+
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.Framework/featureName/Capabilities.Understand)
+
+If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
+
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>
 
