@@ -126,8 +126,11 @@ Create a new or update an existing FinOps hub instance.
         <button class="ftk-accordion">3️⃣&nbsp; Deploy the template</button>
         <div>
             <p>
+                FinOps hubs works best with the <strong>Owner</strong> role. See template details for least-privilege roles.
+            </p>
+            <p>
                 <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">Learn more</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">About the template</a>
             </p>
         </div>
     </div>
@@ -146,7 +149,7 @@ Create a new or update an existing FinOps hub instance.
         <button class="ftk-accordion">5️⃣&nbsp; Set up reports and dashboards</button>
         <div>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/setup-dashboard">Set up ADX dashboard</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-dashboards">Set up ADX dashboard</a>
                 <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report">Set up Power BI</a>
             </p>
         </div>
