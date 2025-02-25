@@ -98,10 +98,10 @@ Create a new or update an existing FinOps hub instance.
                             Most common. Resources are reachable from the open internet. Access is controlled via RBAC.
                         </p>
                         <p>
-                            Does not require additional configuration.
+                            Does not require additional configuration.<br><br>&nbsp;
                         </p>
                         <p>
-                            &nbsp;
+                            <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden; width:100px">&nbsp;</a>
                         </p>
                     </div>
                 </div>
