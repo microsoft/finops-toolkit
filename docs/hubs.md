@@ -88,14 +88,38 @@ Create a new or update an existing FinOps hub instance.
         <button class="ftk-accordion">2️⃣&nbsp; Plan your network architecture</button>
         <div>
             <p>
-                If you want to implement private networking, work with your network admin to configure peering and routing. FinOps hubs with private networking runs on an isolated network, so this is critical to accessing your data.
+                Do you prefer public or private network routing?
             </p>
-            <p>
-                If you opt for public access and do not use private networking, skip this step.
-            </p>
-            <p>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>
-            </p>
+            <div class="ftk-gallery">
+                <div class="ftk-tile ftk-50">
+                    <div>🌐 Public routing</div>
+                    <div>
+                        <p>
+                            Most common. Resources are reachable from the open internet. Access is controlled via RBAC.
+                        </p>
+                        <p>
+                            Does not require additional configuration.
+                        </p>
+                        <p>
+                            &nbsp;
+                        </p>
+                    </div>
+                </div>
+                <div class="ftk-tile ftk-50">
+                    <div>🏢 Private routing</div>
+                    <div>
+                        <p>
+                            Most secure. Resources are only reachable from peered networks. Access is controlled via RBAC.
+                        </p>
+                        <p>
+                            Work with your network admin to configure peering and routing so the FinOps hubs isolated network is reachable from your network.
+                        </p>
+                        <p>
+                            <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/private-networking">Plan for private networking</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="ftk-step">
@@ -103,7 +127,7 @@ Create a new or update an existing FinOps hub instance.
         <div>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">About the template</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">Learn more</a>
             </p>
         </div>
     </div>

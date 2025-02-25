@@ -19,10 +19,16 @@ a.ftk-externallink:hover::after {
 }
 
 .ftk-btnlink {
-  background-color: transparent;
-  box-shadow: none;
   font-weight: normal;
-  text-decoration: default;
+
+  &,
+  &:hover,
+  &:active,
+  &:focus-visible {
+    background-color: transparent;
+    box-shadow: none;
+    text-decoration: default;
+  }
 }
 
 .ftk-gallery {
@@ -34,6 +40,10 @@ a.ftk-externallink:hover::after {
     display: inline-block;
     margin: 0 1.25rem 1.5rem 0;
     width: 30%;
+
+    &.ftk-50 {
+      width: 50%;
+    }
 
     div {
       margin-bottom: 0.5rem;
@@ -49,9 +59,6 @@ a.ftk-externallink:hover::after {
 
 .ftk-instructions {
   .ftk-step {
-    .ftk-accordion,
-    & > div {
-    }
     .ftk-accordion {
       background-color: #eef;
       cursor: pointer;
