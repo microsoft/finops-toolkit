@@ -72,16 +72,18 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 
 <a name="deploy"></a>
 
-## Deploy FinOps workspaces
+## Deploy FinOps workbooks
+
+FinOps workbooks require the <strong>Workbook Contributor</strong> role to deploy and <strong>Reader</strong> to view all tabs.
 
 <br>
-[Deploy to Azure](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[Deploy to Azure Gov](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Deploy to Azure](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
+[Deploy to Azure Gov](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
 
 <br>
 
 <div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
-    <h3 class="m-0 mb-4">Estimated cost for FinOps hubs</h3>
+    <h3 class="m-0 mb-4">Estimated cost for FinOps workbooks</h3>
     <p class="mt-2 mb-0">
         FinOps workbooks do not incur any cost.
     </p>
@@ -108,7 +110,7 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
     </div>
 </div>
 
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/finops-workbooks-overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/finops-workbooks-overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
+[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
 
 <br>

@@ -13,7 +13,7 @@ Automate and scale your FinOps efforts with PowerShell commands that streamline 
 {: .fs-6 .fw-300 }
 
 [Install](#deploy){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Documentation](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Documentation](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
 
 ---
 
@@ -105,7 +105,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
 
 <a name="docs"></a>
 
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20PowerShell%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20PowerShell%3F/surveyId/FTK0.8/bladeName/PowerShell/featureName/Marketing.Docs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20PowerShell%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20PowerShell%3F/surveyId/FTK0.8/bladeName/PowerShell/featureName/Marketing.Docs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
 
 <br>

@@ -76,9 +76,9 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
 
 Azure Optimization Engine requires a command line deployment via a PowerShell script.
 
-[Deploy via PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
+[Deploy via PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
 
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy)
+[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy){: .ftk-externalink }
 
 <br>
 
@@ -112,7 +112,7 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
     </div>
     <div class="ftk-tile">
         <div>🛑 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">Select recommendations</a></div>
-        <div>Learn how to select the recommendations to include or exclude in AOE.</div>
+        <div>Learn how to select the recommendations to hide in Azure Optimization Engine.</div>
     </div>
     <div class="ftk-tile">
         <div>📦 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/setup-options">Deployment options</a></div>
@@ -124,7 +124,7 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
     </div>
 </div>
 
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
 
 <br>

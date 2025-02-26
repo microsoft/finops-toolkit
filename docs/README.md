@@ -12,7 +12,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 {: .fs-6 .fw-300 }
 
 [Get the tools](#available-tools){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Learn FinOps](https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Learn FinOps](https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
 
 ---
 
@@ -71,8 +71,8 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     </div>
 </div>
 
-[Download FinOps toolkit {% include ftkver.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Marketing.Tools){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download FinOps toolkit {% include ftkver.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Marketing.Tools){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
 
 <br>
 
@@ -80,9 +80,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 Whether you're looking for a little assistance or are interested in contributing to the toolkit, the FinOps toolkit community is here for you.
 
-[Get help](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Share ideas](https://github.com/microsoft/finops-toolkit/issues){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Get involved](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Get help](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+[Share ideas](https://github.com/microsoft/finops-toolkit/issues){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+[Get involved](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

@@ -77,7 +77,7 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
 
 <a name="docs"></a>
 
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20open%20data%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20open%20data%3F/surveyId/FTK0.8/bladeName/OpenData/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/open-data){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
+[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20open%20data%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20open%20data%3F/surveyId/FTK0.8/bladeName/OpenData/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
 
 <br>
