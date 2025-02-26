@@ -35,6 +35,7 @@
         border-radius: 6px;
         position: relative;
         transition: background-color 0.2s ease, color 0.2s ease;
+        min-height: 40px; /* Ensuring consistent height */
 
         &:hover {
             background-color: var(--colorNeutralBackground2Hover);
@@ -45,7 +46,8 @@
             margin-right: 10px;
             transition: color 0.1s ease;
             color: var(--colorNeutralForeground2);
-
+            display: flex;
+            align-items: center;
         }
 
         &:hover .ftk-sidebar-icon {
@@ -56,10 +58,10 @@
             content: "";
             position: absolute;
             left: 2px;
-            top: 22px;
+            top: 50%; /* Center dynamically */
             transform: translateY(-50%);
             width: 4px;
-            height: 18px;
+            height: 70%; /* Adjusted to scale based on the item height */
             background-color: transparent;
             border-radius: 2px;
             transition: background-color 0.1s ease;
@@ -67,6 +69,10 @@
 
         &:hover::before {
             background-color: var(--colorNeutralForeground3BrandHover);
+        }
+
+        &.active::before {
+            background-color: var(--colorNeutralForeground3BrandHover); /* Ensure active state matches */
         }
     }
 }

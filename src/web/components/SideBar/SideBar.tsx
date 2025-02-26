@@ -16,8 +16,6 @@ import {
   Cloud24Filled,
   LearningApp24Regular,
   LearningApp24Filled,
-  People24Regular,
-  People24Filled,
   PanelLeftExpandRegular,
   PanelLeftContractRegular,
 } from '@fluentui/react-icons';
@@ -25,19 +23,20 @@ import './SideBar.css';
 
 const menuItems = [
   { name: 'Home', icon: <Home24Regular />, filledIcon: <Home24Filled />, route: '/' },
-  { name: 'FinOps Hubs', icon: <DataUsage24Regular />, filledIcon: <DataUsage24Filled />, route: '/hubs' },
+  { name: 'FinOps hubs', icon: <DataUsage24Regular />, filledIcon: <DataUsage24Filled />, route: '/hubs' },
   { name: 'Power BI', icon: <BookOpen24Regular />, filledIcon: <BookOpen24Filled />, route: '/power-bi' },
+  { name: 'FinOps workbooks', icon: <BookOpen24Regular />, filledIcon: <BookOpen24Filled />, route: '/workbooks' },
+  { name: 'Optimization Engine', icon: <BookOpen24Regular />, filledIcon: <BookOpen24Filled />, route: '/optimization-engine' },
   { name: 'PowerShell', icon: <Code24Regular />, filledIcon: <Code24Filled />, route: '/powershell' },
-  { name: 'Bicep Modules', icon: <Database24Regular />, filledIcon: <Database24Filled />, route: '/bicep-registry' },
-  { name: 'Open Data', icon: <Cloud24Regular />, filledIcon: <Cloud24Filled />, route: '/open-data' },
+  { name: 'Bicep modules', icon: <Database24Regular />, filledIcon: <Database24Filled />, route: '/bicep-registry' },
+  { name: 'Open data', icon: <Cloud24Regular />, filledIcon: <Cloud24Filled />, route: '/open-data' },
   {
-    name: 'Learning',
+    name: 'FinOps guide',
     icon: <LearningApp24Regular />,
     filledIcon: <LearningApp24Filled />,
-    route: 'https://learn.microsoft.com/cloud-computing/finops/toolkit/finops-toolkit-overview',
+    route: 'https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide',
     external: true,
   },
-  { name: 'Contributors', icon: <People24Regular />, filledIcon: <People24Filled />, route: '/contributors' },
 ];
 
 const SideBar = () => {

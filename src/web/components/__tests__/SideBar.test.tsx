@@ -8,70 +8,74 @@ const renderWithRouter = (component: React.ReactNode) => {
 };
 
 describe('SideBar Component', () => {
-  it('should collapse the sidebar when toggle button is clicked', () => {
+  it('should toggle the filled icon when menu item is hovered', () => {
     renderWithRouter(<SideBar />);
 
-    // Initially, sidebar should not be collapsed (menu items should be visible)
-    expect(screen.getByText(/Home/i)).toBeInTheDocument();
+    // Find the Home menu item
+    const homeMenuItem = screen.getByText(/Home/i).closest('a');
+    expect(homeMenuItem).toBeInTheDocument();
 
-    // Find the toggle button by aria-label
-    const toggleButton = screen.getByRole('button', { name: /collapse sidebar/i });
-    fireEvent.click(toggleButton);
+    // Find the icon inside the menu item
+    const homeIconContainer = homeMenuItem?.querySelector('.ftk-sidebar-icon');
+    expect(homeIconContainer).toBeInTheDocument();
 
-    // After collapse, the "Home" text should not be visible
-    expect(screen.queryByText(/Home/i)).not.toBeInTheDocument();
-  });
+    // Get initial icon before hover
+    const initialIcon = homeIconContainer?.querySelector('svg')?.outerHTML;
 
-  it('should expand the sidebar when toggle button is clicked again', () => {
-    renderWithRouter(<SideBar />);
+    // Simulate mouse enter (hover)
+    fireEvent.mouseEnter(homeMenuItem!);
 
-    // Collapse the sidebar first
-    const toggleButton = screen.getByRole('button', { name: /collapse sidebar/i });
-    fireEvent.click(toggleButton); // collapse
+    // Check if icon changed on hover
+    const hoveredIcon = homeIconContainer?.querySelector('svg')?.outerHTML;
+    expect(hoveredIcon).not.toEqual(initialIcon);
 
-    // Then expand the sidebar
-    fireEvent.click(toggleButton); // expand
+    // Simulate mouse leave
+    fireEvent.mouseLeave(homeMenuItem!);
 
-    // "Home" text should be visible again after expanding
-    expect(screen.getByText(/Home/i)).toBeInTheDocument();
+    // Icon should revert back to original
+    const revertedIcon = homeIconContainer?.querySelector('svg')?.outerHTML;
+    expect(revertedIcon).toEqual(initialIcon);
   });
 
   it('should render internal links correctly', () => {
     renderWithRouter(<SideBar />);
 
-    // Check if the internal links render with correct hrefs
-    const homeLink = screen.getByText(/Home/i);
-    expect(homeLink.closest('a')).toHaveAttribute('href', '/');
-
-    const finOpsLink = screen.getByText(/FinOps Hubs/i);
-    expect(finOpsLink.closest('a')).toHaveAttribute('href', '/hubs');
-
-    const powerBILink = screen.getByText(/Power BI/i);
-    expect(powerBILink.closest('a')).toHaveAttribute('href', '/power-bi');
+    // Check if internal links render with correct hrefs
+    expect(screen.getByText(/Home/i).closest('a')).toHaveAttribute('href', '/');
+    expect(screen.getByText(/FinOps hubs/i).closest('a')).toHaveAttribute('href', '/hubs');
+    expect(screen.getByText(/Power BI/i).closest('a')).toHaveAttribute('href', '/power-bi');
   });
 
   it('should render external links with correct attributes', () => {
     renderWithRouter(<SideBar />);
 
-    // Check for the external link and ensure it has appropriate attributes
-    const learningLink = screen.getByText(/Learning/i);
+    // Check for the external FinOps Guide link
+    const learningLink = screen.getByText(/FinOps guide/i);
     expect(learningLink.closest('a')).toHaveAttribute(
       'href',
-      'https://learn.microsoft.com/cloud-computing/finops/toolkit/finops-toolkit-overview'
+      'https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide'
     );
     expect(learningLink.closest('a')).toHaveAttribute('target', '_blank');
     expect(learningLink.closest('a')).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('should display the filled icon when menu item is hovered', () => {
+  it('should collapse and expand sidebar when toggle button is clicked', () => {
     renderWithRouter(<SideBar />);
 
-    // Hover over the Home link
-    const homeMenuItem = screen.getByText(/Home/i).closest('a');
-    fireEvent.mouseEnter(homeMenuItem!);
+    // Sidebar should initially be expanded
+    expect(screen.getByText(/Home/i)).toBeInTheDocument();
 
-    // Check if the icon displayed is the filled variant by conditionally testing for its presence
-    expect(screen.getByText(/Home/i).previousSibling).toBeInTheDocument();
+    // Find the toggle button
+    const toggleButton = screen.getByRole('button', { name: /Collapse Sidebar/i });
+    fireEvent.click(toggleButton); // Collapse
+
+    // Home text should disappear
+    expect(screen.queryByText(/Home/i)).not.toBeInTheDocument();
+
+    // Click again to expand
+    fireEvent.click(toggleButton);
+
+    // Home text should be visible again
+    expect(screen.getByText(/Home/i)).toBeInTheDocument();
   });
 });
-
