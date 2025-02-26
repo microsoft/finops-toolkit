@@ -35,7 +35,10 @@
         border-radius: 6px;
         position: relative;
         transition: background-color 0.2s ease, color 0.2s ease;
-        min-height: 40px; /* Ensuring consistent height */
+        min-height: 40px;
+        width: 100%;
+        white-space: normal;
+        word-wrap: break-word;
 
         &:hover {
             background-color: var(--colorNeutralBackground2Hover);
@@ -48,6 +51,7 @@
             color: var(--colorNeutralForeground2);
             display: flex;
             align-items: center;
+            flex-shrink: 0;
         }
 
         &:hover .ftk-sidebar-icon {
@@ -58,21 +62,25 @@
             content: "";
             position: absolute;
             left: 2px;
-            top: 50%; /* Center dynamically */
+            top: 50%;
             transform: translateY(-50%);
             width: 4px;
-            height: 70%; /* Adjusted to scale based on the item height */
+            height: calc(100% - 12px);
             background-color: transparent;
             border-radius: 2px;
             transition: background-color 0.1s ease;
         }
 
-        &:hover::before {
+        &:hover::before,
+        &.active::before {
             background-color: var(--colorNeutralForeground3BrandHover);
         }
 
-        &.active::before {
-            background-color: var(--colorNeutralForeground3BrandHover); /* Ensure active state matches */
+        .ftk-sidebar-text {
+            display: inline-block;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            text-align: left;
         }
     }
 }
