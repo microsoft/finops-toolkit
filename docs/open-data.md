@@ -12,8 +12,8 @@ permalink: /open-data
 Leverage open data to normalize and enhance your FinOps reporting.
 {: .fs-6 .fw-300 }
 
-[Download](#download){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Documentation](#docs){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#download">Download</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="#docs">Documentation</a>
 
 ---
 
@@ -30,7 +30,7 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
     <p class="mt-2 mb-0">
         February introduced 1 new pricing unit, 4 new region mappings, 4 new services, and 45 new and 42 updated resource types.
     </p>
-    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
@@ -43,25 +43,25 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
     <div class="ftk-tile">
         <div>📏 Pricing units</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv">Download</a>
-        <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsPricingUnit">See PowerShell</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsPricingUnit">See PowerShell</a>
         <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden; width:100px">&nbsp;</a>
     </div>
     <div class="ftk-tile">
         <div>📚 Resource types</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv">Download CSV</a>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json">Download JSON</a>
-        <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsResourceType">See PowerShell</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsResourceType">See PowerShell</a>
     </div>
     <div class="ftk-tile">
         <div>🗺️ Regions</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv">Download</a>
-        <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsRegion">See PowerShell</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsRegion">See PowerShell</a>
         <a class="btn mb-4 mb-md-0 mr-4" href="" style="visibility:hidden; width:100px">&nbsp;</a>
     </div>
     <div class="ftk-tile">
         <div>🎛️ Services</div>
         <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv">Download</a>
-        <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsService">See PowerShell</a>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/data/Get-FinOpsService">See PowerShell</a>
     </div>
     <div class="ftk-tile">
         <div>⬇️ Dataset examples</div>
@@ -76,8 +76,7 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
 </div>
 
 <a name="docs"></a>
-
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/open-data){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20open%20data%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20open%20data%3F/surveyId/FTK0.8/bladeName/OpenData/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/open-data">Learn more</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20open%20data%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20open%20data%3F/surveyId/FTK0.8/bladeName/OpenData/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>

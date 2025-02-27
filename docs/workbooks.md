@@ -12,8 +12,8 @@ permalink: /workbooks
 Engineering hub to maximize cloud ROI through FinOps.
 {: .fs-6 .fw-300 }
 
-[Deploy](#deploy){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Documentation](#docs){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#deploy">Deploy</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="#docs">Documentation</a>
 
 ---
 
@@ -30,7 +30,7 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
     <p class="mt-2 mb-0">
         February introduced Azure Arc Windows license management, enabled CSV exports for idle backups, and tuned VM processor details.
     </p>
-    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
@@ -77,8 +77,8 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 FinOps workbooks require the <strong>Workbook Contributor</strong> role to deploy and <strong>Reader</strong> to view all tabs.
 
 <br>
-[Deploy to Azure](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
-[Deploy to Azure Gov](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
+<a class="btn btn-primary mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json">Deploy to Azure</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json">Deploy to Azure Gov</a>
 
 <br>
 
@@ -97,20 +97,20 @@ FinOps workbooks require the <strong>Workbook Contributor</strong> role to deplo
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>💹 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/optimization">Cost optimization</a></div>
+        <div>💹 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/optimization">Cost optimization</a></div>
         <div>Monitor resource utilization and maximize cost efficiency across your Azure environment.</div>
     </div>
     <div class="ftk-tile">
-        <div>⚖️ <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/governance">Governance</a></div>
+        <div>⚖️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/governance">Governance</a></div>
         <div>Monitor resources, service alerts, and policy compliance across your Azure environment.</div>
     </div>
     <div class="ftk-tile">
-        <div>⚙️ <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></div>
+        <div>⚙️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/customize-workbooks">How to customize</a></div>
         <div>Learn how to install and edit FinOps workbooks to tune them to meet your unique needs.</div>
     </div>
 </div>
 
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/finops-workbooks-overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externallink }
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/workbooks/finops-workbooks-overview">Learn more</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20workbooks%3F/cvaQuestion/How%20valuable%20are%20FinOps%20workbooks%3F/surveyId/FTK0.8/bladeName/Workbooks/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>

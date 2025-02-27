@@ -11,8 +11,8 @@ permalink: /
 Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to accelerate your FinOps journey.
 {: .fs-6 .fw-300 }
 
-[Get the tools](#available-tools){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Learn FinOps](./guide){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#available-tools">Get the tools</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="./guide">Learn FinOps</a>
 
 ---
 
@@ -21,7 +21,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     <p class="mt-2 mb-0">
         February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
     </p>
-    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="available-tools"></a>
@@ -32,7 +32,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     <div class="ftk-tile">
         <div>📗 FinOps guide</div>
         <div>Learn the FinOps practices and tools you need to be successful.</div>
-        <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
+        <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
     </div>
     <div class="ftk-tile">
         <div>🏦 FinOps hubs</div>
@@ -71,8 +71,8 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     </div>
 </div>
 
-[Download FinOps toolkit {% include ftkver.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Marketing.Tools){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+<a class="btn btn-primary mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/ftk/latest">Download FinOps toolkit {% include ftkver.txt %}</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Marketing.Tools">💜 Give feedback</a>
 
 <br>
 
@@ -80,9 +80,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 Whether you're looking for a little assistance or are interested in contributing to the toolkit, the FinOps toolkit community is here for you.
 
-[Get help](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
-[Share ideas](https://github.com/microsoft/finops-toolkit/issues){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
-[Get involved](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/discussions">Get help</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/issues">Share ideas</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md">Get involved</a>
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

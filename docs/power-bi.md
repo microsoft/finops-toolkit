@@ -12,8 +12,8 @@ permalink: /power-bi
 Accelerate your analytics efforts with simple, targeted reports. Summarize and break costs down, or customize to meet your needs.
 {: .fs-6 .fw-300 }
 
-[Deploy](#deploy){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Documentation](#docs){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#deploy">Deploy</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="#docs">Documentation</a>
 
 ---
 
@@ -30,7 +30,7 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
     <p class="mt-2 mb-0">
         February introduced a new visual design for Power BI reports, new options to populate missing prices for storage reports, and a complete performance overhaul for KQL reports, plus many small fixes and improvements.
     </p>
-    <p class="mt-2 mb-0 ftk-externallink"><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
@@ -64,7 +64,7 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
     </div>
 </div>
 
-[Try the demo](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+<a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip">Try the demo</a>
 
 <br>
 
@@ -80,7 +80,7 @@ Create a new or update an existing FinOps hub instance.
         <div>
             <p>Export data to storage for quick setup with small accounts or deploy FinOps hubs with Data Explorer for high performance analytics and year-over-year reporting.<br></p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Help me choose</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Help me choose</a>
             </p>
         </div>
     </div>
@@ -89,8 +89,8 @@ Create a new or update an existing FinOps hub instance.
         <div>
             <p>Export FOCUS data to a storage account or deploy FinOps hubs for added functionality.<br></p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports/openedBy/FinOpsToolkit.PowerBI.CreateExports">Create exports</a>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Deploy FinOps hubs</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports/openedBy/FinOpsToolkit.PowerBI.CreateExports">Create exports</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Deploy FinOps hubs</a>
             </p>
         </div>
     </div>
@@ -109,14 +109,14 @@ Create a new or update an existing FinOps hub instance.
         <div>
             <p>Connect reports to your storage account or Data Explorer cluster and publish to the Power BI service to share with your stakeholders.<br></p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup">Connect to your data</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup">Connect to your data</a>
             </p>
         </div>
     </div>
 </div>
 
 <br>
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20Power%20BI%20reports%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20Power%20BI%20reports%3F/surveyId/FTK0.8/bladeName/PowerBI/featureName/Marketing.Deploy){: .btn .mb-4 .mb-md-0 .mr-4 }
+<a class="btn mb-4 mb-md-0 mr-4" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20Power%20BI%20reports%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20Power%20BI%20reports%3F/surveyId/FTK0.8/bladeName/PowerBI/featureName/Marketing.Deploy">💜 Give feedback</a>
 
 <br>
 
@@ -135,38 +135,38 @@ Create a new or update an existing FinOps hub instance.
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>📊 <a class="ftk-externalink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/cost-summary">Cost summary</a></div>
+        <div>📊 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/cost-summary">Cost summary</a></div>
         <div>
             Track cost over time and get a general overview of cost and savings with common breakdowns to get you started.
         </div>
     </div>
     <div class="ftk-tile">
-        <div>🪙 <a class="ftk-externalink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/rate-optimization">Rate optimization</a></div>
+        <div>🪙 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/rate-optimization">Rate optimization</a></div>
         <div>
             Review cost savings from negotiated and commitment discounts and identify opportunities to increase savings.
         </div>
     </div>
     <div class="ftk-tile">
-        <div>⚖️ <a class="ftk-externalink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/governance">Policy + governance</a></div>
+        <div>⚖️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/governance">Policy + governance</a></div>
         <div>
             Summarize your governance posture with standard metrics aligned with the Cloud Adoption Framework.
         </div>
     </div>
     <div class="ftk-tile">
-        <div>☁️ <a class="ftk-externalink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/workload-optimization">Workload optimization</a></div>
+        <div>☁️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/workload-optimization">Workload optimization</a></div>
         <div>
             Gain insights into resource utilization and efficiency opportunities based on historical usage patterns.
         </div>
     </div>
     <div class="ftk-tile">
-        <div>📥 <a class="ftk-externalink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/data-ingestion">Data ingestion</a></div>
+        <div>📥 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/data-ingestion">Data ingestion</a></div>
         <div>
             Review FinOps hubs cost and monitor Cost Management exports to identify and resolve common issues.
         </div>
     </div>
 </div>
 
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/reports){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20Power%20BI%20reports%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20Power%20BI%20reports%3F/surveyId/FTK0.8/bladeName/PowerBI/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/reports">Learn more</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20Power%20BI%20reports%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20Power%20BI%20reports%3F/surveyId/FTK0.8/bladeName/PowerBI/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>

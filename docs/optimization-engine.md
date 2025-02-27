@@ -12,8 +12,8 @@ permalink: /optimization-engine
 Optimize your Azure environment.
 {: .fs-6 .fw-300 }
 
-[Deploy](#deploy){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Documentation](#docs){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#deploy">Deploy</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="#docs">Documentation</a>
 
 ---
 
@@ -30,7 +30,7 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
     <p class="mt-2 mb-0">
         February improved multi-tenancy support with Azure Lighthouse guidance.
     </p>
-    <p class="mt-2 mb-0 ftk-externallink"><a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p class="mt-2 mb-0 ftk-externallink"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="features"></a>
@@ -76,9 +76,9 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
 
 Azure Optimization Engine requires a command line deployment via a PowerShell script.
 
-[Deploy via PowerShell](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+<a class="btn btn-primary mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe">Deploy via PowerShell</a>
 
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy){: .ftk-externalink }
+<a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy">💜 Give feedback</a>
 
 <br>
 
@@ -99,32 +99,32 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>📊 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/reports">Reports and workbooks</a></div>
+        <div>📊 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/reports">Reports and workbooks</a></div>
         <div>Explore reports and workbooks to review recommendations and optimize your environment.</div>
     </div>
     <div class="ftk-tile">
-        <div>📝 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">Customize AOE</a></div>
+        <div>📝 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">Customize AOE</a></div>
         <div>Customize and tune Azure Optimization Engine to meet your specific needs.</div>
     </div>
     <div class="ftk-tile">
-        <div>🪛 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">Configure workspaces</a></div>
+        <div>🪛 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">Configure workspaces</a></div>
         <div>Configure Log Analytics workspaces for Azure Optimization Engine.</div>
     </div>
     <div class="ftk-tile">
-        <div>📋 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">Select recommendations</a></div>
+        <div>📋 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">Select recommendations</a></div>
         <div>Postpone or dismiss recommendations based on your priorities.</div>
     </div>
     <div class="ftk-tile">
-        <div>📦 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/setup-options">Deployment options</a></div>
+        <div>📦 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/setup-options">Deployment options</a></div>
         <div>Advanced scenarios for setting up or upgrading Azure Optimization Engine.</div>
     </div>
     <div class="ftk-tile">
-        <div>🙋‍♀️ <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Common questions</a></div>
+        <div>🙋‍♀️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/faq">Common questions</a></div>
         <div>Common questions and answers about support, subscriptions, currency, and more.</div>
     </div>
 </div>
 
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview">Learn more</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>
