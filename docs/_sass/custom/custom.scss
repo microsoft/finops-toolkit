@@ -41,10 +41,6 @@ a.ftk-externallink:hover::after {
     margin: 0 1.25rem 1.5rem 0;
     width: 30%;
 
-    &.ftk-50 {
-      width: 45%;
-    }
-
     div {
       margin-bottom: 0.5rem;
 
@@ -54,6 +50,10 @@ a.ftk-externallink:hover::after {
         font-weight: 500;
       }
     }
+  }
+
+  &.ftk-50 .ftk-tile {
+    width: 45%;
   }
 }
 

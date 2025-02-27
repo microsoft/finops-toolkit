@@ -2,7 +2,7 @@
 layout: default
 title: Power BI
 browser: Power BI reports - Accelerate your analytics efforts with simple, targeted reports
-nav_order: 3
+nav_order: 25
 description: 'Accelerate your analytics efforts with simple, targeted reports. Summarize and break costs down, or customize to meet your needs.'
 permalink: /power-bi
 #customer intent: As a Finops practitioner, I need to learn about FinOps toolkit Power BI reports

@@ -12,7 +12,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 {: .fs-6 .fw-300 }
 
 [Get the tools](#available-tools){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Learn FinOps](https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
+[Learn FinOps](./guide){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 .ftk-externalink }
 
 ---
 

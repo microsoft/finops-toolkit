@@ -2,7 +2,7 @@
 layout: default
 title: FinOps workbooks
 browser: FinOps workbooks - Engineering hub to maximize cloud ROI
-nav_order: 4
+nav_order: 30
 description: ''
 permalink: /workbooks
 #customer intent: As a Finops practitioner, I need to learn about FinOps workbooks

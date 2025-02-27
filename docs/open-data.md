@@ -2,7 +2,7 @@
 layout: default
 title: Open data
 browser: Open data - Normalize and enhance your FinOps data
-nav_order: 8
+nav_order: 60
 description: 'Leverage open data to normalize and enhance your FinOps reporting.'
 permalink: /open-data
 #customer intent: As a Finops practitioner, I need to learn about FinOps open data

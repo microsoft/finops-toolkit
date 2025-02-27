@@ -2,7 +2,7 @@
 layout: default
 title: PowerShell
 browser: FinOps toolkit PowerShell - Automate your FinOps efforts
-nav_order: 6
+nav_order: 50
 description: 'FinOps toolkit PowerShell helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.'
 permalink: /powershell
 #customer intent: As a Finops practitioner, I need to learn about FinOps toolkit PowerShell

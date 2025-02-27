@@ -2,7 +2,7 @@
 layout: default
 title: FinOps hubs
 browser: FinOps hubs - Open, extensible, scalable cost governance
-nav_order: 2
+nav_order: 20
 description: 'FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization for the enterprise.'
 permalink: /hubs
 #customer intent: As a Finops practitioner, I need to learn about FinOps hubs
@@ -90,8 +90,8 @@ Create a new or update an existing FinOps hub instance.
             <p>
                 Do you prefer public or private network routing?
             </p>
-            <div class="ftk-gallery">
-                <div class="ftk-tile ftk-50">
+            <div class="ftk-gallery ftk-50">
+                <div class="ftk-tile">
                     <div>🌐 Public routing</div>
                     <div>
                         <p>
@@ -105,7 +105,7 @@ Create a new or update an existing FinOps hub instance.
                         </p>
                     </div>
                 </div>
-                <div class="ftk-tile ftk-50">
+                <div class="ftk-tile">
                     <div>🏢 Private routing</div>
                     <div>
                         <p>

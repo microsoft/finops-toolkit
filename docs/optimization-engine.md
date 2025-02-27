@@ -2,7 +2,7 @@
 layout: default
 title: Optimization Engine
 browser: Azure Optimization Engine - Optimize your Azure environment
-nav_order: 5
+nav_order: 40
 description: 'Azure optimization engine is an extensible solution designed to generate optimization recommendations for your Azure environment.'
 permalink: /optimization-engine
 #customer intent: As a Finops practitioner, I need to learn about Azure Optimization Engine
@@ -100,19 +100,19 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
 <div class="ftk-gallery">
     <div class="ftk-tile">
         <div>📊 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/reports">Reports and workbooks</a></div>
-        <div>Explore AOE reports and workbooks to review recommendations and optimize your environment.</div>
+        <div>Explore reports and workbooks to review recommendations and optimize your environment.</div>
     </div>
     <div class="ftk-tile">
         <div>📝 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/customize">Customize AOE</a></div>
-        <div>Learn how to customize and tune Azure Optimization Engine to meet your specific needs.</div>
+        <div>Customize and tune Azure Optimization Engine to meet your specific needs.</div>
     </div>
     <div class="ftk-tile">
         <div>🪛 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">Configure workspaces</a></div>
-        <div>Learn how to configure Log Analytics workspaces for Azure Optimization Engine.</div>
+        <div>Configure Log Analytics workspaces for Azure Optimization Engine.</div>
     </div>
     <div class="ftk-tile">
-        <div>🛑 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">Select recommendations</a></div>
-        <div>Learn how to select the recommendations to hide in Azure Optimization Engine.</div>
+        <div>📋 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">Select recommendations</a></div>
+        <div>Postpone or dismiss recommendations based on your priorities.</div>
     </div>
     <div class="ftk-tile">
         <div>📦 <a class="ftk-externallink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/setup-options">Deployment options</a></div>

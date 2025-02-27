@@ -2,7 +2,7 @@
 layout: default
 title: Bicep Registry
 browser: FinOps toolkit bicep - Reusable modules for deployments
-nav_order: 7
+nav_order: 55
 description: 'Leverage reusable bicep modules in your Azure deployment templates to accelerate your FinOps efforts.'
 permalink: /bicep
 #customer intent: As a Finops practitioner, I need to learn about FinOps hubs
