@@ -43,6 +43,9 @@ param privateEndpointSubnetId string
 @description('Optional. Enable public access to the data lake.  Default: false.')
 param enablePublicAccess bool
 
+@description('Optional. Enable purge protection to the keyvault.  Default: false')
+param enablePurgeProtection bool
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -77,7 +80,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
     enableRbacAuthorization: false
-    enablePurgeProtection: true
+    enablePurgeProtection: enablePurgeProtection
     createMode: 'default'
     tenantId: subscription().tenantId
     accessPolicies: formattedAccessPolicies
