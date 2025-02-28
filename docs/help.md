@@ -53,7 +53,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                     <div>🙋‍♀️ General FinOps</div>
                     <div>
                         <p>
-                            Have questions about implementing FinOps within your org? Start on the FinOps discussions.
+                            Have questions about implementing FinOps within your organization?
                         </p>
                         <p>
                             <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://techcommunity.microsoft.com/category/azure/discussions/finops">Ask question</a>
@@ -64,10 +64,10 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                     <div>🚀 Deployment options</div>
                     <div>
                         <p>
-                            Have questions about how to deploy FinOps toolkit solutions? Explore deployment options.
+                            Have questions about how to deploy FinOps toolkit solutions?
                         </p>
                         <p>
-                            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/deploy">Read the doc</a>
+                            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/deploy">Explore options</a>
                         </p>
                     </div>
                 </div>
@@ -111,7 +111,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
         <button class="ftk-accordion">3️⃣&nbsp; Confirm instructions were completed</button>
         <div>
             <p>
-                9 out of 10 issues are due to missing steps. Follow instructions carefully.
+                Review the original instructions and confirm all steps were completed in order. 9 out of 10 issues are due to missing steps, so follow instructions carefully.
             </p>
         </div>
     </div>
@@ -121,7 +121,9 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
             <p>
                 Do you have a specific error code? Look up common errors for details and mitigation steps.
             </p>
-            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/errors.md">Ask question</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/errors.md">Review errors</a>
+            </p>
         </div>
     </div>
     <div class="ftk-step">
@@ -130,7 +132,9 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
             <p>
                 Please walk thru the troubleshooting guide to resolve the most common configuration issues.
             </p>
-            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/troubleshooting.md">Start troubleshooting</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/troubleshooting.md">Start troubleshooting</a>
+            </p>
         </div>
     </div>
     <div class="ftk-step">
@@ -153,7 +157,9 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
             <p>
                 Whether you submit a support request or not, create an issue to let us know about the problems you're facing. Even if the issue is a product bug, we would like to document it to help others.
             </p>
-            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/ftk/ideas">Create an issue</a>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/ftk/ideas">Create an issue</a>
+            </p>
         </div>
     </div>
 </div>
