@@ -30,7 +30,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
 
 ## Explore the commands
 
-<div class="ftk-gallery">
+<div class="ftk-gallery ftk-50">
     <div class="ftk-tile">
         <div>📊 Cost Management</div>
         <div>Manage Cost Management exports using the latest features.</div>

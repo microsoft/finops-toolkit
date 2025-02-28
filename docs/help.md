@@ -16,8 +16,10 @@ Have a question? We're here to help!
 
 Tools and resources within the FinOps toolkit are provided as-is without any express or implied warranties. Microsoft Support doesn't handle support requests for the FinOps toolkit. However, the underlying products used by tools in the toolkit are officially supported.
 
-<blockquote class="important" markdown="1">
-  _Official Microsoft Support is coming to the FinOps toolkit! Expect official support to be available in early 2025. In the meantime, please use the resources below._
+<blockquote class="important">
+    <em>
+        Official Microsoft Support is coming to the FinOps toolkit! Expect official support to be available in early 2025. In the meantime, please use the resources below.
+    </em>
 </blockquote>
 
 <a name="help"></a>
@@ -29,8 +31,10 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                 <!-- cSpell:ignore MSRC -->
                 Microsoft takes the security of our software products and services seriously. If you believe you found a security vulnerability, please report it securely in the Microsoft Security Response Center (MSRC).
             </p>
-            <blockquote class="warning" markdown="1">
-                _Please do not report security vulnerabilities through public discussions or GitHub issues._
+            <blockquote class="warning">
+                <em>
+                    Please do not report security vulnerabilities through public discussions or GitHub issues.
+                </em>
             </blockquote>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/opensource/security/create-report">Report security issue</a>
