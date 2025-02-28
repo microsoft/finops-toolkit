@@ -11,96 +11,78 @@ permalink: /
 Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to accelerate your FinOps journey.
 {: .fs-6 .fw-300 }
 
-[Get the tools](#-available-tools){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://aka.ms/ftk/feedback){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Get involved](#-get-involved){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#available-tools">Get the tools</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="./guide">Learn FinOps</a>
 
 ---
 
-The Microsoft FinOps toolkit is an open-source collection of learning resources and customizable tools to help you adopt and implement FinOps capabilities that automate and extend the Microsoft Cloud. This includes:
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <p class="mt-2 mb-0">
+        February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
+    </p>
+    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+</div>
 
-- Starter kits that help you get up and running.
-- Automation scripts to streamline cost configuration and management at scale.
-- Advanced solutions to facilitate building custom capabilities.
-- Learning resources and best practices about how to implement FinOps.
+<a name="available-tools"></a>
 
-Read on to learn about the tools and roadmap for the FinOps toolkit or how to get involved.
+## Automate and extend the Microsoft Cloud
 
-<br>
+<div class="ftk-gallery">
+    <div class="ftk-tile">
+        <div>📗 FinOps guide</div>
+        <div>Learn the FinOps practices and tools you need to be successful.</div>
+        <a href="./guide">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🏦 FinOps hubs</div>
+        <div>Open, extensible, and scalable cost reporting.</div>
+        <a href="./hubs">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>📊 Power BI</div>
+        <div>Accelerate your reporting with Power BI starter kits.</div>
+        <a href="./power-bi">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>📒 FinOps workbooks</div>
+        <div>Customizable home for engineers to maximize cloud ROI.</div>
+        <a href="./workbooks">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🔍 Optimization Engine</div>
+        <div>Extensible solution for custom optimization recommendations.</div>
+        <a href="./optimization-engine">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🌐 Open data</div>
+        <div>Useful data for anyone to access, use, and share.</div>
+        <a href="./open-data">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🖥️ PowerShell</div>
+        <div>Automate and manage FinOps solutions and capabilities.</div>
+        <a href="./powershell">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🦾 Bicep Registry</div>
+        <div>Official repository for Bicep modules.</div>
+        <a href="./bicep">Learn more</a>
+    </div>
+</div>
 
-## 🧰 Available tools
-
-{% include tools.md all="1" %}
-
-<br>
-
-[Download FinOps toolkit {% include ftkver.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://aka.ms/ftk/feedback){: .btn .btn .mb-4 .mb-md-0 .mr-4 }
-
-<br>
-
-## 🍎 Learning resources
-
-New to FinOps? Start with a quick intro and get to know the principles:
-
-- [What is FinOps?](./_docs/what-is-finops.md) – Quick introduction to FinOps.
-- [FinOps on Azure e-book](https://aka.ms/finops/ebook) – Executive walkthrough of the FinOps principles.
-- [Get started with FinOps](https://aka.ms/finops/learn/start) – Self-paced FinOps introduction.
-
-Start implementing FinOps capabilities or learn how to mature your FinOps practice:
-
-- [Adopt FinOps on Azure](https://aka.ms/finops/learn/adopt) – Learn FinOps capabilities at your own pace.
-- [Conduct a FinOps iteration](./_docs/conduct-an-iteration.md) – Plan your first or next iteration.
-- [FinOps review assessment](https://aka.ms/finops/review) – Review and refine your process.
-- [FinOps Framework](./_docs/framework/README.md) – Implement FinOps in the Microsoft Cloud.
-
-Learn the products you need to be successful:
-
-- [FinOps Open Cost and Usage Specification](./_docs/focus/README.md) – Cloud agnostic format for cost and usage data.
-- [Interactive product guides](https://aka.ms/finops/guides) – Hands on experience with Microsoft products.
-- [Intro for cloud migration](https://info.microsoft.com/ww-ondemand-implement-finops-for-azure.html) – Great context when migrating from on-premises.
-- [FinOps Foundation YouTube channel](https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA) – All topics from the FinOps community.
-- [FinOps certification and training](https://learn.finops.org) – Advance your knowledge and get certified.
-
-Stay up to date on the latest news:
-
-- [FinOps blog](https://aka.ms/finops/blog) – Latest FinOps news from Microsoft.
-
-[FinOps e-book](https://aka.ms/finops/ebook){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Review assessment](https://aka.ms/finops/review){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Interactive guides](https://aka.ms/finops/guides){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-<br>
-
-## 🗺️ Roadmap
-
-We track the short-term roadmap for FinOps toolkit as milestones in GitHub. Each release includes the high-level goals, tasks, and a link to the release discussion.
-
-Please use discussions in GitHub if you have questions, comments, or requests for any specific release.
-
-[Discover what's next](https://github.com/microsoft/finops-toolkit/milestones?direction=asc&sort=title&state=open){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Join the conversation](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/ftk/latest">Download FinOps toolkit {% include ftkver.txt %}</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Marketing.Tools">💜 Give feedback</a>
 
 <br>
 
-## 👩‍💻 Get involved
+## Say hello to the FinOps toolkit community
 
-FinOps toolkit is an open source project. We have many ideas on the long-term vision, but are more interested in learning from you and seeing how the community drives the product. There are many ways you can contribute to the project from participating in discussions and requesting features to reviewing and submitting pull requests. To get started, refer to our contribution guide.
+Whether you're looking for a little assistance or are interested in contributing to the toolkit, the FinOps toolkit community is here for you.
 
-[Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-<br>
-
-## 📜 Changelog
-
-All the main changes are tracked in the changelog. For additional details, refer to the commit history.
-
-[Explore the changelog](./_resources/changelog.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Browse the commit history](https://github.com/microsoft/finops-toolkit/commits/main){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-<br>
-
-## 👥 Contributors
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/discussions">Get help</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/issues">Share ideas</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md">Get involved</a>
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -206,7 +188,5 @@ All the main changes are tracked in the changelog. For additional details, refer
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-
-[Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
