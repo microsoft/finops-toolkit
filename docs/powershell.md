@@ -71,9 +71,15 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
     </div>
     <div class="ftk-step">
         <button class="ftk-accordion">2️⃣&nbsp; Install modules and sign in</button>
-        <div>
-            <p>
-            </p>
+        <div class="language-powershell highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Accounts</span><span class="w">
+                </span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Resources</span><span class="w">
+                </span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">FinOpsToolkit</span><span class="w">
+                </span><span class="n">Connect-AzAccount</span><span class="w">
+                </span></code></pre>
+            </div>
+            <button type="button" aria-label="Copy code to clipboard"><svg viewBox="0 0 24 24" class="copy-icon"><use xlink:href="#svg-copy"></use></svg></button>
         </div>
     </div>
     <div class="ftk-step">
@@ -87,13 +93,6 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
     </div>
 </div>
 <a name="docs"></a>
-
-```powershell
-Install-Module -Name Az.Accounts
-Install-Module -Name Az.Resources
-Install-Module -Name FinOpsToolkit
-Connect-AzAccount
-```
 
 <a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands">About the commands</a>
 <a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20PowerShell%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20PowerShell%3F/surveyId/FTK0.8/bladeName/PowerShell/featureName/Marketing.Docs">💜 Give feedback</a>
