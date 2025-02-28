@@ -136,8 +136,8 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
-@description('Optional. Enable purge protection of the keyvault. Default: true.')
-param enablePublicAccess bool = true
+@description('Optional. Enable purge protection of the keyvault. Default: false.')
+param enablePurgeProtection bool = false
 
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
