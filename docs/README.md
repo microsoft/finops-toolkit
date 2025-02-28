@@ -32,7 +32,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     <div class="ftk-tile">
         <div>📗 FinOps guide</div>
         <div>Learn the FinOps practices and tools you need to be successful.</div>
-        <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
+        <a href="./guide">Open the guide</a>
     </div>
     <div class="ftk-tile">
         <div>🏦 FinOps hubs</div>

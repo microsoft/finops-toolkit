@@ -51,6 +51,7 @@ highlighter: rouge
 rouge:
   languages:
     - bicep
+    - kusto
     - powershell
 
 # Mermaid versions @ https://cdn.jsdelivr.net/npm/mermaid
