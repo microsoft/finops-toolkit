@@ -1,14 +1,14 @@
 ---
 layout: default
-title: Implementing FinOps guide
+title: FinOps guide
 nav_order: 10
 description: 'FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization for the enterprise.'
 permalink: /guide
 #customer intent: As a Finops practitioner, I need to learn about FinOps hubs
 ---
 
-<span class="fs-9 d-block mb-4">FinOps hubs</span>
-Open, extensible, and scalable cost governance for the enterprise.
+<span class="fs-9 d-block mb-4">Implementing FinOps guide</span>
+Your guide to implementing FinOps in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
 ---
