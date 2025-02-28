@@ -179,7 +179,6 @@ Whether you're looking for a little assistance or are interested in contributing
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/lundejd"><img src="https://avatars.githubusercontent.com/u/8152933?v=4?s=100" width="100px;" alt="John Lundell"/><br /><sub><b>John Lundell</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Alundejd" title="Bug reports">🐛</a> <a href="#question-lundejd" title="Answering Questions">💬</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/lmoscinski"><img src="https://avatars.githubusercontent.com/u/135173807?v=4?s=100" width="100px;" alt="lmoscinski"/><br /><sub><b>lmoscinski</b></sub></a><br /><a href="#design-lmoscinski" title="Design">🎨</a></td>
     </tr>
   </tbody>
 </table>
