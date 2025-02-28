@@ -17,14 +17,7 @@ Accelerate your FinOps efforts with reusable bicep modules for your Azure deploy
 
 ---
 
-<a name="overview"></a>
-
-## Reusable bicep modules
-
 The FinOps toolkit bicep modules help you deploy resources to manage, monitor, and optimize cost and usage.
-
-<br>
-
 <!--
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
     <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
@@ -34,7 +27,6 @@ The FinOps toolkit bicep modules help you deploy resources to manage, monitor, a
     <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 -->
-
 <a name="features"></a>
 
 ## Explore the commands
@@ -46,9 +38,6 @@ The FinOps toolkit bicep modules help you deploy resources to manage, monitor, a
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/scheduled-actions">Learn more</a>
     </div>
 </div>
-
-<br>
-
 <a name="deploy"></a>
 <a name="download"></a>
 <a name="install"></a>

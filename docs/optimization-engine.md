@@ -17,13 +17,7 @@ Optimize your Azure environment.
 
 ---
 
-<a name="overview"></a>
-
-## Optimize your Azure environment
-
 The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment. See it like a fully customizable Azure Advisor.
-
-<br>
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
     <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
@@ -32,7 +26,6 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
     </p>
     <p class="mt-2 mb-0 ftk-externallink"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
-
 <a name="features"></a>
 
 ## Azure Optimization Engine features
@@ -67,9 +60,6 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
         <div>Monitor Azure Policy compliance across the whole tenant.<br>&nbsp;</div>
     </div>
 </div>
-
-<br>
-
 <a name="deploy"></a>
 
 ## Deploy Azure Optimization Engine
@@ -79,20 +69,16 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
 <a class="btn btn-primary mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe">Deploy via PowerShell</a>
 
 <a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy">💜 Give feedback</a>
-
-<br>
-
 <!--
+<a name="pricing"></a>
 <div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
     <h3 class="m-0 mb-4">Estimated cost for Azure Optimization Engine</h3>
     <p class="mt-2 mb-0">
         TODO
     </p>
 </div>
-
 <br>
 -->
-
 <a name="docs"></a>
 
 ## Learn more from documentation

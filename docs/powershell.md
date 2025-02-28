@@ -17,13 +17,7 @@ Automate and scale your FinOps efforts with PowerShell commands that streamline 
 
 ---
 
-<a name="overview"></a>
-
-## Automate your FinOps efforts
-
 The FinOps toolkit PowerShell module helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.
-
-<br>
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
     <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
@@ -32,7 +26,6 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
     </p>
     <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
-
 <a name="features"></a>
 
 ## Explore the commands
@@ -59,9 +52,6 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/toolkit/finops-toolkit-commands">See commands</a>
     </div>
 </div>
-
-<br>
-
 <a name="deploy"></a>
 <a name="download"></a>
 <a name="install"></a>
@@ -102,7 +92,6 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         </div>
     </div>
 </div>
-
 <a name="docs"></a>
 
 <a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands">About the commands</a>
