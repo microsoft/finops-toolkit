@@ -335,6 +335,7 @@ This release is a minor patch to update documentation and fix Power BI storage r
 >    - All data processing now happens within a virtual network.
 >    - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
 >    - Added param to specify subnet range of virtual network - minimum size = /26
+>    - Enabled Purge protection for keyvault
 > 1. Support for storage account infrastructure encryption.
 > 1. Published a [schema file](https://aka.ms/finops/hubs/settings-schema) for the hub settings.json file.
 >
