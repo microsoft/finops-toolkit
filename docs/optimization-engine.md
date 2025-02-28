@@ -68,7 +68,7 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
 
 <a class="btn btn-primary mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe">Deploy via PowerShell</a>
 
-<a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy">💜 Give feedback</a>
+<a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/AOE/featureName/Marketing.Deploy">💜 Give feedback</a>
 <a name="docs"></a>
 
 ## Learn more from documentation
@@ -101,6 +101,6 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
 </div>
 
 <a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview">About Optimization Engine</a>
-<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Docs">💜 Give feedback</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/AOE/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>

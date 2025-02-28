@@ -110,6 +110,6 @@ Now it's time to learn the tools and services you need to be successful.
 </div>
 
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
-<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20Implementing%20FinOps%20guide%3F/cvaQuestion/How%20valuable%20are%20the%20Implementing%20FinOps%20guide%3F/surveyId/FTK0.8/bladeName/Guide/featureName/Marketing.Docs">💜 Give feedback</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20Implementing%20FinOps%20guide%3F/cvaQuestion/How%20valuable%20are%20the%20Implementing%20FinOps%20guide%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Guide/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>

@@ -95,6 +95,6 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
 <a name="docs"></a>
 
 <a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/powershell/powershell-commands">About the commands</a>
-<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20PowerShell%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20PowerShell%3F/surveyId/FTK0.8/bladeName/PowerShell/featureName/Marketing.Docs">💜 Give feedback</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20PowerShell%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20PowerShell%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/PowerShell/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>
