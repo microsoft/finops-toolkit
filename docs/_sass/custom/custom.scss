@@ -11,8 +11,8 @@
   display: inline-block;
 }
 
-a.ftk-externallink:hover::after {
-  content: '🡥';
+a[target='_blank']:hover::after {
+  content: url('data:image/svg+xml;utf8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2016%2015%22%3E%3Cpath%20d=%22M14.3%201H10V0h6v6h-1V1.7l-8%208-.7-.7z%22/%3E%3Cpath%20d=%22M11%208v5a.9.9%200%2001-1%201H2a.9.9%200%2001-1-1V6a.9.9%200%20011-1h6l1-1H2a2%202%200%2000-2%202v7a2%202%200%20002%202h8a2%202%200%20002-2V7z%22/%3E%3C/svg%3E');
   opacity: 0.8;
   margin-left: 0.5em;
   text-decoration: none;
