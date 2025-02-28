@@ -12,7 +12,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 {: .fs-6 .fw-300 }
 
 <a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#available-tools">Get the tools</a>
-<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="./guide">Learn FinOps</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="./guide">Learn FinOps</a>
 
 ---
 
@@ -32,7 +32,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
     <div class="ftk-tile">
         <div>📗 FinOps guide</div>
         <div>Learn the FinOps practices and tools you need to be successful.</div>
-        <a href="./guide">Open the guide</a>
+        <a href="./guide">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>🏦 FinOps hubs</div>

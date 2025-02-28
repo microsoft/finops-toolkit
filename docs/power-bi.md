@@ -58,6 +58,13 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
 </div>
 
 <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip">Try the demo</a>
+
+<div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
+    <h3 class="m-0 mb-4">Estimated cost for FinOps toolkit Power BI reports</h3>
+    <p class="mt-2 mb-0">
+        FinOps toolkit Power BI reports do not incur any cost beyond the required Power BI licenses and underlying data storage costs.
+    </p>
+</div>
 <a name="deploy"></a>
 
 ## Deploy Power BI reports
@@ -107,13 +114,6 @@ Create a new or update an existing FinOps hub instance.
 
 <br>
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20Power%20BI%20reports%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20Power%20BI%20reports%3F/surveyId/FTK0.8/bladeName/PowerBI/featureName/Marketing.Deploy">💜 Give feedback</a>
-
-<div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
-    <h3 class="m-0 mb-4">Estimated cost for FinOps toolkit Power BI reports</h3>
-    <p class="mt-2 mb-0">
-        FinOps toolkit Power BI reports do not incur any cost beyond the required Power BI licenses and underlying data storage costs.
-    </p>
-</div>
 <a name="docs"></a>
 
 ## Explore the reports

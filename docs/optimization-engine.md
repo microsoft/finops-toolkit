@@ -69,16 +69,6 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
 <a class="btn btn-primary mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/overview#deploy-the-aoe">Deploy via PowerShell</a>
 
 <a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy">💜 Give feedback</a>
-<!--
-<a name="pricing"></a>
-<div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
-    <h3 class="m-0 mb-4">Estimated cost for Azure Optimization Engine</h3>
-    <p class="mt-2 mb-0">
-        TODO
-    </p>
-</div>
-<br>
--->
 <a name="docs"></a>
 
 ## Learn more from documentation
@@ -94,7 +84,7 @@ Azure Optimization Engine requires a command line deployment via a PowerShell sc
     </div>
     <div class="ftk-tile">
         <div>🪛 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/configure-workspaces">Configure workspaces</a></div>
-        <div>Configure Log Analytics workspaces for Azure Optimization Engine.</div>
+        <div>Configure Log Analytics workspaces for Azure Optimization Engine.<br>&nbsp;</div>
     </div>
     <div class="ftk-tile">
         <div>📋 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/optimization-engine/suppress-recommendations">Select recommendations</a></div>

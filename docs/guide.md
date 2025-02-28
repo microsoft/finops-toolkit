@@ -30,7 +30,7 @@ If you're new to FinOps, there are a few places you can get started:
 <div class="ftk-gallery">
     <div class="ftk-tile">
         <div>ℹ️ What is FinOps?</div>
-        <div>Quick introduction to FinOps for the uninitiated.</div>
+        <div>Quick introduction to FinOps for those new to the topic.</div>
         <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/overview">Read the doc</a>
     </div>
     <div class="ftk-tile">
@@ -52,12 +52,12 @@ Next, learn about the FinOps Framework and build a plan to implement FinOps capa
 <div class="ftk-gallery ftk-50">
     <div class="ftk-tile">
         <div>🏫 Adopt FinOps on Azure</div>
-        <div>Learn about the FinOps capabilities at your own pace.</div>
+        <div>Learn about FinOps capabilities at your own pace with this learning module.</div>
         <a target="_blank" href="https://learn.microsoft.com/training/modules/adopt-finops-on-azure">Start the module</a>
     </div>
     <div class="ftk-tile">
         <div>📝 Conduct a FinOps iteration</div>
-        <div>Plan your first or next iteration and mature your operations.</div>
+        <div>Plan your first or next iteration and mature your FinOps efforts.</div>
         <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/conduct-iteration">Read the doc</a>
     </div>
     <div class="ftk-tile">
@@ -67,7 +67,7 @@ Next, learn about the FinOps Framework and build a plan to implement FinOps capa
     </div>
     <div class="ftk-tile">
         <div>🏗️ FinOps Framework</div>
-        <div>How to implement FinOps capabilities in the Microsoft Cloud.</div>
+        <div>Principles and practices to manage, optimize, and quantify value in the Microsoft Cloud.</div>
         <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/framework/finops-framework">Explore the framework</a>
     </div>
 </div>
@@ -98,7 +98,7 @@ Now it's time to learn the tools and services you need to be successful.
         <a target="_blank" href="https://info.microsoft.com/ww-ondemand-implement-finops-for-azure.html">Watch webinar</a>
     </div>
     <div class="ftk-tile">
-        <div>🎞️ FinOps Framework YouTube</div>
+        <div>🎞️ FinOps Framework videos</div>
         <div>Videos from the FinOps community covering each FinOps capability.</div>
         <a target="_blank" href="https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA">Watch videos</a>
     </div>
@@ -109,7 +109,7 @@ Now it's time to learn the tools and services you need to be successful.
     </div>
 </div>
 
-<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Learn more</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20Implementing%20FinOps%20guide%3F/cvaQuestion/How%20valuable%20are%20the%20Implementing%20FinOps%20guide%3F/surveyId/FTK0.8/bladeName/Guide/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>
