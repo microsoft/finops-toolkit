@@ -11,70 +11,68 @@ permalink: /
 Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to accelerate your FinOps journey.
 {: .fs-6 .fw-300 }
 
-[Get the tools](#available-tools){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Learn FinOps](https://aka.ms/finops/guide){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#available-tools">Get the tools</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="./guide">Learn FinOps</a>
 
 ---
 
-<a name="whats-new"></a>
-
-## What's new in February 2025 (v0.8)
-
-February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
-
-[See all changes](https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide){: .btn .mb-4 .mb-md-0 .mr-4 }
-
-<br>
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <p class="mt-2 mb-0">
+        February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
+    </p>
+    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+</div>
 
 <a name="available-tools"></a>
 
 ## Automate and extend the Microsoft Cloud
 
 <div class="ftk-gallery">
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>📗 FinOps guide</div>
         <div>Learn the FinOps practices and tools you need to be successful.</div>
-        <a href="https://learn.microsoft.com/cloud-computing/finops/implementing-finops-guide">Open the guide</a>
+        <a href="./guide">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🏦 FinOps hubs</div>
         <div>Open, extensible, and scalable cost reporting.</div>
         <a href="./hubs">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>📊 Power BI</div>
         <div>Accelerate your reporting with Power BI starter kits.</div>
         <a href="./power-bi">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>📒 FinOps workbooks</div>
         <div>Customizable home for engineers to maximize cloud ROI.</div>
         <a href="./workbooks">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🔍 Optimization Engine</div>
         <div>Extensible solution for custom optimization recommendations.</div>
         <a href="./optimization-engine">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🌐 Open data</div>
         <div>Useful data for anyone to access, use, and share.</div>
         <a href="./open-data">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🖥️ PowerShell</div>
         <div>Automate and manage FinOps solutions and capabilities.</div>
         <a href="./powershell">Learn more</a>
     </div>
-    <div class="ftk-tile-borderless">
+    <div class="ftk-tile">
         <div>🦾 Bicep Registry</div>
         <div>Official repository for Bicep modules.</div>
         <a href="./bicep">Learn more</a>
     </div>
 </div>
 
-[Download FinOps toolkit {% include ftkver.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Marketing){: .btn .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/ftk/latest">Download FinOps toolkit {% include ftkver.txt %}</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Marketing.Tools">💜 Give feedback</a>
 
 <br>
 
@@ -82,9 +80,9 @@ February introduces major Power BI optimizations, a simplified FinOps hubs archi
 
 Whether you're looking for a little assistance or are interested in contributing to the toolkit, the FinOps toolkit community is here for you.
 
-[Get help](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Share ideas](https://github.com/microsoft/finops-toolkit/issues){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Get involved](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/discussions">Get help</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/issues">Share ideas</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md">Get involved</a>
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -181,10 +179,9 @@ Whether you're looking for a little assistance or are interested in contributing
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/lundejd"><img src="https://avatars.githubusercontent.com/u/8152933?v=4?s=100" width="100px;" alt="John Lundell"/><br /><sub><b>John Lundell</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Alundejd" title="Bug reports">🐛</a> <a href="#question-lundejd" title="Answering Questions">💬</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/lmoscinski"><img src="https://avatars.githubusercontent.com/u/135173807?v=4?s=100" width="100px;" alt="lmoscinski"/><br /><sub><b>lmoscinski</b></sub></a><br /><a href="#design-lmoscinski" title="Design">🎨</a></td>
     </tr>
   </tbody>
-</div>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->

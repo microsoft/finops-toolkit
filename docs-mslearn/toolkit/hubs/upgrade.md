@@ -177,7 +177,7 @@ If you enable Azure Data Explorer, you need to reingest historical data to add i
 > [!div class="nextstepaction"]
 > [Download 0.7](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7)
 
-[View changes](https://aka.ms/ftk/changes#-v07)
+[View changes](https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog#-v07)
 
 <br>
 
@@ -195,7 +195,7 @@ To upgrade FinOps hubs 0.7 to 0.8:
 > [!div class="nextstepaction"]
 > [Download 0.8](https://github.com/microsoft/finops-toolkit/releases/tag/v0.8)
 
-[View changes](https://aka.ms/ftk/changes#-v08)
+[View changes](https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog#-v08)
 
 <br>
 

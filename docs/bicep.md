@@ -2,59 +2,48 @@
 layout: default
 title: Bicep Registry
 browser: FinOps toolkit bicep - Reusable modules for deployments
-nav_order: 7
+nav_order: 55
 description: 'Leverage reusable bicep modules in your Azure deployment templates to accelerate your FinOps efforts.'
 permalink: /bicep
 #customer intent: As a Finops practitioner, I need to learn about FinOps hubs
 ---
 
-<span class="fs-9 d-block mb-4">FinOps toolkit PowerShell</span>
+<span class="fs-9 d-block mb-4">FinOps toolkit bicep modules</span>
 Accelerate your FinOps efforts with reusable bicep modules for your Azure deployment templates.
 {: .fs-6 .fw-300 }
 
-[Browse](#deploy){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Documentation](https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/modules){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#deploy">Browse</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/modules">Documentation</a>
 
 ---
 
-<a name="overview"></a>
-
-## Reusable bicep modules
-
-The FinOps toolkit PowerShell module helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.
-
-<br>
+The FinOps toolkit bicep modules help you deploy resources to manage, monitor, and optimize cost and usage.
 
 <!--
-<a name="whats-new"></a>
-
-## What's new in February 2025 (v0.8)
-
-TODO
-
-[See all changes](https://aka.ms/ftk/changes#bicep-registry-modules-v08){: .btn .mb-4 .mb-md-0 .mr-4 }
-
-<br>
+<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
+    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <p class="mt-2 mb-0">
+        February introduced...
+    </p>
+    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+</div>
 -->
 
 <a name="features"></a>
+<a name="docs"></a>
 
 ## Explore the commands
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>📨 Cost Management scheduled actions</div>
-        <div>Create anomaly alerts for subscriptions or scheduled alerts for resource groups or subscriptions.</div>
-        <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/scheduled-actions">Learn more</a>
+        <div>📨 Scheduled actions</div>
+        <div>Create Cost Management anomaly alerts and scheduled alerts.</div>
+        <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/scheduled-actions">Learn more</a>
     </div>
 </div>
-
-<br>
-
 <a name="deploy"></a>
 <a name="download"></a>
 <a name="install"></a>
-<a name="docs"></a>
 
 ## Referencing bicep modules
 
@@ -71,7 +60,7 @@ module <name> 'br/public:cost/<scope>-<type>:<version>' {
 
 For details about the parameters for each module, refer to the documentation.
 
-[Learn more](https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/modules){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[💜 Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20bicep%20modules%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20bicep%20modules%3F/surveyId/FTK0.8/bladeName/Bicep/featureName/Marketing.Docs){: .btn .mb-4 .mb-md-0 .mr-4 }
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/bicep-registry/modules">About the modules</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20bicep%20modules%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20bicep%20modules%3F/surveyId/FTK0.8/bladeName/Bicep/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>
