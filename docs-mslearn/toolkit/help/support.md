@@ -25,7 +25,7 @@ If you run into an issue, we recommend taking the following actions:
 
 1. **Report security issues securely.**
 
-   If you believe have a security vulnerability, refer to [Reporting security issues](https://github.com/microsoft/finops-toolkit/blob/dev/SECURITY.md).
+   If you believe you found a security vulnerability, refer to [Reporting security issues](https://github.com/microsoft/finops-toolkit/blob/dev/SECURITY.md).
 
 2. **Confirm all setup instructions were completed in order.**
 
