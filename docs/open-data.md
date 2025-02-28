@@ -13,7 +13,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
 {: .fs-6 .fw-300 }
 
 <a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#download">Download</a>
-<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="#docs">Documentation</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/open-data">Documentation</a>
 
 ---
 
@@ -76,7 +76,7 @@ FinOps toolkit open data is used to transform Cost Management actual and amortiz
 </div>
 
 <a name="docs"></a>
-<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/open-data">Learn more</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/open-data">About the data</a>
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20open%20data%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20open%20data%3F/surveyId/FTK0.8/bladeName/OpenData/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>

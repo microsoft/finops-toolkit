@@ -8,12 +8,12 @@ permalink: /power-bi
 #customer intent: As a Finops practitioner, I need to learn about FinOps toolkit Power BI reports
 ---
 
-<span class="fs-9 d-block mb-4">Power BI</span>
+<span class="fs-9 d-block mb-4">Power BI reports</span>
 Accelerate your analytics efforts with simple, targeted reports. Summarize and break costs down, or customize to meet your needs.
 {: .fs-6 .fw-300 }
 
 <a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#deploy">Deploy</a>
-<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="#docs">Documentation</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/reports">Documentation</a>
 
 ---
 
@@ -166,7 +166,7 @@ Create a new or update an existing FinOps hub instance.
     </div>
 </div>
 
-<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/reports">Learn more</a>
+<a class="btn mt-2 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/reports">About the reports</a>
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20Power%20BI%20reports%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20Power%20BI%20reports%3F/surveyId/FTK0.8/bladeName/PowerBI/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>
