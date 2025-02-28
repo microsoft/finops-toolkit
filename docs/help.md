@@ -166,6 +166,6 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
 
 We try to respond to issues and discussions within two business days but there can sometimes be unanticipated delays. If you completed all of the preceding steps and the issue wasn't resolved within a week, we should set up a Teams call for you. Then you can share your screen so we can troubleshoot the issue together.
 
-<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20get%20help%20for%20FinOps%20toolkit%20issues%3F/cvaQuestion/How%20valuable%20is%20FinOps%20toolkit%20help%20and%20support%3F/surveyId/FTK0.8/bladeName/Support/featureName/Marketing">💜 Give feedback</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20get%20help%20for%20FinOps%20toolkit%20issues%3F/cvaQuestion/How%20valuable%20is%20FinOps%20toolkit%20help%20and%20support%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Support/featureName/Marketing">💜 Give feedback</a>
 
 <br>
