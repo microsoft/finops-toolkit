@@ -30,7 +30,16 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
-<br><a name="latest"></a>
+## v0.9
+
+_Released March 2025_
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.8...v0.9)
+
+<br>
 
 ## v0.8 Update 1
 
