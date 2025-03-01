@@ -1,0 +1,86 @@
+.ftk-sidebar {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: width 0.2s ease;
+    padding: 40px 16px 16px 16px;
+    margin-top: 0;
+
+    &.ftk-collapsed {
+        width: 80px;
+    }
+
+    &.ftk-expanded {
+        width: 216px;
+    }
+
+    .ftk-sidebar-toggle {
+        position: absolute;
+        top: 10px;
+        right: 8px;
+    }
+
+    .ftk-sidebar-menu {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ftk-sidebar-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        color: var(--colorNeutralForeground1);
+        text-decoration: none;
+        border-radius: 6px;
+        position: relative;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        min-height: 40px;
+        width: 100%;
+        white-space: normal;
+        word-wrap: break-word;
+
+        &:hover {
+            background-color: var(--colorNeutralBackground2Hover);
+            color: var(--colorNeutralForeground2BrandHover);
+        }
+
+        .ftk-sidebar-icon {
+            margin-right: 10px;
+            transition: color 0.1s ease;
+            color: var(--colorNeutralForeground2);
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        &:hover .ftk-sidebar-icon {
+            color: var(--colorNeutralForeground2BrandHover);
+        }
+
+        &::before {
+            content: "";
+            position: absolute;
+            left: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: calc(100% - 12px);
+            background-color: transparent;
+            border-radius: 2px;
+            transition: background-color 0.1s ease;
+        }
+
+        &:hover::before,
+        &.active::before {
+            background-color: var(--colorNeutralForeground3BrandHover);
+        }
+
+        .ftk-sidebar-text {
+            display: inline-block;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            text-align: left;
+        }
+    }
+}

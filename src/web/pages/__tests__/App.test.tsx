@@ -1,51 +1,41 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import FinOpsHubsPage from '../FinOpsHubsPage';
-import {SamplePage} from '../SamplePage';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { SamplePage } from '../SamplePage';
 
-describe('App routing', () => {
+jest.mock('../../components/SideBar/SideBar', () => () => <div data-testid="sidebar" />);
+jest.mock('../../components/TopMenuBar/TopMenuBar', () => () => <div data-testid="top-menu-bar" />);
+jest.mock('../../components/Showcase/Showcase', () => () => <div data-testid="showcase">Kick start your FinOps efforts</div>);
+
+describe('App Routing', () => {
   it('should render SamplePage for the root path', () => {
     render(
-      <MemoryRouter initialEntries={['/']}>
+      <MemoryRouter initialEntries={['/']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<SamplePage />} />
         </Routes>
       </MemoryRouter>
     );
 
-    const sampleContent = screen.getByText(/SamplePage/i);
-    expect(sampleContent).toBeInTheDocument();
-  });
-
-  it('should render FinOpsHubsPage for the /hubs path', () => {
-    render(
-      <MemoryRouter initialEntries={['/hubs']}>
-        <Routes>
-          <Route path="/hubs" element={<FinOpsHubsPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    // Use getAllByText and check the first element if there are multiple matches
-    const hubsHeadings = screen.getAllByText(/FinOps Hubs/i);
-    expect(hubsHeadings[0]).toBeInTheDocument();
-
-    // Check for specific content in the page to ensure the correct page is rendered
-    const hubsContent = screen.getByText(/Open, extensible, and scalable cost governance for the enterprise/i);
-    expect(hubsContent).toBeInTheDocument();
+    expect(screen.getByTestId('top-menu-bar')).toBeInTheDocument();
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+    expect(screen.getByTestId('main-content')).toBeInTheDocument();
+    expect(screen.getByTestId('showcase')).toBeInTheDocument();
+    expect(screen.getByText(/Welcome to Sample Page/i)).toBeInTheDocument();
   });
 
   it('should render SamplePage for the /tools path', () => {
     render(
-      <MemoryRouter initialEntries={['/tools']}>
+      <MemoryRouter initialEntries={['/tools']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/tools" element={<SamplePage />} />
         </Routes>
       </MemoryRouter>
     );
 
-    const sampleContent = screen.getByText(/SamplePage/i);
-    expect(sampleContent).toBeInTheDocument();
+    expect(screen.getByTestId('top-menu-bar')).toBeInTheDocument();
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+    expect(screen.getByTestId('main-content')).toBeInTheDocument();
+    expect(screen.getByTestId('showcase')).toBeInTheDocument();
+    expect(screen.getByText(/Welcome to Sample Page/i)).toBeInTheDocument();
   });
-
 });

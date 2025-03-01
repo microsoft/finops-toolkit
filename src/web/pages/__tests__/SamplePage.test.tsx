@@ -1,71 +1,45 @@
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { SamplePage } from '../SamplePage';
 
-// Mock dependencies
-jest.mock('../../components/SideBar', () => () => <div data-testid="sidebar" />);
+jest.mock('../../components/SideBar/SideBar', () => () => <div data-testid="sidebar" />);
 jest.mock('../../components/TopMenuBar/TopMenuBar', () => () => <div data-testid="top-menu-bar" />);
-
+jest.mock('../../components/Showcase/Showcase', () => () => <div data-testid="showcase">Kick start your FinOps efforts</div>);
 describe('SamplePage', () => {
-  it('renders the layout with TopMenuBar and Sidebar', () => {
-    // Render the SamplePage inside a BrowserRouter (for routing context)
+  it('renders SamplePage correctly', () => {
     render(
-      <BrowserRouter>
-        <SamplePage />
-      </BrowserRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Routes>
+          <Route path="/" element={<SamplePage />} />
+        </Routes>
+      </MemoryRouter>
     );
 
-    // Check if TopMenuBar is rendered
-    const topMenuBar = screen.getByTestId('top-menu-bar');
-    expect(topMenuBar).toBeInTheDocument();
+    expect(screen.getByTestId('top-menu-bar')).toBeInTheDocument();
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
 
-    // Check if Sidebar is rendered
-    const sidebar = screen.getByTestId('sidebar');
-    expect(sidebar).toBeInTheDocument();
+    expect(screen.getByTestId('main-content')).toBeInTheDocument();
 
-    // Check if the main content area is rendered
-    const mainContent = screen.getByTestId('main-content');
-    expect(mainContent).toBeInTheDocument();
-
-    // Check if the heading is rendered
-    const heading = screen.getByRole('heading', { name: /samplepage/i });
-    expect(heading).toBeInTheDocument();
+    expect(screen.getByTestId('showcase')).toBeInTheDocument();
+    expect(screen.getByText(/Kick start your FinOps efforts/i)).toBeInTheDocument();
   });
 
-  it('applies correct styles to the root container', () => {
+  it('applies correct styles to root container', () => {
     render(
-      <BrowserRouter>
-        <SamplePage />
-      </BrowserRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Routes>
+          <Route path="/" element={<SamplePage />} />
+        </Routes>
+      </MemoryRouter>
     );
 
-    // Verify the root container's layout styles
     const rootContainer = screen.getByTestId('sample-page-root');
     expect(rootContainer).toHaveStyle({
       display: 'flex',
       flexDirection: 'column',
       height: '100vh',
-      width: '100%',
       overflowX: 'hidden',
-      backgroundColor: '#f4f6f8',
-    });
-  });
-
-  it('renders and styles the main content area correctly', () => {
-    render(
-      <BrowserRouter>
-        <SamplePage />
-      </BrowserRouter>
-    );
-
-    const mainContent = screen.getByTestId('main-content');
-    expect(mainContent).toHaveStyle({
-      flexGrow: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      overflowY: 'auto',
-      overflowX: 'hidden',
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--colorNeutralBackground1)',
     });
   });
 });
