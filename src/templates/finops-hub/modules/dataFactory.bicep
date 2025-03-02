@@ -863,7 +863,7 @@ resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-0
 }
 
 resource dataset_resourcegraph 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
-  name: 'resourcegraph'
+  name: 'resourceGraph'
   parent: dataFactory
   properties: {
     annotations: []
