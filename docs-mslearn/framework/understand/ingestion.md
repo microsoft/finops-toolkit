@@ -109,6 +109,19 @@ At this point, you have a data pipeline and are ingesting data into a central da
 
 <br>
 
+## KPIs and metrics
+
+Consider the following key performance indicators (KPIs) to measure the health, effectiveness, and completeness of your FinOps data estate.
+
+| KPI | Definition | Formula |
+|--------------|----------------|---------|
+| Data freshness | Measures how often data is ingested into the system to ensure decisions are made based on the latest data available. | Age = (current time) - (most recent record's timestamp) |
+| Data size | Measures the total volume of data ingested into the system (in GB/TB) per day/ week/ month to monitor and manage the volume of data being ingested, optimizing for cost and performance. | Total data size = ∑(size of each ingested data record) |
+| Data cost | Measures the total cost associated with data ingestion, storage, and processing to monitor and manage the financial impact of data ingestion operations. | Total data cost = (cost of data storage) + (cost of data processing) + (cost of the analytics platform) |
+| Growth rate | Measures the rate at which the volume of data ingested into the system is increasing over time to track expansion, enabling proactive resource management and ensuring the system scales effectively. | Growth rate = ((current data volume – starting data volume) / starting data volume) x 100 |
+
+<br>
+
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [data ingestion capability](https://www.finops.org/framework/capabilities/data-ingestion/) article in the FinOps Framework documentation.
