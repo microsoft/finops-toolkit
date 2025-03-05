@@ -1,11 +1,9 @@
 
 # Automated detection
 
+**FinOps Alert** is an automated detection mechanism powered by [Azure Logic Apps](https://docs.microsoft.com/azure/logic-apps/logic-apps-overview). The logic app will run on a configurable schedule to monitor selected subscriptions for a set of idle resources and send notifications once it finds any of those resources to alert admins to investigate and take action.
 
-The **Waste reduction logic app** is an automated detection mechanism powered by [Azure Logic Apps](https://docs.microsoft.com/azure/logic-apps/logic-apps-overview). The logic app will run on a configurable schedule to monitor selected subscriptions for a set of idle resources and send notifications once it finds any of those resources to alert admins to investigate and take action.
-
-
-Use the following steps to deploy the Logic App
+Use the following steps to deploy FinOps Alert
 
 1. Create a new **Custom Deployment**
     > [!IMPORTANT]
