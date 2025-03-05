@@ -2251,7 +2251,7 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
                         'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs@${ftkVersion}'
                         ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                       }
-                      body: '{}'
+                      body: ' '
                       authentication: {
                         type: 'MSI'
                         resource: {
