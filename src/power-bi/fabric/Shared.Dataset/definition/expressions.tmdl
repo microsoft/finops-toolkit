@@ -36,7 +36,7 @@ expression 'Default Granularity' = "Monthly" meta [IsParameterQuery=true, List={
 
 	annotation PBI_ResultType = Text
 
-expression 'DirectQuery to AS - bami_focus_cost' =
+expression 'FinOps workspace semantic model' =
 		let
 		    Source = AnalysisServices.Database("powerbi://api.powerbi.com/v1.0/myorg/Finops%20workspace", "bami_focus_cost"),
 		    Cubes = Table.Combine(Source[Data]),

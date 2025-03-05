@@ -1213,8 +1213,8 @@ table Costs
 	partition Costs = entity
 		mode: directQuery
 		source
-			entityName: bami_focus_cost
-			expressionSource: 'DirectQuery to AS - bami_focus_cost'
+			entityName: buk_focus_cost
+			expressionSource: 'FinOps workspace semantic model'
 
 	changedProperty = Name
 

@@ -26,7 +26,7 @@ annotation __PBI_TimeIntelligenceEnabled = 0
 
 annotation PBIDesktopVersion = 2.140.679.0 (25.02)+e2f7796f7ddf473b3f87e4d9e2bee0b29f9956bf
 
-annotation PBI_QueryOrder = ["Storage URL","Number of Months","Default Granularity","ftk_DemoFilter","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","DirectQuery to AS - bami_focus_cost"]
+annotation PBI_QueryOrder = ["Storage URL","Number of Months","Default Granularity","ftk_DemoFilter","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","FinOps workspace semantic model"]
 
 annotation PBI_ProTooling = ["DevMode","DaxQueryView_Desktop"]
 
