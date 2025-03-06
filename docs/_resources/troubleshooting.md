@@ -72,7 +72,7 @@ This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two m
 5. If the trigger fails to start with a "resource provider is not registered" error, open the subscription in the Azure portal, select **Settings** > **Resource providers**, select the **Microsoft.EventGrid** row, then select **Register**. Registration may take a few minutes.
 6. After registration completes, start the `msexports_ManifestAdded` trigger again.
 7. After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes.
-8. If the ingestion pipeline is not running and it is showing a `MappingColumnNameNotFoundInSourceFile` error message, verify the export is configured for a [supported dataset and version](../hubs/data-processing.md#datasets).
+8. If the ingestion pipeline is not running and it is showing a `MappingColumnNameNotFoundInSourceFile` error message, verify the export is configured for a [supported dataset and version](../_reporting/hubs/data-processing.md#datasets).
 
 ### Step 3: Verify storage account – msexports container
 

@@ -648,6 +648,15 @@
         "bug",
         "question"
       ]
+    },
+    {
+      "login": "Ivanmtta",
+      "name": "Ivan Mota",
+      "avatar_url": "https://avatars.githubusercontent.com/u/39202628?v=4",
+      "profile": "https://ivanmota.dev/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",

@@ -45,7 +45,7 @@ This report pulls data from:
 You can download the Governance report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
 
 <blockquote class="note" markdown="1">
-_The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../../_optimize/optimization-workbook/README.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub._
+_The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../../_optimize/workbooks/optimization/README.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub._
 </blockquote>
 
 <br>
