@@ -32,10 +32,10 @@ Use the following steps to deploy FinOps Alert
 
    * Go back to the **Overview** blade and verify that the **Status: Connected**
 
-3. Add a role assignemnt to the system-assigned identity to allow the Logic App to "read" the resources in the subscription(s)
+3. Add a role assignement to the system-assigned identity to allow the Logic App to "read" the resources in the subscription(s)
 
    * Select the **Logic app**
-   * Select **Identity** under the Settings tab and and select **Azure role assignments**
+   * Select **Identity** under the Settings tab and select **Azure role assignments**
 
     ![Identity configuration page](images/System-assigned-identity.png)
 
@@ -44,7 +44,7 @@ Use the following steps to deploy FinOps Alert
       * Scope: Subscription
       * Subscription: Subscription to be analyzed by this Logic App
       * Role: Reader
-   * If you have a management group scope you want to monitor that contains multiple subscriptions, follwow these insctructions,
+   * If you have a management group scope you want to monitor that contains multiple subscriptions, follow these instructions:
        * Select the management group where you would want to assign the role.
        * Go to the "Access Control (IAM)" section of the management group
        * Click on "Add" and then "Add role assignment."
@@ -58,8 +58,8 @@ Use the following steps to deploy FinOps Alert
    * Configure the **Reoccurrence** - Default value: 1 week
    * Set the **email subject and alert recipient**
    * Set the subscription IDs within **Initialize subscriptions** in scope
-     * If you have any subscriptionIds you would like to filter the query with configure **Included subscriptions** variable.
-     * If you have any subscriptionIds you would like to excluded querying against configure **Excluded subscriptions** variable.
+     * If you have any subscription you would like to filter the query with configure **Included subscriptions** variable with the subscriptionIDs.
+     * If you have any subscription you would like to exclude querying against configure **Excluded subscriptions** variable with the subscriptionIDs.
 
       ![Logic app designer configuration page](images/Logic-app-designer.png)
 
