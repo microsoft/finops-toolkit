@@ -169,8 +169,11 @@ $reports | ForEach-Object {
     Write-UTF16LE -File "$targetFile/DiagramLayout" -Json (Get-Content "$datasetDir/diagramLayout.json" -Raw | ConvertFrom-Json -Depth 100)
     
     # Report/Layout
-    # TODO: Will this work as a JSON file?
-    Write-UTF16LE -File "$targetFile/Report/Layout" -Json (Get-Content "$reportDir/report.json" -Raw | ConvertFrom-Json -Depth 100)
+    $reportJson = Get-Content "$reportDir/Layout.json" -Raw | ConvertFrom-Json -Depth 100
+    (Get-Content "$reportDir/report.json" -Raw) `
+        -replace '\$\$ftkver\$\$', $version `
+        -replace '\$\$build-date\$\$', (Get-Date -Format 'yyyy-MM-dd')
+    Write-UTF16LE -File "$targetFile/Report/Layout" -Json ($reportJson | ConvertFrom-Json -Depth 100)
     
     # Report/StaticResources
     Copy-Item "$reportDir/StaticResources" "$targetFile/Report/StaticResources" -Recurse -Force
