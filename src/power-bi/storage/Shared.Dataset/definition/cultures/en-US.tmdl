@@ -1743,7 +1743,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "Effective Savings Rate": {
+			          "ESR": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -1763,7 +1763,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "ESR": {
+			          "Effective Savings Rate": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -5588,7 +5588,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "Hybrid Benefit status": {
+			          "AHB status": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -5598,7 +5598,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "AHB status": {
+			          "Hybrid Benefit status": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -77075,6 +77075,58 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "Term": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costs.x_skucorecountmeasure": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuCoreCountMeasure"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "vCPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costs.x_skulicensequantitymeasure": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuLicenseQuantityMeasure"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "AHB CPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Hybrid Benefit CPUs": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
