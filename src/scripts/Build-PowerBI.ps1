@@ -49,8 +49,8 @@ $version = & "$PSScriptRoot/Get-Version"
 
 # Cleanup
 Write-Verbose "Removing existing ZIP files..."
-Remove-Item "$relDir/../*.zip" -Force
-Remove-Item "$relDir/*.pbit" -Force
+Remove-Item "$relDir/../*.zip" -Force -ErrorAction SilentlyContinue
+Remove-Item "$relDir/*.pbit" -Force -ErrorAction SilentlyContinue
 
 # Select report types
 $types = @()
@@ -60,7 +60,7 @@ if ($Storage) { $types += "*$Name*.storage.pbip" }
 
 # Get reports
 $reports = Get-ChildItem $srcDir -Recurse -Include $types
-Write-Verbose "Processing $($reports.Count) file(s)..."
+Write-Host "Building $($reports.Count) Power BI report template$(if ($reports.Count -ne 1) { 's' })..."
 
 function Write-UTF16LE($File, $Content, $Json)
 {
@@ -140,7 +140,7 @@ $reports | ForEach-Object {
     & "$PSScriptRoot/New-Directory.ps1" $targetFile
     & "$PSScriptRoot/New-Directory.ps1" "$targetFile/Report"
 
-    # TODO: DataModelSchema
+    # DataModelSchema
     $model = [Microsoft.AnalysisServices.Tabular.TmdlSerializer]::DeserializeDatabaseFromFolder("$datasetDir/definition") # cSpell:ignore TMDL
     $modelJson = [Microsoft.AnalysisServices.Tabular.JsonSerializer]::SerializeDatabase($model) | ConvertFrom-Json -Depth 100 -AsHashtable
     $modelJson.name = [guid]::NewGuid()
@@ -170,8 +170,11 @@ $reports | ForEach-Object {
     Write-UTF16LE -File "$targetFile/DiagramLayout" -Json (Get-Content "$datasetDir/diagramLayout.json" -Raw | ConvertFrom-Json -Depth 100)
     
     # Report/Layout
-    # TODO: Will this work as a JSON file?
-    Write-UTF16LE -File "$targetFile/Report/Layout" -Json (Get-Content "$reportDir/report.json" -Raw | ConvertFrom-Json -Depth 100)
+    $reportJson = Get-Content "$reportDir/Layout.json" -Raw | ConvertFrom-Json -Depth 100
+    (Get-Content "$reportDir/report.json" -Raw) `
+        -replace '\$\$ftkver\$\$', $version `
+        -replace '\$\$build-date\$\$', (Get-Date -Format 'yyyy-MM-dd')
+    Write-UTF16LE -File "$targetFile/Report/Layout" -Json ($reportJson | ConvertFrom-Json -Depth 100)
     
     # Report/StaticResources
     Copy-Item "$reportDir/StaticResources" "$targetFile/Report/StaticResources" -Recurse -Force
@@ -192,8 +195,6 @@ $reports | ForEach-Object {
     }
     
     # Settings
-    # TODO: Where does "ShouldNotifyUserOfNameConflictResolution" come from?
-    # TODO: Where does "QueriesSettings.Version" come from?
     $editorSettings = Get-Content "$datasetDir/.pbi/editorSettings.json" | ConvertFrom-Json
     Write-UTF16LE -File "$targetFile/Settings" -Json @{
         Version         = 4

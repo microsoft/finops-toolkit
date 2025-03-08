@@ -1667,7 +1667,7 @@ table Costs
 				        // Set the tags you want to promote as 'tag_*' columns in this array
 				        PromotedTags = {"Application", "BusinessUnit", "CostCenter", "Department", "Division", "Env", "Owner", "Product", "Project", "Purpose", "Service"},
 				
-				        // This option matches tag keys that may have different case (e.g., 'env' and 'ENV')
+				        // This option matches tag keys that may have different case (for example, 'env' and 'ENV')
 				        // NOTE: This option slows down the query significantly. Disable it if tag queries are failing.
 				        Handle_mixed_case_tags = true,
 				
