@@ -64,6 +64,7 @@ Write-Host "Building $($reports.Count) Power BI report template$(if ($reports.Co
 
 function Write-UTF16LE($File, $Content, $Json)
 {
+    Write-Verbose "  Writing UTF-16LE file: $($File.Name)..."
     if ($Json) { $Content = [PSCustomObject]$Json | ConvertTo-Json -Depth 5 -Compress }
     [System.IO.File]::WriteAllBytes($File, [System.Text.Encoding]::Unicode.GetBytes($Content))
 }
@@ -168,17 +169,16 @@ $reports | ForEach-Object {
 
     # DiagramLayout
     Write-UTF16LE -File "$targetFile/DiagramLayout" -Json (Get-Content "$datasetDir/diagramLayout.json" -Raw | ConvertFrom-Json -Depth 100)
-    
+
     # Report/Layout
-    $reportJson = Get-Content "$reportDir/Layout.json" -Raw | ConvertFrom-Json -Depth 100
-    (Get-Content "$reportDir/report.json" -Raw) `
+    $reportJson = (Get-Content "$reportDir/report.json" -Raw) `
         -replace '\$\$ftkver\$\$', $version `
         -replace '\$\$build-date\$\$', (Get-Date -Format 'yyyy-MM-dd')
     Write-UTF16LE -File "$targetFile/Report/Layout" -Json ($reportJson | ConvertFrom-Json -Depth 100)
-    
+
     # Report/StaticResources
     Copy-Item "$reportDir/StaticResources" "$targetFile/Report/StaticResources" -Recurse -Force
-    
+
     # Metadata
     # TODO: Where does "Version" come from?
     # TODO: Add all intro paragraphs
@@ -193,7 +193,7 @@ $reports | ForEach-Object {
         # TODO: Validate "CreatedFromRelease"
         CreatedFromRelease       = "20$($desktopVersion -replace '^[^\(]+\(([0-9]{2}\.[0-2][0-9])\)[^\)]+$','$1')"
     }
-    
+
     # Settings
     $editorSettings = Get-Content "$datasetDir/.pbi/editorSettings.json" | ConvertFrom-Json
     Write-UTF16LE -File "$targetFile/Settings" -Json @{
@@ -251,7 +251,7 @@ $reports | ForEach-Object {
 }
 
 # Zip files
-Remove-Item "$relDir/../PowerBI-*.zip" -Recurse -Force -ErrorAction SilentlyContinue
-$genAllReports = $Name -eq '*'
-if ($KQL -and $genAllReports) { Compress-Archive -Path "$relDir/*.kql.pbit" -DestinationPath "$relDir/../PowerBI-kql.zip" }
-if ($Storage -and $genAllReports) { Compress-Archive -Path "$relDir/*.storage.pbit" -DestinationPath "$relDir/../PowerBI-storage.zip" }
+# Remove-Item "$relDir/../PowerBI-*.zip" -Recurse -Force -ErrorAction SilentlyContinue
+# $genAllReports = $Name -eq '*'
+# if ($KQL -and $genAllReports) { Compress-Archive -Path "$relDir/*.kql.pbit" -DestinationPath "$relDir/../PowerBI-kql.zip" }
+# if ($Storage -and $genAllReports) { Compress-Archive -Path "$relDir/*.storage.pbit" -DestinationPath "$relDir/../PowerBI-storage.zip" }
