@@ -34,6 +34,14 @@ The following section lists features and enhancements that are currently in deve
 
 _Released March 2025_
 
+### [Power BI reports](power-bi/reports.md) v0.8 Update 1
+
+**[Rate optimization](power-bi/rate-optimization.md)**
+
+- **Fixed**
+  - Fixed core count double-counting on the Hybrid Benefit page.
+  - Fixed savings to include negotiated discounts on the Total savings page.
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
 > [!div class="nextstepaction"]
