@@ -34,6 +34,11 @@ The following section lists features and enhancements that are currently in deve
 
 _Released March 2025_
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
+
+- **Fixed**
+  - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
 > [!div class="nextstepaction"]
