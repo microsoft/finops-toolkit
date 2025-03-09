@@ -112,15 +112,15 @@ a[target='_blank']:hover::after {
       .dark-mode & {
         color: #e0d8ef;
       }
+      &:hover {
+        background-color: #6f4bb266;
+      }
       &:after {
         content: '\02795'; /* Unicode plus (+) */
         color: #777;
         font-size: 0.8125rem;
         float: right;
         margin-left: 5px;
-      }
-      .ftk-accordion:hover {
-        background-color: #6f4bb266;
       }
     }
     &.ftk-active .ftk-accordion {
