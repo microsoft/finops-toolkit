@@ -34,6 +34,13 @@ The following section lists features and enhancements that are currently in deve
 
 _Released March 2025_
 
+### [Power BI reports](power-bi/reports.md) v0.9
+
+- **Changed**
+  - Disabled the **Deprecated: Perform Extra Query Optimizations** parameter by default ([#1380](https://github.com/microsoft/finops-toolkit/issues/1380)).
+    - This parameter will be removed on or after July 1, 2025.
+    - If you rely on this setting, please [create an issue in GitHub](https://aka.ms/ftk/ideas) and let us know what you need.
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
 > [!div class="nextstepaction"]

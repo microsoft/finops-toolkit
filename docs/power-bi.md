@@ -75,16 +75,53 @@ Create a new or update an existing FinOps hub instance.
     <div class="ftk-step">
         <button class="ftk-accordion">1️⃣&nbsp; Pick your data source</button>
         <div>
-            <p>Export data to storage for quick setup with small accounts or deploy FinOps hubs with Data Explorer for high performance analytics and year-over-year reporting.<br></p>
+            <p>
+                The data source you use can make or break the experience. Use the following criteria to select the right data source to meet your needs.
+            </p>
+            <div class="ftk-gallery ftk-50">
+                <div class="ftk-tile">
+                    <div>Total spend</div>
+                    <div>
+                        <p>
+                            To monitor over $100,000 in spend, use <strong>FinOps hubs with Data Explorer</strong>. Storage reports will experience delays when loading data beyond $1-2 million.
+                        </p>
+                    </div>
+                </div>
+                <div class="ftk-tile">
+                    <div>Multiple scopes</div>
+                    <div>
+                        <p>
+                            If you have multiple accounts, subscriptions, or tenants, use <strong>FinOps hubs</strong>. Centralize all your data and push data from secondary tenants for consolidated reporting.
+                        </p>
+                    </div>
+                </div>
+                <div class="ftk-tile">
+                    <div>Azure Gov or China</div>
+                    <div>
+                        <p>
+                            If you need to use Azure Gov or Azure China, use <strong>FinOps hubs 0.1.1</strong>. Newer releases leverage Cost Management features that are not available yet.
+                        </p>
+                    </div>
+                </div>
+                <div class="ftk-tile">
+                    <div>All other cases</div>
+                    <div>
+                        <p>
+                            For all other cases, use storage reports (with or without FinOps hubs). Export FOCUS cost to a storage account you already have or use FinOps hubs to manage exports for you.
+                        </p>
+                    </div>
+                </div>
+            </div>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Help me choose</a>
+                <a class="btn mb-4 mb-md-0 mr-4" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview">About FinOps hubs</a>
             </p>
         </div>
     </div>
     <div class="ftk-step">
         <button class="ftk-accordion">2️⃣&nbsp; Set up your data source</button>
         <div>
-            <p>Export FOCUS data to a storage account or deploy FinOps hubs for added functionality.<br></p>
+            <p>Export FOCUS data to a storage account or deploy FinOps hubs for improved performance and added functionality.<br></p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports/openedBy/FinOpsToolkit.PowerBI.CreateExports">Create exports</a>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose">Deploy FinOps hubs</a>
