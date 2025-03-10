@@ -498,7 +498,7 @@ expression ftk_DemoFilter =
 /// Optional. Experimental feature to join the prices with the cost to populate missing list and contracted unit price and calculate missing cost values. This enables calculating total savings. Allowed values = "TRUE", "FALSE".
 /// 
 /// This experimental feature is extremely slow to run and has not been fully tested. We are investigating alternative means to perform this join.
-expression 'Deprecated: Perform Extra Query Optimizations' = true meta [IsParameterQuery=true, List={false, true}, DefaultValue=true, Type="Logical", IsParameterQueryRequired=false]
+expression 'Deprecated: Perform Extra Query Optimizations' = false meta [IsParameterQuery=true, List={false, true}, DefaultValue=false, Type="Logical", IsParameterQueryRequired=false]
 	lineageTag: f22de62e-d0a2-4f18-be6a-86172ff55b17
 	queryGroup: '🛠️ Setup'
 
