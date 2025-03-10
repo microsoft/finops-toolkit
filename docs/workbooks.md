@@ -19,12 +19,12 @@ Engineering hub to maximize cloud ROI through FinOps.
 
 FinOps workbooks are Azure workbooks that provide a series of tools to help engineers perform targeted FinOps tasks, modeled after the Well-Architected Framework guidance.
 
-<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
-    <p class="mt-2 mb-0">
+<div id="whats-new" class="ftk-new">
+    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <p>
         February introduced Azure Arc Windows license management, enabled CSV exports for idle backups, and tuned VM processor details.
     </p>
-    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 <a name="features"></a>
 
@@ -70,9 +70,9 @@ FinOps workbooks require the <strong>Workbook Contributor</strong> role to deplo
 <a class="btn btn-primary mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json">Deploy to Azure</a>
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json">Deploy to Azure Gov</a>
 
-<div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
-    <h3 class="m-0 mb-4">Estimated cost for FinOps workbooks</h3>
-    <p class="mt-2 mb-0">
+<div id="pricing" class="ftk-pricing">
+    <h3>Estimated cost for FinOps workbooks</h3>
+    <p>
         FinOps workbooks do not incur any cost.
     </p>
 </div>

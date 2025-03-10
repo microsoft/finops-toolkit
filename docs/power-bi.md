@@ -19,12 +19,12 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 
 FinOps toolkit Power BI reports provide a great starting point for FinOps reporting. Customize and augment reports with your own data to facilitate organizational requirements.
 
-<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
-    <p class="mt-2 mb-0">
+<div id="whats-new" class="ftk-new">
+    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <p>
         February introduced a new visual design for Power BI reports, new options to populate missing prices for storage reports, and a complete performance overhaul for KQL reports, plus many small fixes and improvements.
     </p>
-    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 <a name="features"></a>
 
@@ -59,9 +59,9 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
 
 <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip">Try the demo</a>
 
-<div id="pricing" class="m-0 p-4" style="background-color:#efe; border:solid 1px #090;">
-    <h3 class="m-0 mb-4">Estimated cost for FinOps toolkit Power BI reports</h3>
-    <p class="mt-2 mb-0">
+<div id="pricing" class="ftk-pricing">
+    <h3>Estimated cost for FinOps toolkit Power BI reports</h3>
+    <p>
         FinOps toolkit Power BI reports do not incur any cost beyond the required Power BI licenses and underlying data storage costs.
     </p>
 </div>
