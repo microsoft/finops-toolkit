@@ -152,6 +152,10 @@ $reports | ForEach-Object {
         {
             $exp.expression = $exp.expression -replace '^\\"[^\\"]+\\" meta ', 'null meta '
         }
+        if ($exp.name -eq 'ftk_DemoFilter')
+        {
+            $exp.expression = '() => "" // To filter out subscriptions, replace with: "| where subscriptionId in (''<sub1>'', ''<sub2>'')"'
+        }
     }
     $modelJson.model.tables = $modelJson.model.tables | Where-Object { $metadata.Tables -contains $_.name -or $metadata.Tables -contains "[$reportType]$($_.name)" }
     $modelJson.model.relationships = @($modelJson.model.relationships | Where-Object { ($metadata.Tables -contains $_.fromTable -or $metadata.Tables -contains "[$reportType]$($_.fromTable)") -and ($metadata.Tables -contains $_.toTable -or $metadata.Tables -contains "[$reportType]$($_.toTable)") })
@@ -251,7 +255,7 @@ $reports | ForEach-Object {
 }
 
 # Zip files
-# Remove-Item "$relDir/../PowerBI-*.zip" -Recurse -Force -ErrorAction SilentlyContinue
-# $genAllReports = $Name -eq '*'
-# if ($KQL -and $genAllReports) { Compress-Archive -Path "$relDir/*.kql.pbit" -DestinationPath "$relDir/../PowerBI-kql.zip" }
-# if ($Storage -and $genAllReports) { Compress-Archive -Path "$relDir/*.storage.pbit" -DestinationPath "$relDir/../PowerBI-storage.zip" }
+Remove-Item "$relDir/../PowerBI-*.zip" -Recurse -Force -ErrorAction SilentlyContinue
+$genAllReports = $Name -eq '*'
+if ($KQL -and $genAllReports) { Compress-Archive -Path "$relDir/*.kql.pbit" -DestinationPath "$relDir/../PowerBI-kql.zip" }
+if ($Storage -and $genAllReports) { Compress-Archive -Path "$relDir/*.storage.pbit" -DestinationPath "$relDir/../PowerBI-storage.zip" }
