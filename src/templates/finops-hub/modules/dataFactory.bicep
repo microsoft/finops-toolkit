@@ -380,7 +380,7 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     triggerManagerRoleAssignments
   ]
-  tags: tags
+  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
