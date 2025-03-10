@@ -1,0 +1,72 @@
+.ftk-contributors-title {
+    text-align: left;
+    margin-left: 36px;
+    margin-top: 32px;
+    margin-bottom: 12px;
+}
+
+.ftk-background-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: var(--colorNeutralBackground1);
+    background-image: url(finopstoolkitbg.png);
+    background-repeat: repeat;
+    background-size: auto;
+    background-position: top left;
+    border-radius: 12px;
+    padding: 36px;
+    margin: 18px 36px 40px;
+    box-shadow: var(--shadow2);
+    overflow: hidden;
+}
+
+.ftk-left-section {
+    display: flex;
+    flex-direction: column;
+    width: 33%;
+    padding-right: 20px;
+    max-width: 100%;
+    gap: 20px;
+}
+    .ftk-card-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+    }
+.ftk-contributors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 7px;
+    max-width: 66%;
+}
+
+.ftk-contributors-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: var(--colorNeutralBackground1);
+    border-radius: var(--borderRadiusMedium);
+    box-shadow: var(--shadow2);
+    text-align: center;
+    width: 148px;
+    height: 196px;
+    transition: all ease-out 0.1s;
+}
+
+.ftk-contributors-card:hover {
+    background-color: var(--colorNeutralBackground1Hover);
+    border: 2px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(45deg, #992FB6, #38bdf8) border-box;
+    box-shadow: var(--shadow4);
+}
+
+.ftk-contributor-name {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
