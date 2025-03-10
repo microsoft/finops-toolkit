@@ -398,6 +398,16 @@ To add support for another dataset, create a custom mapping file and save it to 
 
 <br>
 
+## The import Storage URL matches no exports
+
+<sup>Severity: Major</sup>
+
+If you are experiencing this in FinOps toolkit 0.8 reports, the error is because of a reference to a parameter that does not exist.
+
+**Mitigation**: This was fixed in FinOps toolkit 0.9. Update to the latest release to apply the fix. If you need to apply the fix directly to the 0.8 reports, edit the **ftk_DemoFilter** function in the advanced editor and change the contents to: `() => ""`. Save, then close and apply all changes.
+
+<br>
+
 ## UnknownExportFile
 
 <sup>Severity: Informational</sup>
