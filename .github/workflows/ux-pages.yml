@@ -36,8 +36,10 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./src/web
-      - name: Build
-        run: npm run build
+      - name: Clean and Build
+        run: |
+          rm -rf ./dist || true
+          npm run build
         working-directory: ./src/web
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -50,4 +52,4 @@ jobs:
           path: './src/web/dist'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
