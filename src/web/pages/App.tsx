@@ -18,7 +18,7 @@ import CostOptimizationWorkbookPage from './CostOptimizationWorkbookPage';
 function App() {
   return (
     <FluentUIProvider>
-      <Router>
+      <Router basename="/finops-toolkit">
         <Routes>
           <Route path="/" element={<SamplePage />} />
           <Route path="/bicep-registry" element={<BicepRegistryModulesPage />} />
