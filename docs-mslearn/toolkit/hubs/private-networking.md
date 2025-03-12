@@ -27,9 +27,7 @@ Public access in FinOps hubs has the following traits:
 - Key Vault is accessible via public IP addresses (firewall set to public).
 - Azure Data Factory is configured to use the public integration runtime.
 
-<!--
 :::image type="content" source="./media/private-networking/finops-hubs-public-network.png" border="false" alt-text="Screenshot of publicly accessible deployments." lightbox="./media/private-networking/finops-hubs-public-network.png" :::
--->
 
 <br>
 
@@ -44,9 +42,7 @@ Private access is a more secure option that places FinOps hubs resources on an i
 - Azure  Data Factory is configured to use the public integration runtime, which helps reduce costs.
 - A virtual network is deployed to ensure communication between all components during deployment and at runtime remains private.
 
-<!--
 :::image type="content" source="./media/private-networking/finops-hubs-private-network.png" border="false" alt-text="Screenshot of privately accessible deployments." lightbox="./media/private-networking/finops-hubs-private-network.png" :::
--->
 
 Note that private networking incurs extra cost for networking resources, connectivity, and dedicated compute in Azure Data Factory. For a detailed cost estimate, please refer to the Azure pricing calculator.
 
@@ -143,9 +139,7 @@ In this example:
 - DNS entries for storage and Data Explorer are added to Azure DNS Resolver to ensure reliable name resolution.
 - A route table is attached to the network gateway subnet to ensure traffic from on-premises can route to the peered vNet.
 
-<!--
 :::image type="content" source="./media/private-networking/finops-hubs-network-peering.png" border="false" alt-text="Screenshot of network peering configuration." lightbox="./media/private-networking/finops-hubs-network-peering.png" :::
--->
 
 This network topology follows the Hub-Spoke network architecture guidance outlined in the [Cloud Adoption Framework](/azure/cloud-adoption-framework/ready/azure-best-practices/hub-spoke-network-topology) for Azure and the [Azure Architecture Center](/azure/architecture/networking/architecture/hub-spoke).
 
