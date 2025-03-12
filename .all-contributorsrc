@@ -657,6 +657,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "nsftwr",
+      "name": "Rudolfs Naumenko",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14138020?v=4",
+      "profile": "https://github.com/nsftwr",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",

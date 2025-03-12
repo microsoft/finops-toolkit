@@ -24,7 +24,7 @@ Use the following query to update the data:
 
 <!-- TODO: Merge with existing units -->
 
-```kql
+```kusto
 let unabbrev = (regex: string, uom: string) { tolong(replace_string(replace_string(replace_string(replace_string(extract(regex, 1, uom), 'K', '000'), 'M', '000000'), 'B', '000000000'), 'T', '000000000000')) };
 Meters
 | where Provider != 'AWS'
@@ -111,7 +111,7 @@ The [Regions.csv](./Regions.csv) file contains the list of all unique `ResourceL
 
 Use the following query to update the data:
 
-```kql
+```kusto
 let oldValues = externaldata(OriginalValue:string, RegionId:string, RegionName:string) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Regions.csv"] with (format="csv", ignoreFirstRecord=true);
 let newValues = union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table> | where ResourceType != 'Microsoft.Security/securityConnectors' | distinct ResourceLocation, ResourceLocationNormalized;
 newValues | project OriginalValue = tolower(ResourceLocation)
@@ -175,7 +175,7 @@ The [Services.csv](./Services.csv) file contains the list of all unique `Consume
 
 Use the following query to update the data:
 
-```kql
+```kusto
 let oldValues = externaldata(ConsumedService:string, ResourceType:string, ServiceName:string, ServiceCategory:string, PublisherName:string, PublisherType:string, Environment:string, ServiceModel:string) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Services.csv"] with (format="csv", ignoreFirstRecord=true);
 union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table>
 | where UsageDateDt > ago(120d)
@@ -196,6 +196,6 @@ The **ServiceModel** column is manually applied using the following logic:
 - Select the service model that best describes the level of effort required to maintain the service.
 - If multiple service models apply, select the one with the highest requirements.
 - Supporting services, like Defender for Cloud, are aligned to the service model of the service they are in support of.
-- Use the service model declared by the service owner (e.g., Microsoft), if documented on their website.
+- Use the service model declared by the service owner (for example, Microsoft), if documented on their website.
 
 <br>
