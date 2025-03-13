@@ -1,9 +1,9 @@
 
-# FinOps Alert
+# FinOps Alerts
 
-**FinOps Alert** is an automated detection mechanism powered by [Azure Logic Apps](https://docs.microsoft.com/azure/logic-apps/logic-apps-overview). The logic app will run on a configurable schedule to monitor selected subscriptions for a set of idle resources and send notifications once it finds any of those resources to alert admins to investigate and take action.
+**FinOps Alerts** is an automated detection mechanism powered by [Azure Logic Apps](https://docs.microsoft.com/azure/logic-apps/logic-apps-overview). The logic app will run on a configurable schedule to monitor selected subscriptions for a set of idle resources and send notifications once it finds any of those resources to alert admins to investigate and take action.
 
-Use the following steps to deploy FinOps Alert
+Use the following steps to deploy FinOps Alerts
 
 1. Create a new **Deployment**
     > [!IMPORTANT]
@@ -20,11 +20,11 @@ Use the following steps to deploy FinOps Alert
     ![Edit API connection page](images/Edit-API-connection.png)
 
    * Select **Authorize**
-
-    <br>
   
+    <br>
+
     > [!IMPORTANT]
-    > The account authorizing the connection will be used by the Logic app to send the Alerts
+    > The account authorizing the connection will be used by the Logic app to send the alerts
 
    * Select **Save** after the authorization is successful
 
@@ -37,7 +37,7 @@ Use the following steps to deploy FinOps Alert
    * Select the **Logic app**
    * Select **Identity** under the Settings tab and select **Azure role assignments**
 
-    ![Identity configuration page](images/System-assigned-identity.png)
+    ![Identity configuration page](images/SYstem-assigned-identity.png)
 
    * Go to **Azure role assignments** within the *system assigned* blade
    * Select **Add role assignment** and assign the following permissions then select **Save**
@@ -54,11 +54,11 @@ Use the following steps to deploy FinOps Alert
 
 4. Configure the Logic App
 
-   * Navigate to **FinOpsAlert** and select **Logic app designer** under the Development Tools tab
+   * Navigate to **FinOps Alerts** and select **Logic app designer** under the Development Tools tab
    * Configure the **Reoccurrence** - Default value: 1 week
    * Set the **email subject and alert recipient**
    * Set the subscription IDs within **Initialize subscriptions** in scope
-     * If you have any subscription you would like to filter the query with configure **Included subscriptions** variable with the subscriptionIDs.
+     * If you have any subscription you would like to filter the queries with configure **Included subscriptions** variable with the subscriptionIDs.
      * If you have any subscription you would like to exclude querying against configure **Excluded subscriptions** variable with the subscriptionIDs.
 
       ![Logic app designer configuration page](images/Logic-app-designer.png)
