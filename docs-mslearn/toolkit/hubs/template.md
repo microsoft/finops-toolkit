@@ -48,13 +48,20 @@ Ensure the following prerequisites are met before you deploy the template:
    | Create an MCA billing cost export²                   | [Contributor](/azure/cost-management-billing/manage/understand-mca-roles)                                                                                                                                                                                                                                                    |
    | Read blob data in storage³                           | [Storage Blob Data Contributor](/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                                                                                                                                                                                                               |
 
-   <!--
-   | Optional: Deploy temporary Event Grid namespace                 | [Event Grid Contributor](/azure/role-based-access-control/built-in-roles#event-grid-contributor)                                                                                                                                                                                                                             |
-   -->
-
    _¹ It's sufficient to assign hubs resources deployment permissions on the resource group scope._<br/>
    _² Cost Management permissions must be assigned on the scope where you want to export your costs from._<br/>
    _³ Blob data permissions are required to access exported cost data from Power BI or other client tools._<br/>
+
+- You must have permissions to assign the following roles to managed identities as part of the deployment:
+
+   | Azure RBAC role                                                                                                                              | Notes                                                                                       |
+   | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+   | [Data Factory Contributor](/azure/role-based-access-control/built-in-roles#data-factory-contributor)                                         | Assigned to the deployment trigger manager identity to auto-start Data Factory triggers.    |
+   | [Reader](/azure/role-based-access-control/built-in-roles#reader)                                                                             | Assigned to Data Factory to manage data in storage.                                         |
+   | [Storage Account Contributor](/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                   | Assigned to Data Factory to manage data in storage.                                         |
+   | [Storage Blob Data Contributor](/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                               | Assigned to Data Factory and Data Explorer to manage data in storage.                       |
+   | [Storage File Data Privileged Contributor](/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor) | Assigned to the deployment file upload identity that uploads files to the config container. |
+   | [User Access Administrator](/azure/role-based-access-control/built-in-roles#user-access-administrator)                                       | Assigned to Data Factory to manage data in storage.                                         |
 
 - The Microsoft.EventGrid resource provider must be registered in your subscription. For more information, see [Register a resource provider](/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider).
 

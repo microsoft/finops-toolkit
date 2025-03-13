@@ -187,9 +187,12 @@ If you enable Azure Data Explorer, you need to reingest historical data to add i
 
 To upgrade FinOps hubs 0.7 to 0.8:
 
-1. Redeploy the template.
-2. Update Power BI reports.
-3. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
+1. Delete endpoints
+2. Delete DNS zones
+3. Delete virtual network
+4. Redeploy the template.
+5. Update Power BI reports.
+6. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
    - The `ResourceType` property in `parse_resourceid(ResourceId)` is deprecated in 0.8 and will be removed in 0.9 or later.
 
 > [!div class="nextstepaction"]
