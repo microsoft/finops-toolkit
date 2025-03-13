@@ -13,42 +13,9 @@ url: https://microsoft.github.io # Base hostname and protocol
 aux_links:
   FinOps toolkit on GitHub: https://github.com/microsoft/finops-toolkit
 
-# Groups of pages in the left nav
-collections:
-  docs:
-    permalink: /:collection/:path/
-    output: true
-  reporting:
-    permalink: /:collection/:path/
-    output: true
-  optimize:
-    permalink: /:collection/:path/
-    output: true
-  automation:
-    permalink: /:collection/:path/
-    output: true
-  resources:
-    permalink: /:collection/:path/
-    output: true
-
-just_the_docs:
-  collections:
-    docs:
-      name: Implementing FinOps
-    reporting:
-      name: Reporting + analytics
-    optimize:
-      name: Optimization + governance
-    automation:
-      name: Automation + extensibility
-    resources:
-      name: Help + support
-      nav_fold: true # collapse by default
-
 # Enable relative links for collections -- https://github.com/benbalter/jekyll-relative-links
 relative_links:
   enabled: true
-  collections: true
 
 # Footer
 # footer_content: ''
@@ -84,6 +51,7 @@ highlighter: rouge
 rouge:
   languages:
     - bicep
+    - kusto
     - powershell
 
 # Mermaid versions @ https://cdn.jsdelivr.net/npm/mermaid

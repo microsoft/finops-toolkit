@@ -54,7 +54,7 @@ Current board members:
       <td align="center" valign="top" width="150"><a href="https://github.com/maggar"><img src="https://avatars.githubusercontent.com/u/55561955?v=4?s=100" width="100px;" alt="Mark Aggar"/><br /><b>Mark Aggar</b></a><br /><sup>Internal customer</sup></td>
     </tr>
   </tbody>
-</table>
+</div>
 
 To learn more, see [[Governing board]].
 
@@ -77,7 +77,7 @@ Current advisory council members:
       <td align="center" valign="top" width="209"><img src="https://github.com/microsoft/finops-toolkit/assets/399533/164afda4-1960-499d-a621-afdf6f868903" width="100px;" alt="Fernando Vasconcellos"/><br /><b>Fernando Vasconcellos</b></a><br /><sup>Learning resources</sup></td>
     </tr>
   </tbody>
-</table>
+</div>
 
 To learn more, see [[Advisory council]].
 
