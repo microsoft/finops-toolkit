@@ -50,6 +50,29 @@ FinOps hubs 0.2 isn't operational. Upgrade to version 0.3 or later.
 
 <br>
 
+## ConflictError
+
+<sup>Severity: Critical</sup>
+
+There may be multiple instances of this error. The one known instance is when Key Vault returns the following error:
+
+> _A vault with the same name already exists in deleted state. You need to either recover or purge existing key vault. Follow this link https://go.microsoft.com/fwlink/?linkid=2149745 for more information on soft delete._
+
+This generally means you're deploying on top of an old deployment that was deleted, but Key Vault kept the old vault instance in a recoverable delete state.
+
+**Mitigation**: To fix this, purge the deleted Key Vault in the Azure portal.
+
+1. Open the [list of Key Vault instances](https://portal.azure.com/#browse/Microsoft.KeyVault%2Fvaults) in the Azure portal.
+2. Select the **Manage deleted vaults** command at the top of the page.
+3. Select the subscription in the dropdown.
+4. Check the vaults to be removed.
+5. Select **Purge** at the bottom of the flyout.
+6. Select **Delete** in the confirmation dialog.
+
+You can now retry the deployment.
+
+<br>
+
 ## DataExplorerIngestionFailed
 
 <sup>Severity: Critical</sup>
