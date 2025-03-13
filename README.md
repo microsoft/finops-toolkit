@@ -117,6 +117,7 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="16.66%"><a href="https://ivanmota.dev/"><img src="https://avatars.githubusercontent.com/u/39202628?v=4?s=100" width="100px;" alt="Ivan Mota"/><br /><sub><b>Ivan Mota</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=Ivanmtta" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/nsftwr"><img src="https://avatars.githubusercontent.com/u/14138020?v=4?s=100" width="100px;" alt="Rudolfs Naumenko"/><br /><sub><b>Rudolfs Naumenko</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=nsftwr" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/philipstreet"><img src="https://avatars.githubusercontent.com/u/10855315?v=4?s=100" width="100px;" alt="Philip Street"/><br /><sub><b>Philip Street</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aphilipstreet" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/japyjaap"><img src="https://avatars.githubusercontent.com/u/6353034?v=4?s=100" width="100px;" alt="JSwinkels"/><br /><sub><b>JSwinkels</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ajapyjaap" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
