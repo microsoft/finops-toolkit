@@ -123,7 +123,7 @@
     {
       "code": "MissingProviderName",
       "severity": "Informational",
-      "message": "This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (e.g., Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.",
+      "message": "This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (for example, Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.",
       "mitigation": "As a workaround to the missing data, FinOps toolkit reports attempt to identify the provider based on the available columns."
     },
     {
@@ -136,7 +136,7 @@
       "code": "SchemaLoadFailed",
       "severity": "Critical",
       "message": "FinOps hub msexports_ETL_ingestion pipeline failed to load the schema file.",
-      "mitigation": "Review the error message to note the dataset type and version, which are formatted with an underscore (e.g., '<type>_<version>' or 'FocusCost_1.0'). Confirm that the dataset and type are both supported by the deployed version of FinOps hubs."
+      "mitigation": "Review the error message to note the dataset type and version, which are formatted with an underscore (for example, '<type>_<version>' or 'FocusCost_1.0'). Confirm that the dataset and type are both supported by the deployed version of FinOps hubs."
     },
     {
       "code": "SchemaNotFound",

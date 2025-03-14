@@ -7,7 +7,7 @@
 //
 // Data ingestion workflow:
 // - All data is ingested into tables named "*_raw". These tables have a union schema to support multiple sources and versions.
-// - All data is transformed to the latest FOCUS schema using an update policy into a table named after the version (e.g., "1.0" = "_v1_0").
+// - All data is transformed to the latest FOCUS schema using an update policy into a table named after the version (for example, "1.0" = "_v1_0").
 // - Data ingestion from previous version of hubs will remain in the versioned tables.
 // - Data is read from versioned functions in the Hub database. See HubSetup.kql for details.
 //
@@ -893,7 +893,7 @@ Costs_transform_v1_0()
     | extend ResourceType = case(
         // Use existing resource type display name unless it's an internal resource type ID
         isnotempty(ResourceType) and tolower(ResourceType) != tolower(x_ResourceType) and ResourceType !contains '/', ResourceType,
-        // Use CommitmentDisocuntType for commitment discount purchases
+        // Use CommitmentDiscountType for commitment discount purchases
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
         // Look up display name from internal type
         isnotempty(x_ResourceType), coalesce(resource_type(x_ResourceType).SingularDisplayName, ResourceType, x_ResourceType),
