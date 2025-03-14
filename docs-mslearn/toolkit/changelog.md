@@ -66,6 +66,13 @@ _Released March 2025_
     - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
   - Removed the trusted external tenants setting due to an error causing redeployments to fail. Please enable this after deploying FinOps hubs the first time.
 
+### [Open data](open-data.md) v0.8
+
+**[Dataset examples](open-data.md#dataset-examples)**
+
+- **Added**
+  - Added sample data for MCA reservation exports.
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
 > [!div class="nextstepaction"]
