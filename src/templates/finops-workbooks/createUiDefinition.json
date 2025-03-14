@@ -19,7 +19,7 @@
         "type": "Microsoft.Common.TextBox",
         "label": "Name prefix",
         "defaultValue": "FinOps",
-        "toolTip": "Prefix to use for each of the workbook names (e.g., 'FinOps-Optimization', 'FinOps-Governance').",
+        "toolTip": "Prefix to use for each of the workbook names (for example, 'FinOps-Optimization', 'FinOps-Governance').",
         "constraints": {
           "required": true,
           "regex": "^.{1,220}$",

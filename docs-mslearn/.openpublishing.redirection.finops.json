@@ -1,0 +1,144 @@
+{
+  "redirections": [
+    {
+      "source_path_from_root": "/finops/finops/capabilities-allocation.md",
+      "redirect_url": "/cloud-computing/finops/framework/understand/allocation",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-analysis-showback.md",
+      "redirect_url": "/cloud-computing/finops/framework/understand/reporting",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-anomalies.md",
+      "redirect_url": "/cloud-computing/finops/framework/understand/anomalies",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-budgets.md",
+      "redirect_url": "/cloud-computing/finops/framework/quantify/budgeting",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-chargeback.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/invoicing-chargeback",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-commitment-discounts.md",
+      "redirect_url": "/cloud-computing/finops/framework/optimize/commitment-discounts",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/framework/optimize/commitment-discounts.md",
+      "redirect_url": "/cloud-computing/finops/framework/optimize/rates",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-culture.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/culture",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-education.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/education",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-efficiency.md",
+      "redirect_url": "/cloud-computing/finops/framework/optimize/workloads",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/framework/optimize/utilization-efficiency.md",
+      "redirect_url": "/cloud-computing/finops/framework/optimize/workloads",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-forecasting.md",
+      "redirect_url": "/cloud-computing/finops/framework/quantify/forecasting",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-frameworks.md",
+      "redirect_url": "/cloud-computing/finops/framework/finops-framework",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-ingestion-normalization.md",
+      "redirect_url": "/cloud-computing/finops/framework/understand/ingestion",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-onboarding.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/onboarding",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-policy.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/governance",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/framework/manage/policy.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/governance",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/framework/understand/shared-cost.md",
+      "redirect_url": "/cloud-computing/finops/framework/understand/allocation",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-shared-cost.md",
+      "redirect_url": "/cloud-computing/finops/framework/understand/allocation",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-structure.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/operations",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/framework/manage/structure.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/operations",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-unit-costs.md",
+      "redirect_url": "/cloud-computing/finops/framework/quantify/unit-economics",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/capabilities-workloads.md",
+      "redirect_url": "/cloud-computing/finops/framework/optimize/workloads",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/conduct-finops-iteration.md",
+      "redirect_url": "/cloud-computing/finops/conduct-iteration",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/cost-optimization-workbook.md",
+      "redirect_url": "/cloud-computing/finops/toolkit/workbooks/customize-workbooks",
+      "redirect_document_id": true
+    },
+    {
+      "source_path_from_root": "/finops/finops/toolkit/optimization-workbook/cost-optimization-workbook.md",
+      "redirect_url": "/cloud-computing/finops/toolkit/workbooks/customize-workbooks",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/framework/manage/culture.md",
+      "redirect_url": "/cloud-computing/finops/framework/manage/education",
+      "redirect_document_id": false
+    },
+    {
+      "source_path_from_root": "/finops/finops/overview-finops.md",
+      "redirect_url": "/cloud-computing/finops/overview",
+      "redirect_document_id": true
+    }
+  ]
+}
