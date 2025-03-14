@@ -58,6 +58,13 @@ _Released March 2025_
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
     - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
 
+### [Open data](open-data.md) v0.8
+
+**[Dataset examples](open-data.md#dataset-examples)**
+
+- **Added**
+  - Added sample data for MCA reservation exports.
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
 > [!div class="nextstepaction"]
