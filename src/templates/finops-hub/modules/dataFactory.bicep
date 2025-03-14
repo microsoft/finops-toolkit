@@ -115,7 +115,6 @@ var allHubTriggers = [
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
   '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
-  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
 // Roles for ADF to manage data in storage

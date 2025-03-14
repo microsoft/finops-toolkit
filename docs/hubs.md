@@ -126,7 +126,7 @@ Create a new or update an existing FinOps hub instance.
             </p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
-                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">About the template</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">About the template</a>
             </p>
         </div>
     </div>
