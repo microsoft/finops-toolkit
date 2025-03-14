@@ -12,7 +12,7 @@
     Optional. The distinct unit for the pricing unit without block pricing. Accepts wildcards. Default = * (all).
 
     .PARAMETER BlockSize
-    Optional. The number of units for block pricing (e.g., 100 for "100 Hours"). Default = null (all).
+    Optional. The number of units for block pricing (for example, 100 for "100 Hours"). Default = null (all).
 
     .DESCRIPTION
     The Get-FinOpsPricingUnit command returns a pricing unit (aka unit of measure) with the singular, distinct unit based on applicable block pricing rules, and the pricing block size.
