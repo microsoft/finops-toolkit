@@ -1238,7 +1238,7 @@ var runbooks = [
 var automationVariables = [
   {
     name: 'AzureOptimization_CloudEnvironment'
-    description: 'Azure Cloud environment (e.g., AzureCloud, AzureChinaCloud, etc.)'
+    description: 'Azure Cloud environment (for example, AzureCloud, AzureChinaCloud, etc.)'
     value: '"${cloudEnvironment}"'
   }
   {

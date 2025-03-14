@@ -172,7 +172,7 @@
       "visualType": "markdownCard",
       "pageId": "969ddf4c-8f2a-4ec4-9588-bb2f39473c9f",
       "layout": { "x": 0, "y": 0, "width": 18, "height": 6 },
-      "markdownText": "# FinOps hubs 0.8 (January 2025)\nThe FinOps hub dashboard provides several summaries of your cost and usage in aligment with the [FinOps Framework](https://aka.ms/ftk/fx/capabilities). All data formatted based on the [FinOps Open Cost and Usage Specification (FOCUS)](https://aka.ms/finops/focus).\n\nMost of this dashboard is designed to work with effective (amortized) cost rather than billed (actual) cost. Amortization breaks down reservation and savings plan purchases and allocates costs to the resources that received the benefit to facilitate chargeback reporting. Effective costs will not match your invoice. For invoice reconciliation, refer to the **Invoicing** page.\n\n[Learn more](https://aka.ms/finops/hubs)\n",
+      "markdownText": "# FinOps hubs $$ftkver$$ ($$build-month$$)\nThe FinOps hub dashboard provides several summaries of your cost and usage in aligment with the [FinOps Framework](https://aka.ms/ftk/fx/capabilities). All data formatted based on the [FinOps Open Cost and Usage Specification (FOCUS)](https://aka.ms/finops/focus).\n\nMost of this dashboard is designed to work with effective (amortized) cost rather than billed (actual) cost. Amortization breaks down reservation and savings plan purchases and allocates costs to the resources that received the benefit to facilitate chargeback reporting. Effective costs will not match your invoice. For invoice reconciliation, refer to the **Invoicing** page.\n\n[Learn more](https://aka.ms/finops/hubs)\n",
       "visualOptions": {}
     },
     {

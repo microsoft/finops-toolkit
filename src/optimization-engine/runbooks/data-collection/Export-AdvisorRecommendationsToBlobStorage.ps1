@@ -186,7 +186,7 @@ foreach ($advisorRecommendation in $recommendationsARG)
     }
     else
     {
-        # otherwise it is not a resource-specific recommendation (e.g., reservations)
+        # otherwise it is not a resource-specific recommendation (for example, reservations)
         $resourceGroup = "notavailable"
         $instanceId = $advisorRecommendation.id.ToLower()
         $subscriptionId = $resourceIdParts[2]

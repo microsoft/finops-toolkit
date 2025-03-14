@@ -4,7 +4,6 @@
 **Getting started**
 
 - [[About the FinOps toolkit|About]]
-- [[Roadmap]]
 
 **Contributing**
 

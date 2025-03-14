@@ -63,7 +63,7 @@ Templates follow the [Azure Quickstart Templates guidelines](https://github.com/
      - [CreateUiDef docs](https://learn.microsoft.com/azure/azure-resource-manager/managed-applications/create-uidefinition-overview)
      - [Test in portal](https://portal.azure.com/?feature.customPortal=false&#blade/Microsoft_Azure_CreateUIDef/SandboxBlade)
    - Optional: `.buildignore`
-     - Add the relative path to any files you want to exclude (e.g., README files for dev docs, test folders).
+     - Add the relative path to any files you want to exclude (for example, README files for dev docs, test folders).
 
 4. Submit a PR to Azure Quickstart Templates repo.
 

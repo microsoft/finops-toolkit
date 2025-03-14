@@ -42,7 +42,7 @@ FinOps hubs include:
 - Data Factory for data processing and orchestration.
 - Key Vault for storing secrets.
 
-To learn more about FinOps hubs, the roadmap, or how to contribute , see [FinOps hubs documentation](https://aka.ms/finops/hubs).
+To learn more about FinOps hubs, the roadmap, or how to contribute , see [FinOps hubs documentation](https://aka.ms/finops/hubs/docs).
 
 <br>
 

@@ -55,7 +55,7 @@ Once the above requirements have been met, the feature branch can be merged into
 
    > _Bicep modules are published to the Bicep Registry, PowerShell in the PowerShell Gallery, and everything else in the Azure Quickstart Templates. Note that PowerShell is published separately and not included here._
 
-   1. Update your fork and local clone of the target repo (e.g., Bicep Registry or Azure Quickstart Templates).
+   1. Update your fork and local clone of the target repo (for example, Bicep Registry or Azure Quickstart Templates).
       > _Make sure you're in the main/master branch of the target repo when publishing a new template. If in another folder, the script will assume you're updating that branch and not create a new one._
    2. Copy template files to the target repo and start a PR:
 
@@ -102,7 +102,7 @@ Once the above requirements have been met, the feature branch can be merged into
       2. If you already have one, update it to the latest.
       3. Enable GitHub pages in your fork to use the `dev` branch `docs` folder.
       4. Verify the `pages build and deployment` action completes successfully.
-      5. Open a dead link checker (e.g., [deadlinkchecker.com](https://www.deadlinkchecker.com/website-dead-link-checker.asp)) and check `https://{your-username}.github.io/finops-toolkit`.
+      5. Open a dead link checker (for example, [deadlinkchecker.com](https://www.deadlinkchecker.com/website-dead-link-checker.asp)) and check `https://{your-username}.github.io/finops-toolkit`.
          - Ignore **link/href** errors for new pages that have not been released in the official `main` branch.
          - Ignore any **Download** errors for the new release or any new files that haven't been released in the official `main` branch.
          - Ignore the **Full changelog** error for the new release, which hasn't been released in the official `main` branch.
@@ -146,7 +146,7 @@ Once the above requirements have been met, the feature branch can be merged into
       7. Summarize changes from the changelog in the **New in** and **Updated** sections.
          - Simplify to only include one line per tool.
          - Each tool should be linked to its doc page.
-         - Don't link features to their respective pages (e.g., PowerShell commands).
+         - Don't link features to their respective pages (for example, PowerShell commands).
          - Don't list every small change. Use "various bug fixes and improvements" to keep it simple.
       8. If the Azure Quickstart Templates repo is not updated, add a note. Otherwise, comment the note out for use in the next release.
          > 💡 _Don't forget to comment this out after the AQT repo is updated!_
@@ -173,8 +173,6 @@ Once the above requirements have been met, the feature branch can be merged into
 
 <br>
 
-I hope this helps you understand the different pricing models. 😊
-
 ## 📜 Changelog guidance
 
 Our changelog is written for our customers, not developers. It should be easy to read and understand and should not include any technical details. It should be written in a way that a customer can read it and understand what's new in the release without requiring any additional context or internal details about how solutions were designed or built.
@@ -185,13 +183,13 @@ We follow a simplified version of [Keep a Changelog](https://keepachangelog.com/
 - Unreleased features are in an "Unreleased" section, which is at the top of the changelog.
   - This is typically only available in `dev` and is generally not released to the public documentation.
   - Before we release, we rename "Unreleased" to the desired version number.
-- Each version should be in its own section, formatted as `vX.X` (e.g., `v0.1`) and prepended with an emoji to indicate the type of release:
-  - 🚀 for major releases (e.g., 2.0).
-  - 🚚 for minor releases (e.g., 1.1).
-  - 🛠️ for patch releases (e.g., 1.0.1).
-  - 🪛 for update releases (e.g., 1.0.0-preview.2).
+- Each version should be in its own section, formatted as `vX.X` (for example, `v0.1`) and prepended with an emoji to indicate the type of release:
+  - 🚀 for major releases (for example, 2.0).
+  - 🚚 for minor releases (for example, 1.1).
+  - 🛠️ for patch releases (for example, 1.0.1).
+  - 🪛 for update releases (for example, 1.0.0-preview.2).
 - Group changes by tool and type of change.
-  - Each tool has its own section with its corresponding emoji and bolded text (e.g., `🏦 **FinOps hubs**`).
+  - Each tool has its own section with its corresponding emoji and bolded text (for example, `🏦 **FinOps hubs**`).
   - Types of changes are in a numbered list with their emoji and text in the following order:
     - `➕ Added` for new features.
     - `✏️ Changed` for changes in existing functionality.

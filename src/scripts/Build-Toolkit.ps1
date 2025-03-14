@@ -136,6 +136,17 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
         Build-MainBicep $destDir
     }
 
+    # Update placeholder variables
+    # TODO: Genericize this so it can be used for any files
+    if (Test-Path "$srcDir/dashboard.json")
+    {
+        (Get-Content "$destDir/dashboard.json" -Raw) `
+            -replace '\$\$ftkver\$\$', $ver `
+            -replace '\$\$build-date\$\$', (Get-Date -Format 'yyyy-MM-dd') `
+            -replace '\$\$build-month\$\$', (Get-Date -Format 'MMMM yyyy') `
+        | Out-File "$destDir/dashboard.json" -Encoding utf8 -Force
+    }
+
     # Update version in ftkver.txt files
     Get-ChildItem $destDir -Include ftkver.txt -Recurse | ForEach-Object { $ver | Out-File $_ -NoNewline }
 
