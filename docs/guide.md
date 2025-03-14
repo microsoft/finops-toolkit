@@ -80,7 +80,7 @@ Now it's time to learn the tools and services you need to be successful.
     <div class="ftk-tile">
         <div>📑 FOCUS</div>
         <div>Accelerate your efforts with data designed for FinOps.</div>
-        <a target="_blank" href="https://learn.microsoft.com/training/modules/adopt-finops-on-azure">Start the module</a>
+        <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/focus/what-is-focus">Read the doc</a>
     </div>
     <div class="ftk-tile">
         <div>▶️ Interactive guides</div>
