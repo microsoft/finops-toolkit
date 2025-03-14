@@ -34,6 +34,11 @@ The following section lists features and enhancements that are currently in deve
 
 _Released March 2025_
 
+### [Power BI reports](power-bi/reports.md) v0.9
+
+- **Added**
+  - Added support for promoted tags with spaces in the tag key.
+
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
 
 - **Fixed**
