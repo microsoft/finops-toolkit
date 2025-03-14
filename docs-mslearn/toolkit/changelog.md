@@ -34,10 +34,36 @@ The following section lists features and enhancements that are currently in deve
 
 _Released March 2025_
 
+
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
 
 - **Fixed**
   - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
+
+### [Power BI reports](power-bi/reports.md) v0.8 Update 1
+
+**General**
+
+- **Fixed**
+  - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
+
+**[Rate optimization](power-bi/rate-optimization.md)**
+
+- **Fixed**
+  - Fixed core count double-counting on the Hybrid Benefit page.
+  - Fixed savings to include negotiated discounts on the Total savings page.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
+
+- **Added**
+  - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+- **Fixed**
+  - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
+- **Removed**
+  - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
+    - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
+    - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
+
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
@@ -88,7 +114,7 @@ _Released February 12, 2025_
   - Updated storage reports to match the updated visuals from the KQL reports.
   - Expanded the columns in the commitment discount purchases page and updated to show recurring purchases separately.
 - **Fixed**
-  - Fixed date handling bug that resulted in a "We cannot apply operator >= to types List and Number" error ([#1180](https://github.com/microsoft/finops-toolkit/issues/1180))
+  - Fixed date handling bug that resulted in a "We cannot apply operator >= to types List and Number" error ([#1180](https://github.com/microsoft/finops-toolkit/issues/1180)).
     - Date parsing now uses the report locale. If you run into issues, set the report locale explicitly to the desired format.
 - **Deprecated**
   - Cosmetic and informational transforms will be disabled by default in 0.9 and removed on or after July 1, 2025 to improve Power BI performance. If you rely on any of these changes, please let us know by [creating an issue in GitHub](https://aka.ms/ftk/ideas) to request an exemption. This includes:
@@ -127,7 +153,7 @@ _Released February 12, 2025_
   - Fixed an issue where `x_ResourceType` is using the wrong value.
     - This fix resolves the issue for all newly ingested data.
     - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
-  - Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250))
+  - Added missing request body to fix the false positive `config_RunExportJobs` pipeline validation errors in Data Factory ([#1250](https://github.com/microsoft/finops-toolkit/issues/1250)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v0.8
 
@@ -142,7 +168,7 @@ _Released February 12, 2025_
 ### [Optimization engine](optimization-engine/overview.md) v0.8
 
 - **Added**
-  - Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036))
+  - Improved multi-tenancy support with Azure Lighthouse guidance ([#1036](https://github.com/microsoft/finops-toolkit/issues/1036)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v0.8
 
@@ -359,8 +385,8 @@ _**Breaking change**_
 ### [Optimization engine](optimization-engine/overview.md) v0.7
 
 - **Fixed**
-  - Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
-  - Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
+  - Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998)).
+  - Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026)).
 
 ### [Open data](open-data.md) v0.7
 
@@ -665,7 +691,7 @@ _Released September 1, 2024_
   - Improved SQL Database security, replacing SQL authentication by Microsoft Entra ID authentication-only.
 - **Fixed**
   - `Premium SSD disk has been underutilized` recommendation wasn't showing results due to a meter name change in Cost Management ([#831](https://github.com/microsoft/finops-toolkit/issues/831)).
-  - Consumption exports for pay-as-you-go MCA subscriptions were missing cost data ([#828](https://github.com/microsoft/finops-toolkit/issues/828))
+  - Consumption exports for pay-as-you-go MCA subscriptions were missing cost data ([#828](https://github.com/microsoft/finops-toolkit/issues/828)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v0.5
 

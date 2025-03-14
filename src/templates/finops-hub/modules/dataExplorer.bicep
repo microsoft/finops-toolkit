@@ -354,7 +354,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
 }
 
-//  Authorize Kusto Cluster to read storage
+// Authorize Kusto Cluster to read storage
 resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(cluster.name, subscription().id, 'Storage Blob Data Contributor')
   scope: storage
