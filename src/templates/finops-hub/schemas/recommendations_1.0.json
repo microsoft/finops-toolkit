@@ -1,0 +1,145 @@
+{
+    "additionalColumns": [],
+    "translator": {
+        "type": "TabularTranslator",
+        "mappings": [
+            {
+                "source": {
+                    "path": "[['ResourceId']"
+                },
+                "sink": {
+                    "path": "ResourceId"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['ResourceName']"
+                },
+                "sink": {
+                    "path": "ResourceName"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['SubAccountId']"
+                },
+                "sink": {
+                    "path": "SubAccountId"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['SubAccountName']"
+                },
+                "sink": {
+                    "path": "SubAccountName"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationCategory']"
+                },
+                "sink": {
+                    "path": "x_RecommendationCategory"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationControl']"
+                },
+                "sink": {
+                    "path": "x_RecommendationControl"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationDate']"
+                },
+                "sink": {
+                    "path": "x_RecommendationDate"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationDescription']"
+                },
+                "sink": {
+                    "path": "x_RecommendationDescription"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationDetails']"
+                },
+                "sink": {
+                    "path": "x_RecommendationDetails"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationId']"
+                },
+                "sink": {
+                    "path": "x_RecommendationId"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationImpact']"
+                },
+                "sink": {
+                    "path": "x_RecommendationImpact"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationMaturityLevel']"
+                },
+                "sink": {
+                    "path": "x_RecommendationMaturityLevel"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationProvider']"
+                },
+                "sink": {
+                    "path": "x_RecommendationProvider"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationSolution']"
+                },
+                "sink": {
+                    "path": "x_RecommendationSolution"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_RecommendationTypeId']"
+                },
+                "sink": {
+                    "path": "x_RecommendationTypeId"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_ResourceGroupName']"
+                },
+                "sink": {
+                    "path": "x_ResourceGroupName"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_ResourceType']"
+                },
+                "sink": {
+                    "path": "x_ResourceType"
+                }
+            }
+        ],
+        "collectionReference": "$['data']"
+    }
+}
