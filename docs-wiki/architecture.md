@@ -29,7 +29,7 @@ On this page:
 | &nbsp; &nbsp;&nbsp; ├─ [governance](../src/templates/governance)     | Governance workbook.             |
 | &nbsp; &nbsp;&nbsp; └─ [optimization](../src/templates/optimization) | Optimization workbook.           |
 
-Files and folders should use kebab casing (e.g., `this-is-my-folder`). The only exception is for RP namespaces in module paths.
+Files and folders should use kebab casing (for example, `this-is-my-folder`). The only exception is for RP namespaces in module paths.
 
 <br>
 
@@ -49,7 +49,7 @@ Note the above sources are non-authoritative. You are free to use them as a star
 
 ## 🧮 Telemetry
 
-Every FinOps toolkit template includes a `defaultTelemetry` deployment. These should be enabled by default using an input parameter that callers can disable. Telemetry deployments are tracked using a specific ID made up of the FinOps toolkit prefix (`00f120b5-2007-6120-0000-`) followed by a 12-digit hexadecimal representation of the solution (e.g., `h0b000000000` for FinOps "hubs").
+Every FinOps toolkit template includes a `defaultTelemetry` deployment. These should be enabled by default using an input parameter that callers can disable. Telemetry deployments are tracked using a specific ID made up of the FinOps toolkit prefix (`00f120b5-2007-6120-0000-`) followed by a 12-digit hexadecimal representation of the solution (for example, `h0b000000000` for FinOps "hubs").
 
 Include the following as the last parameter in each module and replace the `<hex-module-name>` and `<version>` placeholders:
 
@@ -88,7 +88,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 <!--
 INTERNAL ONLY: To view deployments, query ARMProd:
 
-```kql
+```kusto
 Deployments
 | where deploymentName startswith 'pid-00f120b5-2007-6120-'
     or generatorName == 'FinOps toolkit'

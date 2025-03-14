@@ -30,12 +30,12 @@ Power BI reports in the FinOps toolkit must adhere to the following guidelines:
 1. Each report should have a targeted audience and purpose. For example:
    1. Designed for a specific [FinOps persona](https://learn.microsoft.com/azure/cost-management-billing/finops/overview-finops#stakeholders).
    2. Focused on a specific [FinOps capability](https://learn.microsoft.com/azure/cost-management-billing/finops/overview-finops#capabilities).
-   3. Built for a specific segment with unique needs (e.g., Cloud Solution Provider (CSP) partners).
+   3. Built for a specific segment with unique needs (for example, Cloud Solution Provider (CSP) partners).
 2. Each report should be saved using the Power BI Project (PBIP) format.
 3. **Get started** page must be first and follow the standard get started layout. (Copy from the Cost summary report.)
    1. Standard header with "FinOps toolkit" branding, big bold report name, and small version.
-   2. Date-based version (`yy.MM.dd`) showing when it was last updated (e.g., `23.10.13` for Oct 13, 2023).
-   3. Description of what the report is for with the report name in bold blue (e.g., "The **Foo report** provides...").
+   2. Date-based version (`yy.MM.dd`) showing when it was last updated (for example, `23.10.13` for Oct 13, 2023).
+   3. Description of what the report is for with the report name in bold blue (for example, "The **Foo report** provides...").
    4. Learn more link below the description that points to `https://aka.ms/finops/toolkit/<report-name>` (name in lowercase, spaces replaced with hyphens).
    5. Info icon in the top-right pointing to the same aka.ms link.
    6. Standard additional info section with How to connect your data, About FinOps toolkit, and Need help sections.
@@ -59,7 +59,7 @@ Power BI reports in the FinOps toolkit must adhere to the following guidelines:
 5. If there is a **Summary** page, it should be the first page after the **Get started** page.
 6. All data sources should use the standard folders in the query editor (Transform data).
    1. Configuration settings should be in the **🛠️ Setup** folder.
-      1. Settings should be grouped into folders by data source (e.g., CM connector, FinOps hubs).
+      1. Settings should be grouped into folders by data source (for example, CM connector, FinOps hubs).
       2. Include a **▶️ START HERE** table with setup instructions. (Copy from the Cost summary report.)
       3. Include a **Data Source** property to indicate which data source should be used.
    2. Queries should all be a the root **FinOps toolkit** folder.
