@@ -32,7 +32,7 @@ queryGroup 'Data Explorer'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.141.528.0 (25.03)+364bcf2c2b5bb0f5ca49d6d6922a547463bcdfd8
+annotation PBIDesktopVersion = 2.141.833.0 (25.03)+cdc444a951f7d3dd724d8de5dd58efd34e693cba
 
 annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URL","Storage URL","Number of Months","Default Granularity","ftk_DemoFilter","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations"]
 
