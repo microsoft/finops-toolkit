@@ -20,9 +20,9 @@ On this page:
 
 Bicep Registry modules in the FinOps toolkit reuse common scaffolding in the `.scaffold` folder to generate the files needed when publishing. Use the following steps to create a new module:
 
-1. Create a folder for the module using kebab casing (e.g., `my-resource`). Module names should be:
-   - Singular (e.g., `my-resource` instead of `my-resources`).
-   - Named after the resource type (e.g., `virtual-machine` for `virtualMachines`).
+1. Create a folder for the module using kebab casing (for example, `my-resource`). Module names should be:
+   - Singular (for example, `my-resource` instead of `my-resources`).
+   - Named after the resource type (for example, `virtual-machine` for `virtualMachines`).
 2. Create a `README.md` file that includes a description of the module. Do not add sections. This will be merged with the final README as the "Description" section.
 3. Create a `scaffold.json` file:
 
@@ -41,7 +41,7 @@ Bicep Registry modules in the FinOps toolkit reuse common scaffolding in the `.s
       }
       ```
 
-   2. Set `<resource type>` to the lowercase friendly resource type name (e.g., "virtual machine").
+   2. Set `<resource type>` to the lowercase friendly resource type name (for example, "virtual machine").
    3. Use the `text` array to apply scope-specific strings.
       - Set the `<summary>` to a short description under 120 characters.
       - Set the `scopes` array to the supported scopes for this text.
@@ -234,6 +234,6 @@ resource myResource 'Microsoft.MyProvider/resource' = {
 }
 ```
 
-Similar to the conditional line example, the code block targeting the primary scope (subscription) is uncommented while the other code blocks are commented out by default. This approach ensures the module can be run as-is with existing tooling without modification or errors (e.g., having the same property defined multiple times). We recommend using extra indentation for each conditional block to make it easier to read.
+Similar to the conditional line example, the code block targeting the primary scope (subscription) is uncommented while the other code blocks are commented out by default. This approach ensures the module can be run as-is with existing tooling without modification or errors (for example, having the same property defined multiple times). We recommend using extra indentation for each conditional block to make it easier to read.
 
 <br>
