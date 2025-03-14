@@ -49,7 +49,7 @@ function Remove-FinOpsHub
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'Object')]
         [switch]$KeepStorageAccount,
-
+        
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'Object')]
         [switch]$Force
@@ -101,36 +101,76 @@ function Remove-FinOpsHub
             return $false
         }
 
-        Write-Verbose -Message "Resources to be deleted: $($resources | ForEach-Object { $_.Name })"
+        # List all resources to be deleted
+        Write-Host "The following resources will be deleted:"
+        $resources | ForEach-Object { Write-Host "- $($_.ResourceId)" }
 
-        # Temporarily set $ConfirmPreference to None if -Force is specified
-        if ($Force)
-        {
-            $originalConfirmPreference = $ConfirmPreference
-            $ConfirmPreference = 'None'
-        }
-
+        # Prompt the user for confirmation
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
+            # Initialize a flag to track if "Yes to All" was selected
+            $yesToAll = $Force
+
+            # Loop through each resource
             $success = $true
             foreach ($resource in $resources)
             {
                 try
                 {
+                    # Skip confirmation if "Yes to All" was selected
+                    if (-not $yesToAll)
+                    {
+                        $confirmation = $Host.UI.PromptForChoice(
+                            "Confirm",
+                            "Are you sure you want to delete the following resource:`n$($resource.ResourceId)",
+                            @("&Yes", "Yes to &All", "&No", "No to A&ll", "&Suspend"),
+                            0
+                        )
+
+                        # Handle the user's choice
+                        switch ($confirmation)
+                        {
+                            0
+                            {
+                                # Yes
+                                # Continue with deletion
+                            }
+                            1
+                            {
+                                # Yes to All
+                                $yesToAll = $true
+                            }
+                            2
+                            {
+                                # No
+                                Write-Verbose -Message "Skipping resource: $($resource.Name)"
+                                continue
+                            }
+                            3
+                            {
+                                # No to All
+                                Write-Verbose -Message "Skipping all resources."
+                                return $false
+                            }
+                            4
+                            {
+                                # Suspend
+                                Write-Verbose -Message "Operation suspended."
+                                return $false
+                            }
+                        }
+                    }
+
+                    # Delete the resource
                     Write-Verbose -Message "Deleting resource: $($resource.Name)"
-                    Remove-AzResource -ResourceId $resource.ResourceId -Force:$Force -ErrorAction Stop
+                    Remove-AzResource -ResourceId $resource.ResourceId -Force -ErrorAction Stop
+                    Write-Host "Deleted resource: $($resource.Name)"
                 }
                 catch
                 {
                     Write-Error -Message "Failed to delete resource: $($resource.Name). Error: $_"
                     $success = $false
                 }
-            }
-
-            # Restore the original $ConfirmPreference
-            if ($Force)
-            {
-                $ConfirmPreference = $originalConfirmPreference
             }
 
             return $success
@@ -148,5 +188,4 @@ function Remove-FinOpsHub
             throw "Detailed Error: $($_.Exception.Message)"
         }
     }
-    
 }

@@ -58,6 +58,12 @@ if ($Build)
 {
     Write-Verbose "Building $(if ($Template -eq "*") { "all templates" } else { "the $Template template" })..."
     & "$PSScriptRoot/Build-Toolkit" $Template
+    
+    if (@("*", "pbi", "pbit") -contains $Template)
+    {
+        Write-Verbose "Building Power BI templates..."
+        & "$PSScriptRoot/Build-PowerBI"
+    }
 }
 
 $relDir = "$PSScriptRoot/../../release"
@@ -208,7 +214,7 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
     }
 }
 
-$pbip = Get-ChildItem -Path "$PSScriptRoot/../power-bi" -Include "*.pbip" -Recurse
+$pbip = Get-ChildItem -Path "$PSScriptRoot/../power-bi/storage" -Include "*.pbip" -Recurse
 if (-not ($OpenPBI -or $ZipPBI))
 {
     Write-Host "⚠️ $($pbip.Count) Power BI projects must be converted manually!"
@@ -217,43 +223,61 @@ if (-not ($OpenPBI -or $ZipPBI))
 }
 elseif ($OpenPBI)
 {
-    # Recreate temp pbix folder
-    Remove-Item -Path "$relDir/pbix" -Recurse -Force -ErrorAction SilentlyContinue
+    # Create temp pbix folder and remove existing storage/demo reports
     & "$PSScriptRoot/New-Directory" "$relDir/pbix"
+    Remove-Item -Path "$relDir/pbix/*.storage.pbix" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "$relDir/pbix/*.demo.pbix" -Recurse -Force -ErrorAction SilentlyContinue
 
     # Open Power BI projects
-    Write-Host "ℹ️ $($pbip.Count) Power BI projects must be converted manually... Opening..."
+    Write-Host "ℹ️ $($pbip.Count) Power BI projects must be saved as PBIX first... Opening..."
     $pbip | Invoke-Item
     Write-Host '     Save as PBIX then run: ' -NoNewline
     Write-Host './Package-Toolkit -ZipPBI' -ForegroundColor Cyan
 }
 elseif ($ZipPBI)
 {
+    $pbixFiles = Get-ChildItem -Path "$relDir/pbix/*.storage.pbix"
+
+    # TODO: Confirm all files are ready
+    if ($pbip.Count -ne $pbixFiles.Count)
+    {
+        Write-Host "⚠️ Found $($pbip.Count) Power BI projects but $($pbixFiles.Count) PBIX files. Please confirm all projects are saved as PBIX files first."
+        return
+    }
+
     # Clean PBIX files
-    $pbixFiles = Get-ChildItem -Path "$relDir/pbix/*.pbix"
     Write-Verbose "Processing $($pbixFiles.Count) files..."
     $pbixFiles | ForEach-Object {
         # Expand PBIX files for cleanup
         $pbix = $_
-        $pbixDir = $pbix.FullName.Replace('.pbix', '')
-        # Write-Verbose "Expanding $pbixDir..."
-        # Expand-Archive -Path $pbix -DestinationPath $pbixDir
+        $pbixDir = $pbix.FullName.Replace('.storage.pbix', '.demo')
+        Write-Verbose "Expanding $pbixDir..."
+        Remove-Item -Path $pbixDir -Recurse -Force -ErrorAction SilentlyContinue
+        Expand-Archive -Path $pbix -DestinationPath $pbixDir
+        
+        # Remove _rels, docProps
+        Remove-Item -Path "$pbixDir/_rels" -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path "$pbixDir/docProps" -Recurse -Force -ErrorAction SilentlyContinue
+        
+        # Remove docProps from Content_Types
+        $contentTypes = [xml](Get-Content "$pbixDir/?Content_Types?.xml" -Raw)
+        $contentTypes.Types.RemoveChild(($contentTypes.Types.Override | Where-Object { $_.PartName -eq '/docProps/custom.xml' })) | Out-Null
+        $contentTypes.Save("$pbixDir/[Content_Types].xml") | Out-Null
+        
+        # Remove unneeded tables
+        # $diagramLayout = Get-Content "$pbixDir/DiagramLayout" -Raw | ConvertFrom-Json -Depth 100
+        # $diagramLayout.diagrams.nodes | Where-Object { $metadata.Tables -contains $_.nodeIndex }
+        # TODO: Save as UTF-16LE -- $diagramLayout | ConvertTo-Json -Depth 100
 
-        # TODO: Remove queries for storage files
-        # TODO: Remove sensitivity
-
+        # TODO: Remove tables from data model
+        # pbi-tools extract $pbix
+        # TODO: Remove tables
+        # pbi-tools compile $pbixDir $pbix
+        
         # Zip as PBIX for demo
-        if ($pbixDir.EndsWith('.kql'))
-        {
-            Write-Verbose "Saving demo $pbixDir.pbix..."
-            # Compress-Archive -Path $pbixDir -DestinationPath "$pbixDir.kql.pbix"
-        }
-        
-        # TODO: Remove data
-        
-        # Zip as PBIT
-        Write-Verbose "Saving $pbixDir.pbit..."
-        # Compress-Archive -Path $pbixDir -DestinationPath "$pbixDir.pbit"
+        Write-Verbose "Saving demo $pbixDir.pbix..."
+        Remove-Item -Path "$pbixDir.pbix" -Recurse -Force -ErrorAction SilentlyContinue
+        Compress-Archive -Path $pbixDir -DestinationPath "$pbixDir.pbix"
     }
 
     # Zip release files
