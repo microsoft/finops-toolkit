@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { SamplePage } from '../SamplePage';
+import { HomePage } from '../HomePage';
 
 jest.mock('../../components/SideBar/SideBar', () => () => <div data-testid="sidebar" />);
 jest.mock('../../components/TopMenuBar/TopMenuBar', () => () => <div data-testid="top-menu-bar" />);
@@ -11,7 +11,7 @@ describe('App Routing', () => {
     render(
       <MemoryRouter initialEntries={['/']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
-          <Route path="/" element={<SamplePage />} />
+          <Route path="/" element={<HomePage />} />
         </Routes>
       </MemoryRouter>
     );
@@ -20,14 +20,13 @@ describe('App Routing', () => {
     expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     expect(screen.getByTestId('main-content')).toBeInTheDocument();
     expect(screen.getByTestId('showcase')).toBeInTheDocument();
-    expect(screen.getByText(/Welcome to Sample Page/i)).toBeInTheDocument();
   });
 
   it('should render SamplePage for the /tools path', () => {
     render(
       <MemoryRouter initialEntries={['/tools']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
-          <Route path="/tools" element={<SamplePage />} />
+          <Route path="/tools" element={<HomePage />} />
         </Routes>
       </MemoryRouter>
     );
@@ -36,6 +35,5 @@ describe('App Routing', () => {
     expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     expect(screen.getByTestId('main-content')).toBeInTheDocument();
     expect(screen.getByTestId('showcase')).toBeInTheDocument();
-    expect(screen.getByText(/Welcome to Sample Page/i)).toBeInTheDocument();
   });
 });

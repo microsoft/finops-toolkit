@@ -1,120 +1,45 @@
 import { render, screen } from '@testing-library/react';
-import HomePage from '../HomePage';
-import { BrowserRouter as Router } from 'react-router-dom';
-import '@testing-library/jest-dom';
-import { within } from '@testing-library/react';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { HomePage } from '../HomePage';
 
+jest.mock('../../components/SideBar/SideBar', () => () => <div data-testid="sidebar" />);
+jest.mock('../../components/TopMenuBar/TopMenuBar', () => () => <div data-testid="top-menu-bar" />);
+jest.mock('../../components/Showcase/Showcase', () => () => <div data-testid="showcase">Kick start your FinOps efforts</div>);
 describe('HomePage', () => {
-  it('should render the FinOps Toolkit header', () => {
+  it('renders HomePage correctly', () => {
     render(
-      <Router>
-        <HomePage />
-      </Router>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+        </Routes>
+      </MemoryRouter>
     );
 
-    const headerElement = screen.getByText(/FinOps toolkit - Kick start your FinOps efforts/i);
-    expect(headerElement).toBeInTheDocument();
+    expect(screen.getByTestId('top-menu-bar')).toBeInTheDocument();
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument();
+
+    expect(screen.getByTestId('main-content')).toBeInTheDocument();
+
+    expect(screen.getByTestId('showcase')).toBeInTheDocument();
+    expect(screen.getByText(/Kick start your FinOps efforts/i)).toBeInTheDocument();
   });
 
-  it('should have a link to available tools', () => {
+  it('applies correct styles to root container', () => {
     render(
-      <Router>
-        <HomePage />
-      </Router>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+        </Routes>
+      </MemoryRouter>
     );
 
-    const toolsLink = screen.getByText(/Get the tools/i);
-    expect(toolsLink).toBeInTheDocument();
-    expect(toolsLink).toHaveAttribute('href', '/tools');
-  });
-
-  it('should have a feedback link in the header', () => {
-    render(
-      <Router>
-        <HomePage />
-      </Router>
-    );
-
-    const feedbackLink = screen.getAllByText(/💜 Give feedback/i)[0];
-    expect(feedbackLink).toBeInTheDocument();
-    expect(feedbackLink).toHaveAttribute('href', 'https://aka.ms/ftk/feedback');
-  });
-
-  it('should have a feedback link in the available tools section', () => {
-    render(
-      <Router>
-        <HomePage />
-      </Router>
-    );
-
-    const feedbackLink = screen.getAllByText(/💜 Give feedback/i)[1];
-    expect(feedbackLink).toBeInTheDocument();
-    expect(feedbackLink).toHaveAttribute('href', 'https://aka.ms/ftk/feedback');
-  });
-
-  it('should have a roadmap link', () => {
-    render(
-      <Router>
-        <HomePage />
-      </Router>
-    );
-
-    const roadmapLink = screen.getByText(/Discover what's next/i);
-    expect(roadmapLink).toBeInTheDocument();
-    expect(roadmapLink).toHaveAttribute('href', 'https://github.com/microsoft/finops-toolkit/milestones');
-  });
-
-  it('should have a link to join the conversation', () => {
-    render(
-      <Router>
-        <HomePage />
-      </Router>
-    );
-
-    const conversationLink = screen.getByText(/Join the conversation/i);
-    expect(conversationLink).toBeInTheDocument();
-    expect(conversationLink).toHaveAttribute('href', 'https://github.com/microsoft/finops-toolkit/discussions');
-  });
-
-  it('should have a link to contribute in the Get Involved section', () => {
-    render(
-      <Router>
-        <HomePage />
-      </Router>
-    );
-  
-    const getInvolvedSection = screen.getByRole('heading', { name: /Get Involved/i }).closest('section');
-    expect(getInvolvedSection).not.toBeNull();  // Ensure section exists
-  
-    const contributeLink = within(getInvolvedSection!).getByText(/Learn how to contribute/i);
-  
-    expect(contributeLink).toBeInTheDocument();
-    expect(contributeLink).toHaveAttribute('href', 'https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md');
-  });
-  
-  
-
-  it('should have a link to the changelog', () => {
-    render(
-      <Router>
-        <HomePage />
-      </Router>
-    );
-
-    const changelogLink = screen.getByText(/Explore the changelog/i);
-    expect(changelogLink).toBeInTheDocument();
-    expect(changelogLink).toHaveAttribute('href', './_resources/changelog.md');
-  });
-
-  it('should have a link to browse the commit history', () => {
-    render(
-      <Router>
-        <HomePage />
-      </Router>
-    );
-
-    const commitHistoryLink = screen.getByText(/Browse the commit history/i);
-    expect(commitHistoryLink).toBeInTheDocument();
-    expect(commitHistoryLink).toHaveAttribute('href', 'https://github.com/microsoft/finops-toolkit/commits/main');
+    const rootContainer = screen.getByTestId('sample-page-root');
+    expect(rootContainer).toHaveStyle({
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      overflowX: 'hidden',
+      backgroundColor: 'var(--colorNeutralBackground1)',
+    });
   });
 });
