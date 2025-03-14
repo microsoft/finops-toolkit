@@ -349,6 +349,8 @@ The source of this error is unknown. This error may be surfaced randomly.
 
 **Mitigation**: If you receive this error, select **Apply change** again.
 
+This error has only been reported in storage reports. If you have long data refresh times or experience this error often, consider switching to [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. Data Explorer uses KQL reports which do not require scheduling or incremental refresh. Data is pulled when the report is access, so reports always leverage the latest data.
+
 <br>
 
 ## ResourceAccessForbiddenException
