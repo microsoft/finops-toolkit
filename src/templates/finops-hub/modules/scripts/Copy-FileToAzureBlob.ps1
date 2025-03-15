@@ -85,7 +85,7 @@ if (!$json)
         }
     }
 
-    $text = $json | ConvertTo-Json
+    $text = $json | ConvertTo-Json -Depth 4
     Write-Output "---------"
     Write-Output $text
     Write-Output "---------"
@@ -154,12 +154,56 @@ else
     $json.retention.final.months = [Int32]::Parse($env:finalRetentionInMonths)
 }
 
+# Set default recommendations
+if (!($json.recommendations))
+{
+    Write-Output "  No recommendations found. Creating default recommendations..."
+    # In case the recommendation object is not present in the settings.json file (versions before 0.9), add it with default values
+    $recommendations = @"
+    [
+        {
+            "resourceType": "VirtualMachines",
+            "reservationScopes": [
+                {
+                    "reservationScope": "Shared"
+                },
+                {
+                    "reservationScope": "Single"
+                }
+            ],
+            "lookBackPeriods": [
+                {
+                    "lookBackPeriod": "Last7Days"
+                },
+                {
+                    "lookBackPeriod": "Last30Days"
+                },
+                {
+                    "lookBackPeriod": "Last60Days"
+                }
+            ]
+        }
+    ]
+"@
+
+    $json | Add-Member -Name recommendations -Value (ConvertFrom-Json $recommendations) -MemberType NoteProperty -Force
+
+    # Force the object into a unique array
+    if ($json.recommendations)
+    {
+        Write-Output "  Converting recommendations string array to object array..."
+        $recommendationsArray = @()
+        $json.recommendations | ForEach-Object { $recommendationsArray += $_ } | Select-Object -Unique
+        $json.recommendations = @() + $recommendationsArray
+    }
+}
+
 # Updating settings
 Write-Output "Updating version to $env:ftkVersion..."
 $json.version = $env:ftkVersion
 $json.scopes = (@() + $json.scopes + $newScopes) | Select-Object -Unique
 if ($null -eq $json.scopes) { $json.scopes = @() }
-$text = $json | ConvertTo-Json
+$text = $json | ConvertTo-Json -Depth 4
 Write-Output "---------"
 Write-Output $text
 Write-Output "---------"
