@@ -141,7 +141,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 }
 
 // Get keyvault instance
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = if (!empty(remoteHubStorageUri)) {
   name: keyVaultName
 }
 
@@ -226,7 +226,7 @@ module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (!
   }
 }
 
-resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (!enablePublicAccess) {
+resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (!empty(remoteHubStorageUri) && !enablePublicAccess) {
   name: keyVault.name
   parent: managedVirtualNetwork
   properties: {
@@ -239,7 +239,7 @@ resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managed
   }
 }
 
-module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!enablePublicAccess) {
+module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!empty(remoteHubStorageUri) && !enablePublicAccess) {
   name: 'GetKeyVaultPrivateEndpointConnections'
   dependsOn: [
     keyVaultManagedPrivateEndpoint
@@ -249,7 +249,7 @@ module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!en
   }
 }
 
-module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!enablePublicAccess) {
+module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!empty(remoteHubStorageUri) && !enablePublicAccess) {
   name: 'ApproveKeyVaultPrivateEndpointConnections'
   params: {
     keyVaultName: keyVault.name
@@ -412,7 +412,7 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //------------------------------------------------------------------------------
 
 // cSpell:ignore linkedservices
-resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: keyVault.name
   parent: dataFactory
   dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
