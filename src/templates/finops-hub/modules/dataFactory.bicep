@@ -2305,7 +2305,7 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
 // config_ConfigureExports pipeline
 // Triggered by config_SettingsUpdated trigger
 //------------------------------------------------------------------------------
-@description('Creates Cost Management exports for all scopes.')
+@description('Creates Cost Management exports for supported scopes.')
 resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: '${safeConfigContainerName}_ConfigureExports'
   parent: dataFactory
@@ -2660,6 +2660,43 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                           }
                         }
                       }
+                      { // 'Create Reservation Recommendation Exports'
+                        name: 'Create Reservation Recommendation Exports'
+                        type: 'ExecutePipeline'
+                        dependsOn: [
+                          {
+                            activity: 'EA daily reservation transactions export'
+                            dependencyConditions: [
+                              'Succeeded'
+                            ]
+                          }
+                        ]
+                        policy: {
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          pipeline: {
+                            referenceName: pipeline_ConfigureExportRecommendations.name
+                            type: 'PipelineReference'
+                          }
+                          waitOnCompletion: true
+                          parameters: {
+                            exportScope: {
+                              value: '@item().scope'
+                              type: 'Expression'
+                            }
+                            exportScopeType: {
+                              value: '@variables(\'exportScopeType\')'
+                              type: 'Expression'
+                            }
+                            recommendationsArray: {
+                              value: '@activity(\'Get Config\').output.firstRow.recommendations'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
                     ]
                   }
                   { // MCA
@@ -2790,6 +2827,176 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
       folderPath: {
         type: 'String'
         defaultValue: configContainerName
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// config_ConfigureExportRecommendations pipeline
+// Triggered by config_ConfigureExports pipeline
+//------------------------------------------------------------------------------
+@description('Creates Cost Management reservation recommendation exports for supported scopes.')
+resource pipeline_ConfigureExportRecommendations 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_ConfigureExportRecommendations'
+  parent: dataFactory
+  properties: {
+    activities: [
+      {
+        name: 'ForEach Recommendation'
+        type: 'ForEach'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@pipeline().parameters.recommendationsArray'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            { // 'Shared Last7Days'
+              name: 'Shared Last7Days'
+              type: 'IfCondition'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@and(contains(toLower(string(item().lookBackPeriods)), \'last7days\'), contains(toLower(string(item().reservationScopes)), \'shared\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            { // 'Shared Last30Days'
+              name: 'Shared Last30Days'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Shared Last7Days'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@and(contains(toLower(string(item().lookBackPeriods)), \'last30days\'), contains(toLower(string(item().reservationScopes)), \'shared\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            { // 'Shared Last60Days'
+              name: 'Shared Last60Days'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Shared Last30Days'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@and(contains(toLower(string(item().lookBackPeriods)), \'last60days\'), contains(toLower(string(item().reservationScopes)), \'shared\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            { // 'Single Last7Days'
+              name: 'Single Last7Days'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Shared Last60Days'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@and(contains(toLower(string(item().lookBackPeriods)), \'last7days\'), contains(toLower(string(item().reservationScopes)), \'single\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            { // 'Single Last30Days'
+              name: 'Single Last30Days'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Single Last7Days'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@and(contains(toLower(string(item().lookBackPeriods)), \'last30days\'), contains(toLower(string(item().reservationScopes)), \'single\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            { // 'Single Last60Days'
+              name: 'Single Last60Days'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Single Last30Days'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@and(contains(toLower(string(item().lookBackPeriods)), \'last60days\'), contains(toLower(string(item().reservationScopes)), \'single\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+    concurrency: 1
+    variables: {
+      storageAccountId: {
+        type: 'String'
+        defaultValue: storageAccount.id
+      }
+      finOpsHub: {
+        type: 'String'
+        defaultValue: hubName
+      }
+      resourceManagementUri: {
+        type: 'String'
+        defaultValue: environment().resourceManager
+      }
+      fileName: {
+        type: 'String'
+        defaultValue: 'settings.json'
+      }
+      folderPath: {
+        type: 'String'
+        defaultValue: configContainerName
+      }
+    }
+    parameters: {
+      recommendationsArray: {
+        type: 'array'
+      }
+      exportScope: {
+        type: 'string'
+      }
+      exportScopeType: {
+        type: 'string'
       }
     }
   }
