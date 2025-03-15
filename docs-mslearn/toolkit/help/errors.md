@@ -123,6 +123,20 @@ Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. In
 
 <br>
 
+## DeploymentOutputEvaluationFailed
+
+<sup>Severity: Major</sup>
+
+FinOps hubs 0.8 sets the Azure Data Explorer "trustedExternaltenants" security setting to lock the cluster down so it can only be access from specific, trusted tenants. This setting can be set for the first deployment, but cannot be set again in a second deployment. You may see the following error if you try to redeploy FinOps hubs 0.8 on top of an existing 0.8 deployment:
+
+> _The template output 'clusterUri' is not valid: The language expression property 'uri' doesn't exist, available properties are 'trustedExternalTenants, enableStreamingIngest, publicNetworkAccess, enableAutoStop, provisioningState'._
+
+We are following up with the Azure Data Explorer team to identify the correct resolution.
+
+**Mitigation**: Deploy FinOps hubs 0.9. This setting has been removed from the template.
+
+<br>
+
 ## ExportDataNotFound
 
 <sup>Severity: Critical</sup>

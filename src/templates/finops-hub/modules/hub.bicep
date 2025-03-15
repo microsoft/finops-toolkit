@@ -289,7 +289,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
-    clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
+    // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
