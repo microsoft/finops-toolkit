@@ -39,7 +39,7 @@ jobs:
       - name: Clean and Build
         run: |
           rm -rf ./dist || true
-          npm run build
+          NODE_ENV=production npm run build
         working-directory: ./src/web
       - name: Setup Pages
         uses: actions/configure-pages@v4
