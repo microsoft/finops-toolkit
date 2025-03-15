@@ -64,6 +64,8 @@ param enablePublicAccess bool
 //------------------------------------------------------------------------------
 
 var focusSchemaVersion = '1.0'
+var exportSchemaVersion = '2023-05-01'
+var reservationDetailsSchemaVersion = '2023-03-01'
 // cSpell:ignore ftkver
 var ftkVersion = loadTextContent('ftkver.txt')
 var exportApiVersion = '2023-07-01-preview'
@@ -72,6 +74,15 @@ var hubDataExplorerName = 'hubDataExplorer'
 // cSpell:ignore timeframe
 // Function to generate the body for a Cost Management export
 func getExportBody(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
+
+func getExportBodyV2(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => /*
+  */ toLower(datasetType) == 'focuscost' ? /*
+  */ '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-costdetails\'))}", "name": "@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-costdetails\'))}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }' /*
+  */ : toLower(datasetType) == 'reservationdetails' ? /*
+  */ '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-${toLower(datasetType)}\'))}", "name": "@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-${toLower(datasetType)}\'))}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }' /*
+  */ : (toLower(datasetType) == 'pricesheet') || (toLower(datasetType) == 'reservationtransactions') ? /*
+  */ '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }}, "timeframe": "${isMonthly ? 'TheCurrentMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-${toLower(datasetType)}\'))}", "name": "@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-${toLower(datasetType)}\'))}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }' /*
+  */ : 'undefined'
 
 var deployDataExplorer = !empty(dataExplorerId)
 
@@ -2224,7 +2235,7 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
               userProperties: []
               typeProperties: {
                 expression: {
-                  value: '@and(equals(toLower(item().properties.schedule.recurrence), toLower(pipeline().parameters.Recurrence)),startswith(toLower(item().name), toLower(variables(\'hubName\'))))'
+                  value: '@and( startswith(toLower(item().name), toLower(variables(\'hubName\'))), and(contains(string(item().properties.schedule), \'recurrence\'), equals(toLower(item().properties.schedule.recurrence), toLower(pipeline().parameters.Recurrence))))'
                   type: 'Expression'
                 }
                 ifTrueActivities: [
@@ -2437,46 +2448,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
           isSequential: true
           activities: [
-            { // 'Create or update open month focus export'
-              name: 'Create or update open month focus export'
-              type: 'WebActivity'
-              dependsOn: [
-                {
-                  activity: 'Set open month focus export name'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:05:00'
-                retry: 2
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                url: {
-                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=${exportApiVersion}'
-                  type: 'Expression'
-                }
-                method: 'PUT'
-                body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
-                  type: 'Expression'
-                }
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@variables(\'ResourceManagementUri\')'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-            { // 'Set open month focus export name'
-              name: 'Set open month focus export name'
+            {
+              name: 'Set Export Type'
               type: 'SetVariable'
               dependsOn: []
               policy: {
@@ -2485,73 +2458,299 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
               }
               userProperties: []
               typeProperties: {
-                variableName: 'exportName'
+                variableName: 'exportScopeType'
                 value: {
-                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-daily-costdetails\'))'
+                  value: '@if(contains(toLower(item().scope), \'providers/microsoft.billing/billingaccounts\'), if(contains(toLower(item().scope), \':\'), \'mca\', \'ea\'), \'other\')'
                   type: 'Expression'
                 }
               }
             }
-            { // 'Create or update closed month focus export'
-              name: 'Create or update closed month focus export'
-              type: 'WebActivity'
+            {
+              name: 'Switch Export Type'
+              type: 'Switch'
               dependsOn: [
                 {
-                  activity: 'Set closed month focus export name'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
+                  activity: 'Set Export Type'
+                  dependencyConditions: [ 'Succeeded' ]
                 }
               ]
-              policy: {
-                timeout: '0.00:05:00'
-                retry: 2
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
               userProperties: []
               typeProperties: {
-                url: {
-                  value: '@{variables(\'ResourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=${exportApiVersion}'
+                on: {
+                  value: '@toLower(variables(\'exportScopeType\'))'
                   type: 'Expression'
                 }
-                method: 'PUT'
-                body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
-                  type: 'Expression'
-                }
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@variables(\'ResourceManagementUri\')'
-                    type: 'Expression'
+                cases: [
+                  { // EA
+                    value: 'ea'
+                    activities: [
+                      { // 'EA open month focus export'
+                        name: 'EA open month focus export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-costdetails\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                            type: 'Expression'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA closed month focus export'
+                        name: 'EA closed month focus export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA open month focus export' 
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                            type: 'Expression'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA monthly pricesheet export'
+                        name: 'EA monthly pricesheet export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA closed month focus export' 
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-pricesheet\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'Pricesheet', exportSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                            type: 'Expression'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA daily reservation details export'
+                        name: 'EA daily reservation details export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA monthly pricesheet export' 
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-reservationdetails\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'ReservationDetails', reservationDetailsSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport')
+                            type: 'Expression'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA daily reservation transactions export'
+                        name: 'EA daily reservation transactions export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA daily reservation details export' 
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-reservationtransactions\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'ReservationTransactions', exportSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport')
+                            type: 'Expression'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                    ]
                   }
-                }
-              }
-            }
-            { // 'Set closed month focus export name'
-              name: 'Set closed month focus export name'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'Create or update open month focus export'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'exportName'
-                value: {
-                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))'
-                  type: 'Expression'
-                }
+                  { // MCA
+                    value: 'mca'
+                    activities: [
+                      {
+                        name: 'Export Type Unsupported Error'
+                        type: 'Fail'
+                        dependsOn: []
+                        userProperties: []
+                        typeProperties: {
+                          message: {
+                            value: '@concat(\'MCA agreements are not supported for managed exports :\',variables(\'exportScope\'))'
+                            type: 'Expression'
+                          }
+                          errorCode: 'ExportTypeUnsupported'
+                        }
+                      }
+                    ]
+                  }
+                ]
+                defaultActivities: [
+                  { // 'Default open month focus export'
+                    name: 'Default open month focus export'
+                    type: 'WebActivity'
+                    dependsOn: [
+                    ]
+                    policy: {
+                      timeout: '0.00:05:00'
+                      retry: 2
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      url: {
+                        value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-costdetails\'))}?api-version=${exportApiVersion}'
+                        type: 'Expression'
+                      }
+                      method: 'PUT'
+                      body: {
+                        value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                        type: 'Expression'
+                      }
+                      authentication: {
+                        type: 'MSI'
+                        resource: {
+                          value: '@variables(\'resourceManagementUri\')'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  }
+                  { // 'Default closed month focus export'
+                    name: 'Default closed month focus export'
+                    type: 'WebActivity'
+                    dependsOn: [
+                      {
+                        activity: 'Default open month focus export' 
+                        dependencyConditions: [ 'Succeeded' ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.00:05:00'
+                      retry: 2
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      url: {
+                        value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))}?api-version=${exportApiVersion}'
+                        type: 'Expression'
+                      }
+                      method: 'PUT'
+                      body: {
+                        value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                        type: 'Expression'
+                      }
+                      authentication: {
+                        type: 'MSI'
+                        resource: {
+                          value: '@variables(\'resourceManagementUri\')'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  }
+                ]
               }
             }
           ]
@@ -2567,6 +2766,9 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
         type: 'String'
       }
       exportScope: {
+        type: 'String'
+      }
+      exportScopeType: {
         type: 'String'
       }
       storageAccountId: {
