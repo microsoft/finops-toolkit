@@ -34,6 +34,12 @@ The following section lists features and enhancements that are currently in deve
 
 _Released March 2025_
 
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
+
+- **Fixed**
+  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
+
 ### [Power BI reports](power-bi/reports.md) v0.8 Update 1
 
 **General**
@@ -57,6 +63,7 @@ _Released March 2025_
   - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
     - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
+
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
