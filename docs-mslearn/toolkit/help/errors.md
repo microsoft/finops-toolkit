@@ -50,6 +50,29 @@ FinOps hubs 0.2 isn't operational. Upgrade to version 0.3 or later.
 
 <br>
 
+## ConflictError
+
+<sup>Severity: Critical</sup>
+
+There may be multiple instances of this error. The one known instance is when Key Vault returns the following error:
+
+> _A vault with the same name already exists in deleted state. You need to either recover or purge existing key vault. Follow this link https://go.microsoft.com/fwlink/?linkid=2149745 for more information on soft delete._
+
+This generally means you're deploying on top of an old deployment that was deleted, but Key Vault kept the old vault instance in a recoverable delete state.
+
+**Mitigation**: To fix this, purge the deleted Key Vault in the Azure portal.
+
+1. Open the [list of Key Vault instances](https://portal.azure.com/#browse/Microsoft.KeyVault%2Fvaults) in the Azure portal.
+2. Select the **Manage deleted vaults** command at the top of the page.
+3. Select the subscription in the dropdown.
+4. Check the vaults to be removed.
+5. Select **Purge** at the bottom of the flyout.
+6. Select **Delete** in the confirmation dialog.
+
+You can now retry the deployment.
+
+<br>
+
 ## DataExplorerIngestionFailed
 
 <sup>Severity: Critical</sup>
@@ -349,6 +372,8 @@ The source of this error is unknown. This error may be surfaced randomly.
 
 **Mitigation**: If you receive this error, select **Apply change** again.
 
+This error has only been reported in storage reports. If you have long data refresh times or experience this error often, consider switching to [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. Data Explorer uses KQL reports which do not require scheduling or incremental refresh. Data is pulled when the report is access, so reports always leverage the latest data.
+
 <br>
 
 ## ResourceAccessForbiddenException
@@ -395,6 +420,16 @@ FinOps hub **msexports_ExecuteETL** pipeline wasn't able to find the schema mapp
 **Mitigation**: Confirm the dataset type and version are supported. See [supported datasets](../hubs/data-processing.md#datasets) for details. If the dataset is supported, confirm the hub version with the [Data ingestion report](../power-bi/data-ingestion.md).
 
 To add support for another dataset, create a custom mapping file and save it to `config/schemas/<dataset-type>_<dataset-version>.json`. The `<dataset-type>` `<dataset-version>` values much match what Cost Management uses. To identify the datatype for each column, use an existing schema file as a template. Some datasets have different schemas for EA and Microsoft Customer Agreement (MCA). They can't be identified via these attributes and might cause an issue if you have both account types. We're working on adding datasets and account for the EA and MCA differences by aligning to FOCUS.
+
+<br>
+
+## The import Storage URL matches no exports
+
+<sup>Severity: Major</sup>
+
+If you are experiencing this in FinOps toolkit 0.8 reports, the error is because of a reference to a parameter that does not exist.
+
+**Mitigation**: This was fixed in FinOps toolkit 0.9. Update to the latest release to apply the fix. If you need to apply the fix directly to the 0.8 reports, edit the **ftk_DemoFilter** function in the advanced editor and change the contents to: `() => ""`. Save, then close and apply all changes.
 
 <br>
 

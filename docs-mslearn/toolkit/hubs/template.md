@@ -48,13 +48,20 @@ Ensure the following prerequisites are met before you deploy the template:
    | Create an MCA billing cost export²                   | [Contributor](/azure/cost-management-billing/manage/understand-mca-roles)                                                                                                                                                                                                                                                    |
    | Read blob data in storage³                           | [Storage Blob Data Contributor](/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                                                                                                                                                                                                               |
 
-   <!--
-   | Optional: Deploy temporary Event Grid namespace                 | [Event Grid Contributor](/azure/role-based-access-control/built-in-roles#event-grid-contributor)                                                                                                                                                                                                                             |
-   -->
-
    _¹ It's sufficient to assign hubs resources deployment permissions on the resource group scope._<br/>
    _² Cost Management permissions must be assigned on the scope where you want to export your costs from._<br/>
    _³ Blob data permissions are required to access exported cost data from Power BI or other client tools._<br/>
+
+- You must have permissions to assign the following roles to managed identities as part of the deployment:
+
+   | Azure RBAC role                                                                                                                              | Notes                                                                                       |
+   | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+   | [Data Factory Contributor](/azure/role-based-access-control/built-in-roles#data-factory-contributor)                                         | Assigned to the deployment trigger manager identity to auto-start Data Factory triggers.    |
+   | [Reader](/azure/role-based-access-control/built-in-roles#reader)                                                                             | Assigned to Data Factory to manage data in storage.                                         |
+   | [Storage Account Contributor](/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                   | Assigned to Data Factory to manage data in storage.                                         |
+   | [Storage Blob Data Contributor](/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                               | Assigned to Data Factory and Data Explorer to manage data in storage.                       |
+   | [Storage File Data Privileged Contributor](/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor) | Assigned to the deployment file upload identity that uploads files to the config container. |
+   | [User Access Administrator](/azure/role-based-access-control/built-in-roles#user-access-administrator)                                       | Assigned to Data Factory to manage data in storage.                                         |
 
 - The Microsoft.EventGrid resource provider must be registered in your subscription. For more information, see [Register a resource provider](/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider).
 
@@ -85,7 +92,7 @@ Here are the parameters you can use to customize the deployment:
 | **dataExplorerFinalRetentionInMonths** | Int    | Optional. Number of months of data to retain in the Data Explorer \*_final_v\* tables.                                                                                                                                                                                                                                                 | 13                 |
 | **remoteHubStorageUri**                | String | Optional. Storage account to push data to for ingestion into a remote hub.                                                                                                                                                                                                                                                             |                    |
 | **remoteHubStorageKey**                | String | Optional. Storage account key to use when pushing data to a remote hub.                                                                                                                                                                                                                                                                |                    |
-| **enablePublicAccess**                 | string | Optional. Disable public access to the data lake (storage firewall).                                                                                                                                                                                                                                                                   | False              |
+| **enablePublicAccess**                 | string | Optional. Disable public access to the data lake (storage firewall).                                                                                                                                                                                                                                                                   | True               |
 | **virtualNetworkAddressPrefix**        | String | Optional. IP Address range for the private virtual network used by FinOps hubs. `/26` is recommended to avoid wasting IPs. Internally, the following subnets will be created: `/28` for private endpoints, another `/28` subnet for temporary deployment scripts (container instances), and `/27` for Azure Data Explorer, if enabled. | '10.20.30.0/26'    |
 
 <br>
@@ -100,9 +107,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
   - Blob containers:
     - `msexports` – Temporarily stores Cost Management exports.
     - `ingestion` – Stores ingested data.
-      > [!NOTE]
-      > In the future, we will use this container to stage external data outside of Cost Management.
-          - `config` – Stores hub metadata and configuration settings. Files:
+    - `config` – Stores hub metadata and configuration settings. Files:
       - `settings.json` – Hub settings.
       - `schemas/focuscost_1.0.json` – FOCUS 1.0 schema definition for parquet conversion.
       - `schemas/focuscost_1.0-preview(v1).json` – FOCUS 1.0-preview schema definition for parquet conversion.
