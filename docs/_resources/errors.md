@@ -44,7 +44,6 @@ Sorry to hear you're having a problem. We're here to help!
 - [UnknownHubVersion](#unknownhubversion)
 - [UnsupportedExportFileType](#unsupportedexportfiletype)
 - [UnsupportedExportType](#unsupportedexporttype)
-- [UnsupportedInputDataset](#unsupportedinputdataset)
 - [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
 - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
 - [Power BI: Reports are missing data for specific dates](#power-bi-reports-are-missing-data-for-specific-dates)
@@ -474,16 +473,6 @@ Unable to ingest the specified export file because the file type is not supporte
 The export manifest in hub storage indicates the export was for an unsupported dataset. Exported data will be reported as ingestion errors.
 
 **Mitigation**: Create a new Cost Management export for FOCUS cost and either stop the current export or change it to export to a different storage container.
-
-<br>
-
-## UnsupportedInputDataset
-
-<sup>Severity: Warning</sup>
-
-Currently, only Azure Resource Graph (`resourceGraph`) is supported as input dataset for recommendations exports queries.
-
-**Mitigation**: Ensure you are using a supported input dataset in the recommendations export query definition.
 
 <br>
 
