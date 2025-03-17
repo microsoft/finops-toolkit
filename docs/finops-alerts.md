@@ -1,10 +1,10 @@
 ---
 layout: default
-title: FinOps Alerts
-browser: FinOps Alerts - Monitor your Azure environment for optimization
-nav_order: 40
-description: 'FinOps Alerts is your all-in-one solution for proactive cloud cost management.'
-permalink: /finops-alerts
+title: FinOps alerts
+browser: FinOps alerts - Monitor your Azure environment for optimization
+nav_order: 35
+description: 'Accelerate your cost optimization efforts with scheduled notifications that continuously monitor your cloud environment, empowering you to make informed decisions without the hassle.'
+permalink: /alerts
 #customer intent: As a Finops practitioner, I need to learn about FinOps Alerts
 ---
 
