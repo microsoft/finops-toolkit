@@ -64,6 +64,7 @@ Write-Host "Building $($reports.Count) Power BI report template$(if ($reports.Co
 
 function Write-UTF16LE($File, $Content, $Json)
 {
+    Write-Verbose "  Writing UTF-16LE file: $($File.Name)..."
     if ($Json) { $Content = [PSCustomObject]$Json | ConvertTo-Json -Depth 5 -Compress }
     [System.IO.File]::WriteAllBytes($File, [System.Text.Encoding]::Unicode.GetBytes($Content))
 }
@@ -151,6 +152,10 @@ $reports | ForEach-Object {
         {
             $exp.expression = $exp.expression -replace '^\\"[^\\"]+\\" meta ', 'null meta '
         }
+        if ($exp.name -eq 'ftk_DemoFilter')
+        {
+            $exp.expression = '() => "" // To filter out subscriptions, replace with: "| where subscriptionId in (''<sub1>'', ''<sub2>'')"'
+        }
     }
     $modelJson.model.tables = $modelJson.model.tables | Where-Object { $metadata.Tables -contains $_.name -or $metadata.Tables -contains "[$reportType]$($_.name)" }
     $modelJson.model.relationships = @($modelJson.model.relationships | Where-Object { ($metadata.Tables -contains $_.fromTable -or $metadata.Tables -contains "[$reportType]$($_.fromTable)") -and ($metadata.Tables -contains $_.toTable -or $metadata.Tables -contains "[$reportType]$($_.toTable)") })
@@ -168,17 +173,16 @@ $reports | ForEach-Object {
 
     # DiagramLayout
     Write-UTF16LE -File "$targetFile/DiagramLayout" -Json (Get-Content "$datasetDir/diagramLayout.json" -Raw | ConvertFrom-Json -Depth 100)
-    
+
     # Report/Layout
-    $reportJson = Get-Content "$reportDir/Layout.json" -Raw | ConvertFrom-Json -Depth 100
-    (Get-Content "$reportDir/report.json" -Raw) `
+    $reportJson = (Get-Content "$reportDir/report.json" -Raw) `
         -replace '\$\$ftkver\$\$', $version `
         -replace '\$\$build-date\$\$', (Get-Date -Format 'yyyy-MM-dd')
     Write-UTF16LE -File "$targetFile/Report/Layout" -Json ($reportJson | ConvertFrom-Json -Depth 100)
-    
+
     # Report/StaticResources
     Copy-Item "$reportDir/StaticResources" "$targetFile/Report/StaticResources" -Recurse -Force
-    
+
     # Metadata
     # TODO: Where does "Version" come from?
     # TODO: Add all intro paragraphs
@@ -193,7 +197,7 @@ $reports | ForEach-Object {
         # TODO: Validate "CreatedFromRelease"
         CreatedFromRelease       = "20$($desktopVersion -replace '^[^\(]+\(([0-9]{2}\.[0-2][0-9])\)[^\)]+$','$1')"
     }
-    
+
     # Settings
     $editorSettings = Get-Content "$datasetDir/.pbi/editorSettings.json" | ConvertFrom-Json
     Write-UTF16LE -File "$targetFile/Settings" -Json @{

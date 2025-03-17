@@ -16,12 +16,12 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 ---
 
-<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h3 class="m-0 mb-4">What's new in February 2025<span class="ftk-version">v0.8</span></h3>
-    <p class="mt-2 mb-0">
+<div id="whats-new" class="ftk-new">
+    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <p>
         February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
     </p>
-    <p class="mt-2 mb-0"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 
 <a name="available-tools"></a>
@@ -181,6 +181,8 @@ Whether you're looking for a little assistance or are interested in contributing
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/lundejd"><img src="https://avatars.githubusercontent.com/u/8152933?v=4?s=100" width="100px;" alt="John Lundell"/><br /><sub><b>John Lundell</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Alundejd" title="Bug reports">🐛</a> <a href="#question-lundejd" title="Answering Questions">💬</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://ivanmota.dev/"><img src="https://avatars.githubusercontent.com/u/39202628?v=4?s=100" width="100px;" alt="Ivan Mota"/><br /><sub><b>Ivan Mota</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=Ivanmtta" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/nsftwr"><img src="https://avatars.githubusercontent.com/u/14138020?v=4?s=100" width="100px;" alt="Rudolfs Naumenko"/><br /><sub><b>Rudolfs Naumenko</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=nsftwr" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/philipstreet"><img src="https://avatars.githubusercontent.com/u/10855315?v=4?s=100" width="100px;" alt="Philip Street"/><br /><sub><b>Philip Street</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aphilipstreet" title="Bug reports">🐛</a> <a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Aphilipstreet" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/japyjaap"><img src="https://avatars.githubusercontent.com/u/6353034?v=4?s=100" width="100px;" alt="JSwinkels"/><br /><sub><b>JSwinkels</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ajapyjaap" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
