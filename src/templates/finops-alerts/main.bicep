@@ -10,7 +10,7 @@ param location string = resourceGroup().location
 @description('Name of the logic app')
 @minLength(1)
 @maxLength(20)
-param appName string = 'FinOpsAlert'
+param appName string = 'finops-alerts'
 
 @description('Specifies the frequency of the recurrence trigger. Possible values are Week, Day or Hour.')
 param recurrenceFrequency string = 'Week'

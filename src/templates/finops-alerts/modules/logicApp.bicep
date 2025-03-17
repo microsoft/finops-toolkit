@@ -7,7 +7,7 @@ param location string = resourceGroup().location
 @description('Name of the logic app')
 @minLength(1)
 @maxLength(20)
-param appName string = 'FinOpsAlert'
+param appName string = 'finops-alerts'
 
 @description('Specifies the frequency of the recurrence trigger. Possible values are Week, Day or Hour.')
 param recurrenceFrequency string = 'Week'
@@ -40,7 +40,7 @@ var actionKeys = [
 // Resources
 //==============================================================================
 
-resource finopsAlert 'Microsoft.Logic/workflows@2019-05-01' = {
+resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
   identity: {
     type: 'SystemAssigned'
   }
@@ -4030,9 +4030,9 @@ resource apiConnection 'Microsoft.Web/connections@2016-06-01' = {
 //==============================================================================
 // Outputs
 //==============================================================================
-output logicAppName string = finopsAlert.name
+output logicAppName string = finopsAlerts.name
 output connectionName string = connectionName
 output actionsCount int = length(actionKeys)
-output logicAppResourceId string = finopsAlert.id
-output logicAppPrincipalId string = finopsAlert.identity.principalId
-output logicAppTriggerUrl string = 'https://${finopsAlert.name}.logic.azure.com:443/workflows/${finopsAlert.name}/triggers/Recurrence/run?api-version=2016-10-01'
+output logicAppResourceId string = finopsAlerts.id
+output logicAppPrincipalId string = finopsAlerts.identity.principalId
+output logicAppTriggerUrl string = 'https://${finopsAlerts.name}.logic.azure.com:443/workflows/${finopsAlerts.name}/triggers/Recurrence/run?api-version=2016-10-01'
