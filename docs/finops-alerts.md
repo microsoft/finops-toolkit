@@ -8,8 +8,8 @@ permalink: /alerts
 #customer intent: As a Finops practitioner, I need to learn about FinOps Alerts
 ---
 
-<span class="fs-9 d-block mb-4">FinOps Alerts</span>
-Monitor your Azure environment for optimization.
+<span class="fs-9 d-block mb-4">FinOps alerts</span>
+Accelerate your cost optimization efforts with scheduled notifications that continuously monitor your cloud environment, empowering you to make informed decisions without the hassle.
 {: .fs-6 .fw-300 }
 
 <a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#deploy">Deploy</a>
