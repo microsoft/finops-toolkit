@@ -20,7 +20,7 @@ Accelerate your cost optimization efforts with scheduled notifications that cont
 Designed with flexibility in mind, FinOps alerts run on a fully configurable schedule, continuously scanning your selected subscriptions for idle resources.
 
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h3 class="m-0 mb-4">What's new in March 2025<span class="ftk-version">v0.8</span></h3>
+    <h3 class="m-0 mb-4">What's new in March 2025<span class="ftk-version">v0.9</span></h3>
     <p class="mt-2 mb-0">
         March released FinOps alerts to boost cost optimization with automated notifications that monitor your cloud.
     </p>
