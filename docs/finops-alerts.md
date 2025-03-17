@@ -52,9 +52,9 @@ Designed with flexibility in mind, FinOps alerts run on a fully configurable sch
 
 ## Deploy FinOps alerts
 
-FinOps alerts works best with the <strong>Owner</strong> role. See template details for least-privilege roles
+FinOps alerts works best with the <strong>Owner</strong> role.
 
-<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="">Deploy to Azure</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://raw.githubusercontent.com/microsoft/finops-toolkit/dbc3a2ddff0281068841af3f223e83b21683ef18/src/templates/finops-alerts/createUiDefinition.json">Deploy to Azure</a>
 
 <a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.8/bladeName/Alerts/featureName/Marketing.Deploy">💜 Give feedback</a>
 <a name="docs"></a>
