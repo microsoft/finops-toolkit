@@ -28,7 +28,7 @@ Designed with flexibility in mind, FinOps alerts run on a fully configurable sch
 </div>
 <a name="features"></a>
 
-## FinOps Alerts features
+## Actionable insights for smarter cloud management
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
