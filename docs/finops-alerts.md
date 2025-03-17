@@ -22,7 +22,7 @@ Designed with flexibility in mind, FinOps alerts run on a fully configurable sch
 <div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
     <h3 class="m-0 mb-4">What's new in March 2025<span class="ftk-version">v0.8</span></h3>
     <p class="mt-2 mb-0">
-        February released v1 of the solution.
+        March released FinOps alerts to boost cost optimization with automated notifications that monitor your cloud.
     </p>
     <p class="mt-2 mb-0 ftk-externallink"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
