@@ -56,7 +56,7 @@ FinOps alerts works best with the <strong>Owner</strong> role. See template deta
 
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="">Deploy to Azure</a>
 
-<a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK0.8/bladeName/AOE/featureName/Marketing.Deploy">💜 Give feedback</a>
+<a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.8/bladeName/Alerts/featureName/Marketing.Deploy">💜 Give feedback</a>
 <a name="docs"></a>
 
 <br>
