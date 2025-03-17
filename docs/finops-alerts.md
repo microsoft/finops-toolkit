@@ -37,7 +37,7 @@ Designed with flexibility in mind, FinOps alerts run on a fully configurable sch
     </div>
     <div class="ftk-tile">
         <div>📧 Automated notifications</div>
-        <div>Once idle resources are detected, the system sends alerts.</div>
+        <div>Get notified when idle resources are detected and take control of your environment.</div>
     </div>
     <div class="ftk-tile">
         <div>🔔 Customizable alerts</div>
