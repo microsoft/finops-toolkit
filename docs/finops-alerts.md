@@ -50,7 +50,7 @@ Designed with flexibility in mind, FinOps alerts run on a fully configurable sch
 </div>
 <a name="deploy"></a>
 
-## Deploy FinOps Alerts
+## Deploy FinOps alerts
 
 FinOps alerts works best with the <strong>Owner</strong> role. See template details for least-privilege roles
 
