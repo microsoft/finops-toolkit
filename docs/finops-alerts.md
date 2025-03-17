@@ -40,8 +40,8 @@ Designed with flexibility in mind, FinOps alerts run on a fully configurable sch
         <div>Get notified when idle resources are detected and take control of your environment.</div>
     </div>
     <div class="ftk-tile">
-        <div>🔔 Customizable alerts</div>
-        <div>Users can customize email subjects, recipients, and subscription IDs to fine-tune the alerts.</div>
+        <div>🔔 Customize alerts</div>
+        <div>Tune alerts to reach key stakeholders, take new actions, and more!</div>
     </div>
     <div class="ftk-tile">
         <div>📃 Review resource utilization</div>
