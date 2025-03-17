@@ -32,8 +32,8 @@ Designed with flexibility in mind, FinOps alerts run on a fully configurable sch
 
 <div class="ftk-gallery ftk-50">
     <div class="ftk-tile">
-        <div>💹 Idle resource monitoring</div>
-        <div>It scans selected subscriptions for idle resources that may increase costs.</div>
+        <div>🔍 Monitor idle resources</div>
+        <div>Identify idle resources across your environment to uncover cost savings.</div>
     </div>
     <div class="ftk-tile">
         <div>📧 Automated notifications</div>
