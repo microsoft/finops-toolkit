@@ -84,54 +84,6 @@
       },
       "additionalProperties": true,
       "required": ["ingestion", "msexports"]
-    },
-    "recommendations": {
-      "type": "array",
-      "items": [
-        {
-          "type": "object",
-          "properties": {
-            "resourceType": {
-              "type": "string"
-            },
-            "reservationScopes": {
-              "type": "array",
-              "items": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "reservationScope": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": true,
-                  "required": ["reservationScope"]
-                }
-              ],
-              "additionalItems": true
-            },
-            "lookBackPeriods": {
-              "type": "array",
-              "items": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "lookBackPeriod": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": true,
-                  "required": ["lookBackPeriod"]
-                }
-              ],
-              "additionalItems": true
-            }
-          },
-          "additionalProperties": true,
-          "required": ["resourceType"]
-        }
-      ],
-      "additionalItems": true
     }
   },
   "additionalProperties": true,
