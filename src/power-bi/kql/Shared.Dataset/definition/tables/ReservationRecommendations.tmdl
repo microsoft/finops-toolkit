@@ -184,6 +184,28 @@ table ReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_BreakEvenMonths =
+			SWITCH(
+			    TRUE(),
+			    [x_SkuTerm] = 12,
+			        ROUND(
+			            [x_EffectiveCostAfter] * 12 / [x_EffectiveCostBefore],
+			            0
+			        ),
+			    [x_SkuTerm] = 36,
+			        ROUND(
+			            [x_EffectiveCostAfter] * 36 / [x_EffectiveCostBefore],
+			            0
+			        ),
+			    BLANK()
+			)
+		lineageTag: 74417a2c-ee2a-49c9-9c35-5d49521a1277
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	partition ReservationRecommendations = m
 		mode: directQuery
 		queryGroup: 'Data Explorer'
@@ -191,10 +213,8 @@ table ReservationRecommendations
 				let
 				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
 				
-				    Recommendations_v1_0
+				Recommendations_v1_0
 				    | where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'
-				    | as rec
-				    | where x_RecommendationDate in ((rec | distinct x_RecommendationDate | order by x_RecommendationDate desc | limit 1))
 				    | extend RegionId = tostring(x_RecommendationDetails.RegionId)
 				    | extend RegionName = tostring(x_RecommendationDetails.RegionName)
 				    | extend x_CommitmentDiscountSavings = x_EffectiveCostBefore - x_EffectiveCostAfter
@@ -202,6 +222,7 @@ table ReservationRecommendations
 				    | extend x_CommitmentDiscountNormalizedSize  = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedSize)
 				    | extend x_SkuTerm = toint(x_RecommendationDetails.SkuTerm)
 				    | extend x_SkuMeterId = tostring(x_RecommendationDetails.SkuMeterId)
+				    | summarize arg_max(x_RecommendationDate, *) by  x_CommitmentDiscountNormalizedSize, x_SkuMeterId, x_SkuTerm, RegionId,tostring(x_RecommendationDetails.CommitmentDiscountNormalizedGroup)
 				    | project
 				        RegionId,
 				        RegionName = iff(isempty(RegionName), RegionId, RegionName),

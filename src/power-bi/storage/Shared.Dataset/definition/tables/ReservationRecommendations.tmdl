@@ -212,6 +212,28 @@ table ReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_BreakEvenMonths =
+			SWITCH(
+			    TRUE(),
+			    [x_SkuTerm] = 12,
+			        ROUND(
+			            [x_EffectiveCostAfter] * 12 / [x_EffectiveCostBefore],
+			            0
+			        ),
+			    [x_SkuTerm] = 36,
+			        ROUND(
+			            [x_EffectiveCostAfter] * 36 / [x_EffectiveCostBefore],
+			            0
+			        ),
+			    BLANK()
+			)
+		lineageTag: e46c9174-69f4-43ce-9ee0-2125bfe3bf43
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	partition ReservationRecommendations = m
 		mode: import
 		queryGroup: Storage

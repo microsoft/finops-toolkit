@@ -45966,19 +45966,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_CommitmentDiscountMeterCategory"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Meter category": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_commitmentdiscountmetersubcategory": {
 			      "Definition": {
@@ -45987,19 +45975,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_CommitmentDiscountMeterSubcategory"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Meter subcategory": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.billingaccountname": {
 			      "Definition": {
@@ -46073,6 +46049,27 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "vCPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservationrecommendations.x_breakevenmonths": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "x_BreakEvenMonths"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "BreakEvenMonths": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

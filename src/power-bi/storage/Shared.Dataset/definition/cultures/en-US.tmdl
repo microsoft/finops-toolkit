@@ -76945,19 +76945,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_CommitmentDiscountMeterCategory"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Meter category": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_skucorecount": {
 			      "Definition": {
@@ -76987,19 +76975,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_CommitmentDiscountMeterSubcategory"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Meter subcategory": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "reservationrecommendations.regionname": {
 			      "Definition": {
