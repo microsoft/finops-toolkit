@@ -60,6 +60,7 @@ _Released March 2025_
   - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
   - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
+  - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
 - **Removed**
   - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
