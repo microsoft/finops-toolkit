@@ -1436,10 +1436,7 @@ CommitmentDiscountUsage_transform_v1_0()
 //----------------------------------------------------------------------------------------------------------------------
 
 // Recommendations_transform_v1_0 function
-.create-or-alter function
-with (docstring='All recommendations transformed to FOCUS 1.0.', folder='Recommendations')
-Recommendations_transform_v1_0()
-{
+.create-or-alter function with (docstring = "All recommendations transformed to FOCUS 1.0.",folder = "Recommendations") Recommendations_transform_v1_0() {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
@@ -1500,20 +1497,28 @@ Recommendations_transform_v1_0()
     )
     //
     // Sort columns and apply final transforms
-    | project
-      ProviderName,
-      SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
-      x_IngestionTime = ingestion_time(),
-      x_EffectiveCostAfter = TotalCostWithReservedInstances,
-      x_EffectiveCostBefore = CostWithNoReservedInstances,
-      x_EffectiveCostSavings = NetSavings,
-      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^Last([0-9]+)Days$', 1, LookBackPeriod)) * 1d),
-      x_RecommendationDetails,
-      x_SourceName,
-      x_SourceProvider,
-      x_SourceType,
-      x_SourceVersion
+| extend x_RecommendationDate =
+    iff(
+      (FirstUsageDate + toint(extract(@'^Last([0-9]+)Days$', 1, LookBackPeriod)) * 1d) > now(),
+      now(),
+      FirstUsageDate + toint(extract(@'^Last([0-9]+)Days$', 1, LookBackPeriod)) * 1d
+    )
+| project
+    ProviderName,
+    SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+    x_IngestionTime = ingestion_time(),
+    x_EffectiveCostAfter = TotalCostWithReservedInstances,
+    x_EffectiveCostBefore = CostWithNoReservedInstances,
+    x_EffectiveCostSavings = NetSavings,
+    x_RecommendationDetails,
+    x_RecommendationDate,
+    x_SourceName,
+    x_SourceProvider,
+    x_SourceType,
+    x_SourceVersion
 }
+
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
