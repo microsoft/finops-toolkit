@@ -4985,10 +4985,147 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                 }
               }
             }
+            { // Append Manifest Data
+              name: 'Append Manifest Data'
+              type: 'AppendVariable'
+              dependsOn: [
+                {
+                  activity: 'Execute File Queries'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: [ ]
+              typeProperties: {
+                variableName: 'ManifestPaths'
+                value: {
+                  value: '@concat(item().outputDataset, \'/\', item().scope)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Distinct Manifest Data
+        name: 'Distinct Manifest Data'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Iterate Files'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        policy: {
+          secureInput: false
+          secureOutput: false
+        }
+        userProperties: [ ]
+        typeProperties: {
+          variableName: 'UniqueManifestPaths'
+          value: {
+            value: '@union(variables(\'ManifestPaths\'), variables(\'ManifestPaths\'))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Generate Manifest Blobs
+        name: 'Generate Manifest Blobs'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Distinct Manifest Data'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@variables(\'UniqueManifestPaths\')'
+            type: 'Expression'
+          }
+          batchCount: 2
+          isSequential: false
+          activities: [
+            { // Create Empty Manifest
+              name: 'Create Empty Manifest'
+              type: 'Copy'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureInput: false
+                secureOutput: false
+              }
+              userProperties: []
+              typeProperties: {
+                source: {
+                  type: 'JsonSource'
+                  storeSettings: {
+                    type: 'AzureBlobFSReadSettings'
+                    recursive: true
+                    enablePartitionDiscovery: false
+                  }
+                  formatSettings: {
+                    type: 'JsonReadSettings'
+                  }
+                }
+                sink: {
+                  type: 'JsonSink'
+                  storeSettings: {
+                    type: 'AzureBlobFSWriteSettings'
+                  }
+                  formatSettings: {
+                    type: 'JsonWriteSettings'
+                  }
+                }
+                enableStaging: false
+              }
+              inputs: [
+                {
+                  referenceName: dataset_manifest.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    fileName: 'manifest.json'
+                    folderPath: {
+                      value: '@pipeline().parameters.folderPath'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
+              outputs: [
+                {
+                  referenceName: dataset_manifest.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    fileName: 'manifest.json'
+                    folderPath: {
+                      value: '@concat(\'${ingestionContainerName}/\', variables(\'destinationFolder\'))'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
+            }
           ]
         }
       }
     ]
+    variables: {
+      ManifestPaths: {
+        type: 'Array'
+      }
+      UniqueManifestPaths: {
+        type: 'Array'
+      }
+    }
     policy: {
       elapsedTimeMetric: {}
     }
