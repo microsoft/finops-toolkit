@@ -26,6 +26,16 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <br>
 
+## Access to the resource is forbidden
+
+<sup>Severity: Critical</sup>
+
+This error generally means the account you are connected with does not have access to the resource you're attempting to use.
+
+**Mitigation**: Confirm you are using the correct account in the correct Microsoft Entra ID tenant.
+
+<br>
+
 ## AccountPropertyCannotBeUpdated
 
 <sup>Severity: Critical</sup>
