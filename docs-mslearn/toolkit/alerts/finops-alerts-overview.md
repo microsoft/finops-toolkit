@@ -34,7 +34,7 @@ FinOps alerts leverages Azure Logic Apps to automate detection of waste across s
 
 ## Why FinOps alerts?
 
-If you are using the FinOps workbook to identify idle or underutilized resources, you'll notice it doesn’t provide any automatic alerts-meaning engineers must continually check back to review flagged items. FinOps alerts automates this process, ensuring that when resources are identified as potentially inefficient, stakeholders receive timely notifications without having to manually monitor a workbook. This not only frees up valuable time for busy teams but also improves the chances of catching cost-saving opportunities as they arise. Moreover, future releases of the app are planned to include additional queries, broadening its scope and further enhancing its ability to deliver actionable insights for sustainable cloud cost management.
+If you are using the [FinOps workbook](/finops/toolkit/workbooks/finops-workbooks-overview) to identify idle or underutilized resources, you'll notice it doesn’t provide any automatic alerts-meaning engineers must continually check back to review flagged items. FinOps alerts automates this process, ensuring that when resources are identified as potentially inefficient, stakeholders receive timely notifications without having to manually monitor a workbook. This not only frees up valuable time for busy teams but also improves the chances of catching cost-saving opportunities as they arise. Moreover, future releases of the app are planned to include additional queries, broadening its scope and further enhancing its ability to deliver actionable insights for sustainable cloud cost management.
 
 ## Required permissions
 
