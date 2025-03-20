@@ -368,11 +368,11 @@ This error code is shown in the `x_SourceChanges` column when `ProviderName` is 
 
 <sup>Severity: Minor</sup>
 
-The source of this error is unknown. This error may be surfaced randomly.
+The source of this error is unknown. This error may be surfaced randomly when refreshing Power BI data.
 
 **Mitigation**: If you receive this error, select **Apply change** again.
 
-This error has only been reported in storage reports. If you have long data refresh times or experience this error often, consider switching to [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. Data Explorer uses KQL reports which do not require scheduling or incremental refresh. Data is pulled when the report is access, so reports always leverage the latest data.
+This error has only been reported in storage reports. If you have long data refresh times or experience this error often, consider switching to [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. Data Explorer uses KQL reports which do not require scheduling or incremental refresh. Data is pulled when the report is opened, so reports always show the latest data.
 
 <br>
 
