@@ -666,6 +666,25 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "philipstreet",
+      "name": "Philip Street",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10855315?v=4",
+      "profile": "https://github.com/philipstreet",
+      "contributions": [
+        "bug",
+        "review"
+      ]
+    },
+    {
+      "login": "japyjaap",
+      "name": "JSwinkels",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6353034?v=4",
+      "profile": "https://github.com/japyjaap",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
