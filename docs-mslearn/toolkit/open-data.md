@@ -105,9 +105,9 @@ Sample data:
 Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
 > [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv)
+> [Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv)
 > [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json)
+> [Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json)
 > [!div class="nextstepaction"]
 > [See PowerShell](powershell/data/get-finopsresourcetype.md)
 
