@@ -53,6 +53,7 @@ _Released March 2025_
 
 - **Added**
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+  - Managed exports now creates exports for Pricesheet, ReservationTransactions, ReservationDetails and ReservationRecommendations for virtual machines.
 - **Fixed**
   - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
