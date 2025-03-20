@@ -5052,8 +5052,9 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
           batchCount: 2
           isSequential: false
           activities: [
-            { // Create Empty Manifest
-              name: 'Create Empty Manifest'
+            { // Create Manifest
+              name: 'Create Manifest'
+              description: 'Create a manifest file in the ingestion container to trigger ADX ingestion'
               type: 'Copy'
               dependsOn: []
               policy: {
@@ -5089,12 +5090,12 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
               }
               inputs: [
                 {
-                  referenceName: dataset_manifest.name
+                  referenceName: dataset_config.name
                   type: 'DatasetReference'
                   parameters: {
-                    fileName: 'manifest.json'
+                    fileName: 'settings.json'
                     folderPath: {
-                      value: '@pipeline().parameters.folderPath'
+                      value: configContainerName
                       type: 'Expression'
                     }
                   }
@@ -5107,7 +5108,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                   parameters: {
                     fileName: 'manifest.json'
                     folderPath: {
-                      value: '@concat(\'${ingestionContainerName}/\', variables(\'destinationFolder\'))'
+                      value: '@concat(\'${ingestionContainerName}/\', split(item(),\'/\')[0], \'/\', utcNow(\'yyyy\'), \'/\', utcNow(\'MM\'), \'/\', utcNow(\'dd\'), \'/\', split(item(),\'/\')[1])'
                       type: 'Expression'
                     }
                   }
@@ -5275,7 +5276,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           errorCode: 'SchemaLoadFailed'
         }
       }
-      {
+      { // Switch Query Type
         type: 'Switch'
         name: 'Switch Query Type'
         dependsOn: [
@@ -5302,7 +5303,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
             {
               value: dataset_resourcegraph.name
               activities: [
-                {
+                { // Execute ARG Query
                   name: 'Execute ARG Query'
                   type: 'Copy'
                   dependsOn: []
@@ -5364,7 +5365,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
                     }
                   ]
                 }
-                {
+                { // Set ARG Query Error
                   name: 'Set ARG Query Error'
                   type: 'SetVariable'
                   dependsOn: [
