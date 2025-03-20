@@ -53,6 +53,9 @@ _Released March 2025_
 
 - **Added**
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+- **Changed**
+  - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
+    - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
 - **Fixed**
   - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).

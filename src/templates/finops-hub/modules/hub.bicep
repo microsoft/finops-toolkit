@@ -339,7 +339,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerIngestionCapacity: safeDataExplorerIngestionCapacity
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: empty(remoteHubStorageKey) ? '' : keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
     enablePublicAccess: enablePublicAccess
   }
@@ -349,7 +349,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
 // Key Vault for storing secrets
 //------------------------------------------------------------------------------
 
-module keyVault 'keyVault.bicep' = {
+module keyVault 'keyVault.bicep' = if (!empty(remoteHubStorageKey)) {
   name: 'keyVault'
   params: {
     hubName: hubName
