@@ -45,14 +45,6 @@
             },
             {
                 "source": {
-                    "path": "[['x_RecommendationControl']"
-                },
-                "sink": {
-                    "path": "x_RecommendationControl"
-                }
-            },
-            {
-                "source": {
                     "path": "[['x_RecommendationDate']"
                 },
                 "sink": {
@@ -81,22 +73,6 @@
                 },
                 "sink": {
                     "path": "x_RecommendationId"
-                }
-            },
-            {
-                "source": {
-                    "path": "[['x_RecommendationImpact']"
-                },
-                "sink": {
-                    "path": "x_RecommendationImpact"
-                }
-            },
-            {
-                "source": {
-                    "path": "[['x_RecommendationMaturityLevel']"
-                },
-                "sink": {
-                    "path": "x_RecommendationMaturityLevel"
                 }
             },
             {

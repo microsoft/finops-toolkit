@@ -4947,15 +4947,15 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                 waitOnCompletion: true
                 parameters: {
                   inputDataset: {
-                    value: '@item().inputDataset'
+                    value: '@item().queryEngine'
                     type: 'Expression'
                   }
                   outputDataset: {
-                    value: '@item().outputDataset'
+                    value: '@item().dataset'
                     type: 'Expression'
                   }
                   schemaFile: {
-                    value: '@item().schemaFile'
+                    value: '@concat(toLower(item().dataset), \'_\', item().version, \'.json\')'
                     type: 'Expression'
                   }
                   queryScope: {
@@ -5000,7 +5000,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
               typeProperties: {
                 variableName: 'ManifestPaths'
                 value: {
-                  value: '@concat(item().outputDataset, \'/\', item().scope)'
+                  value: '@concat(item().dataset, \'/\', item().scope)'
                   type: 'Expression'
                 }
               }
