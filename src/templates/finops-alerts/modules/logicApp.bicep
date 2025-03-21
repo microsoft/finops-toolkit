@@ -22,7 +22,7 @@ param recurrenceType string = 'Recurrence'
 // Variables
 //==============================================================================
 var safeSuffix = replace(replace(toLower(appName), '-', ''), '_', '')
-//var safesuffix = 'CheeseCrust'
+
 
 @description('Name of the connection to use for the logic app')
 var connectionName = '${safeSuffix}-connection'
