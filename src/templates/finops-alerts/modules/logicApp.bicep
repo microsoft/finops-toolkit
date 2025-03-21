@@ -4007,7 +4007,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'AppGatewayHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps👉</strong>  <span>Review Application Gateways which include backend pools with no targets.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps 👉</strong>  <span>Review Application Gateways which include backend pools with no targets.</span>\n</div>'
                 }
               }
             }
@@ -4037,7 +4037,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'IdleDiskHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps👉</strong>  <span>Review Managed Disks that are not attached to any Virtual machine.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps 👉</strong>  <span>Review Managed Disks that are not attached to any Virtual machine.</span>\n</div>'
                 }
               }
             }
@@ -4067,7 +4067,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'IPAddressHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps👉</strong>  <span>Review unattached Public IP Addresses, as they may represent additional cost.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps 👉</strong>  <span>Review unattached Public IP Addresses, as they may represent additional cost.</span>\n</div>'
                 }
               }
             }
@@ -4097,7 +4097,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'LoadBalancerHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps👉</strong>  <span>Review Load Balancers with no backend pools, and remove them if not needed.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps 👉</strong>  <span>Review Load Balancers with no backend pools, and remove them if not needed.</span>\n</div>'
                 }
               }
             }
@@ -4127,7 +4127,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'DiskSnapshotHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps👉</strong>   <span>Review Managed Disks Snapshots that are older than 30 days.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps 👉</strong>   <span>Review Managed Disks Snapshots that are older than 30 days.</span>\n</div>'
                 }
               }
             }
@@ -4157,7 +4157,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'StoppedVMHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps👉</strong>  <span>Review stopped VMs, as they are billed for the allocated cost.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>Next steps 👉</strong>  <span>Review stopped VMs, as they are billed for the allocated cost.</span>\n</div>'
                 }
               }
             }
