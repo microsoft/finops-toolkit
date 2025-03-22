@@ -61,18 +61,23 @@ _Released March 2025_
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
   - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
   - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
+  - Fixed an issue where reservation recommendations were being duplicated for the Canada Central region.
 - **Removed**
   - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
     - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
   - Removed the trusted external tenants setting due to an error causing redeployments to fail. Please enable this after deploying FinOps hubs the first time.
 
-### [Open data](open-data.md) v0.8
+### [Open data](open-data.md) v0.9
 
 **[Dataset examples](open-data.md#dataset-examples)**
 
 - **Added**
   - Added sample data for MCA reservation exports.
+- **Fixed**
+  - Changed a **Central Canada** reference to **Canada Central**.
+    - This may have caused issues or duplication when joined with other datasets.
+    - Please check your data for duplicate references to **Central Canada** and **Canada Central**.
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)

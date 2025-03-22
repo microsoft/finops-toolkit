@@ -1449,7 +1449,7 @@ Recommendations_transform_v1_0()
     | extend TotalCostWithReservedInstances = case(isnotempty(TotalCostWithReservedInstances), TotalCostWithReservedInstances, isnotempty(TotalCostWithReservedInstancesJson), todecimal(extract(@'"value":([0-9\.]+)', 1, TotalCostWithReservedInstancesJson)), TotalCostWithReservedInstances)
     //
     // Build recommendation details
-    | lookup kind=leftouter (database('Ingestion').Regions | distinct Location = RegionId, RegionName) on Location
+    | lookup kind=leftouter (database('Ingestion').Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
     | extend x_RecommendationDetails = case(
       x_SourceType == 'ReservationRecommendations', bag_pack(
         'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
