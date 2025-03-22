@@ -28,6 +28,11 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### Optimization engine
+
+- **Fixed**
+  - Fixed issue with breaking storage account recommendations when resource tags are duplicated after tag inheritance  ([#1430](https://github.com/microsoft/finops-toolkit/issues/1430)).
+
 <br><a name="latest"></a>
 
 ## v0.9
