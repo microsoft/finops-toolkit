@@ -1392,7 +1392,7 @@ CommitmentDiscountUsage_transform_v1_0()
     { "Column": "LookBackPeriod",                     "Properties": { "Field": "LookBackPeriod" } },
     { "Column": "MeterId",                            "Properties": { "Field": "MeterId" } },
     { "Column": "NetSavings",                         "Properties": { "Field": "NetSavings" } },
-    { "Column": "NetSavingsJson",                     "Properties": { "Field": "Net Savings" } },
+    { "Column": "NetSavingsJson",                     "Properties": { "Field": "NetSavingsJson" } },
     { "Column": "NormalizedSize",                     "Properties": { "Field": "NormalizedSize" } },
     { "Column": "RecommendedQuantity",                "Properties": { "Field": "RecommendedQuantity" } },
     { "Column": "RecommendedQuantityNormalized",      "Properties": { "Field": "RecommendedQuantityNormalized" } },
