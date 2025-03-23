@@ -62,6 +62,7 @@ _Released March 2025_
   - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
   - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
   - Fixed an issue where reservation recommendations were being duplicated for the Canada Central region.
+  - Fixed an issue where Recommendations.x_IngestionTime is not being populated in Data Explorer.
 - **Removed**
   - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.

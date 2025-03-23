@@ -1433,6 +1433,7 @@ Recommendations_transform_v1_0()
         ))
     };
     Recommendations_raw
+    | extend x_IngestionTime = ingestion_time()
     //
     // Set ProviderName
     | extend ProviderName = 'Microsoft'
@@ -1478,7 +1479,7 @@ Recommendations_transform_v1_0()
     | project
       ProviderName,
       SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
-      x_IngestionTime = ingestion_time(),
+      x_IngestionTime,
       x_EffectiveCostAfter = TotalCostWithReservedInstances,
       x_EffectiveCostBefore = CostWithNoReservedInstances,
       x_EffectiveCostSavings = NetSavings,
