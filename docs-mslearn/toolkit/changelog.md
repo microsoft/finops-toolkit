@@ -53,6 +53,7 @@ _Released March 2025_
 
 - **Added**
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+  - Added support for multiple reservation recommendation exports to support shared and single recommendations for all services and lookback periods.
 - **Changed**
   - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
     - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.

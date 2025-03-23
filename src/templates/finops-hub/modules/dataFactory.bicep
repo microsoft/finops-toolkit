@@ -3222,7 +3222,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         typeProperties: {
           variableName: 'destinationFolder'
           value: {
-            value: '@replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',toLower(variables(\'scope\'))),\'//\',\'/\')'
+            value: '@replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',toLower(variables(\'scope\')), if(equals(variables(\'hubDataset\'), \'Recommendations\'), activity(\'Read Manifest\').output.firstRow.exportConfig.exportName, \'\')),\'//\',\'/\')'
             type: 'Expression'
           }
         }

@@ -219,19 +219,22 @@ To ingest custom data, save parquet files in the **ingestion** container for the
 
 To ingest CSV file from Cost Management exports, save files in a specific folder in the **msexports** container. After all files are added, add a **manifest.json** file based on the below template. Make the following changes to ensure successful ingestion:
 
-1. Change `<dataset>` and `<version>` to the Cost Management export type and version. See the list below for supported datasets.
-2. Change `<scope>` to the Azure resource ID for the scope the data came from.
-3. Change `<guid>` to a unique GUID.
-4. Change `<yyyy-MM>` to the year and month of the dataset.
-5. Change `<path-to-file>` to the full folder path under the container (do not include "msexports").
-6. Change `<file-name>` to the name of the first file uploaded to storage.
-7. If you have more than one CSV file, copy the blob object for each file you uploaded and update the file name.
+1. Change `<export-name>` to a unique value within the scope for the dataset you're ingesting.
+   - This is only used for recommendations to differentiate the many different types of recommendations getting ingested which aren't identifiable from the export manifest alone. For reservation recommendations, ideally include the service, scope (single/shared), and lookback period.
+2. Change `<dataset>` and `<version>` to the Cost Management export type and version. See the list below for supported datasets.
+3. Change `<scope>` to the Azure resource ID for the scope the data came from.
+4. Change `<guid>` to a unique GUID.
+5. Change `<yyyy-MM>` to the year and month of the dataset.
+6. Change `<path-to-file>` to the full folder path under the container (do not include "msexports").
+7. Change `<file-name>` to the name of the first file uploaded to storage.
+8. If you have more than one CSV file, copy the blob object for each file you uploaded and update the file name.
 
 ```json
 {
   "blobCount": 1,
   "dataRowCount": 1,
   "exportConfig": {
+    "exportName": "<export-name>",
     "type": "<dataset>",
     "dataVersion": "<version>",
     "resourceId": "<scope>/providers/Microsoft.CostManagement/exports/export-name"
