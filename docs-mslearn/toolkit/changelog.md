@@ -45,6 +45,8 @@ _Released March 2025_
 
 **[Rate optimization](power-bi/rate-optimization.md)**
 
+- **Added**
+  - Added support for MCA reservation recommendation exports.
 - **Fixed**
   - Fixed core count double-counting on the Hybrid Benefit page.
   - Fixed savings to include negotiated discounts on the Total savings page.
@@ -53,6 +55,7 @@ _Released March 2025_
 
 - **Added**
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+  - Added support for MCA reservation recommendation exports.
   - Added support for multiple reservation recommendation exports to support shared and single recommendations for all services and lookback periods.
 - **Changed**
   - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
