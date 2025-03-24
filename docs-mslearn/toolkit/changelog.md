@@ -53,7 +53,7 @@ _Released March 2025_
 
 - **Added**
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
-  - Managed exports now creates exports for Pricesheet, ReservationTransactions, ReservationDetails and ReservationRecommendations for virtual machines.
+  - Managed exports now creates exports for Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations for virtual machines, and FocusCosts.
 - **Changed**
   - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
     - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
