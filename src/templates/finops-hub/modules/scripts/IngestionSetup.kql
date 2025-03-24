@@ -1460,6 +1460,7 @@ Recommendations_transform_v1_0()
         'CommitmentDiscountScope', coalesce(Scope, scope),
         'LookbackPeriodDuration', case(
             LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
+            LookBackPeriod matches regex @'^[0-9]+$',           strcat('P', LookBackPeriod, 'D'),
             ''
         ),
         'LookbackPeriodStart', FirstUsageDate,
@@ -1483,7 +1484,7 @@ Recommendations_transform_v1_0()
       x_EffectiveCostAfter = TotalCostWithReservedInstances,
       x_EffectiveCostBefore = CostWithNoReservedInstances,
       x_EffectiveCostSavings = NetSavings,
-      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^Last([0-9]+)Days$', 1, LookBackPeriod)) * 1d),
+      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d),
       x_RecommendationDetails,
       x_SourceName,
       x_SourceProvider,
