@@ -1,7 +1,7 @@
 {
   "$schema": "https://dataexplorer.azure.com/static/d/schema/60/dashboard.json",
   "id": "a20bfb32-a3e1-4854-bc9f-e93b86e40813",
-  "eTag": "d6fe6578-be94-4e40-b67e-efa4b6fab000",
+  "eTag": "b8194dc2-334e-4644-886f-848b65e14aa8",
   "schema_version": "60",
   "title": "FinOps hub",
   "tiles": [
@@ -1249,7 +1249,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 117, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 114, "width": 22, "height": 4 },
       "markdownText": "# SKU prices\r\nSummary of the SKUs used and their applicable discounts\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.SkuPrices)",
       "visualOptions": {}
     },
@@ -1303,7 +1303,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 106, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 103, "width": 22, "height": 4 },
       "markdownText": "# Purchases\r\nCosts from commitment discount, Marketplace, and other purchases\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.Purchases)",
       "visualOptions": {}
     },
@@ -1380,7 +1380,7 @@
       "title": "SKUs with negotiated discounts (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 121, "width": 14, "height": 6 },
+      "layout": { "x": 0, "y": 118, "width": 14, "height": 6 },
       "queryRef": {
         "kind": "query",
         "queryId": "af6424d4-8f73-4b81-bfdd-f0287ebcaaca"
@@ -1402,7 +1402,7 @@
       "title": "SKUs with commitment discounts (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 127, "width": 14, "height": 6 },
+      "layout": { "x": 0, "y": 124, "width": 14, "height": 6 },
       "queryRef": {
         "kind": "query",
         "queryId": "c4f6542d-a9cb-4284-bd4e-b9f94ad02192"
@@ -1424,7 +1424,7 @@
       "title": "SKUs with no discounts (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 133, "width": 14, "height": 6 },
+      "layout": { "x": 0, "y": 130, "width": 14, "height": 6 },
       "queryRef": {
         "kind": "query",
         "queryId": "00ae3917-c783-45f6-a04e-9113e4c5d445"
@@ -1446,7 +1446,7 @@
       "title": "Most used SKUs (last n days)",
       "visualType": "bar",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 14, "y": 121, "width": 8, "height": 18 },
+      "layout": { "x": 14, "y": 118, "width": 8, "height": 18 },
       "queryRef": {
         "kind": "query",
         "queryId": "d8a4634e-7ebe-47ce-83b5-ff7f50f6bee6"
@@ -1517,7 +1517,7 @@
       "title": "Purchases",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 110, "width": 22, "height": 7 },
+      "layout": { "x": 0, "y": 107, "width": 22, "height": 7 },
       "queryRef": {
         "kind": "query",
         "queryId": "35a3a2b3-4ab0-4449-96f7-c78db789089e"
@@ -1621,7 +1621,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 66, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 63, "width": 22, "height": 4 },
       "markdownText": "# Commitment discounts\r\nCommitment discount usage and costs\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.CommitmentDiscounts)",
       "visualOptions": {}
     },
@@ -1630,7 +1630,7 @@
       "title": "Commitment discount usage (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 70, "width": 13, "height": 6 },
+      "layout": { "x": 0, "y": 67, "width": 13, "height": 6 },
       "queryRef": {
         "kind": "query",
         "queryId": "d7f31381-ba44-46a1-ad3e-dc6b8826706d"
@@ -1652,7 +1652,7 @@
       "title": "Savings summary (last n months)",
       "visualType": "multistat",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 11, "width": 15, "height": 9 },
+      "layout": { "x": 0, "y": 8, "width": 15, "height": 9 },
       "queryRef": {
         "kind": "query",
         "queryId": "e17346d1-0227-4aa4-8765-f9b4bf43bed5"
@@ -1755,7 +1755,7 @@
       "title": "Savings summary (last n days)",
       "visualType": "multistat",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 47, "width": 15, "height": 9 },
+      "layout": { "x": 0, "y": 44, "width": 15, "height": 9 },
       "queryRef": {
         "kind": "query",
         "queryId": "f1ef29df-7a1d-4dd0-8619-0c0164707b31"
@@ -1858,7 +1858,7 @@
       "title": "Commitment discount breakdown (last n months)",
       "visualType": "multistat",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 15, "y": 11, "width": 7, "height": 9 },
+      "layout": { "x": 15, "y": 8, "width": 7, "height": 9 },
       "queryRef": {
         "kind": "query",
         "queryId": "7d0c2c1f-338b-4534-b173-36b284779131"
@@ -1879,7 +1879,7 @@
       "title": "Commitment discount breakdown (last n days)",
       "visualType": "multistat",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 15, "y": 47, "width": 7, "height": 9 },
+      "layout": { "x": 15, "y": 44, "width": 7, "height": 9 },
       "queryRef": {
         "kind": "query",
         "queryId": "84ecad69-79ac-45b9-a8af-60be28dcc748"
@@ -1900,7 +1900,7 @@
       "title": "Monthly trend by service category",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 37, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 34, "width": 22, "height": 8 },
       "queryRef": {
         "kind": "query",
         "queryId": "85320475-730b-411f-98d5-fbc345bf5e68"
@@ -1922,7 +1922,7 @@
       "title": "Monthly savings trend",
       "visualType": "stackedcolumn",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 24, "width": 15, "height": 6 },
+      "layout": { "x": 0, "y": 21, "width": 15, "height": 6 },
       "queryRef": {
         "kind": "query",
         "queryId": "5bbb5369-ac95-45fc-853c-a6a2ce6a9e7b"
@@ -1962,7 +1962,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 5, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 2, "width": 22, "height": 4 },
       "markdownText": "# Savings\r\nSummary of negotiated and commitment discount savings\r\n\r\n⬆️ [Top](?tile=c0bd4bc4-a910-4a74-89a9-d4ae0f995563) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Understand.RateOptimization.Savings)",
       "visualOptions": {}
     },
@@ -1971,7 +1971,7 @@
       "title": "Total savings (last n months)",
       "visualType": "pie",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 15, "y": 20, "width": 7, "height": 10 },
+      "layout": { "x": 15, "y": 17, "width": 7, "height": 10 },
       "queryRef": {
         "kind": "query",
         "queryId": "93f0eb9f-fa4d-4c54-96c2-8c1d3387d13a"
@@ -2000,7 +2000,7 @@
       "title": "Daily savings trend",
       "visualType": "stackedcolumn",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 60, "width": 15, "height": 6 },
+      "layout": { "x": 0, "y": 57, "width": 15, "height": 6 },
       "queryRef": {
         "kind": "query",
         "queryId": "5c442903-65b0-4b53-9e7c-3ea9c1af7be5"
@@ -2040,7 +2040,7 @@
       "title": "Total savings (last n days)",
       "visualType": "pie",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 15, "y": 56, "width": 7, "height": 10 },
+      "layout": { "x": 15, "y": 53, "width": 7, "height": 10 },
       "queryRef": {
         "kind": "query",
         "queryId": "9a9ee4b0-a37d-475f-bf1d-f51573243491"
@@ -2069,7 +2069,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 9, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 6, "width": 22, "height": 2 },
       "markdownText": "## Monthly trend (last n months)",
       "visualOptions": {}
     },
@@ -2078,7 +2078,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 45, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 42, "width": 22, "height": 2 },
       "markdownText": "## Daily trend (last n days)",
       "visualOptions": {}
     },
@@ -2087,7 +2087,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 76, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 73, "width": 22, "height": 2 },
       "markdownText": "## Subscription chargeback (last n months)",
       "visualOptions": {}
     },
@@ -2096,7 +2096,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 86, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 83, "width": 22, "height": 2 },
       "markdownText": "## Resource group chargeback (last n months)",
       "visualOptions": {}
     },
@@ -2105,7 +2105,7 @@
       "title": "Commitment discount chargeback by resource group",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 88, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 85, "width": 22, "height": 8 },
       "queryRef": {
         "kind": "query",
         "queryId": "377e3693-0738-45d7-97d9-4b6e71ec5b36"
@@ -2127,7 +2127,7 @@
       "title": "Commitment discount chargeback by subscription",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 78, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 75, "width": 22, "height": 8 },
       "queryRef": {
         "kind": "query",
         "queryId": "13cad52d-91e7-4ab4-aad5-4aae21c1019a"
@@ -2149,7 +2149,7 @@
       "title": "Commitment discount usage by resource (last n days)",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 98, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 95, "width": 22, "height": 8 },
       "queryRef": {
         "kind": "query",
         "queryId": "dcf69b47-233e-4bc4-b914-3f6f09f4cb82"
@@ -2171,7 +2171,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 96, "width": 22, "height": 2 },
+      "layout": { "x": 0, "y": 93, "width": 22, "height": 2 },
       "markdownText": "## Resources usage (last n days)",
       "visualOptions": {}
     },
@@ -2198,7 +2198,7 @@
       "title": "Monthly trend by hub instance",
       "visualType": "stackedcolumn",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 9, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 13, "width": 22, "height": 5 },
       "queryRef": {
         "kind": "query",
         "queryId": "d7a9ff96-da17-4826-9fb5-b23f4c7b938d"
@@ -2238,7 +2238,7 @@
       "title": "Daily trend by hub instance",
       "visualType": "stackedcolumn",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 14, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 18, "width": 22, "height": 5 },
       "queryRef": {
         "kind": "query",
         "queryId": "13813a00-e634-4428-9eac-ea255fd1eaca"
@@ -2278,7 +2278,7 @@
       "title": "Monthly trend by hub instance",
       "visualType": "table",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 19, "width": 22, "height": 8 },
+      "layout": { "x": 0, "y": 23, "width": 22, "height": 8 },
       "queryRef": {
         "kind": "query",
         "queryId": "62bbceee-c089-45db-822c-0b4745358aa4"
@@ -2300,7 +2300,7 @@
       "title": "",
       "visualType": "markdownCard",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 27, "width": 22, "height": 4 },
+      "layout": { "x": 0, "y": 31, "width": 22, "height": 4 },
       "markdownText": "# Ingested data\r\nSummary of the data that's been ingested into FinOps hubs\r\n\r\n⬆️ [Top](?tile=ab300a6a-3bbd-450b-942c-7f30113cba15) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.IngestedData)",
       "visualOptions": {}
     },
@@ -2309,7 +2309,7 @@
       "title": "Ingested data by table",
       "visualType": "stackedcolumn",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 34, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 38, "width": 22, "height": 5 },
       "queryRef": {
         "kind": "query",
         "queryId": "b98c9ed7-47b3-41c1-a596-fd9d32725b33"
@@ -2349,7 +2349,7 @@
       "title": "Ingested cost data by scope",
       "visualType": "stackedcolumn",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 39, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 43, "width": 22, "height": 5 },
       "queryRef": {
         "kind": "query",
         "queryId": "187e22fe-3d78-45a2-a2bf-090ece144fd1"
@@ -2389,7 +2389,7 @@
       "title": "Ingested scopes",
       "visualType": "card",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 31, "width": 4, "height": 3 },
+      "layout": { "x": 0, "y": 35, "width": 4, "height": 3 },
       "queryRef": {
         "kind": "query",
         "queryId": "d2c522dc-ef4b-4714-a473-09350e275557"
@@ -2407,7 +2407,7 @@
       "title": "Ingested months",
       "visualType": "card",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 4, "y": 31, "width": 4, "height": 3 },
+      "layout": { "x": 4, "y": 35, "width": 4, "height": 3 },
       "queryRef": {
         "kind": "query",
         "queryId": "6fe11b78-82ef-4e9a-8411-a65e5b0d8bba"
@@ -2425,7 +2425,7 @@
       "title": "Ingested price data by scope",
       "visualType": "stackedcolumn",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 44, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 48, "width": 22, "height": 5 },
       "queryRef": {
         "kind": "query",
         "queryId": "b3621977-59be-4f98-a034-a94479612115"
@@ -2465,7 +2465,7 @@
       "title": "Ingested recommendation data by scope",
       "visualType": "stackedcolumn",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 49, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 53, "width": 22, "height": 5 },
       "queryRef": {
         "kind": "query",
         "queryId": "4a2a77fe-e819-4059-b027-dab0a1770a0a"
@@ -2505,7 +2505,7 @@
       "title": "Ingested transaction data by scope",
       "visualType": "stackedcolumn",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 54, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 58, "width": 22, "height": 5 },
       "queryRef": {
         "kind": "query",
         "queryId": "8f1ad1ef-6f5e-4f20-a1c4-3941e871d0cd"
@@ -2545,7 +2545,7 @@
       "title": "Ingested commitment discount usage data by scope",
       "visualType": "stackedcolumn",
       "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
-      "layout": { "x": 0, "y": 59, "width": 22, "height": 5 },
+      "layout": { "x": 0, "y": 63, "width": 22, "height": 5 },
       "queryRef": {
         "kind": "query",
         "queryId": "e9a9a135-6a74-4463-b69f-eac6930ff1f2"
@@ -2955,7 +2955,7 @@
       "title": "Effective Savings Rate (last n months)",
       "visualType": "multistat",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 20, "width": 15, "height": 4 },
+      "layout": { "x": 0, "y": 17, "width": 15, "height": 4 },
       "queryRef": {
         "kind": "query",
         "queryId": "e1bc2d51-44af-4dd9-8b0d-a71088b551f5"
@@ -3079,7 +3079,7 @@
       "title": "Savings breakdown by month",
       "visualType": "table",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 30, "width": 22, "height": 7 },
+      "layout": { "x": 0, "y": 27, "width": 10, "height": 7 },
       "queryRef": {
         "kind": "query",
         "queryId": "3b3f0a58-2d84-4e3e-bebc-3e747a7d5ede"
@@ -3101,7 +3101,7 @@
       "title": "Effective Savings Rate (last n days)",
       "visualType": "multistat",
       "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
-      "layout": { "x": 0, "y": 56, "width": 15, "height": 4 },
+      "layout": { "x": 0, "y": 53, "width": 15, "height": 4 },
       "queryRef": {
         "kind": "query",
         "queryId": "cb34f22b-9370-460c-9658-3e73d220bbc7"
@@ -3218,6 +3218,81 @@
             "visualType": "multistat"
           }
         ]
+      }
+    },
+    {
+      "id": "fc2e27cf-57be-486f-afa5-6a93d6e9c6a7",
+      "title": "Ingested months",
+      "visualType": "multistat",
+      "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
+      "layout": { "x": 0, "y": 9, "width": 9, "height": 4 },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "8de47213-8327-44da-9d1b-8ba5de74c44a"
+      },
+      "visualOptions": {
+        "multiStat__textSize": "auto",
+        "multiStat__valueColumn": "Value",
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "multiStat__displayOrientation": "horizontal",
+        "multiStat__labelColumn": "Label",
+        "multiStat__slot": { "width": 3, "height": 1 },
+        "colorRules": []
+      }
+    },
+    {
+      "id": "2e9d6a7f-6393-41ad-83df-51faddbe3b8e",
+      "title": "Effective cost breakdown by month",
+      "visualType": "table",
+      "pageId": "306fef9a-c760-4559-a326-7c25d196b616",
+      "layout": { "x": 10, "y": 27, "width": 12, "height": 7 },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "0341b3e4-eccc-4924-9555-9835b128c543"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": false,
+        "colorStyle": "light",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "daa1b2bd-0ccd-43ff-ad2c-1337d247805a",
+      "title": "",
+      "visualType": "markdownCard",
+      "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
+      "layout": { "x": 0, "y": 68, "width": 22, "height": 4 },
+      "markdownText": "# Data quality\r\nData quality checks that may impact your reports.\r\n\r\n⬆️ [Top](?tile=ab300a6a-3bbd-450b-942c-7f30113cba15) &nbsp; &nbsp; 💜 [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/cvaQuestion/How%20valuable%20the%20FinOps%20hubs%20Data%20Explorer%20dashboard%3F/surveyId/FTK$$ftkver$$/bladeName/Hubs.Dashboard/featureName/Understand.DataIngestion.DataQuality)",
+      "visualOptions": {}
+    },
+    {
+      "id": "d5ea61ef-d4f5-423e-bfa4-d1ab473867c2",
+      "title": "Summary of list, contracted, and effective cost alignment",
+      "visualType": "table",
+      "pageId": "9e099251-9658-48da-b416-80422a2a47c7",
+      "layout": { "x": 0, "y": 72, "width": 22, "height": 8 },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "56fd8707-bbb3-4f7e-8e37-8dd90ada3baa"
+      },
+      "description": "This table summarizes rows where cost columns are not set or may be incorrect in the data provided by Cost Management.",
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "colorStyle": "light",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
       }
     }
   ],
@@ -4005,7 +4080,7 @@
         "kind": "inline",
         "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
       },
-      "text": "CostsByMonth\n| extend x_AmortizationCategory = case(\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\n    ''\n)\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)\n| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)\n| summarize\n    ['On-demand']    = round(sumif(EffectiveCost, x_PricingSubcategory == 'Standard'), 2),\n    Spot             = round(sumif(EffectiveCost, x_PricingSubcategory == 'Spot'), 2),\n    Reservation      = round(sumif(EffectiveCost, CommitmentDiscountType == 'Reservation'), 2),\n    ['Savings plan'] = round(sumif(EffectiveCost, CommitmentDiscountType == 'Savings Plan'), 2),\n    ['Total cost']   = round(sum(EffectiveCost), 2),\n    ['List cost']    = round(sumif(ListCost, x_AmortizationCategory != 'Principal'), 2),\n    Savings          = round(sum(x_TotalSavings), 2)\n    by\n    Account = x_BillingProfileId,\n    Month   = substring(startofmonth(ChargePeriodStart), 0, 7)\n| extend ESR = percentstring(Savings/ ['List cost'])\n| order by Month desc",
+      "text": "CostsByMonth\n| extend x_AmortizationCategory = case(\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\n    ''\n)\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)\n| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)\n| summarize\n    ['List cost']      = round(sumif(ListCost, x_AmortizationCategory != 'Principal'), 2),\n    ['Effective cost'] = round(sum(EffectiveCost), 2),\n    Savings            = round(sum(x_TotalSavings), 2)\n    by\n    Account = x_BillingProfileId,\n    Month   = substring(startofmonth(ChargePeriodStart), 0, 7)\n| extend ESR = percentstring(Savings/ ['List cost'])\n| order by Month desc",
       "id": "3b3f0a58-2d84-4e3e-bebc-3e747a7d5ede",
       "usedVariables": ["CostsByMonth"]
     },
@@ -4017,6 +4092,42 @@
       "text": "let data = materialize(\n    CostsByDay\n    //\n    // Don't double-count commitment discount purchases\n    | where x_AmortizationCategory != 'Principal'\n    //\n    | summarize \n        ListCost = sum(ListCost),\n        ContractedCost = sum(ContractedCost),\n        EffectiveCost = sum(EffectiveCost)\n    | extend TotalSavings = ListCost - EffectiveCost\n    | extend EffectiveSavingsRate = TotalSavings / ListCost\n    | project json = todynamic(strcat('[',\n        '{ \"order\":11, \"type\":\"TotalSavings\", \"label\":\"Total savings\", \"value\":\"', numberstring(round(TotalSavings, 2)), '\" },',\n        '{ \"order\":12, \"type\":\"\", \"label\":\"\", \"value\":\"➗\" },',\n        '{ \"order\":13, \"type\":\"List\", \"label\":\"Cost without discounts\", \"value\":\"', numberstring(round(ListCost, 2)), '\" },',\n        '{ \"order\":14, \"type\":\"\", \"label\":\"\", \"value\":\"🟰\" },',\n        '{ \"order\":15, \"type\":\"EffectiveSavingsRate\", \"label\":\"Effective savings rate\", \"value\":\"', percentstring(EffectiveSavingsRate), '\" }',\n    ']'))\n    | mv-expand json\n    | order by toint(json.order) asc\n    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)\n);\ndata",
       "id": "cb34f22b-9370-460c-9658-3e73d220bbc7",
       "usedVariables": ["CostsByDay"]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "database('Ingestion').HubSettings\n| extend temp = todynamic(strcat('[',\n    '{\"Label\":\"Version\",\"Value\":', version, '},',\n    '{\"Label\":\"Managed scopes\",\"Value\":', array_length(scopes), '},',\n    '{\"Label\":\"Data retention\",\"Value\":\"', toint(retention.final.months), 'mo\"}',\n']'))\n| mvexpand temp\n| project Label = tostring(temp.Label), Value = tostring(temp.Value)\n",
+      "id": "8de47213-8327-44da-9d1b-8ba5de74c44a",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "CostsByMonth\n| extend x_AmortizationCategory = case(\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\n    ''\n)\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)\n| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)\n| summarize\n    ['On-demand']    = round(sumif(EffectiveCost, PricingCategory == 'Standard'), 2),\n    Spot             = round(sumif(EffectiveCost, PricingCategory == 'Dynamic'), 2),\n    Reservation      = round(sumif(EffectiveCost, CommitmentDiscountType == 'Reservation'), 2),\n    ['Savings plan'] = round(sumif(EffectiveCost, CommitmentDiscountType == 'Savings Plan'), 2),\n    ['Other']        = round(sumif(EffectiveCost, PricingCategory !in ('Standard', 'Dynamic') and isempty(CommitmentDiscountType)), 2)\n    by\n    Account = x_BillingProfileId,\n    Month   = substring(startofmonth(ChargePeriodStart), 0, 7)\n| order by Month desc",
+      "id": "0341b3e4-eccc-4924-9555-9835b128c543",
+      "usedVariables": ["CostsByMonth"]
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "Costs\n| extend EffectiveOverContracted = iff(ContractedCost < EffectiveCost, ContractedCost - EffectiveCost, decimal(0))\n| extend ContractedOverList      = iff(ListCost < ContractedCost,      ListCost - ContractedCost,      decimal(0))\n| extend EffectiveOverList       = iff(ListCost < EffectiveCost,       ListCost - EffectiveCost,       decimal(0))\n| extend Scenario = case(\n    ListCost == 0 and CommitmentDiscountCategory == 'Usage' and ChargeCategory == 'Usage', 'Reservation usage missing list',\n    ListCost == 0 and CommitmentDiscountCategory == 'Usage' and ChargeCategory == 'Purchase', 'Reservation purchase missing list',\n    ListCost == 0 and CommitmentDiscountCategory == 'Spend' and ChargeCategory == 'Usage', 'Savings plan usage missing list',\n    ListCost == 0 and CommitmentDiscountCategory == 'Spend' and ChargeCategory == 'Purchase', 'Savings plan purchase missing list',\n    ListCost == 0 and ChargeCategory == 'Purchase', 'Other purchase missing list',\n    isnotempty(CommitmentDiscountStatus) and ContractedOverList == 0 and EffectiveOverContracted < 0, 'Commitment cost over contracted',\n    ListCost == 0 and BilledCost == 0 and EffectiveCost == 0 and ContractedCost > 0 and x_SourceChanges !contains 'MissingContractedCost', 'ContractedCost should be 0',\n    ListCost == 0 and ContractedCost == 0 and BilledCost > 0 and EffectiveCost > 0 and x_PublisherCategory == 'Vendor' and ChargeCategory == 'Usage', 'Marketplace usage missing list/contracted',\n    ContractedOverList < 0 and EffectiveOverContracted == 0 and x_SourceChanges !contains 'MissingListCost', 'ListCost too low',\n    ContractedUnitPrice == x_EffectiveUnitPrice and EffectiveOverContracted < 0 and x_SourceChanges !contains 'MissingContractedCost', 'ContractedCost doesn\\'t match price',\n    EffectiveOverContracted != 0 and abs(EffectiveOverContracted) < 0.00000001, 'Rounding error',\n    ContractedOverList != 0 and abs(ContractedOverList) < 0.00000001, 'Rounding error',\n    EffectiveOverList != 0 and abs(EffectiveOverList) < 0.00000001, 'Rounding error',\n    ContractedCost < EffectiveCost or ListCost < ContractedCost or ListCost < EffectiveCost, '',\n    EffectiveCost <= ContractedCost and ContractedCost <= ListCost, 'Good',\n    '')\n| project-reorder ListCost, ContractedCost, BilledCost, EffectiveCost, EffectiveOverList, EffectiveOverContracted, ContractedOverList, x_SourceChanges, ListUnitPrice, ContractedUnitPrice, x_BilledUnitPrice, x_EffectiveUnitPrice, CommitmentDiscountStatus, PricingQuantity, PricingUnit, x_PricingBlockSize, x_PricingUnitDescription\n// DEBUG -- | where isempty(scenario) | limit 1000\n// Summarize -- \n| summarize Rows = count(), EffectiveCost = round(sum(EffectiveCost), 2), EffectiveOverContracted = abs(sum(EffectiveOverContracted)), ContractedOverList = abs(sum(ContractedOverList)), EffectiveOverList = abs(sum(EffectiveOverList)), Agreement = arraystring(make_set(x_BillingAccountAgreement)) by Scenario | order by Rows desc\n",
+      "id": "56fd8707-bbb3-4f7e-8e37-8dd90ada3baa",
+      "usedVariables": []
+    },
+    {
+      "id": "eb9259cc-05b7-4441-a66d-a29026fe371b",
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
+      },
+      "text": "Costs_v1_0\n//\n// Apply summarization settings\n| where ChargePeriodStart >= monthsago(numberOfMonths)\n| as filteredCosts\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\n//\n//| extend x_SkuVMProperties = tostring(x_SkuDetails.VMProperties)\n| extend x_CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)\n//\n// Hybrid Benefit\n| extend tmp_SQLAHB = tolower(x_SkuDetails.AHB)\n| extend tmp_IsVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'\n| extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))\n| extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)\n| extend x_SkuImageType = tostring(x_SkuDetails.ImageType)\n| extend x_SkuType      = tostring(x_SkuDetails.ServiceType)\n| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''))\n| extend x_SkuLicenseStatus = case(\n    ChargeCategory != 'Usage', '',\n    (x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and x_SkuMeterSubcategory contains 'Windows') or tmp_SQLAHB == 'false', 'Not Enabled',\n    x_SkuDetails.ImageType contains 'Windows Server BYOL' or tmp_SQLAHB == 'true' or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'Enabled',\n    ''\n)\n| extend x_SkuLicenseType = case(\n    ChargeCategory != 'Usage', '',\n    x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or x_SkuDetails.ImageType contains 'Windows Server BYOL'), 'Windows Server',\n    isnotempty(tmp_SQLAHB) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',\n    ''\n)\n| extend x_SkuLicenseQuantity = case(\n    isempty(x_SkuCoreCount), toint(''),\n    x_SkuCoreCount <= 8, 8,\n    x_SkuCoreCount <= 16, 16,\n    x_SkuCoreCount == 20, 24,\n    x_SkuCoreCount > 20, x_SkuCoreCount,\n    toint('')\n)\n| extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\n//\n| extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')\n| extend x_CommitmentDiscountUtilizationPotential = case(\n    ChargeCategory == 'Purchase', decimal(0),\n    ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,\n    CommitmentDiscountCategory == 'Usage', ConsumedQuantity,\n    CommitmentDiscountCategory == 'Spend', EffectiveCost,\n    decimal(0)\n)\n| extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, decimal(0))\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\n//\n// CSP partners\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\n//\n// Savings\n| extend x_AmortizationCategory = case(\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\n    ''\n)\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)\n| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)\n| extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0, decimal(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)\n| extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)\n| extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)\n//\n// Toolkit\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\n//\n// TODO: Only add differentiators when the name is not unique\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\n//\n// Explain why cost is 0\n| extend x_FreeReason = case(\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\n        x_SkuDescription contains 'Trial', 'Trial',\n        x_SkuDescription contains 'Preview', 'Preview',\n        'Other'\n    ),\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\n        PricingQuantity > 0.0, 'Low Usage',\n        PricingQuantity == 0.0, 'No Usage',\n        'Unknown Negative Quantity'\n    ),\n    'Unknown'\n)\n//\n| project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent",
+      "usedVariables": ["numberOfMonths"]
     },
     {
       "id": "43612ae4-c475-4f22-bb50-ce9d995abb8f",
@@ -4062,15 +4173,6 @@
       },
       "text": "CostsPlus",
       "usedVariables": ["CostsPlus"]
-    },
-    {
-      "id": "eb9259cc-05b7-4441-a66d-a29026fe371b",
-      "dataSource": {
-        "kind": "inline",
-        "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6"
-      },
-      "text": "Costs_v1_0\n//\n// Apply summarization settings\n| where ChargePeriodStart >= monthsago(numberOfMonths)\n| as filteredCosts\n| extend x_ChargeMonth = startofmonth(ChargePeriodStart)\n//\n//| extend x_SkuVMProperties = tostring(x_SkuDetails.VMProperties)\n| extend x_CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)\n//\n// Hybrid Benefit\n| extend tmp_SQLAHB = tolower(x_SkuDetails.AHB)\n| extend tmp_IsVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'\n| extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))\n| extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)\n| extend x_SkuImageType = tostring(x_SkuDetails.ImageType)\n| extend x_SkuType      = tostring(x_SkuDetails.ServiceType)\n| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''))\n| extend x_SkuLicenseStatus = case(\n    ChargeCategory != 'Usage', '',\n    (x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and x_SkuMeterSubcategory contains 'Windows') or tmp_SQLAHB == 'false', 'Not Enabled',\n    x_SkuDetails.ImageType contains 'Windows Server BYOL' or tmp_SQLAHB == 'true' or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'Enabled',\n    ''\n)\n| extend x_SkuLicenseType = case(\n    ChargeCategory != 'Usage', '',\n    x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or x_SkuDetails.ImageType contains 'Windows Server BYOL'), 'Windows Server',\n    isnotempty(tmp_SQLAHB) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',\n    ''\n)\n| extend x_SkuLicenseQuantity = case(\n    isempty(x_SkuCoreCount), toint(''),\n    x_SkuCoreCount <= 8, 8,\n    x_SkuCoreCount <= 16, 16,\n    x_SkuCoreCount == 20, 24,\n    x_SkuCoreCount > 20, x_SkuCoreCount,\n    toint('')\n)\n| extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')\n| extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount\n//\n| extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')\n| extend x_CommitmentDiscountUtilizationPotential = case(\n    ChargeCategory == 'Purchase', decimal(0),\n    ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,\n    CommitmentDiscountCategory == 'Usage', ConsumedQuantity,\n    CommitmentDiscountCategory == 'Spend', EffectiveCost,\n    decimal(0)\n)\n| extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, decimal(0))\n| extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))\n//\n// CSP partners\n// x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))\n// x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))\n//\n// Savings\n| extend x_AmortizationCategory = case(\n    ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory), 'Principal',\n    isnotempty(CommitmentDiscountCategory), 'Amortized Charge',\n    ''\n)\n| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)\n| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)\n| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)\n| extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0, decimal(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)\n| extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)\n| extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)\n//\n// Toolkit\n| extend x_ToolkitTool = tostring(Tags['ftk-tool'])\n| extend x_ToolkitVersion = tostring(Tags['ftk-version'])\n| extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])\n| extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)\n| extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)\n| extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)\n//\n// TODO: Only add differentiators when the name is not unique\n| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))\n| extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))\n| extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))\n| extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))\n//\n// Explain why cost is 0\n| extend x_FreeReason = case(\n    BilledCost != 0.0 or EffectiveCost != 0.0, '',\n    PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),\n    x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(\n        x_SkuDescription contains 'Trial', 'Trial',\n        x_SkuDescription contains 'Preview', 'Preview',\n        'Other'\n    ),\n    x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(\n        PricingQuantity > 0.0, 'Low Usage',\n        PricingQuantity == 0.0, 'No Usage',\n        'Unknown Negative Quantity'\n    ),\n    'Unknown'\n)\n//\n| project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent",
-      "usedVariables": ["numberOfMonths"]
     },
     {
       "dataSource": {
