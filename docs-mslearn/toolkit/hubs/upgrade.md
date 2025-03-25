@@ -192,12 +192,10 @@ To upgrade FinOps hubs 0.7 to 0.8:
 1. Delete FinOps hubs 0.7 networking resources:
    1. Open the FinOps hub resource group in the Azure portal.
    2. Delete all private endpoints within the resource group.
-   3. Open the network security group (NSG).
-   4. Select **Settings** > **Subnets**.
-   5. For each of the subnets in the list, expand the menu on the right side of the table (3 dots) and select **Disassociate**.
-   6. Delete the network security group (NSG) resource.
-   7. Return to the resource group overview and delete the virtual network. Ensure no private endpoints, peerings, or connected devices are left before deleting the virtual network.
-   8. Delete all DNS zones.
+   3. Delete all private DNS zones within the resource group.
+   4. Delete the virtual network.  If errors are encountered:
+      - Confirm no private endpoints or DNS zones remain.
+      - Check the connected devices tab and remove any lingering resources to ensure the virtual network is not in use.
 2. Redeploy the template by using the **same inputs** from the previous deployment
    1. Subscription
    2. Resource group
