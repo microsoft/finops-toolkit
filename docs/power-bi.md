@@ -132,6 +132,12 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-tile">
+        <div>📈 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/anomalies">Anomaly management</a></div>
+        <div>
+            Detect unusual cost and usage patterns and identify root causes to address anomalies quickly and minimize impact.
+        </div>
+    </div>
+    <div class="ftk-tile">
         <div>⚖️ <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/governance">Policy + governance</a></div>
         <div>
             Summarize your governance posture with standard metrics aligned with the Cloud Adoption Framework.

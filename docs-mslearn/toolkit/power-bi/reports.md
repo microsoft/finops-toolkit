@@ -27,9 +27,10 @@ Support for the [Cost Management connector for Power BI](/power-bi/connect-data/
 The FinOps toolkit includes reports that connect to different data sources. We recommend using the following reports that connect to Cost Management exports or [FinOps hubs](../hubs/finops-hubs-overview.md):
 
 - [Cost summary](cost-summary.md) – Overview of amortized costs with common breakdowns.
+- [Anomaly management](anomaly-management.md) – Detect unusual patterns and identify root causes to address anomalies.
 - [Rate optimization](rate-optimization.md) – Summarizes existing and potential savings from commitment discounts.
 - [Workload optimization](workload-optimization.md) – Summarizes opportunities to achieve resource cost and usage efficiencies.
-- [Cloud policy and governance](governance.md) – Summarize cloud governance posture including areas like compliance, security, operations, and resource management.
+- [Cloud policy and governance](governance.md) – Summarizes your cloud governance posture including areas like compliance, security, operations, and resource management.
 - [Data ingestion](data-ingestion.md) – Provides insights into your data ingestion layer.
 
 If you need to monitor more than $2 million in spend, we generally recommend using Kusto Query Language (KQL) reports that connect to [FinOps hubs](../hubs/finops-hubs-overview.md) with Azure Data Explorer. As of November 2024, only the Cost summary, Rate optimization, and Data ingestion reports connect to Data Explorer. Organizations who need other reports can continue to connect to the underlying hub storage account.
