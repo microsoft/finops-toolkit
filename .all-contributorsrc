@@ -722,6 +722,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "picccard",
+      "name": "Eskil Uhlving Larsen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7443949?v=4",
+      "profile": "http://blog.eula.no",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",
