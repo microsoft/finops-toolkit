@@ -87,7 +87,6 @@ Related FinOps capabilities:
 
 Related products:
 
-- [Cost Management](/azure/cost-management-billing/costs/)
 - [Azure Logic Apps](/azure/azure-logic-apps/)
 
 Related solutions:
