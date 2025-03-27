@@ -2590,6 +2590,43 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                           }
                         }
                       }
+                      {
+                        name: 'Trigger EA monthly pricesheet export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA monthly pricesheet export' 
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 0
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          method: 'POST'
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-pricesheet\'))}/run?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          body: ' '
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
                       { // 'EA daily reservation details export'
                         name: 'EA daily reservation details export'
                         type: 'WebActivity'
