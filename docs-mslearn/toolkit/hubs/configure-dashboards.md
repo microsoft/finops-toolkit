@@ -24,7 +24,25 @@ Before you begin, you must have:
 
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
-- Have database viewer access to the Data Explorer **Hub** and **Ingestion** databases.
+- explicit permissions to access the databases **Hub** and **Ingestion** via the Web UI or via PowerBI, persons must be added as a user to the databases by applying a specific [Database level security role](https://learn.microsoft.com/en-us/kusto/management/manage-database-security-roles?view=microsoft-fabric#database-level-security-roles)
+  - Option 1:
+    1. Select the Data Explorer Cluster ressource
+    2. navigate to databases
+    3. select the database
+    4. select permissions
+    5. click on Add and select the corresponding databse security role (e. g. admin, viewer, user)
+    6. select the principal (users, groups or Enterprise Applications) and grant permissions
+   
+  - Option 2:
+    1. Select the Data Explorer Cluster ressource
+    2. navigate to databases
+    3. select the database
+    4. click on query
+    5. run the following query, where 'users' might be replaced with the most suitable [Database level security role](https://learn.microsoft.com/en-us/kusto/management/manage-database-security-roles?view=microsoft-fabric#database-level-security-roles)
+    ```
+         .add database MyDatabase users ('aaduser=MyUser@MyOrganization.com') 'User (AAD)'
+    ```
+
 
 This walkthrough does not incur any cost; however, maintaining an active Data Explorer cluster does incur cost.
 
