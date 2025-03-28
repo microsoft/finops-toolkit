@@ -24,24 +24,25 @@ Before you begin, you must have:
 
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
-- explicit permissions to access the databases **Hub** and **Ingestion** via the Web UI or via PowerBI, persons must be added as a user to the databases by applying a specific [Database level security role](https://learn.microsoft.com/en-us/kusto/management/manage-database-security-roles?view=microsoft-fabric#database-level-security-roles)
+- Database viewer or greater access to the Data Explorer **Hub** and **Ingestion** databases. For details, see [Database level security role](/kusto/management/manage-database-security-roles#database-level-security-roles). 
   - Option 1:
-    1. Select the Data Explorer Cluster ressource
-    2. navigate to databases
-    3. select the database
-    4. select permissions
-    5. click on Add and select the corresponding databse security role (e. g. admin, viewer, user)
-    6. select the principal (users, groups or Enterprise Applications) and grant permissions
+    1. Open the Data Explorer cluster in the Azure portal.
+    2. In the menu, select **Data** > **Databases**.
+    3. Select the **Hub** database.
+    4. In the menu, select **Overview** > **Permissions**.
+    5. Select the **Add** command, then the desired security role. Viewer is the least-privileged role.
+    6. Select the desired users, groups, and applications, then select the **Select** button.
+    7. Repeat steps 3-6 for the **Ingestion** database.
    
   - Option 2:
-    1. Select the Data Explorer Cluster ressource
-    2. navigate to databases
-    3. select the database
-    4. click on query
-    5. run the following query, where 'users' might be replaced with the most suitable [Database level security role](https://learn.microsoft.com/en-us/kusto/management/manage-database-security-roles?view=microsoft-fabric#database-level-security-roles)
-    ```
-         .add database MyDatabase users ('aaduser=MyUser@MyOrganization.com') 'User (AAD)'
-    ```
+    1. Open the Data Explorer cluster in the Azure portal.
+    2. In the menu, select **Data** > **Query**.
+    3. Use the following commands to add users, groups, and applications as needed. For more information, see [Database level security role](/kusto/management/manage-database-security-roles?view=microsoft-fabric#database-level-security-roles).
+       ```
+       .add database Hub viewers ('aaduser=<email>', 'aadGroup=<group-id>', 'aadapp=<app-id>;<tenant-id-or-domain>')
+
+       .add database Ingestion viewers ('aaduser=<email>', 'aadGroup=<group-id>', 'aadapp=<app-id>;<tenant-id-or-domain>')
+       ```
 
 
 This walkthrough does not incur any cost; however, maintaining an active Data Explorer cluster does incur cost.
