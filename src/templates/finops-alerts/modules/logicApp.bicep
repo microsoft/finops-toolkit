@@ -4022,7 +4022,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'IdleDiskHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review Managed Disks that are not attached to any Virtual machine.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review managed disks that are not attached to any virtual machine.</span>\n</div>'
                 }
               }
             }
