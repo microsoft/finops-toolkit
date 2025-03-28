@@ -64,7 +64,7 @@ _Released March 2025_
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
     - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
    
-### [FinOps alerts](finops-alerts-overview.md)
+### [FinOps alerts](finops-alerts-overview.md) v0.9
 
 - **Added**
   - Overview documentation on how the FinOps alert tool works in the [FinOps alerts overview](./alerts/finops-alerts-overview.md).
