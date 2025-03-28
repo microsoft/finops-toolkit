@@ -33,7 +33,6 @@ Before you begin, you must have:
     5. Select the **Add** command, then the desired security role. Viewer is the least-privileged role.
     6. Select the desired users, groups, and applications, then select the **Select** button.
     7. Repeat steps 3-6 for the **Ingestion** database.
-   
   - Option 2:
     1. Open the Data Explorer cluster in the Azure portal.
     2. In the menu, select **Data** > **Query**.
