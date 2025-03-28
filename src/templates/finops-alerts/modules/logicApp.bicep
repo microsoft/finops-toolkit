@@ -4082,7 +4082,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'LoadBalancerHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review Load Balancers with no backend pools, and remove them if not needed.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review load balancers with no backend pools and remove them if not needed.</span>\n</div>'
                 }
               }
             }
