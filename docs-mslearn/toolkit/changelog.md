@@ -40,6 +40,8 @@ _Released March 2025_
 
 - **Added**
   - Added support for promoted tags with spaces in the tag key.
+- **Changed**
+  - Updated the savings columns to exclude rows where costs are missing or incorrect.
 - **Fixed**
   - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
 
@@ -56,6 +58,7 @@ _Released March 2025_
 - **Changed**
   - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
     - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
+  - Added a new Data ingestion > Data quality section into the Data Explorer dashboard with a summary of missing and incorrect costs.
 - **Fixed**
   - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
@@ -75,7 +78,7 @@ _Released March 2025_
 
 ## v0.8 Update 1
 
-_Released February 16, 2024_
+_Released February 16, 2025_
 
 This release is a minor patch to fix Power BI reports. These files were updated in the existing 0.8 release. We are documenting this as a new patch release for transparency. If you downloaded **PowerBI-KQL.zip** or **PowerBI-storage.zip** between February 12-15, 2025, please update to the latest version.
 
