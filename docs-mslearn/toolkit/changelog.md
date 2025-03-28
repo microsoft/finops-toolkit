@@ -78,7 +78,7 @@ _Released March 2025_
 
 ## v0.8 Update 1
 
-_Released February 16, 2024_
+_Released February 16, 2025_
 
 This release is a minor patch to fix Power BI reports. These files were updated in the existing 0.8 release. We are documenting this as a new patch release for transparency. If you downloaded **PowerBI-KQL.zip** or **PowerBI-storage.zip** between February 12-15, 2025, please update to the latest version.
 
