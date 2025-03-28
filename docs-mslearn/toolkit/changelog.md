@@ -68,7 +68,7 @@ _Released March 2025_
 
 - **Added**
   - Overview documentation on how the FinOps alert tool works in the [FinOps alerts overview](./alerts/finops-alerts-overview.md).
-  - Configuration steps in the [Configure FinOps alerts](./alerts/configure/finops/alerts).
+  - Configuration steps in the [Configure FinOps alerts](./alerts/configure-finops-alerts.md).
   - FinOps alerts deployment template.
 
 > [!div class="nextstepaction"]
