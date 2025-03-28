@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -7,7 +10,7 @@ param location string = resourceGroup().location
 @description('Name of the logic app')
 @minLength(1)
 @maxLength(20)
-param appName string = 'finops-alerts'
+param appName string = 'WasteReductionApp'
 
 @description('Specifies the frequency of the recurrence trigger. Possible values are Week, Day or Hour.')
 param recurrenceFrequency string = 'Week'
@@ -18,32 +21,33 @@ param recurrenceInterval int = 1
 @description('Specifies the type of the trigger. For this example, it is a recurrence trigger.')
 param recurrenceType string = 'Recurrence'
 
+
 //==============================================================================
 // Variables
 //==============================================================================
 var safeSuffix = replace(replace(toLower(appName), '-', ''), '_', '')
-
+//var safesuffix = 'CheeseCrust'
 
 @description('Name of the connection to use for the logic app')
 var connectionName = '${safeSuffix}-connection'
 
 @description('Display name of the connection')
-var displayName = '${safeSuffix}-connection'
+var displayName  = '${safeSuffix}-connection'
 
-//Only one actionKey will be needed here after updating the code
 @description('Used to track number of functions available in this App')
 var actionKeys = [
-  'Send_an_email_V2'
+  'Send_an_email_AppGw'
+  'Send_an_email_(V2)_Disk'
+  'Send_an_email_(V2)_LB'
+  'Send_an_email_(V2)_IP'
+  'Send_an_email_(V2)_Snapshot'
+  'Send_an_email_(V2)_VM'
 ]
-
 //==============================================================================
 // Resources
 //==============================================================================
 
-resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
-  identity: {
-    type: 'SystemAssigned'
-  }
+resource WasteReduction 'Microsoft.Logic/workflows@2019-05-01' = {
   properties: {
     state: 'Enabled'
     definition: {
@@ -70,8 +74,30 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
       }
       actions: {
         For_each_App_GW: {
-          foreach: '@body(\'Parse_idle_App_Gateways\')?[\'data\']'
+          foreach: '@body(\'Parse_Idle_App_Gateways\')?[\'data\']'
           actions: {
+            'Send_an_email_(V2)_AppGw': {
+              runAfter: {
+                Compose_AppGw: [
+                  'Succeeded'
+                ]
+              }
+              type: 'ApiConnection'
+              inputs: {
+                host: {
+                  connection: {
+                    name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
+                  }
+                }
+                method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Idle Application Gateway detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Idle Application Gateway detected</strong></b></u></p><p><b><strong style="font-size: 15px;">Name:</strong></b><b><strong style="font-size: 12px;"> </strong></b>@{items(\'For_each_App_GW\')?[\'name\']}</p><p><b><strong>Resource group: </strong></b>@{items(\'For_each_App_GW\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL: </strong></b>@{outputs(\'Compose_AppGw\')} </p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
+                path: '/v2/Mail'
+              }
+            }
             Set_App_Gateways_URI: {
               type: 'SetVariable'
               inputs: {
@@ -88,21 +114,9 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               type: 'Compose'
               inputs: '@variables(\'AppGwURI\')'
             }
-            Append_to_App_Gateway_HTML: {
-              runAfter: {
-                Compose_AppGw: [
-                  'Succeeded'
-                ]
-              }
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'AppGatewayHTML'
-                value: '  <tr>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_AppGw\')}">@{items(\'For_each_App_GW\')?[\'name\']}</a></td>\n    <td style="padding: 8px;">@{items(\'For_each_App_GW\')?[\'resourceGroup\']}</td>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_AppGw\')}">@{items(\'For_each_App_GW\')?[\'subscriptionName\']}</a></td>\n  </tr>'
-              }
-            }
           }
           runAfter: {
-            Condition_App_Gateway: [
+            Initialize_App_Gateways_URI: [
               'Succeeded'
             ]
           }
@@ -116,6 +130,28 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         For_each_Disk: {
           foreach: '@body(\'Parse_Idle_disks\')?[\'data\']'
           actions: {
+            'Send_an_email_(V2)_Disk': {
+              runAfter: {
+                Compose_Disk: [
+                  'Succeeded'
+                ]
+              }
+              type: 'ApiConnection'
+              inputs: {
+                host: {
+                  connection: {
+                    name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
+                  }
+                }
+                method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Idle disk detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Idle Disk detected</strong></b></u></p><p><b><strong>Name:</strong></b> @{items(\'For_each_Disk\')?[\'DiskName\']}</p><p><b><strong>Resource group:</strong></b> @{items(\'For_each_Disk\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL:</strong></b> &nbsp;@{outputs(\'Compose_Disk\')}</p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
+                path: '/v2/Mail'
+              }
+            }
             Set_Disk_URI: {
               type: 'SetVariable'
               inputs: {
@@ -132,21 +168,9 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               type: 'Compose'
               inputs: '@variables(\'DiskURI\')'
             }
-            Append_to_Idle_Disk_HTML: {
-              runAfter: {
-                Compose_Disk: [
-                  'Succeeded'
-                ]
-              }
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'IdleDiskHTML'
-                value: '  <tr>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_Disk\')}">@{items(\'For_each_Disk\')?[\'DiskName\']}</a></td>\n    <td style="padding: 8px;">@{items(\'For_each_Disk\')?[\'resourceGroup\']}</td>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_Disk\')}">@{items(\'For_each_Disk\')?[\'subscriptionName\']}</a></td>\n  </tr>'
-              }
-            }
           }
           runAfter: {
-            Condition_Disk: [
+            Initialize_Disk_URI: [
               'Succeeded'
             ]
           }
@@ -176,21 +200,31 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               type: 'Compose'
               inputs: '@variables(\'IPAddressURI\')'
             }
-            Append_to_IP_Address_HTML: {
+            'Send_an_email_(V2)_IP': {
               runAfter: {
                 Compose_IP: [
                   'Succeeded'
                 ]
               }
-              type: 'AppendToStringVariable'
+              type: 'ApiConnection'
               inputs: {
-                name: 'IPAddressHTML'
-                value: '  <tr>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_IP\')}">@{items(\'For_each_IP_address\')?[\'IPName\']}</a></td>\n    <td style="padding: 8px;">@{items(\'For_each_IP_address\')?[\'resourceGroup\']}</td>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_IP\')}">@{items(\'For_each_IP_address\')?[\'subscriptionName\']}</a></td>\n  </tr>'
+                host: {
+                  connection: {
+                    name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
+                  }
+                }
+                method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Idle IP address detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Idle IP Address detected</strong></b></u></p><p><b><strong>Name:</strong></b> @{items(\'For_each_IP_address\')?[\'IPName\']}</p><p><b><strong>Resource group:</strong></b> @{items(\'For_each_IP_address\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL:</strong></b> &nbsp;@{outputs(\'Compose_IP\')}</p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
+                path: '/v2/Mail'
               }
             }
           }
           runAfter: {
-            Condition_IP_Address: [
+            Initialize_IP_addresses_URI: [
               'Succeeded'
             ]
           }
@@ -204,6 +238,28 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         For_each_Load_Balancer: {
           foreach: '@body(\'Parse_Idle_Load_Balancers\')?[\'data\']'
           actions: {
+            'Send_an_email_(V2)_LB': {
+              runAfter: {
+                Compose_LB: [
+                  'Succeeded'
+                ]
+              }
+              type: 'ApiConnection'
+              inputs: {
+                host: {
+                  connection: {
+                    name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
+                  }
+                }
+                method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Idle Load Balancer detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Idle Load Balancer detected</strong></b></u></p><p><b><strong>Name:</strong></b> @{items(\'For_each_Load_Balancer\')?[\'LoadBalancerName\']}</p><p><b><strong>Resource group:</strong></b> @{items(\'For_each_Load_Balancer\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL:</strong></b> &nbsp;@{outputs(\'Compose_LB\')}</p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p><br><br>'
+                }
+                path: '/v2/Mail'
+              }
+            }
             Set_Load_Balancer_URI: {
               type: 'SetVariable'
               inputs: {
@@ -220,21 +276,9 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               type: 'Compose'
               inputs: '@variables(\'LoadBalancerURI\')'
             }
-            Append_to_Load_Balancer_HTML: {
-              runAfter: {
-                Compose_LB: [
-                  'Succeeded'
-                ]
-              }
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'LoadBalancerHTML'
-                value: '  <tr>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_LB\')}">@{items(\'For_each_Load_Balancer\')?[\'LoadBalancerName\']}</a></td>\n    <td style="padding: 8px;">@{items(\'For_each_Load_Balancer\')?[\'resourceGroup\']}</td>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_LB\')}">@{items(\'For_each_Load_Balancer\')?[\'subscriptionName\']}</a></td>\n  </tr>'
-              }
-            }
           }
           runAfter: {
-            Condition_Load_Balancer: [
+            Initialize_Load_Balancer_URI: [
               'Succeeded'
             ]
           }
@@ -248,6 +292,28 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         For_each_Snapshot: {
           foreach: '@body(\'Parse_Snapshots\')?[\'data\']'
           actions: {
+            'Send_an_email_(V2)_Snapshot': {
+              runAfter: {
+                Compose_Snapshot: [
+                  'Succeeded'
+                ]
+              }
+              type: 'ApiConnection'
+              inputs: {
+                host: {
+                  connection: {
+                    name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
+                  }
+                }
+                method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Disk Snapshot older than 30 days detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Old Disk Snapshot detected</strong></b></u></p><p><b><strong style="font-size: 15px;">Name:</strong></b><b><strong style="font-size: 12px;"> </strong></b>@{items(\'For_each_Snapshot\')?[\'Snapshotname\']}</p><p><b><strong style="font-size: 15px;">Resource Group:</strong></b><b><strong style="font-size: 12px;"> </strong></b>@{items(\'For_each_Snapshot\')?[\'resourceGroup\']}</p><p><b><strong style="font-size: 15px;">Resource URL:</strong></b><b><strong style="font-size: 12px;"> </strong></b>@{outputs(\'Compose_Snapshot\')}</p><p><i><em style="font-size: 15px;">Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
+                path: '/v2/Mail'
+              }
+            }
             Set_Snapshot_URI: {
               type: 'SetVariable'
               inputs: {
@@ -264,21 +330,9 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               type: 'Compose'
               inputs: '@variables(\'SnapshotURI\')'
             }
-            Append_to_Disk_Snapshot_HTML: {
-              runAfter: {
-                Compose_Snapshot: [
-                  'Succeeded'
-                ]
-              }
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'DiskSnapshotHTML'
-                value: '  <tr>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_Snapshot\')}">@{items(\'For_each_Snapshot\')?[\'Snapshotname\']}</a></td>\n    <td style="padding: 8px;">@{items(\'For_each_Snapshot\')?[\'resourceGroup\']}</td>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_Snapshot\')}">@{items(\'For_each_Snapshot\')?[\'subscriptionName\']}</a></td>\n  </tr>'
-              }
-            }
           }
           runAfter: {
-            Condition_Disk_Snapshots: [
+            Initialize_Snapshot_URI: [
               'Succeeded'
             ]
           }
@@ -290,8 +344,30 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           }
         }
         For_each_Stopped_VM: {
-          foreach: '@body(\'Parse_stopped_VMs\')?[\'data\']'
+          foreach: '@body(\'Parse_Stopped_VMs\')?[\'data\']'
           actions: {
+            'Send_an_email_(V2)_VM': {
+              runAfter: {
+                Compose_VM: [
+                  'Succeeded'
+                ]
+              }
+              type: 'ApiConnection'
+              inputs: {
+                host: {
+                  connection: {
+                    name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
+                  }
+                }
+                method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Stopped VM detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Stopped VM detected</strong></b></u></p><p><b><strong>Name:</strong></b> @{items(\'For_each_Stopped_VM\')?[\'VMname\']}</p><p><b><strong>Resource group:</strong></b> @{items(\'For_each_Stopped_VM\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL: &nbsp;</strong></b>@{outputs(\'Compose_VM\')}</p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
+                path: '/v2/Mail'
+              }
+            }
             Set_Stopped_VM_URI: {
               type: 'SetVariable'
               inputs: {
@@ -308,21 +384,9 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               type: 'Compose'
               inputs: '@variables(\'StoppedVMURI\')'
             }
-            Append_to_Stopped_VM_HTML: {
-              runAfter: {
-                Compose_VM: [
-                  'Succeeded'
-                ]
-              }
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'StoppedVMHTML'
-                value: '  <tr>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_VM\')}">@{items(\'For_each_Stopped_VM\')?[\'VMname\']}</a></td>\n    <td style="padding: 8px;">@{items(\'For_each_Stopped_VM\')?[\'resourceGroup\']}</td>\n    <td style="padding: 8px;"><a href="@{outputs(\'Compose_VM\')}">@{items(\'For_each_Stopped_VM\')?[\'subscriptionName\']}</a></td>\n  </tr>'
-              }
-            }
           }
           runAfter: {
-            Condition_Stopped_VMs: [
+            Initialize_Stopped_VM_URI: [
               'Succeeded'
             ]
           }
@@ -333,76 +397,76 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             }
           }
         }
-        Get_idle_App_Gateways: {
+        Get_Idle_App_Gateways: {
           runAfter: {
-            Initialize_resources_table: [
+            Initialize_Subscriptions: [
               'Succeeded'
             ]
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
-              query: '@{variables(\'resourcesTable\')} | where type =~ \'Microsoft.Network/applicationGateways\'| extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier=tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools|  join (resources | where type =~ \'Microsoft.Network/applicationGateways\'| mvexpand backendPools = properties.backendAddressPools| extend backendIPCount =array_length(backendPools.properties.backendIPConfigurations) | extend backendAddressesCount = array_length(backendPools.properties.backendAddresses) | extend backendPoolName=backendPools.properties.backendAddressPools.name | summarize backendIPCount = sum(backendIPCount) ,backendAddressesCount=sum(backendAddressesCount) by id) on id| project-away id1| where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))| order by id asc |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
-              scope: 'Tenant'
+              query: 'resources| where type =~ \'Microsoft.Network/applicationGateways\'| extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier=tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools|  join (resources | where type =~ \'Microsoft.Network/applicationGateways\'| mvexpand backendPools = properties.backendAddressPools| extend backendIPCount =array_length(backendPools.properties.backendIPConfigurations) | extend backendAddressesCount = array_length(backendPools.properties.backendAddresses) | extend backendPoolName=backendPools.properties.backendAddressPools.name | summarize backendIPCount = sum(backendIPCount) ,backendAddressesCount=sum(backendAddressesCount) by id) on id| project-away id1| where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))| order by id asc'
+              subscriptions: '@variables(\'Subscriptions\')'
+            }
+            authentication: {
+              type: 'ManagedServiceIdentity'
+            }
+          }
+        }        
+        Get_Idle_Disks: {
+          runAfter: {
+            Initialize_Subscriptions: [
+              'Succeeded'
+            ]
+          }
+          type: 'Http'
+          inputs: {
+            uri: '${environment().resourceManager}/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            method: 'POST'
+            body: {
+              query: 'resources | where type =~ \'microsoft.compute/disks\' and managedBy == \'\'| extend diskState = tostring(properties.diskState) | where managedBy == \'\' and diskState != \'ActiveSAS\' or diskState == \'Unattached\' and diskState != \'ActiveSAS\' | extend DiskId=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated) | order by DiskId asc  | project DiskId, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId'
+              subscriptions: '@variables(\'Subscriptions\')'
             }
             authentication: {
               type: 'ManagedServiceIdentity'
             }
           }
         }
-        Get_idle_Disks: {
+        Get_Idle_IP_addresses: {
           runAfter: {
-            Initialize_resources_table: [
+            Initialize_Subscriptions: [
               'Succeeded'
             ]
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
-              query: '@{variables(\'resourcesTable\')} | where type =~ \'microsoft.compute/disks\' and managedBy == \'\'| extend diskState = tostring(properties.diskState) | where (managedBy == \'\' and diskState != \'ActiveSAS\') or (diskState == \'Unattached\' and diskState != \'ActiveSAS\') | extend DiskId = id, DiskName = name, SKUName = sku.name, SKUTier = sku.tier, DiskSizeGB = tostring(properties.diskSizeGB), Location = location, TimeCreated = tostring(properties.timeCreated) | order by DiskId asc | project DiskId, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId | join kind=leftouter (resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
-              scope: 'Tenant'
+              query: 'resources | where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId | union ( Resources | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) | extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id) | project PublicIpId | join (  resources | where type =~ \'Microsoft.Network/publicIPAddresses\' | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location  ) on PublicIpId | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId)'
+              subscriptions: '@variables(\'Subscriptions\')'
             }
             authentication: {
               type: 'ManagedServiceIdentity'
             }
           }
         }
-        Get_idle_IP_addresses: {
+        Get_Idle_Load_Balancers: {
           runAfter: {
-            Initialize_resources_table: [
+            Initialize_Subscriptions: [
               'Succeeded'
             ]
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
-              query: '@{variables(\'resourcesTable\')} | where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId | union ( Resources | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) | extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id) | project PublicIpId | join (  resources | where type =~ \'Microsoft.Network/publicIPAddresses\' | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location  ) on PublicIpId | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId) |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
-              scope: 'Tenant'
-            }
-            authentication: {
-              type: 'ManagedServiceIdentity'
-            }
-          }
-        }
-        Get_idle_Load_Balancers: {
-          runAfter: {
-            Initialize_resources_table: [
-              'Succeeded'
-            ]
-          }
-          type: 'Http'
-          inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
-            method: 'POST'
-            body: {
-              query: '@{variables(\'resourcesTable\')} | where type =~ \'microsoft.network/loadbalancers\' and tostring(properties.backendAddressPools) == \'[]\' | extend loadBalancerId=id,LBRG=resourceGroup, LoadBalancerName=name, SKU=sku, LBLocation=location | order by loadBalancerId asc | project loadBalancerId,LoadBalancerName, SKU.name,SKU.tier, LBLocation, resourceGroup, subscriptionId |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
-              scope: 'Tenant'
+              query: 'resources | where type =~ \'microsoft.network/loadbalancers\' and tostring(properties.backendAddressPools) == \'[]\' | extend loadBalancerId=id,LBRG=resourceGroup, LoadBalancerName=name, SKU=sku, LBLocation=location | order by loadBalancerId asc | project loadBalancerId,LoadBalancerName, SKU.name,SKU.tier, LBLocation, resourceGroup, subscriptionId'
+              subscriptions: '@variables(\'Subscriptions\')'
             }
             authentication: {
               type: 'ManagedServiceIdentity'
@@ -411,17 +475,17 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Get_Disk_Snapshots_older_than_30_days: {
           runAfter: {
-            Initialize_resources_table: [
+            Initialize_Subscriptions: [
               'Succeeded'
             ]
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
-              query: '@{variables(\'resourcesTable\')} | where type =~ \'microsoft.compute/snapshots\' | extend TimeCreated = properties.timeCreated | where TimeCreated < ago(30d) | extend SnapshotId=id, Snapshotname=name | order by id asc | project id, SnapshotId, Snapshotname, resourceGroup, location, TimeCreated ,subscriptionId |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
-              scope: 'Tenant'
+              query: 'resources | where type =~ \'microsoft.compute/snapshots\' | extend TimeCreated = properties.timeCreated | where TimeCreated < ago(30d) | extend SnapshotId=id, Snapshotname=name | order by id asc | project id, SnapshotId, Snapshotname, resourceGroup, location, TimeCreated ,subscriptionId'
+              subscriptions: '@variables(\'Subscriptions\')'
             }
             authentication: {
               type: 'ManagedServiceIdentity'
@@ -430,17 +494,17 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Get_Stopped_VMs: {
           runAfter: {
-            Initialize_resources_table: [
+            Initialize_Subscriptions: [
               'Succeeded'
             ]
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
-              query: '@{variables(\'resourcesTable\')} | where type =~ \'microsoft.compute/virtualmachines\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM deallocated\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM running\'| extend  VMname=name, PowerState=tostring(properties.extended.instanceView.powerState.displayStatus), VMLocation=location, VirtualMachineId=id| order by VirtualMachineId asc| project VirtualMachineId,VMname, PowerState, VMLocation, resourceGroup, subscriptionId |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
-              scope: 'Tenant'
+              query: 'resources | where type =~ \'microsoft.compute/virtualmachines\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM deallocated\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM running\'| extend  VMname=name, PowerState=tostring(properties.extended.instanceView.powerState.displayStatus), VMLocation=location, VirtualMachineId=id| order by VirtualMachineId asc| project VirtualMachineId,VMname, PowerState, VMLocation, resourceGroup, subscriptionId'
+              subscriptions: '@variables(\'Subscriptions\')'
             }
             authentication: {
               type: 'ManagedServiceIdentity'
@@ -449,7 +513,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Initialize_App_Gateways_URI: {
           runAfter: {
-            Parse_idle_App_Gateways: [
+            Parse_Idle_App_Gateways: [
               'Succeeded'
             ]
           }
@@ -529,7 +593,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Initialize_Stopped_VM_URI: {
           runAfter: {
-            Parse_stopped_VMs: [
+            Parse_Stopped_VMs: [
               'Succeeded'
             ]
           }
@@ -543,9 +607,9 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             ]
           }
         }
-        Excluded_subscriptions: {
+        Initialize_Subscriptions: {
           runAfter: {
-            Included_subscriptions: [
+            Set_Alert_receipient: [
               'Succeeded'
             ]
           }
@@ -553,22 +617,24 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           inputs: {
             variables: [
               {
-                name: 'ExcludedSubscriptions'
+                name: 'Subscriptions'
                 type: 'array'
-                value: []
+                value: [
+                  ''
+                ]
               }
             ]
           }
         }
-        Parse_idle_App_Gateways: {
+        Parse_Idle_App_Gateways: {
           runAfter: {
-            Get_idle_App_Gateways: [
+            Get_Idle_App_Gateways: [
               'Succeeded'
             ]
           }
           type: 'ParseJson'
           inputs: {
-            content: '@body(\'Get_idle_App_Gateways\')'
+            content: '@body(\'Get_Idle_App_Gateways\')'
             schema: {
               properties: {
                 properties: {
@@ -2016,13 +2082,13 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Parse_Idle_IP_addresses: {
           runAfter: {
-            Get_idle_IP_addresses: [
+            Get_Idle_IP_addresses: [
               'Succeeded'
             ]
           }
           type: 'ParseJson'
           inputs: {
-            content: '@body(\'Get_idle_IP_addresses\')'
+            content: '@body(\'Get_Idle_IP_addresses\')'
             schema: {
               properties: {
                 properties: {
@@ -2281,13 +2347,13 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Parse_Idle_Load_Balancers: {
           runAfter: {
-            Get_idle_Load_Balancers: [
+            Get_Idle_Load_Balancers: [
               'Succeeded'
             ]
           }
           type: 'ParseJson'
           inputs: {
-            content: '@body(\'Get_idle_Load_Balancers\')'
+            content: '@body(\'Get_Idle_Load_Balancers\')'
             schema: {
               properties: {
                 items: {
@@ -2391,13 +2457,13 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Parse_Idle_disks: {
           runAfter: {
-            Get_idle_Disks: [
+            Get_Idle_Disks: [
               'Succeeded'
             ]
           }
           type: 'ParseJson'
           inputs: {
-            content: '@body(\'Get_idle_Disks\')'
+            content: '@body(\'Get_Idle_Disks\')'
             schema: {
               properties: {
                 properties: {
@@ -2811,7 +2877,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             }
           }
         }
-        Parse_stopped_VMs: {
+        Parse_Stopped_VMs: {
           runAfter: {
             Get_Stopped_VMs: [
               'Succeeded'
@@ -3476,717 +3542,14 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             }
           }
         }
-        Set_alert_recipient: {
-          runAfter: {
-            Set_email_subject: [
-              'Succeeded'
-            ]
-          }
+        Set_Alert_receipient: {
+          runAfter: {}
           type: 'InitializeVariable'
           inputs: {
             variables: [
               {
                 name: 'SendAlertTo'
                 type: 'string'
-              }
-            ]
-          }
-        }
-        Initialize_App_Gateway_HTML: {
-          runAfter: {
-            Initialize_App_Gateways_URI: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'AppGatewayHTML'
-                type: 'string'
-                value: '<h2>Idle Application Gateway Details</h2>'
-              }
-            ]
-          }
-        }
-        Initialize_Disk_HTML: {
-          runAfter: {
-            Initialize_Disk_URI: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'IdleDiskHTML'
-                type: 'string'
-                value: '<h2>Idle Disk Details</h2>'
-              }
-            ]
-          }
-        }
-        'Send_an_email_(V2)': {
-          runAfter: {
-
-            EmailNotice: [
-            End_App_Gateway_HTML: [
-              'Succeeded'
-            ]
-            End_IP_Address_HTML: [
-              'Succeeded'
-            ]
-            End_to_Idle_Disk_HTML: [
-              'Succeeded'
-            ]
-            End_to_Load_Balancer_HTML: [
-              'Succeeded'
-            ]
-            End_to_Disk_Snapshot_HTML: [
-              'Succeeded'
-            ]
-            End_to_Stopped_VM_HTML: [
-              'Succeeded'
-            ]
-          }
-          type: 'ApiConnection'
-          inputs: {
-            host: {
-              connection: {
-                name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
-              }
-            }
-            method: 'post'
-            body: {
-              To: '@variables(\'SendAlertTo\')'
-              Subject: '@variables(\'SetEmailSubject\')'
-              Body: '<p class="editor-paragraph">@{variables(\'EmailNotice\')}</p><p class="editor-paragraph">@{variables(\'AppGatewayHTML\')}<br>@{variables(\'IdleDiskHTML\')}<br>@{variables(\'IPAddressHTML\')}<br>@{variables(\'LoadBalancerHTML\')}<br>@{variables(\'DiskSnapshotHTML\')}<br>@{variables(\'StoppedVMHTML\')}</p><br><h1 class="editor-heading-h1"><b><strong class="editor-text-bold">📧 </strong></b><b><strong class="editor-text-bold" style="font-size: 20px;">About FinOps alerts</strong></b></h1><p class="editor-paragraph">FinOps alerts is a powerful tool designed to keep you informed about significant cost-related events in your cloud environment. They are fully configurable and can be tailored to run on your desired schedule, ensuring that you receive timely notifications on the scenarios most important to your organization. FinOps alerts is part of the FinOps toolkit, an open-source collection of FinOps solutions that help you manage and optimize your cost, usage, and carbon.</p><h1 class="editor-heading-h1"><b><strong class="editor-text-bold" style="font-size: 20px;">Provide feedback</strong></b></h1><p class="editor-paragraph"><a href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.8/bladeName/Alerts/featureName/Overview" class="editor-link"><u><span class="editor-text-underline">Give feedback</span></u></a><br><a href="https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20alerts%22%20sort%3Areactions-%2B1-desc" class="editor-link"><u><span class="editor-text-underline">Vote on or suggest ideas</span></u></a></p><br>'
-            }
-            path: '/v2/Mail'
-          }
-        }
-        Initialize_IP_Address_HTML: {
-          runAfter: {
-            Initialize_IP_addresses_URI: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'IPAddressHTML'
-                type: 'string'
-                value: '<h2>Idle IP Address Details</h2>'
-              }
-            ]
-          }
-        }
-        Initialize_Load_Balancer_HTML: {
-          runAfter: {
-            Initialize_Load_Balancer_URI: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'LoadBalancerHTML'
-                type: 'string'
-                value: '<h2>Idle Load Balancer Details</h2>'
-              }
-            ]
-          }
-        }
-        Initialize_Disk_Snapshot_HTML: {
-          runAfter: {
-            Initialize_Snapshot_URI: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'DiskSnapshotHTML'
-                type: 'string'
-                value: '<h2>Old Disk Snapshot Details</h2>'
-              }
-            ]
-          }
-        }
-        Initialize_Stopped_VM_HTML: {
-          runAfter: {
-            Initialize_Stopped_VM_URI: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'StoppedVMHTML'
-                type: 'string'
-                value: '<h2>Stopped VM Details</h2>'
-              }
-            ]
-          }
-        }
-        End_App_Gateway_HTML: {
-          runAfter: {
-            For_each_App_GW: [
-              'Succeeded'
-            ]
-          }
-          type: 'AppendToStringVariable'
-          inputs: {
-            name: 'AppGatewayHTML'
-            value: '</tbody></table>'
-          }
-        }
-        End_to_IP_Address_HTML: {
-          runAfter: {
-            For_each_IP_address: [
-              'Succeeded'
-            ]
-          }
-          type: 'AppendToStringVariable'
-          inputs: {
-            name: 'IPAddressHTML'
-            value: ' </table>'
-          }
-        }
-        End_to_Disk_HTML: {
-          runAfter: {
-            For_each_Disk: [
-              'Succeeded'
-            ]
-          }
-          type: 'AppendToStringVariable'
-          inputs: {
-            name: 'IdleDiskHTML'
-            value: '</tbody></table>'
-          }
-        }
-        End_to_Load_Balancer_HTML: {
-          runAfter: {
-            For_each_Load_Balancer: [
-              'Succeeded'
-            ]
-          }
-          type: 'AppendToStringVariable'
-          inputs: {
-            name: 'LoadBalancerHTML'
-            value: '</table>'
-          }
-        }
-        End_to_Disk_Snapshot_HTML: {
-          runAfter: {
-            For_each_Snapshot: [
-              'Succeeded'
-            ]
-          }
-          type: 'AppendToStringVariable'
-          inputs: {
-            name: 'DiskSnapshotHTML'
-            value: '</table>'
-          }
-        }
-        End_to_Stopped_VM_HTML: {
-          runAfter: {
-            For_each_Stopped_VM: [
-              'Succeeded'
-            ]
-          }
-          type: 'AppendToStringVariable'
-          inputs: {
-            name: 'StoppedVMHTML'
-            value: '</table>'
-          }
-        }
-        Set_email_subject: {
-          runAfter: {}
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'SetEmailSubject'
-                type: 'string'
-              }
-            ]
-          }
-        }
-        Included_subscriptions: {
-          runAfter: {
-            Set_alert_recipient: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'IncludedSubscriptions'
-                type: 'array'
-                value: []
-              }
-            ]
-          }
-        }
-        Initialize_resources_table: {
-          runAfter: {
-            Excluded_subscriptions: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'resourcesTable'
-                type: 'string'
-                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in ("\', replace(replace(string(variables(\'IncludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \'")\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in ("\', replace(replace(string(variables(\'ExcludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \'")\'))}'
-              }
-            ]
-          }
-        }
-        Condition_App_Gateway: {
-          actions: {
-            Append_no_App_Gateway_results_text: {
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'AppGatewayHTML'
-                value: 'No resources are idle.'
-              }
-            }
-          }
-          runAfter: {
-            Initialize_App_Gateway_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_App_Gateway_results_in_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'AppGatewayHTML'
-                  value: '<table border="1" style="border-collapse: collapse;">\n  <thead><tr>\n    <th style="padding: 8px;">Name</th>\n    <th style="padding: 8px;">Resource Group</th>\n    <th style="padding: 8px;">Subscription</th>\n  </tr></thead>\n<tbody>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_idle_App_Gateways\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_Stopped_VMs: {
-          actions: {
-            Append_no_Stopped_VM_results_text_: {
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'StoppedVMHTML'
-                value: 'No resources are idle.'
-              }
-            }
-          }
-          runAfter: {
-            Initialize_Stopped_VM_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_Stopped_VM_result_in_table_: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'StoppedVMHTML'
-                  value: '<table border="1" style="border-collapse: collapse;">\n  <thead><tr>\n    <th style="padding: 8px;">Name</th>\n    <th style="padding: 8px;">Resource Group</th>\n    <th style="padding: 8px;">Subscription</th>\n  </tr></thead>\n<tbody>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_Stopped_VMs\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_Disk: {
-          actions: {
-            Append_no_Disk_results_text: {
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'IdleDiskHTML'
-                value: 'No resources are idle.'
-              }
-            }
-          }
-          runAfter: {
-            Initialize_Disk_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_Disk_results_in_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'IdleDiskHTML'
-                  value: '<table border="1" style="border-collapse: collapse;">\n  <thead><tr>\n    <th style="padding: 8px;">Name</th>\n    <th style="padding: 8px;">Resource Group</th>\n    <th style="padding: 8px;">Subscription</th>\n  </tr></thead>\n<tbody>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_idle_Disks\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_IP_Address: {
-          actions: {
-            Append_no_IP_Address_results_text: {
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'IPAddressHTML'
-                value: 'No resources are idle.'
-              }
-            }
-          }
-          runAfter: {
-            Initialize_IP_Address_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_IP_Address_results_in_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'IPAddressHTML'
-                  value: '<table border="1" style="border-collapse: collapse;">\n  <thead><tr>\n    <th style="padding: 8px;">Name</th>\n    <th style="padding: 8px;">Resource Group</th>\n    <th style="padding: 8px;">Subscription</th>\n  </tr></thead>\n<tbody>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_idle_IP_addresses\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_Load_Balancer: {
-          actions: {
-            Append_no_Load_Balancer_results_text: {
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'LoadBalancerHTML'
-                value: 'No resources are idle.'
-              }
-            }
-          }
-          runAfter: {
-            Initialize_Load_Balancer_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_Load_Balancer_results_in_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'LoadBalancerHTML'
-                  value: '<table border="1" style="border-collapse: collapse;">\n  <thead><tr>\n    <th style="padding: 8px;">Name</th>\n    <th style="padding: 8px;">Resource Group</th>\n    <th style="padding: 8px;">Subscription</th>\n  </tr></thead>\n<tbody>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_idle_Load_Balancers\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_Disk_Snapshots: {
-          actions: {
-            Append_no_Disk_Snapshot_results_text: {
-              type: 'AppendToStringVariable'
-              inputs: {
-                name: 'DiskSnapshotHTML'
-                value: 'No resources are idle.'
-              }
-            }
-          }
-          runAfter: {
-            Initialize_Disk_Snapshot_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_Disk_Snapshot_results_in_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'DiskSnapshotHTML'
-                  value: '<table border="1" style="border-collapse: collapse;">\n  <thead><tr>\n    <th style="padding: 8px;">Name</th>\n    <th style="padding: 8px;">Resource Group</th>\n    <th style="padding: 8px;">Subscription</th>\n  </tr></thead>\n<tbody>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_Disk_Snapshots_older_than_30_days\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_App_Gateway_next_steps: {
-          actions: {}
-          runAfter: {
-            End_App_Gateway_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_to_App_Gateway_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'AppGatewayHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review Application Gateways which include backend pools with no targets.</span>\n</div>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_idle_App_Gateways\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_Disk_next_steps: {
-          actions: {}
-          runAfter: {
-            End_to_Disk_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_to_Disk_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'IdleDiskHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review Managed Disks that are not attached to any Virtual machine.</span>\n</div>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_idle_Disks\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_IP_Address_next_steps: {
-          actions: {}
-          runAfter: {
-            End_to_IP_Address_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_to_IP_Address_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'IPAddressHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review unattached Public IP Addresses, as they may represent additional cost.</span>\n</div>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_idle_IP_addresses\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_Load_Balancer_next_steps: {
-          actions: {}
-          runAfter: {
-            End_to_Load_Balancer_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_to_Load_Balancer_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'LoadBalancerHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review Load Balancers with no backend pools, and remove them if not needed.</span>\n</div>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_idle_Load_Balancers\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_Disk_Snapshot_next_steps: {
-          actions: {}
-          runAfter: {
-            End_to_Disk_Snapshot_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_to_Disk_Snapshot_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'DiskSnapshotHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review Managed Disks Snapshots that are older than 30 days.</span>\n</div>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_Disk_Snapshots_older_than_30_days\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        Condition_stopped_VM_next_steps: {
-          actions: {}
-          runAfter: {
-            End_to_Stopped_VM_HTML: [
-              'Succeeded'
-            ]
-          }
-          else: {
-            actions: {
-              Append_to_Stopped_VM_table: {
-                type: 'AppendToStringVariable'
-                inputs: {
-                  name: 'StoppedVMHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong>  <span>Review stopped VMs, as they are billed for the allocated cost.</span>\n</div>'
-                }
-              }
-            }
-          }
-          expression: {
-            and: [
-              {
-                equals: [
-                  '@length(body(\'Get_Stopped_VMs\')[\'data\'])'
-                  0
-                ]
-              }
-            ]
-          }
-          type: 'If'
-        }
-        EmailNotice: {
-          runAfter: {
-            Condition_App_Gateway_next_steps: [
-              'Succeeded'
-            ]
-            Condition_Disk_next_steps: [
-              'Succeeded'
-            ]
-            Condition_IP_Address_next_steps: [
-              'Succeeded'
-            ]
-            Condition_Load_Balancer_next_steps: [
-              'Succeeded'
-            ]
-            Condition_Disk_Snapshot_next_steps: [
-              'Succeeded'
-            ]
-            Condition_stopped_VM_next_steps: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'EmailNotice'
-                type: 'string'
-                value: '<p class="editor-paragraph"><b><strong class="editor-text-bold">The following resources have been identified through FinOps alerts. </strong></b><b><strong class="editor-text-bold">Please take a moment to review and proceed with the next steps outlined below:</strong></b></p><hr><br>'
               }
             ]
           }
@@ -4198,7 +3561,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
       '$connections': {
         value: {
           office365: {
-            connectionId: apiConnection.id
+            connectionId: Connection.id
             connectionName: connectionName
             id: '${subscription().id}/providers/Microsoft.Web/locations/${location}/managedApis/office365'
           }
@@ -4209,27 +3572,28 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
   name: appName
   location: location
   tags: {
-    displayName: 'FinOpsalert'
+    displayName: 'WasteReduction'
   }
 }
 
-resource apiConnection 'Microsoft.Web/connections@2016-06-01' = {
+resource Connection 'MICROSOFT.WEB/CONNECTIONS@2015-08-01-preview' = {
   name: connectionName
   location: location
   properties: {
     api: {
       id: '${subscription().id}/providers/Microsoft.Web/locations/${location}/managedApis/office365'
+      location: location
     }
-    displayName:displayName
+    displayName: displayName
   }
 }
+
 
 //==============================================================================
 // Outputs
 //==============================================================================
-output logicAppName string = finopsAlerts.name
+output logicAppName string = WasteReduction.name
 output connectionName string = connectionName
 output actionsCount int = length(actionKeys)
-output logicAppResourceId string = finopsAlerts.id
-output logicAppPrincipalId string = finopsAlerts.identity.principalId
-output logicAppTriggerUrl string = 'https://${finopsAlerts.name}.logic.azure.com:443/workflows/${finopsAlerts.name}/triggers/Recurrence/run?api-version=2016-10-01'
+output logicAppResourceId string = WasteReduction.id
+output logicAppTriggerUrl string = 'https://${WasteReduction.name}.logic.azure.com:443/workflows/${WasteReduction.name}/triggers/Recurrence/run?api-version=2016-10-01'
