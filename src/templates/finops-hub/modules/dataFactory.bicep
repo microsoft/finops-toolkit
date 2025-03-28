@@ -5093,7 +5093,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                   referenceName: dataset_config.name
                   type: 'DatasetReference'
                   parameters: {
-                    fileName: 'settings.json'
+                    fileName: 'manifest.json'
                     folderPath: {
                       value: configContainerName
                       type: 'Expression'
@@ -5108,7 +5108,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                   parameters: {
                     fileName: 'manifest.json'
                     folderPath: {
-                      value: '@concat(\'${ingestionContainerName}/\', split(item(),\'/\')[0], \'/\', utcNow(\'yyyy\'), \'/\', utcNow(\'MM\'), \'/\', utcNow(\'dd\'), \'/\', split(item(),\'/\')[1])'
+                      value: '@concat(\'${ingestionContainerName}/\', split(item(),\'/\')[0], \'/\', utcNow(\'yyyy/MM/dd\'), \'/\', split(item(),\'/\')[1])'
                       type: 'Expression'
                     }
                   }

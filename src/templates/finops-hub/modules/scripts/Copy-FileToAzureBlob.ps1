@@ -169,6 +169,13 @@ $text | Out-File $filePath
 Write-Output "Uploading settings.json file..."
 Set-AzStorageBlobContent @storageContext -File $filePath -Force | Out-Null
 
+# Upload manifest.json placeholder (used to trigger ADX ingestion after the queries pipeline run)
+Write-Output "Uploading manifest.json file..."
+$manifestFileName = 'manifest.json'
+$manifestFilePath = Join-Path -Path . -ChildPath $manifestFileName
+"This is a manifest.json placeholder used to trigger ADX ingestion" | Out-File $manifestFilePath
+Set-AzStorageBlobContent @storageContext -File $manifestFilePath -Force | Out-Null
+
 # Save focusSchemaFile file to storage
 $schemaFiles = $env:schemaFiles | ConvertFrom-Json -Depth 10
 Write-Output "Uploading ${$schemaFiles.PSObject.Properties.Count} schema files..."
