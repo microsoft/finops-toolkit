@@ -77,7 +77,7 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
    - We recommend creating daily exports for each export type supported at your chosen billing scope:
       - Enterprise Agreement: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
-      - Microsoft Customer Agreement Billing Profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
+      - Microsoft Customer Agreement billing profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
       - Subscription: FocusCosts
 
 1. [Create a new FOCUS cost export](/azure/cost-management-billing/costs/tutorial-export-acm-data) using the following settings:
