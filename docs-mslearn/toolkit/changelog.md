@@ -63,7 +63,13 @@ _Released March 2025_
   - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
     - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
+   
+### [FinOps alerts](finops-alerts-overview.md) v0.9
 
+- **Added**
+  - Overview documentation on how the FinOps alert tool works in the [FinOps alerts overview](./alerts/finops-alerts-overview.md).
+  - Configuration steps in the [Configure FinOps alerts](./alerts/configure-finops-alerts.md).
+  - FinOps alerts deployment template.
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)

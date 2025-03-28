@@ -3528,24 +3528,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         'Send_an_email_(V2)': {
           runAfter: {
-
             EmailNotice: [
-            End_App_Gateway_HTML: [
-              'Succeeded'
-            ]
-            End_IP_Address_HTML: [
-              'Succeeded'
-            ]
-            End_to_Idle_Disk_HTML: [
-              'Succeeded'
-            ]
-            End_to_Load_Balancer_HTML: [
-              'Succeeded'
-            ]
-            End_to_Disk_Snapshot_HTML: [
-              'Succeeded'
-            ]
-            End_to_Stopped_VM_HTML: [
               'Succeeded'
             ]
           }
@@ -3633,7 +3616,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             ]
           }
         }
-        End_App_Gateway_HTML: {
+        End_to_App_Gateway_HTML: {
           runAfter: {
             For_each_App_GW: [
               'Succeeded'
@@ -3982,7 +3965,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         Condition_App_Gateway_next_steps: {
           actions: {}
           runAfter: {
-            End_App_Gateway_HTML: [
+            End_to_App_Gateway_HTML: [
               'Succeeded'
             ]
           }
