@@ -196,14 +196,14 @@ To upgrade FinOps hubs 0.7 to 0.8:
    4. Delete the virtual network.  If errors are encountered:
       - Confirm no private endpoints or DNS zones remain.
       - Check the connected devices tab and remove any lingering resources to ensure the virtual network is not in use.
-2. Redeploy the template by using the **same inputs** from the previous deployment
-   1. Subscription
-   2. Resource group
-   3. location
-   4. hubName
-   5. dataExplorerName (if previously deployed)
-   6. Choose the correct Aure Data Explorer SKU for the deployment, ensuring it matches with the SKU which is currently in use
-3. Verify that the Azure Data Factory triggers associated with Storage events have a status of 'started
+2. Redeploy the template by using the **same inputs** from the previous deployment:
+   - Subscription
+   - Resource group
+   - Location
+   - Hub name
+   - Data Explorer cluster name (recommended when monitoring over $100K in total spend)
+   - Data Explorer SKU (if a cluster name is specified)
+3. Verify that the Data Factory triggers are all started.
 4. Update Power BI reports.
 5. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
    - The `ResourceType` property in `parse_resourceid(ResourceId)` is deprecated in 0.8 and will be removed in 0.9 or later.
