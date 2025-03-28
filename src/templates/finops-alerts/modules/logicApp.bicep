@@ -3992,7 +3992,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'AppGatewayHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review Application Gateways which include backend pools with no targets.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review application gateways which include backend pools with no targets.</span>\n</div>'
                 }
               }
             }
