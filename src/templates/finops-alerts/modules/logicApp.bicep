@@ -335,7 +335,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Get_idle_App_Gateways: {
           runAfter: {
-            Initialize_subscriptions: [
+            Initialize_resources_table: [
               'Succeeded'
             ]
           }
@@ -354,7 +354,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Get_idle_Disks: {
           runAfter: {
-            Initialize_subscriptions: [
+            Initialize_resources_table: [
               'Succeeded'
             ]
           }
@@ -373,7 +373,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Get_idle_IP_addresses: {
           runAfter: {
-            Initialize_subscriptions: [
+            Initialize_resources_table: [
               'Succeeded'
             ]
           }
@@ -392,7 +392,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Get_idle_Load_Balancers: {
           runAfter: {
-            Initialize_subscriptions: [
+            Initialize_resources_table: [
               'Succeeded'
             ]
           }
@@ -411,7 +411,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Get_Disk_Snapshots_older_than_30_days: {
           runAfter: {
-            Initialize_subscriptions: [
+            Initialize_resources_table: [
               'Succeeded'
             ]
           }
@@ -430,7 +430,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         Get_Stopped_VMs: {
           runAfter: {
-            Initialize_subscriptions: [
+            Initialize_resources_table: [
               'Succeeded'
             ]
           }
@@ -3528,6 +3528,8 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
         }
         'Send_an_email_(V2)': {
           runAfter: {
+
+            EmailNotice: [
             End_App_Gateway_HTML: [
               'Succeeded'
             ]
@@ -3558,7 +3560,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             body: {
               To: '@variables(\'SendAlertTo\')'
               Subject: '@variables(\'SetEmailSubject\')'
-              Body: '<p class="editor-paragraph"><i><em class="editor-text-italic">The following resources have been identified through the Logic App, please review.</em></i></p><p class="editor-paragraph"><br>@{variables(\'AppGatewayHTML\')}<br>@{variables(\'IdleDiskHTML\')}<br>@{variables(\'IPAddressHTML\')}<br>@{variables(\'LoadBalancerHTML\')}<br>@{variables(\'DiskSnapshotHTML\')}<br>@{variables(\'StoppedVMHTML\')}</p><br><h1 class="editor-heading-h1"><b><strong class="editor-text-bold">📧 About FinOps alerts</strong></b></h1><p class="editor-paragraph">FinOps alerts is a powerful tool designed to keep you informed about significant cost-related events in your cloud environment. They are fully configurable and can be tailored to run on your desired schedule, ensuring that you receive timely notifications on the scenarios most important to your organization. FinOps alerts is part of the FinOps toolkit, an open-source collection of FinOps solutions that help you manage and optimize your cost, usage, and carbon.</p><p class="editor-paragraph">If you run into any issues, see <a href="{}" class="editor-link"><u><span class="editor-text-underline">Troubleshooting FinOps alerts</span></u></a>.</p><br><h1 class="editor-heading-h1"><b><strong class="editor-text-bold">Provide feedback</strong></b></h1><p class="editor-paragraph"><a href="{https://github.com/microsoft/finops-toolkit/discussions/new/choose}" class="editor-link"><u><span class="editor-text-underline">Share ideas</span></u></a><br><a href="{https://github.com/microsoft/finops-toolkit/discussions/new/choose}" class="editor-link"><u><span class="editor-text-underline">Ask a question</span></u></a></p><br><br><br><br>'
+              Body: '<p class="editor-paragraph">@{variables(\'EmailNotice\')}</p><p class="editor-paragraph">@{variables(\'AppGatewayHTML\')}<br>@{variables(\'IdleDiskHTML\')}<br>@{variables(\'IPAddressHTML\')}<br>@{variables(\'LoadBalancerHTML\')}<br>@{variables(\'DiskSnapshotHTML\')}<br>@{variables(\'StoppedVMHTML\')}</p><br><h1 class="editor-heading-h1"><b><strong class="editor-text-bold">📧 </strong></b><b><strong class="editor-text-bold" style="font-size: 20px;">About FinOps alerts</strong></b></h1><p class="editor-paragraph">FinOps alerts keep you informed about cost optimization opportunities within in your cloud environment. They are fully configurable and can be tailored to run on your desired schedule, ensuring that you receive timely notifications on the scenarios most important to your organization. FinOps alerts are part of the FinOps toolkit, an open-source collection of FinOps solutions that help you manage and optimize your cost, usage, and carbon.</p><h1 class="editor-heading-h1"><b><strong class="editor-text-bold" style="font-size: 20px;">Provide feedback</strong></b></h1><p class="editor-paragraph"><a href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.8/bladeName/Alerts/featureName/Email" class="editor-link"><u><span class="editor-text-underline">Give feedback</span></u></a><br><a href="https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20alerts%22%20sort%3Areactions-%2B1-desc" class="editor-link"><u><span class="editor-text-underline">Vote on or suggest ideas</span></u></a></p><br>'
             }
             path: '/v2/Mail'
           }
@@ -3643,7 +3645,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             value: '</tbody></table>'
           }
         }
-        End_IP_Address_HTML: {
+        End_to_IP_Address_HTML: {
           runAfter: {
             For_each_IP_address: [
               'Succeeded'
@@ -3655,7 +3657,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             value: ' </table>'
           }
         }
-        End_to_Idle_Disk_HTML: {
+        End_to_Disk_HTML: {
           runAfter: {
             For_each_Disk: [
               'Succeeded'
@@ -3732,23 +3734,6 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             ]
           }
         }
-        Initialize_subscriptions: {
-          runAfter: {
-            Initialize_resources_table: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'Subscriptions'
-                type: 'array'
-                value: []
-              }
-            ]
-          }
-        }
         Initialize_resources_table: {
           runAfter: {
             Excluded_subscriptions: [
@@ -3761,7 +3746,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               {
                 name: 'resourcesTable'
                 type: 'string'
-                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in (\', replace(replace(string(variables(\'IncludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \')\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in (\', replace(replace(string(variables(\'ExcludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \')\'))}'
+                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in ("\', replace(replace(string(variables(\'IncludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \'")\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in ("\', replace(replace(string(variables(\'ExcludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \'")\'))}'
               }
             ]
           }
@@ -3994,6 +3979,218 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           }
           type: 'If'
         }
+        Condition_App_Gateway_next_steps: {
+          actions: {}
+          runAfter: {
+            End_App_Gateway_HTML: [
+              'Succeeded'
+            ]
+          }
+          else: {
+            actions: {
+              Append_to_App_Gateway_table: {
+                type: 'AppendToStringVariable'
+                inputs: {
+                  name: 'AppGatewayHTML'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review application gateways which include backend pools with no targets.</span>\n</div>'
+                }
+              }
+            }
+          }
+          expression: {
+            and: [
+              {
+                equals: [
+                  '@length(body(\'Get_idle_App_Gateways\')[\'data\'])'
+                  0
+                ]
+              }
+            ]
+          }
+          type: 'If'
+        }
+        Condition_Disk_next_steps: {
+          actions: {}
+          runAfter: {
+            End_to_Disk_HTML: [
+              'Succeeded'
+            ]
+          }
+          else: {
+            actions: {
+              Append_to_Disk_table: {
+                type: 'AppendToStringVariable'
+                inputs: {
+                  name: 'IdleDiskHTML'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review managed disks that are not attached to any virtual machine.</span>\n</div>'
+                }
+              }
+            }
+          }
+          expression: {
+            and: [
+              {
+                equals: [
+                  '@length(body(\'Get_idle_Disks\')[\'data\'])'
+                  0
+                ]
+              }
+            ]
+          }
+          type: 'If'
+        }
+        Condition_IP_Address_next_steps: {
+          actions: {}
+          runAfter: {
+            End_to_IP_Address_HTML: [
+              'Succeeded'
+            ]
+          }
+          else: {
+            actions: {
+              Append_to_IP_Address_table: {
+                type: 'AppendToStringVariable'
+                inputs: {
+                  name: 'IPAddressHTML'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review unattached public IP addresses, as they may represent additional cost.</span>\n</div>'
+                }
+              }
+            }
+          }
+          expression: {
+            and: [
+              {
+                equals: [
+                  '@length(body(\'Get_idle_IP_addresses\')[\'data\'])'
+                  0
+                ]
+              }
+            ]
+          }
+          type: 'If'
+        }
+        Condition_Load_Balancer_next_steps: {
+          actions: {}
+          runAfter: {
+            End_to_Load_Balancer_HTML: [
+              'Succeeded'
+            ]
+          }
+          else: {
+            actions: {
+              Append_to_Load_Balancer_table: {
+                type: 'AppendToStringVariable'
+                inputs: {
+                  name: 'LoadBalancerHTML'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review load balancers with no backend pools and remove them if not needed.</span>\n</div>'
+                }
+              }
+            }
+          }
+          expression: {
+            and: [
+              {
+                equals: [
+                  '@length(body(\'Get_idle_Load_Balancers\')[\'data\'])'
+                  0
+                ]
+              }
+            ]
+          }
+          type: 'If'
+        }
+        Condition_Disk_Snapshot_next_steps: {
+          actions: {}
+          runAfter: {
+            End_to_Disk_Snapshot_HTML: [
+              'Succeeded'
+            ]
+          }
+          else: {
+            actions: {
+              Append_to_Disk_Snapshot_table: {
+                type: 'AppendToStringVariable'
+                inputs: {
+                  name: 'DiskSnapshotHTML'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review managed disk snapshots that are older than 30 days.</span>\n</div>'
+                }
+              }
+            }
+          }
+          expression: {
+            and: [
+              {
+                equals: [
+                  '@length(body(\'Get_Disk_Snapshots_older_than_30_days\')[\'data\'])'
+                  0
+                ]
+              }
+            ]
+          }
+          type: 'If'
+        }
+        Condition_stopped_VM_next_steps: {
+          actions: {}
+          runAfter: {
+            End_to_Stopped_VM_HTML: [
+              'Succeeded'
+            ]
+          }
+          else: {
+            actions: {
+              Append_to_Stopped_VM_table: {
+                type: 'AppendToStringVariable'
+                inputs: {
+                  name: 'StoppedVMHTML'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong>  <span>Review stopped VMs, as they are billed for the allocated cost.</span>\n</div>'
+                }
+              }
+            }
+          }
+          expression: {
+            and: [
+              {
+                equals: [
+                  '@length(body(\'Get_Stopped_VMs\')[\'data\'])'
+                  0
+                ]
+              }
+            ]
+          }
+          type: 'If'
+        }
+        EmailNotice: {
+          runAfter: {
+            Condition_App_Gateway_next_steps: [
+              'Succeeded'
+            ]
+            Condition_Disk_next_steps: [
+              'Succeeded'
+            ]
+            Condition_IP_Address_next_steps: [
+              'Succeeded'
+            ]
+            Condition_Load_Balancer_next_steps: [
+              'Succeeded'
+            ]
+            Condition_Disk_Snapshot_next_steps: [
+              'Succeeded'
+            ]
+            Condition_stopped_VM_next_steps: [
+              'Succeeded'
+            ]
+          }
+          type: 'InitializeVariable'
+          inputs: {
+            variables: [
+              {
+                name: 'EmailNotice'
+                type: 'string'
+                value: '<p class="editor-paragraph"><b><strong class="editor-text-bold">The following resources have been identified through FinOps alerts. </strong></b><b><strong class="editor-text-bold">Please take a moment to review and proceed with the next steps outlined below:</strong></b></p><hr><br>'
+              }
+            ]
+          }
+        }
       }
       outputs: {}
     }
@@ -4012,7 +4209,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
   name: appName
   location: location
   tags: {
-    displayName: 'FinOpsAlert'
+    displayName: 'FinOpsalert'
   }
 }
 
