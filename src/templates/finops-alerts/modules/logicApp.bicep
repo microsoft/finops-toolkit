@@ -4052,7 +4052,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'IPAddressHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review unattached Public IP Addresses, as they may represent additional cost.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review unattached public IP addresses, as they may represent additional cost.</span>\n</div>'
                 }
               }
             }
