@@ -4112,7 +4112,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
                 type: 'AppendToStringVariable'
                 inputs: {
                   name: 'DiskSnapshotHTML'
-                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review Managed Disks Snapshots that are older than 30 days.</span>\n</div>'
+                  value: '<div style="margin-top: 16px;">\n  <strong>👉 Next steps:</strong> <span>Review managed disk snapshots that are older than 30 days.</span>\n</div>'
                 }
               }
             }
