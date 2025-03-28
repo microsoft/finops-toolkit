@@ -76,7 +76,7 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - Price sheet exports are required to populate missing prices and costs.
    - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
    - We recommend creating daily exports for each export type supported at your chosen billing scope:
-      - Enterprise Agreement: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
+      - Enterprise Agreement billing account: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
       - Microsoft Customer Agreement billing profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
       - Subscription: FocusCosts
 
