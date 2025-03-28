@@ -54,7 +54,7 @@ style="background-color:#edf; border:solid 1px #609;">
 
 ## Deploy FinOps alerts
 
-FinOps alerts works best with the <strong>Owner</strong> role. For least privilege roles, contributor and user access admin roles are required.
+FinOps alerts works best with the <strong>Owner</strong> role. For least privilege roles, contributor and role based access control administrator roles are required.
 
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-alerts-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-alerts-latest.ui.json">Deploy to Azure</a>
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-alerts-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-alerts-latest.ui.json">Deploy to Azure Gov</a>
