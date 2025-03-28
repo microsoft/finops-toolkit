@@ -44,11 +44,11 @@ _Released March 2025_
 
 **[Rate optimization](power-bi/rate-optimization.md)**
 
+- **Added**
+  - Show break-even point calculation for reservation recommendations. ([[#406](https://github.com/microsoft/finops-toolkit/issues/406)]).
 - **Fixed**
   - Fixed core count double-counting on the Hybrid Benefit page.
   - Fixed savings to include negotiated discounts on the Total savings page.
-- **Addedd**
-  - Break event point calculation for Reserved Instances recommendations. ([[#406](https://github.com/microsoft/finops-toolkit/issues/406)])
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
 
@@ -57,8 +57,8 @@ _Released March 2025_
   - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
 - **Fixed**
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
-  - Changed how reservations are summarized to ensure the latest version of each recommendation is displayed. [#1408](https://github.com/microsoft/finops-toolkit/issues/1408)
-  - Improved how recommendation dates are calculated [#1388](https://github.com/microsoft/finops-toolkit/issues/1388)
+  - Changed how reservations are summarized to ensure the latest version of each recommendation is displayed. ([#1408](https://github.com/microsoft/finops-toolkit/issues/1408)).
+  - Improved how recommendation dates are calculated ([#1388](https://github.com/microsoft/finops-toolkit/issues/1388)).
 - **Removed**
   - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
