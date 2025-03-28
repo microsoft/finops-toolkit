@@ -963,6 +963,7 @@ resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-
         timeZone: azuretimezones.outputs.Timezone
         schedule: {
           monthDays: [
+            2
             5
             19
           ]
