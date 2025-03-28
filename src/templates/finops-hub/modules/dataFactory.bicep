@@ -2510,6 +2510,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2546,6 +2550,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
+                          headers: {  
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${ftkVersion}'  
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
+                          }  
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2582,6 +2590,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'Pricesheet', exportSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
+                          headers: {  
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.Prices@${ftkVersion}'  
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
+                          }  
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2615,7 +2627,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             type: 'Expression'
                           }
                           headers: {
-                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs@${ftkVersion}'
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.Prices@${ftkVersion}'
                             ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                           }
                           body: ' '
@@ -2655,6 +2667,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'ReservationDetails', reservationDetailsSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
+                          headers: {  
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationDetails@${ftkVersion}'  
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
+                          }  
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2691,6 +2707,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'ReservationTransactions', exportSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
+                          headers: {  
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationTransactions@${ftkVersion}'  
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
+                          } 
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2727,6 +2747,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'ReservationRecommendations', exportSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', 'Shared', 'Last30Days', 'VirtualMachines')
                             type: 'Expression'
                           }
+                          headers: {  
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationRecommendations.VM.Shared.30d@${ftkVersion}'  
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
+                          } 
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2764,6 +2788,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
+                          headers: {  
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${ftkVersion}'  
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
+                          }
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2800,6 +2828,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
+                          headers: {  
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${ftkVersion}'  
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
+                          } 
                           authentication: {
                             type: 'MSI'
                             resource: {
