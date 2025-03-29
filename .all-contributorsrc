@@ -56,21 +56,22 @@
       ]
     },
     {
-      "login": "ms:tanuja",
+      "login": "tshah2808",
       "name": "Tanuja Shah",
-      "avatar_url": "https://media.licdn.com/dms/image/v2/D5603AQHCK08YRaHOsg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1686158380864?e=1747872000&v=beta&t=tVM1IFJSnY3y2pbE787ydSpuBbvyVPjX-SYz9E2w-Oo#",
-      "profile": "https://www.linkedin.com/in/tanujashah/",
+      "avatar_url": "https://avatars.githubusercontent.com/u/67380293?v=4",
+      "profile": "https://github.com/tshah2808",
       "contributions": [
         "leader"
       ]
     },
     {
-      "login": "ms:fernando",
+      "login": "ms:fernandovas",
       "name": "Fernando Vasconcellos",
       "avatar_url": "https://media.licdn.com/dms/image/v2/C4D03AQGOHJHlq3nhpQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1571181473582?e=1747872000&v=beta&t=Lyp-ij1u_tJT_GRSb7pa8syMMKH9bY6DExCLjhIyJME#",
       "profile": "https://www.linkedin.com/in/fernando-vasconcellos-ba398b191/",
       "contributions": [
         "leader",
+        "doc",
         "promotion"
       ]
     },
