@@ -121,6 +121,7 @@ plusminus(val: string)
 with (docstring = 'Shows an up/down arrow based on the direction of the number', folder = 'Common')
 updown(val: string)
 {
+    // TODO: Handle 0
     let neg = substring(val, 0, 1) == '-';
     iff(neg, strcat('↓', substring(val, 1)), strcat('↑', val))
 }

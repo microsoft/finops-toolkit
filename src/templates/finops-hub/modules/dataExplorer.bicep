@@ -87,8 +87,9 @@ param clusterSku string = 'Dev(No SLA)_Standard_E2a_v4'
 @maxValue(1000)
 param clusterCapacity int = 1
 
-@description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
-param clusterTrustedExternalTenants string[] = []
+// TODO: Figure out why this is breaking upgrades
+// @description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
+// param clusterTrustedExternalTenants string[] = []
 
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
 param forceUpdateTag string = utcNow()
@@ -251,9 +252,10 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     enableStreamingIngest: true
     enableAutoStop: false
     publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
-    trustedExternalTenants: [for tenantId in clusterTrustedExternalTenants: {
-        value:tenantId
-    }]
+    // TODO: Figure out why this is breaking upgrades
+    // trustedExternalTenants: [for tenantId in clusterTrustedExternalTenants: {
+    //     value: tenantId
+    // }]
   }
 
   resource adfClusterAdmin 'principalAssignments' = {
@@ -354,7 +356,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
 }
 
-//  Authorize Kusto Cluster to read storage
+// Authorize Kusto Cluster to read storage
 resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(cluster.name, subscription().id, 'Storage Blob Data Contributor')
   scope: storage

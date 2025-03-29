@@ -18,10 +18,10 @@ param(
     [string] $billingPeriod, # YYYYMM format
 
     [Parameter(Mandatory = $false)] 
-    [string] $meterCategories, # comma-separated meter categories (e.g., "Virtual Machines,Storage")
+    [string] $meterCategories, # comma-separated meter categories (for example, "Virtual Machines,Storage")
 
     [Parameter(Mandatory = $false)] 
-    [string] $meterRegions # comma-separated billing meter regions (e.g., "EU North,EU West")
+    [string] $meterRegions # comma-separated billing meter regions (for example, "EU North,EU West")
 )
 
 $ErrorActionPreference = "Stop"

@@ -112,6 +112,34 @@ table Costs
 			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
 		lineageTag: ac79fd49-6124-47a6-8538-0d4cc28df316
 
+	measure x_SkuCoreCountMeasure = ```
+			
+			SUMX(
+			    SUMMARIZE(
+			        Costs,
+			        Costs[ResourceId], 
+			        "DistinctCoreCount", MAX(Costs[x_SkuCoreCount])
+			    ),
+			    [DistinctCoreCount]
+			)
+			```
+		formatString: 0
+		lineageTag: 1711f914-63b0-4377-b235-10898e6fc4ab
+
+	measure x_SkuLicenseQuantityMeasure = ```
+			
+			SUMX(
+			    SUMMARIZE(
+			        Costs,
+			        Costs[ResourceId], 
+			        "DistinctCoreCount", MAX(Costs[x_SkuLicenseQuantity])
+			    ),
+			    [DistinctCoreCount]
+			)
+			```
+		formatString: 0
+		lineageTag: 902eb4c9-763a-4b55-952d-5f8321aebbe2
+
 	column ResourceId
 		dataType: string
 		lineageTag: 62265a48-5fe0-4b5c-8440-16f5b641adc8
@@ -1622,7 +1650,7 @@ table Costs
 				        Table.ReplaceErrorValues(Table.AddColumn(FTK, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
 				        "tmp_Tags",
 				        PromotedTags,
-				        List.Transform(PromotedTags, each "tag_" & _)
+				        List.Transform(PromotedTags, each "tag_" & Text.Replace(_, " ", ""))
 				    ),
 				
 				    // AHB columns
@@ -1644,9 +1672,7 @@ table Costs
 				            "x_SkuLicenseQuantity",
 				                each if [x_SkuCoreCount] = null then 0
 				                else if [x_SkuCoreCount] <= 8 then 8
-				                else if [x_SkuCoreCount] <= 16 then 16
-				                else if [x_SkuCoreCount] = 20 then 24
-				                else if [x_SkuCoreCount] > 20 then [x_SkuCoreCount]
+				                else if [x_SkuCoreCount] > 8 then [x_SkuCoreCount]
 				                else 0,
 				                type number
 				            ),
