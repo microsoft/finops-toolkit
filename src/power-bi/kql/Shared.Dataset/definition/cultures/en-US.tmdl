@@ -45928,7 +45928,7 @@ cultureInfo en-US
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Effective Savings Rate (ESR)": {
+			          "Effective Savings Rate": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -45938,7 +45938,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "Effective Savings Rate": {
+			          "Effective Savings Rate (ESR)": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -46012,6 +46012,67 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "Billing account": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costs.x_skulicensequantitymeasure": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuLicenseQuantityMeasure"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Hybrid Benefit CPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "AHB CPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costs.x_skulicensequantity": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuLicenseQuantity"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costs.x_skucorecountmeasure": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuCoreCountMeasure"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "vCPUs": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

@@ -109,6 +109,34 @@ table Costs
 			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
 		lineageTag: ac79fd49-6124-47a6-8538-0d4cc28df316
 
+	measure x_SkuCoreCountMeasure = ```
+			
+			SUMX(
+			    SUMMARIZE(
+			        Costs,
+			        Costs[ResourceId], 
+			        "DistinctCoreCount", MAX(Costs[x_SkuCoreCount])
+			    ),
+			    [DistinctCoreCount]
+			)
+			```
+		formatString: 0
+		lineageTag: b59442f6-aae1-4ae1-ae4a-96cf06f4390a
+
+	measure x_SkuLicenseQuantityMeasure = ```
+			
+			SUMX(
+			    SUMMARIZE(
+			        Costs,
+			        Costs[ResourceId], 
+			        "DistinctCoreCount", MAX(Costs[x_SkuLicenseQuantity])
+			    ),
+			    [DistinctCoreCount]
+			)
+			```
+		formatString: 0
+		lineageTag: 0bcd47b4-9910-4f43-8efe-a6fb9a3b940d
+
 	column AvailabilityZone
 		dataType: string
 		sourceProviderType: nvarchar(max)
@@ -1701,8 +1729,8 @@ table Costs
 				    | extend tmp_IsVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'
 				    | extend x_ConsumedCoreHours = iff(tmp_IsVMUsage and isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''))
 				    | extend x_SkuLicenseStatus = case(
-				        (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Windows') or not(tmp_IsSQLAHB), 'Not enabled',
 				        (isnotempty(x_SkuDetails.ImageType) and x_SkuDetails.ImageType contains 'Windows Server BYOL') or tmp_IsSQLAHB or (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Azure Hybrid Benefit'), 'Enabled',
+				        (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Windows') or not(tmp_IsSQLAHB), 'Not enabled',
 				        ''
 				    )
 				    | extend x_SkuLicenseType = case(
@@ -1713,9 +1741,7 @@ table Costs
 				    | extend x_SkuLicenseQuantity = case(
 				        isempty(x_SkuCoreCount), toint(''),
 				        x_SkuCoreCount <= 8, 8,
-				        x_SkuCoreCount <= 16, 16,
-				        x_SkuCoreCount == 20, 24,
-				        x_SkuCoreCount > 20, x_SkuCoreCount,
+				        x_SkuCoreCount > 8, x_SkuCoreCount,
 				        toint('')
 				    )
 				    | extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')
@@ -1787,10 +1813,10 @@ table Costs
 				                else if Trim_spaces_from_tags                       then "parse_json(replace_string(keys, ' ', ''))"
 				                else "keys"
 				            ) & "
-				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & _ & " = iff(array_index_of(cleankeys, tolower('" & _ & "')) < 0, '', tostring(Tags[tostring(keys[toint(array_index_of(cleankeys, tolower('" & _ & "')))])]))"), ", ") & "
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(_, " ", "") & " = iff(array_index_of(cleankeys, tolower('" & _ & "')) < 0, '', tostring(Tags[tostring(keys[toint(array_index_of(cleankeys, tolower('" & _ & "')))])]))"), ", ") & "
 				            | project-away keys, cleankeys"
 				        ) else ("
-				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & _ & " = tostring(Tags['" & _ & "'])"), ", ")
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(_, " ", "") & " = tostring(Tags['" & _ & "'])"), ", ")
 				        )
 				    ) else "") & "
 				    //
