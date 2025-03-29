@@ -191,16 +191,21 @@ To upgrade FinOps hubs 0.7 to 0.8:
 
 1. Delete FinOps hubs 0.7 networking resources:
    1. Open the FinOps hub resource group in the Azure portal.
-   2. Delete all endpoints within the resource group.
-   3. Open the network security group (NSG).
-   4. Select **Settings** > **Subnets**.
-   5. For each of the subnets in the list, expand the menu on the right side of the table (3 dots) and select **Disassociate**.
-   6. Delete the network security group (NSG) resource.
-   7. Return to the resource group overview and delete the virtual network.
-   8. Delete all DNS zones.
-2. Redeploy the template.
-3. Update Power BI reports.
-4. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
+   2. Delete all private endpoints within the resource group.
+   3. Delete all private DNS zones within the resource group.
+   4. Delete the virtual network.  If errors are encountered:
+      - Confirm no private endpoints or DNS zones remain.
+      - Check the connected devices tab and remove any lingering resources to ensure the virtual network is not in use.
+2. Redeploy the template by using the **same inputs** from the previous deployment:
+   - Subscription
+   - Resource group
+   - Location
+   - Hub name
+   - Data Explorer cluster name (recommended when monitoring over $100K in total spend)
+   - Data Explorer SKU (if a cluster name is specified)
+3. Verify that the Data Factory triggers are all started.
+4. Update Power BI reports.
+5. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
    - The `ResourceType` property in `parse_resourceid(ResourceId)` is deprecated in 0.8 and will be removed in 0.9 or later.
 
 > [!div class="nextstepaction"]

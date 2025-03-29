@@ -75,6 +75,10 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - We recommend exporting from either an **EA billing account** or **MCA billing profile** scope to access additional datasets, including price sheets and reservation recommendations.
    - Price sheet exports are required to populate missing prices and costs.
    - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
+   - We recommend creating daily exports for each export type supported at your chosen billing scope:
+      - Enterprise Agreement billing account: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
+      - Microsoft Customer Agreement billing profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
+      - Subscription: FocusCosts
 
 1. [Create a new FOCUS cost export](/azure/cost-management-billing/costs/tutorial-export-acm-data) using the following settings:
 
@@ -92,8 +96,8 @@ If you can't grant permissions for your scope, you can create Cost Management ex
      - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
    - **File partitioning** = On
    - **Overwrite data** = Off⁴
-1. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
-1. Create exports for any other data you would like to include in your reports.
+2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
+3. Create exports for any other data you would like to include in your reports.
    - Supported datasets and versions:
      - Price sheet `2023-05-01`
        - Required to populate missing prices/costs and calculate savings when using Azure Data Explorer.
@@ -103,12 +107,12 @@ If you can't grant permissions for your scope, you can create Cost Management ex
      - Reservation transactions `2023-05-01`
    - Supported formats: Parquet (preferred) or CSV
    - Supported compression: Snappy (preferred), GZip, or uncompressed
-1. To initialize the dataset, run your exports.
+4. To initialize the dataset, run your exports.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how large your account is.
    - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
-1. Repeat steps 1-4 for each scope you want to monitor.
+5. Repeat steps 1-4 for each scope you want to monitor.
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
 

@@ -1767,12 +1767,12 @@ table Costs
 				        isnotempty(CommitmentDiscountCategory), 'Amortized Charge',
 				        ''
 				    )
-				    | extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)
-				    | extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)
-				    | extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)
-				    | extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0, decimal(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)
-				    | extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)
-				    | extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)
+				    | extend x_CommitmentDiscountSavings = iff(ContractedCost < EffectiveCost,  decimal(0), ContractedCost - EffectiveCost)
+				    | extend x_NegotiatedDiscountSavings = iff(ListCost       < ContractedCost, decimal(0), ListCost - ContractedCost)
+				    | extend x_TotalSavings              = iff(ListCost       < EffectiveCost,  decimal(0), ListCost - EffectiveCost)
+				    | extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0,        decimal(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)
+				    | extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,              decimal(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)
+				    | extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,              decimal(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)
 				    //
 				    // Toolkit
 				    | extend x_ToolkitTool = tostring(Tags['ftk-tool'])
