@@ -157,6 +157,26 @@ Exports weren't found in the specified storage path.
 
 <br>
 
+## ExportTypeNotDefined
+
+<sup>Severity: Critical</sup>
+
+This billing scope type is not supported by managed exports.
+
+**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost management exports for the billing scope.
+
+<br>
+
+## ExportTypeUnsupported
+
+<sup>Severity: Critical</sup>
+
+Microsoft Customer Agreements are not supported for managed exports.
+
+**Mitigation**: Remove the MCA billing scope from settings.json and manually create new Cost Management exports for each MCA billing profile for FOCUS cost, pricesheet, reservation details, reservation transactions and reservation recommendations.
+
+<br>
+
 ## HubDataNotFound
 
 <sup>Severity: Critical</sup>
