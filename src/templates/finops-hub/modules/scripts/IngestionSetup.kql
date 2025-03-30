@@ -303,11 +303,11 @@ Prices_transform_v1_0()
     | extend x_ContractedUnitPriceDiscount = ListUnitPrice - ContractedUnitPrice
     | extend x_TotalUnitPriceDiscount = ListUnitPrice - x_EffectiveUnitPrice
     | project
-        BillingAccountId = case(
+        BillingAccountId = tolower(case(
             BillingProfileId startswith '/', BillingProfileId,
             BillingAccountId startswith '/', BillingAccountId,
-            strcat('/providers/Microsoft.Billing/billingAccounts/', x_BillingAccountId, iff(x_BillingProfileId != x_BillingAccountId, '', strcat('/billingProfiles/', x_BillingProfileId)))
-        ),
+            strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId, iff(x_BillingProfileId == x_BillingAccountId, '', strcat('/billingprofiles/', x_BillingProfileId)))
+        )),
         BillingAccountName = coalesce(BillingProfileName, BillingAccountName, x_BillingProfileId),
         BillingCurrency = coalesce(BillingCurrency, CurrencyCode, Currency),  // Currency last as a fallback only
         ChargeCategory,
@@ -776,21 +776,23 @@ Costs_transform_v1_0()
     //
     // Identify data quality issues
     | extend x_SourceChanges = trim_end(',', strcat(
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based',                 'InvalidChargeFrequency,',           ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and EffectiveCost > 0,                                'InvalidEffectiveCost,',             ''),
-        iff((isempty(ContractedCost)      or ContractedCost == 0)      and EffectiveCost != 0,                                      'MissingContractedCost,',            ''),
-        iff((isempty(ContractedUnitPrice) or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0,                               'MissingContractedUnitPrice,',       ''),
-        iff((isempty(ListCost)            or ListCost == 0)            and (ContractedCost != 0      or EffectiveCost != 0),        'MissingListCost,',                  ''),
-        iff((isempty(ListUnitPrice)       or ListUnitPrice == 0)       and (ContractedUnitPrice != 0 or x_EffectiveUnitPrice != 0), 'MissingListUnitPrice,',             ''),
-        iff(isempty(ProviderName),                                                                                                  'MissingProviderName,',              ''),
-        iff(isempty(PublisherName),                                                                                                 'MissingPublisherName,',             ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceId),                              'MissingResourceId,',                ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceName),                            'MissingResourceName,',              ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceType),                            'MissingResourceType,',              ''),
-        iff(BilledCost > 0 and x_BilledUnitPrice == 0,                                                                              'MissingXBilledUnitPrice,',          ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(x_ResourceType),                          'MissingXResourceType,',             ''),
-        iff(PricingCategory == 'Standard' and isnotempty(CommitmentDiscountId) and ChargeCategory == 'Usage',                       'PricingCategoryShouldBeCommitted,', ''),
-        iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',         '')
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based',                 'InvalidChargeFrequency,',              ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and EffectiveCost > 0,                                'InvalidEffectiveCost,',                ''),
+        iff((isempty(ContractedCost)      or ContractedCost == 0)      and EffectiveCost != 0,                                      'MissingContractedCost,',               ''),
+        iff((isempty(ContractedUnitPrice) or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0,                               'MissingContractedUnitPrice,',          ''),
+        iff(ListCost < ContractedCost,                                                                                              'ListCostLessThanContractedCost,',      ''),
+        iff(ContractedCost < EffectiveCost,                                                                                         'ContractedCostLessThanEffectiveCost,', ''),
+        iff((isempty(ListCost)            or ListCost == 0)            and (ContractedCost != 0      or EffectiveCost != 0),        'MissingListCost,',                     ''),
+        iff((isempty(ListUnitPrice)       or ListUnitPrice == 0)       and (ContractedUnitPrice != 0 or x_EffectiveUnitPrice != 0), 'MissingListUnitPrice,',                ''),
+        iff(isempty(ProviderName),                                                                                                  'MissingProviderName,',                 ''),
+        iff(isempty(PublisherName),                                                                                                 'MissingPublisherName,',                ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceId),                              'MissingResourceId,',                   ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceName),                            'MissingResourceName,',                 ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceType),                            'MissingResourceType,',                 ''),
+        iff(BilledCost > 0 and x_BilledUnitPrice == 0,                                                                              'MissingXBilledUnitPrice,',             ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(x_ResourceType),                          'MissingXResourceType,',                ''),
+        iff(PricingCategory == 'Standard' and isnotempty(CommitmentDiscountId) and ChargeCategory == 'Usage',                       'PricingCategoryShouldBeCommitted,',    ''),
+        iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',            '')
     ))
     //
     // Fix columns needed in other changes
@@ -824,15 +826,16 @@ Costs_transform_v1_0()
         and isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))
     | as allCosts
     | where tmp_MissingPrices
-    | extend tmp_ReservationPriceLookupKey = strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId)
+    | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
     | as costsWithMissingPrices
     | join kind=leftouter (
         Prices_final_v1_0
-        | extend tmp_ReservationPriceLookupKey = strcat(x_BillingProfileId, substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId)
+        | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
         | where x_SkuPriceType == 'Consumption' and tmp_ReservationPriceLookupKey in ((costsWithMissingPrices | summarize by tmp_ReservationPriceLookupKey))
         | summarize ListUnitPrice = min(ListUnitPrice), ContractedUnitPrice = min(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
     ) on tmp_ReservationPriceLookupKey
     // Select the best price to use for each row
+    // TODO: Save values before changing -- | extend x_ms_ContractedUnitPrice = ContractedUnitPrice, x_ms_ListUnitPrice = ListUnitPrice, x_ms_ListCost = ListCost, x_ms_ContractedCost = ContractedCost
     | extend ContractedUnitPrice = case(
         // If price is already correct, keep that
         ContractedUnitPrice != 0 or x_EffectiveUnitPrice == 0, ContractedUnitPrice,
@@ -856,8 +859,20 @@ Costs_transform_v1_0()
         ContractedUnitPrice
     )
     // Calculate missing costs based on new prices -- If cost is already correct, keep that; if not and price is available, recalculate the cost; otherwise, keep the existing cost
-    | extend ListCost = case(ListCost != 0 or EffectiveCost == 0, ListCost, ListUnitPrice != 0, ListUnitPrice * PricingQuantity, ListCost)
-    | extend ContractedCost = case(ContractedCost != 0 or EffectiveCost == 0, ContractedCost, ContractedUnitPrice != 0, ContractedUnitPrice * PricingQuantity, ContractedCost)
+    | extend ContractedCost = case(
+        ContractedCost != 0 or EffectiveCost == 0, ContractedCost,
+        ContractedUnitPrice == x_EffectiveUnitPrice, EffectiveCost,  // Use EffectiveCost if both prices are the same to avoid rounding errors
+        ContractedUnitPrice != 0, ContractedUnitPrice * PricingQuantity,
+        ContractedCost == 0 and ContractedUnitPrice == 0, EffectiveCost,  // Fall back to EffectiveCost when ContractedCost and ContractedUnitPrice are 0
+        ContractedCost
+    )
+    | extend ListCost = case(
+        ListCost != 0 or EffectiveCost == 0, ListCost,
+        ListUnitPrice == ContractedUnitPrice, ContractedCost,  // Use ContractedCost if both prices are the same to avoid rounding errors
+        ListUnitPrice != 0, ListUnitPrice * PricingQuantity,
+        ListCost == 0 and ListUnitPrice == 0, ContractedCost,  // Fall back to ContractedCost when ListCost and ListUnitPrice are 0
+        ListCost
+    )
     // Merge the rest of the unmodified cost records and remove excess columns
     | union (allCosts | where not(tmp_MissingPrices))
     | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices, tmp_ReservationPriceLookupKey, tmp_ReservationPriceLookupKey1
@@ -903,7 +918,7 @@ Costs_transform_v1_0()
     | project
         AvailabilityZone,
         BilledCost,
-        BillingAccountId,
+        BillingAccountId = tolower(BillingAccountId),
         BillingAccountName,
         BillingAccountType,
         BillingCurrency,
@@ -922,7 +937,7 @@ Costs_transform_v1_0()
         ChargePeriodEnd,
         ChargePeriodStart,
         CommitmentDiscountCategory,
-        CommitmentDiscountId,
+        CommitmentDiscountId = tolower(CommitmentDiscountId),
         CommitmentDiscountName,
         CommitmentDiscountStatus = case(
             // Handle FOCUS 1.0-preview ChargeSubcategory

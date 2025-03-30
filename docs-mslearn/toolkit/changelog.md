@@ -64,6 +64,14 @@ _Released March 2025_
 - **Added**
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
   - Managed exports now create price, reservation detail, reservation transaction, and VM reservation recommendation exports.
+  - Address new data quality issues with ingested data:
+    - Change `BillingAccountId` to be lowercase in both the cost and price datasets.
+    - Change `CommitmentDiscountId` to be lowercase in the cost dataset.
+    - Handle `x_BillingProfileId` case-sensitivity for the cost/price join (without changing data).
+    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
+    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` and `ContractedUnitPrice` are both 0 or empty.
+    - Set `ListCost` to `ContractedCost` when `ListCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
+    - Set `ListCost` to `ContractedCost` when `ListCost` and `ListUnitPrice` are both 0 or empty.
 - **Changed**
   - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
     - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
