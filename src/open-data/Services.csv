@@ -80,6 +80,7 @@ microsoft.classicnetwork,microsoft.classicnetwork/publicipaddresses,Virtual Netw
 microsoft.classicstorage,microsoft.classicstorage/storageaccounts,Storage Accounts,Storage,Storage Platforms,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.codesigning,microsoft.codesigning/codesigningaccounts,Trusted Signing,Developer Tools,Continuous Integration and Deployment,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.cognitiveservices,microsoft.cognitiveservices/accounts,Azure AI Services,AI and Machine Learning,AI Platforms,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.cognitiveservices,microsoft.cognitiveservices/commitmentplans,Azure AI Services,AI and Machine Learning,AI Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.communication,microsoft.communication/communicationservices,Azure Communication Services,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.community,microsoft.community/communitytrainings,Community Training,Business Applications,Other (Business Applications),Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.compute,microsoft.compute/capacityreservationgroups,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
@@ -121,6 +122,7 @@ microsoft.dbforpostgresql,microsoft.dbforpostgresql/servergroupsv2,Azure DB for 
 microsoft.dbforpostgresql,microsoft.dbforpostgresql/servers,Azure DB for PostgreSQL,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.desktopvirtualization,microsoft.desktopvirtualization/hostpools,Azure Virtual Desktop,Compute,End User Computing,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.devcenter,microsoft.devcenter/projects,Microsoft Dev Box,Developer Tools,Continuous Integration and Deployment,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.deviceregistry,microsoft.deviceregistry/billingcontainers,Azure IoT Hub,Internet of Things,IoT Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.devices,microsoft.devices/iothubs,Azure IoT Hub,Internet of Things,IoT Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.devices,microsoft.devices/provisioningservices,Azure IoT Hub,Internet of Things,IoT Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.deviceupdate,microsoft.deviceupdate/accounts,Azure IoT Hub,Internet of Things,IoT Platforms,Microsoft,Cloud Provider,Cloud,PaaS
