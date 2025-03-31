@@ -94,6 +94,7 @@ New-FinOpsCostExport `
 | `‑Execute`                        | Optional. Indicates that the export should be run immediately after created.                                                                                                                                                                                                                                                                                                                                                                                            |
 | `‑Backfill`                       | Optional. Number of months to export the data for. This is only run once at create time. Failed exports are not re-attempted. Not supported when -OneTime is set. Default = 0.                                                                                                                                                                                                                                                                                          |
 | `‑ApiVersion`                     | Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.                                                                                                                                                                                                                                                                                                                                                                |
+
 <br>
 
 ## Examples

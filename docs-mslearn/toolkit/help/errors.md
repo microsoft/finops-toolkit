@@ -123,6 +123,20 @@ Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. In
 
 <br>
 
+## DeploymentOutputEvaluationFailed
+
+<sup>Severity: Major</sup>
+
+FinOps hubs 0.8 sets the Azure Data Explorer "trustedExternaltenants" security setting to lock the cluster down so it can only be access from specific, trusted tenants. This setting can be set for the first deployment, but cannot be set again in a second deployment. You may see the following error if you try to redeploy FinOps hubs 0.8 on top of an existing 0.8 deployment:
+
+> _The template output 'clusterUri' is not valid: The language expression property 'uri' doesn't exist, available properties are 'trustedExternalTenants, enableStreamingIngest, publicNetworkAccess, enableAutoStop, provisioningState'._
+
+We are following up with the Azure Data Explorer team to identify the correct resolution.
+
+**Mitigation**: Deploy FinOps hubs 0.9. This setting has been removed from the template.
+
+<br>
+
 ## ExportDataNotFound
 
 <sup>Severity: Critical</sup>
@@ -130,6 +144,26 @@ Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. In
 Exports weren't found in the specified storage path.
 
 **Mitigation**: Confirm that a [Cost Management export](https://aka.ms/exportsv2) was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, correct the storage URL to point to the 'ingestion' container. Refer to the `storageUrlForPowerBI` output from the FinOps hub deployment for the full URL.
+
+<br>
+
+## ExportTypeNotDefined
+
+<sup>Severity: Critical</sup>
+
+This billing scope type is not supported by managed exports.
+
+**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost management exports for the billing scope.
+
+<br>
+
+## ExportTypeUnsupported
+
+<sup>Severity: Critical</sup>
+
+Microsoft Customer Agreements are not supported for managed exports.
+
+**Mitigation**: Remove the MCA billing scope from settings.json and manually create new Cost Management exports for each MCA billing profile for FOCUS cost, pricesheet, reservation details, reservation transactions and reservation recommendations.
 
 <br>
 
@@ -368,11 +402,11 @@ This error code is shown in the `x_SourceChanges` column when `ProviderName` is 
 
 <sup>Severity: Minor</sup>
 
-The source of this error is unknown. This error may be surfaced randomly.
+The source of this error is unknown. This error may be surfaced randomly when refreshing Power BI data.
 
 **Mitigation**: If you receive this error, select **Apply change** again.
 
-This error has only been reported in storage reports. If you have long data refresh times or experience this error often, consider switching to [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. Data Explorer uses KQL reports which do not require scheduling or incremental refresh. Data is pulled when the report is access, so reports always leverage the latest data.
+This error has only been reported in storage reports. If you have long data refresh times or experience this error often, consider switching to [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. Data Explorer uses KQL reports which do not require scheduling or incremental refresh. Data is pulled when the report is opened, so reports always show the latest data.
 
 <br>
 
