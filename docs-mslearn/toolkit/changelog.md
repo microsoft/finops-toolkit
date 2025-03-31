@@ -54,6 +54,7 @@ _Released March 2025_
 - **Fixed**
   - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
   - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
+  - Updated all Resource Graph queries (except Disks) to address the 'properties...' column not found error ([#1357](https://github.com/microsoft/finops-toolkit/issues/1357)).
 
 **[Rate optimization](power-bi/rate-optimization.md)**
 
