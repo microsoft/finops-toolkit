@@ -213,53 +213,43 @@ FinOps hubs leverage Cost Management exports to obtain cost data. Cost Managemen
 
 FinOps hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
 
-> [!WARNING]
-> Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
->
-> To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
+Don't export data to the **ingestion** container. Exported CSVs _must_ be published to the **msexports** container to be processed by the hubs engine.
 
-Export manifests can change with API versions. Here's an example with API version `2023-07-01-preview`:
+To ingest custom data, save parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected. After all parquet files are added, add an empty **manifest.json** file to trigger ingestion.
+
+To ingest CSV file from Cost Management exports, save files in a specific folder in the **msexports** container. After all files are added, add a **manifest.json** file based on the below template. Make the following changes to ensure successful ingestion:
+
+1. Change `<export-name>` to a unique value within the scope for the dataset you're ingesting.
+   - This is only used for recommendations to differentiate the many different types of recommendations getting ingested which aren't identifiable from the export manifest alone. For reservation recommendations, ideally include the service, scope (single/shared), and lookback period.
+2. Change `<dataset>` and `<version>` to the Cost Management export type and version. See the list below for supported datasets.
+3. Change `<scope>` to the Azure resource ID for the scope the data came from.
+4. Change `<guid>` to a unique GUID.
+5. Change `<yyyy-MM>` to the year and month of the dataset.
+6. Change `<path-to-file>` to the full folder path under the container (do not include "msexports").
+7. Change `<file-name>` to the name of the first file uploaded to storage.
+8. If you have more than one CSV file, copy the blob object for each file you uploaded and update the file name.
 
 ```json
 {
+  "blobCount": 1,
+  "dataRowCount": 1,
   "exportConfig": {
     "exportName": "<export-name>",
-    "resourceId": "/<scope>/providers/Microsoft.CostManagement/exports/<export-name>",
-    "dataVersion": "<dataset-version>",
-    "apiVersion": "<api-version>",
-    "type": "<dataset-type>",
-    "timeFrame": "OneTime|TheLastMonth|MonthToDate",
-    "granularity": "Daily"
-  },
-  "deliveryConfig": {
-    "partitionData": true,
-    "dataOverwriteBehavior": "CreateNewReport|OverwritePreviousReport",
-    "fileFormat": "Csv",
-    "containerUri": "<storage-resource-id>",
-    "rootFolderPath": "<path>"
+    "type": "<dataset>",
+    "dataVersion": "<version>",
+    "resourceId": "<scope>/providers/Microsoft.CostManagement/exports/export-name"
   },
   "runInfo": {
-    "executionType": "Scheduled",
-    "submittedTime": "2024-02-03T18:33:03.1032074Z",
-    "runId": "af754a8e-30fc-4ef3-bfc6-71bd1efb8598",
-    "startDate": "2024-01-01T00:00:00",
-    "endDate": "2024-01-31T00:00:00"
+    "runId": "<guid>",
+    "startDate": "<yyyy-MM>-01T00:00:00"
   },
   "blobs": [
     {
-      "blobName": "<path>/<export-name>/<date-range>/<export-time>/<guid>/<file-name>.csv",
-      "byteCount": ###
+      "blobName": "<path-to-file>/<file-name>.csv"
     }
   ]
 }
 ```
-
-FinOps hubs leverage the following properties:
-
-- `eportConfig.resourceId` to identify the scope.
-- `eportConfig.type` to identify the dataset type.
-- `eportConfig.dataVersion` to identify the dataset version.
-- `runInfo.startDate` to identify the exported month.
 
 <a name="datasets"></a>FinOps hubs support the following dataset types, versions, and API versions:
 

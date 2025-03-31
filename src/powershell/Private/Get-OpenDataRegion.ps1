@@ -83,7 +83,7 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'cc'; RegionId = 'canadacentral'; RegionName = 'Canada Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'central india'; RegionId = 'centralindia'; RegionName = 'Central India'; }
         ,[PSCustomObject]@{ OriginalValue = 'central us'; RegionId = 'centralus'; RegionName = 'Central US'; }
-        ,[PSCustomObject]@{ OriginalValue = 'centralcanada'; RegionId = 'canadacentral'; RegionName = 'Central Canada'; }
+        ,[PSCustomObject]@{ OriginalValue = 'centralcanada'; RegionId = 'canadacentral'; RegionName = 'Canada Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'centralindia'; RegionId = 'centralindia'; RegionName = 'Central India'; }
         ,[PSCustomObject]@{ OriginalValue = 'centralus'; RegionId = 'centralus'; RegionName = 'Central US'; }
         ,[PSCustomObject]@{ OriginalValue = 'centraluseuap'; RegionId = 'centraluseuap'; RegionName = 'Central US EUAP'; }
