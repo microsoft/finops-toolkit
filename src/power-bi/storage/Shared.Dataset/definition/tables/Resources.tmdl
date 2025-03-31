@@ -308,9 +308,7 @@ table Resources
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("
-				
-				
+				  query = "
 				    resources
 				    | extend
 				      id = tolower(id),
@@ -333,9 +331,8 @@ table Resources
 				      ['accessTier'] = properties.accessTier,
 				      ['isHnsEnabled'] = properties.isHnsEnabled,
 				      ['isBlueShiftAccount'] = properties.isBlueShiftAccount
-				
-				
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false])
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
 				in
 				  Source
 
