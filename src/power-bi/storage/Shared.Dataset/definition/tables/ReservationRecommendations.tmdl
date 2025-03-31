@@ -196,22 +196,6 @@ table ReservationRecommendations
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column RecommendedQuantityNormlized
-		dataType: string
-		lineageTag: b5b5042f-35e1-449d-93ff-2303c281ab5a
-		summarizeBy: none
-		sourceColumn: RecommendedQuantityNormlized
-
-		annotation SummarizationSetBy = Automatic
-
-	column TotaCostWithReservedInstances
-		dataType: string
-		lineageTag: bef2059d-6f01-4caa-aa95-42248227957c
-		summarizeBy: none
-		sourceColumn: TotaCostWithReservedInstances
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_BreakEvenMonths =
 			IF (
 				NOT ISBLANK ( [x_SkuTerm] ) && [x_SkuTerm] > 0,
