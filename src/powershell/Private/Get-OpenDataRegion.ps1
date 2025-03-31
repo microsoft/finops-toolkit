@@ -360,6 +360,7 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'southafricaw'; RegionId = 'southafricawest'; RegionName = 'South Africa West'; }
         ,[PSCustomObject]@{ OriginalValue = 'southafricawest'; RegionId = 'southafricawest'; RegionName = 'South Africa West'; }
         ,[PSCustomObject]@{ OriginalValue = 'southcentralus'; RegionId = 'southcentralus'; RegionName = 'South Central US'; }
+        ,[PSCustomObject]@{ OriginalValue = 'southcentralus2'; RegionId = 'southcentralus2'; RegionName = 'South Central US 2'; }
         ,[PSCustomObject]@{ OriginalValue = 'southcentralusstg'; RegionId = 'southcentralusstg'; RegionName = 'South Central US STG'; }
         ,[PSCustomObject]@{ OriginalValue = 'southeast asia'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }
         ,[PSCustomObject]@{ OriginalValue = 'southeast_asia'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }

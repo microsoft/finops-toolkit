@@ -319,6 +319,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '150 Hours'; AccountTypes = 'EA'; PricingBlockSize = 150; DistinctUnits = 'Hours'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1B'; AccountTypes = 'MCA'; PricingBlockSize = 1000000000; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1K'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1000; DistinctUnits = 'Units'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '1K/Day'; AccountTypes = 'MCA'; PricingBlockSize = 1000; DistinctUnits = 'Units/Day'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1K/Hour'; AccountTypes = 'MCA'; PricingBlockSize = 1000; DistinctUnits = 'Units/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1K/Month'; AccountTypes = 'MCA'; PricingBlockSize = 1000; DistinctUnits = 'Units/Month'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1M'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1000000; DistinctUnits = 'Units'; }

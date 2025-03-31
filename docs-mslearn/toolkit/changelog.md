@@ -95,6 +95,82 @@ _Released March 2025_
 
 ### [Open data](open-data.md) v0.9
 
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "1K/Day" unit of measure.
+
+**[Regions](open-data.md#Regions)**
+
+- **Added**
+  - Added the "southcentralus2" region.
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 11 Microsoft.IoTOperationsMQ resource types.
+  - Added 3 Microsoft.AzureStackHCI resource types.
+  - Added 3 microsoft.CleanRoom resource types.
+  - Added 3 microsoft.DataReplication resource types.
+  - Added 6 Microsoft.DeviceRegistry resource types.
+  - Added 14 Microsoft.Media resource types.
+  - Added 4 Microsoft.Workloads resource types.
+  - Added the following resource types:
+    - microsoft.advisor/assessments
+    - microsoft.advisor/resiliencyreviews
+    - microsoft.appcomplianceautomation/reports/snapshots/controls
+    - microsoft.appsecurity/appprotectmanagedrulesetmanifests
+    - microsoft.azurearcdata/mysqlserver
+    - microsoft.azurearcdata/postgressqlserver
+    - microsoft.azurecis/sharedconfigvalues
+    - microsoft.billing/billingaccounts/migrations
+    - microsoft.dashboard/dashboards
+    - microsoft.devhub/templates
+    - microsoft.devhub/templates/versions
+    - microsoft.documentdb/fleets
+    - microsoft.edge/disconnectedoperations
+    - microsoft.graph/azureadapplicationprototype
+    - microsoft.hdinsight/clusterpools/clusters/instanceviews
+    - microsoft.healthplatform/accounts
+    - microsoft.logic/integrationserviceenvironments/health
+    - microsoft.maintenance/maintenanceconfigurationsbladeresource
+    - microsoft.networkcloud/kubernetesclusters/features
+    - microsoft.onlineexperimentation/workspaces
+    - microsoft.saashub/cloudservices
+    - microsoft.saashub/cloudservices
+    - microsoft.secretmanagementsampleprovider/forecasts
+    - microsoft.storagediscovery/storagediscoveryworkspaces
+    - microsoft.toolchainorchestrator/diagnostics
+- **Changed**
+  - Updated the following resource types:
+    - microsoft.aad/domainservices
+    - microsoft.agricultureplatform/agriservices
+    - microsoft.compute/virtualmachines/providers/guestconfigurationassignments
+    - microsoft.computeschedule/autoactions
+    - microsoft.connectedcache/cachenodes
+    - microsoft.connectedcache/enterprisecustomers
+    - microsoft.edgeorder/bootstrapconfigurations
+    - microsoft.edgeorder/virtual_orderitems
+    - microsoft.iotfirmwaredefense/workspaces
+    - microsoft.manufacturingplatform/manufacturingdataservices
+    - microsoft.network/networksecurityperimeters/profiles
+    - microsoft.network/p2svpngateways
+    - microsoft.network/trafficmanagerprofiles
+    - microsoft.network/vpngateways
+    - microsoft.operationalinsights/clusters
+    - microsoft.sustainabilityservices/calculations
+    - microsoft.zerotrustsegmentation/segmentationmanagers
+    - mongodb.atlas/organizations
+    - oracle.database/exadbvmclusters
+    - oracle.database/exascaledbstoragevaults
+
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the "microsoft.cognitiveservices/commitmentplans" resource type to Azure AI Services service.
+  - Mapped the "microsoft.deviceregistry/billingcontainers" resource type to Azure IoT Hub service.
+
 **[Dataset examples](open-data.md#dataset-examples)**
 
 - **Added**
@@ -103,6 +179,7 @@ _Released March 2025_
   - Changed a **Central Canada** reference to **Canada Central**.
     - This may have caused issues or duplication when joined with other datasets.
     - Please check your data for duplicate references to **Central Canada** and **Canada Central**.
+
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
