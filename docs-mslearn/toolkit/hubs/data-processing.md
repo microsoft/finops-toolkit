@@ -102,6 +102,10 @@ Transforms:
   - Add `x_BillingAccountAgreement` based on the account type.
 - v0.8+:
   - Fix any `ResourceType` values that use internal resource type IDs (for example, microsoft.compute/virtualmachines).
+- v0.9+:
+  - Lowercase `BillingAccountId` to ensure the price join matches all rows.
+  - Lowercase `CommitmentDiscountId` to avoid duplicate rows when aggregating data.
+  - Add new `x_SourceChanges` checks for `ListCostLessThanContractedCost` and `ContractedCostLessThanEffectiveCost`.
 
 ### Price data transforms
 
@@ -111,22 +115,25 @@ Supported datasets:
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Convert `x_SkuTerm` ISO duration to the specific number of months to match cost details.
-   - We're waiting for FOCUS to make a determination for how to define durations before changing this value to ISO or another format.
-3. Replace `ContractedUnitPrice` for savings plan usage with the on-demand equivalent.
-4. Set `ListUnitPrice` for savings plan usage set to the on-demand equivalent.
-5. Add `SkuPriceIdv2` as a more accurate `SkuPriceId` value than what is currently in cost details.
-6. Add `x_IngestionTime` to indicate when the row was last updated.
-7. Add `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility`.
-8. Expand `x_PricingUnitDescription` into `PricingUnit` and `x_PricingBlockSize`.
-9. Add `x_BillingAccountAgreement` based on the account type.
-10. Change `x_EffectivePeriodEnd` to be an exclusive end date.
-11. Add `x_EffectiveUnitPriceDiscount`, `x_ContractedUnitPriceDiscount`, and `x_TotalUnitPriceDiscount` to summarize available discounts per SKU.
-12. Add `x_EffectiveUnitPriceDiscountPercent`, `x_ContractedUnitPriceDiscountPercent`, and `x_TotalUnitPriceDiscountPercent` to summarize the percentage of the discount per SKU.
-13. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Convert `x_SkuTerm` ISO duration to the specific number of months to match cost details.
+    - We're waiting for FOCUS to make a determination for how to define durations before changing this value to ISO or another format.
+  - Replace `ContractedUnitPrice` for savings plan usage with the on-demand equivalent.
+  - Set `ListUnitPrice` for savings plan usage set to the on-demand equivalent.
+  - Add `SkuPriceIdv2` as a more accurate `SkuPriceId` value than what is currently in cost details.
+  - Add `x_IngestionTime` to indicate when the row was last updated.
+  - Add `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility`.
+  - Expand `x_PricingUnitDescription` into `PricingUnit` and `x_PricingBlockSize`.
+  - Add `x_BillingAccountAgreement` based on the account type.
+  - Change `x_EffectivePeriodEnd` to be an exclusive end date.
+  - Add `x_EffectiveUnitPriceDiscount`, `x_ContractedUnitPriceDiscount`, and `x_TotalUnitPriceDiscount` to summarize available discounts per SKU.
+  - Add `x_EffectiveUnitPriceDiscountPercent`, `x_ContractedUnitPriceDiscountPercent`, and `x_TotalUnitPriceDiscountPercent` to summarize the percentage of the discount per SKU.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.9+:
+  - Lowercase `BillingAccountId` to ensure the cost join matches all rows.
 
 ### Recommendation data transforms
 

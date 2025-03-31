@@ -68,6 +68,15 @@ _Released March 2025_
   - Added support for MCA reservation recommendation exports.
   - Added support for multiple reservation recommendation exports to support shared and single recommendations for all services and lookback periods.
   - Managed exports now create price, reservation detail, reservation transaction, and VM reservation recommendation exports.
+  - Address new data quality issues with ingested data:
+    - Change `BillingAccountId` to be lowercase in both the cost and price datasets.
+    - Change `CommitmentDiscountId` to be lowercase in the cost dataset.
+    - Handle `x_BillingProfileId` case-sensitivity for the cost/price join (without changing data).
+    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
+    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` and `ContractedUnitPrice` are both 0 or empty.
+    - Set `ListCost` to `ContractedCost` when `ListCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
+    - Set `ListCost` to `ContractedCost` when `ListCost` and `ListUnitPrice` are both 0 or empty.
+=======
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
 - **Changed**
   - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
