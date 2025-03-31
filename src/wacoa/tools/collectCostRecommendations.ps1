@@ -615,7 +615,7 @@ function Process-CustomCostRecommendations {
         Write-Log -Message "Set working directory to: $workingFolderPath" -Level "INFO"
 
         # Hardcoded GitHub repository folder URL
-        $repoUrl = "https://github.com/arthurclares/costbestpractices/raw/refs/heads/main/content/azure-resources.zip"
+        $repoUrl = "https://github.com/microsoft/finops-toolkit/raw/refs/heads/features/wacoascripts/src/wacoa/content/azure-resources.zip"
         
         # Define the destination directory (ensure it ends with "/azure-resources/")
         $tempDir = Join-Path $workingFolderPath "Temp\azure-resources"
