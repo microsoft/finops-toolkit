@@ -169,7 +169,44 @@ table Disks
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("resources | where type =~ 'microsoft.compute/disks' | extend id = tolower(id) | extend skuName = sku.name | extend skuTier = sku.tier | extend timeCreated = properties.timeCreated | extend diskSizeGB = properties.diskSizeGB | extend diskState = properties.diskState | extend LastOwnershipUpdateTime = properties.LastOwnershipUpdateTime | extend diskMBpsReadWrite = properties.diskMBpsReadWrite | extend diskIOPSReadWrite = properties.diskIOPSReadWrite | extend osType = properties.osType | extend diskType = iff(isnull(osType), 'Data disk', 'OS disk') | parse kind=regex skuName with '_' Redundancy | parse kind=regex managedBy with 'virtualMachines/' parentVM | project subscriptionId, resourceGroup, id, name, tenantId, location, managedBy, osType, skuName, skuTier, diskSizeGB, diskMBpsReadWrite, diskIOPSReadWrite, diskState,timeCreated, LastOwnershipUpdateTime, Redundancy, parentVM, diskType" & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
+				  query = "
+				    resources
+				    | where type =~ 'microsoft.compute/disks'
+				    | extend id = tolower(id)
+				    | extend skuName = sku.name
+				    | extend skuTier = sku.tier
+				    | extend timeCreated = properties.timeCreated
+				    | extend diskSizeGB = properties.diskSizeGB
+				    | extend diskState = properties.diskState
+				    | extend LastOwnershipUpdateTime = properties.LastOwnershipUpdateTime
+				    | extend diskMBpsReadWrite = properties.diskMBpsReadWrite
+				    | extend diskIOPSReadWrite = properties.diskIOPSReadWrite
+				    | extend osType = properties.osType
+				    | extend diskType = iff(isnull(osType), 'Data disk', 'OS disk')
+				    | parse kind=regex skuName with '_' Redundancy
+				    | parse kind=regex managedBy with 'virtualMachines/' parentVM
+				    | project
+				      subscriptionId,
+				      resourceGroup,
+				      id,
+				      name,
+				      tenantId,
+				      location,
+				      managedBy,
+				      osType,
+				      skuName,
+				      skuTier,
+				      diskSizeGB,
+				      diskMBpsReadWrite,
+				      diskIOPSReadWrite,
+				      diskState,
+				      timeCreated,
+				      LastOwnershipUpdateTime,
+				      Redundancy,
+				      parentVM,
+				      diskType
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
 				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"diskSizeGB", type number}, {"diskMBpsReadWrite", type number}, {"diskIOPSReadWrite", type number}, {"timeCreated", type datetimezone}, {"LastOwnershipUpdateTime", type datetimezone}})
 				in
 				    #"Changed Type"
