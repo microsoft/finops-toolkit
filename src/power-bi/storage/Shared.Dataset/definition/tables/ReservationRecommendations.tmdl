@@ -205,12 +205,28 @@ table ReservationRecommendations
 				    RawData = ftk_Storage("reservationrecommendations"),
 				
 				    _addMissing = (tbl, col, typ) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null, typ),
-				    FixTypes = Table.TransformColumnTypes(
+				    _getJsonCost = (tbl, col) => Table.RemoveColumns(
+				        Table.AddColumn(
+				            Table.RenameColumns(_addMissing(_addMissing(tbl, col, type any), col&"Json", type text), {{col, col&"Backup"}}),
+				            col,
+				            each try (Json.Document(Record.Field(_, col&"Json"))[value]) otherwise Record.Field(_, col&"Backup"),
+				            type number
+				        ),
+				        {col&"Json", col&"Backup"},
+				        MissingField.Ignore
+				    ),
+				    Fixes = Table.TransformColumnTypes(
 				        Table.ReplaceValue(Table.ReplaceValue(
 				            // Create missing columns
-				            _addMissing(_addMissing(RawData,
+				            _addMissing(_addMissing(_addMissing(_addMissing(
+				                _getJsonCost(_getJsonCost(_getJsonCost(RawData,
+				                    "CostWithNoReservedInstances"),
+				                    "NetSavings"),
+				                    "TotalCostWithReservedInstances"),
 				                "RecommendedQuantityNormalized", type number),
 				                "TotalCostWithReservedInstances", type number),
+				                "SKU",     type text),
+				                "SkuName", type text),
 				            // Normalize frequency
 				            each [LookBackPeriod], each Text.Replace(Text.Replace([LookBackPeriod], "Last", ""), "Days", " Days"), Replacer.ReplaceValue, {"LookBackPeriod"}),
 				            // Fix inconsistent Microsoft term values
@@ -228,20 +244,18 @@ table ReservationRecommendations
 				        }
 				    ),
 				
-				    Rename = Table.RenameColumns(FixTypes, {
+				    Rename = Table.RenameColumns(Fixes, {
 				        {"CostWithNoReservedInstances",    "x_EffectiveCostBefore"},
 				        {"FirstUsageDate",                 "x_LookbackPeriodStart"},
 				        {"InstanceFlexibilityGroup",       "x_CommitmentDiscountNormalizedGroup"},
 				        {"InstanceFlexibilityRatio",       "x_CommitmentDiscountNormalizedRatio"},
 				        {"Location",                       "RegionName"},
-				        {"LookBackPeriod",                 "x_LookbackPeriodLabel"},
 				        {"MeterId",                        "x_SkuMeterId"},
 				        {"NetSavings",                     "x_CommitmentDiscountSavings"},
 				        {"NormalizedSize",                 "x_CommitmentDiscountNormalizedSize"},
 				        {"RecommendedQuantity",            "x_RecommendedQuantity"},
 				        {"RecommendedQuantityNormalized",  "x_RecommendedQuantityNormalized"},
 				        {"ResourceType",                   "x_CommitmentDiscountResourceType"},
-				        {"SKU",                            "x_SkuSize"},
 				        {"Scope",                          "tmp_CommitmentDiscountScope"},
 				        {"SkuProperties",                  "x_SkuDetails"},
 				        {"Term",                           "x_SkuTerm"},
@@ -249,7 +263,9 @@ table ReservationRecommendations
 				    }, MissingField.Ignore),
 				
 				    Add = Table.RemoveColumns(
-				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
+				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
+				            "x_LookbackPeriodLabel",     each [LookBackPeriod] & (if Text.Contains([LookBackPeriod], "Days") then "" else " Days")),
+				            "x_SkuSize",                 each if [SKU] <> null then [SKU] else [SkuName]),
 				            "x_CommitmentDiscountKey",   each [x_CommitmentDiscountNormalizedSize] & [x_SkuMeterId]),
 				            "x_CommitmentDiscountScope", each if [tmp_CommitmentDiscountScope] = "Single" then "Subscription" else [tmp_CommitmentDiscountScope]),
 				            "x_SkuTermLabel",
@@ -258,7 +274,7 @@ table ReservationRecommendations
 				                else if [x_SkuTerm] = 12 then "1 year"
 				                else Text.From([x_SkuTerm] / 12) & " years"
 				            ),
-				        {"tmp_CommitmentDiscountScope"}
+				        {"tmp_CommitmentDiscountScope", "LookBackPeriod", "SKU", "SkuName"}
 				    ),
 				        
 				    // Sort columns alphabetically

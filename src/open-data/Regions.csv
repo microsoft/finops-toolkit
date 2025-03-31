@@ -77,7 +77,7 @@ cbr2,australiacentral2,Australia Central 2
 cc,canadacentral,Canada Central
 central india,centralindia,Central India
 central us,centralus,Central US
-centralcanada,canadacentral,Central Canada
+centralcanada,canadacentral,Canada Central
 centralindia,centralindia,Central India
 centralus,centralus,Central US
 centraluseuap,centraluseuap,Central US EUAP
@@ -354,6 +354,7 @@ southafricanorth,southafricanorth,South Africa North
 southafricaw,southafricawest,South Africa West
 southafricawest,southafricawest,South Africa West
 southcentralus,southcentralus,South Central US
+southcentralus2,southcentralus2,South Central US 2
 southcentralusstg,southcentralusstg,South Central US STG
 southeast asia,southeastasia,Southeast Asia
 southeast_asia,southeastasia,Southeast Asia
