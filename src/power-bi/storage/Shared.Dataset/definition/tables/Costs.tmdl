@@ -1672,9 +1672,7 @@ table Costs
 				            "x_SkuLicenseQuantity",
 				                each if [x_SkuCoreCount] = null then 0
 				                else if [x_SkuCoreCount] <= 8 then 8
-				                else if [x_SkuCoreCount] <= 16 then 16
-				                else if [x_SkuCoreCount] = 20 then 24
-				                else if [x_SkuCoreCount] > 20 then [x_SkuCoreCount]
+				                else if [x_SkuCoreCount] > 8 then [x_SkuCoreCount]
 				                else 0,
 				                type number
 				            ),
