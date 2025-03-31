@@ -50,6 +50,7 @@ _Released March 2025_
   - Disabled the **Deprecated: Perform Extra Query Optimizations** parameter by default ([#1380](https://github.com/microsoft/finops-toolkit/issues/1380)).
     - This parameter will be removed on or after July 1, 2025.
     - If you rely on this setting, please [create an issue in GitHub](https://aka.ms/ftk/ideas) and let us know what you need.
+  - Improved readability and performance of the Disks query.
 - **Fixed**
   - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
   - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))

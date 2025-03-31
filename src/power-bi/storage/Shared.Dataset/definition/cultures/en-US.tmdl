@@ -1741,36 +1741,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
-			        },
-			        {
-			          "ESR": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Effective Savings Rate (ESR)": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Effective Savings Rate": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -3283,26 +3253,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.5
 			          }
-			        },
-			        {
-			          "Name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Commitment": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -3431,36 +3381,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "Type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Commitment type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Commitment": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -3847,16 +3767,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.591
 			          }
-			        },
-			        {
-			          "List": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -4157,16 +4067,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "Name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -4567,16 +4467,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.6
 			          }
-			        },
-			        {
-			          "Subscription": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -4712,16 +4602,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.604
 			          }
-			        },
-			        {
-			          "Term": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -4856,16 +4736,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.599
-			          }
-			        },
-			        {
-			          "Effective": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -5142,16 +5012,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "Resource group": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -5435,16 +5295,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
-			        },
-			        {
-			          "SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -5585,26 +5435,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "AHB status": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Hybrid Benefit status": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -6223,16 +6053,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
-			        },
-			        {
-			          "SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -6361,16 +6181,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -26405,16 +26215,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.591
 			          }
-			        },
-			        {
-			          "Contracted": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -39301,16 +39101,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.499
 			          }
-			        },
-			        {
-			          "Scope": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -41400,6 +41190,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -42053,6 +41853,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Current SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -42075,6 +41885,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Target SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -42731,6 +42551,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Resource name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -43887,6 +43717,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Resource": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -43976,6 +43816,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Type code": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -44320,6 +44170,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -48670,6 +48530,26 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Subscription": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Subscription name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -50353,6 +50233,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.5
 			          }
+			        },
+			        {
+			          "Resource type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -51599,6 +51489,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.582
 			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -51791,6 +51691,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Virtual machine name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ],
@@ -53977,6 +53887,26 @@ cultureInfo en-US
 			          "storageProfile.osDisk.osType": {
 			            "State": "Generated"
 			          }
+			        },
+			        {
+			          "OS type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "OS": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -54047,6 +53977,16 @@ cultureInfo en-US
 			        {
 			          "hardwareProfile.vmSize": {
 			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "Size": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -54172,6 +54112,26 @@ cultureInfo en-US
 			        {
 			          "powerState.displayStatus": {
 			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "Power state": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "State": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -54640,2171 +54600,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "disk": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "disk": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "diskette": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "CD": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "CD-ROM": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "CD/ROM": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "floppy": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "album": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
-			          }
-			        },
-			        {
-			          "discus": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
-			          }
-			        },
-			        {
-			          "recording": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.452
-			          }
-			        },
-			        {
-			          "round": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.452
-			          }
-			        },
-			        {
-			          "circle": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.452
-			          }
-			        }
-			      ]
-			    },
-			    "disk.id": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "id"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "id": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "credential": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        }
-			      ],
-			      "NameType": "Identifier"
-			    },
-			    "disk.name": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "name"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "name": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "title": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        }
-			      ],
-			      "NameType": "Name"
-			    },
-			    "disk.type": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "type"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "type": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "genre": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "manner": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "variety": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "brand": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "style": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "form": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "grouping": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        }
-			      ]
-			    },
-			    "disk.tenant_id": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "tenantId"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "tenant id": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "tenantId": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "tenant": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "tenant identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "tenant identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "tenant identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "tenant credential": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "occupant": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "renter": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "lodger": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "boarder": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "leaseholder": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "lessee": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        }
-			      ]
-			    },
-			    "disk.kind": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "kind"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "kind": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "caring": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "gentle": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "humanitarian": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "variety": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
-			          }
-			        },
-			        {
-			          "manner": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
-			          }
-			        },
-			        {
-			          "nature": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
-			          }
-			        },
-			        {
-			          "hue": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
-			          }
-			        },
-			        {
-			          "caste": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
-			          }
-			        },
-			        {
-			          "genre": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
-			          }
-			        },
-			        {
-			          "brand": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.452
-			          }
-			        }
-			      ]
-			    },
-			    "disk.location": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "location"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "location": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "locality": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "placement": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "scene": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "venue": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "place": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "position": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "site": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "spot": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        }
-			      ]
-			    },
-			    "disk.resource_group": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "resourceGroup"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "resource group": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "resourceGroup": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "resource category": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "resource organization": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "resource bracket": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "resource class": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "resource crew": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "resource team": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        }
-			      ]
-			    },
-			    "disk.subscription_id": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "subscriptionId"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "subscription id": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "subscriptionId": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "subscription identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "subscription identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "subscription identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "subscription credential": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        }
-			      ]
-			    },
-			    "disk.managed_by": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "managedBy"
-			        }
-			      },
-			      "State": "Generated",
-			      "Visibility": {
-			        "Value": "Hidden"
-			      },
-			      "Terms": [
-			        {
-			          "managed by": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "managedBy": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        }
-			      ]
-			    },
-			    "disk.sku_name": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "sku.name"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "sku name": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "sku.name": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "sku nickname": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "sku title": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "sku label": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "sku tag": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        }
-			      ]
-			    },
-			    "disk.sku_tier": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "sku.tier"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "sku.tier": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "sku. row": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "sku. level": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "sku. layer": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "sku. stage": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "sku. rank": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "sku. step": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "sku. story": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        }
-			      ]
-			    },
-			    "disk.plan": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "plan"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "plan": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "proposal": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "strategy": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "agenda": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "arrangement": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "idea": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "layout": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "policy": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "preparation": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "blueprint": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "initiative": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_provisioningState": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.provisioningState"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.provisioningState": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.provisioningState": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_publicNetworkAccess": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.publicNetworkAccess"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.publicNetworkAccess": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.publicNetworkAccess": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_encryption": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.encryption"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.encryption": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.encryption": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_networkAccessPolicy": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.networkAccessPolicy"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.networkAccessPolicy": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.networkAccessPolicy": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_timeCreated": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.timeCreated"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.timeCreated": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.timeCreated": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_diskSizeGB": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.diskSizeGB"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.diskSizeGB": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.diskSizeGB": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_hyperVGeneration": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.hyperVGeneration"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.hyperVGeneration": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.hyperVGeneration": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_diskSizeByte": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.diskSizeBytes"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.diskSizeByte": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.diskSizeByte": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_creationData_createOption": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.creationData.createOption"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.creationData.createOption": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.creationData.createOption": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_creation_data_image_reference_id": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.creationData.imageReference.id"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties creation data image reference id": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property creation data image reference id": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "properties.creationData.imageReference.id": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "reference": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "image reference": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "data image reference": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "creation data image reference": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "properties creation data image reference": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "property creation data image reference": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.7566
-			          }
-			        },
-			        {
-			          "reference id": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "image reference id": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "data image reference id": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "creation data image reference id": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "creation data image reference identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "creation data image reference identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "creation data image reference identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "data image reference identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "data image reference identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "data image reference identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "image reference identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "image reference identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "image reference identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "creation data image reference credential": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.757
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_osType": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.osType"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.osType": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.osType": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_LastOwnershipUpdateTime": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.LastOwnershipUpdateTime"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.LastOwnershipUpdateTime": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.LastOwnershipUpdateTime": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_diskState": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.diskState"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.diskState": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.diskState": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_uniqueId": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.uniqueId"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.uniqueId": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.uniqueId": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_diskMBpsReadWrite": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.diskMBpsReadWrite"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.diskMBpsReadWrite": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.diskMBpsReadWrite": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_diskIOPSReadWrite": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.diskIOPSReadWrite"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.diskIOPSReadWrite": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.diskIOPSReadWrite": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        }
-			      ]
-			    },
-			    "disk.properties_tier": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "properties.tier"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "properties.tier": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "property.tier": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "property. row": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "property. level": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "property. layer": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "property. stage": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "property. rank": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "property. step": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "property. story": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        }
-			      ]
-			    },
-			    "disk.tag": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "tags"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "tag": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "device": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "ticket": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "tab": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "docket": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "chip": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "mark": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        }
-			      ]
-			    },
-			    "disk.identity": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "identity"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "identity": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "individuality": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "uniqueness": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "distinctiveness": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "personality": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "self": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "character": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        }
-			      ]
-			    },
-			    "disk.zone": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "zones"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "zone": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "precinct": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.491
-			          }
-			        },
-			        {
-			          "district": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "sector": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "neighborhood": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
-			          "area": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        }
-			      ]
-			    },
-			    "disk.extended_location": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "extendedLocation"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "extended location": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "extendedLocation": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "extended locality": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "extended placement": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "extended scene": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "extended venue": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "extended address": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "extended place": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "extended position": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "extended setting": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "extended site": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "extended spot": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        }
-			      ]
-			    },
-			    "disk.disk_type": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "diskType"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "disk type": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "diskType": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "disk category": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "disk genre": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "disk manner": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "disk variety": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "disk brand": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "disk class": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "disk kind": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "disk style": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "disk form": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "disk grouping": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        }
-			      ]
-			    },
-			    "disk.parent_VM": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Disks",
-			          "ConceptualProperty": "parentVM"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "parent VM": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "parentVM": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "VM": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        }
-			      ]
-			    },
 			    "network_interface": {
 			      "Definition": {
 			        "Binding": {
@@ -56962,6 +54757,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Network interface": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ],
@@ -57390,6 +55195,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -58396,6 +56211,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Private IP address": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -59696,6 +57521,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Public IP name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -60562,6 +58397,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Public IP address": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -64504,6 +62349,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Resource name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -64930,6 +62785,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -66522,6 +64387,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Destination address prefix": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -66591,6 +64466,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Source address prefix": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -66613,6 +64498,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Destination port range": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -66660,6 +64555,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Source port range": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -66706,6 +64611,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Direction": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -66729,6 +64644,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Priority": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -66751,6 +64676,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Access": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -68835,6 +66770,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Policy": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -72654,6 +70599,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Scope": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -74366,6 +72321,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -74598,6 +72563,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
+			        },
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -74683,6 +72658,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.492
+			          }
+			        },
+			        {
+			          "Tier": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -74799,6 +72784,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.468
+			          }
+			        },
+			        {
+			          "Capacity": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -75105,6 +73100,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
+			        },
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -75127,6 +73132,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Backup storage redundancy": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -75731,6 +73746,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "License type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -76730,6 +74755,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.99
 			          }
+			        },
+			        {
+			          "Non-compliant": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -76915,19 +74950,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_ChargeMonth"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Month": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_totalsavingsrunningtotal": {
 			      "Definition": {
@@ -76945,19 +74968,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_CommitmentDiscountMeterCategory"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Meter category": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_skucorecount": {
 			      "Definition": {
@@ -76966,19 +74977,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_SkuCoreCount"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "vCPUs": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_commitmentdiscountmetersubcategory": {
 			      "Definition": {
@@ -76987,10 +74986,73 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_CommitmentDiscountMeterSubcategory"
 			        }
 			      },
+			      "State": "Generated"
+			    },
+			    "reservationrecommendations.regionname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "RegionName"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "reservationrecommendations.x_commitmentdiscountnormalizedsize": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "x_CommitmentDiscountNormalizedSize"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "reservationrecommendations.x_commitmentdiscountnormalizedgroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "x_CommitmentDiscountNormalizedGroup"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "reservationrecommendations.x_skutermlabel": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "x_SkuTermLabel"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costs.x_skucorecountmeasure": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuCoreCountMeasure"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costs.x_skulicensequantitymeasure": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuLicenseQuantityMeasure"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "disks_2.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "name"
+			        }
+			      },
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Meter subcategory": {
+			          "Disk name": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -77001,11 +75063,32 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "reservationrecommendations.regionname": {
+			    "disks_2.resourcegroup": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "ReservationRecommendations",
-			          "ConceptualProperty": "RegionName"
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "resourceGroup"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks_2.location": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "location"
 			        }
 			      },
 			      "State": "Generated",
@@ -77022,17 +75105,17 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "reservationrecommendations.x_commitmentdiscountnormalizedsize": {
+			    "disks_2.skutier": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "ReservationRecommendations",
-			          "ConceptualProperty": "x_CommitmentDiscountNormalizedSize"
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "skuTier"
 			        }
 			      },
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Normalized size": {
+			          "Tier": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -77043,17 +75126,17 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "reservationrecommendations.x_commitmentdiscountnormalizedgroup": {
+			    "disks_2.disktype": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "ReservationRecommendations",
-			          "ConceptualProperty": "x_CommitmentDiscountNormalizedGroup"
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "diskType"
 			        }
 			      },
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Flexibility group": {
+			          "Disk type": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -77064,59 +75147,17 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "reservationrecommendations.x_skutermlabel": {
+			    "disks_2.diskstate": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "ReservationRecommendations",
-			          "ConceptualProperty": "x_SkuTermLabel"
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "diskState"
 			        }
 			      },
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Term": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
-			    },
-			    "costs.x_skucorecountmeasure": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "x_SkuCoreCountMeasure"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "vCPUs": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
-			    },
-			    "costs.x_skulicensequantitymeasure": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "x_SkuLicenseQuantityMeasure"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "AHB CPUs": {
+			          "Disk state": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -77126,7 +75167,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "Hybrid Benefit CPUs": {
+			          "State": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -77136,6 +75177,66 @@ cultureInfo en-US
 			          }
 			        }
 			      ]
+			    },
+			    "disks_2.lastownershipupdatetime": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "LastOwnershipUpdateTime"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Last state update": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks_2.skuname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "skuName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.sku_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "sku.name"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "disks.properties_disksizegb": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "properties.diskSizeGB"
+			        }
+			      },
+			      "State": "Generated"
 			    }
 			  },
 			  "Relationships": {
@@ -78818,39 +76919,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "network_interfaces_have_virtual_machines"
-			        }
-			      ]
-			    },
-			    "disk_has_virtual_machine": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "virtual_machine": {
-			          "Target": {
-			            "Entity": "virtual_machine"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "virtual_machine"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_virtual_machines"
 			        }
 			      ]
 			    },
@@ -90231,1180 +88299,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "ids_are_names_IDs_of_network_interfaces"
-			        }
-			      ]
-			    },
-			    "disk_has_parent_VM": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.parent_VM": {
-			          "Target": {
-			            "Entity": "disk.parent_VM"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.parent_VM"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_parent_VMs"
-			        }
-			      ]
-			    },
-			    "disk_has_disk_type": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.disk_type": {
-			          "Target": {
-			            "Entity": "disk.disk_type"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.disk_type"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_disk_types"
-			        }
-			      ]
-			    },
-			    "disk_has_extended_location": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.extended_location": {
-			          "Target": {
-			            "Entity": "disk.extended_location"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.extended_location"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_extended_locations"
-			        }
-			      ]
-			    },
-			    "disk_has_zone": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.zone": {
-			          "Target": {
-			            "Entity": "disk.zone"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.zone"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_zones"
-			        }
-			      ]
-			    },
-			    "disk_has_identity": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.identity": {
-			          "Target": {
-			            "Entity": "disk.identity"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.identity"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_identities"
-			        }
-			      ]
-			    },
-			    "disk_has_tag": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.tag": {
-			          "Target": {
-			            "Entity": "disk.tag"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.tag"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_tags"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_tier": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_tier": {
-			          "Target": {
-			            "Entity": "disk.properties_tier"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_tier"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_tiers"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_diskIOPSReadWrite": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_diskIOPSReadWrite": {
-			          "Target": {
-			            "Entity": "disk.properties_diskIOPSReadWrite"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_diskIOPSReadWrite"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_diskIOPSReadWrites"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_diskMBpsReadWrite": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_diskMBpsReadWrite": {
-			          "Target": {
-			            "Entity": "disk.properties_diskMBpsReadWrite"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_diskMBpsReadWrite"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_diskMBpsReadWrites"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_uniqueId": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_uniqueId": {
-			          "Target": {
-			            "Entity": "disk.properties_uniqueId"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_uniqueId"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_uniqueIds"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_diskState": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_diskState": {
-			          "Target": {
-			            "Entity": "disk.properties_diskState"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_diskState"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_diskStates"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_LastOwnershipUpdateTime": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_LastOwnershipUpdateTime": {
-			          "Target": {
-			            "Entity": "disk.properties_LastOwnershipUpdateTime"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_LastOwnershipUpdateTime"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_LastOwnershipUpdateTimes"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_osType": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_osType": {
-			          "Target": {
-			            "Entity": "disk.properties_osType"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_osType"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_osTypes"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_creation_data_image_reference_id": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_creation_data_image_reference_id": {
-			          "Target": {
-			            "Entity": "disk.properties_creation_data_image_reference_id"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_creation_data_image_reference_id"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_creation_data_image_reference_ids"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_creationData_createOption": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_creationData_createOption": {
-			          "Target": {
-			            "Entity": "disk.properties_creationData_createOption"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_creationData_createOption"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_creationData_createOptions"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_diskSizeByte": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_diskSizeByte": {
-			          "Target": {
-			            "Entity": "disk.properties_diskSizeByte"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_diskSizeByte"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_diskSizeBytes"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_hyperVGeneration": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_hyperVGeneration": {
-			          "Target": {
-			            "Entity": "disk.properties_hyperVGeneration"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_hyperVGeneration"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_hyperVGenerations"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_diskSizeGB": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_diskSizeGB": {
-			          "Target": {
-			            "Entity": "disk.properties_diskSizeGB"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_diskSizeGB"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_diskSizeGBs"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_timeCreated": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_timeCreated": {
-			          "Target": {
-			            "Entity": "disk.properties_timeCreated"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_timeCreated"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_timeCreateds"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_networkAccessPolicy": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_networkAccessPolicy": {
-			          "Target": {
-			            "Entity": "disk.properties_networkAccessPolicy"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_networkAccessPolicy"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_networkAccessPolicies"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_encryption": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_encryption": {
-			          "Target": {
-			            "Entity": "disk.properties_encryption"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_encryption"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_encryptions"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_publicNetworkAccess": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_publicNetworkAccess": {
-			          "Target": {
-			            "Entity": "disk.properties_publicNetworkAccess"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_publicNetworkAccess"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_publicNetworkAccesses"
-			        },
-			        {
-			          "DynamicAdjective": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Adjective": {
-			              "Role": "disk.properties_publicNetworkAccess"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "properties_publicNetworkAccesses_describe_disks"
-			        }
-			      ]
-			    },
-			    "disk_has_properties_provisioningState": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.properties_provisioningState": {
-			          "Target": {
-			            "Entity": "disk.properties_provisioningState"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.properties_provisioningState"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_properties_provisioningStates"
-			        },
-			        {
-			          "DynamicAdjective": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Adjective": {
-			              "Role": "disk.properties_provisioningState"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "properties_provisioningStates_describe_disks"
-			        }
-			      ]
-			    },
-			    "disk_has_plan": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.plan": {
-			          "Target": {
-			            "Entity": "disk.plan"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.plan"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_plans"
-			        }
-			      ]
-			    },
-			    "disk_has_sku_tier": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.sku_tier": {
-			          "Target": {
-			            "Entity": "disk.sku_tier"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.sku_tier"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_sku_tiers"
-			        }
-			      ]
-			    },
-			    "disk_has_sku_name": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.sku_name": {
-			          "Target": {
-			            "Entity": "disk.sku_name"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.sku_name"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_sku_names"
-			        }
-			      ]
-			    },
-			    "disk_has_subscription_id": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.subscription_id": {
-			          "Target": {
-			            "Entity": "disk.subscription_id"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.subscription_id"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_subscription_ids"
-			        }
-			      ]
-			    },
-			    "disk_has_resource_group": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.resource_group": {
-			          "Target": {
-			            "Entity": "disk.resource_group"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.resource_group"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_resource_groups"
-			        }
-			      ]
-			    },
-			    "disk_has_location": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.location": {
-			          "Target": {
-			            "Entity": "disk.location"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.location"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_locations"
-			        }
-			      ]
-			    },
-			    "disk_has_kind": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.kind": {
-			          "Target": {
-			            "Entity": "disk.kind"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.kind"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_kinds"
-			        }
-			      ]
-			    },
-			    "disk_has_tenant_id": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.tenant_id": {
-			          "Target": {
-			            "Entity": "disk.tenant_id"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.tenant_id"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_tenant_ids"
-			        }
-			      ]
-			    },
-			    "disk_has_type": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.type": {
-			          "Target": {
-			            "Entity": "disk.type"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.type"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_types"
-			        }
-			      ]
-			    },
-			    "disk_has_name": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.name": {
-			          "Target": {
-			            "Entity": "disk.name"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.name"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_names"
-			        },
-			        {
-			          "Name": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Name": {
-			              "Role": "disk.name"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "names_are_names_IDs_of_disks"
-			        }
-			      ]
-			    },
-			    "disk_has_id": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.id": {
-			          "Target": {
-			            "Entity": "disk.id"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Object": {
-			              "Role": "disk.id"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_have_ids"
-			        },
-			        {
-			          "Name": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Name": {
-			              "Role": "disk.id"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "ids_are_names_IDs_of_disks"
 			        }
 			      ]
 			    },
@@ -109620,96 +106514,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "network_interfaces_are_in_locations"
-			        }
-			      ]
-			    },
-			    "disk_in_extended_location": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.extended_location": {
-			          "Target": {
-			            "Entity": "disk.extended_location"
-			          }
-			        }
-			      },
-			      "SemanticSlots": {
-			        "Where": {
-			          "Role": "disk.extended_location"
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Preposition": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Prepositions": [
-			              {
-			                "in": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Object": {
-			              "Role": "disk.extended_location"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_are_in_extended_locations"
-			        }
-			      ]
-			    },
-			    "disk_in_location": {
-			      "Binding": {
-			        "ConceptualEntity": "Disks"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "disk": {
-			          "Target": {
-			            "Entity": "disk"
-			          }
-			        },
-			        "disk.location": {
-			          "Target": {
-			            "Entity": "disk.location"
-			          }
-			        }
-			      },
-			      "SemanticSlots": {
-			        "Where": {
-			          "Role": "disk.location"
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Preposition": {
-			            "Subject": {
-			              "Role": "disk"
-			            },
-			            "Prepositions": [
-			              {
-			                "in": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Object": {
-			              "Role": "disk.location"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "disks_are_in_locations"
 			        }
 			      ]
 			    },
