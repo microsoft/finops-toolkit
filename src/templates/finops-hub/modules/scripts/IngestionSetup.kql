@@ -1472,8 +1472,7 @@ CommitmentDiscountUsage_transform_v1_0()
 with (docstring='All recommendations transformed to FOCUS 1.0.', folder='Recommendations')
 Recommendations_transform_v1_0()
 {
-    // TODO: Move ProviderName upstream
-    // TODO: Why is SubscriptionId not included?
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
         toint(case(
@@ -1494,7 +1493,20 @@ Recommendations_transform_v1_0()
     | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
     //
+    // Handle duplicated columns with spaces
+    | extend CostWithNoReservedInstances =    coalesce(CostWithNoReservedInstances, CostWithNoReservedInstances2)
+    | extend FirstUsageDate =                 coalesce(FirstUsageDate, FirstUsageDate2)
+    | extend InstanceFlexibilityGroup =       coalesce(InstanceFlexibilityGroup, InstanceFlexibilityGroup2)
+    | extend InstanceFlexibilityRatio =       coalesce(InstanceFlexibilityRatio, InstanceFlexibilityRatio2)
+    | extend NetSavings =                     coalesce(NetSavings, NetSavings2)
+    | extend NormalizedSize =                 coalesce(NormalizedSize, NormalizedSize2)
+    | extend RecommendedQuantity =            coalesce(RecommendedQuantity, RecommendedQuantity2)
+    | extend RecommendedQuantityNormalized =  coalesce(RecommendedQuantityNormalized, RecommendedQuantityNormalized2)
+    | extend SkuProperties =                  coalesce(SkuProperties, SkuProperties2)
+    | extend TotalCostWithReservedInstances = coalesce(TotalCostWithReservedInstances, TotalCostWithReservedInstances2)
+    //
     // Build recommendation details
+    | lookup kind=leftouter (database('Ingestion').Regions | distinct Location = RegionId, RegionName) on Location
     | extend x_RecommendationDetails = case(
       x_SourceType == 'ReservationRecommendations', bag_pack(
         'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
@@ -1502,9 +1514,15 @@ Recommendations_transform_v1_0()
         'CommitmentDiscountNormalizedSize', NormalizedSize,
         'CommitmentDiscountResourceType', ResourceType,
         'CommitmentDiscountScope', coalesce(Scope, scope),
+        'LookbackPeriodDuration', case(
+            LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
+            ''
+        ),
+        'LookbackPeriodStart', FirstUsageDate,
         'RecommendedQuantity', RecommendedQuantity,
         'RecommendedQuantityNormalized', RecommendedQuantityNormalized,
         'RegionId', Location,
+        'RegionName', RegionName,
         'SkuMeterId', coalesce(MeterId, MeterID),
         'SkuPriceDetails', SkuProperties,
         'SkuSize', coalesce(SKU, SkuName),
@@ -1515,19 +1533,13 @@ Recommendations_transform_v1_0()
     //
     // Sort columns and apply final transforms
     | project
-      // TODO: Should we include ChargePeriodEnd?
-      ChargePeriodStart = FirstUsageDate,
       ProviderName,
-      SubAccountId      = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
-      // TODO: SubAccountName,
-      x_IngestionTime   = ingestion_time(),             // Hubs add-on
-      x_LookbackPeriod  = case(
-        LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
-        ''
-      ),
-      x_RecommendationCostAfter  = TotalCostWithReservedInstances,
-      x_RecommendationCostBefore = CostWithNoReservedInstances,
-      x_RecommendationCostSavings = NetSavings,
+      SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+      x_IngestionTime = ingestion_time(),
+      x_EffectiveCostAfter = TotalCostWithReservedInstances,
+      x_EffectiveCostBefore = CostWithNoReservedInstances,
+      x_EffectiveCostSavings = NetSavings,
+      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^Last([0-9]+)Days$', 1, LookBackPeriod)) * 1d),
       x_RecommendationDetails,
       x_SourceName,
       x_SourceProvider,
@@ -1598,11 +1610,8 @@ Recommendations_transform_v1_0r2()
       ),
       x_SourceType startswith 'HubsRecommendations-', bag_pack(
         'RecommendationCategory', x_RecommendationCategory,
-        'RecommendationControl', x_RecommendationControl,
         'RecommendationDetails', x_RecommendationDetails,
         'RecommendationId', x_RecommendationId,
-        'RecommendationImpact', x_RecommendationImpact,
-        'RecommendationMaturityLevel', x_RecommendationMaturityLevel,
         'RecommendationSolution', x_RecommendationSolution,
         'RecommendationTypeId', x_RecommendationTypeId      
       ),
@@ -1614,7 +1623,7 @@ Recommendations_transform_v1_0r2()
       ProviderName,
       ResourceId,
       ResourceName,
-      ResourceType      = coalesce(ResourceType, x_ResourceType),
+      ResourceType      = coalesce(resource_type(x_ResourceType).SingularDisplayName, ResourceType, x_ResourceType),
       SubAccountId      = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
       SubAccountName,
       x_EffectiveCostAfter = TotalCostWithReservedInstances,
@@ -1635,19 +1644,18 @@ Recommendations_transform_v1_0r2()
 
 // Recommendations_final_v1_0 table
 .create-merge table Recommendations_final_v1_0 (
-    ChargePeriodStart:           datetime,
-    ProviderName:                string,
-    SubAccountId:                string,
-    x_IngestionTime:             datetime,
-    x_LookbackPeriod:            string,
-    x_RecommendationCostAfter:   decimal,
-    x_RecommendationCostBefore:  decimal,
-    x_RecommendationCostSavings: decimal,
-    x_RecommendationDetails:     dynamic,
-    x_SourceName:                string,
-    x_SourceProvider:            string,
-    x_SourceType:                string,
-    x_SourceVersion:             string
+    ProviderName:            string,
+    SubAccountId:            string,
+    x_IngestionTime:         datetime,
+    x_EffectiveCostAfter:    decimal,
+    x_EffectiveCostBefore:   decimal,
+    x_EffectiveCostSavings:  decimal,
+    x_RecommendationDate:    datetime,
+    x_RecommendationDetails: dynamic,
+    x_SourceName:            string,
+    x_SourceProvider:        string,
+    x_SourceType:            string,
+    x_SourceVersion:         string
 )
 
 // Recommendations_final_v1_0r2 table

@@ -89,7 +89,7 @@ The following datasets were accounted for in the design, but are not natively su
 Transforms:
 
 - v0.7+:
-  - Align column names to FOCUS 1.0.
+  - Align FOCUS 1.0-preview column names to FOCUS 1.0.
     - Includes converting FOCUS 1.0 preview to 1.0.
   - Add `x_IngestionTime` to indicate when the row was last updated.
   - Add `x_SourceChanges` to identify when data in a row is changed by hubs.

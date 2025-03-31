@@ -397,7 +397,7 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     triggerManagerRoleAssignments
   ]
-  tags: tags
+  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -4947,15 +4947,15 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                 waitOnCompletion: true
                 parameters: {
                   inputDataset: {
-                    value: '@item().inputDataset'
+                    value: '@item().queryEngine'
                     type: 'Expression'
                   }
                   outputDataset: {
-                    value: '@item().outputDataset'
+                    value: '@item().dataset'
                     type: 'Expression'
                   }
                   schemaFile: {
-                    value: '@item().schemaFile'
+                    value: '@concat(toLower(item().dataset), \'_\', item().version, \'.json\')'
                     type: 'Expression'
                   }
                   queryScope: {
@@ -4985,10 +4985,148 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                 }
               }
             }
+            { // Append Manifest Data
+              name: 'Append Manifest Data'
+              type: 'AppendVariable'
+              dependsOn: [
+                {
+                  activity: 'Execute File Queries'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: [ ]
+              typeProperties: {
+                variableName: 'ManifestPaths'
+                value: {
+                  value: '@concat(item().dataset, \'/\', item().scope)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Distinct Manifest Data
+        name: 'Distinct Manifest Data'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Iterate Files'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        policy: {
+          secureInput: false
+          secureOutput: false
+        }
+        userProperties: [ ]
+        typeProperties: {
+          variableName: 'UniqueManifestPaths'
+          value: {
+            value: '@union(variables(\'ManifestPaths\'), variables(\'ManifestPaths\'))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Generate Manifest Blobs
+        name: 'Generate Manifest Blobs'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Distinct Manifest Data'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@variables(\'UniqueManifestPaths\')'
+            type: 'Expression'
+          }
+          batchCount: 2
+          isSequential: false
+          activities: [
+            { // Create Manifest
+              name: 'Create Manifest'
+              description: 'Create a manifest file in the ingestion container to trigger ADX ingestion'
+              type: 'Copy'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureInput: false
+                secureOutput: false
+              }
+              userProperties: []
+              typeProperties: {
+                source: {
+                  type: 'JsonSource'
+                  storeSettings: {
+                    type: 'AzureBlobFSReadSettings'
+                    recursive: true
+                    enablePartitionDiscovery: false
+                  }
+                  formatSettings: {
+                    type: 'JsonReadSettings'
+                  }
+                }
+                sink: {
+                  type: 'JsonSink'
+                  storeSettings: {
+                    type: 'AzureBlobFSWriteSettings'
+                  }
+                  formatSettings: {
+                    type: 'JsonWriteSettings'
+                  }
+                }
+                enableStaging: false
+              }
+              inputs: [
+                {
+                  referenceName: dataset_config.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    fileName: 'manifest.json'
+                    folderPath: {
+                      value: configContainerName
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
+              outputs: [
+                {
+                  referenceName: dataset_manifest.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    fileName: 'manifest.json'
+                    folderPath: {
+                      value: '@concat(\'${ingestionContainerName}/\', split(item(),\'/\')[0], \'/\', utcNow(\'yyyy/MM/dd\'), \'/\', split(item(),\'/\')[1])'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
+            }
           ]
         }
       }
     ]
+    variables: {
+      ManifestPaths: {
+        type: 'Array'
+      }
+      UniqueManifestPaths: {
+        type: 'Array'
+      }
+    }
     policy: {
       elapsedTimeMetric: {}
     }
@@ -5138,7 +5276,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           errorCode: 'SchemaLoadFailed'
         }
       }
-      {
+      { // Switch Query Type
         type: 'Switch'
         name: 'Switch Query Type'
         dependsOn: [
@@ -5165,7 +5303,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
             {
               value: dataset_resourcegraph.name
               activities: [
-                {
+                { // Execute ARG Query
                   name: 'Execute ARG Query'
                   type: 'Copy'
                   dependsOn: []
@@ -5227,7 +5365,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
                     }
                   ]
                 }
-                {
+                { // Set ARG Query Error
                   name: 'Set ARG Query Error'
                   type: 'SetVariable'
                   dependsOn: [
