@@ -5,7 +5,7 @@
   "parameters": {
     "config": {
       "basics": {
-        "description": "FinOps Alerts is an Azure Logic Apps-based automated detection system that identifies idle resources across selected subscriptions on a configurable schedule and sends notifications to admins to investigate and take action",
+        "description": "FinOps alerts is an Azure Logic Apps-based automated detection system that identifies idle resources across selected subscriptions on a configurable schedule and sends notifications to admins to investigate and take action",
         "location": {
           "label": "Location",
           "toolTip": "Location of logic app must be in the same region as the resource group.",

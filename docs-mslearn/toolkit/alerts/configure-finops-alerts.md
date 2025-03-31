@@ -7,7 +7,7 @@ ms.date: 02/18/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
-ms.reviewer: micflan
+ms.reviewer: robelmamecha
 #customer intent: As a FinOps practitioner, I want to deploy FinOps alerts to detect idle resources.
 ---
 
