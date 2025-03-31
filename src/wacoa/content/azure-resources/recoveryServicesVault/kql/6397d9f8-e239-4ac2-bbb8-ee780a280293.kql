@@ -1,0 +1,26 @@
+// Azure Resource Graph Query
+// Show backup not updated in 90 days (idleBackup)
+recoveryservicesresources
+| where type =~ 'microsoft.recoveryservices/vaults/backupfabrics/protectioncontainers/protecteditems'
+| extend vaultId = tostring(properties.vaultId),resourceId = tostring(properties.sourceResourceId),idleBackup= datetime_diff('day', now(), todatetime(properties.lastBackupTime)) > 90, resourceType=tostring(properties.workloadType), protectionState=tostring(properties.protectionState),lastBackupTime=tostring(properties.lastBackupTime), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),lastBackupDate=todatetime(properties.lastBackupTime)
+| where idleBackup != 0
+| project resourceId,vaultId,idleBackup,lastBackupDate,resourceType,protectionState,lastBackupTime,location,resourceGroup,subscriptionId,type
+| project 
+    x_RecommendationId=strcat(tolower(resourceId),'-idleBackup'), 
+    x_ResourceGroupName=tolower(resourceGroup), 
+    SubAccountId=subscriptionId, 
+    x_RecommendationCategory='Cost', 
+    x_RecommendationProvider='Microsoft.FinOpsToolkit', 
+    x_RecommendationImpact='High', 
+    x_RecommendationTypeId='6397d9f8-e239-4ac2-bbb8-ee780a280293', 
+    x_RecommendationControl='UsageOptimization/OrphanedResources', 
+    x_RecommendationMaturityLevel='Preview', 
+    x_RecommendationDescription='Backup has not been updated in 90 days', 
+    x_RecommendationSolution='Check if the virtual machine exists and is required. Delete the backup if not.', 
+    ResourceId = tolower(resourceId), 
+    x_ResourceType=type, 
+    ResourceName=tolower(split(resourceId,'/')[-1]), 
+    x_RecommendationDetails= strcat('{\"idleBackup\": ', idleBackup, ',\"lastBackupDate\": \"', lastBackupDate,',\"protectionState\": \"', protectionState,',\"Location\": \"', location), 
+    x_RecommendationDate = now() 
+| join kind=leftouter ( resourcecontainers | where type == 'microsoft.resources/subscriptions' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId 
+| project-away SubAccountId1

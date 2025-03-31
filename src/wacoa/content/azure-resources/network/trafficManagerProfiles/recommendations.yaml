@@ -1,0 +1,17 @@
+- description: Use Azure Traffic Manager for Geographic Routing
+  acorlGuid: 2d240a90-bd00-488d-80fd-0bf45b0dae2e
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/trafficManagerProfiles
+  recommendationMetadataState: Active
+  remediationAction: |
+    Azure Traffic Manager's geographic routing method allows you to direct user traffic based on the source IP address's geographic location, enabling you to serve users from the nearest endpoint, thereby reducing latency and minimizing unnecessary cross-region traffic. 
+  potentialBenefits: Reduce latency
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Configure the geographic traffic routing method using Traffic Manager
+      url: "https://learn.microsoft.com/en-us/azure/traffic-manager/traffic-manager-configure-geographic-routing-method"

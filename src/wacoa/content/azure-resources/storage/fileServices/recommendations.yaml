@@ -1,0 +1,71 @@
+- description: Determine if your workload needs Azure Premium SSD performance or if Azure Standard HDD storage is enough
+  acorlGuid: c065d74b-d117-4851-b525-b7c4ebd0a4a3
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    If you need high IOPS, fast data transfer speeds, or low latency, opt for premium Azure file shares. Note that NFS Azure file shares are only available on the premium tier, and NFS and SMB file shares cost the same on this tier.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Understand and optimize Azure file share performance 
+      url: "https://learn.microsoft.com/en-us/azure/storage/files/understand-performance"
+
+- description: If using premium shares, provision enough capacity and performance for your workload without incurring unnecessary costs
+  acorlGuid: 9ec1f442-ca32-4cb2-aa8d-c11de74a323b
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    We recommend overprovisioning by two to three times. You can dynamically scale premium file shares up or down depending on your storage and input/output (IO) performance characteristics.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Architecture best practices for Azure Files
+      url: "https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-files#design-checklist-1"
+
+- description: Choose the most cost-effective access tier
+  acorlGuid: f0cd22ef-af24-44cf-b81b-aec73a27295c
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    Standard SMB Azure file shares offer three access tiers: transaction optimized, hot, and cool. All three tiers are stored on the same standard storage hardware. The main difference for these three tiers is their data at rest storage prices, which are lower in cooler tiers, and the transaction prices, which are higher in cooler tiers
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Understand Azure Files billing models
+      url: "https://learn.microsoft.com/en-us/azure/storage/files/understanding-billing#differences-in-standard-tiers"
+
+- description: Set retention periods for the soft-delete feature
+  acorlGuid: b92dc04e-8464-4352-aba6-205ff0240e2f
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    Start with a short retention period to understand its billing impact. The minimum recommended period is seven days. Soft-deleted standard and premium file shares are billed as used capacity. Premium file shares are billed at the snapshot rate, while standard file shares are billed at the regular rate during the soft-delete state.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: How to enable soft delete on Azure file shares
+      url: "https://learn.microsoft.com/en-us/azure/storage/files/storage-files-enable-soft-delete?tabs=azure-portal"

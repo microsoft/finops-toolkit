@@ -1,0 +1,112 @@
+
+- description: Analyze Network Traffic Patterns
+  acorlGuid: 23d0c37c-dbfe-4b99-ab17-1f0dcf35e36f
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network
+  recommendationMetadataState: Active
+  remediationAction: |
+    Review inbound and outbound traffic patterns using Azure Network Watcher to identify inefficient routing or unnecessary data transfers that may increase costs.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Overview Azure Network Watcher
+      url: "https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-overview"
+      
+- description: Minimize Cross-Region Traffic
+  acorlGuid: d68bbda7-1896-4900-89a3-8e619190037b
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network
+  recommendationMetadataState: Active
+  remediationAction: |
+    To minimize cross-region data transfer costs, design your applications to keep traffic within the same Azure region whenever possible. Group related resources within the same region to avoid unnecessary data transfer charges.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: 
+      url: "https://learn.microsoft.com/en-us/azure/architecture/networking/#best-practices"
+    - name: 
+      url: "https://learn.microsoft.com/en-us/azure/architecture/networking/guide/spoke-to-spoke-networking"
+
+
+- description: Evaluate VNet Peering vs. ExpressRoute for Inter-Region Connections
+  acorlGuid: 2b2574f8-e392-41d8-8b18-e6cf8e11a905
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network
+  recommendationMetadataState: Active
+  remediationAction: |
+    VNet Peering typically provides lower latency and costs for inter-region traffic within Azure. However, for high-volume traffic, ExpressRoute may be a more cost-effective option.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: 
+      url: "https://learn.microsoft.com/en-us/azure/expressroute/virtual-network-connectivity-guidance"
+
+- description: Utilize Basic SKUs for Test Environments
+  acorlGuid: 8a6cea3d-3973-4076-b030-e561f5073946
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use the Basic SKU for non-production environments, such as development or testing, where high availability and advanced features are not required. Therefore, for non-production environments, while Basic SKUs can be utilized, ensure that the specific resources you plan to use are not slated for retirement and that their feature limitations align with your testing or development needs.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: About gateway SKUs
+      url: "https://learn.microsoft.com/en-us/azure/vpn-gateway/about-gateway-skus"
+
+- description: Monitor Bandwidth Usage with Azure Monitor
+  acorlGuid: add87d64-9441-44c6-b808-5d586417e365
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network
+  recommendationMetadataState: Active
+  remediationAction: |
+    Set up alerts to detect traffic spikes that may indicate increased data transfer costs.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Choosing the right type of alert rule
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-types"
+
+- description: Choose Between Microsoft Network and Public Internet
+  acorlGuid: ff44a480-66fb-48bb-ad80-a660fe912c2b
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network
+  recommendationMetadataState: Active
+  remediationAction: |
+    Azure routes outbound traffic through the Microsoft global network, offering lower latency and higher reliability. However, for large volumes of outbound traffic, routing through the public internet can be more cost-effective. It's essential to evaluate your application's performance requirements and data transfer costs to determine the most suitable routing option.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: What is routing preference
+      url: "https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/routing-preference-overview"
+      

@@ -1,0 +1,17 @@
+- description: AKS cluster agent pool scale set is not utilizing Spot VMs
+  acorlGuid: c26abcc2-d5e6-4654-be4a-7d338e5c1e5f
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.containerservice/managedclusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Consider enabling Spot VMs for this AKS cluster to optimize costs, as Spot VMs offer significantly lower pricing compared to regular VMs
+  potentialBenefits: Optimize existing resources
+  pgVerified: true
+  publishedToLearn: false
+  automationAvailable: true
+  tags: null
+  learnMoreLink:
+    - name: xx
+      url: "https://aka.ms/finops/toolkit"

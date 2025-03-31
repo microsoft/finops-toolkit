@@ -1,0 +1,171 @@
+- description: Optimize backup redundancy 
+  acorlGuid: 07983135-890e-47c4-bb4d-07962beb405d
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Choose Locally Redundant Storage (LRS) for non-critical backups and use Geo-Redundant Storage (GRS) only for workloads requiring cross-region failover. Implement Read-Access Geo-Redundant Storage (RA-GRS) for read-only disaster recovery scenarios.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Reliability in Azure Backup
+      url: "https://learn.microsoft.com/en-us/azure/reliability/reliability-backup"
+
+- description: Optimize replication settings 
+  acorlGuid: 2966f57a-8add-446f-9c23-72154696049f
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Enable Cross-Region Replication (CRR) only for critical workloads, and use Zone-Redundant Storage (ZRS) instead of multi-region replication when availability zones are sufficient.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Cross Region Restore (CRR) for Azure Virtual Machines using Azure Backup
+      url: "https://azure.microsoft.com/en-us/blog/cross-region-restore-crr-for-azure-virtual-machines-using-azure-backup/"
+
+- description: Reduce backup storage consumption
+  acorlGuid: cfac9e44-f215-49db-b54e-4a6990adc868
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use incremental backups instead of full backups to store only changed data blocks.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Backup types
+      url: "https://learn.microsoft.com/en-us/azure/backup/backup-architecture#backup-types"
+
+- description: Consider using Azure Policy built-in definitions for Azure Backup 
+  acorlGuid: 36e19016-bc70-4e40-8ff6-a3988cbeedbb
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Configure policies in Azure Backup to apply storage optimization settings automatically across workloads.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Azure Policy built-in definitions for Azure Backup
+      url: "https://learn.microsoft.com/en-us/azure/backup/policy-reference"
+
+- description: Define data retention policies
+  acorlGuid: 16f95f56-bde4-4554-bd0c-bd7cec2f99be
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Set organization-wide retention policies based on compliance, business requirements, and industry regulations (e.g., GDPR, HIPAA). Use **Azure Backup policies** to automate enforcement. 
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Backup Policy considerations
+      url: "https://learn.microsoft.com/en-us/azure/backup/guidance-best-practices#backup-policy-considerations"
+
+- description: Enable Soft Delete for Protection
+  acorlGuid: 071f881c-5f29-438d-84d3-01a94f8de903
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Activate Soft Delete in Azure Backup and Blob Storage to protect against accidental deletions while ensuring automatic cleanup after the retention period.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Soft delete for Azure Backup
+      url: "https://learn.microsoft.com/en-us/azure/backup/backup-azure-security-feature-cloud?tabs=azure-portal"
+
+- description: Consider Immutable vault for Azure Backup
+  acorlGuid: b3cb065b-e498-4cd7-bae2-82cd73deec00
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    For compliance-driven workloads, use Immutable Blob Storage to prevent deletion/modification of critical backup data during the required retention period.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Immutable vault for Azure Backup
+      url: "https://learn.microsoft.com/en-us/azure/backup/backup-azure-immutable-vault-concept?tabs=recovery-services-vault"
+
+- description: Adjust backup schedules based on workload
+  acorlGuid: ed2fc61f-26b8-4ddc-881a-b749c9516ac1
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Reduce backup frequency for less critical workloads by customizing retention policies in Azure Backup.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Schedule considerations
+      url: "https://learn.microsoft.com/en-us/azure/backup/guidance-best-practices#schedule-considerations"
+
+- description: Consider using differential and log backups
+  acorlGuid: bc5ab84f-4914-42e4-a249-0666faec7a71
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Instead of frequent full backups, implement transaction log backups for SQL databases and incremental snapshots for virtual machines to save on storage.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Transaction log backups (SQL Server)
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/backup-restore/transaction-log-backups-sql-server?view=sql-server-ver16"
+
+- description: Distribute backup workloads
+  acorlGuid: bea81a41-febd-4dd1-bb99-2fe98eb02246
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.RecoveryServices/vaults
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use Azure Backup's built-in scheduling tools to stagger backup times and avoid peak-hour costs. Set up Azure Automation Runbooks to automate and optimize backup execution

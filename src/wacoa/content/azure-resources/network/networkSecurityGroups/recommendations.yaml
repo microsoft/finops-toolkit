@@ -1,0 +1,17 @@
+- description: Use Route Tables and NSGs to Optimize Traffic Flow
+  acorlGuid: 4b26aedb-e0e0-4072-95ba-319c7d99adc6
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/networkSecurityGroups
+  recommendationMetadataState: Active
+  remediationAction: |
+    By leveraging custom route tables, you can direct traffic through specific paths, such as Network Virtual Appliances (NVAs), ensuring efficient routing and control over data flow. NSGs allow you to define security rules to permit or deny traffic to and from your resources, enhancing security by controlling access.
+  potentialBenefits: Efficient routing
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: 
+      url: "https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview"

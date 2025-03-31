@@ -1,0 +1,163 @@
+- description: Filter at the Source
+  acorlGuid: 9e3f8992-d14c-4e27-b729-41af52a9314f
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use Data Collection Rules (DCRs) to capture only essential logs and metrics before ingestion. This helps cut costs by stopping unnecessary data from even entering Azure Monitor.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "Data collection rules (DCRs) in Azure Monitor"
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-collection-rule-overview"
+
+- description: Optimize Log Diagnostic Settings
+  acorlGuid: 1f778b08-747a-4ba7-bc7e-1ae17629b2cd
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    Configure Azure Monitor Diagnostic Settings to collect only critical logs and send them where they're actually useful, like Log Analytics, Event Hubs, or Storage Accounts—instead of just dumping everything in one place.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "Diagnostic settings in Azure Monitor"
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings"
+
+- description: Adjust Collection Frequency
+  acorlGuid: 8525badd-41a9-457d-83c6-a14930e30e2a
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    Modify performance counter sampling rates to balance detail with cost. Instead of collecting data every few seconds, set reasonable intervals in VM Insights and Container Insights to avoid excessive ingestion costs.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "Azure Monitor best practices: Configure data collection"
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/best-practices-data-collection"
+
+- description: Leverage VM Insights Wisely
+  acorlGuid: 067613a2-e98b-43f6-be3c-55c157fb188a
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    Enable only the performance metrics you actually need. If availability is your main concern, rely on Log Analytics Agent Heartbeat Logs instead of collecting redundant telemetry data.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "VM Insights Overview"
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/vm/vminsights-overview"
+
+- description: Use Azure Policies for Automation
+  acorlGuid: 0111448b-8e0c-46a1-b4df-84289f5de528
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    Implement Azure Policy definitions to enforce cost-efficient monitoring settings across your subscriptions, making sure unnecessary logs aren't collected in the first place.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "Azure Policy built-in definitions for Azure Automation"
+      url: "https://learn.microsoft.com/en-us/azure/automation/policy-reference"
+
+- description: Enable Basic Logs for High-Volume Data
+  acorlGuid: 43f13045-f11f-4330-8bdd-5843aaac777e
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    For logs that don't need real-time access, like Activity Logs and Audit Logs, switch them to Basic Logs instead of paying for full ingestion and indexing.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "Tables that support the Basic table plan in Azure Monitor Logs"
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/basic-logs-azure-tables"
+
+- description: Set Appropriate Retention Periods
+  acorlGuid: 6908fe33-29b1-4c1c-a26c-d88fa16a03bb
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    Configure Azure Log Analytics Workspace retention policies to match your compliance needs. Keep active logs for a practical period (e.g., 30-90 days) and move older ones to cheaper storage.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "Configure Data Retention"
+      url: "https://learn.microsoft.com/en-us/troubleshoot/azure/azure-monitor/log-analytics/billing/configure-data-retention"
+
+- description: Automate Data Purging
+  acorlGuid: eda294d5-9358-4542-aecb-2387a092f04c
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    Set up Log Analytics Workspace Data Purging Policies to automatically delete old, non-essential logs once they've passed their usefulness, preventing unnecessary storage costs from piling up.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "Manage data retention in a Log Analytics workspace"
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure?tabs=portal-3%2Cportal-1%2Cportal-2"
+    - name: "Workspaces - Update"
+      url: "https://learn.microsoft.com/en-us/rest/api/loganalytics/workspaces/update?view=rest-loganalytics-2023-09-01&tabs=HTTP"
+
+- description: Move Older Logs to Azure Blob Storage
+  acorlGuid: ec2d2a09-dbd8-40f9-9a23-ef86631b3a2b
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.OperationalInsights/Workspaces
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use Azure Monitor Data Export to shift historical logs to Azure Blob Storage or Azure Data Explorer, where they can be stored more affordably without losing accessibility.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: "Log Analytics workspace data export in Azure Monitor"
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs"

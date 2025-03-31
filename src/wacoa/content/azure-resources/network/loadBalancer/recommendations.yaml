@@ -1,0 +1,54 @@
+- description: Migrate from Basic Load Balancer to Standard Load Balancer
+  acorlGuid: f1928415-f734-4108-9f68-2022c1acb0b0
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/loadBalancers
+  recommendationMetadataState: Active
+  remediationAction: |
+    The Basic Load Balancer will be discontinued in September 2025. Migrate to the Standard Load Balancer for advanced features and ongoing support.
+  potentialBenefits: Advanced features
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Upgrading from Basic Load Balancer - Guidance
+      url: "https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-basic-upgrade-guidance"
+      
+- description: Validate Backend Pool Configuration
+  acorlGuid: c6836d0d-9cf6-4cb0-bcfb-8892309e59b3
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/loadBalancers
+  recommendationMetadataState: Active
+  remediationAction: |
+    Ensure backend pool validation for efficient Load Balancer utilization.
+  potentialBenefits: Efficient utilization
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Backend pool management
+      url: "https://learn.microsoft.com/en-us/azure/load-balancer/backend-pool-management"
+
+- description: Microsoft Azure load balancers enable dynamic scaling based on application demand
+  acorlGuid: fcd8fef4-4c24-4563-af00-2391630b00c6
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/loadBalancer
+  recommendationMetadataState: Active
+  remediationAction: |
+    The dynamic scaling ensures that resources are efficiently allocated, reducing unnecessary expenditures during periods of low demand and maintaining performance during peak usage.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Guidance for Virtual Machine Scale Sets with Azure Load Balancer
+      url: "https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-standard-virtual-machine-scale-sets"
+      

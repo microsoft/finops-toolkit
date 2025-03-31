@@ -1,0 +1,17 @@
+- description: Use Bastion Developer SKU for Non-Production Environments
+  acorlGuid: 50a60052-4694-4552-b164-6239e0821ae5
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/bastionHosts
+  recommendationMetadataState: Active
+  remediationAction: |
+    A cost-effective option for development and testing environments.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Deploy Azure Bastion - Developer SKU
+      url: "https://learn.microsoft.com/en-us/azure/bastion/quickstart-developer-sku"

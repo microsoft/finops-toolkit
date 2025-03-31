@@ -1,0 +1,243 @@
+- description: Select the appropriate AKS Tier
+  acorlGuid: 4377cee6-dbbc-448a-9c7a-74ec87116719
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use the Free Tier for development and testing to avoid control plane costs, paying only for VMs, storage, and networking. Choose the Standard Tier for production workloads needing scalability, performance, and uptime SLA support. For mission-critical workloads, opt for the Premium Tier, which offers high availability, a financially backed SLA, and extended Kubernetes version support.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Free, Standard, and Premium pricing tiers for Azure Kubernetes Service (AKS) cluster management
+      url: "https://learn.microsoft.com/en-us/azure/aks/free-standard-pricing-tiers"
+
+- description: Increase Cost Visibility with Microsoft Cost Management
+  acorlGuid: 0ff25323-819f-466f-80b2-4beeec398dd4
+  recommendationTypeId: null
+  recommendationControl: Governance/CostVisibility
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use Microsoft Cost Management to track spending, set budgets, and forecast costs. Enable the AKS Cost Analysis add-on for for granular cluster cost breakdown by Kubernetes constructs along with Azure Compute, Network, and Storage categories.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Azure Kubernetes Service (AKS) cost analysis
+      url: "https://learn.microsoft.com/en-us/azure/aks/cost-analysis"
+
+- description: Use cluster start/stop feature
+  acorlGuid: 38ca350f-786b-4a30-9bd2-8f716de4ccff
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Reduce costs by stopping unused dev/test clusters with the cluster start/stop feature. It shuts down node pools while preserving cluster state, eliminating unnecessary compute charges.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Stop and start an Azure Kubernetes Service (AKS) cluster
+      url: "https://learn.microsoft.com/en-us/azure/aks/start-stop-cluster"
+
+- description: Use Spot VMs
+  acorlGuid: c4ee932c-d5e5-4759-a275-7c333086f9bd
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Deploy Spot VMs in AKS to save up to 90% on compute costs by using Azure’s unused capacity. Ideal for dev/test, batch jobs, and workloads that can tolerate interruptions, but note that Azure may reclaim capacity at any time.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Use Azure Spot Virtual Machines
+      url: "https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms"
+    - name: Add an Azure Spot node pool to an Azure Kubernetes Service (AKS) cluster
+      url: "https://learn.microsoft.com/en-us/azure/aks/spot-node-pool"
+
+- description: Use cluster preset configurations
+  acorlGuid: 5cba0ce3-0860-405e-a386-e1a948f30795
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Simplify AKS setup by using cluster preset configurations in the Azure portal. Choose Dev/Test for development and testing, or Production Economy for cost-conscious production workloads that can handle interruptions. These presets provide optimized, adjustable settings for VM SKUs, regions, and node counts to balance performance and cost.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Cluster configuration presets in the Azure portal
+      url: "https://learn.microsoft.com/en-us/azure/aks/quotas-skus-regions#cluster-configuration-presets-in-the-azure-portal"
+
+- description: Consider multitenancy
+  acorlGuid: df717616-7c47-4e6d-ab5b-28b59a6164c8
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Reduce management overhead and improve resource utilization by running multitenant AKS clusters. Use Kubernetes Namespaces for logical isolation, allowing teams or business units to share infrastructure while maintaining separation. This approach increases pod density and optimizes costs.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Azure Kubernetes Service (AKS) considerations for multitenancy
+      url: "https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/service/aks"
+
+- description: Enable application autoscaling
+  acorlGuid: 8e3b5526-652d-4390-b89f-386f38e26044
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Improve efficiency by enabling Vertical Pod Autoscaler (VPA) to adjust CPU and memory requests based on usage and Horizontal Pod Autoscaler (HPA) to scale pod replicas based on demand. Avoid using both for the same metrics to prevent conflicts. For event-driven workloads, use Kubernetes Event-driven Autoscaler (KEDA) to scale based on triggers like HTTP traffic or message queue length.  
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Vertical pod autoscaling
+      url: "https://learn.microsoft.com/en-us/azure/aks/vertical-pod-autoscaler"
+    - name: Horizontal pod autoscaler
+      url: "https://learn.microsoft.com/en-us/azure/aks/concepts-scale#horizontal-pod-autoscaler"
+    - name: Simplified application autoscaling with Kubernetes Event-driven Autoscaling (KEDA) add-on
+      url: "https://learn.microsoft.com/en-us/azure/aks/keda-about"
+
+- description: Enable infrastructure autoscaling
+  acorlGuid: 7a91559e-1baf-4ebd-a4a0-51ddd0242631
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use Cluster Autoscaler to automatically adjust node count based on workload demand, scaling up when resources are needed and down when nodes are idle. Enable Node Autoprovisioning (NAP) to simplify VM SKU selection, optimizing node pools for cost and performance without manual configuration.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Cluster autoscaler
+      url: "https://learn.microsoft.com/en-us/azure/aks/cluster-autoscaler-overview"
+    - name: Node autoprovisioning
+      url: "https://learn.microsoft.com/en-us/azure/aks/node-autoprovision"
+
+- description: Optimize AKS Control Plane Logging
+  acorlGuid: 17f0aa27-e655-4b45-b6ea-11eb662b654d
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+   Enable diagnostic settings in Azure Monitor, but disable kube-audit when not required. Use kube-audit-admin for fewer events and configure AKSAudit logs as basic logs to reduce costs.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: AKS control plane/resource logs
+      url: "https://learn.microsoft.com/en-us/azure/aks/monitor-aks#aks-control-planeresource-logs"
+    - name: Collect control plane logs for AKS clusters
+      url: "https://learn.microsoft.com/en-us/azure/azure-monitor/containers/monitor-kubernetes#collect-control-plane-logs-for-aks-clusters"      
+
+- description: Optimize AKS Data Plane Logging
+  acorlGuid: 16b8a453-dd44-4856-a929-7e2c47d39c45
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+   Use Container Insights to monitor and troubleshoot AKS workloads while optimizing costs. Customize data collection settings via Azure Monitor Data Collection Rules (DCR) to control log ingestion. Enable only necessary tables, adjust collection intervals, and exclude unneeded namespaces. For metrics, use Azure Monitor managed Prometheus and Azure Managed Grafana for visualization instead of collecting all logs.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: AKS data plane/Container Insights logs
+      url: "https://learn.microsoft.com/en-us/azure/aks/monitor-aks#aks-control-planeresource-logs"
+
+- description: Choose the appropriate storage type
+  acorlGuid: 845d0c24-a085-4aee-a29c-7e9ae6b469b0
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Understand the needs of your application to pick the right storage. Use high performance, SSD-backed storage for production workloads. Plan for network-based storage when you need multiple concurrent connections.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Choose the appropriate storage type
+      url: "https://learn.microsoft.com/en-us/azure/aks/operator-best-practices-storage#choose-the-appropriate-storage-type"
+
+- description: Size the nodes for storage needs
+  acorlGuid: a4d40407-1b36-4c0c-b2f5-76c06f9e4951
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+    Each node size supports a maximum number of disks. Different node sizes also provide different amounts of local storage and network bandwidth. Plan appropriately for your application demands to deploy the right size of nodes.  potentialBenefits: Optimize existing resources
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Size the nodes for storage needs
+      url: "https://learn.microsoft.com/en-us/azure/aks/operator-best-practices-storage#size-the-nodes-for-storage-needs"      
+
+- description: Dynamically provision volumes
+  acorlGuid: 23641583-a8c7-4a5b-aef5-34e9e2e7e7a4
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.ContainerService/managedClusters
+  recommendationMetadataState: Active
+  remediationAction: |
+   To reduce management overhead and enable scaling, avoid statically create and assign persistent volumes. Use dynamic provisioning. In your storage classes, define the appropriate reclaim policy to minimize unneeded storage costs once pods are deleted.
+  potentialBenefits: Optimize existing resources
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Dynamically provision volumes
+      url: "https://learn.microsoft.com/en-us/azure/aks/operator-best-practices-storage#dynamically-provision-volumes"

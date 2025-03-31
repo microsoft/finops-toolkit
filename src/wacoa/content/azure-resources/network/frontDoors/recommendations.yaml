@@ -1,0 +1,18 @@
+- description: Consider migrating to Front Door Standard/Premium
+  acorlGuid: c4bb7be2-7990-40d8-97e1-e446a7499896
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/frontDoors
+  recommendationMetadataState: Active
+  remediationAction: |
+    Front Door Classic tier contains a large number of domains or routing rules, which adds extra charges. Front Door Standard or Premium doesn't charge per additional domain or routing rule. Consider migrating to save costs.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Consider migrating to Front Door Standard/Premium
+      url: "https://learn.microsoft.com/en-us/azure/advisor/advisor-reference-cost-recommendations#consider-migrating-to-front-door-standardpremium"
+      

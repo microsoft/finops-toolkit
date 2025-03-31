@@ -1,0 +1,19 @@
+- description: Purchase RI for supported services based on usage - Network appliance virtual machine
+  acorlGuid: e551192c-8603-43e1-a4c8-6ccbfcc9ee4e
+  recommendationTypeId: null
+  recommendationControl: RateOptimization/OptimizingUsage
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/networkVirtualAppliances
+  recommendationMetadataState: Active
+  remediationAction: |
+    Purchase Reserved Instances (RI) for Network Appliance Virtual Machines to save up to 72% on costs by committing to a one- or three-year term, ensuring predictable spending for consistently used network appliances like firewalls and VPN gateways.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Save costs with Azure Reserved VM Instances
+      url: "https://learn.microsoft.com/en-us/azure/virtual-machines/prepay-reserved-vm-instances"
+      
+      

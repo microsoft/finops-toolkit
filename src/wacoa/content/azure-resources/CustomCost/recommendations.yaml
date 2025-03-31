@@ -1,0 +1,169 @@
+- description: Use Resource Locks on Critical Resources
+  acorlGuid: be004a44-c027-4205-a14b-52dd3eb3a98e
+  recommendationTypeId: null
+  recommendationControl: Governance/ResourceProtection
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Authorization/locks
+  recommendationMetadataState: Active
+  remediationAction: |
+    Apply Resource Locks to prevent accidental deletion or modification of critical resources, which can lead to unplanned costs or downtime.
+  potentialBenefits: Compliance
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Azure Resource Locks overview
+      url: "https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources?tabs=json"
+- description: Use Management Groups for Hierarchical Organization
+  acorlGuid: 106065c1-b217-4fc5-bae0-1fe6035bdc86
+  recommendationTypeId: null
+  recommendationControl: Governance/Compliance
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.management/managementgroups
+  recommendationMetadataState: Active
+  remediationAction: |
+    Organize multiple subscriptions under Management Groups to apply consistent policies and access control across all resources. This enables easy management and enforcement of best practices.
+  potentialBenefits: Governance, Compliance
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Azure management groups overview
+      url: "https://learn.microsoft.com/en-us/azure/governance/management-groups/overview"
+- description: Apply Azure Policies to Standardize Resource Usage
+  acorlGuid: 480d3a1a-4b76-4d58-a455-186e6b4c6e0d
+  recommendationTypeId: null
+  recommendationControl: Governance/ResourceManagement
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.PolicyInsights
+  recommendationMetadataState: Active
+  remediationAction: |
+    Define Azure Policies at the subscription or management group level to enforce resource configurations, such as requiring specific VM sizes, storage redundancy, or geographic regions, to prevent unnecessary costs.
+  potentialBenefits: Governance, Compliance
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Azure Policy overview
+      url: "https://learn.microsoft.com/en-us/azure/governance/policy/overview"
+- description: Use Azure Policy to Enforce Tags
+  acorlGuid: 4241cf7d-7051-4774-9fa1-85b1976a0677
+  recommendationTypeId: null
+  recommendationControl: CostManagement/CostAllocation
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.PolicyInsights
+  recommendationMetadataState: Active
+  remediationAction: |
+    Enforce tagging compliance using Azure Policy, ensuring all resources are tagged appropriately from creation to avoid missing data in cost reporting.
+  potentialBenefits: Governance, Cost allocation
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Assign policy definitions for tag compliance
+      url: "https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/tag-policies"
+- description: Review Reservation Utilization Regularly
+  acorlGuid: c8be9bc8-9a6a-4e66-9a61-c11d1b54c189
+  recommendationTypeId: null
+  recommendationControl: RateOptimization/OptimizingUsage
+  recommendationImpact: High
+  recommendationResourceType: Microsoft.CustomCost
+  recommendationMetadataState: Active
+  remediationAction: |
+    Monitor RI utilization to ensure commitments are fully used. Adjust reservations if usage patterns change significantly. Leverage reservation utilization alerts
+  potentialBenefits: Cost optimization
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Reservation utilization alerts
+      url: "https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/reservation-utilization-alerts"
+- description: Set Budgets and Alerts
+  acorlGuid: c0e099e7-b4fa-4eeb-8d2d-1ba2ace8a628
+  recommendationTypeId: null
+  recommendationControl: Governance/BudgetCostControl
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.CustomCost
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use Azure Cost Management + Billing to set budgets at subscription, resource group, or resource levels and set up alerts to notify stakeholders when usage approaches budget limits.
+  potentialBenefits: Budget Control
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Reservation utilization alerts
+      url: "https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/reservation-utilization-alerts"
+- description: Automate Resource Shutdown and Startup
+  acorlGuid: 039f835e-ce7a-495a-bea6-67bffb7a03ae
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.CustomCost
+  recommendationMetadataState: Active
+  remediationAction: |
+    Schedule non-critical VMs or services to shut down after hours or during low-use periods. Use Azure Automation or Azure Logic Apps to automatically manage resource shutdowns.
+  potentialBenefits: Cost optimization
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Choose the Automation services in Azure
+      url: "https://learn.microsoft.com/en-us/azure/automation/automation-services"
+- description: Leverage Azure DevTest Labs for Development Environments
+  acorlGuid: 43f8238b-0404-47a4-b82c-4573571dde02
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.CustomCost
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use Azure DevTest Labs to automate the provisioning and de-provisioning of resources for development environments, reducing idle time and costs in non-production environments.
+  potentialBenefits: Cost optimization
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Azure DevTest Labs overview
+      url: "https://learn.microsoft.com/en-us/azure/devtest-labs/devtest-lab-overview"
+- description: Establish FinOps Practices for Cost Visibility
+  acorlGuid: 45fc8c4c-1f94-4fb3-b9a3-41d565f4aac3
+  recommendationTypeId: null
+  recommendationControl: FinOps/CostVisibility
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.CustomCost
+  recommendationMetadataState: Active
+  remediationAction: |
+    Create a cross-functional FinOps team involving finance, engineering, and management to continuously review and optimize costs, ensure accountability, and enforce cost-saving practices.
+  potentialBenefits: Cost optimization, Organizational Alignment 
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: FinOps overview
+      url: "https://learn.microsoft.com/en-us/cloud-computing/finops/overview"
+- description: Proactively perform cost reviews (Regularly Review Billing Reports and Cost Management Insights)
+  acorlGuid: 93ed1fd5-8ab4-4afd-8315-aab0093db580
+  recommendationTypeId: null
+  recommendationControl: CostManagement/CostMonitoring
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.CustomCost
+  recommendationMetadataState: Active
+  remediationAction: |
+    Use Azure Cost Management + Billing to generate and review cost reports. Look for anomalies, unused resources, and opportunities to optimize.
+  potentialBenefits: Cost Monitoring
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Get started with Cost Management reporting

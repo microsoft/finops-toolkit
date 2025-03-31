@@ -1,0 +1,33 @@
+// Azure Resource Graph Query
+// Azure Firewall Premium SKU
+resources 
+| where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
+| project FWID=id, firewallName = name, SkuTier = tostring(properties.sku.tier), resourceGroup, location, subscriptionId,type
+| join kind=inner (
+    resources
+    | where type =~ 'microsoft.network/firewallpolicies'
+    | mv-expand properties.firewalls
+    | extend intrusionDetection = tostring(properties.intrusionDetection contains "Alert" or properties.intrusionDetection contains "Deny"), transportSecurity = tostring(properties.transportSecurity contains "keyVaultSecretId")
+    | extend FWID=tostring(properties_firewalls.id)
+    | where intrusionDetection == "False" and transportSecurity == "False"
+    | project PolicyName = name, PolicySKU=tostring(properties.sku.tier), intrusionDetection, transportSecurity, FWID
+) on FWID
+| project 
+    x_RecommendationId=strcat(tolower(FWID),'-premiumFirewall'), 
+    x_ResourceGroupName=tolower(resourceGroup), 
+    SubAccountId=subscriptionId, 
+    x_RecommendationCategory='Cost', 
+    x_RecommendationProvider='Microsoft.FinOpsToolkit', 
+    x_RecommendationImpact='Medium', 
+    x_RecommendationTypeId='4a826567-12d7-4d14-960f-9d3586d3b21e', 
+    x_RecommendationControl='UsageOptimization/OptimizeResources', 
+    x_RecommendationMaturityLevel='Preview', 
+    x_RecommendationDescription='Premium Firewall without Premium Features', 
+    x_RecommendationSolution='The Premium Firewall SKU is missing a policy with premium features (e.g., TLS, intrusion detection). Determine if the Premium SKU is necessary ', 
+    ResourceId = tolower(FWID), 
+    x_ResourceType=type, 
+    ResourceName=tolower(split(FWID,'/')[-1]), 
+    x_RecommendationDetails= strcat('{\"PolicyName\": ', PolicyName, ',\"PolicySKU\": \"', PolicySKU,',\"intrusionDetection\": \"', intrusionDetection,',\"transportSecurity\": \"', transportSecurity), 
+    x_RecommendationDate = now() 
+| join kind=leftouter ( resourcecontainers | where type == 'microsoft.resources/subscriptions' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId 
+| project-away SubAccountId1

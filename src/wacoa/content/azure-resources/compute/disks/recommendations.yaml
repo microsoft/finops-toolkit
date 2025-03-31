@@ -1,0 +1,91 @@
+- description: Choose the right disk types for your workloads
+  acorlGuid: a79bed0c-6246-4471-a857-7c255a47f8e9
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    Before deploying your environment, understand the available disk types and their features. Use the Azure Pricing Calculator to estimate costs. For instance, Azure Premium SSD v2 allows you to fine-tune performance independently of disk size, helping optimize both cost and efficiency.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Azure managed disk types
+      url: "https://learn.microsoft.com/en-us/azure/virtual-machines/disks-types"
+
+- description: Leverage reserved capacity for Premium SSDs 
+  acorlGuid: 387b3213-e220-4565-bde1-75a80745d063
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    Prepaying for reserved capacity can significantly reduce the total cost of your environment by offering discounts on Premium SSD storage.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Reduce costs with Azure Disks Reservation
+      url: "https://learn.microsoft.com/en-us/azure/virtual-machines/disks-reserved-capacity"
+
+- description: Dynamically adjust performance for Ultra Disk Storage and Premium SSD v2
+  acorlGuid: 4e8c6760-c2bd-45b8-a522-29f7f13bc9b7
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    These disk types allow performance adjustments a limited number of times within a 24-hour period. By scaling performance up during high demand (increasing cost) and down when demand decreases (reducing cost), you can optimize both performance and spending.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Using Azure Ultra Disks
+      url: "https://learn.microsoft.com/en-us/azure/virtual-machines/disks-enable-ultra-ssd?tabs=azure-portal"
+    - name: Deploy Premium SSD v2 
+      url: "https://learn.microsoft.com/en-us/azure/virtual-machines/disks-deploy-premium-v2?tabs=azure-cli"
+
+- description: Resize oversized disks to the minimum required size for the workload to optimize storage allocation
+  acorlGuid: 79d1aa80-e802-4ddc-a583-d6b298305147
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    Managed Disks cannot be shrunk, but they can be expanded if needed. To downsize, you need to create a new smaller disk and migrate data.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Decrease the size of an Azure data disk without losing data
+      url: "https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/downsize-data-disk-without-losing-data?tabs=windows"
+
+- description: Consider using Ephemeral OS Disks for stateless workloads where OS persistence isn’t required
+  acorlGuid: 8d6297cc-569e-4d36-8dcb-4813fa8bf899
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Medium
+  recommendationResourceType: Microsoft.Compute/disks
+  recommendationMetadataState: Active
+  remediationAction: |
+    Ephemeral OS Disks offer temporary storage at no cost, ideal for auto-scaling environments (e.g., VM Scale Sets), dev/test workloads and stateless applications.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Ephemeral OS disks for Azure VMs
+      url: "https://learn.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks"

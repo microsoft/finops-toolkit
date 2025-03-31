@@ -1,0 +1,36 @@
+- description: Select the Appropriate Application Gateway Tier
+  acorlGuid: 2acd3728-7e37-48d7-87a0-a32c499b55c5
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/applicationGateways
+  recommendationMetadataState: Active
+  remediationAction: |
+    The Standard tier offers essential Layer 7 load balancing features, including SSL offloading and URL-based routing. In contrast, the WAF tier provides all the functionalities of the Standard tier, along with additional protection against common web vulnerabilities by inspecting incoming traffic using predefined rulesets.
+  potentialBenefits: Improve security
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Understanding Pricing for Azure Application Gateway and Web Application Firewall
+      url: "https://learn.microsoft.com/en-us/azure/application-gateway/understanding-pricing"
+      
+- description: Use Autoscaling for Application Gateway
+  acorlGuid: 4d72ab17-c0df-4d46-bd03-5be366af2301
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/applicationGateways
+  recommendationMetadataState: Active
+  remediationAction: |
+    Optimize resource allocation based on traffic demand. With autoscaling enabled, the Application Gateway and WAF v2 SKUs scale out or in based on application traffic requirements.
+  potentialBenefits: Improve efficiency
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Scaling Application Gateway v2 and WAF v2
+      url: "https://learn.microsoft.com/en-us/azure/application-gateway/application-gateway-autoscaling-zone-redundant"
+      

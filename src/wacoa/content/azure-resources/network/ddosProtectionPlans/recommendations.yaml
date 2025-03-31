@@ -1,0 +1,36 @@
+- description: Apply DDoS Protection Plans Selectively
+  acorlGuid: a480a35f-d045-406b-a370-67fcb564024c
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/ddosProtectionPlans
+  recommendationMetadataState: Active
+  remediationAction: |
+    While all Azure services include free basic DDoS protection, mission-critical applications can benefit from the enhanced features of the Azure DDoS Protection Plan (Standard). This premium service offers advanced mitigation capabilities, including always-on traffic monitoring, adaptive real-time tuning, and detailed attack analytics, which are essential for protecting high-priority workloads.
+  potentialBenefits: Targeted protection
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Building a DDoS Response Plan
+      url: "https://techcommunity.microsoft.com/blog/azurenetworksecurityblog/building-a-ddos-response-plan/4372256"
+
+
+- description: Consider DDoS Protection Per IP for Limited Public IPs 
+  acorlGuid: b53f36fe-628d-4f7a-b935-612b02983eac
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/ddosProtectionPlans
+  recommendationMetadataState: Active
+  remediationAction: |
+    For customers with a few public IPs, DDoS Protection per IP may be more cost-effective than the VNet-based plan.
+  potentialBenefits: Optimize cost
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: About Azure DDoS Protection Tier Comparison
+      url: "https://learn.microsoft.com/en-us/azure/ddos-protection/ddos-protection-sku-comparison"

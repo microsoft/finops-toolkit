@@ -1,0 +1,18 @@
+- description: Disallow creation of public IPs using policies, if not required
+  acorlGuid: 312c7949-4dbb-4ffc-9ceb-2d4063ad3c1f
+  recommendationTypeId: null
+  recommendationControl: UsageOptimization/OptimizeResources
+  recommendationImpact: Low
+  recommendationResourceType: Microsoft.Network/publicIPAddresses
+  recommendationMetadataState: Active
+  remediationAction: |
+    Leverage Azure Policy to deny the network interfaces which are configured with any public IP. Public IP addresses allow internet resources to communicate inbound to Azure resources, and Azure resources to communicate outbound to the internet. This should be reviewed by the network security team.
+  potentialBenefits: Enhance security
+  pgVerified: false
+  publishedToLearn: false
+  automationAvailable: false
+  tags: null
+  learnMoreLink:
+    - name: Disallow creation of public IPs using policies, if not required
+      url: "https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/%2fproviders%2fMicrosoft.Authorization%2fpolicyDefinitions%2f83a86a26-fd1f-447c-b59d-e51f44264114"
+      
