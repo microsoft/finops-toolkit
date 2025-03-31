@@ -40,6 +40,8 @@ _Released March 2025_
 
 - **Added**
   - Added support for promoted tags with spaces in the tag key.
+- **Changed**
+  - Improved readability and performance of the Disks query.
 - **Fixed**
   - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
 
