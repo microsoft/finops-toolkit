@@ -44505,19 +44505,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.diskSizeGB"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Disk size GB": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "disks.properties_diskstate": {
 			      "Definition": {
