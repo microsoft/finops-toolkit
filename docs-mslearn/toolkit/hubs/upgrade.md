@@ -177,7 +177,7 @@ If you enable Azure Data Explorer, you need to reingest historical data to add i
 > [!div class="nextstepaction"]
 > [Download 0.7](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7)
 
-[View changes](https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog#-v07)
+[View changes](../changelog#v07)
 
 <br>
 
@@ -185,20 +185,48 @@ If you enable Azure Data Explorer, you need to reingest historical data to add i
 
 <!-- cSpell:ignore resourceid -->
 
+FinOps hubs 0.8 introduced architectural changes to how networking resources were deployed. Networking resources must be deleted before upgrading from 0.7 to 0.8 or later. If you are moving from 0.6 or earlier to 0.8 or later, you can skip this step. The instructions assume your FinOps hub instance is the only thing in the resource group and there are no other networking resources. Do not delete resources that are not related to FinOps hubs.
+
 To upgrade FinOps hubs 0.7 to 0.8:
 
-1. Delete endpoints
-2. Delete DNS zones
-3. Delete virtual network
-4. Redeploy the template.
-5. Update Power BI reports.
-6. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
+1. Delete FinOps hubs 0.7 networking resources:
+   1. Open the FinOps hub resource group in the Azure portal.
+   2. Delete all private endpoints within the resource group.
+   3. Delete all private DNS zones within the resource group.
+   4. Delete the virtual network.  If errors are encountered:
+      - Confirm no private endpoints or DNS zones remain.
+      - Check the connected devices tab and remove any lingering resources to ensure the virtual network is not in use.
+2. Redeploy the template by using the **same inputs** from the previous deployment:
+   - Subscription
+   - Resource group
+   - Location
+   - Hub name
+   - Data Explorer cluster name (recommended when monitoring over $100K in total spend)
+   - Data Explorer SKU (if a cluster name is specified)
+3. Verify that the Data Factory triggers are all started.
+4. Update Power BI reports.
+5. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
    - The `ResourceType` property in `parse_resourceid(ResourceId)` is deprecated in 0.8 and will be removed in 0.9 or later.
 
 > [!div class="nextstepaction"]
 > [Download 0.8](https://github.com/microsoft/finops-toolkit/releases/tag/v0.8)
 
-[View changes](https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog#-v08)
+[View changes](../changelog#v08)
+
+<br>
+
+## Upgrading 0.8
+
+To upgrade FinOps hubs 0.8 to 0.9:
+
+1. Redeploy the template.
+2. Update [Power BI reports](../power-bi/reports.md).
+3. Update the [Data Explorer dashboard](configure-dashboards.md).
+
+> [!div class="nextstepaction"]
+> [Download 0.9](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
+
+[View changes](../changelog#v09)
 
 <br>
 

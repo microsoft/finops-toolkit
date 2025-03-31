@@ -28,16 +28,28 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### Optimization engine
+
+- **Fixed**
+  - Fixed issue with breaking storage account recommendations when resource tags are duplicated after tag inheritance  ([#1430](https://github.com/microsoft/finops-toolkit/issues/1430)).
+
 <br><a name="latest"></a>
 
 ## v0.9
 
 _Released March 2025_
 
-### [Power BI reports](power-bi/reports.md) v0.8 Update 1
+### [Power BI reports](power-bi/reports.md) v0.9
 
 **General**
 
+- **Added**
+  - Added support for promoted tags with spaces in the tag key.
+- **Changed**
+  - Updated the savings columns to exclude rows where costs are missing or incorrect.
+  - Disabled the **Deprecated: Perform Extra Query Optimizations** parameter by default ([#1380](https://github.com/microsoft/finops-toolkit/issues/1380)).
+    - This parameter will be removed on or after July 1, 2025.
+    - If you rely on this setting, please [create an issue in GitHub](https://aka.ms/ftk/ideas) and let us know what you need.
 - **Fixed**
   - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
 
@@ -51,12 +63,20 @@ _Released March 2025_
 
 - **Added**
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+  - Managed exports now create price, reservation detail, reservation transaction, and VM reservation recommendation exports.
+- **Changed**
+  - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
+    - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
+  - Added a new Data ingestion > Data quality section into the Data Explorer dashboard with a summary of missing and incorrect costs.
 - **Fixed**
+  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
+  - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
 - **Removed**
   - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
     - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
     - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
+  - Removed the trusted external tenants setting due to an error causing redeployments to fail. Please enable this after deploying FinOps hubs the first time.
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
@@ -67,7 +87,7 @@ _Released March 2025_
 
 ## v0.8 Update 1
 
-_Released February 16, 2024_
+_Released February 16, 2025_
 
 This release is a minor patch to fix Power BI reports. These files were updated in the existing 0.8 release. We are documenting this as a new patch release for transparency. If you downloaded **PowerBI-KQL.zip** or **PowerBI-storage.zip** between February 12-15, 2025, please update to the latest version.
 

@@ -28,19 +28,21 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
 
 1. Configure Cost Management exports for any data you would like to include in reports, including:
 
-   - Cost and usage (FOCUS) &ndash; Required for all reports.
-   - Price sheet
-   - Reservation details
-   - Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
-   - Reservation transactions
+   | Dataset                     | Version          | Notes                                                                                                                           |
+   | --------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+   | Cost and usage (FOCUS)      | `1.0` or `1.0r2` | Required for all reports. If you need FOCUS 1.0-preview, use [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. |
+   | Price sheet                 | `2023-05-01`     | Required to populate missing prices for EA and MCA.                                                                             |
+   | Reservation details         | `2023-03-01`     | Optional.                                                                                                                       |
+   | Reservation recommendations | `2023-05-01`     | Required to see reservation recommendations in the Rate optimization report.                                                    |
+   | Reservation transactions    | `2023-05-01`     | Optional.                                                                                                                       |
 
 2. Download and open the desired report in Power BI Desktop.
 
-   | Data source                                | Download                                                                                                                             | Notes                                                                                                           |
-   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring more than $2 million per month or more than 13 months of data.                      |
-   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring more than $2 million per month.                                                 |
-   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring more than $1 million in total cost or accounts that contain savings plan usage. |
+   | Data source                                | Download                                                                                                                             | Notes                                                                                                      |
+   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring over $100,000 or 13 months of data.                                            |
+   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring over $2 million per month.                                                 |
+   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring over $1 million in total cost or accounts that contain savings plan usage. |
 
 3. Open each report and specify the applicable report parameters:
 
@@ -68,8 +70,10 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
        4. Append the container and export path, if applicable.
    - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, the report will include all data in storage.
    - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, the report will include all data in storage.
-     > [!WARNING]
-     > [Enable incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $2 million of raw cost details. Power BI reports can only support $2 million of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2 million per month for a total of ~$26 million in raw cost details.
+     - We generally recommend leaving these dates empty. They are included to support incremental refresh.
+     - If you need to configure incremental refresh, consider using [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer instead.
+     - FinOps hubs with Data Explorer offers improved performance and is recommended for anyone monitoring over $100,000 in total spend.
+     - Storage reports only support ~$2 million of data without incremental refresh and ~$2 million per month in raw cost details. To learn more, see [Configure incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy).
 
 4. Authorize each data source:
 
