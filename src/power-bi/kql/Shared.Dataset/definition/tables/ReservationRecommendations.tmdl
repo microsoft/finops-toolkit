@@ -185,19 +185,10 @@ table ReservationRecommendations
 		annotation SummarizationSetBy = Automatic
 
 	column x_BreakEvenMonths =
-			SWITCH(
-			    TRUE(),
-			    [x_SkuTerm] = 12,
-			        ROUND(
-			            [x_EffectiveCostAfter] * 12 / [x_EffectiveCostBefore],
-			            0
-			        ),
-			    [x_SkuTerm] = 36,
-			        ROUND(
-			            [x_EffectiveCostAfter] * 36 / [x_EffectiveCostBefore],
-			            0
-			        ),
-			    BLANK()
+			IF (
+				NOT ISBLANK ( [x_SkuTerm] ) && [x_SkuTerm] > 0,
+				ROUND ( [x_EffectiveCostAfter] * [x_SkuTerm] / [x_EffectiveCostBefore], 0 ),
+				BLANK ()
 			)
 		lineageTag: 74417a2c-ee2a-49c9-9c35-5d49521a1277
 		summarizeBy: sum
