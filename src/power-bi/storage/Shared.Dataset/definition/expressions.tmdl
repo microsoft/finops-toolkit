@@ -333,18 +333,18 @@ expression ftk_Storage = ```
 					else null
 				),
 				"x_BillingAccountAgreement",
-				each if data = "focuscost" then (
-					if [BillingAccountId] = [SubAccountId] then "MOSA"
-					else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"
-					else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = "Microsoft" then "MCA" else "MPA")
+					each if data = "focuscost" then (
+						if [BillingAccountId] = [SubAccountId] then "MOSA"
+						else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"
+						else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = "Microsoft" then "MCA" else "MPA")
+						else "Unknown"
+					)
+					else if data = "pricesheet"                 then (if Table.HasColumns(FilterRowsByDate, "EnrollmentNumber") and [EnrollmentNumber] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
+					else if data = "reservationdetails"         then "Unknown" // TODO: Consider using export manifest if we get feedback that this should always be available
+					else if data = "reservationtransactions"    then (if Table.HasColumns(FilterRowsByDate, "CurrentEnrollmentId") and [CurrentEnrollmentId] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
+					else if data = "reservationrecommendations" then (if Table.HasColumns(FilterRowsByDate, "SKU") and [SKU] <> null then "EA" else "MCA")
 					else "Unknown"
-				)
-				else if data = "pricesheet"                 then (if Table.HasColumns(FilterRowsByDate, "EnrollmentNumber") and [EnrollmentNumber] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
-				else if data = "reservationdetails"         then "Unknown" // TODO: Consider using export manifest if we get feedback that this should always be available
-				else if data = "reservationtransactions"    then (if Table.HasColumns(FilterRowsByDate, "CurrentEnrollmentId") and [CurrentEnrollmentId] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
-				else if data = "reservationrecommendations" then (if Table.HasColumns(FilterRowsByDate, "Scope") and [Scope] <> null then "EA" else "MCA")
-				else "Unknown"
-			),
+				),
 			Output = Table.SelectColumns(CustomColumns, List.Sort(Table.ColumnNames(CustomColumns)))
 		in
 			Output
@@ -498,7 +498,7 @@ expression ftk_DemoFilter =
 /// Optional. Experimental feature to join the prices with the cost to populate missing list and contracted unit price and calculate missing cost values. This enables calculating total savings. Allowed values = "TRUE", "FALSE".
 /// 
 /// This experimental feature is extremely slow to run and has not been fully tested. We are investigating alternative means to perform this join.
-expression 'Deprecated: Perform Extra Query Optimizations' = true meta [IsParameterQuery=true, List={false, true}, DefaultValue=true, Type="Logical", IsParameterQueryRequired=false]
+expression 'Deprecated: Perform Extra Query Optimizations' = false meta [IsParameterQuery=true, List={false, true}, DefaultValue=false, Type="Logical", IsParameterQueryRequired=false]
 	lineageTag: f22de62e-d0a2-4f18-be6a-86172ff55b17
 	queryGroup: '🛠️ Setup'
 

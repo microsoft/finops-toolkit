@@ -1077,7 +1077,7 @@
           "width": 280.00,
           "x": 504.00,
           "y": 104.00,
-          "z": 4000.00
+          "z": 6000.00
         },
         {
           "config": "{\"name\":\"0b2b8add599b36ea8ed6\",\"layouts\":[{\"id\":0,\"position\":{\"height\":704,\"width\":88,\"x\":575.3462550456627,\"y\":0,\"z\":4000,\"tabOrder\":14000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 7'\"}}}}}]}},\"parentGroupName\":\"a9f2cb6260307e0c1702\",\"howCreated\":\"InsertVisualButton\"}",
@@ -1157,7 +1157,7 @@
           "width": 472.00,
           "x": 792.00,
           "y": 104.00,
-          "z": 7000.00
+          "z": 5000.00
         },
         {
           "config": "{\"name\":\"426727ba7e2b3840430b\",\"layouts\":[{\"id\":0,\"position\":{\"height\":32,\"width\":192,\"x\":0,\"y\":656.0000000000011,\"z\":3000,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'help'\"}}},\"image\":{\"image\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Question-Circled-White.svg'\"}}},\"url\":{\"expr\":{\"ResourcePackageItem\":{\"PackageName\":\"RegisteredResources\",\"PackageType\":1,\"ItemName\":\"Question-Circled-White3792978913051954.svg\"}}},\"scaling\":{\"expr\":{\"Literal\":{\"Value\":\"'Normal'\"}}}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"topMargin\":{\"expr\":{\"Literal\":{\"Value\":\"4L\"}}},\"placement\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"lineColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}},\"lineWeight\":{\"expr\":{\"Literal\":{\"Value\":\"1L\"}}}},\"selector\":{\"id\":\"default\"}}],\"text\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'  Get help'\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'left'\"}}},\"fontColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"8D\"}}},\"underline\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}},\"leftMargin\":{\"expr\":{\"Literal\":{\"Value\":\"16L\"}}}},\"selector\":{\"id\":\"default\"}}],\"fill\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"100D\"}}},\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":1,\"Percent\":0}}}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'WebUrl'\"}}},\"showDefaultTooltip\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}},\"webUrl\":{\"expr\":{\"Literal\":{\"Value\":\"'https://aka.ms/ftk/discuss'\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Get help'\"}}}}}],\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}},\"parentGroupName\":\"319cd0c4725077d8748d\",\"howCreated\":\"InsertVisualButton\"}",
@@ -1184,7 +1184,7 @@
           "width": 184.00,
           "x": 216.00,
           "y": 8.00,
-          "z": 2000.00
+          "z": 3000.00
         },
         {
           "config": "{\"name\":\"4a4aa280067230b7eaa4\",\"layouts\":[{\"id\":0,\"position\":{\"height\":704,\"width\":88,\"x\":671.5316090052736,\"y\":0,\"z\":3000,\"tabOrder\":7000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 8'\"}}}}}]}},\"parentGroupName\":\"a9f2cb6260307e0c1702\",\"howCreated\":\"InsertVisualButton\"}",
@@ -1211,7 +1211,7 @@
           "width": 1048.00,
           "x": 216.00,
           "y": 392.00,
-          "z": 3000.00
+          "z": 2000.00
         },
         {
           "config": "{\"name\":\"600dd3219c62266d299a\",\"layouts\":[{\"id\":0,\"position\":{\"height\":704,\"width\":88,\"x\":960.0876708841058,\"y\":0,\"z\":0,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 11'\"}}}}}]}},\"parentGroupName\":\"a9f2cb6260307e0c1702\",\"howCreated\":\"InsertVisualButton\"}",
@@ -1229,7 +1229,7 @@
           "width": 280.00,
           "x": 216.00,
           "y": 104.00,
-          "z": 5000.00
+          "z": 7000.00
         },
         {
           "config": "{\"name\":\"63777771b72911023b82\",\"layouts\":[{\"id\":0,\"position\":{\"height\":88,\"width\":1048,\"x\":0.010973936899858927,\"y\":479.9013683550949,\"z\":12000,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Row 6'\"}}}}}]}},\"parentGroupName\":\"a9f2cb6260307e0c1702\",\"howCreated\":\"InsertVisualButton\"}",
@@ -1256,7 +1256,7 @@
           "width": 184.00,
           "x": 408.00,
           "y": 8.00,
-          "z": 6000.00
+          "z": 4000.00
         },
         {
           "config": "{\"name\":\"6f7cf5298316c0e09392\",\"layouts\":[{\"id\":0,\"position\":{\"height\":704,\"width\":88,\"x\":0,\"y\":0,\"z\":10000,\"tabOrder\":9000}}],\"singleVisual\":{\"visualType\":\"shape\",\"drillFilterOtherVisuals\":true,\"objects\":{\"shape\":[{\"properties\":{\"tileShape\":{\"expr\":{\"Literal\":{\"Value\":\"'rectangle'\"}}}}}],\"rotation\":[{\"properties\":{\"shapeAngle\":{\"expr\":{\"Literal\":{\"Value\":\"0L\"}}}}}],\"fill\":[{\"properties\":{\"fillColor\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":8,\"Percent\":0}}}}},\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"80D\"}}}},\"selector\":{\"id\":\"default\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Col 1'\"}}}}}]}},\"parentGroupName\":\"a9f2cb6260307e0c1702\",\"howCreated\":\"InsertVisualButton\"}",
@@ -1331,7 +1331,7 @@
           "z": 6000.00
         },
         {
-          "config": "{\"name\":\"a9f2cb6260307e0c1702\",\"layouts\":[{\"id\":0,\"position\":{\"height\":704,\"width\":1048.0876708841058,\"x\":215.39572239294395,\"y\":8.005493854933814,\"z\":0,\"tabOrder\":8000}}],\"singleVisualGroup\":{\"displayName\":\"Layout grid\",\"groupMode\":0,\"isHidden\":true}}",
+          "config": "{\"name\":\"a9f2cb6260307e0c1702\",\"layouts\":[{\"id\":0,\"position\":{\"height\":704,\"width\":1048.0876708841058,\"x\":215.39572239294395,\"y\":8.005493854933814,\"z\":0,\"tabOrder\":6000}}],\"singleVisualGroup\":{\"displayName\":\"Layout grid\",\"groupMode\":0,\"isHidden\":true}}",
           "height": 704.00,
           "width": 1048.09,
           "x": 215.40,
@@ -2591,7 +2591,7 @@
           "height": 48.00,
           "width": 40.00,
           "x": 384.00,
-          "y": 41.26,
+          "y": 48.00,
           "z": 9000.00
         },
         {
@@ -2626,7 +2626,7 @@
           "height": 48.00,
           "width": 40.00,
           "x": 576.00,
-          "y": 41.26,
+          "y": 48.00,
           "z": 8000.00
         },
         {

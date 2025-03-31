@@ -26,6 +26,16 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <br>
 
+## Access to the resource is forbidden
+
+<sup>Severity: Critical</sup>
+
+This error generally means the account you are connected with does not have access to the resource you're attempting to use.
+
+**Mitigation**: Confirm you are using the correct account in the correct Microsoft Entra ID tenant.
+
+<br>
+
 ## AccountPropertyCannotBeUpdated
 
 <sup>Severity: Critical</sup>
@@ -70,6 +80,16 @@ This generally means you're deploying on top of an old deployment that was delet
 6. Select **Delete** in the confirmation dialog.
 
 You can now retry the deployment.
+
+<br>
+
+## ContractedCostLessThanEffectiveCost
+
+<sup>Severity: Warning</sup>
+
+`ContractedCost` (based on negotiated discounts) is less than `EffectiveCost` (after commitment discounts) in the data from Cost Management. This should never happen unless the commitment discount provides less of a discount than your existing negotiated discounts. This will cause your savings calculations to not add up precisely.
+
+**Mitigation**: Confirm the `ContractedUnitPrice` in the cost data matches what's in the price data. If the contracted price is correct, file a support request with the Cost Management team to confirm the `x_EffectiveUnitPrice` and `EffectiveCost` are correct. If they are correct, consider returning the commitment discount.
 
 <br>
 
@@ -144,6 +164,26 @@ We are following up with the Azure Data Explorer team to identify the correct re
 Exports weren't found in the specified storage path.
 
 **Mitigation**: Confirm that a [Cost Management export](https://aka.ms/exportsv2) was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, correct the storage URL to point to the 'ingestion' container. Refer to the `storageUrlForPowerBI` output from the FinOps hub deployment for the full URL.
+
+<br>
+
+## ExportTypeNotDefined
+
+<sup>Severity: Critical</sup>
+
+This billing scope type is not supported by managed exports.
+
+**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost management exports for the billing scope.
+
+<br>
+
+## ExportTypeUnsupported
+
+<sup>Severity: Critical</sup>
+
+Microsoft Customer Agreements are not supported for managed exports.
+
+**Mitigation**: Remove the MCA billing scope from settings.json and manually create new Cost Management exports for each MCA billing profile for FOCUS cost, pricesheet, reservation details, reservation transactions and reservation recommendations.
 
 <br>
 
@@ -240,6 +280,16 @@ If using FinOps hubs with Data Explorer and seeing this in the `x_SourceChanges`
 If using storage reports and seeing this in the `x_SourceChanges` column of the Costs query, this message is a warning that this FOCUS version will be removed in a future update. While you can safely ignore this message, it will require an update in a future release. To avoid the message, update Cost Management exports to the latest FOCUS version, delete or move any older data using an older FOCUS version, and reexport historical data. If using FinOps hubs, delete or move data outside of the **ingestion** container. If hosting your own exports in storage, change the **Storage URL** parameter to a different folder path that does not include older FOCUS versions.
 
 As of FinOps toolkit 0.7, support for older FOCUS versions has been deprecated to improve performance and scalability. We recommend updating to the latest FOCUS version and reexporting data to improve your experience. Set the **Deprecated: Perform Extra Query Optimizations** parameter to `TRUE` to ensure older FOCUS versions are supported and set it to `FALSE` to speed up performance and support larger datasets covering more cost or time. As of 0.7, this parameter is enabled by default for backwards compatibility. In FinOps toolkit 0.8, it will be disabled by default, but still available for backwards compatibility until on or after June 2025. If you cannot move off of old FOCUS versions or for the best performance and support for larger accounts or longer periods of time, we recommend using FinOps hubs with Data Explorer.
+
+<br>
+
+## ListCostLessThanContractedCost
+
+<sup>Severity: Warning</sup>
+
+`ListCost` (based on public, retail prices) is less than `ContractedCost` (based on negotiated discounts) in the data from Cost Management. This should never happen. This will cause your savings calculations to not add up precisely.
+
+**Mitigation**: Confirm the `ListUnitPrice` in the cost data matches what's in the price data. If the list price is correct, file a support request with the Cost Management team to confirm both the `ListUnitPrice` and `ContractedUnitPrice` are correct and explain why the price after negotiated discounts would be higher than public, retail rates.
 
 <br>
 
