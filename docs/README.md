@@ -50,6 +50,11 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
         <a href="./workbooks">Learn more</a>
     </div>
     <div class="ftk-tile">
+        <div>🔔 FinOps alerts</div>
+        <div>Automate cost optimization by managing idle resources.</div>
+        <a href="./alerts">Learn more</a>
+    </div>
+    <div class="ftk-tile">
         <div>🔍 Optimization Engine</div>
         <div>Extensible solution for custom optimization recommendations.</div>
         <a href="./optimization-engine">Learn more</a>
