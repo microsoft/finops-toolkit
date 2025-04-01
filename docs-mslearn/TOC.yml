@@ -184,7 +184,7 @@
       items:
         - name: Overview
           href: toolkit/alerts/finops-alerts-overview.md
-        - name: Configure FinOps alerts
+        - name: Configure alerts
           href: toolkit/alerts/configure-finops-alerts.md
     - name: Optimization engine
       items:
