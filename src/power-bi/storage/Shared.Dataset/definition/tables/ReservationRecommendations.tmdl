@@ -196,14 +196,33 @@ table ReservationRecommendations
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column x_BreakEvenMonths =
-			IF (
-				NOT ISBLANK ( [x_SkuTerm] ) && [x_SkuTerm] > 0,
-				ROUND ( [x_EffectiveCostAfter] * [x_SkuTerm] / [x_EffectiveCostBefore], 0 ),
-				BLANK ()
-			)			
-		lineageTag: e46c9174-69f4-43ce-9ee0-2125bfe3bf43
+	column x_BreakEvenDate
+		dataType: dateTime
+		formatString: Mmm d, yyyy
+		lineageTag: 84494ff0-ef51-4636-8d9b-7bbc7f681633
+		summarizeBy: none
+		sourceColumn: x_BreakEvenDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_BreakEvenMonths
+		dataType: double
+		formatString: 0.0 mo
+		lineageTag: 4e18a526-f90e-4e01-ae84-44c2f3628b11
 		summarizeBy: sum
+		sourceColumn: x_BreakEvenMonths
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_CommitmentDiscountSavingsDailyRate
+		dataType: double
+		lineageTag: 5a1a0a4f-f2fa-4934-bb07-a3079b2bb314
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavingsDailyRate
 
 		annotation SummarizationSetBy = Automatic
 
@@ -276,7 +295,7 @@ table ReservationRecommendations
 				    }, MissingField.Ignore),
 				
 				    Add = Table.RemoveColumns(
-				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
+				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
 				            "x_LookbackPeriodLabel",     each [LookBackPeriod] & (if Text.Contains([LookBackPeriod], "Days") then "" else " Days")),
 				            "x_SkuSize",                 each if [SKU] <> null then [SKU] else [SkuName]),
 				            "x_CommitmentDiscountKey",   each [x_CommitmentDiscountNormalizedSize] & [x_SkuMeterId]),
@@ -287,6 +306,9 @@ table ReservationRecommendations
 				                else if [x_SkuTerm] = 12 then "1 year"
 				                else Text.From([x_SkuTerm] / 12) & " years"
 				            ),
+				            "x_BreakEvenMonths",         each [x_EffectiveCostAfter] * [x_SkuTerm] / [x_EffectiveCostBefore], type number),
+				            "x_BreakEvenDate",           each Date.AddDays(DateTime.Date(DateTime.LocalNow()), 1 + Number.Round([x_BreakEvenMonths] * 30.437, 0)), type datetimezone),
+				            "x_CommitmentDiscountSavingsDailyRate", each [x_CommitmentDiscountSavings] / ([x_SkuTerm] - [x_BreakEvenMonths]) / (365/12), type number),
 				        {"tmp_CommitmentDiscountScope", "LookBackPeriod", "SKU", "SkuName"}
 				    ),
 				        
