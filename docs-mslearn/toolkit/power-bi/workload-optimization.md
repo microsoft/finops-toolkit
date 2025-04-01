@@ -95,9 +95,9 @@ Related products:
 
 Related solutions:
 
-- [FinOps alerts](../alerts/finops-alerts-overview.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
+- [FinOps alerts](../alerts/finops-alerts-overview.md)
 - [FinOps toolkit open data](../open-data.md)
 
 <br>
