@@ -109,8 +109,8 @@ param dataExplorerSku string = 'Dev(No SLA)_Standard_D11_v2'
 @maxValue(1000)
 param dataExplorerCapacity int = 1
 
-@description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
-param dataExplorerTrustedExternalTenants string[] = []
+// @description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
+// param dataExplorerTrustedExternalTenants string[] = []
 
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
