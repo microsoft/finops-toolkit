@@ -26,7 +26,7 @@ $workspaceTenantId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyti
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
 }
@@ -95,12 +95,12 @@ $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -116,25 +116,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE CollectedType IN ('ARGNetworkInterface','ARGVirtualNetwork','ARGResourceContainers', 'ARGNSGRule', 'ARGPublicIP','AzureConsumption')"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -151,8 +151,8 @@ $consumptionTableName = $lognamePrefix + ($controlRows | Where-Object { $_.Colle
 
 Write-Output "Will run query against tables $nicsTableName, $nsgRulesTableName, $publicIpsTableName, $subscriptionsTableName, $consumptionTableName and $vNetsTableName"
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $recommendationSearchTimeSpan = 30 + $consumptionOffsetDaysStart
 
@@ -177,11 +177,11 @@ $baseQuery = @"
     | extend FreeIPs = toint(SubnetTotalPrefixIPs_s) - toint(SubnetUsedIPs_s)
     | extend UsedIPPercentage = (todouble(SubnetUsedIPs_s) / todouble(SubnetTotalPrefixIPs_s)) * 100
     | where UsedIPPercentage >= $subnetMaxUsedThreshold
-    | join kind=leftouter ( 
-        $subscriptionsTableName 
+    | join kind=leftouter (
+        $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
@@ -190,12 +190,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -226,10 +226,10 @@ foreach ($result in $results)
     $additionalInfoDictionary = @{}
 
     $additionalInfoDictionary["subnetName"] = $result.SubnetName_s
-    $additionalInfoDictionary["subnetPrefix"] = $result.SubnetPrefix_s 
-    $additionalInfoDictionary["subnetTotalIPs"] = $result.SubnetTotalPrefixIPs_s 
-    $additionalInfoDictionary["subnetFreeIPs"] = $result.FreeIPs 
-    $additionalInfoDictionary["subnetUsedIPPercentage"] = $result.UsedIPPercentage 
+    $additionalInfoDictionary["subnetPrefix"] = $result.SubnetPrefix_s
+    $additionalInfoDictionary["subnetTotalIPs"] = $result.SubnetTotalPrefixIPs_s
+    $additionalInfoDictionary["subnetFreeIPs"] = $result.FreeIPs
+    $additionalInfoDictionary["subnetUsedIPPercentage"] = $result.UsedIPPercentage
 
     $fitScore = 5
 
@@ -245,7 +245,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -303,11 +303,11 @@ $baseQuery = @"
     | extend FreeIPs = toint(SubnetTotalPrefixIPs_s) - toint(SubnetUsedIPs_s)
     | extend UsedIPPercentage = (todouble(SubnetUsedIPs_s) / todouble(SubnetTotalPrefixIPs_s)) * 100
     | where UsedIPPercentage > 0 and UsedIPPercentage <= $subnetMinUsedThreshold
-    | join kind=leftouter ( 
-        $subscriptionsTableName 
+    | join kind=leftouter (
+        $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
@@ -316,12 +316,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -352,10 +352,10 @@ foreach ($result in $results)
     $additionalInfoDictionary = @{}
 
     $additionalInfoDictionary["subnetName"] = $result.SubnetName_s
-    $additionalInfoDictionary["subnetPrefix"] = $result.SubnetPrefix_s 
-    $additionalInfoDictionary["subnetTotalIPs"] = $result.SubnetTotalPrefixIPs_s 
+    $additionalInfoDictionary["subnetPrefix"] = $result.SubnetPrefix_s
+    $additionalInfoDictionary["subnetTotalIPs"] = $result.SubnetTotalPrefixIPs_s
     $additionalInfoDictionary["subnetUsedIPs_s"] = $result.SubnetUsedIPs_s
-    $additionalInfoDictionary["subnetUsedIPPercentage"] = $result.UsedIPPercentage 
+    $additionalInfoDictionary["subnetUsedIPPercentage"] = $result.UsedIPPercentage
 
     $fitScore = 5
 
@@ -371,7 +371,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -426,11 +426,11 @@ $baseQuery = @"
     $vNetsTableName
     | where TimeGenerated > ago(1d)
     | where toint(SubnetUsedIPs_s) == 0 and toint(SubnetDelegationsCount_s) == 0
-    | join kind=leftouter ( 
-        $subscriptionsTableName 
+    | join kind=leftouter (
+        $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
@@ -439,12 +439,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -475,8 +475,8 @@ foreach ($result in $results)
     $additionalInfoDictionary = @{}
 
     $additionalInfoDictionary["subnetName"] = $result.SubnetName_s
-    $additionalInfoDictionary["subnetPrefix"] = $result.SubnetPrefix_s 
-    $additionalInfoDictionary["subnetTotalIPs"] = $result.SubnetTotalPrefixIPs_s 
+    $additionalInfoDictionary["subnetPrefix"] = $result.SubnetPrefix_s
+    $additionalInfoDictionary["subnetTotalIPs"] = $result.SubnetTotalPrefixIPs_s
     $additionalInfoDictionary["subnetUsedIPs_s"] = $result.SubnetUsedIPs_s
 
     $fitScore = 5
@@ -493,7 +493,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -548,11 +548,11 @@ $baseQuery = @"
     $nicsTableName
     | where TimeGenerated > ago(1d)
     | where isempty(OwnerVMId_s) and isempty(OwnerPEId_s)
-    | join kind=leftouter ( 
-        $subscriptionsTableName 
+    | join kind=leftouter (
+        $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
@@ -561,12 +561,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -612,7 +612,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -703,11 +703,11 @@ $baseQuery = @"
     | union EmptySubnetsAsDestination
     | union RemovedSubnetsAsSource
     | union RemovedSubnetsAsDestination
-    | join kind=leftouter ( 
-        $subscriptionsTableName 
+    | join kind=leftouter (
+        $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
     | where isnotempty(SubnetPrefix_s)
     | distinct NSGId, NSGName, RuleName_s, SubscriptionGuid_g, SubscriptionName, ResourceGroupName_s, TenantGuid_g, Cloud_s, SubnetId, SubnetPrefix_s, SubnetState, Tags_s
@@ -718,12 +718,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -771,7 +771,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -831,23 +831,23 @@ $baseQuery = @"
     | where TimeGenerated < ago(1d)
     | extend NICId = tolower(InstanceId_s)
     | distinct NICId, PrivateIPAddress_s, PublicIPId_s;
-    let OrphanNICs = NICsToday 
+    let OrphanNICs = NICsToday
     | where isempty(OwnerVMId_s) and isempty(OwnerPEId_s)
     | extend PublicIPId_s = tolower(PublicIPId_s)
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         $publicIpsTableName
         | where TimeGenerated > ago(1d)
-        | project PublicIPId_s = tolower(InstanceId_s), PublicIPAddress = IPAddress 
+        | project PublicIPId_s = tolower(InstanceId_s), PublicIPAddress = IPAddress
     ) on PublicIPId_s;
     let NICsTodayIds = NICsToday | distinct NICId;
     let NICsTodayIPs = NICsToday | distinct PrivateIPAddress_s;
-    let RemovedNICs = NICsBefore 
+    let RemovedNICs = NICsBefore
     | where NICId  !in (NICsTodayIds) and PrivateIPAddress_s  !in (NICsTodayIPs)
     | extend PublicIPId_s = tolower(PublicIPId_s)
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         $publicIpsTableName
         | where TimeGenerated < ago(1d)
-        | project PublicIPId_s = tolower(InstanceId_s), PublicIPAddress = IPAddress 
+        | project PublicIPId_s = tolower(InstanceId_s), PublicIPAddress = IPAddress
     ) on PublicIPId_s;
     let NSGRules = materialize($nsgRulesTableName
     | where TimeGenerated > ago(1d)
@@ -891,11 +891,11 @@ $baseQuery = @"
     | union RemovedNICsAsPrivateDestination
     | union RemovedNICsAsPublicDestination
     | where isnotempty(IPAddress)
-    | join kind=leftouter ( 
-        $subscriptionsTableName 
+    | join kind=leftouter (
+        $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
     | distinct NSGId, NSGName, RuleName_s, SubscriptionGuid_g, SubscriptionName, ResourceGroupName_s, TenantGuid_g, Cloud_s, NICId, IPAddress, NICState, Tags_s
 "@
@@ -905,12 +905,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -958,7 +958,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -1027,7 +1027,7 @@ $baseQuery = @"
     let PIPsTodayIPs = PIPsToday | distinct IPAddress;
     let OrphanDynamicPIPs = PIPsBefore
     | where PublicIPId in (OrphanDynamicPIPIDs) and isnotempty(IPAddress) and IPAddress !in (PIPsTodayIPs);
-    let RemovedPIPs = PIPsBefore 
+    let RemovedPIPs = PIPsBefore
     | where PublicIPId !in (PIPsTodayIds) and isnotempty(IPAddress) and IPAddress !in (PIPsTodayIPs);
     let NSGRules = materialize( $nsgRulesTableName
     | where TimeGenerated > ago(1d)
@@ -1062,11 +1062,11 @@ $baseQuery = @"
     | union OrphanDynamicPIPsAsDestination
     | union RemovedPIPsAsSource
     | union RemovedPIPsAsDestination
-    | join kind=leftouter ( 
-        $subscriptionsTableName 
+    | join kind=leftouter (
+        $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
     | distinct NSGId, NSGName, RuleName_s, SubscriptionGuid_g, SubscriptionName, ResourceGroupName_s, TenantGuid_g, Cloud_s, PublicIPId, IPAddress, PIPState, AllocationMethod_s, Tags_s
 "@
@@ -1076,12 +1076,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -1130,7 +1130,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -1183,8 +1183,8 @@ Write-Output "Looking for orphaned Public IPs..."
 
 $baseQuery = @"
     let interval = 30d;
-    let etime = todatetime(toscalar($consumptionTableName | where todatetime(Date_s) < now() and todatetime(Date_s) > ago(30d) | summarize max(todatetime(Date_s)))); 
-    let stime = etime-interval;     
+    let etime = todatetime(toscalar($consumptionTableName | where todatetime(Date_s) < now() and todatetime(Date_s) > ago(30d) | summarize max(todatetime(Date_s))));
+    let stime = etime-interval;
     $publicIpsTableName
     | where TimeGenerated > ago(1d) and isempty(AssociatedResourceId_s)
     | distinct Name_s, InstanceId_s, SubscriptionGuid_g, TenantGuid_g, ResourceGroupName_s, SkuName_s, AllocationMethod_s, Tags_s, Cloud_s
@@ -1193,12 +1193,12 @@ $baseQuery = @"
         | where todatetime(Date_s) between (stime..etime)
         | project InstanceId_s=tolower(ResourceId), CostInBillingCurrency_s, Date_s
     ) on InstanceId_s
-    | summarize Last30DaysCost=sum(todouble(CostInBillingCurrency_s)) by Name_s, InstanceId_s, SubscriptionGuid_g, TenantGuid_g, ResourceGroupName_s, SkuName_s, AllocationMethod_s, Tags_s, Cloud_s    
-    | join kind=leftouter ( 
+    | summarize Last30DaysCost=sum(todouble(CostInBillingCurrency_s)) by Name_s, InstanceId_s, SubscriptionGuid_g, TenantGuid_g, ResourceGroupName_s, SkuName_s, AllocationMethod_s, Tags_s, Cloud_s
+    | join kind=leftouter (
         $subscriptionsTableName
-        | where TimeGenerated > ago(1d) 
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where TimeGenerated > ago(1d)
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
@@ -1207,12 +1207,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -1257,8 +1257,8 @@ foreach ($result in $results)
 
     $additionalInfoDictionary["currentSku"] = $result.SkuName_s
     $additionalInfoDictionary["allocationMethod"] = $result.AllocationMethod_s
-    $additionalInfoDictionary["CostsAmount"] = [double] $result.Last30DaysCost 
-    $additionalInfoDictionary["savingsAmount"] = [double] $result.Last30DaysCost 
+    $additionalInfoDictionary["CostsAmount"] = [double] $result.Last30DaysCost
+    $additionalInfoDictionary["savingsAmount"] = [double] $result.Last30DaysCost
 
     $fitScore = 5
 
@@ -1274,7 +1274,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }

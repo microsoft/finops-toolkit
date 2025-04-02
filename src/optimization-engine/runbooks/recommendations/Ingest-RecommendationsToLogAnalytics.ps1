@@ -81,7 +81,7 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
         -method $method `
         -contentType $contentType `
         -resource $resource
-    
+
     $uri = "https://" + $workspaceId + ".ods.opinsights.azure.com" + $resource + "?api-version=2016-04-01"
     if ($AzureEnvironment -eq "AzureChinaCloud")
     {
@@ -108,7 +108,7 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
         $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
     }
     catch {
-        if ($_.Exception.Response.StatusCode.Value__ -eq 401) {            
+        if ($_.Exception.Response.StatusCode.Value__ -eq 401) {
             "REAUTHENTICATING"
 
             $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
@@ -119,7 +119,7 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
         }
     }
 
-    return $response.StatusCode    
+    return $response.StatusCode
 }
 #endregion Functions
 
@@ -127,12 +127,12 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -164,14 +164,14 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE StorageContainerName = '$storageAccountSinkContainer'"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
@@ -182,7 +182,7 @@ do {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -190,8 +190,8 @@ if (-not($connectionSuccess))
     throw "Could not establish connection to SQL."
 }
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 if ($controlRows.Count -eq 0 -or -not($controlRows[0].LastProcessedDateTime))
 {
@@ -240,7 +240,7 @@ foreach ($blob in $unprocessedBlobs) {
     }
     else
     {
-        $recCount = $jsonObject.Count    
+        $recCount = $jsonObject.Count
     }
 
     $linesProcessed = 0
@@ -256,9 +256,9 @@ foreach ($blob in $unprocessedBlobs) {
     {
         $jsonObjectArray = @()
         $jsonObjectArray += $jsonObject
-        $jsonObjectSplitted += , $jsonObjectArray   
+        $jsonObjectSplitted += , $jsonObjectArray
     }
-    
+
     for ($j = 0; $j -lt $jsonObjectSplitted.Count; $j++)
     {
         if ($jsonObjectSplitted[$j])
@@ -269,23 +269,23 @@ foreach ($blob in $unprocessedBlobs) {
                 for ($i = 0; $i -lt $jsonObjectSplitted[$j].Count; $i++)
                 {
                     $jsonObjectSplitted[$j][$i].RecommendationDescription = $jsonObjectSplitted[$j][$i].RecommendationDescription.Replace("'", "")
-                    $jsonObjectSplitted[$j][$i].RecommendationAction = $jsonObjectSplitted[$j][$i].RecommendationAction.Replace("'", "")            
+                    $jsonObjectSplitted[$j][$i].RecommendationAction = $jsonObjectSplitted[$j][$i].RecommendationAction.Replace("'", "")
                     $jsonObjectSplitted[$j][$i].AdditionalInfo = $jsonObjectSplitted[$j][$i].AdditionalInfo | ConvertTo-Json -Compress
                     $jsonObjectSplitted[$j][$i].Tags = $jsonObjectSplitted[$j][$i].Tags | ConvertTo-Json -Compress
                 }
-                    
-                $jsonObject = ConvertTo-Json -InputObject $jsonObjectSplitted[$j]                
+
+                $jsonObject = ConvertTo-Json -InputObject $jsonObjectSplitted[$j]
                 $res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($jsonObject)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
                 If ($res -ge 200 -and $res -lt 300) {
-                    Write-Output "Succesfully uploaded $currentObjectLines $LogAnalyticsSuffix rows to Log Analytics"    
+                    Write-Output "Succesfully uploaded $currentObjectLines $LogAnalyticsSuffix rows to Log Analytics"
                     $linesProcessed += $currentObjectLines
                     if ($j -eq ($jsonObjectSplitted.Count - 1)) {
-                        $lastProcessedLine = -1    
+                        $lastProcessedLine = -1
                     }
                     else {
-                        $lastProcessedLine = $linesProcessed - 1   
+                        $lastProcessedLine = $linesProcessed - 1
                     }
-                    
+
                     $updatedLastProcessedLine = $lastProcessedLine
                     $updatedLastProcessedDateTime = $lastProcessedDateTime
                     if ($j -eq ($jsonObjectSplitted.Count - 1)) {
@@ -295,16 +295,16 @@ foreach ($blob in $unprocessedBlobs) {
                     Write-Output "Updating last processed time / line to $($updatedLastProcessedDateTime) / $updatedLastProcessedLine"
                     $sqlStatement = "UPDATE [$LogAnalyticsIngestControlTable] SET LastProcessedLine = $updatedLastProcessedLine, LastProcessedDateTime = '$updatedLastProcessedDateTime' WHERE StorageContainerName = '$storageAccountSinkContainer'"
                     $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-                    $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+                    $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
                     $Conn.AccessToken = $dbToken.Token
-                    $Conn.Open() 
+                    $Conn.Open()
                     $Cmd=new-object system.Data.SqlClient.SqlCommand
                     $Cmd.Connection = $Conn
                     $Cmd.CommandText = $sqlStatement
                     $Cmd.CommandTimeout = $SqlTimeout
                     $Cmd.ExecuteReader()
-                    $Conn.Close()    
-                    $Conn.Dispose()            
+                    $Conn.Close()
+                    $Conn.Dispose()
                 }
                 Else {
                     $linesProcessed += $currentObjectLines
@@ -314,8 +314,8 @@ foreach ($blob in $unprocessedBlobs) {
             }
             else
             {
-                $linesProcessed += $currentObjectLines  
-            }        
+                $linesProcessed += $currentObjectLines
+            }
         }
     }
 

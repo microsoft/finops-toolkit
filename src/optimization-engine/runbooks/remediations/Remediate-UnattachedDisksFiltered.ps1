@@ -29,7 +29,7 @@ if ([string]::IsNullOrEmpty($sqldatabase))
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "remediationlogs"
 }
@@ -67,12 +67,12 @@ $recommendationsTable = "Recommendations"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -92,30 +92,30 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = @"
         SELECT InstanceId, Cloud, TenantGuid, COUNT(InstanceId)
-        FROM [dbo].[$recommendationsTable] 
+        FROM [dbo].[$recommendationsTable]
         WHERE RecommendationSubTypeId = '$recommendationId' AND FitScore >= $minFitScore AND GeneratedDate >= GETDATE()-(7*$minWeeksInARow)
         GROUP BY InstanceId, Cloud, TenantGuid
         HAVING COUNT(InstanceId) >= $minWeeksInARow
-"@    
+"@
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $unattachedDisks = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($unattachedDisks) | Out-Null            
+        $sqlAdapter.Fill($unattachedDisks) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -125,8 +125,8 @@ if (-not($connectionSuccess))
 
 Write-Output "Found $($unattachedDisks.Rows.Count) remediation opportunities."
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $logEntries = @()
 
@@ -168,7 +168,7 @@ foreach ($disk in $unattachedDisks.Rows)
     $subscriptionId = $disk.InstanceId.Split("/")[2]
     $resourceGroup = $disk.InstanceId.Split("/")[4]
     $instanceName = $disk.InstanceId.Split("/")[8]
-    
+
     if ($isEligible)
     {
         $diskState = "Unknown"
@@ -196,7 +196,7 @@ foreach ($disk in $unattachedDisks.Rows)
                     }
                     else
                     {
-                        Write-Output "Skipping as disk is already HDD."                        
+                        Write-Output "Skipping as disk is already HDD."
                     }
                 }
                 elseif ($remediationAction -eq "Delete")
@@ -215,19 +215,19 @@ foreach ($disk in $unattachedDisks.Rows)
             {
                 if ($diskObj)
                 {
-                    Write-Output "Skipping as disk is not unattached."    
-                    $diskState = "Attached"    
+                    Write-Output "Skipping as disk is not unattached."
+                    $diskState = "Attached"
                 }
                 else
                 {
-                    Write-Output "Skipping as disk was already removed."    
-                    $diskState = "Removed"                        
+                    Write-Output "Skipping as disk was already removed."
+                    $diskState = "Removed"
                 }
             }
         }
         else
         {
-            Write-Output "Could not apply remediation as disk is in another cloud/tenant."    
+            Write-Output "Could not apply remediation as disk is in another cloud/tenant."
         }
     }
 
@@ -250,10 +250,10 @@ foreach ($disk in $unattachedDisks.Rows)
         LogDetails = $logDetails | ConvertTo-Json -Compress
         RecommendationSubTypeId = $recommendationId
     }
-    
+
     $logEntries += $logentry
 }
-    
+
 $today = $datetime.ToString("yyyyMMdd")
 $csvExportPath = "$today-unattacheddisksfiltered.csv"
 

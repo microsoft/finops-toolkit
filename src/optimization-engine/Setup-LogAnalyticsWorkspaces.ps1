@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-This script sets up Log Analytics workspaces for Azure Optimization Engine to collect the required performance counters with 
+This script sets up Log Analytics workspaces for Azure Optimization Engine to collect the required performance counters with
 the legacy Log Analytics agent (to be deprecated on Aug 31, 2024).
 
 .DESCRIPTION
@@ -27,16 +27,16 @@ The interval in seconds to collect performance counters.
 https://aka.ms/AzureOptimizationEngine/customize
 #>
 param(
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String] $AzureEnvironment = "AzureCloud",
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String[]] $WorkspaceIds,
 
     [Parameter(Mandatory = $false)]
     [switch] $AutoFix,
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [int] $IntervalSeconds = 60
 )
 
@@ -65,7 +65,7 @@ if ($wsIds)
     $whereWsIds = " and properties.customerId in ($wsIds)"
 }
 
-$perfCounters = Get-Content -Path ".\perfcounters.json" | ConvertFrom-Json 
+$perfCounters = Get-Content -Path ".\perfcounters.json" | ConvertFrom-Json
 
 $ARGPageSize = 1000
 
@@ -86,7 +86,7 @@ foreach ($workspace in $workspaces) {
     if ($laQueryResults)
     {
         $results = [System.Linq.Enumerable]::ToArray($laQueryResults.Results)
-        Write-Output "$($workspace.name) ($($workspace.properties.customerId)): $($results.AzureComputersCount) Azure computers connected."    
+        Write-Output "$($workspace.name) ($($workspace.properties.customerId)): $($results.AzureComputersCount) Azure computers connected."
     }
     else
     {
@@ -154,12 +154,12 @@ foreach ($workspace in $workspaces) {
                 $missingObjectCounters = $missingLinuxCounters | Where-Object { $_.objectName -eq $linuxObject }
                 $missingInstance = ($missingObjectCounters | Select-Object -Property instance -Unique -First 1).instance
                 $missingCounterNames = ($missingObjectCounters).counterName
-    
+
                 Write-Output "Adding $linuxObject object..."
                 New-AzOperationalInsightsLinuxPerformanceObjectDataSource -ResourceGroupName $workspace.resourceGroup -WorkspaceName $workspace.name `
                     -Name "DataSource_LinuxPerformanceObject_$(New-Guid)" -ObjectName $linuxObject -InstanceName $missingInstance -IntervalSeconds $IntervalSeconds `
                     -CounterNames $missingCounterNames -Force | Out-Null
-            }    
+            }
         }
     }
 }

@@ -41,7 +41,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "governance-workbook-v$verStr.zip"    '0.1' '0.5'
                 CheckFile "optimization-engine-v$verStr.zip"    '0.4' $null
                 CheckFile "optimization-workbook-v$verStr.zip"  $null '0.5'
-            
+
                 # Power BI
                 CheckFile "PowerBI-demo.zip"                    '0.7' $null
                 CheckFile "PowerBI-kql.zip"                     '0.7' $null
@@ -58,7 +58,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "RateOptimization.pbix"               '0.4' '0.6'
                 CheckFile "WorkloadOptimization.pbit"           '0.6' '0.6'
                 CheckFile "WorkloadOptimization.pbix"           '0.6' '0.6'
-            
+
                 # Open data
                 CheckFile "dataset-examples.zip"                '0.4' $null
                 CheckFile "dataset-metadata.zip"                '0.4' $null
