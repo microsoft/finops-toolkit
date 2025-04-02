@@ -36,6 +36,7 @@ docs-wiki/Dev-process.md @microsoft/finops-toolkit-council
 docs-wiki/Governing-board.md @microsoft/finops-toolkit-board
 docs-wiki/Release-process.md @microsoft/finops-toolkit-board
 docs-wiki/Support-escalations.md @microsoft/finops-toolkit-board
+.github/CODEOWNERS @microsoft/finops-toolkit-council
 
 # Alerts
 docs/alerts.md @ro100e @arthurclares @flanakin
