@@ -32,7 +32,7 @@ The following section lists features and enhancements that are currently in deve
 
 ## v0.9
 
-_Released March 2025_
+_Released April 2, 2025_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
 
@@ -54,7 +54,7 @@ _Released March 2025_
     - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
   - Added a new Data ingestion > Data quality section into the Data Explorer dashboard with a summary of missing and incorrect costs.
 - **Fixed**
-  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
+  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330)).
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
   - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
   - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
@@ -153,7 +153,6 @@ _Released March 2025_
     - microsoft.networkcloud/kubernetesclusters/features
     - microsoft.onlineexperimentation/workspaces
     - microsoft.saashub/cloudservices
-    - microsoft.saashub/cloudservices
     - microsoft.secretmanagementsampleprovider/forecasts
     - microsoft.storagediscovery/storagediscoveryworkspaces
     - microsoft.toolchainorchestrator/diagnostics
@@ -180,7 +179,6 @@ _Released March 2025_
     - oracle.database/exadbvmclusters
     - oracle.database/exascaledbstoragevaults
 
-
 **[Services](open-data.md#services)**
 
 - **Added**
@@ -191,7 +189,6 @@ _Released March 2025_
 
 - **Added**
   - Added sample data for MCA reservation exports.
-
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
@@ -1427,7 +1424,7 @@ _Released May 27, 2023_
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Changelog)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Toolkit/featureName/Changelog)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
