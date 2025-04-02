@@ -80,6 +80,7 @@ Related products:
 
 Related solutions:
 
+- [FinOps alerts](../alerts/finops-alerts-overview.md)
 - [Optimization engine](../optimization-engine/overview.md)
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
