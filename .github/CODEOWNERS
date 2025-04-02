@@ -28,15 +28,17 @@
 #docs-mslearn/toolkit/*.md @TODO
 #docs-wiki @TODO
 
-# FTK leadership
+# FTK governing board
 docs-mslearn/toolkit/roadmap.md @microsoft/finops-toolkit-board
 docs-wiki/Advisory-council.md @microsoft/finops-toolkit-board
-docs-wiki/Coding-guidelines.md @microsoft/finops-toolkit-council
-docs-wiki/Dev-process.md @microsoft/finops-toolkit-council
 docs-wiki/Governing-board.md @microsoft/finops-toolkit-board
 docs-wiki/Release-process.md @microsoft/finops-toolkit-board
-docs-wiki/Support-escalations.md @microsoft/finops-toolkit-board
+
+# FTK advisory council
 .github/CODEOWNERS @microsoft/finops-toolkit-council
+docs-wiki/Coding-guidelines.md @microsoft/finops-toolkit-council
+docs-wiki/Dev-process.md @microsoft/finops-toolkit-council
+docs-wiki/Support-escalations.md @microsoft/finops-toolkit-board
 
 # Alerts
 docs/alerts.md @ro100e @arthurclares @flanakin
