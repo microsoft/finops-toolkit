@@ -341,7 +341,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
               query: '@{variables(\'resourcesTable\')} | where type =~ \'Microsoft.Network/applicationGateways\'| extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier=tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools|  join (resources | where type =~ \'Microsoft.Network/applicationGateways\'| mvexpand backendPools = properties.backendAddressPools| extend backendIPCount =array_length(backendPools.properties.backendIPConfigurations) | extend backendAddressesCount = array_length(backendPools.properties.backendAddresses) | extend backendPoolName=backendPools.properties.backendAddressPools.name | summarize backendIPCount = sum(backendIPCount) ,backendAddressesCount=sum(backendAddressesCount) by id) on id| project-away id1| where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))| order by id asc |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
@@ -360,7 +360,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
               query: '@{variables(\'resourcesTable\')} | where type =~ \'microsoft.compute/disks\' and managedBy == \'\'| extend diskState = tostring(properties.diskState) | where (managedBy == \'\' and diskState != \'ActiveSAS\') or (diskState == \'Unattached\' and diskState != \'ActiveSAS\') | extend DiskId = id, DiskName = name, SKUName = sku.name, SKUTier = sku.tier, DiskSizeGB = tostring(properties.diskSizeGB), Location = location, TimeCreated = tostring(properties.timeCreated) | order by DiskId asc | project DiskId, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId | join kind=leftouter (resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
@@ -379,7 +379,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
               query: '@{variables(\'resourcesTable\')} | where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId | union ( Resources | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) | extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id) | project PublicIpId | join (  resources | where type =~ \'Microsoft.Network/publicIPAddresses\' | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location  ) on PublicIpId | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId) |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
@@ -398,7 +398,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
               query: '@{variables(\'resourcesTable\')} | where type =~ \'microsoft.network/loadbalancers\' and tostring(properties.backendAddressPools) == \'[]\' | extend loadBalancerId=id,LBRG=resourceGroup, LoadBalancerName=name, SKU=sku, LBLocation=location | order by loadBalancerId asc | project loadBalancerId,LoadBalancerName, SKU.name,SKU.tier, LBLocation, resourceGroup, subscriptionId |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
@@ -417,7 +417,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
               query: '@{variables(\'resourcesTable\')} | where type =~ \'microsoft.compute/snapshots\' | extend TimeCreated = properties.timeCreated | where TimeCreated < ago(30d) | extend SnapshotId=id, Snapshotname=name | order by id asc | project id, SnapshotId, Snapshotname, resourceGroup, location, TimeCreated ,subscriptionId |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
@@ -436,7 +436,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           }
           type: 'Http'
           inputs: {
-            uri: 'https://management.azure.com//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            uri: '${environment().resourceManager}//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
               query: '@{variables(\'resourcesTable\')} | where type =~ \'microsoft.compute/virtualmachines\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM deallocated\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM running\'| extend  VMname=name, PowerState=tostring(properties.extended.instanceView.powerState.displayStatus), VMLocation=location, VirtualMachineId=id| order by VirtualMachineId asc| project VirtualMachineId,VMname, PowerState, VMLocation, resourceGroup, subscriptionId |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
