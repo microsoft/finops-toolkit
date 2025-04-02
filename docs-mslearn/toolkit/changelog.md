@@ -60,6 +60,7 @@ _Released March 2025_
 
 - **Added**
   - Added support for MCA reservation recommendation exports.
+  - Show break-even point calculation for reservation recommendations. ([[#406](https://github.com/microsoft/finops-toolkit/issues/406)]).
 - **Fixed**
   - Fixed core count double-counting on the Hybrid Benefit page.
   - Fixed savings to include negotiated discounts on the Total savings page.
@@ -80,6 +81,7 @@ _Released March 2025_
     - Set `ListCost` to `ContractedCost` when `ListCost` and `ListUnitPrice` are both 0 or empty.
 =======
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
 - **Changed**
   - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
     - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
@@ -89,6 +91,8 @@ _Released March 2025_
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
   - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
   - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
+  - Changed how reservations are summarized to ensure the latest version of each recommendation is displayed. ([#1408](https://github.com/microsoft/finops-toolkit/issues/1408)).
+  - Improved how recommendation dates are calculated ([#1388](https://github.com/microsoft/finops-toolkit/issues/1388)).
   - Fixed an issue where reservation recommendations were being duplicated for the Canada Central region.
   - Fixed an issue where Recommendations.x_IngestionTime is not being populated in Data Explorer.
 - **Removed**
