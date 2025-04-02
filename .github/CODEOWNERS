@@ -49,8 +49,8 @@ src/templates/finops-alerts @ro100e
 
 # Guide
 docs/guide.md @flanakin
-docs-mslearn/best-practices @arclares @flanakin
-docs-mslearn/framework @arclares @flanakin @kevindlr
+docs-mslearn/best-practices @arthurclares @flanakin
+docs-mslearn/framework @arthurclares @flanakin @kevindlr
 docs-mslearn/focus @flanakin
 
 # Fabric
@@ -87,8 +87,8 @@ src/powershell @aromano2
 src/web @ivanmtta @jamelachahbar
 
 # Workbooks
-docs/workbooks.md @arclares @nteyan
-docs-mslearn/toolkit/workbooks @arclares @nteyan
-src/templates/finops-workbooks @arclares @nteyan
+docs/workbooks.md @arthurclares @nteyan
+docs-mslearn/toolkit/workbooks @arthurclares @nteyan
+src/templates/finops-workbooks @arthurclares @nteyan
 src/workbooks/governance @nteyan
-src/workbooks/optimization @arclares
+src/workbooks/optimization @arthurclares
