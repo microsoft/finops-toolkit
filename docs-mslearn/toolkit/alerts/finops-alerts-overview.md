@@ -1,9 +1,9 @@
 ---
 title: FinOps alerts overview
-description: FinOps alerts will accelerate your cost optimization efforts with scheduled notifications that continuously monitor your cloud environment, empowering you to make informed decisions without the hassle.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+description: FinOps alerts accelerate cost optimization efforts with scheduled notifications that continuously monitor your cloud environment.
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -14,34 +14,29 @@ ms.reviewer: robelmamecha
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps alerts
 
-FinOps alerts is an automated and proactive cost optimization tool built on Azure Logic Apps. It continuously scans your Azure environment for idle resources and sends notifications to help you take timely action. This solution empowers FinOps practitioners to better manage cloud spending while minimizing waste in the environment.
+FinOps alerts automate the identification of cost optimization opportunities using Azure Logic Apps for notifications and custom actions. It continuously scans your Azure environment for idle resources and sends notifications to help you take timely action. This solution empowers FinOps practitioners to better manage cloud spending while minimizing waste in the environment.
 
 ## How it works
 
-FinOps alerts leverages Azure Logic Apps to automate detection of waste across selected subscriptions:
+FinOps alerts uses Azure Logic Apps to automate detection of waste across selected subscriptions:
 
-- **Automated resource monitoring** <br> FinOps alerts runs on a configurable schedule to assess resource activity. It inspects various resource properties to identify idle resources that might be leading to unnecessary costs.
+- **Automated resource monitoring** <br> FinOps alerts run on a configurable schedule to assess resource activity. It inspects various resource properties to identify idle resources that might be leading to unnecessary costs.
 
-- **Automated notifications** <br> Upon detecting idle resources, the Logic App triggers notifications—via email or other integrated channels to designated administrators, ensuring that the right stakeholders are alerted promptly to review and to take action.
+- **Automated notifications** <br> When idle resources are detected, the Logic App triggers notifications—via email or other integrated channels to designated administrators, ensuring that the right stakeholders are alerted promptly to review and to take action.
 
 - **Flexibility** <br> Users can tailor key parameters, including the recurrence interval, alert recipients, and the specific subscriptions to monitor. This makes the tool adaptable to a wide range of cloud environments.
 
 ## Benefits
 
-- By automating the detection of idle resources, FinOps alerts helps you preemptively address inefficient spending, ensuring that cloud costs remain under control.
-
-- Designed to operate seamlessly across single or multi-subscription environments.
+FinOps alerts helps you preemptively address inefficient spending by automating the detection of idle resources, ensuring that cloud costs remain under control. FinOps alerts are designed to operate seamlessly across single and multi-subscription environments.
 
 ## Why FinOps alerts?
 
-If you are using the [FinOps workbook](/finops/toolkit/workbooks/finops-workbooks-overview) to identify idle or underutilized resources, you'll notice it doesn’t provide any automatic alerts-meaning engineers must continually check back to review flagged items. FinOps alerts automates this process, ensuring that when resources are identified as potentially inefficient, stakeholders receive timely notifications without having to manually monitor a workbook. This not only frees up valuable time for busy teams but also improves the chances of catching cost-saving opportunities as they arise. Moreover, future releases of the app are planned to include additional queries, broadening its scope and further enhancing its ability to deliver actionable insights for sustainable cloud cost management.
+If you use [FinOps workbooks](../workbooks/finops-workbooks-overview.md) to identify idle or underutilized resources, engineers must continually review flagged items. FinOps alerts automate this process, ensuring that when resources are identified as potentially inefficient and stakeholders receive timely notifications without having to manually monitor a workbook. FinOps alerts free up valuable time for busy teams and helps catch cost-saving opportunities as they arise.
 
 ## Required permissions
 
-Deploying FinOps alerts template requires one of the following:
-
-- For least-privileged access, [Contributor](/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
-- [Owner](/azure/role-based-access-control/built-in-roles#owner)
+Deploying FinOps alerts requires access to create logic apps, assign access, and read resource metadata. You can use the [Owner](/azure/role-based-access-control/built-in-roles#owner) role or, for least-privileged access, use [Contributor](/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator) roles.
 
 ## Give feedback
 
@@ -66,7 +61,7 @@ Related FinOps capabilities:
 
 Related products:
 
-- [Azure Logic Apps](/azure/azure-logic-apps/)
+- [Azure Logic Apps](/azure/logic-apps/)
 
 Related solutions:
 

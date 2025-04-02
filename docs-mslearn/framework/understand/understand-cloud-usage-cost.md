@@ -1,9 +1,9 @@
 ---
 title: Understand cloud usage and cost
 description: Learn about the FinOps capabilities that help you collect, normalize, analyze, and monitor cost, usage, and carbon across the organization.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources

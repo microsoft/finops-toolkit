@@ -1,9 +1,9 @@
 ---
 title: What is FinOps?
 description: FinOps combines financial management principles with engineering and operations to provide organizations with a better understanding of their cloud spending.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: overview
 ms.service: finops
 ms.subservice: finops-learning-resources

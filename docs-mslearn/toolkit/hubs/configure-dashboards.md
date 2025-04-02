@@ -1,9 +1,9 @@
 ---
 title: Configure Data Explorer dashboard for FinOps hubs
 description: Deploy a pre-built Azure Data Explorer dashboard for FinOps hubs to start analyzing cost and usage for your accounts.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/21/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -24,7 +24,7 @@ Before you begin, you must have:
 
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
-- Database viewer or greater access to the Data Explorer **Hub** and **Ingestion** databases. For details, see [Database level security role](/kusto/management/manage-database-security-roles#database-level-security-roles). 
+- Database viewer or greater access to the Data Explorer **Hub** and **Ingestion** databases. For details, see [Database level security role](/kusto/management/manage-database-security-roles#database-level-security-roles).
   - Option 1:
     1. Open the Data Explorer cluster in the Azure portal.
     2. In the menu, select **Data** > **Databases**.
@@ -36,13 +36,13 @@ Before you begin, you must have:
   - Option 2:
     1. Open the Data Explorer cluster in the Azure portal.
     2. In the menu, select **Data** > **Query**.
-    3. Use the following commands to add users, groups, and applications as needed. For more information, see [Database level security role](/kusto/management/manage-database-security-roles?view=microsoft-fabric#database-level-security-roles).
+    3. Use the following commands to add users, groups, and applications as needed. For more information, see [Database level security role](/kusto/management/manage-database-security-roles#database-level-security-roles).
+
        ```
        .add database Hub viewers ('aaduser=<email>', 'aadGroup=<group-id>', 'aadapp=<app-id>;<tenant-id-or-domain>')
 
        .add database Ingestion viewers ('aaduser=<email>', 'aadGroup=<group-id>', 'aadapp=<app-id>;<tenant-id-or-domain>')
        ```
-
 
 This walkthrough does not incur any cost; however, maintaining an active Data Explorer cluster does incur cost.
 

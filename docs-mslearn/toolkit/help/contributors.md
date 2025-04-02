@@ -1,9 +1,9 @@
 ---
 title: Contribute to the FinOps toolkit
 description: Learn how to contribute to the FinOps toolkit, like fixing bugs, suggest new features, review pull requests, and update documentation.
-author: bandersmsft
-ms.author: banders
-ms.date: 12/02/2024
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit

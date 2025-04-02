@@ -1,9 +1,9 @@
 ---
 title: Upgrade your FinOps hubs
 description: Learn how to upgrade your existing FinOps hub instance to the latest version, including necessary steps and considerations.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -177,7 +177,7 @@ If you enable Azure Data Explorer, you need to reingest historical data to add i
 > [!div class="nextstepaction"]
 > [Download 0.7](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7)
 
-[View changes](../changelog#v07)
+[View changes](../changelog.md#v07)
 
 <br>
 
@@ -211,7 +211,7 @@ To upgrade FinOps hubs 0.7 to 0.8:
 > [!div class="nextstepaction"]
 > [Download 0.8](https://github.com/microsoft/finops-toolkit/releases/tag/v0.8)
 
-[View changes](../changelog#v08)
+[View changes](../changelog.md#v08)
 
 <br>
 
@@ -226,7 +226,7 @@ To upgrade FinOps hubs 0.8 to 0.9:
 > [!div class="nextstepaction"]
 > [Download 0.9](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
 
-[View changes](../changelog#v09)
+[View changes](../changelog.md#v09)
 
 <br>
 

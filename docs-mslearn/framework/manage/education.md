@@ -1,9 +1,9 @@
 ---
 title: FinOps education and enablement
 description: This article helps you understand the FinOps education and enablement capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -73,7 +73,7 @@ At this point, you have a central repository for training content and targeted i
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps education and enablement capability](https://www.finops.org/framework/capabilities/education-enablement/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps education and enablement capability](https://www.finops.org/framework/capabilities/finops-education-enablement/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 

@@ -1,9 +1,9 @@
 ---
 title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -148,7 +148,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    <!--
    ### Enterprise agreement billing accounts and departments
    
-   1. [Find your enrollment (and department) Id](https://learn.microsoft.com/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
+   1. [Find your enrollment (and department) Id](/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
    2. Load the FinOps Toolkit PowerShell module.
    3. Grant reader permissions to the data factory
    

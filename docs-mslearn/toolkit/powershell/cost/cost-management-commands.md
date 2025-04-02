@@ -1,9 +1,9 @@
 ---
 title: Cost Management commands
 description: Learn about PowerShell commands in the FinOpsToolkit module to support Cost Management capabilities.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

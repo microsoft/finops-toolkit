@@ -1,9 +1,9 @@
 ---
 title: Create a Fabric workspace for FinOps
 description: This article guides you through creating and configuring a Microsoft Fabric workspace for FinOps. When completed, you can use Power BI to build reports.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-workspaces
@@ -84,7 +84,7 @@ Ensure that your export completed and that the file is available before moving t
 >[!IMPORTANT]
 > Cost Management exports utilize managed identity. To create an export, you must be an Owner of the storage account or have access to grant permissions to the storage account. To see all required permissions, see [Prerequisites](/azure/cost-management-billing/costs/tutorial-improved-exports#prerequisites).
 
-If you want to automate export creation, consider using the [New-FinOpsCostExport command](https://microsoft.github.io/finops-toolkit/powershell/cost/New-FinOpsCostExport) in the FinOps toolkit PowerShell module.
+If you want to automate export creation, consider using the [New-FinOpsCostExport command](../toolkit/powershell/cost/New-FinOpsCostExport.md) in the FinOps toolkit PowerShell module.
 
 If you deployed [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md), you can skip this step and use the processed data in hub storage.
 

@@ -1,9 +1,9 @@
 ---
 title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources

@@ -1,9 +1,9 @@
 ---
 title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -112,7 +112,7 @@ _Released April 2, 2025_
 - **Added**
   - Added the "1K/Day" unit of measure.
 
-**[Regions](open-data.md#Regions)**
+**[Regions](open-data.md#regions)**
 
 - **Added**
   - Added the "southcentralus2" region.

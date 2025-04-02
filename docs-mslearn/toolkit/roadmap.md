@@ -1,9 +1,9 @@
 ---
 title: FinOps toolkit roadmap
 description: Explore the FinOps toolkit roadmap to learn about upcoming features, key themes, and initiatives planned for the future.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

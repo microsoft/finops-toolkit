@@ -1,13 +1,13 @@
 ---
 title: FinOps best practices for compute
 description: This article provides FinOps best practices for compute services, including cost optimization, efficiency improvements, and insights into Azure resources.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with compute services.
 ---
 

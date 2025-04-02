@@ -1,9 +1,9 @@
 ---
 title: Deployment options
 description: Learn how to use various options to deploy FinOps toolkit solutions, including ARM templates, Bicep modules, and quickstart templates.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit

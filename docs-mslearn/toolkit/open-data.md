@@ -2,9 +2,9 @@
 title: Open data for FinOps
 description: Use open data to normalize and enhance your FinOps reporting, ensuring accurate and consistent data for better insights and decision-making.
 ms.topic: concept-article
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan

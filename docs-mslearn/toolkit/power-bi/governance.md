@@ -1,9 +1,9 @@
 ---
 title: FinOps toolkit Governance report
 description: Summarize cloud governance posture including areas like compliance, security, operations, and resource management in Power BI.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/13/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

@@ -1,9 +1,9 @@
 ---
 title: Register-FinOpsHubProviders command
 description: Register Azure resource providers required for FinOps hub using the Register-FinOpsHubProviders command in the FinOpsToolkit module.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

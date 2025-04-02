@@ -1,9 +1,9 @@
 ---
 title: Get-FinOpsHub command
 description: Get details about a FinOps hub instance using the Get-FinOpsHub command in the FinOpsToolkit module.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

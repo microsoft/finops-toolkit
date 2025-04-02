@@ -2,9 +2,9 @@
 title: FinOps assessment
 description: This article helps you understand the FinOps assessment capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 ms.topic: concept-article
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.service: finops
 ms.subservice: finops-learning-resources
 ms.reviewer: micflan

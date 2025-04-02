@@ -1,9 +1,9 @@
 ---
 title: FinOps practice operations
 description: This article helps you understand the FinOps practice operations capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -53,7 +53,7 @@ Most organizations find it's important to establish a FinOps team as they near $
   - Document the FinOps strategy, including staffing and funding requirements and how the team will support others.
   - Leverage the [FinOps assessment capability](./assessment.md) to build a complete plan.
   - Utilize [FinOps Foundation resources](https://www.finops.org/resources) to build your pitch, strategy, and more.
-  - Use the [FinOps community](https://www.finops.org/community/getting-started/) to share their knowledge and experience. They've been where you are.
+  - Use the [FinOps community](https://www.finops.org/community/) to share their knowledge and experience. They've been where you are.
 - Dual-track your FinOps efforts: Drive lightweight FinOps initiatives with large returns while you cultivate your community. Nothing is better proof than data.
   - Promote and celebrate your wins with early adopters.
 - Integrate with existing data sources, teams, and processes to minimize startup time.
@@ -68,7 +68,7 @@ At this point, you have a regular cadence of meetings with a steering committee 
 
 - Leverage the [FinOps assessment capability](./assessment.md) to build a flesh out a complete plan, incorporating knowledge sharing, automated metrics and processes, and organizational adoption.
   - Utilize [FinOps Foundation resources](https://www.finops.org/resources) to build your pitch, strategy, and more.
-  - Use the [FinOps community](https://www.finops.org/community/getting-started/) to share their knowledge and experience. They've been where you are.
+  - Use the [FinOps community](https://www.finops.org/community/) to share their knowledge and experience. They've been where you are.
 - Review the Cloud Adoption Framework guidance for tips on how to [drive organizational alignment](/azure/cloud-adoption-framework/organize) on a larger scale. You might find opportunities to align with other governance initiatives.
 - Define and document your operating model and evolve your strategy as a collaborative community.
 - Brainstorm metrics and tactics that can demonstrate value and inspire different stakeholders through effective communication.

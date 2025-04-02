@@ -1,9 +1,9 @@
 ---
 title: Use and customize FinOps workbooks
 description: Learn how to install and customize FinOps workbooks to achieve FinOps goals, including cost recommendations, idle resource identification, and more.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit

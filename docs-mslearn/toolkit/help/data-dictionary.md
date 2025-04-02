@@ -1,9 +1,9 @@
 ---
 title: FinOps toolkit data dictionary
 description: This article describes the column names found in FinOps toolkit solutions, including columns from Cost Management and FOCUS.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

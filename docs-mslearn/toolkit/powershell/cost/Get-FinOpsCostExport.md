@@ -1,9 +1,9 @@
 ---
 title: Get-FinOpsCostExport command
 description: Get a list of Cost Management exports for a given scope using the Get-FinOpsCostExport command in the FinOpsToolkit module.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
