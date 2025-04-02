@@ -4183,7 +4183,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           office365: {
             connectionId: apiConnection.id
             connectionName: connectionName
-            id: '${subscription().id}/providers/Microsoft.Web/locations/${location}/managedApis/office365'
+            id: resourceId('Microsoft.Web/locations/managedApis', location, 'office365')
           }
         }
       }
@@ -4201,7 +4201,7 @@ resource apiConnection 'Microsoft.Web/connections@2016-06-01' = {
   location: location
   properties: {
     api: {
-      id: '${subscription().id}/providers/Microsoft.Web/locations/${location}/managedApis/office365'
+      id: resourceId('Microsoft.Web/locations/managedApis', location, 'office365')
     }
     displayName:displayName
   }
