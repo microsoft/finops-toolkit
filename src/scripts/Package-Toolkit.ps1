@@ -58,7 +58,7 @@ if ($Build)
 {
     Write-Verbose "Building $(if ($Template -eq "*") { "all templates" } else { "the $Template template" })..."
     & "$PSScriptRoot/Build-Toolkit" $Template
-    
+
     if (@("*", "pbi", "pbit") -contains $Template)
     {
         Write-Verbose "Building Power BI templates..."
@@ -124,7 +124,7 @@ function Copy-TemplateFiles()
                 # Create release directory
                 $targetDir = "$deployDir/$templateName/$suffix"
                 & "$PSScriptRoot/New-Directory" $targetDir
-                
+
                 # Copy files and directories
                 $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$srcPath/$($_.source)" "$targetDir/$($_.destination)" -Force }
                 $packageManifest.deployment.Directories | ForEach-Object {
@@ -189,10 +189,10 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
         # Copy open data files
         Copy-OpenDataFiles
         Write-Host "✅ $((@(Get-ChildItem "$relDir/*.csv") + @(Get-ChildItem "$relDir/*.json")).Count) open data files"
-    
+
         # Package sample data files together
         Copy-OpenDataFolders
-    
+
         # Copy PBIX files
         Write-Verbose "Copying PBIX files..."
         Copy-Item "$PSScriptRoot/../power-bi/cm-connector/*.pbix" "$relDir" -Force
@@ -254,16 +254,16 @@ elseif ($ZipPBI)
         Write-Verbose "Expanding $pbixDir..."
         Remove-Item -Path $pbixDir -Recurse -Force -ErrorAction SilentlyContinue
         Expand-Archive -Path $pbix -DestinationPath $pbixDir
-        
+
         # Remove _rels, docProps
         Remove-Item -Path "$pbixDir/_rels" -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item -Path "$pbixDir/docProps" -Recurse -Force -ErrorAction SilentlyContinue
-        
+
         # Remove docProps from Content_Types
         $contentTypes = [xml](Get-Content "$pbixDir/?Content_Types?.xml" -Raw)
         $contentTypes.Types.RemoveChild(($contentTypes.Types.Override | Where-Object { $_.PartName -eq '/docProps/custom.xml' })) | Out-Null
         $contentTypes.Save("$pbixDir/[Content_Types].xml") | Out-Null
-        
+
         # Remove unneeded tables
         # $diagramLayout = Get-Content "$pbixDir/DiagramLayout" -Raw | ConvertFrom-Json -Depth 100
         # $diagramLayout.diagrams.nodes | Where-Object { $metadata.Tables -contains $_.nodeIndex }
@@ -273,7 +273,7 @@ elseif ($ZipPBI)
         # pbi-tools extract $pbix
         # TODO: Remove tables
         # pbi-tools compile $pbixDir $pbix
-        
+
         # Zip as PBIX for demo
         Write-Verbose "Saving demo $pbixDir.pbix..."
         Remove-Item -Path "$pbixDir.pbix" -Recurse -Force -ErrorAction SilentlyContinue
@@ -284,7 +284,7 @@ elseif ($ZipPBI)
     # Compress-Archive -Path "$relDir/pbix/*.storage.pbit" -DestinationPath "$relDir/PowerBI-storage.zip"
     # Compress-Archive -Path "$relDir/pbix/*.kql.pbix" -DestinationPath "$relDir/PowerBI-demo.zip"
     # Compress-Archive -Path "$relDir/pbix/*.kql.pbit" -DestinationPath "$relDir/PowerBI-kql.zip"
-}    
+}
 
 Write-Host '...done!'
 Write-Host ''

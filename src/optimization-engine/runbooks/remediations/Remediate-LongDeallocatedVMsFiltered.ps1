@@ -29,7 +29,7 @@ if ([string]::IsNullOrEmpty($sqldatabase))
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "remediationlogs"
 }
@@ -62,12 +62,12 @@ $recommendationsTable = "Recommendations"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -87,30 +87,30 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = @"
         SELECT InstanceId, Cloud, TenantGuid, COUNT(InstanceId)
-        FROM [dbo].[$recommendationsTable] 
+        FROM [dbo].[$recommendationsTable]
         WHERE RecommendationSubTypeId = '$recommendationId' AND FitScore >= $minFitScore AND GeneratedDate >= GETDATE()-(7*$minWeeksInARow)
         GROUP BY InstanceId, Cloud, TenantGuid
         HAVING COUNT(InstanceId) >= $minWeeksInARow
-"@    
+"@
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $deallocatedVMs = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($deallocatedVMs) | Out-Null            
+        $sqlAdapter.Fill($deallocatedVMs) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -120,8 +120,8 @@ if (-not($connectionSuccess))
 
 Write-Output "Found $($deallocatedVMs.Rows.Count) remediation opportunities."
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $logEntries = @()
 
@@ -163,7 +163,7 @@ foreach ($vm in $deallocatedVMs.Rows)
     $subscriptionId = $vm.InstanceId.Split("/")[2]
     $resourceGroup = $vm.InstanceId.Split("/")[4]
     $instanceName = $vm.InstanceId.Split("/")[8]
-    
+
     if ($isEligible)
     {
         $vmState = "Unknown"
@@ -197,7 +197,7 @@ foreach ($vm in $deallocatedVMs.Rows)
                     }
                     else
                     {
-                        Write-Output "Skipping as OS disk is already HDD."                        
+                        Write-Output "Skipping as OS disk is already HDD."
                     }
                     foreach ($dataDiskId in $dataDiskIds)
                     {
@@ -213,7 +213,7 @@ foreach ($vm in $deallocatedVMs.Rows)
                                 $dataDisksSkuNames += ",$($disk.Sku.Name)"
                             }
                         }
-                        
+
                         if (-not($Simulate) -and $disk.Sku.Name -ne 'Standard_LRS')
                         {
                             $disk.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('Standard_LRS')
@@ -221,13 +221,13 @@ foreach ($vm in $deallocatedVMs.Rows)
                         }
                         else
                         {
-                            Write-Output "Skipping as Data disk is already HDD."                        
-                        }                            
+                            Write-Output "Skipping as Data disk is already HDD."
+                        }
                     }
                 }
                 else
                 {
-                    Write-Output "Skipping as disks are not Managed Disks."    
+                    Write-Output "Skipping as disks are not Managed Disks."
                     $hasManagedDisks = $false
                 }
             }
@@ -235,19 +235,19 @@ foreach ($vm in $deallocatedVMs.Rows)
             {
                 if ($vmObj)
                 {
-                    Write-Output "Skipping as VM is not deallocated."    
+                    Write-Output "Skipping as VM is not deallocated."
                     $vmState = "Running"
                 }
                 else
                 {
-                    Write-Output "Skipping as VM was already removed."    
-                    $vmState = "Removed"                        
+                    Write-Output "Skipping as VM was already removed."
+                    $vmState = "Removed"
                 }
             }
         }
         else
         {
-            Write-Output "Could not apply remediation as VM is in another cloud/tenant."    
+            Write-Output "Could not apply remediation as VM is in another cloud/tenant."
         }
     }
 
@@ -271,10 +271,10 @@ foreach ($vm in $deallocatedVMs.Rows)
         LogDetails = $logDetails | ConvertTo-Json -Compress
         RecommendationSubTypeId = $recommendationId
     }
-    
+
     $logEntries += $logentry
 }
-    
+
 $today = $datetime.ToString("yyyyMMdd")
 $csvExportPath = "$today-longdeallocatedvmsfiltered.csv"
 

@@ -20,6 +20,6 @@ function Initialize-FinOpsHubDeployment
 {
     [CmdletBinding(SupportsShouldProcess)]
     param()
-    
+
     Register-FinOpsHubProviders -WhatIf:$WhatIfPreference | Out-Null
 }

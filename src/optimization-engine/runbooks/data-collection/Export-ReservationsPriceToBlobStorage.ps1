@@ -1,5 +1,5 @@
 param(
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [string] $Filter = "serviceName eq 'Virtual Machines' and priceType eq 'Reservation'" # e.g., serviceName eq 'Virtual Machines' and priceType eq 'Reservation' and armRegionName eq 'northeurope'
 )
 
@@ -9,16 +9,16 @@ function Authenticate-AzureWithOption {
     param (
         [string] $authOption = "ManagedIdentity",
         [string] $cloudEnv = "AzureCloud",
-        [string] $clientID 
+        [string] $clientID
     )
 
     switch ($authOption) {
-        "UserAssignedManagedIdentity" { 
+        "UserAssignedManagedIdentity" {
             Connect-AzAccount -Identity -EnvironmentName $cloudEnv -AccountId $clientID
             break
         }
         Default { #ManagedIdentity
-            Connect-AzAccount -Identity -EnvironmentName $cloudEnv 
+            Connect-AzAccount -Identity -EnvironmentName $cloudEnv
             break
         }
     }
@@ -45,7 +45,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -71,14 +71,14 @@ if ($authenticationOption -eq "UserAssignedManagedIdentity")
     Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment -clientID $uamiClientID
 }
 else
-{    
+{
     Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment
 }
 
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -90,8 +90,8 @@ else
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
-    $cloudEnvironment = $externalCloudEnvironment   
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 if (-not([string]::IsNullOrEmpty($filterVar)))
@@ -124,13 +124,13 @@ $csvExportPath = "reservationsprice-$timestamp-$fileFriendlyFilter.csv"
 $ci = [CultureInfo]::new([System.Threading.Thread]::CurrentThread.CurrentCulture.Name)
 if ($ci.NumberFormat.NumberDecimalSeparator -ne '.')
 {
-    Write-Output "Current culture ($($ci.Name)) does not use . as decimal separator"    
+    Write-Output "Current culture ($($ci.Name)) does not use . as decimal separator"
     $ci.NumberFormat.NumberDecimalSeparator = '.'
     [System.Threading.Thread]::CurrentThread.CurrentCulture = $ci
 }
 
 $prices | Export-Csv -NoTypeInformation -Path $csvExportPath
-        
+
 Write-Output "Reservations price CSV exported to $csvExportPath successfully."
 
 $csvBlobName = $csvExportPath
@@ -143,4 +143,4 @@ Write-Output "[$now] Uploaded $csvBlobName to Blob Storage..."
 Remove-Item -Path $csvExportPath -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Removed $csvExportPath from local disk..."                    
+Write-Output "[$now] Removed $csvExportPath from local disk..."

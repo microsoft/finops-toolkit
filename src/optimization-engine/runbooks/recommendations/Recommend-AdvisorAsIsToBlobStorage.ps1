@@ -21,7 +21,7 @@ $workspaceSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_LogA
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
 }
@@ -60,12 +60,12 @@ $FiltersTable = "Filters"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -81,25 +81,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE CollectedType IN ('ARGVirtualMachine','AzureAdvisor','ARGResourceContainers')"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -112,8 +112,8 @@ $subscriptionsTableName = $lognamePrefix + ($controlRows | Where-Object { $_.Col
 
 Write-Output "Will run query against tables $subscriptionsTableName and $advisorTableName"
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 Write-Output "Getting excluded recommendation sub-type IDs..."
 
@@ -123,25 +123,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$FiltersTable] WHERE FilterType = 'Exclude' AND IsEnabled = 1 AND (FilterEndDate IS NULL OR FilterEndDate > GETDATE())"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $filters = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($filters) | Out-Null            
+        $sqlAdapter.Fill($filters) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -149,8 +149,8 @@ if (-not($connectionSuccess))
     throw "Could not establish connection to SQL."
 }
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 # Grab a context reference to the Storage Account where the recommendations file will be stored
 
@@ -172,28 +172,28 @@ if (-not([string]::IsNullOrEmpty($CategoryFilter)))
     for ($i = 0; $i -lt $categories.Count; $i++)
     {
         $categories[$i] = "'" + $categories[$i] + "'"
-    }    
+    }
     $FinalCategoryFilter = " and Category in (" + ($categories -join ",") + ")"
 }
 
 $baseQuery = @"
 let advisorInterval = $($daysBackwards)d;
-$advisorTableName 
+$advisorTableName
 | where todatetime(TimeGenerated) > ago(advisorInterval)$FinalCategoryFilter
 | extend AdvisorRecIdIndex = indexof(InstanceId_s, '/providers/microsoft.advisor/recommendations')
 | extend InstanceName_s = iif(isnotempty(InstanceName_s),InstanceName_s,iif(AdvisorRecIdIndex > 0, split(substring(InstanceId_s, 0, AdvisorRecIdIndex),'/')[-1], split(InstanceId_s,'/')[-1]))
 | summarize by InstanceId_s, InstanceName_s, Category, Description_s, SubscriptionGuid_g, TenantGuid_g, ResourceGroup, Cloud_s, AdditionalInfo_s, RecommendationText_s, ImpactedArea_s, Impact_s, RecommendationTypeId_g, Tags_s
-| join kind=leftouter ( 
+| join kind=leftouter (
     $subscriptionsTableName
-    | where TimeGenerated > ago(1d) 
-    | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-    | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+    | where TimeGenerated > ago(1d)
+    | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+    | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
 ) on SubscriptionGuid_g
 "@
 
 Write-Output "Getting $CategoryFilter recommendations for $($daysBackwards)d Advisor..."
 
-try 
+try
 {
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $daysBackwards) -Wait 600 -IncludeStatistics
     if ($queryResults)
@@ -203,7 +203,7 @@ try
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     throw "Execution aborted"
 }
@@ -220,7 +220,7 @@ $timestamp = $datetime.ToString("yyyy-MM-ddTHH:mm:00.000Z")
 
 Write-Output "Generating fit score..."
 
-foreach ($result in $results) {  
+foreach ($result in $results) {
 
     if ($filters | Where-Object { $_.RecommendationSubTypeId -eq $result.RecommendationTypeId_g})
     {
@@ -239,7 +239,7 @@ foreach ($result in $results) {
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -249,7 +249,7 @@ foreach ($result in $results) {
     {
         ($result.AdditionalInfo_s | ConvertFrom-Json).PsObject.Properties | ForEach-Object { $additionalInfoDictionary[$_.Name] = $_.Value }
     }
-    
+
     $fitScore = 5
 
     $queryInstanceId = $result.InstanceId_s
@@ -289,7 +289,7 @@ foreach ($result in $results) {
         DetailsURL                  = $detailsURL
     }
 
-    $recommendations += $recommendation    
+    $recommendations += $recommendation
 }
 
 # Export the recommendations as JSON to blob storage

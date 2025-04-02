@@ -39,6 +39,41 @@ The following section lists features and enhancements that are currently in deve
 
 _Released March 2025_
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
+
+- **Added**
+  - Added support for MCA reservation recommendation exports.
+  - Added support for multiple reservation recommendation exports to support shared and single recommendations for all services and lookback periods.
+  - Managed exports now create price, reservation detail, reservation transaction, and VM reservation recommendation exports.
+  - Address new data quality issues with ingested data:
+    - Change `BillingAccountId` to be lowercase in both the cost and price datasets.
+    - Change `CommitmentDiscountId` to be lowercase in the cost dataset.
+    - Handle `x_BillingProfileId` case-sensitivity for the cost/price join (without changing data).
+    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
+    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` and `ContractedUnitPrice` are both 0 or empty.
+    - Set `ListCost` to `ContractedCost` when `ListCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
+    - Set `ListCost` to `ContractedCost` when `ListCost` and `ListUnitPrice` are both 0 or empty.
+  - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
+  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
+- **Changed**
+  - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
+    - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
+  - Added a new Data ingestion > Data quality section into the Data Explorer dashboard with a summary of missing and incorrect costs.
+- **Fixed**
+  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
+  - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
+  - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
+  - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
+  - Changed how reservations are summarized to ensure the latest version of each recommendation is displayed. ([#1408](https://github.com/microsoft/finops-toolkit/issues/1408)).
+  - Improved how recommendation dates are calculated ([#1388](https://github.com/microsoft/finops-toolkit/issues/1388)).
+  - Fixed an issue where reservation recommendations were being duplicated for the Canada Central region.
+  - Fixed an issue where Recommendations.x_IngestionTime is not being populated in Data Explorer.
+- **Removed**
+  - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
+    - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
+    - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
+  - Removed the trusted external tenants setting due to an error causing redeployments to fail. Please enable this after deploying FinOps hubs the first time.
+
 ### [Power BI reports](power-bi/reports.md) v0.9
 
 **General**
@@ -64,42 +99,6 @@ _Released March 2025_
 - **Fixed**
   - Fixed core count double-counting on the Hybrid Benefit page.
   - Fixed savings to include negotiated discounts on the Total savings page.
-
-### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
-
-- **Added**
-  - Added support for MCA reservation recommendation exports.
-  - Added support for multiple reservation recommendation exports to support shared and single recommendations for all services and lookback periods.
-  - Managed exports now create price, reservation detail, reservation transaction, and VM reservation recommendation exports.
-  - Address new data quality issues with ingested data:
-    - Change `BillingAccountId` to be lowercase in both the cost and price datasets.
-    - Change `CommitmentDiscountId` to be lowercase in the cost dataset.
-    - Handle `x_BillingProfileId` case-sensitivity for the cost/price join (without changing data).
-    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
-    - Set `ContractedCost` to `EffectiveCost` when `ContractedCost` and `ContractedUnitPrice` are both 0 or empty.
-    - Set `ListCost` to `ContractedCost` when `ListCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
-    - Set `ListCost` to `ContractedCost` when `ListCost` and `ListUnitPrice` are both 0 or empty.
-=======
-  - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
-  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
-- **Changed**
-  - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
-    - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
-  - Added a new Data ingestion > Data quality section into the Data Explorer dashboard with a summary of missing and incorrect costs.
-- **Fixed**
-  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
-  - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
-  - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
-  - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
-  - Changed how reservations are summarized to ensure the latest version of each recommendation is displayed. ([#1408](https://github.com/microsoft/finops-toolkit/issues/1408)).
-  - Improved how recommendation dates are calculated ([#1388](https://github.com/microsoft/finops-toolkit/issues/1388)).
-  - Fixed an issue where reservation recommendations were being duplicated for the Canada Central region.
-  - Fixed an issue where Recommendations.x_IngestionTime is not being populated in Data Explorer.
-- **Removed**
-  - Removed the Managed Identity Contributor permission assigned to managed identities used during the deployment ([#1248](https://github.com/microsoft/finops-toolkit/issues/1248)).
-    - The deployment cannot remove role assignments. You can safely remove role assignments from the managed identities to limit access.
-    - Please do not delete the managed identities. Deleting managed identities can result in errors during upgrades.
-  - Removed the trusted external tenants setting due to an error causing redeployments to fail. Please enable this after deploying FinOps hubs the first time.
 
 ### [FinOps alerts](finops-alerts-overview.md) v0.9
 
@@ -179,7 +178,6 @@ _Released March 2025_
     - oracle.database/exadbvmclusters
     - oracle.database/exascaledbstoragevaults
 
-
 **[Services](open-data.md#services)**
 
 - **Added**
@@ -194,7 +192,6 @@ _Released March 2025_
   - Changed a **Central Canada** reference to **Canada Central**.
     - This may have caused issues or duplication when joined with other datasets.
     - Please check your data for duplicate references to **Central Canada** and **Canada Central**.
-
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)

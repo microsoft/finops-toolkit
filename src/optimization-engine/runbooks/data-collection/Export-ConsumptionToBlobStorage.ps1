@@ -11,10 +11,10 @@ param(
     [Parameter(Mandatory = $false)]
     [string] $externalCredentialName,
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [string] $targetStartDate, # YYYY-MM-DD format
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [string] $targetEndDate # YYYY-MM-DD format
 )
 
@@ -26,25 +26,25 @@ function Authenticate-AzureWithOption {
     param (
         [string] $authOption = "ManagedIdentity",
         [string] $cloudEnv = "AzureCloud",
-        [string] $clientID 
+        [string] $clientID
     )
 
     switch ($authOption) {
-        "UserAssignedManagedIdentity" { 
+        "UserAssignedManagedIdentity" {
             Connect-AzAccount -Identity -EnvironmentName $cloudEnv -AccountId $clientID
             break
         }
         Default { #ManagedIdentity
-            Connect-AzAccount -Identity -EnvironmentName $cloudEnv 
+            Connect-AzAccount -Identity -EnvironmentName $cloudEnv
             break
         }
     }
 }
 
 function Generate-CostDetails {
-    param (        
+    param (
         [string] $ScopeId,
-        [string] $ScopeName 
+        [string] $ScopeName
     )
 
     $MaxTries = 20 # The typical Retry-After is set to 20 seconds. We'll give ~6 minutes overall to download the cost details report
@@ -73,7 +73,7 @@ function Generate-CostDetails {
         {
             $tries++
             Write-Output "Checking whether export is ready (try $tries)..."
-            
+
             Start-Sleep -Seconds $sleepSeconds
             $downloadResult = Invoke-AzRestMethod -Method GET -Path $requestResultPath
 
@@ -175,24 +175,24 @@ function Generate-CostDetails {
                         }
                     }
                     $r.Dispose()
-                    $w.Close()        
+                    $w.Close()
 
                     $csvBlobName = [System.IO.Path]::GetFileName($finalCsvExportPath)
                     $csvProperties = @{"ContentType" = "text/csv"};
                     Set-AzStorageBlobContent -File $finalCsvExportPath -Container $storageAccountSinkContainer -Properties $csvProperties -Blob $csvBlobName -Context $saCtx -Force
-                    
+
                     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
                     Write-Output "[$now] Uploaded $csvBlobName to Blob Storage..."
-                
+
                     Remove-Item -Path $csvExportPath -Force
-                
+
                     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-                    Write-Output "[$now] Removed $csvExportPath from local disk..."                    
+                    Write-Output "[$now] Removed $csvExportPath from local disk..."
 
                     Remove-Item -Path $finalCsvExportPath -Force
-        
+
                     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-                    Write-Output "[$now] Removed $finalCsvExportPath from local disk..."                            
+                    Write-Output "[$now] Removed $finalCsvExportPath from local disk..."
                 }
 
                 $requestSuccess = $true
@@ -216,10 +216,10 @@ function Generate-CostDetails {
                     Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment -clientID $uamiClientID
                 }
                 else
-                {    
+                {
                     Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment
                 }
-                
+
                 $sleepSeconds = 2
             }
             else
@@ -228,7 +228,7 @@ function Generate-CostDetails {
                 $global:scopesWithErrors += $ScopeName
                 Write-Warning "Got an unexpected response code: $($downloadResult.StatusCode)"
             }
-        } 
+        }
         while (-not($requestSuccess) -and $tries -lt $MaxTries)
 
         if (-not($requestSuccess))
@@ -241,7 +241,7 @@ function Generate-CostDetails {
             }
             else
             {
-                Write-Warning "Error returned by the Download Cost Details API. Status Code: $($downloadResult.StatusCode). Message: $($downloadResult.Content)"    
+                Write-Warning "Error returned by the Download Cost Details API. Status Code: $($downloadResult.StatusCode). Message: $($downloadResult.Content)"
             }
         }
         else
@@ -285,7 +285,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -331,13 +331,13 @@ else
     "Consumption Scope is $consumptionScope"
     if ($consumptionScope -eq "BillingAccount")
     {
-        $BillingAccountID = Get-AutomationVariable -Name  "AzureOptimization_BillingAccountID"        
+        $BillingAccountID = Get-AutomationVariable -Name  "AzureOptimization_BillingAccountID"
     }
     else
     {
         if ($consumptionScope -eq "BillingProfile")
         {
-            $BillingAccountID = Get-AutomationVariable -Name  "AzureOptimization_BillingAccountID"        
+            $BillingAccountID = Get-AutomationVariable -Name  "AzureOptimization_BillingAccountID"
             $BillingProfileID = Get-AutomationVariable -Name  "AzureOptimization_BillingProfileID"
         }
         else
@@ -352,7 +352,7 @@ else
 
 if ($cloudEnvironment -eq "AzureChinaCloud")
 {
-    $chinaEAEnrollment = Get-AutomationVariable -Name "AzureOptimization_AzureChinaEAEnrollment" -ErrorAction SilentlyContinue    
+    $chinaEAEnrollment = Get-AutomationVariable -Name "AzureOptimization_AzureChinaEAEnrollment" -ErrorAction SilentlyContinue
     $chinaEAKey = Get-AutomationVariable -Name  "AzureOptimization_AzureChinaEAKey" -ErrorAction SilentlyContinue
 }
 
@@ -363,14 +363,14 @@ if ($authenticationOption -eq "UserAssignedManagedIdentity")
     Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment -clientID $uamiClientID
 }
 else
-{    
+{
     Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment
 }
 
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -382,8 +382,8 @@ else
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
-    $cloudEnvironment = $externalCloudEnvironment   
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 # compute start+end dates
@@ -391,7 +391,7 @@ if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 if ([string]::IsNullOrEmpty($targetStartDate) -or [string]::IsNullOrEmpty($targetEndDate))
 {
     $targetStartDate = (Get-Date).Date.AddDays($consumptionOffsetDays * -1).ToString("yyyy-MM-dd")
-    $targetEndDate = $targetStartDate    
+    $targetEndDate = $targetStartDate
 }
 
 if ($consumptionScope -eq "Subscription")
@@ -403,7 +403,7 @@ if ($consumptionScope -eq "Subscription")
     else
     {
         $subscriptions = Get-AzSubscription | Where-Object { $_.State -eq "Enabled" }
-    }    
+    }
     "Exporting consumption data from $targetStartDate to $targetEndDate for $($subscriptions.Count) subscriptions..."
 }
 else
@@ -422,27 +422,27 @@ if ($cloudEnvironment -eq "AzureChinaCloud" -and -not([string]::IsNullOrEmpty($c
     $targetMonth = $targetStartDate.Substring(0,7)
     $consumption = $null
     $billingEntries = @()
-    
+
     $BillingApiUri = "https://ea.azure.cn/rest/$chinaEAEnrollment/usage-report?month=$targetMonth&type=detail&fmt=Csv"
     $PricesheetApiUri = "https://ea.azure.cn/rest/$chinaEAEnrollment/usage-report?month=$targetMonth&type=pricesheet&fmt=Csv"
-        
+
     $Headers = @{}
     $Headers.Add("Authorization","Bearer $chinaEAKey")
-    
+
     Write-Output "Getting pricesheet for month $targetMonth (EA enrollment $chinaEAEnrollment)..."
-    
+
     Invoke-RestMethod -Method Get -Uri $PricesheetApiUri -Headers $Headers -OutFile "pricesheet-$targetMonth.csv"
-    
+
     Write-Output "Pricesheet data exported to disk as CSV."
-    
+
     $csvFile = Get-Content -Path "pricesheet-$targetMonth.csv"
-    
+
     Write-Output "Pricesheet data imported from disk as string."
-    
+
     Remove-Item -Path "pricesheet-$targetMonth.csv" -Force
-    
-    Write-Output "Removed pricesheet-$targetMonth.csv from local disk..."    
-    
+
+    Write-Output "Removed pricesheet-$targetMonth.csv from local disk..."
+
     $csvFile2 = $csvFile[2..($csvFile.Count-1)]
     $headerLine = $csvFile2[0]
     $columnHeaders = $headerLine.Split(",")
@@ -454,31 +454,31 @@ if ($cloudEnvironment -eq "AzureChinaCloud" -and -not([string]::IsNullOrEmpty($c
         }
     }
     $csvFile2[0] = $columnHeaders -join ","
-    
+
     Write-Output "Removed first 2 lines and replaced header."
-    
+
     $pricesheet = $csvFile2 | ConvertFrom-Csv
-    
+
     Write-Output "Starting Azure China billing export process from $targetStartDate to $targetEndDate (month $targetMonth) for EA enrollment $chinaEAEnrollment..."
-    
+
     $tries = 0
     $requestSuccess = $false
-    do 
+    do
     {
         try {
             $tries++
             Invoke-RestMethod -Method Get -Uri $BillingApiUri -Headers $Headers -OutFile "usagedetails-$targetStartDate.csv"
-    
+
             Write-Output "Consumption data exported to disk as CSV."
-    
+
             $csvFile = Get-Content -Path "usagedetails-$targetStartDate.csv"
-    
+
             Write-Output "Consumption data imported from disk as string."
-    
+
             Remove-Item -Path "usagedetails-$targetStartDate.csv" -Force
-    
-            Write-Output "Removed usagedetails-$targetStartDate.csv from local disk..."    
-            
+
+            Write-Output "Removed usagedetails-$targetStartDate.csv from local disk..."
+
             $csvFile2 = $csvFile[2..($csvFile.Count-1)]
             $headerLine = $csvFile2[0]
             $columnHeaders = $headerLine.Split(",")
@@ -490,31 +490,31 @@ if ($cloudEnvironment -eq "AzureChinaCloud" -and -not([string]::IsNullOrEmpty($c
                 }
             }
             $csvFile2[0] = $columnHeaders -join ","
-    
+
             Write-Output "Removed first 2 lines and replaced header."
-    
-            $consumption = $csvFile2 | ConvertFrom-Csv  
+
+            $consumption = $csvFile2 | ConvertFrom-Csv
             $requestSuccess = $true
         }
         catch {
             $ErrorMessage = $_.Exception.Message
             Write-Warning "Error getting consumption data: $ErrorMessage. $tries of 3 tries. Waiting 60 seconds..."
-            Start-Sleep -s 60   
+            Start-Sleep -s 60
         }
-    
+
     } while ( -not($requestSuccess) -and $tries -lt 3 )
-    
+
     if (-not($requestSuccess))
     {
         throw "Failed consumption export"
     }
-    
+
     Write-Output "Consumption data in memory as CSV. Processing lines..."
-    
+
     foreach ($consumptionLine in $consumption)
     {
         $usageDate = [Datetime]::ParseExact($consumptionLine.Date, 'MM/dd/yyyy', $null).ToString("yyyy-MM-dd")
-    
+
         if ($usageDate -ge $targetStartDate -and $usageDate -le $targetEndDate -and ($subscriptions.Count -gt 1 -or $subscriptions.Id -eq $consumptionLine.SubscriptionGuid))
         {
             $instanceId = $null
@@ -525,24 +525,24 @@ if ($cloudEnvironment -eq "AzureChinaCloud" -and -not([string]::IsNullOrEmpty($c
                 $idParts = $consumptionLine.'Instance ID'.Split("/")
                 $instanceName = $idParts[$idParts.Count-1].ToLower()
             }
-        
+
             $rgName = $null
             if ($null -ne $consumptionLine.'Resource Group')
             {
                 $rgName = $consumptionLine.'Resource Group'.ToLower()
             }
-        
-            $convertedCost = 0.0    
+
+            $convertedCost = 0.0
             if ([double]$consumptionLine.ExtendedCost -ne 0)
             {
                 $convertedCost = [double]$consumptionLine.ExtendedCost
             }
-            $convertedPrice = 0.0    
+            $convertedPrice = 0.0
             if ([double]$consumptionLine.ResourceRate -ne 0)
             {
                 $convertedPrice = [double]$consumptionLine.ResourceRate
             }
-    
+
             $unitPrice = 0.0
             $partNumber = "N/A"
             foreach ($priceItem in $pricesheet)
@@ -558,16 +558,16 @@ if ($cloudEnvironment -eq "AzureChinaCloud" -and -not([string]::IsNullOrEmpty($c
                         if ($currentUnitHours -gt 0)
                         {
                             $unitPrice = [double] ($tempUnitPrice / $currentUnitHours)
-                        }    
+                        }
                     }
                     else
                     {
-                        $unitPrice = $convertedPrice    
+                        $unitPrice = $convertedPrice
                     }
                     break
                 }
             }
-        
+
             $billingEntry = New-Object PSObject -Property @{
                 Timestamp = $timestamp
                 SubscriptionId = $consumptionLine.SubscriptionGuid
@@ -595,31 +595,31 @@ if ($cloudEnvironment -eq "AzureChinaCloud" -and -not([string]::IsNullOrEmpty($c
                 ResourceLocation = $consumptionLine.'Resource Location'
                 AccountOwnerId = $consumptionLine.AccountOwnerId
             }
-            
-            $billingEntries += $billingEntry    
+
+            $billingEntries += $billingEntry
         }
-    }    
-    
+    }
+
     if ($targetStartDate -ne $targetEndDate)
     {
         $targetStartDate = "$targetStartDate-$targetEndDate"
     }
-        
+
     $csvExportPath = "$targetStartDate-eachina.csv"
-    
+
     $billingEntries | Export-Csv -Path $csvExportPath -NoTypeInformation
-    
+
     Write-Output "Exported $($billingEntries.Count) entries as CSV to $csvExportPath"
-    
+
     $csvBlobName = $csvExportPath
     $csvProperties = @{"ContentType" = "text/csv"};
     Set-AzStorageBlobContent -File $csvExportPath -Container $storageAccountSinkContainer -Properties $csvProperties -Blob $csvBlobName -Context $saCtx -Force
-    
+
     Write-Output "Uploaded to blob storage!"
-    
+
     Remove-Item -Path $csvExportPath -Force
-    
-    Write-Output "Removed $csvExportPath from local disk..."    
+
+    Write-Output "Removed $csvExportPath from local disk..."
 }
 else
 {
@@ -627,20 +627,20 @@ else
     {
         $CostDetailsSupportedQuotaIDs = @('EnterpriseAgreement_2014-09-01','Internal_2014-09-01','CSP_2015-05-01')
         $ConsumptionSupportedQuotaIDs = @('PayAsYouGo_2014-09-01','MSDN_2014-09-01')
-        
+
         foreach ($subscription in $subscriptions)
         {
             $subscriptionQuotaID = $subscription.SubscriptionPolicies.QuotaId
-        
+
             if ($subscriptionQuotaID -in $ConsumptionSupportedQuotaIDs -or $consumptionAPIOption -eq "UsageDetails")
             {
                 $consumption = $null
                 $billingEntries = @()
-            
+
                 $ConsumptionApiPath = "/subscriptions/$($subscription.Id)/providers/Microsoft.Consumption/usageDetails?api-version=2021-10-01&metric=$($consumptionMetric.ToLower())&%24expand=properties%2FmeterDetails%2Cproperties%2FadditionalInfo&%24filter=properties%2FusageStart%20ge%20%27$targetStartDate%27%20and%20properties%2FusageEnd%20le%20%27$targetEndDate%27"
-            
+
                 "Starting consumption export process from $targetStartDate to $targetEndDate for subscription $($subscription.Name)..."
-            
+
                 do
                 {
                     if (-not([string]::IsNullOrEmpty($consumption.nextLink)))
@@ -649,20 +649,20 @@ else
                     }
                     $tries = 0
                     $requestSuccess = $false
-                    do 
-                    {        
+                    do
+                    {
                         try {
                             $tries++
-                            $consumption = (Invoke-AzRestMethod -Path $ConsumptionApiPath -Method GET).Content | ConvertFrom-Json                    
+                            $consumption = (Invoke-AzRestMethod -Path $ConsumptionApiPath -Method GET).Content | ConvertFrom-Json
                             $requestSuccess = $true
                         }
                         catch {
                             $ErrorMessage = $_.Exception.Message
                             Write-Warning "Error getting consumption data: $ErrorMessage. $tries of 3 tries. Waiting 60 seconds..."
-                            Start-Sleep -s 60   
+                            Start-Sleep -s 60
                         }
                     } while ( -not($requestSuccess) -and $tries -lt 3 )
-            
+
                     foreach ($consumptionLine in $consumption.value)
                     {
                         if ((Get-Date $consumptionLine.properties.date).ToString("yyyy-MM-dd") -ge $targetStartDate -and (Get-Date $consumptionLine.properties.date).ToString("yyyy-MM-dd") -le $targetEndDate)
@@ -679,7 +679,7 @@ else
                             if ([string]::IsNullOrEmpty($consumptionLine.properties.billingProfileId))
                             {
                                 # legacy consumption schema
-            
+
                                 $billingEntry = New-Object PSObject -Property @{
                                     Timestamp = $timestamp
                                     AccountName = $consumptionLine.properties.accountName
@@ -731,7 +731,7 @@ else
                                     Term = $consumptionLine.properties.term
                                     UnitOfMeasure = $consumptionLine.properties.meterDetails.unitOfMeasure
                                     UnitPrice = $consumptionLine.properties.unitPrice
-                                }            
+                                }
                             }
                             else
                             {
@@ -795,43 +795,43 @@ else
                                     Term = $consumptionLine.properties.term
                                     UnitOfMeasure = $consumptionLine.properties.unitOfMeasure
                                     UnitPrice = $consumptionLine.properties.unitPrice
-                                }            
+                                }
                             }
-                            $billingEntries += $billingEntry    
+                            $billingEntries += $billingEntry
                         }
-                    }    
+                    }
                 }
                 while ($requestSuccess -and -not([string]::IsNullOrEmpty($consumption.nextLink)))
-            
+
                 if ($requestSuccess)
                 {
                     "Generated $($billingEntries.Count) entries..."
-                
+
                     "Uploading CSV to Storage"
-                
+
                     $ci = [CultureInfo]::new([System.Threading.Thread]::CurrentThread.CurrentCulture.Name)
                     if ($ci.NumberFormat.NumberDecimalSeparator -ne '.')
                     {
-                        "Current culture ($($ci.Name)) does not use . as decimal separator"    
+                        "Current culture ($($ci.Name)) does not use . as decimal separator"
                         $ci.NumberFormat.NumberDecimalSeparator = '.'
                         [System.Threading.Thread]::CurrentThread.CurrentCulture = $ci
                     }
-                
+
                     $csvExportPath = "$targetStartDate-$($subscription.Id)-$consumptionMetric.csv"
-            
-                    $billingEntries | Export-Csv -Path $csvExportPath -NoTypeInformation    
-            
+
+                    $billingEntries | Export-Csv -Path $csvExportPath -NoTypeInformation
+
                     $csvBlobName = $csvExportPath
                     $csvProperties = @{"ContentType" = "text/csv"};
                     Set-AzStorageBlobContent -File $csvExportPath -Container $storageAccountSinkContainer -Properties $csvProperties -Blob $csvBlobName -Context $saCtx -Force
-                    
+
                     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
                     "[$now] Uploaded $csvBlobName to Blob Storage..."
-                
+
                     Remove-Item -Path $csvExportPath -Force
-                
+
                     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-                    "[$now] Removed $csvExportPath from local disk..."        
+                    "[$now] Removed $csvExportPath from local disk..."
                 }
                 else
                 {
@@ -851,21 +851,21 @@ else
                 $global:scopesWithErrors += $ScopeName
                 Write-Warning "Subscription quota $subscriptionQuotaID not supported"
             }
-        }    
+        }
     }
     else
     {
         if ($consumptionScope -eq "BillingAccount")
         {
             "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID..."
-            Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID" -ScopeName $BillingAccountID.Replace(":","_")    
+            Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID" -ScopeName $BillingAccountID.Replace(":","_")
         }
         if ($consumptionScope -eq "BillingProfile")
         {
             "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID / Billing Profile ID $BillingProfileID ..."
-            Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingProfiles/$BillingProfileID" -ScopeName $BillingProfileID    
+            Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingProfiles/$BillingProfileID" -ScopeName $BillingProfileID
         }
-    }    
+    }
 }
 
 if ($global:hadErrors)

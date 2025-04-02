@@ -134,7 +134,7 @@ $reports | ForEach-Object {
             Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DemoFilter", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
         }
     }[$reportName]
-    
+
     # Create folder structure
     $targetFile = "$relDir/$($inputFile.Name.Replace('.pbip', ''))"
     Remove-Item $targetFile -Recurse -Force -ErrorAction SilentlyContinue
@@ -213,7 +213,7 @@ $reports | ForEach-Object {
             Version                   = $desktopVersion.Split(' ')[0]
         }
     }
-    
+
     # Version
     # TODO: Where the "Version" file content come from?
     Write-UTF16LE -File "$targetFile/Version" -Content "1.30"
@@ -237,7 +237,7 @@ $reports | ForEach-Object {
 
     # Create PBIT file
     Compress-Archive -Path "$targetFile/*" -DestinationPath "$targetFile.pbit"
-    
+
     # If KQL, switch to import mode and package as demo
     # $modelJson.model.tables = $modelJson.model.tables `
     # | ForEach-Object {

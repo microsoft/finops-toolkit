@@ -41,7 +41,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -81,12 +81,12 @@ $mcaBillingProfileIdRegex = "([A-Za-z0-9]+(-[A-Za-z0-9]+)+)"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -94,7 +94,7 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -106,8 +106,8 @@ else
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
-    $cloudEnvironment = $externalCloudEnvironment   
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 $tenantId = (Get-AzContext).Tenant.Id
@@ -230,7 +230,7 @@ $targetDate = $datetime.ToString("yyyy-MM-dd")
 
 if ($BillingAccountID -match $mcaBillingAccountIdRegex)
 {
-    $csvExportPath = "$targetDate-$BillingProfileID.csv"   
+    $csvExportPath = "$targetDate-$BillingProfileID.csv"
 }
 else
 {
@@ -243,7 +243,7 @@ Write-Output "[$now] Uploading CSV to Storage"
 $ci = [CultureInfo]::new([System.Threading.Thread]::CurrentThread.CurrentCulture.Name)
 if ($ci.NumberFormat.NumberDecimalSeparator -ne '.')
 {
-    Write-Output "Current culture ($($ci.Name)) does not use . as decimal separator"    
+    Write-Output "Current culture ($($ci.Name)) does not use . as decimal separator"
     $ci.NumberFormat.NumberDecimalSeparator = '.'
     [System.Threading.Thread]::CurrentThread.CurrentCulture = $ci
 }
@@ -253,11 +253,11 @@ $savingsPlans | Export-Csv -Path $csvExportPath -NoTypeInformation
 $csvBlobName = $csvExportPath
 $csvProperties = @{"ContentType" = "text/csv"};
 Set-AzStorageBlobContent -File $csvExportPath -Container $storageAccountSinkContainer -Properties $csvProperties -Blob $csvBlobName -Context $saCtx -Force
-    
+
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
 Write-Output "[$now] Uploaded $csvBlobName to Blob Storage..."
 
 Remove-Item -Path $csvExportPath -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Removed $csvExportPath from local disk..."    
+Write-Output "[$now] Removed $csvExportPath from local disk..."

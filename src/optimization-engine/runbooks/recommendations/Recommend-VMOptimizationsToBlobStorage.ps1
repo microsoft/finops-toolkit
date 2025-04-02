@@ -26,7 +26,7 @@ $workspaceTenantId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyti
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
 }
@@ -59,12 +59,12 @@ $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -80,25 +80,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE CollectedType IN ('ARGManagedDisk','ARGVirtualMachine','AzureConsumption','ARGResourceContainers')"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -113,8 +113,8 @@ $subscriptionsTableName = $lognamePrefix + ($controlRows | Where-Object { $_.Col
 
 Write-Output "Will run query against tables $vmsTableName, $disksTableName, $subscriptionsTableName and $consumptionTableName"
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $recommendationSearchTimeSpan = $deallocatedIntervalDays + $consumptionOffsetDaysStart
 $offlineInterval = $deallocatedIntervalDays + $consumptionOffsetDays
@@ -139,20 +139,20 @@ Write-Output "Looking for VMs that have been deallocated for more than 30 days..
 $baseQuery = @"
     let offlineInterval = $($offlineInterval)d;
     let billingInterval = $($billingInterval)d;
-    let billingWindowIntervalEnd = $($consumptionOffsetDays)d; 
-    let billingWindowIntervalStart = $($consumptionOffsetDaysStart)d; 
-    let etime = todatetime(toscalar($consumptionTableName | where todatetime(Date_s) < now() and todatetime(Date_s) > ago(billingInterval) | summarize max(todatetime(Date_s)))); 
+    let billingWindowIntervalEnd = $($consumptionOffsetDays)d;
+    let billingWindowIntervalStart = $($consumptionOffsetDaysStart)d;
+    let etime = todatetime(toscalar($consumptionTableName | where todatetime(Date_s) < now() and todatetime(Date_s) > ago(billingInterval) | summarize max(todatetime(Date_s))));
     let stime = etime-offlineInterval;
-    let BilledVMs = $consumptionTableName 
+    let BilledVMs = $consumptionTableName
     | where todatetime(Date_s) between (stime..etime)
-    | where ResourceId like 'microsoft.compute/virtualmachines/' or ResourceId like 'microsoft.classiccompute/virtualmachines/' 
+    | where ResourceId like 'microsoft.compute/virtualmachines/' or ResourceId like 'microsoft.classiccompute/virtualmachines/'
     | extend InstanceId_s = tolower(ResourceId)
     | distinct InstanceId_s;
     let RunningVMs = $vmsTableName
     | where TimeGenerated > ago(billingWindowIntervalStart) and TimeGenerated < ago(billingWindowIntervalEnd)
     | where PowerState_s has_any ('running','starting','readyrole')
     | distinct InstanceId_s;
-    let BilledDisks = $consumptionTableName 
+    let BilledDisks = $consumptionTableName
     | where todatetime(Date_s) between (stime..etime)
     | where ResourceId like 'microsoft.compute/disks/'
     | extend BillingInstanceId = tolower(ResourceId)
@@ -162,9 +162,9 @@ $baseQuery = @"
     | where InstanceId_s !in (RunningVMs)
     | join kind=leftouter (BilledVMs) on InstanceId_s
     | where isempty(InstanceId_s1)
-    | project InstanceId_s, VMName_s, ResourceGroupName_s, SubscriptionGuid_g, TenantGuid_g, Cloud_s, Tags_s 
+    | project InstanceId_s, VMName_s, ResourceGroupName_s, SubscriptionGuid_g, TenantGuid_g, Cloud_s, Tags_s
     | join kind=leftouter (
-        $disksTableName 
+        $disksTableName
         | where TimeGenerated > ago(1d)
         | project DiskInstanceId = InstanceId_s, SKU_s, OwnerVMId_s
     ) on `$left.InstanceId_s == `$right.OwnerVMId_s
@@ -172,15 +172,15 @@ $baseQuery = @"
         BilledDisks
     ) on `$left.DiskInstanceId == `$right.BillingInstanceId
     | summarize TotalDisksCosts = sum(DisksCosts) by InstanceId_s, VMName_s, ResourceGroupName_s, SubscriptionGuid_g, TenantGuid_g, Cloud_s, Tags_s
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         $subscriptionsTableName
-        | where TimeGenerated > ago(1d) 
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where TimeGenerated > ago(1d)
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
-try 
+try
 {
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
@@ -190,7 +190,7 @@ try
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -211,7 +211,7 @@ foreach ($result in $results)
     $queryText = @"
         let offlineInterval = $($offlineInterval)d;
         $consumptionTableName
-        | extend ResourceId = tolower(ResourceId) 
+        | extend ResourceId = tolower(ResourceId)
         | where ResourceId =~ '$queryInstanceId'
         | where todatetime(Date_s) < now()
         | join kind=inner (
@@ -219,7 +219,7 @@ foreach ($result in $results)
             | extend DiskInstanceId = InstanceId_s
         )
         on `$left.ResourceId == `$right.OwnerVMId_s
-        | summarize DeallocatedSince = max(todatetime(Date_s)) by DiskName_s, DiskSizeGB_s, SKU_s, DiskInstanceId 
+        | summarize DeallocatedSince = max(todatetime(Date_s)) by DiskName_s, DiskSizeGB_s, SKU_s, DiskInstanceId
         | join kind=inner
         (
             $consumptionTableName
@@ -245,8 +245,8 @@ foreach ($result in $results)
     $additionalInfoDictionary = @{}
 
     $additionalInfoDictionary["LongDeallocatedThreshold"] = $deallocatedIntervalDays
-    $additionalInfoDictionary["CostsAmount"] = [double] $result.TotalDisksCosts 
-    $additionalInfoDictionary["savingsAmount"] = [double] $result.TotalDisksCosts 
+    $additionalInfoDictionary["CostsAmount"] = [double] $result.TotalDisksCosts
+    $additionalInfoDictionary["savingsAmount"] = [double] $result.TotalDisksCosts
 
     $fitScore = 5
 
@@ -262,7 +262,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -319,23 +319,23 @@ $baseQuery = @"
     $vmsTableName
     | where TimeGenerated > ago(1d)
     | where PowerState_s has 'stopped'
-    | project InstanceId_s, VMName_s, ResourceGroupName_s, SubscriptionGuid_g, TenantGuid_g, Cloud_s, Tags_s 
-    | join kind=leftouter ( 
+    | project InstanceId_s, VMName_s, ResourceGroupName_s, SubscriptionGuid_g, TenantGuid_g, Cloud_s, Tags_s
+    | join kind=leftouter (
         $consumptionTableName
         | where TimeGenerated > ago(1d) and MeterCategory_s == 'Virtual Machines'
         | project InstanceId_s=tolower(ResourceId), UnitPrice_s, EffectivePrice_s
         | summarize arg_max(todouble(EffectivePrice_s), *) by InstanceId_s
         | project InstanceId_s, MonthlyCost=24*todouble(iif(todouble(UnitPrice_s) > 0, todouble(UnitPrice_s), todouble(EffectivePrice_s)))*30
     ) on InstanceId_s
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         $subscriptionsTableName
-        | where TimeGenerated > ago(1d) 
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where TimeGenerated > ago(1d)
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
-try 
+try
 {
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
@@ -345,7 +345,7 @@ try
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -389,7 +389,7 @@ foreach ($result in $results)
 
     $additionalInfoDictionary = @{}
 
-    $additionalInfoDictionary["CostsAmount"] = [double] $result.MonthlyCost 
+    $additionalInfoDictionary["CostsAmount"] = [double] $result.MonthlyCost
     $additionalInfoDictionary["savingsAmount"] = [double] $result.MonthlyCost
 
     $fitScore = 5
@@ -406,7 +406,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }

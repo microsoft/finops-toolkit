@@ -46,34 +46,34 @@ Register-MultitenantAutomationSchedules.ps1 -AutomationAccountName "AOE" -Resour
 https://aka.ms/AzureOptimizationEngine/customize
 #>
 param(
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String] $AzureEnvironment = "AzureCloud",
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $AutomationAccountName,
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $ResourceGroupName,
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $TargetSchedulesSuffix,
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [int] $TargetSchedulesOffsetMinutes = 0,
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String] $TargetAzureEnvironment = "AzureCloud",
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $TargetTenantId,
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $TargetTenantCredentialName,
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String[]] $ExcludedRunbooks = @("Export-ReservationsPriceToBlobStorage","Export-PriceSheetToBlobStorage","Export-ReservationsUsageToBlobStorage","Export-SavingsPlansUsageToBlobStorage"),
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String[]] $IncludedRunbooks = @()
 )
 
@@ -98,7 +98,7 @@ try
 }
 catch
 {
-    throw "$AutomationAccountName Automation Account not found in Resource Group $ResourceGroupName in Subscription $($ctx.Subscription.Name). If we are not in the right subscription, use Set-AzContext to switch to the correct one."    
+    throw "$AutomationAccountName Automation Account not found in Resource Group $ResourceGroupName in Subscription $($ctx.Subscription.Name). If we are not in the right subscription, use Set-AzContext to switch to the correct one."
 }
 
 $dataCollectionRunbooks = $scheduledRunbooks | Where-Object { $_.RunbookName -like "Export-*" -and $_.RunbookName -notin $ExcludedRunbooks -and $_.RunbookName -ne "Export-ReservationsPriceToBlobStorage" }

@@ -13,12 +13,12 @@ InModuleScope 'FinOpsToolkit' {
                     [Parameter(Mandatory = $true)]
                     [hashtable[]]
                     $Releases,
-    
+
                     [Parameter()]
                     [switch]
                     $GitHub
                 )
-    
+
                 $output = @()
                 foreach ($hashtable in $Releases)
                 {
@@ -26,15 +26,15 @@ InModuleScope 'FinOpsToolkit' {
                     $hashtable['assets'] = $hashtable.Files
                     $output += New-Object -TypeName 'psobject' -Property $hashtable
                 }
-    
+
                 if ($GitHub)
                 {
                     $output = ConvertTo-Json -InputObject $output -Depth 10
                 }
-    
+
                 return $output
             }
-    
+
             function New-MockRelease
             {
                 [OutputType([hashtable])]
@@ -44,19 +44,19 @@ InModuleScope 'FinOpsToolkit' {
                     [Parameter(Mandatory = $true)]
                     [string]
                     $Name,
-    
+
                     [Parameter(Mandatory = $true)]
                     [string]
                     $Version,
-    
+
                     [Parameter()]
                     [bool]
                     $PreRelease = $false,
-    
+
                     [Parameter()]
                     $Assets = @()
                 )
-    
+
                 return @{
                     Name       = $Name
                     Version    = $Version
@@ -65,7 +65,7 @@ InModuleScope 'FinOpsToolkit' {
                     Files      = @($Assets)
                 }
             }
-    
+
             function New-MockAsset
             {
                 [OutputType([hashtable])]
@@ -75,23 +75,23 @@ InModuleScope 'FinOpsToolkit' {
                     [Parameter(Mandatory = $true)]
                     [string]
                     $Name,
-    
+
                     [Parameter(Mandatory = $true)]
                     [string]
                     $Url
                 )
-    
+
                 return @{
                     Name                 = $Name
                     Url                  = $Url
                     browser_download_url = $Url  # For mocking GitHub requests
                 }
             }
-    
+
             $previewVersion = '1.0.0-alpha.01'
             $releaseVersion = '1.0.0'
         }
-    
+
         Context 'Parameter [Latest]' {
             BeforeAll {
                 $release1 = New-MockRelease -Name 'fake' -Version $releaseVersion

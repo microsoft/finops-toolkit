@@ -18,6 +18,7 @@
 #>
 function Register-FinOpsHubProviders
 {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSUseSingularNouns", "", Justification="Action registers multiple providers, so plural is more accurate.")]
     [CmdletBinding(SupportsShouldProcess)]
     param ()
 

@@ -31,7 +31,7 @@ Describe 'CostExports' {
                 # Act -- create
                 $newResult = New-FinOpsCostExport -Name $typedExportName -Scope $scope -Dataset $datasetType -StorageAccountId $storage.Id -Execute -Backfill 1
                 # TODO: Run tests for all supported API versions: -ApiVersion '2023-08-01'
-                
+
                 # Assert
                 Report -Object $newResult
                 $newResult.Name | Should -Be $typedExportName
@@ -53,7 +53,7 @@ Describe 'CostExports' {
             Monitor "Running $typedExportName..." {
                 # Act -- run now
                 $runResult = Start-FinOpsCostExport -Name $typedExportName -Scope $scope
-                
+
                 # Assert
                 Report $runResult
                 $runResult | Should -BeTrue
@@ -63,7 +63,7 @@ Describe 'CostExports' {
                 # Act -- delete
                 $deleteResult = Remove-FinOpsCostExport -Name $typedExportName -Scope $scope
                 $confirmDeleteResult = Get-FinOpsCostExport -Name $typedExportName -Scope $scope
-                
+
                 # Assert
                 Report $deleteResult
                 $deleteResult | Should -BeTrue
@@ -90,7 +90,7 @@ Describe 'CostExports' {
                     -Dataset AmortizedCost `
                     -OneTime `
                     -StartDate $startDate
-                
+
                 # Assert
                 Report -Object $newResult
                 $newResult.Name | Should -Be $historicalExportName
@@ -113,7 +113,7 @@ Describe 'CostExports' {
                 # Act -- delete
                 $deleteResult = Remove-FinOpsCostExport -Name $historicalExportName -Scope $scope
                 $confirmDeleteResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope
-                
+
                 # Assert
                 Report $deleteResult
                 $deleteResult | Should -BeTrue
@@ -138,7 +138,7 @@ Describe 'CostExports' {
                     -Dataset AmortizedCost `
                     -OneTime `
                     -StartDate $startDate
-                
+
                 # Assert
                 Report -Object $newResult
                 $newResult.Name | Should -Be $historicalExportName
@@ -161,7 +161,7 @@ Describe 'CostExports' {
                 # Act -- delete
                 $deleteResult = Remove-FinOpsCostExport -Name $historicalExportName -Scope $scope
                 $confirmDeleteResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope
-                
+
                 # Assert
                 Report $deleteResult
                 $deleteResult | Should -BeTrue
@@ -190,7 +190,7 @@ Describe 'CostExports' {
                     -Dataset AmortizedCost `
                     -OneTime `
                     -StartDate $startDate
-                
+
                 # Assert
                 Report -Object $newResult
                 $newResult.Name | Should -Be $historicalExportName
@@ -213,7 +213,7 @@ Describe 'CostExports' {
                 # Act -- delete
                 $deleteResult = Remove-FinOpsCostExport -Name $historicalExportName -Scope $scope
                 $confirmDeleteResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope
-                
+
                 # Assert
                 Report $deleteResult
                 $deleteResult | Should -BeTrue
@@ -254,7 +254,7 @@ Describe 'CostExports' {
                 # Act -- create
                 $newResult = New-FinOpsCostExport -Name $exportName -Scope $scope -StorageAccountId $storage.Id -Execute -Backfill 12
                 # TODO: Run tests for all supported API versions: -ApiVersion '2023-08-01'
-                
+
                 # Assert
                 Report -Object $newResult
                 $newResult.Name | Should -Be $exportName
@@ -277,7 +277,7 @@ Describe 'CostExports' {
                 # Act -- delete
                 $deleteResult = Remove-FinOpsCostExport -Name $exportName -Scope $scope
                 $confirmDeleteResult = Get-FinOpsCostExport -Name $exportName -Scope $scope
-                
+
                 # Assert
                 Report $deleteResult
                 $deleteResult | Should -BeTrue
@@ -291,10 +291,10 @@ Describe 'CostExports' {
         BeforeAll {
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $exportName = 'ftk-test-Start-FinOpsCostExport'
-            
+
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $scope = "/subscriptions/$([Guid]::NewGuid())"
-            
+
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $mockExport = @{
                 id   = "$scope/providers/Microsoft.CostManagement/exports/$exportName"
@@ -319,24 +319,24 @@ Describe 'CostExports' {
                 return $false
             }
             Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -MockWith { $mockExport }
-            Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest'          -MockWith { 
+            Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest'          -MockWith {
                 if (CheckDate($Body.timePeriod.from))
                 {
                     @{ Success = $false; Throttled = $true }
                 }
-                else 
+                else
                 {
                     @{ Success = $true }
                 }
             }
             Mock -ModuleName FinOpsToolkit -CommandName 'Write-Progress'       -MockWith {}
-            
+
             # Act
             $success = Start-FinOpsCostExport `
                 -Name $exportName `
                 -Scope $scope `
                 -Backfill 12
-            
+
             # Assert
             Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Write-Progress' -Times 4
             $success | Should -Be $true

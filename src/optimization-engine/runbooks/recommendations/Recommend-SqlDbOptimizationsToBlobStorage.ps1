@@ -26,7 +26,7 @@ $workspaceTenantId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyti
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
 }
@@ -73,12 +73,12 @@ $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -94,25 +94,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE CollectedType IN ('ARGSqlDb','MonitorMetrics','AzureConsumption','ARGResourceContainers')"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -127,8 +127,8 @@ $subscriptionsTableName = $lognamePrefix + ($controlRows | Where-Object { $_.Col
 
 Write-Output "Will run query against tables $sqlDbsTableName, $subscriptionsTableName, $metricsTableName and $consumptionTableName"
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $recommendationSearchTimeSpan = 30 + $consumptionOffsetDaysStart
 
@@ -152,8 +152,8 @@ $baseQuery = @"
     let MetricsInterval = $($perfDaysBackwards)d;
     let BillingInterval = 30d;
     let dtuPercentPercentile = $dtuPercentile;
-    let etime = todatetime(toscalar($consumptionTableName | where todatetime(Date_s) < now() and todatetime(Date_s) > ago(BillingInterval) | summarize max(todatetime(Date_s)))); 
-    let stime = etime-BillingInterval; 
+    let etime = todatetime(toscalar($consumptionTableName | where todatetime(Date_s) < now() and todatetime(Date_s) > ago(BillingInterval) | summarize max(todatetime(Date_s))));
+    let stime = etime-BillingInterval;
     let CandidateDatabaseIds = $sqlDbsTableName
     | where TimeGenerated > ago(1d) and SkuName_s in ('Standard','Premium')
     | distinct InstanceId_s;
@@ -173,15 +173,15 @@ $baseQuery = @"
         | project ResourceId=tolower(ResourceId), CostInBillingCurrency_s, Date_s
     ) on ResourceId
     | summarize Last30DaysCost=sum(todouble(CostInBillingCurrency_s)) by DBName_s, ResourceId, TenantGuid_g, SubscriptionGuid_g, ResourceGroupName_s, SkuName_s, ServiceObjectiveName_s, Tags_s, Cloud_s, P99DTUPercentage
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
-try 
+try
 {
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
@@ -191,7 +191,7 @@ try
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -231,8 +231,8 @@ foreach ($result in $results)
     $additionalInfoDictionary = @{}
 
     $additionalInfoDictionary["currentSku"] = "$($result.SkuName_s) $($result.ServiceObjectiveName_s)"
-    $additionalInfoDictionary["DTUPercentage"] = [int] $result.P99DTUPercentage 
-    $additionalInfoDictionary["CostsAmount"] = [double] $result.Last30DaysCost 
+    $additionalInfoDictionary["DTUPercentage"] = [int] $result.P99DTUPercentage
+    $additionalInfoDictionary["CostsAmount"] = [double] $result.Last30DaysCost
     $additionalInfoDictionary["savingsAmount"] = ([double] $result.Last30DaysCost / 2)
 
     $fitScore = 5
@@ -249,7 +249,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -317,15 +317,15 @@ $baseQuery = @"
         | project ResourceId = InstanceId_s, DBName_s, ResourceGroupName_s, SubscriptionGuid_g, TenantGuid_g, SkuName_s, ServiceObjectiveName_s, Tags_s, Cloud_s
     ) on ResourceId
     | project DBName_s, ResourceId, TenantGuid_g, SubscriptionGuid_g, ResourceGroupName_s, SkuName_s, ServiceObjectiveName_s, Tags_s, Cloud_s, AvgDTUPercentage
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s
     ) on SubscriptionGuid_g
 "@
 
-try 
+try
 {
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
@@ -335,7 +335,7 @@ try
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -375,7 +375,7 @@ foreach ($result in $results)
     $additionalInfoDictionary = @{}
 
     $additionalInfoDictionary["currentSku"] = "$($result.SkuName_s) $($result.ServiceObjectiveName_s)"
-    $additionalInfoDictionary["DTUPercentage"] = [int] $result.AvgDTUPercentage 
+    $additionalInfoDictionary["DTUPercentage"] = [int] $result.AvgDTUPercentage
 
     $fitScore = 4
 
@@ -391,7 +391,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }

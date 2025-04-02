@@ -34,7 +34,7 @@ function Start-Monitor
         [Parameter()][switch]$CatchExceptions,
         [Parameter(Position = 1)][scriptblock]$ScriptBlock
     )
-    
+
     if ($script:__MonitorConfig.Indentation.Length -gt 0) { Write-MonitorMessage }
     $script:__MonitorConfig.Indent($Indent)
     Write-MonitorMessage $Name
@@ -46,8 +46,8 @@ function Start-Monitor
     catch
     {
         # Use inner exception; outer exception is from the Invoke() call
-        $e = $_.Exception.InnerException ?? $_.Exception ?? $_ 
-        if ($CatchExceptions) 
+        $e = $_.Exception.InnerException ?? $_.Exception ?? $_
+        if ($CatchExceptions)
         {
             Write-MonitorMessage "Script failed!" -Exception $e
         }
@@ -57,7 +57,7 @@ function Start-Monitor
         }
     }
     finally
-    {        
+    {
         $script:__MonitorConfig.Outdent()
         Write-MonitorMessage -Footer "└$('─' * (50 - $script:__MonitorConfig.Indentation.Length - 1))"
         $script:__MonitorConfig.Outdent($Indent)

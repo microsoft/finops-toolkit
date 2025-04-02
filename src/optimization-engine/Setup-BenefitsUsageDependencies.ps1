@@ -3,8 +3,8 @@
 This script sets up the necessary dependencies for the Azure Optimization Engine to collect the data required for the several Azure benefits workbooks.
 
 .DESCRIPTION
-This script sets up the necessary dependencies for the Azure Optimization Engine to collect the data required for the several Azure benefits workbooks. 
-It will ask for the customer type (EA or MCA), the billing account ID, the billing profile ID (if MCA), and the consumption currency code. It will then grant 
+This script sets up the necessary dependencies for the Azure Optimization Engine to collect the data required for the several Azure benefits workbooks.
+It will ask for the customer type (EA or MCA), the billing account ID, the billing profile ID (if MCA), and the consumption currency code. It will then grant
 the necessary roles to the Azure Optimization Engine managed identity and set up the required variables in the Automation Account.
 
 .PARAMETER AzureEnvironment
@@ -23,13 +23,13 @@ The name of the Resource Group where the Automation Account is located.
 https://aka.ms/AzureOptimizationEngine/commitmentssetup
 #>
 param(
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String] $AzureEnvironment = "AzureCloud",
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $AutomationAccountName,
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $ResourceGroupName
 )
 
@@ -52,7 +52,7 @@ try {
     $scheduledRunbooks = Get-AzAutomationScheduledRunbook -AutomationAccountName $AutomationAccountName -ResourceGroupName $ResourceGroupName
 }
 catch {
-    throw "$AutomationAccountName Automation Account not found in Resource Group $ResourceGroupName in Subscription $($ctx.Subscription.Name). If we are not in the right subscription, use Set-AzContext to switch to the correct one."    
+    throw "$AutomationAccountName Automation Account not found in Resource Group $ResourceGroupName in Subscription $($ctx.Subscription.Name). If we are not in the right subscription, use Set-AzContext to switch to the correct one."
 }
 
 if (-not($scheduledRunbooks)) {
@@ -79,7 +79,7 @@ $mcaBillingProfileIdRegex = "([A-Za-z0-9]+(-[A-Za-z0-9]+)+)"
 $customerType = Read-Host "Are you an Enterprise Agreement (EA), Microsoft Customer Agreement (MCA), or other type (Other) of customer? Please, type EA, MCA, or Other"
 
 switch ($customerType) {
-    "EA" {  
+    "EA" {
         $billingAccountId = Read-Host "Please, enter your Enterprise Agreement Billing Account ID (e.g. 12345678)"
         try
         {
@@ -141,7 +141,7 @@ switch ($customerType) {
             if (-not($roleAssignmentResponse.StatusCode -in (200,201,202)))
             {
                 throw "The Billing Profile Reader role could not be granted. Status Code: $($roleAssignmentResponse.StatusCode); Response: $($roleAssignmentResponse.Content)"
-            }    
+            }
         }
         else
         {
@@ -178,7 +178,7 @@ if ($billingProfileId)
     else
     {
         Set-AzAutomationVariable -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Name $billingProfileIdVarName -Value $billingProfileId -Encrypted $false | Out-Null
-    }    
+    }
 }
 
 $currencyCode = Read-Host "Please, enter your consumption currency code (e.g. EUR, USD, etc.)"
