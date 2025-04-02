@@ -78,10 +78,10 @@ src/optimization-engine @helderpinto
 src/power-bi/*/Governance* @nteyan
 
 # PowerShell
-docs/powershell.md @aromano2
-src/powershell @aromano2
-docs-mslearn/toolkit/powershell @aromano2
-src/powershell @aromano2
+#docs/powershell.md @TODO
+#src/powershell @TODO
+#docs-mslearn/toolkit/powershell @TODO
+#src/powershell @TODO
 
 # Web
 src/web @ivanmtta @jamelachahbar
