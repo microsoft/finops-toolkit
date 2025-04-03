@@ -84,7 +84,7 @@ function Copy-TemplateFiles()
     Remove-Item "$relDir/*.zip" -Force
 
     return Get-ChildItem "$relDir/$Template*" -Directory `
-    | Where-Object { $_.Name -ne 'pbit' -and $_.Name -ne 'pbix' } `
+    | Where-Object { @('pbit', 'pbix', 'FinOpsToolkit') -notcontains $_.Name } `
     | ForEach-Object {
         Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
         $srcPath = $_
