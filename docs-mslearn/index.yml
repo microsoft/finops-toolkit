@@ -125,7 +125,7 @@ conceptualContent:
         text: FinOps education and enablement
       - url: framework/manage/governance.md
         itemType: concept
-        text: Cloud policy and governance
+        text: Policy and governance
       - url: framework/manage/invoicing-chargeback.md
         itemType: concept
         text: Invoicing + chargeback

@@ -71,7 +71,7 @@ Use the following information as a guide to select the right FinOps capabilities
     3. Rate optimization
     4. Licensing and SaaS
     5. Cloud sustainability
-    6. Cloud policy and governance
+    6. Policy and governance
 7. If your team has a solid understanding of the basics and needs to map cloud investments back to business value, consider:
     1. Unit economics
     2. Allocation

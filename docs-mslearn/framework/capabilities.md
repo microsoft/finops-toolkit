@@ -59,7 +59,7 @@ The **Manage the FinOps practice** domain is focused on establishing a clear and
 - [FinOps education and enablement](./manage/education.md)
 - [FinOps practice operations](./manage/operations.md)
 - [Onboarding workloads](./manage/onboarding.md)
-- [Cloud policy and governance](./manage/governance.md)
+- [Policy and governance](./manage/governance.md)
 - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
 - [FinOps assessment](./manage/assessment.md)
 - [FinOps tools and services](./manage/tools-services.md)

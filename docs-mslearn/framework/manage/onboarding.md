@@ -101,6 +101,6 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Forecasting](../quantify/forecasting.md)
-- [Cloud policy and governance](./governance.md)
+- [Policy and governance](./governance.md)
 
 <br>
