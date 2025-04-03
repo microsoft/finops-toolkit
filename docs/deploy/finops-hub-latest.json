@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "5439938411281903410"
+      "templateHash": "6665130305505342036"
     }
   },
   "parameters": {
@@ -280,7 +280,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "2523028206602190451"
+              "templateHash": "9032999427449681343"
             }
           },
           "parameters": {
@@ -498,14 +498,14 @@
             "dataFactorySuffix": "[format('-{0}', variables('uniqueSuffix'))]",
             "dataFactoryName": "[replace(format('{0}{1}', take(variables('dataFactoryPrefix'), sub(63, length(variables('dataFactorySuffix')))), variables('dataFactorySuffix')), '--', '-')]",
             "deployDataExplorer": "[not(empty(parameters('dataExplorerName')))]",
-            "telemetryId": "00f120b5-2007-6120-0000-40b000000000"
+            "telemetryId": "[join(createArray('00f120b5-2007-6120-0000-40b000000000_', if(or(empty(parameters('remoteHubStorageUri')), empty(parameters('remoteHubStorageKey'))), '', 'R'), substring(split(parameters('storageSku'), '_')[1], 0, 1), if(empty(parameters('dataExplorerName')), '', format('X{0}', substring(parameters('dataExplorerSku'), 0, 1))), if(empty(parameters('dataExplorerName')), '', replace(replace(replace(replace(replace(replace(replace(replace(split(split(parameters('dataExplorerSku'), 'Standard_')[1], '_')[0], 'C', ''), 'D', ''), 'E', ''), 'L', ''), 'a', ''), 'd', ''), 'i', ''), 's', '')), if(or(empty(parameters('dataExplorerName')), equals(parameters('dataExplorerCapacity'), 1)), '', format('x{0}', parameters('dataExplorerCapacity'))), if(parameters('enablePublicAccess'), '', 'P')), '')]"
           },
           "resources": [
             {
               "condition": "[parameters('enableDefaultTelemetry')]",
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
-              "name": "[format('pid-{0}-{1}', variables('telemetryId'), uniqueString(deployment().name, parameters('location')))]",
+              "name": "[format('pid-{0}_{1}', variables('telemetryId'), uniqueString(deployment().name, parameters('location')))]",
               "properties": {
                 "mode": "Incremental",
                 "template": {
@@ -2155,7 +2155,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.33.93.31351",
-                      "templateHash": "18243166431907778116"
+                      "templateHash": "12998070848171971309"
                     }
                   },
                   "functions": [
@@ -2377,7 +2377,7 @@
                     }
                   },
                   "variables": {
-                    "$fxv#0": "# Copyright (c) Microsoft Corporation.\r\n# Licensed under the MIT License.\r\n\r\n# Init outputs\r\n$DeploymentScriptOutputs = @{}\r\n\r\n#\r\n$adfParams = @{\r\n    ResourceGroupName = $env:DataFactoryResourceGroup\r\n    DataFactoryName   = $env:DataFactoryName\r\n}\r\n\r\n# Delete old triggers\r\n$triggers = Get-AzDataFactoryV2Trigger @adfParams -ErrorAction SilentlyContinue `\r\n| Where-Object { $_.Name -match '^msexports(_(setup|daily|monthly|extract|FileAdded))?$' }\r\n$DeploymentScriptOutputs[\"stopTriggers\"] = $triggers | Stop-AzDataFactoryV2Trigger -Force -ErrorAction SilentlyContinue\r\n$DeploymentScriptOutputs[\"deleteTriggers\"] = $triggers | Remove-AzDataFactoryV2Trigger -Force -ErrorAction SilentlyContinue\r\n\r\n# Delete old pipelines\r\n$DeploymentScriptOutputs[\"pipelines\"] = Get-AzDataFactoryV2Pipeline @adfParams -ErrorAction SilentlyContinue `\r\n| Where-Object { $_.Name -match '^(msexports_(backfill|extract|fill|get|run|setup|transform)|config_(BackfillData|ExportData|RunBackfill|RunExports))$' } `\r\n| Remove-AzDataFactoryV2Pipeline -Force -ErrorAction SilentlyContinue\r\n",
+                    "$fxv#0": "# Copyright (c) Microsoft Corporation.\r\n# Licensed under the MIT License.\r\n\r\n# Init outputs\r\n$DeploymentScriptOutputs = @{}\r\n\r\n# \r\n$adfParams = @{\r\n    ResourceGroupName = $env:DataFactoryResourceGroup\r\n    DataFactoryName   = $env:DataFactoryName\r\n}\r\n\r\n# Delete old triggers\r\n$triggers = Get-AzDataFactoryV2Trigger @adfParams -ErrorAction SilentlyContinue `\r\n| Where-Object { $_.Name -match '^msexports(_(setup|daily|monthly|extract|FileAdded))?$' }\r\n$DeploymentScriptOutputs[\"stopTriggers\"] = $triggers | Stop-AzDataFactoryV2Trigger -Force -ErrorAction SilentlyContinue\r\n$DeploymentScriptOutputs[\"deleteTriggers\"] = $triggers | Remove-AzDataFactoryV2Trigger -Force -ErrorAction SilentlyContinue\r\n\r\n# Delete old pipelines\r\n$DeploymentScriptOutputs[\"pipelines\"] = Get-AzDataFactoryV2Pipeline @adfParams -ErrorAction SilentlyContinue `\r\n| Where-Object { $_.Name -match '^(msexports_(backfill|extract|fill|get|run|setup|transform)|config_(BackfillData|ExportData|RunBackfill|RunExports))$' } `\r\n| Remove-AzDataFactoryV2Pipeline -Force -ErrorAction SilentlyContinue\r\n",
                     "$fxv#1": "# Copyright (c) Microsoft Corporation.\r\n# Licensed under the MIT License.\r\n\r\nParam(\r\n    [switch] $Stop\r\n)\r\n\r\n# Init outputs\r\n$DeploymentScriptOutputs = @{}\r\n\r\nif (-not $Stop)\r\n{\r\n    Start-Sleep -Seconds 10\r\n}\r\n\r\n# Loop thru triggers\r\n$env:Triggers.Split('|') `\r\n| ForEach-Object {\r\n    $trigger = $_\r\n    if ($Stop)\r\n    {\r\n        Write-Output \"Stopping trigger $trigger...\"\r\n        $triggerOutput = Stop-AzDataFactoryV2Trigger `\r\n            -ResourceGroupName $env:DataFactoryResourceGroup `\r\n            -DataFactoryName $env:DataFactoryName `\r\n            -Name $trigger `\r\n            -Force `\r\n            -ErrorAction SilentlyContinue # Ignore errors, since the trigger may not exist\r\n    }\r\n    else\r\n    {\r\n        Write-Output \"Starting trigger $trigger...\"\r\n        $triggerOutput = Start-AzDataFactoryV2Trigger `\r\n            -ResourceGroupName $env:DataFactoryResourceGroup `\r\n            -DataFactoryName $env:DataFactoryName `\r\n            -Name $trigger `\r\n            -Force\r\n    }\r\n    if ($triggerOutput)\r\n    {\r\n        Write-Output \"done...\"\r\n    }\r\n    else\r\n    {\r\n        Write-Output \"failed...\"\r\n    }\r\n    $DeploymentScriptOutputs[$trigger] = $triggerOutput\r\n}\r\n\r\nif ($Stop)\r\n{\r\n    Start-Sleep -Seconds 10\r\n}\r\n\r\nif (-not [string]::IsNullOrWhiteSpace($env:Pipelines))\r\n{\r\n    $env:Pipelines.Split('|') `\r\n    | ForEach-Object {\r\n        Write-Output \"Running the init pipeline...\"\r\n        Invoke-AzDataFactoryV2Pipeline `\r\n            -ResourceGroupName $env:DataFactoryResourceGroup `\r\n            -DataFactoryName $env:DataFactoryName `\r\n            -PipelineName $_\r\n    }\r\n}\r\n",
                     "$fxv#2": "# Copyright (c) Microsoft Corporation.\r\n# Licensed under the MIT License.\r\n\r\nParam(\r\n    [switch] $Stop\r\n)\r\n\r\n# Init outputs\r\n$DeploymentScriptOutputs = @{}\r\n\r\nif (-not $Stop)\r\n{\r\n    Start-Sleep -Seconds 10\r\n}\r\n\r\n# Loop thru triggers\r\n$env:Triggers.Split('|') `\r\n| ForEach-Object {\r\n    $trigger = $_\r\n    if ($Stop)\r\n    {\r\n        Write-Output \"Stopping trigger $trigger...\"\r\n        $triggerOutput = Stop-AzDataFactoryV2Trigger `\r\n            -ResourceGroupName $env:DataFactoryResourceGroup `\r\n            -DataFactoryName $env:DataFactoryName `\r\n            -Name $trigger `\r\n            -Force `\r\n            -ErrorAction SilentlyContinue # Ignore errors, since the trigger may not exist\r\n    }\r\n    else\r\n    {\r\n        Write-Output \"Starting trigger $trigger...\"\r\n        $triggerOutput = Start-AzDataFactoryV2Trigger `\r\n            -ResourceGroupName $env:DataFactoryResourceGroup `\r\n            -DataFactoryName $env:DataFactoryName `\r\n            -Name $trigger `\r\n            -Force\r\n    }\r\n    if ($triggerOutput)\r\n    {\r\n        Write-Output \"done...\"\r\n    }\r\n    else\r\n    {\r\n        Write-Output \"failed...\"\r\n    }\r\n    $DeploymentScriptOutputs[$trigger] = $triggerOutput\r\n}\r\n\r\nif ($Stop)\r\n{\r\n    Start-Sleep -Seconds 10\r\n}\r\n\r\nif (-not [string]::IsNullOrWhiteSpace($env:Pipelines))\r\n{\r\n    $env:Pipelines.Split('|') `\r\n    | ForEach-Object {\r\n        Write-Output \"Running the init pipeline...\"\r\n        Invoke-AzDataFactoryV2Pipeline `\r\n            -ResourceGroupName $env:DataFactoryResourceGroup `\r\n            -DataFactoryName $env:DataFactoryName `\r\n            -PipelineName $_\r\n    }\r\n}\r\n",
                     "focusSchemaVersion": "1.0",
