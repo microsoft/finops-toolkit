@@ -1,9 +1,9 @@
 ---
 title: Create a Fabric workspace for FinOps
 description: This article guides you through creating and configuring a Microsoft Fabric workspace for FinOps. When completed, you can use Power BI to build reports.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-workspaces
@@ -84,7 +84,7 @@ Ensure that your export completed and that the file is available before moving t
 >[!IMPORTANT]
 > Cost Management exports utilize managed identity. To create an export, you must be an Owner of the storage account or have access to grant permissions to the storage account. To see all required permissions, see [Prerequisites](/azure/cost-management-billing/costs/tutorial-improved-exports#prerequisites).
 
-If you want to automate export creation, consider using the [New-FinOpsCostExport command](https://microsoft.github.io/finops-toolkit/powershell/cost/New-FinOpsCostExport) in the FinOps toolkit PowerShell module.
+If you want to automate export creation, consider using the [New-FinOpsCostExport command](../toolkit/powershell/cost/New-FinOpsCostExport.md) in the FinOps toolkit PowerShell module.
 
 If you deployed [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md), you can skip this step and use the processed data in hub storage.
 
@@ -261,7 +261,7 @@ After the data is ingested into Fabric and tables are ready, you can move on to 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Workspaces/featureName/Documentation.Create)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Workspaces/featureName/Documentation.Create)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
