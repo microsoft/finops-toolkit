@@ -45,7 +45,7 @@ Designed with flexibility in mind, FinOps alerts run on a fully configurable sch
     </div>
     <div class="ftk-tile">
         <div>📃 Review resource utilization</div>
-        <div>Track resource inventory and utilization of targeted services.<br>&nbsp;</div>
+        <div>Track resource inventory and utilization of targeted services.</div>
     </div>
 </div>
 <a name="deploy"></a>
