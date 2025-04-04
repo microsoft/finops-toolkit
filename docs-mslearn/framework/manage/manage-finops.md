@@ -3,11 +3,11 @@ title: Manage the FinOps practice
 description: Learn about the FinOps capabilities that help you establish your FinOps practice and drive organizational accountability.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

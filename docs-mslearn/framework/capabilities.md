@@ -3,11 +3,11 @@ title: FinOps capabilities
 description: Learn about what the fundamental building blocks of the FinOps Framework that enable you to maximize business value through the cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
