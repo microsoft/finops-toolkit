@@ -119,7 +119,7 @@ If you're looking for something specific, vote for an existing or create a new i
 
 Related FinOps capabilities:
 
-- [Understand cloud usage and cost](../understand/understand-cloud-usage-cost.md)
+- [Understand usage and cost](../understand/understand-cloud-usage-cost.md)
 - [Quantify business value](../quantify/quantify-business-value.md)
 - [Optimize cloud usage and cost](../optimize/optimize-cloud-usage-cost.md)
 

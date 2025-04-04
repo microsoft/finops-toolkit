@@ -1,5 +1,5 @@
 ---
-title: Understand cloud usage and cost
+title: Understand usage and cost
 description: Learn about the FinOps capabilities that help you collect, normalize, analyze, and monitor cost, usage, and carbon across the organization.
 author: flanakin
 ms.author: micflan
@@ -11,9 +11,9 @@ ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Understand cloud usage and cost
+# Understand usage and cost
 
-This article helps you understand the **Understand cloud usage and cost** domain within the FinOps Framework and how to implement its capabilities in the Microsoft Cloud.
+This article helps you understand the **Understand usage and cost** domain within the FinOps Framework and how to implement its capabilities in the Microsoft Cloud.
 
 This domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain focuses on observability and business intelligence. It involves gathering data (ingestion), organizing it for the organization (allocation), generating reports (reporting), and monitoring to proactively identify and address issues (anomalies).
 

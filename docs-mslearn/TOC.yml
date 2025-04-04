@@ -26,7 +26,7 @@
           items:
             - name: Understand
               items:
-                - name: Understand cloud usage and cost
+                - name: Understand usage and cost
                   href: framework/understand/understand-cloud-usage-cost.md
                 - name: Data ingestion
                   href: framework/understand/ingestion.md

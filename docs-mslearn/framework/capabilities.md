@@ -17,9 +17,9 @@ The FinOps Framework includes capabilities that cover everything you need to per
 
 <br>
 
-## Understand cloud usage and cost
+## Understand usage and cost
 
-The **Understand cloud usage and cost** domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). Then it can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
+The **Understand usage and cost** domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). Then it can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
 
 - [Data ingestion](./understand/ingestion.md)
 - [Allocation](./understand/allocation.md)
