@@ -19,34 +19,34 @@ Accelerate your cost optimization efforts with scheduled notifications that cont
 
 Designed with flexibility in mind, FinOps alerts run on a fully configurable schedule, continuously scanning your selected subscriptions for idle resources.
 
-<div id="whats-new" class="m-0 p-4" style="background-color:#edf; border:solid 1px #609;">
-    <h3 class="m-0 mb-4">What's new in March 2025<span class="ftk-version">v0.9</span></h3>
-    <p class="mt-2 mb-0">
+<div id="whats-new" class="ftk-new">
+    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
+    <p>
         In March, FinOps alerts launched to boost cost optimization with automated notifications that monitor your cloud.
     </p>
-    <p class="mt-2 mb-0 ftk-externallink"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+    <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 <a name="features"></a>
 
 ## Actionable insights for smarter cloud management
 
 <div class="ftk-gallery ftk-50">
-        <div class="ftk-tile">
-                <div>🔍 Monitor idle resources</div>
-                <div>Identify idle resources across your environment to uncover cost savings.</div>
-        </div>
-        <div class="ftk-tile">
-                <div>📧 Automated notifications</div>
-                <div>Get notified when idle resources are detected and take control of your environment.</div>
-        </div>
-        <div class="ftk-tile">
-                <div>🔔 Customize alerts</div>
-                <div>Tune alerts to reach key stakeholders, take new actions, and more!</div>
-        </div>
-        <div class="ftk-tile">
-                <div>📃 Review resource utilization</div>
-                <div>Track resource inventory and utilization of targeted services.<br>&nbsp;</div>
-        </div>
+    <div class="ftk-tile">
+        <div>🔍 Monitor idle resources</div>
+        <div>Identify idle resources across your environment to uncover cost savings.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>📧 Automated notifications</div>
+        <div>Get notified when idle resources are detected and take control of your environment.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🔔 Customize alerts</div>
+        <div>Tune alerts to reach key stakeholders, take new actions, and more!</div>
+    </div>
+    <div class="ftk-tile">
+        <div>📃 Review resource utilization</div>
+        <div>Track resource inventory and utilization of targeted services.<br>&nbsp;</div>
+    </div>
 </div>
 <a name="deploy"></a>
 
