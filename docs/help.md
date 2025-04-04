@@ -64,7 +64,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                     <div>🚀 Deployment options</div>
                     <div>
                         <p>
-                            Have questions about how to deploy FinOps toolkit solutions?
+                            Have questions about how to deploy FinOps toolkit solutions?<br>&nbsp;
                         </p>
                         <p>
                             <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/deploy">Explore options</a>
