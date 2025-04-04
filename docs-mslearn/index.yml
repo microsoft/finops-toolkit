@@ -91,7 +91,7 @@ conceptualContent:
         itemType: concept
         text: Unit economics
     # Card
-    - title: Optimize cloud usage and cost
+    - title: Optimize usage and cost
       links:
       - url: framework/optimize/optimize-cloud-usage-cost.md
         itemType: overview

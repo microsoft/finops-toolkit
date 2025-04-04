@@ -56,7 +56,7 @@
                   href: framework/quantify/unit-economics.md
             - name: Optimize
               items:
-                - name: Optimize cloud usage and cost
+                - name: Optimize usage and cost
                   href: framework/optimize/optimize-cloud-usage-cost.md
                 - name: Architecting for cloud
                   href: framework/optimize/architecting.md

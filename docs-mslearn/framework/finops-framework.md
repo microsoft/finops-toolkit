@@ -105,7 +105,7 @@ The FinOps Framework includes capabilities that cover everything you need to per
   - [Benchmarking](./quantify/benchmarking.md)
   - [Unit economics](./quantify/unit-economics.md)
 
-- Optimize cloud usage and cost
+- Optimize usage and cost
 
   - [Architecting for the cloud](./optimize/architecting.md)
   - [Workload optimization](./optimize/workloads.md)

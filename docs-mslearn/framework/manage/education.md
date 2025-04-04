@@ -28,7 +28,7 @@ Consider marketing initiatives to drive awareness, encourage discussion, and sha
 
 To learn from help and support initiatives, provide a direct channel to get help and support as people are learning. Be responsive and establish a feedback loop.
 
-By formalizing FinOps education and enablement, stakeholders develop the knowledge and skills needed to effectively manage and optimize cloud usage and costs. Organizations see:
+By formalizing FinOps education and enablement, stakeholders develop the knowledge and skills needed to effectively manage and optimize usage and costs. Organizations see:
 
 - Accelerated adoption of FinOps practices, leading to improved financial performance
 - Increased agility

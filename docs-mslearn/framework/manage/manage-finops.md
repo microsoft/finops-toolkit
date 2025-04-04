@@ -121,7 +121,7 @@ Related FinOps capabilities:
 
 - [Understand usage and cost](../understand/understand-cloud-usage-cost.md)
 - [Quantify business value](../quantify/quantify-business-value.md)
-- [Optimize cloud usage and cost](../optimize/optimize-cloud-usage-cost.md)
+- [Optimize usage and cost](../optimize/optimize-cloud-usage-cost.md)
 
 Related products:
 

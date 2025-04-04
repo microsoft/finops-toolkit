@@ -70,7 +70,7 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Quantify business value](../quantify/quantify-business-value.md)
-- [Optimize cloud usage and cost](../optimize/optimize-cloud-usage-cost.md)
+- [Optimize usage and cost](../optimize/optimize-cloud-usage-cost.md)
 - [Manage the FinOps practice](../manage/manage-finops.md)
 
 Related products:

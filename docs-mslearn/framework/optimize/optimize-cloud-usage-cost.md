@@ -1,5 +1,5 @@
 ---
-title: Optimize cloud usage and cost
+title: Optimize usage and cost
 description: Learn about the FinOps capabilities that help you identify and implement the right mix of pricing models, services, and resources needed to meet business demands.
 author: flanakin
 ms.author: micflan
@@ -11,9 +11,9 @@ ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Optimize cloud usage and cost
+# Optimize usage and cost
 
-This article helps you understand the **Optimize cloud usage and cost** domain within the FinOps Framework and how to implement its capabilities in the Microsoft Cloud.
+This article helps you understand the **Optimize usage and cost** domain within the FinOps Framework and how to implement its capabilities in the Microsoft Cloud.
 
 This domain is focused on designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.
 

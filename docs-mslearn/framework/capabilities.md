@@ -40,9 +40,9 @@ The **Quantify business value** domain is focused on identifying and breaking do
 
 <br>
 
-## Optimize cloud usage and cost
+## Optimize usage and cost
 
-The **Optimize cloud usage and cost** domain is focused on designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.
+The **Optimize usage and cost** domain is focused on designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.
 
 - [Architecting for the cloud](./optimize/architecting.md)
 - [Workload optimization](./optimize/workloads.md)
