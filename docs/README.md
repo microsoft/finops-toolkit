@@ -17,9 +17,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <h3>What's new in March 2025<span class="ftk-version">v0.8</span></h3>
     <p>
-        February introduces major Power BI optimizations, a simplified FinOps hubs architecture, with many additional small fixes and improvements across the board.
+        March introduces a new FinOps alerts tool for getting notified about optimization opportunities, FinOps hubs expanded coverage of managed exports, Power BI added the reservation break-even point and performance improvements, and many additional small fixes and improvements across the board.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -48,6 +48,11 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
         <div>📒 FinOps workbooks</div>
         <div>Customizable home for engineers to maximize cloud ROI.</div>
         <a href="./workbooks">Learn more</a>
+    </div>
+    <div class="ftk-tile">
+        <div>🔔 FinOps alerts</div>
+        <div>Automate cost optimization by managing idle resources.</div>
+        <a href="./alerts">Learn more</a>
     </div>
     <div class="ftk-tile">
         <div>🔍 Optimization Engine</div>

@@ -185,18 +185,35 @@ table PublicIPAddresses
 
 		annotation SummarizationSetBy = Automatic
 
+	column properties
+		dataType: string
+		lineageTag: 046aa356-4713-4552-b6ca-6094909a58fd
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
 	partition PublicIPAddresses = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query(
-				    "Resources
+				  query = "
+				    Resources
 				    | where type =~ 'microsoft.network/publicipaddresses'
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "resourceGuid", "idleTimeoutInMinutes", "publicIPAllocationMethod", "publicIPAddressVersion", "ipAddress", "ipConfiguration", "ipTags"}, {"properties.provisioningState", "properties.resourceGuid", "properties.idleTimeoutInMinutes", "properties.publicIPAllocationMethod", "properties.publicIPAddressVersion", "properties.ipAddress", "properties.ipConfiguration", "properties.ipTags"})
+				    | extend
+				      ['properties.provisioningState'] = properties.provisioningState,
+				      ['properties.resourceGuid'] = properties.resourceGuid,
+				      ['properties.idleTimeoutInMinutes'] = properties.idleTimeoutInMinutes,
+				      ['properties.publicIPAllocationMethod'] = properties.publicIPAllocationMethod,
+				      ['properties.publicIPAddressVersion'] = properties.publicIPAddressVersion,
+				      ['properties.ipAddress'] = properties.ipAddress,
+				      ['properties.ipConfiguration'] = properties.ipConfiguration,
+				      ['properties.ipTags'] = properties.ipTags
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
 				in
-				  #"Expanded properties"
+				  Source
 
 	annotation PBI_NavigationStepName = Navigation
 
