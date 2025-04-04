@@ -3,11 +3,11 @@ title: Rate optimization
 description: This article helps you understand the rate optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 # customer intent: As a FinOps practitioner, I want to understand the rate optimization capability so that I can implement that in the Microsoft cloud.
 ---
 
