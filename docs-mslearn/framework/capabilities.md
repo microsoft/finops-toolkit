@@ -3,11 +3,11 @@ title: FinOps capabilities
 description: Learn about what the fundamental building blocks of the FinOps Framework that enable you to maximize business value through the cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -17,9 +17,9 @@ The FinOps Framework includes capabilities that cover everything you need to per
 
 <br>
 
-## Understand cloud usage and cost
+## Understand usage and cost
 
-The **Understand cloud usage and cost** domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). Then it can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
+The **Understand usage and cost** domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). Then it can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
 
 - [Data ingestion](./understand/ingestion.md)
 - [Allocation](./understand/allocation.md)
@@ -40,9 +40,9 @@ The **Quantify business value** domain is focused on identifying and breaking do
 
 <br>
 
-## Optimize cloud usage and cost
+## Optimize usage and cost
 
-The **Optimize cloud usage and cost** domain is focused on designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.
+The **Optimize usage and cost** domain is focused on designing and optimizing solutions for efficiency to ensure you get the most out of your cloud investments.
 
 - [Architecting for the cloud](./optimize/architecting.md)
 - [Workload optimization](./optimize/workloads.md)
