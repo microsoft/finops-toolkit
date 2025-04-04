@@ -1,9 +1,9 @@
 ---
 title: Configure Data Explorer dashboard for FinOps hubs
 description: Deploy a pre-built Azure Data Explorer dashboard for FinOps hubs to start analyzing cost and usage for your accounts.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/21/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -24,7 +24,25 @@ Before you begin, you must have:
 
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
-- Have database viewer access to the Data Explorer **Hub** and **Ingestion** databases.
+- Database viewer or greater access to the Data Explorer **Hub** and **Ingestion** databases. For details, see [Database level security role](/kusto/management/manage-database-security-roles#database-level-security-roles).
+  - Option 1:
+    1. Open the Data Explorer cluster in the Azure portal.
+    2. In the menu, select **Data** > **Databases**.
+    3. Select the **Hub** database.
+    4. In the menu, select **Overview** > **Permissions**.
+    5. Select the **Add** command, then the desired security role. Viewer is the least-privileged role.
+    6. Select the desired users, groups, and applications, then select the **Select** button.
+    7. Repeat steps 3-6 for the **Ingestion** database.
+  - Option 2:
+    1. Open the Data Explorer cluster in the Azure portal.
+    2. In the menu, select **Data** > **Query**.
+    3. Use the following commands to add users, groups, and applications as needed. For more information, see [Database level security role](/kusto/management/manage-database-security-roles#database-level-security-roles).
+
+       ```
+       .add database Hub viewers ('aaduser=<email>', 'aadGroup=<group-id>', 'aadapp=<app-id>;<tenant-id-or-domain>')
+
+       .add database Ingestion viewers ('aaduser=<email>', 'aadGroup=<group-id>', 'aadapp=<app-id>;<tenant-id-or-domain>')
+       ```
 
 This walkthrough does not incur any cost; however, maintaining an active Data Explorer cluster does incur cost.
 
@@ -79,7 +97,7 @@ You may also consider using [Azure workbooks](/azure/azure-monitor/visualize/wor
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/ConfigureScopes)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.9/bladeName/Hubs/featureName/ConfigureScopes)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

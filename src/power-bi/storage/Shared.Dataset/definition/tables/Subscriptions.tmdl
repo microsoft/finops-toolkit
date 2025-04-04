@@ -89,22 +89,6 @@ table Subscriptions
 
 		annotation SummarizationSetBy = Automatic
 
-	column managementGroupAncestorsChain
-		dataType: string
-		lineageTag: e8cb5088-804a-4a4b-b124-bc1569c32912
-		summarizeBy: none
-		sourceColumn: managementGroupAncestorsChain
-
-		annotation SummarizationSetBy = Automatic
-
-	column state
-		dataType: string
-		lineageTag: 004d35f6-d6a8-4c7f-ad7b-05c0dedf2cfe
-		summarizeBy: none
-		sourceColumn: state
-
-		annotation SummarizationSetBy = Automatic
-
 	column tags
 		dataType: string
 		lineageTag: ff48b324-4a1c-488d-97d3-f9f59e0b7f3c
@@ -137,18 +121,46 @@ table Subscriptions
 
 		annotation SummarizationSetBy = Automatic
 
+	column properties
+		dataType: string
+		lineageTag: 6a2cd7e5-ed25-4b1c-b06f-29a947c9b8d6
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.managementGroupAncestorsChain'
+		dataType: string
+		lineageTag: fbb4c9cd-dcfc-4b61-8bc7-42b8dfd82e50
+		summarizeBy: none
+		sourceColumn: properties.managementGroupAncestorsChain
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.state'
+		dataType: string
+		lineageTag: c37d69f0-5039-4418-94b9-44fcd6690201
+		summarizeBy: none
+		sourceColumn: properties.state
+
+		annotation SummarizationSetBy = Automatic
+
 	partition Subscriptions = m
 		mode: import
 		queryGroup: 'Resource Graph'
-		source =
+		source = ```
 				let
-				  Source = AzureResourceGraph.Query(
-				    "resourcecontainers
+				  query = "
+				    resourcecontainers
 				    | where type == 'microsoft.resources/subscriptions'
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"managementGroupAncestorsChain", "state"}, {"managementGroupAncestorsChain", "state"})
+				    | extend
+				      ['properties.managementGroupAncestorsChain'] = properties.managementGroupAncestorsChain,
+				      ['properties.state'] = properties.state 
+				    " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
 				in
-				  #"Expanded properties"
+				  Source
+				```
 
 	annotation PBI_NavigationStepName = Navigation
 

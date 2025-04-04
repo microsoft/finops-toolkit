@@ -201,18 +201,37 @@ table PolicyDefinitions
 
 		annotation SummarizationSetBy = Automatic
 
+	column properties
+		dataType: string
+		lineageTag: d875559a-f226-4140-9a14-5f75934bcae5
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
 	partition PolicyDefinitions = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query(
-				    "policyResources
+				  query = "
+				    policyResources
 				    | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"displayName", "policyType", "description", "metadata", "version", "parameters", "policyDefinitions", "policyDefinitionGroups", "versions", "oldVersions"}, {"properties.displayName", "properties.policyType", "properties.description", "properties.metadata", "properties.version", "properties.parameters", "properties.policyDefinitions", "properties.policyDefinitionGroups", "properties.versions", "properties.oldVersions"})
+				    | extend
+				      ['properties.displayName'] = properties.displayName,
+				      ['properties.policyType'] = properties.policyType,
+				      ['properties.description'] = properties.description,
+				      ['properties.metadata'] = properties.metadata,
+				      ['properties.version'] = properties.version,
+				      ['properties.parameters'] = properties.parameters,
+				      ['properties.policyDefinitions'] = properties.policyDefinitions,
+				      ['properties.policyDefinitionGroups'] = properties.policyDefinitionGroups,
+				      ['properties.versions'] = properties.versions,
+				      ['properties.oldVersions'] = properties.oldVersions
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
 				in
-				  #"Expanded properties"
+				  Source
 
 	annotation PBI_NavigationStepName = Navigation
 

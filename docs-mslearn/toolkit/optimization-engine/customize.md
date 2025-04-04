@@ -1,9 +1,9 @@
 ---
 title: Customize Azure optimization engine
 description: This article describes how to customize the Azure optimization engine settings according to your organization requirements.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/13/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
