@@ -1,9 +1,9 @@
 ---
 title: Cost Management connector report
 description: Understand the Power BI report for the Cost Management connector, including cost overviews, commitment discounts, and savings insights.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/13/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -28,7 +28,7 @@ The **Cost Management connector** report provides a general overview of cost, co
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.pbix)
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Cost%20Management%20connector%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Cost%20Management%20connector%20report%3F/surveyId/FTK0.8/bladeName/PowerBI.CMConnector/featureName/Documentation)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Cost%20Management%20connector%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Cost%20Management%20connector%20report%3F/surveyId/FTK0.9/bladeName/PowerBI.CMConnector/featureName/Documentation)
 
 <br>
 

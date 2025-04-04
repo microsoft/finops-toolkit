@@ -1,9 +1,9 @@
 ---
 title: Troubleshoot Azure Optimization Engine issues
 description: This article helps you troubleshoot common issues with Azure Optimization Engine deployment and runtime.
-author: bandersmsft
-ms.author: banders
-ms.date: 10/31/2024
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit

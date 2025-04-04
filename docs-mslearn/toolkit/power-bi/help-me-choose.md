@@ -1,9 +1,9 @@
 ---
 title: Choose a Power BI data source
 description: Learn about different ways to connect Power BI to your data to analyze and report on cloud costs, including connectors and exports.
-author: bandersmsft
-ms.author: banders
-ms.date: 12/03/2024
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

@@ -180,6 +180,12 @@
           href: toolkit/workbooks/optimization.md
         - name: Customize workbooks
           href: toolkit/workbooks/customize-workbooks.md
+    - name: FinOps alerts
+      items:
+        - name: Overview
+          href: toolkit/alerts/finops-alerts-overview.md
+        - name: Configure alerts
+          href: toolkit/alerts/configure-finops-alerts.md
     - name: Optimization engine
       items:
         - name: Overview

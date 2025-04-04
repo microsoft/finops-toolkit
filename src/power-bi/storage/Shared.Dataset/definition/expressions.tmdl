@@ -333,18 +333,18 @@ expression ftk_Storage = ```
 					else null
 				),
 				"x_BillingAccountAgreement",
-				each if data = "focuscost" then (
-					if [BillingAccountId] = [SubAccountId] then "MOSA"
-					else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"
-					else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = "Microsoft" then "MCA" else "MPA")
+					each if data = "focuscost" then (
+						if [BillingAccountId] = [SubAccountId] then "MOSA"
+						else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"
+						else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = "Microsoft" then "MCA" else "MPA")
+						else "Unknown"
+					)
+					else if data = "pricesheet"                 then (if Table.HasColumns(FilterRowsByDate, "EnrollmentNumber") and [EnrollmentNumber] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
+					else if data = "reservationdetails"         then "Unknown" // TODO: Consider using export manifest if we get feedback that this should always be available
+					else if data = "reservationtransactions"    then (if Table.HasColumns(FilterRowsByDate, "CurrentEnrollmentId") and [CurrentEnrollmentId] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
+					else if data = "reservationrecommendations" then (if Table.HasColumns(FilterRowsByDate, "SKU") and [SKU] <> null then "EA" else "MCA")
 					else "Unknown"
-				)
-				else if data = "pricesheet"                 then (if Table.HasColumns(FilterRowsByDate, "EnrollmentNumber") and [EnrollmentNumber] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
-				else if data = "reservationdetails"         then "Unknown" // TODO: Consider using export manifest if we get feedback that this should always be available
-				else if data = "reservationtransactions"    then (if Table.HasColumns(FilterRowsByDate, "CurrentEnrollmentId") and [CurrentEnrollmentId] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
-				else if data = "reservationrecommendations" then (if Table.HasColumns(FilterRowsByDate, "Scope") and [Scope] <> null then "EA" else "MCA")
-				else "Unknown"
-			),
+				),
 			Output = Table.SelectColumns(CustomColumns, List.Sort(Table.ColumnNames(CustomColumns)))
 		in
 			Output
@@ -475,7 +475,7 @@ expression 'Experimental: Add Missing Prices' = false meta [IsParameterQuery=tru
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Logical
+	annotation PBI_ResultType = Exception
 
 /// Generates a KQL filter to be used in Resource Graph queries to filter out test data.
 expression ftk_DemoFilter =
@@ -504,7 +504,7 @@ expression 'Deprecated: Perform Extra Query Optimizations' = false meta [IsParam
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Logical
+	annotation PBI_ResultType = Exception
 
 /// Indicate whether you want the default granularity to be daily or monthly in this report. This only impacts visuals configured to use the x_ReportingDate column. Use ChargePeriodStart for daily and x_ChargeMonth for monthly to ignore this setting.
 expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
@@ -513,5 +513,5 @@ expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"D
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Text
+	annotation PBI_ResultType = Exception
 
