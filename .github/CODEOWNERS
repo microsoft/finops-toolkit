@@ -12,7 +12,7 @@
 # This should make it easy to add new rules without breaking existing ones.
 
 # Global rule
-* @microsoft/finops-toolkit
+#* @microsoft/finops-toolkit
 * @flanakin @arthurclares
 
 # DevOps folders
@@ -28,18 +28,21 @@
 #docs-mslearn/toolkit/*.md @TODO
 #docs-wiki @TODO
 
-# FTK leadership
+# FTK governing board
 docs-mslearn/toolkit/roadmap.md @microsoft/finops-toolkit-board
 docs-wiki/Advisory-council.md @microsoft/finops-toolkit-board
-docs-wiki/Coding-guidelines.md @microsoft/finops-toolkit-council
-docs-wiki/Dev-process.md @microsoft/finops-toolkit-council
 docs-wiki/Governing-board.md @microsoft/finops-toolkit-board
 docs-wiki/Release-process.md @microsoft/finops-toolkit-board
+
+# FTK advisory council
+.github/CODEOWNERS @microsoft/finops-toolkit-council
+docs-wiki/Coding-guidelines.md @microsoft/finops-toolkit-council
+docs-wiki/Dev-process.md @microsoft/finops-toolkit-council
 docs-wiki/Support-escalations.md @microsoft/finops-toolkit-board
 
 # Alerts
-docs/alerts.md @ro100e
-docs-mslearn/toolkit/alerts @ro100e
+docs/alerts.md @ro100e @arthurclares @flanakin
+docs-mslearn/toolkit/alerts @ro100e @arthurclares @flanakin
 src/templates/finops-alerts @ro100e
 
 # Bicep
@@ -57,9 +60,9 @@ docs-mslearn/focus @flanakin
 docs-mslearn/fabric @flanakin
 
 # Hubs
-docs/hubs.md @msbrett @flanakin
-docs-mslearn/toolkit/hubs @msbrett @flanakin
-src/templates/finops-hub @msbrett @flanakin
+docs/hubs.md @msbrett @flanakin @arthurclares
+docs-mslearn/toolkit/hubs @msbrett @flanakin @arthurclares
+src/templates/finops-hub @msbrett @flanakin @arthurclares
 
 # Open data
 docs/open-data.md @flanakin
@@ -67,8 +70,8 @@ docs-mslearn/toolkit/open-data.md @flanakin
 src/open-data @flanakin
 
 # Optimization Engine
-docs/optimization-engine.md @helderpinto
-docs-mslearn/toolkit/optimization-engine @helderpinto
+docs/optimization-engine.md @helderpinto @arthurclares @flanakin
+docs-mslearn/toolkit/optimization-engine @helderpinto @arthurclares @flanakin
 src/optimization-engine @helderpinto
 
 # Power BI
@@ -84,11 +87,11 @@ src/power-bi/*/Governance* @nteyan
 #src/powershell @TODO
 
 # Web
-src/web @ivanmtta @jamelachahbar
+src/web @ivanmtta @jamelachahbar @flanakin
 
 # Workbooks
-docs/workbooks.md @arthurclares @nteyan
-docs-mslearn/toolkit/workbooks @arthurclares @nteyan
+docs/workbooks.md @arthurclares @nteyan @flanakin
+docs-mslearn/toolkit/workbooks @arthurclares @nteyan @flanakin
 src/templates/finops-workbooks @arthurclares @nteyan
 src/workbooks/governance @nteyan
 src/workbooks/optimization @arthurclares
