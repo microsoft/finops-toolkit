@@ -32,7 +32,7 @@ The following section lists features and enhancements that are currently in deve
 
 ## v0.9
 
-_Released April 2, 2025_
+_Released April 4, 2025_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
 
