@@ -1360,8 +1360,8 @@ CommitmentDiscountUsage_transform_v1_0()
 
 //===| Recommendations |================================================================================================
 // Supported datasets/versions:
-// - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
-// - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
+// - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
+// - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
 //======================================================================================================================
 
 // Recommendations_raw table
@@ -1545,8 +1545,8 @@ Recommendations_transform_v1_0()
 
 //===| Transactions |===================================================================================================
 // Supported versions:
-// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
-// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
+// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
+// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
 // Transactions_raw table

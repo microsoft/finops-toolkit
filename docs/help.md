@@ -67,7 +67,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                             Have questions about how to deploy FinOps toolkit solutions?<br>&nbsp;
                         </p>
                         <p>
-                            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/deploy">Explore options</a>
+                            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/deploy">Explore options</a>
                         </p>
                     </div>
                 </div>
@@ -78,7 +78,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                             Have questions about columns in reports and other experiences? Use the data dictionary.
                         </p>
                         <p>
-                            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/data-dictionary">Explore columns</a>
+                            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/data-dictionary">Explore columns</a>
                         </p>
                     </div>
                 </div>
@@ -89,7 +89,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                             Have questions about columns or terms you see in reports and other experiences?
                         </p>
                         <p>
-                            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/terms">Explore terms</a>
+                            <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/terms">Explore terms</a>
                         </p>
                     </div>
                 </div>
@@ -122,7 +122,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                 Do you have a specific error code? Look up common errors for details and mitigation steps.
             </p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/errors.md">Review errors</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors.md">Review errors</a>
             </p>
         </div>
     </div>
@@ -133,7 +133,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                 Please walk thru the troubleshooting guide to resolve the most common configuration issues.
             </p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/troubleshooting.md">Start troubleshooting</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting.md">Start troubleshooting</a>
             </p>
         </div>
     </div>
