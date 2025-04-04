@@ -60,7 +60,6 @@ Function CostRecommendations {
                  return # Continue execution without blocking
             }
 
-            # Compare versions using the [System.Version] type
             $currentVerObj = [System.Version]$CurrentVersion
             $latestVerObj = [System.Version]$latestVersionString
 
@@ -405,19 +404,10 @@ Function CostRecommendations {
                     if ($using:subFilterString) {
                         $filterClauses += "subscriptionId in ($($using:subFilterString))"
                     }
-                    # ARG uses 'resourceGroup' not 'x_ResourceGroupName' for filtering resources
                     if (-not [string]::IsNullOrWhiteSpace($using:rgName)) {
-                         # Check if the query already projects resourceGroup, otherwise this filter might fail if applied after projection.
-                         # This is a basic check; complex queries might need smarter injection.
-                         # Assuming base queries select '*', 'properties', or explicitly 'resourceGroup'.
                         $filterClauses += "resourceGroup =~ '$($using:rgName)'" # Use case-insensitive match
                     }
-
                     if ($filterClauses.Count -gt 0) {
-                        # Find a suitable place to inject 'where' or append using '| where'
-                        # Simple approach: append if no 'where' is obviously present before a final projection/summarize
-                        # More robust: Parse query structure (complex)
-                        # Safest simple approach: append with '| where'
                         $query += " | where " + ($filterClauses -join ' and ')
                     }
 
@@ -443,8 +433,8 @@ Function CostRecommendations {
                     Write-ParallelLog -Message "Failed Query: $query" -Level "ERROR"
                     return @{ Success = $false; Error = $errorMessage; Query = $query }
                 }
-            } -ArgumentList $file.FullName, $subscriptionFilterString, $resourceGroupName, $logFile -HideComputerName -ThrottleLimit 5 # Adjust ThrottleLimit as needed
-            @{ Job = $job; File = $file } # Keep track of which job corresponds to which file
+            } -ArgumentList $file.FullName, $subscriptionFilterString, $resourceGroupName, $logFile -HideComputerName -ThrottleLimit 5 
+            @{ Job = $job; File = $file } 
         }
 
         # Wait for all jobs and collect results
@@ -472,7 +462,6 @@ Function CostRecommendations {
         Write-Log -Message "Found $($allResources.Count) KQL-based recommendations in the environment." -Level "INFO"
         Write-Host "Found $($allResources.Count) KQL-based recommendations in the environment." -ForegroundColor Cyan
 
-        # Convert concurrent bags back to regular arrays for return
         return @{
             AllResources = $allResources.ToArray()
             QueryErrors  = $queryErrors.ToArray()
@@ -482,7 +471,6 @@ Function CostRecommendations {
 
     # Function to get Assessment file path
     function Get-FilePath {
-        # Check if running in a non-interactive environment or ISE where Forms dialog won't work
         if (-not $env:PSModulePath -or $Host.Name -eq 'ConsoleHost' -or $Host.Name -eq 'Windows PowerShell ISE') {
              Write-Log -Message "Graphical file browser not supported in this host. Please provide the full path." -Level "WARNING"
              $filePath = Read-Host "Enter the full path to the Well-Architected Cost Optimization Assessment CSV file"
@@ -501,18 +489,16 @@ Function CostRecommendations {
             $fileBrowser.Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*" # Filter for CSV files
             $fileBrowser.Title = "Select the Well-Architected Cost Optimization Assessment File"
 
-            # Show the file browser dialog
-            # Running this on the STA thread if possible
             $thread = [System.Threading.Thread]::CurrentThread
             if ($thread.GetApartmentState() -ne [System.Threading.ApartmentState]::STA) {
                 Write-Log -Message "Attempting to show dialog on STA thread..." -Level "DEBUG"
                 $staThread = [System.Threading.Thread]::New({
                     param($dialog)
-                    $script:dialogResult = $dialog.ShowDialog() # Use script scope to pass result out
+                    $script:dialogResult = $dialog.ShowDialog() 
                 })
                 $staThread.SetApartmentState([System.Threading.ApartmentState]::STA)
-                $staThread.Start($fileBrowser) # Pass dialog as argument
-                $staThread.Join() # Wait for the dialog thread to complete
+                $staThread.Start($fileBrowser)
+                $staThread.Join()
 
                 if ($script:dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
                     return $fileBrowser.FileName
@@ -520,7 +506,6 @@ Function CostRecommendations {
                     return $null
                 }
             } else {
-                 # Already on STA thread
                  if ($fileBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
                      return $fileBrowser.FileName
                  } else {
@@ -641,7 +626,6 @@ Function CostRecommendations {
             Write-Log -Message "Found $($customCostRecommendations.Count) CustomCost recommendations (always included)." -Level "INFO"
 
             # Import the YAML files for validation (excluding the CustomCost folder itself)
-            # Need to find the correct CustomCost path again to exclude it
             $customCostPath1 = Join-Path $BasePath "CustomCost"
             $customCostPath2 = Join-Path $BasePath "azure-resources\CustomCost"
             $excludePath = $null
@@ -885,11 +869,8 @@ Function CostRecommendations {
             }
         } else {
              Write-Log -Message "No KQL recommendations provided to export." -Level "WARNING"
-             # Create an empty sheet maybe? Or ensure the file exists for potential manual recs?
-             # Let's ensure the file path directory exists for potential later appends
              $excelDir = Split-Path $ExcelFilePath -Parent
              if (-not (Test-Path $excelDir)) { New-Item -ItemType Directory -Path $excelDir -ErrorAction SilentlyContinue | Out-Null }
-             # Creating an empty file might interfere with Export-Excel logic, better let it handle creation.
         }
 
 
@@ -941,10 +922,8 @@ Function CostRecommendations {
         Write-Log -Message "Script running from directory: $workingFolderPath" -Level "INFO"
 
         # Hardcoded GitHub repository zip URL for recommendations content
-        # Ensure this is the correct link to the ZIP file containing KQL/YAML
-        $repoZipUrl = "https://github.com/microsoft/finops-toolkit/raw/main/src/wacoa/tools/azure-resources.zip" # Assuming zip is in main branch now
-        # Check if the old URL is still valid or if it moved
-        # $repoZipUrl_old = "https://github.com/arthurclares/costbestpractices/raw/refs/heads/main/content/azure-resources.zip"
+        $repoZipUrl = "https://github.com/microsoft/finops-toolkit/raw/features/wacoascripts/src/wacoa/tools/azure-resources.zip" 
+
 
 
         # Define the destination directory for extracted content
@@ -959,9 +938,6 @@ Function CostRecommendations {
                  New-Item -Path $tempDir -ItemType Directory -ErrorAction Stop | Out-Null
              }
              # Pass $tempDir as destination for extraction, Download function assumes zip extracts to a folder named 'azure-resources' inside it
-             # Let's adjust Download-GitHubFolder slightly or ensure the zip structure matches assumption
-             # Assuming the zip extracts its contents directly (not within a parent folder)
-             # Modify destination for Download-GitHubFolder:
              $extractDestination = $tempDir # Extract into Temp, expecting 'azure-resources' folder to be created by Expand-Archive
              Download-GitHubFolder -RepoUrl $repoZipUrl -Destination $extractDestination # Pass the parent temp dir
 
