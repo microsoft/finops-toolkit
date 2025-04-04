@@ -76,7 +76,7 @@
                   href: framework/manage/operations.md
                 - name: Education + enablement
                   href: framework/manage/education.md
-                - name: Cloud policy + governance
+                - name: Policy + governance
                   href: framework/manage/governance.md
                 - name: Invoicing + chargeback
                   href: framework/manage/invoicing-chargeback.md
