@@ -9,7 +9,7 @@ Function CostRecommendations {
     )
 
 
-    $ScriptVersion = "1.0.0" 
+    $ScriptVersion = "1.0.1" 
     $RemoteVersionFileUrl = "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/version.txt"
 
 
