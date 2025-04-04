@@ -6,11 +6,11 @@ This PowerShell script automates the generation of cost optimization recommendat
 
 ## **Key Features**
 
-* **Automated KQL Queries:** Executes predefined Kusto Query Language (KQL) queries to pinpoint cost optimization opportunities within your Azure resources.
-* **Manual Validations via YAML:** Integrates manual validation checks for specific resource types by processing YAML configuration files, allowing for nuanced assessments.
-* **Well-Architected Framework Integration (Optional):** Incorporates results from a Well-Architected Cost Optimization assessment, if provided, for a holistic view.
-* **Comprehensive Excel Export:** Exports all findings into a structured Excel file, with distinct sheets for automated recommendations, manual validations, and Well-Architected assessment data.
-* **Flexible Scope Selection:** Supports a wide range of scopes, from your entire Azure environment to specific subscriptions or resource groups.
+* ✅**Automated KQL Queries:** Executes predefined Kusto Query Language (KQL) queries to pinpoint cost optimization opportunities within your Azure resources.
+* 🔍**Manual Validations via YAML:** Integrates manual validation checks for specific resource types by processing YAML configuration files, allowing for nuanced assessments.
+* 🔍**Well-Architected Framework Integration (Optional):** Incorporates results from a Well-Architected Cost Optimization assessment, if provided, for a holistic view.
+* ✅**Comprehensive Excel Export:** Exports all findings into a structured Excel file, with distinct sheets for automated recommendations, manual validations, and Well-Architected assessment data.
+* ✅**Flexible Scope Selection:** Supports a wide range of scopes, from your entire Azure environment to specific subscriptions or resource groups.
 
 ---
 
@@ -21,7 +21,7 @@ This PowerShell script automates the generation of cost optimization recommendat
     * It establishes an Azure connection using `Connect-AzAccount`.
 
 2.  **Scope Definition:**
-    * You'll be prompted to define the scope of the analysis: the entire Azure environment, specific subscriptions, or targeted resource groups.
+    * Define the scope by selecting either the entire Azure environment, specific subscriptions, or resource groups during the interactive prompt.
 
 3.  **Automated KQL Query Execution:**
     * The script concurrently executes KQL queries defined in separate files to retrieve cost optimization recommendations from Azure Resource Graph.
@@ -42,8 +42,8 @@ This PowerShell script automates the generation of cost optimization recommendat
 
 ## **System Requirements**
 
-* **PowerShell 7+:** Ensure you have PowerShell version 7 or later installed.
-* **Azure PowerShell Modules:** The following modules are required:
+* **PowerShell 7+:** Ensure you have PowerShell version 7 or later installed. Required for compatibility with script dependencies and module management.
+* **Azure PowerShell Modules:** Enables authentication and resource querying. The following modules are required:
     * `Az.Accounts`
     * `Az.ResourceGraph`
     * `ImportExcel`
