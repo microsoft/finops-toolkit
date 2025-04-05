@@ -1,6 +1,3 @@
-# Ensure you replace the placeholder comment "[Your Repository URL or Update Instructions]"
-# in the Check-ScriptVersion function with the actual link or instructions for users.
-
 Function CostRecommendations {
     param (
         [string]$subscriptionIds,
@@ -9,7 +6,9 @@ Function CostRecommendations {
     )
 
 
-    $ScriptVersion = "1.0.1" 
+    # Define the current version of this script. Update this whenever you make significant changes.
+    $ScriptVersion = "1.0.1" # Current version as specified
+
     $RemoteVersionFileUrl = "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/version.txt"
 
 
@@ -60,6 +59,7 @@ Function CostRecommendations {
                  return # Continue execution without blocking
             }
 
+            # Compare versions using the [System.Version] type
             $currentVerObj = [System.Version]$CurrentVersion
             $latestVerObj = [System.Version]$latestVersionString
 
@@ -73,28 +73,32 @@ Function CostRecommendations {
 
                 # Prompt user for action
                 while ($true) {
-                    $choice = Read-Host "Do you want to [C]ontinue with the current version ($CurrentVersion) or [S]top to download the latest version? (C/S)" 
+                    $choice = Read-Host "Do you want to [C]ontinue with the current version ($CurrentVersion) or [S]top to download the latest version? (C/S)"
+                    if ($choice -ne $null) {
                         $choice = $choice.ToLower().Trim()
                         if ($choice -eq 'c') {
-                            Write-Host "-----------------------------------------------------------" -ForegroundColor Yellow
-                            Write-Log -Message "User chose to continue with outdated version $CurrentVersion. Proceed with caution." -Level "WARNING"
+                            Write-Log -Message "User chose to continue with outdated version $CurrentVersion." -Level "WARNING"
                             Write-Host "Proceeding with current version $CurrentVersion..." -ForegroundColor Cyan
-                            Write-Host "-----------------------------------------------------------" -ForegroundColor Yellow
-                            Start-Sleep -Seconds 3 # Pause for user to read the message
+                            Start-Sleep -Seconds 3
                             return # Exit the function, script execution continues
                         }
                         elseif ($choice -eq 's') {
                             Write-Log -Message "User chose to stop and download the latest version ($latestVersionString)." -Level "INFO"
                             Write-Host "`nTo download the latest version, please run the following command:" -ForegroundColor Green
-                            Write-Host "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/wacoa/tools/CollectCostRecommendations.ps1' -OutFile 'CollectCostRecommendations.ps1'" -ForegroundColor Cyan
+                            # --- IMPORTANT: Update the URL and OutFile below to the correct ones for THIS script ---
+                            Write-Host "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/microsoft/finops-toolkit/features/wacoascripts/src/wacoa/tools/CollectCostRecommendations.ps1' -OutFile 'CollectCostRecommendations.ps1'" -ForegroundColor Cyan
+                            # --- Update the URL and OutFile above ---
                             Write-Host "`nScript execution stopped. Please download the latest version and run it again." -ForegroundColor Yellow
                             exit # Stop the entire script execution
                         }
                         else {
                             Write-Host "Invalid input. Please enter 'C' to Continue or 'S' to Stop." -ForegroundColor Red
                         }
+                    } else {
+                         Write-Host "Input cannot be empty. Please enter 'C' or 'S'." -ForegroundColor Red
                     }
                 }
+            }
             elseif ($latestVerObj -lt $currentVerObj) {
                  Write-Log -Message "Current script version ($CurrentVersion) is newer than the version found online ($latestVersionString). You might be running a development version." -Level "WARNING"
             }
@@ -124,39 +128,35 @@ Function CostRecommendations {
                 Write-Log -Message "Installing module: $module" -Level "INFO"
                 Install-Module -Name $module -Force -Scope CurrentUser -AllowClobber -ErrorAction Stop
             }
-            # Check if module is already imported before trying to import again
-            if (-not (Get-Module -Name $module -ErrorAction SilentlyContinue)) {
-                Import-Module -Name $module -ErrorAction Stop
-                Write-Log -Message "Imported module: $module" -Level "INFO"
-            } else {
-                 Write-Log -Message "Module '$module' is already imported." -Level "DEBUG"
-            }
+            # Check if module is already imported before trying to import again (Original script did this implicitly via Import-Module)
+            # To maintain original behavior strictly, we just attempt import:
+            Import-Module -Name $module -ErrorAction Stop # Original script logic
+            Write-Log -Message "Ensured module '$module' is imported." -Level "INFO" # Adjusted log message slightly
         }
     }
 
     # Function to authenticate to Azure
     function Connect-ToAzure {
         try {
-            # Check context before attempting Connect-AzAccount
-            $context = Get-AzContext -ErrorAction SilentlyContinue # Use SilentlyContinue first
+            $context = Get-AzContext -ErrorAction Stop # Original used Stop
             if (-not $context) {
-                Write-Log -Message "No active Azure context found. Logging into Azure..." -Level "INFO"
+                Write-Log -Message "Logging into Azure..." -Level "INFO"
                 Connect-AzAccount -ErrorAction Stop
-                # Re-check context after connection attempt
-                $context = Get-AzContext -ErrorAction Stop
-                Write-Log -Message "Logged into Azure successfully. Subscription: $($context.Subscription.Name) ($($context.Subscription.Id))" -Level "INFO"
+                # Re-fetch context to confirm login
+                 $context = Get-AzContext -ErrorAction Stop
+                 Write-Log -Message "Logged into Azure successfully. Subscription: $($context.Subscription.Name) ($($context.Subscription.Id))" -Level "INFO"
             }
             else {
                 Write-Log -Message "Already logged into Azure. Subscription: $($context.Subscription.Name) ($($context.Subscription.Id))" -Level "INFO"
             }
         }
         catch {
-            Write-Log -Message "Failed to log into Azure or verify context: $_" -Level "ERROR"
-            throw # Re-throw the error to stop the script if connection fails
+            Write-Log -Message "Failed to log into Azure: $_" -Level "ERROR"
+            throw
         }
     }
 
-    # Function to download a GitHub folder and its contents
+    # Function to download a GitHub folder and its contents (Original version)
     function Download-GitHubFolder {
         param (
             [string]$repoUrl, # URL to the zip file
@@ -175,8 +175,7 @@ Function CostRecommendations {
         # Download the zip file
         Write-Log -Message "Downloading zip file from: $repoUrl" -Level "INFO"
         try {
-            # Use timeout and basic parsing for robustness
-            Invoke-WebRequest -Uri $repoUrl -OutFile $zipFilePath -UseBasicParsing -TimeoutSec 300 -ErrorAction Stop # Increased timeout for larger files
+            Invoke-WebRequest -Uri $repoUrl -OutFile $zipFilePath -ErrorAction Stop
         }
         catch {
             Write-Log -Message "Failed to download zip file: $_" -Level "ERROR"
@@ -186,7 +185,6 @@ Function CostRecommendations {
         # Extract the zip file
         Write-Log -Message "Extracting zip file to: $Destination" -Level "INFO"
         try {
-            # Use -Force to overwrite existing files if necessary (e.g., during re-download)
             Expand-Archive -Path $zipFilePath -DestinationPath $Destination -Force -ErrorAction Stop
         }
         catch {
@@ -195,42 +193,35 @@ Function CostRecommendations {
         }
 
         # Clean up the temporary zip file
-        Remove-Item -Path $zipFilePath -Force -ErrorAction SilentlyContinue # Use SilentlyContinue for cleanup
+        Remove-Item -Path $zipFilePath -Force -ErrorAction Stop # Original used Stop
         Write-Log -Message "Download and extraction completed successfully." -Level "INFO"
     }
 
-    # Function to read cached scope
+
+    # Function to read cached scope (Original version)
     function Read-CachedScope {
         $cacheFilePath = Join-Path $PSScriptRoot 'ScopeCache.txt'
         if (Test-Path -Path $cacheFilePath) {
-            try {
-                $cachedScope = Get-Content -Path $cacheFilePath -Raw | ConvertFrom-Json -ErrorAction Stop
-                return $cachedScope
-            }
-            catch {
-                Write-Log -Message "Failed to read or parse scope cache file '$cacheFilePath': $_. Ignoring cache." -Level "WARNING"
-                return $null
-            }
+            # Original script didn't have explicit error handling here
+            $cachedScope = Get-Content -Path $cacheFilePath -Raw | ConvertFrom-Json
+            return $cachedScope
         }
         return $null
     }
 
-    # Function to write scope to cache
+    # Function to write scope to cache (Original version)
     function Write-CachedScope {
         param (
             [Parameter(Mandatory = $true)]
             [PSCustomObject]$Scope
         )
         $cacheFilePath = Join-Path $PSScriptRoot 'ScopeCache.txt'
-        try {
-             $Scope | ConvertTo-Json | Set-Content -Path $cacheFilePath -ErrorAction Stop
-        }
-        catch {
-            Write-Log -Message "Failed to write scope cache file '$cacheFilePath': $_." -Level "WARNING"
-        }
+        # Original script didn't have explicit error handling here
+        $Scope | ConvertTo-Json | Set-Content -Path $cacheFilePath -ErrorAction Stop
     }
 
-    # Function to prompt for scope selection
+
+    # Function to prompt for scope selection (Original version)
     function Get-Scope {
         # Check if there is a cached scope
         $cachedScope = Read-CachedScope
@@ -240,105 +231,73 @@ Function CostRecommendations {
             Write-Host "Scope Type: $($cachedScope.ScopeType)" -ForegroundColor Cyan
             Write-Host "Scope Value: $($cachedScope.ScopeValue)" -ForegroundColor Cyan
 
-            # Loop until valid input is received
-            while ($true) {
-                $reuseScope = Read-Host "Would you like to reuse the same scope? (Yes/No or Y/N)"
-                if ($reuseScope -ne $null) {
-                    $reuseScope = $reuseScope.ToLower().Trim()
-                    if ($reuseScope -in ('yes', 'y')) {
-                        Write-Log -Message "Reusing cached scope: $($cachedScope.ScopeType) - $($cachedScope.ScopeValue)" -Level "INFO"
-                        # Return the structure expected by the rest of the script
-                        return @{
-                            SubscriptionIds   = $cachedScope.SubscriptionIds
-                            ResourceGroupName = $cachedScope.ResourceGroupName
-                        }
-                    }
-                    elseif ($reuseScope -in ('no', 'n')) {
-                        Write-Log -Message "User opted not to reuse the cached scope. Proceeding with new scope selection." -Level "INFO"
-                        Remove-Item -Path (Join-Path $PSScriptRoot 'ScopeCache.txt') -ErrorAction SilentlyContinue
-                        break # Exit loop to proceed with new selection
-                    }
-                    else {
-                        Write-Host "Invalid input. Please enter 'Yes', 'No', 'Y', or 'N'." -ForegroundColor Red
-                    }
-                } else {
-                     Write-Host "Input cannot be empty. Please enter 'Yes', 'No', 'Y', or 'N'." -ForegroundColor Red
+            $reuseScope = Read-Host "Would you like to reuse the same scope? (Yes/No or Y/N)"
+            $reuseScope = $reuseScope.ToLower() # Original script converted to lower
+
+            if ($reuseScope -eq "yes" -or $reuseScope -eq "y") {
+                Write-Log -Message "Reusing cached scope: $($cachedScope.ScopeType) - $($cachedScope.ScopeValue)" -Level "INFO"
+                return @{
+                    SubscriptionIds   = $cachedScope.SubscriptionIds
+                    ResourceGroupName = $cachedScope.ResourceGroupName
                 }
+            }
+            elseif ($reuseScope -eq "no" -or $reuseScope -eq "n") {
+                Write-Log -Message "User opted not to reuse the cached scope. Proceeding with new scope selection." -Level "INFO"
+                Remove-Item -Path (Join-Path $PSScriptRoot 'ScopeCache.txt') -ErrorAction SilentlyContinue
+            }
+            else {
+                # Original script threw an error here
+                Write-Log -Message "Invalid input. Please enter 'Yes', 'No', 'Y', or 'N'. Exiting script." -Level "ERROR"
+                throw "Invalid scope selection."
             }
         }
 
         # Prompt for new scope selection
         Write-Host "`nSelect the scope for the script:" -ForegroundColor Cyan
-        Write-Host "1. Entire environment (all subscriptions accessible)."
+        Write-Host "1. Entire environment (no filters)."
         Write-Host "2. Specific subscription(s)."
         Write-Host "3. Specific resource group (requires subscription ID)."
+        $choice = Read-Host "Enter your choice (1, 2, or 3)"
 
-        $scope = $null # Initialize scope variable
-
-        while ($scope -eq $null) {
-            $choice = Read-Host "Enter your choice (1, 2, or 3)"
-            switch ($choice) {
-                '1' {
-                    Write-Log -Message "Running script across the entire environment (all accessible subscriptions)." -Level "INFO"
-                    $scope = @{
-                        ScopeType         = "EntireEnvironment"
-                        ScopeValue        = "EntireEnvironment"
-                        SubscriptionIds   = $null # Explicitly null for entire environment
-                        ResourceGroupName = $null # Explicitly null
-                    }
+        switch ($choice) {
+            '1' { # Original script used integers, but string comparison from Read-Host is safer
+                Write-Log -Message "Running script across the entire environment (no filters)." -Level "INFO"
+                $scope = @{
+                    ScopeType         = "EntireEnvironment"
+                    ScopeValue        = "EntireEnvironment"
+                    SubscriptionIds   = $null
+                    ResourceGroupName = $null
                 }
-                '2' {
-                    $subscriptionIdsInput = Read-Host "Enter the subscription ID(s), separated by commas"
-                    # Validate input (basic check for non-empty)
-                    if ([string]::IsNullOrWhiteSpace($subscriptionIdsInput)) {
-                        Write-Host "Subscription ID(s) cannot be empty." -ForegroundColor Red
-                        continue # Re-prompt
-                    }
-                    $subscriptionIds = ($subscriptionIdsInput -split ',').Trim() -join ',' # Trim whitespace from each ID
-                    Write-Log -Message "Filtering by subscription ID(s): $subscriptionIds" -Level "INFO"
-                    $scope = @{
-                        ScopeType         = "SubscriptionIDs"
-                        ScopeValue        = $subscriptionIds # Store the comma-separated string
-                        SubscriptionIds   = $subscriptionIds
-                        ResourceGroupName = $null # Explicitly null
-                    }
+            }
+            '2' {
+                $subscriptionIds = Read-Host "Enter the subscription ID(s), separated by commas"
+                Write-Log -Message "Filtering by subscription ID(s): $subscriptionIds" -Level "INFO"
+                $scope = @{
+                    ScopeType         = "SubscriptionIDs"
+                    ScopeValue        = $subscriptionIds
+                    SubscriptionIds   = $subscriptionIds
+                    ResourceGroupName = $null
                 }
-                '3' {
-                    $subscriptionIdInput = Read-Host "Enter the single subscription ID where the resource group resides"
-                    # Validate input
-                    if ([string]::IsNullOrWhiteSpace($subscriptionIdInput) -or $subscriptionIdInput -match ',') {
-                        Write-Host "Please enter a single, valid subscription ID." -ForegroundColor Red
-                        continue # Re-prompt
-                    }
-                    $subscriptionIds = $subscriptionIdInput.Trim() # Ensure no extra spaces
-
-                    $resourceGroupNameInput = Read-Host "Enter the resource group name"
-                    # Validate input
-                    if ([string]::IsNullOrWhiteSpace($resourceGroupNameInput)) {
-                        Write-Host "Resource group name cannot be empty." -ForegroundColor Red
-                        continue # Re-prompt
-                    }
-                    $resourceGroupName = $resourceGroupNameInput.Trim() # Ensure no extra spaces
-
-                    Write-Log -Message "Filtering by resource group '$resourceGroupName' in subscription '$subscriptionIds'." -Level "INFO"
-                    $scope = @{
-                        ScopeType         = "ResourceGroup"
-                        ScopeValue        = "$subscriptionIds/$resourceGroupName" # More informative value
-                        SubscriptionIds   = $subscriptionIds
-                        ResourceGroupName = $resourceGroupName
-                    }
+            }
+            '3' {
+                $subscriptionIds = Read-Host "Enter the subscription ID where the resource group resides"
+                $resourceGroupName = Read-Host "Enter the resource group name"
+                Write-Log -Message "Filtering by resource group '$resourceGroupName' in subscription '$subscriptionIds'." -Level "INFO"
+                $scope = @{
+                    ScopeType         = "ResourceGroup"
+                    ScopeValue        = $resourceGroupName # Original stored RG name here
+                    SubscriptionIds   = $subscriptionIds
+                    ResourceGroupName = $resourceGroupName
                 }
-                default {
-                    Write-Host "Invalid choice. Please enter 1, 2, or 3." -ForegroundColor Red
-                    # No throw here, loop will continue
-                }
+            }
+            default {
+                Write-Log -Message "Invalid choice. Exiting script." -Level "ERROR"
+                throw "Invalid scope selection."
             }
         }
 
         # Cache the selected scope
         Write-CachedScope -Scope $scope
-
-        # Return the structure needed by subsequent functions
         return @{
             SubscriptionIds   = $scope.SubscriptionIds
             ResourceGroupName = $scope.ResourceGroupName
@@ -346,222 +305,178 @@ Function CostRecommendations {
     }
 
 
-    # Function to process KQL files
+    # Function to process KQL files (Original version)
     function Process-KQLFiles {
         param (
             [string]$BasePath,
             [string]$SubscriptionIds,
             [string]$ResourceGroupName
         )
-        $kqlFiles = Get-ChildItem -Path $BasePath -Recurse -Filter *.kql -ErrorAction SilentlyContinue # Use SilentlyContinue if path might not exist
-        if (-not $kqlFiles) {
-            Write-Log -Message "No KQL files found in path '$BasePath' or its subdirectories." -Level "WARNING"
-            return @{ AllResources = @(); QueryErrors = @() } # Return empty structure
+        $kqlFiles = Get-ChildItem -Path $BasePath -Recurse -Filter *.kql -ErrorAction Stop
+        Write-Log -Message "Found $($kqlFiles.Count) recommendation files." -Level "INFO"
+        Write-Host "`nFound $($kqlFiles.Count) recommendation files." -ForegroundColor Cyan
+
+        $allResources = @()
+        $queryErrors = @()
+
+        # Build subscription filter outside parallel block
+        $subscriptionFilter = $null
+        if ($subscriptionIds) {
+            $subscriptionList = $subscriptionIds -split ',' | ForEach-Object { "'$($_.Trim())'" }
+            $subscriptionFilter = $subscriptionList -join ","
         }
 
-        Write-Log -Message "Found $($kqlFiles.Count) KQL recommendation files." -Level "INFO"
-        Write-Host "`nFound $($kqlFiles.Count) KQL recommendation files." -ForegroundColor Cyan
-
-        $allResources = [System.Collections.Concurrent.ConcurrentBag[object]]::new() # Thread-safe collection
-        $queryErrors = [System.Collections.Concurrent.ConcurrentBag[object]]::new()  # Thread-safe collection
-
-        # Build subscription filter string safely
-        $subscriptionFilterString = $null
-        if (-not [string]::IsNullOrWhiteSpace($subscriptionIds)) {
-            $formattedIds = $subscriptionIds -split ',' | ForEach-Object { "'$($_.Trim())'" }
-            if ($formattedIds) {
-                $subscriptionFilterString = $formattedIds -join ","
-            }
-        }
-
-        # Use Invoke-Command for parallelism which handles using: scope better in PS7+
-        # Requires Az.ResourceGraph module to be available in the runspace
-        $Jobs = $kqlFiles | ForEach-Object {
+        # Original used ForEach-Object -Parallel
+        $kqlFiles | ForEach-Object -Parallel {
             $file = $_
-            $job = Invoke-Command -ScriptBlock {
-                param($filePath, $subFilterString, $rgName, $logFilePath)
+            $subscriptionFilter = $using:subscriptionFilter
+            $resourceGroupName = $using:ResourceGroupName
+            $logFile = $using:logFile # Capture log file path for parallel logging
 
-                # Local function for logging within the parallel task
-                function Write-ParallelLog {
-                    param (
-                        [string]$Message,
-                        [string]$Level = "INFO"
-                    )
-                    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                    $logMessage = "$timestamp [$Level] [$([System.Management.Automation.Runspaces.Runspace]::DefaultRunspace.InstanceId)] $Message" # Add Runspace ID for clarity
-                    Add-Content -Path $using:logFilePath -Value $logMessage -ErrorAction SilentlyContinue
+            # Create a local function for logging within the parallel block
+            function Write-ParallelLog {
+                param (
+                    [string]$Message,
+                    [string]$Level = "INFO"
+                )
+                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message" # Add Thread ID for clarity
+                $logFile = $using:logFile # Access variable from parent scope
+                Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
+            }
+
+            try {
+                $query = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
+
+                # Dynamically append filters to the query based on scope (Original logic)
+                # Note: Original script used x_ResourceGroupName, ARG typically uses 'resourceGroup' for filtering
+                if ($subscriptionFilter -and $resourceGroupName) {
+                    # This filter might not work as intended if x_ResourceGroupName isn't projected in the base query
+                    $query = "$query | where SubAccountId in ($subscriptionFilter) and x_ResourceGroupName == '$resourceGroupName'"
                 }
+                elseif ($subscriptionFilter) {
+                     # This filter might not work as intended if SubAccountId isn't projected in the base query
+                    $query = "$query | where SubAccountId in ($subscriptionFilter)"
+                }
+                # Note: If neither SubAccountId nor x_ResourceGroupName are projected by the KQL, these filters will fail.
 
-                $localResults = @()
-                $localError = $null
-
+                # Execute the query using Azure Resource Graph with pagination (Original logic)
                 try {
-                    Write-ParallelLog -Message "Processing file: $($using:filePath.Name)" -Level "DEBUG"
-                    $query = Get-Content -LiteralPath $using:filePath.FullName -Raw -ErrorAction Stop
-
-                    # Dynamically append filters
-                    $filterClauses = @()
-                    if ($using:subFilterString) {
-                        $filterClauses += "subscriptionId in ($($using:subFilterString))"
+                    Write-ParallelLog -Message "Executing query for $($file.Name)..." -Level "DEBUG" # Added logging
+                    $result = Search-AzGraph -Query $query -First 1000 -ErrorAction Stop
+                    $fileResources = @($result) # Ensure it's always an array
+                    # Handle pagination if SkipToken exists
+                    while ($result -ne $null -and $result.SkipToken) {
+                        Write-ParallelLog -Message "Fetching next page for $($file.Name)..." -Level "DEBUG" # Added logging
+                        $result = Search-AzGraph -Query $query -SkipToken $result.SkipToken -First 1000 -ErrorAction Stop
+                        $fileResources += $result
                     }
-                    if (-not [string]::IsNullOrWhiteSpace($using:rgName)) {
-                        $filterClauses += "resourceGroup =~ '$($using:rgName)'" # Use case-insensitive match
-                    }
-                    if ($filterClauses.Count -gt 0) {
-                        $query += " | where " + ($filterClauses -join ' and ')
-                    }
-
-
-                    Write-ParallelLog -Message "Executing query for $($using:filePath.Name): $query" -Level "DEBUG"
-
-                    # Execute the query using Azure Resource Graph with pagination
-                    $currentResult = Search-AzGraph -Query $query -First 1000 -ErrorAction Stop
-                    if ($currentResult) { $localResults += $currentResult }
-
-                    while ($currentResult -ne $null -and $currentResult.SkipToken) {
-                        Write-ParallelLog -Message "Fetching next page for $($using:filePath.Name)..." -Level "DEBUG"
-                        $currentResult = Search-AzGraph -Query $query -SkipToken $currentResult.SkipToken -First 1000 -ErrorAction Stop
-                        if ($currentResult) { $localResults += $currentResult }
-                    }
-
-                    Write-ParallelLog -Message "Completed query for $($using:filePath.Name), found $($localResults.Count) resources." -Level "DEBUG"
-                    return @{ Success = $true; Data = $localResults }
+                    Write-ParallelLog -Message "Completed query for $($file.Name), found $($fileResources.Count) resources." -Level "DEBUG" # Added logging
+                    return $fileResources # Return results for this file
                 }
                 catch {
-                    $errorMessage = "Query failed for file '$($using:filePath.FullName)': $($_.Exception.Message)"
+                    $errorMessage = "Query failed for file '$($file.FullName)': $($_.Exception.Message)"
                     Write-ParallelLog -Message $errorMessage -Level "ERROR"
-                    Write-ParallelLog -Message "Failed Query: $query" -Level "ERROR"
-                    return @{ Success = $false; Error = $errorMessage; Query = $query }
+                    # Return an error object identifiable later
+                    return [PSCustomObject]@{
+                        IsError = $true
+                        Error = $errorMessage
+                        Query = $query # Include the query that failed
+                        File = $file.FullName
+                    }
                 }
-            } -ArgumentList $file.FullName, $subscriptionFilterString, $resourceGroupName, $logFile -HideComputerName -ThrottleLimit 5 
-            @{ Job = $job; File = $file } 
-        }
-
-        # Wait for all jobs and collect results
-        foreach ($jobInfo in $Jobs) {
-            Wait-Job -Job $jobInfo.Job
-            $output = Receive-Job -Job $jobInfo.Job
-
-            if ($output.Success) {
-                # Add results to the concurrent bag
-                if ($output.Data) {
-                    $output.Data | ForEach-Object { $allResources.Add($_) }
-                }
-            } else {
-                # Add errors to the concurrent bag
-                $queryErrors.Add(@{
-                    File = $jobInfo.File.FullName
-                    Error = $output.Error
-                    Query = $output.Query
-                })
             }
-            Remove-Job -Job $jobInfo.Job # Clean up job object
+            catch {
+                $errorMessage = "An error occurred while processing file '$($file.FullName)': $_"
+                Write-ParallelLog -Message $errorMessage -Level "ERROR"
+                # Return an error object identifiable later
+                return [PSCustomObject]@{
+                    IsError = $true
+                    Error = $errorMessage
+                    File = $file.FullName
+                }
+            }
+        } -ThrottleLimit 5 -AsJob | Receive-Job -Wait -AutoRemoveJob | ForEach-Object {
+            # Process results from the parallel jobs
+            if ($_ -is [PSCustomObject] -and $_.PSObject.Properties['IsError']) {
+                 # It's one of our custom error objects
+                 $queryErrors += $_ # Add the error object to the list
+            }
+            elseif ($_ -ne $null) {
+                # It's result data (could be single object or array)
+                # Ensure it's treated as an array before adding
+                $allResources += @($_)
+            }
         }
 
+        # Log query errors outside of the parallel block
+        foreach ($error in $queryErrors) {
+            Write-Log -Message "Error processing $($error.File): $($error.Error)" -Level "ERROR"
+            if ($error.Query) {
+                Write-Log -Message "Failed Query: $($error.Query)" -Level "DEBUG" # Log query at DEBUG level
+            }
+        }
 
-        Write-Log -Message "Found $($allResources.Count) KQL-based recommendations in the environment." -Level "INFO"
-        Write-Host "Found $($allResources.Count) KQL-based recommendations in the environment." -ForegroundColor Cyan
+        Write-Log -Message "Found $($allResources.Count) recommendations in the environment." -Level "INFO"
+        Write-Host "Found $($allResources.Count) recommendations in the environment." -ForegroundColor Cyan
 
         return @{
-            AllResources = $allResources.ToArray()
-            QueryErrors  = $queryErrors.ToArray()
+            AllResources = $allResources
+            QueryErrors  = $queryErrors # Return the collection of error objects
         }
     }
 
 
-    # Function to get Assessment file path
+    # Function to get Assessment file path (Original version)
     function Get-FilePath {
-        if (-not $env:PSModulePath -or $Host.Name -eq 'ConsoleHost' -or $Host.Name -eq 'Windows PowerShell ISE') {
-             Write-Log -Message "Graphical file browser not supported in this host. Please provide the full path." -Level "WARNING"
-             $filePath = Read-Host "Enter the full path to the Well-Architected Cost Optimization Assessment CSV file"
-             if (Test-Path $filePath -PathType Leaf) {
-                 return $filePath
-             } else {
-                 Write-Log -Message "File not found at specified path: $filePath" -Level "ERROR"
-                 return $null
-             }
-        }
+        Add-Type -AssemblyName System.Windows.Forms
+        $fileBrowser = New-Object System.Windows.Forms.OpenFileDialog
+        $fileBrowser.InitialDirectory = [Environment]::GetFolderPath('Desktop') # Default to Desktop
+        $fileBrowser.Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*" # Filter for CSV files
+        $fileBrowser.Title = "Select the Well-Architected Cost Optimization Assessment File"
 
-        try {
-            Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
-            $fileBrowser = New-Object System.Windows.Forms.OpenFileDialog
-            $fileBrowser.InitialDirectory = [Environment]::GetFolderPath('Desktop') # Default to Desktop
-            $fileBrowser.Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*" # Filter for CSV files
-            $fileBrowser.Title = "Select the Well-Architected Cost Optimization Assessment File"
-
-            $thread = [System.Threading.Thread]::CurrentThread
-            if ($thread.GetApartmentState() -ne [System.Threading.ApartmentState]::STA) {
-                Write-Log -Message "Attempting to show dialog on STA thread..." -Level "DEBUG"
-                $staThread = [System.Threading.Thread]::New({
-                    param($dialog)
-                    $script:dialogResult = $dialog.ShowDialog() 
-                })
-                $staThread.SetApartmentState([System.Threading.ApartmentState]::STA)
-                $staThread.Start($fileBrowser)
-                $staThread.Join()
-
-                if ($script:dialogResult -eq [System.Windows.Forms.DialogResult]::OK) {
-                    return $fileBrowser.FileName
-                } else {
-                    return $null
-                }
-            } else {
-                 if ($fileBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-                     return $fileBrowser.FileName
-                 } else {
-                     return $null
-                 }
-            }
-        } catch {
-            Write-Log -Message "Could not display graphical file browser: $_. Please provide the full path." -Level "WARNING"
-            $filePath = Read-Host "Enter the full path to the Well-Architected Cost Optimization Assessment CSV file"
-            if (Test-Path $filePath -PathType Leaf) {
-                return $filePath
-            } else {
-                Write-Log -Message "File not found at specified path: $filePath" -Level "ERROR"
-                return $null
-            }
-        } finally {
-            # Clean up script scope variable if used
-            if (Get-Variable -Name 'script:dialogResult' -ErrorAction SilentlyContinue) {
-                Remove-Variable -Name 'script:dialogResult' -Scope Script
-            }
-        }
-    }
-
-    # Function to process CustomCost folder YAML files without ARG validation
-    function Process-CustomCostRecommendations {
-        param (
-            [string]$BasePath # Path to the root folder containing 'azure-resources' or similar structure
-        )
-
-        # Define possible CustomCost folder paths relative to BasePath
-        $customCostPath1 = Join-Path $BasePath "CustomCost" # If BasePath is directly 'azure-resources'
-        $customCostPath2 = Join-Path $BasePath "azure-resources\CustomCost" # If BasePath is parent of 'azure-resources'
-
-        # Determine the correct path
-        $foundPath = $null
-        if (Test-Path -Path $customCostPath1 -PathType Container) {
-            $foundPath = $customCostPath1
-            Write-Log -Message "Found CustomCost folder at: $customCostPath1" -Level "INFO"
-        }
-        elseif (Test-Path -Path $customCostPath2 -PathType Container) {
-            $foundPath = $customCostPath2
-            Write-Log -Message "Found CustomCost folder at: $customCostPath2" -Level "INFO"
+        # Show the file browser dialog
+        if ($fileBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            return $fileBrowser.FileName
         }
         else {
-            Write-Log -Message "CustomCost folder not found at expected locations relative to '$BasePath'." -Level "WARNING"
-            return @() # Return empty array if folder not found
+            return $null
         }
+    }
 
-        # Find all YAML files in the found CustomCost folder
-        $yamlFiles = Get-ChildItem -Path $foundPath -Filter *.yaml -ErrorAction SilentlyContinue
-        if ($yamlFiles.Count -eq 0) {
-            Write-Log -Message "No YAML files found in CustomCost folder '$foundPath'." -Level "WARNING"
+    # Function to process CustomCost folder YAML files without ARG validation (Original version)
+    function Process-CustomCostRecommendations {
+        param (
+            [string]$BasePath # Path to the root folder containing CustomCost
+        )
+
+        # Define possible CustomCost folder paths
+        $customCostPath = Join-Path $BasePath "CustomCost"
+        $nestedCustomCostPath = Join-Path $BasePath "azure-resources\CustomCost"
+
+        # Check if CustomCost folder exists at either location
+        $foundPath = $null
+        if (Test-Path -Path $customCostPath) {
+            $foundPath = $customCostPath
+            Write-Log -Message "Found CustomCost folder at: $customCostPath" -Level "INFO"
+        }
+        elseif (Test-Path -Path $nestedCustomCostPath) {
+            $foundPath = $nestedCustomCostPath
+            Write-Log -Message "Found CustomCost folder at: $nestedCustomCostPath" -Level "INFO"
+        }
+        else {
+            Write-Log -Message "CustomCost folder not found at: $customCostPath or $nestedCustomCostPath" -Level "WARNING"
             return @()
         }
 
-        Write-Log -Message "Found $($yamlFiles.Count) YAML files in CustomCost folder '$foundPath'." -Level "INFO"
+        # Find all YAML files in the CustomCost folder
+        $yamlFiles = Get-ChildItem -Path $foundPath -Filter *.yaml -ErrorAction Stop # Original used Stop
+        if ($yamlFiles.Count -eq 0) {
+            Write-Log -Message "No YAML files found in CustomCost folder." -Level "WARNING"
+            return @()
+        }
+
+        Write-Log -Message "Found $($yamlFiles.Count) YAML files in CustomCost folder." -Level "INFO"
         Write-Host "Found $($yamlFiles.Count) YAML files in CustomCost folder." -ForegroundColor Cyan
 
         # Initialize an array to store CustomCost recommendations
@@ -573,23 +488,18 @@ Function CostRecommendations {
                 $yamlContent = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
 
                 # Convert YAML to PowerShell object(s)
-                # Handle potential multiple documents in one YAML file
-                $yamlObjects = $yamlContent | ConvertFrom-Yaml -ErrorAction Stop -AllDocuments
-
-                if ($yamlObjects) {
-                    # Ensure we handle single or multiple documents correctly
-                    if ($yamlObjects -is [array]) {
-                        $customCostData += $yamlObjects
-                    } else {
-                        $customCostData += @($yamlObjects)
-                    }
-                    Write-Log -Message "Successfully processed CustomCost file: $($file.Name)" -Level "DEBUG"
-                } else {
-                     Write-Log -Message "YAML file '$($file.FullName)' appears empty or could not be parsed." -Level "WARNING"
+                try {
+                     # Original script assumed single object per file
+                     $yamlObject = $yamlContent | ConvertFrom-Yaml
+                     $customCostData += $yamlObject # Add the single object
+                     Write-Log -Message "Successfully processed CustomCost file: $($file.Name)" -Level "INFO" # Original INFO level
+                }
+                catch {
+                    Write-Log -Message "Failed to parse YAML file '$($file.FullName)': $_" -Level "ERROR"
                 }
             }
             catch {
-                Write-Log -Message "Failed to read or parse CustomCost YAML file '$($file.FullName)': $_" -Level "ERROR"
+                Write-Log -Message "Failed to read CustomCost file '$($file.FullName)': $_" -Level "ERROR"
             }
         }
 
@@ -598,482 +508,378 @@ Function CostRecommendations {
     }
 
 
-    # Function to process YAML files (excluding CustomCost) and validate against scope
+    # Function to process YAML files and append them to the Excel file (Original version)
     function Manual-Validations {
         param (
-            [string]$BasePath, # Path to the root folder containing 'azure-resources' or similar
+            [string]$BasePath, # Path to the folder containing YAML files
             [string]$ExcelFilePath, # Path to the Excel file
-            [string]$SubscriptionIds, # Subscription IDs to filter by (comma-separated string or null)
-            [string]$ResourceGroupName  # Resource group name to filter by (string or null)
+            [string]$SubscriptionIds, # Subscription IDs to filter by
+            [string]$ResourceGroupName  # Resource group name to filter by
         )
 
-        # Base path for YAML files (assuming they are inside 'azure-resources')
-        $yamlBasePath = Join-Path $BasePath "azure-resources"
-        if (-not (Test-Path -Path $yamlBasePath -PathType Container)) {
-             # Fallback if BasePath is already 'azure-resources'
-             if (Test-Path -Path $BasePath -PathType Container) {
-                 $yamlBasePath = $BasePath
-             } else {
-                Write-Log -Message "YAML base path '$yamlBasePath' or '$BasePath' not found." -Level "ERROR"
-                return # Cannot proceed
-             }
-        }
-        Write-Log -Message "Using YAML base path: $yamlBasePath" -Level "DEBUG"
-
         try {
-            # Get CustomCost recommendations first (no validation needed relative to BasePath)
-            $customCostRecommendations = Process-CustomCostRecommendations -BasePath $BasePath # Pass the original base path
-            Write-Log -Message "Found $($customCostRecommendations.Count) CustomCost recommendations (always included)." -Level "INFO"
+            # Get CustomCost recommendations first (no validation needed)
+            $customCostRecommendations = Process-CustomCostRecommendations -BasePath $BasePath
+            Write-Log -Message "Found $($customCostRecommendations.Count) CustomCost recommendations." -Level "INFO"
 
-            # Import the YAML files for validation (excluding the CustomCost folder itself)
-            $customCostPath1 = Join-Path $BasePath "CustomCost"
-            $customCostPath2 = Join-Path $BasePath "azure-resources\CustomCost"
-            $excludePath = $null
-            if (Test-Path -Path $customCostPath1 -PathType Container) { $excludePath = $customCostPath1 }
-            elseif (Test-Path -Path $customCostPath2 -PathType Container) { $excludePath = $customCostPath2 }
+            # Import the YAML files (excluding CustomCost folder)
+            # Original logic might need adjustment depending on where CustomCost really is relative to BasePath
+            $yamlFiles = Get-ChildItem -Path $BasePath -Recurse -Exclude "CustomCost" -Filter *.yaml -ErrorAction Stop # Original used Stop
+            Write-Log -Message "Found $($yamlFiles.Count) YAML files for validation." -Level "INFO"
 
-            $yamlFilesToValidate = Get-ChildItem -Path $yamlBasePath -Recurse -Filter *.yaml -ErrorAction SilentlyContinue
-            if ($excludePath) {
-                # Filter out files under the exclude path
-                 $yamlFilesToValidate = $yamlFilesToValidate | Where-Object { $_.FullName -notlike "$excludePath\*" }
+            # Build subscription filter outside parallel block
+            $subscriptionFilter = $null
+            if ($SubscriptionIds) {
+                $subscriptionList = $SubscriptionIds -split ',' | ForEach-Object { "'$($_.Trim())'" }
+                $subscriptionFilter = $subscriptionList -join ","
             }
 
-            if ($yamlFilesToValidate.Count -eq 0) {
-                Write-Log -Message "No other YAML files found for validation outside CustomCost folder." -Level "INFO"
-            } else {
-                Write-Log -Message "Found $($yamlFilesToValidate.Count) YAML files for potential validation." -Level "INFO"
-            }
+            # Extract unique resource types from YAML files (Original logic)
+            $uniqueResourceTypes = @()
+            # Original used ForEach-Object -Parallel
+            $yamlFiles | ForEach-Object -Parallel {
+                $file = $_
+                $logFile = $using:logFile # Capture log file path
 
-            if($yamlFilesToValidate.Count -eq 0 -and $customCostRecommendations.Count -eq 0) {
-                 Write-Log -Message "No manual recommendations (CustomCost or validated YAML) found to process." -Level "INFO"
-                 return # Nothing to do
-            }
-
-            # --- Validation Logic (only run if there are YAML files to validate) ---
-            $validatedYamlData = @()
-            if ($yamlFilesToValidate.Count -gt 0) {
-                Write-Log -Message "Starting validation for $($yamlFilesToValidate.Count) YAML files..." -Level "INFO"
-
-                # Extract unique resource types from the YAML files to validate
-                $uniqueResourceTypes = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase) # Case-insensitive set
-                $yamlFileObjects = @{} # Store parsed objects to avoid re-parsing
-
-                foreach ($file in $yamlFilesToValidate) {
-                    try {
-                        $yamlContent = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
-                        # Use -AllDocuments in case a file contains multiple definitions
-                        $yamlObjectList = $yamlContent | ConvertFrom-Yaml -ErrorAction Stop -AllDocuments
-
-                        if($yamlObjectList){
-                            $fileObjects = @() # Store potentially multiple objects from one file
-                            # Handle single vs multiple documents
-                            if ($yamlObjectList -is [array]) {
-                                $fileObjects = $yamlObjectList
-                            } else {
-                                $fileObjects = @($yamlObjectList)
-                            }
-
-                            # Store for later use
-                            $yamlFileObjects[$file.FullName] = $fileObjects
-
-                            # Extract resource types
-                            foreach ($yamlObject in $fileObjects) {
-                                if ($yamlObject.PSObject.Properties['recommendationResourceType'] -ne $null -and -not [string]::IsNullOrWhiteSpace($yamlObject.recommendationResourceType)) {
-                                    # Split by space and add each type to the hash set
-                                    $yamlObject.recommendationResourceType -split ' ' | ForEach-Object {
-                                        if (-not [string]::IsNullOrWhiteSpace($_)) { $uniqueResourceTypes.Add($_.Trim()) | Out-Null }
-                                    }
-                                }
-                            }
-                        } else {
-                             Write-Log -Message "Could not parse YAML file '$($file.FullName)' for resource types." -Level "WARNING"
-                        }
-                    } catch {
-                        Write-Log -Message "Failed to read/parse YAML file '$($file.FullName)' during resource type extraction: $_" -Level "ERROR"
-                    }
+                # Create a local function for logging within the parallel block
+                function Write-ParallelLog {
+                    param (
+                        [string]$Message,
+                        [string]$Level = "INFO"
+                    )
+                    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                    $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message"
+                    $logFile = $using:logFile # Access variable from parent scope
+                    Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
                 }
 
-                if ($uniqueResourceTypes.Count -eq 0) {
-                    Write-Log -Message "No 'recommendationResourceType' found in any validation YAML files." -Level "WARNING"
-                } else {
-                    Write-Log -Message "Unique resource types found in validation YAMLs: $($uniqueResourceTypes -join ', ')" -Level "DEBUG"
+                try {
+                    # Read the YAML file
+                    $yamlContent = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
 
-                    # Construct ARG query parts
-                    $resourceTypeFilter = ($uniqueResourceTypes | ForEach-Object { "type =~ '$_'" }) -join ' or '
-                    $scopeFilters = @()
-                    if (-not [string]::IsNullOrWhiteSpace($SubscriptionIds)) {
-                        $formattedSubs = $SubscriptionIds -split ',' | ForEach-Object { "'$($_.Trim())'" }
-                        if ($formattedSubs) {
-                            $scopeFilters += "subscriptionId in ($($formattedSubs -join ','))"
-                        }
-                    }
-                    if (-not [string]::IsNullOrWhiteSpace($ResourceGroupName)) {
-                        $scopeFilters += "resourceGroup =~ '$ResourceGroupName'"
-                    }
+                    # Convert YAML to PowerShell object (Original assumed single object)
+                    $yamlObject = $yamlContent | ConvertFrom-Yaml
 
-                    # Build the final query to find *if* any relevant resources exist in scope
-                    $query = "Resources"
-                    $query += " | where ($resourceTypeFilter)" # Filter by types first
-                    if ($scopeFilters.Count -gt 0) {
-                        $query += " and ($($scopeFilters -join ' and '))" # Then filter by scope
-                    }
-                    $query += " | limit 1" # We only need to know if *at least one* exists
-                    $query += " | project type" # Only need the type column for confirmation
-
-                    Write-Log -Message "Querying Azure Resource Graph to check for existence of relevant resource types in scope." -Level "INFO"
-                    Write-Log -Message "Existence Check Query: $query" -Level "DEBUG"
-
-                    $resourceTypesInScope = try {
-                         Search-AzGraph -Query $query -First 1 # Use -First 1, equivalent to limit 1
-                    } catch {
-                         Write-Log -Message "ARG query for resource type existence failed: $_. Cannot validate YAML recommendations against scope." -Level "ERROR"
-                         $null # Indicate failure
-                    }
-
-                    # Use a HashSet for quick lookups of types found in scope
-                    $typesFoundInScopeSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-                    if($resourceTypesInScope){
-                         # The query returns the types of the resources found (up to the limit)
-                         # We need to query again to get *all* unique types present
-                         $queryAllTypes = "Resources"
-                         $queryAllTypes += " | where ($resourceTypeFilter)"
-                         if ($scopeFilters.Count -gt 0) {
-                              $queryAllTypes += " and ($($scopeFilters -join ' and '))"
-                         }
-                         $queryAllTypes += " | summarize count() by type"
-                         Write-Log -Message "Querying ARG for all unique relevant types in scope..." -Level "DEBUG"
-                         Write-Log -Message "All Types Query: $queryAllTypes" -Level "DEBUG"
-
-                         $allTypesResult = try { Search-AzGraph -Query $queryAllTypes -First 1000 } catch { Write-Log -Message "ARG query for all types failed: $_" -Level "WARNING"; $null }
-                         if($allTypesResult){
-                             $allTypesResult.type | ForEach-Object { $typesFoundInScopeSet.Add($_) | Out-Null }
-                             Write-Log -Message "Resource types confirmed to exist in scope: $($typesFoundInScopeSet -join ', ')" -Level "INFO"
-                         } else {
-                              Write-Log -Message "Could not retrieve list of specific resource types present in scope." -Level "WARNING"
-                         }
-                    } else {
-                        Write-Log -Message "No resources matching any specified types found within the selected scope. Skipping validation YAMLs." -Level "INFO"
-                    }
-
-                    # Now iterate through the *parsed* YAML objects and add them if their types exist in scope
-                    if ($typesFoundInScopeSet.Count -gt 0) {
-                         Write-Log -Message "Filtering YAML recommendations based on resource types found in scope..." -Level "DEBUG"
-                         foreach ($filePath in $yamlFileObjects.Keys) {
-                             foreach ($yamlObject in $yamlFileObjects[$filePath]) {
-                                 $matchFound = $false
-                                 if ($yamlObject.PSObject.Properties['recommendationResourceType'] -ne $null -and -not [string]::IsNullOrWhiteSpace($yamlObject.recommendationResourceType)) {
-                                     $resourceTypesInYaml = $yamlObject.recommendationResourceType -split ' '
-                                     foreach ($resourceType in $resourceTypesInYaml) {
-                                         $trimmedType = $resourceType.Trim()
-                                         if (-not [string]::IsNullOrWhiteSpace($trimmedType) -and $typesFoundInScopeSet.Contains($trimmedType)) {
-                                             $matchFound = $true
-                                             break # Found a match for this YAML object, no need to check other types in it
-                                         }
-                                     }
-                                 } else {
-                                     # If recommendationResourceType is missing or empty, should it be included?
-                                     # Current logic: No, it needs a type to be validated. Add warning?
-                                     Write-Log -Message "YAML object in '$filePath' lacks 'recommendationResourceType', cannot validate against scope." -Level "DEBUG"
-                                 }
-
-                                 if ($matchFound) {
-                                     $validatedYamlData += $yamlObject
-                                     Write-Log -Message "Validated YAML recommendation included from '$filePath' (Matched Type)." -Level "DEBUG"
-                                 }
-                             }
-                         }
-                         Write-Log -Message "Found $($validatedYamlData.Count) validated YAML recommendations matching resource types in scope." -Level "INFO"
-                    } else {
-                         # This condition is met if the ARG query ran but found 0 relevant types, or if the query failed.
-                         Write-Log -Message "No matching resource types found in scope, or ARG query failed. No validation YAMLs will be included." -Level "INFO"
+                    # Add the recommendationResourceType to the array
+                    if ($yamlObject.recommendationResourceType) {
+                        # Split the recommendationResourceType into individual resource types
+                        $resourceTypes = $yamlObject.recommendationResourceType -split ' '
+                        return $resourceTypes # Return the array of types
                     }
                 }
-            } # End of validation logic block
+                catch {
+                    Write-ParallelLog -Message "Failed to process YAML file '$($file.FullName)': $_" -Level "ERROR"
+                }
+            } -ThrottleLimit 5 -AsJob | Receive-Job -Wait -AutoRemoveJob | ForEach-Object {
+                # Collect results - flatten the potentially nested arrays
+                if ($_ -is [array]) {
+                    $uniqueResourceTypes += $_
+                } elseif ($_) {
+                     $uniqueResourceTypes += @($_) # Ensure it's added as an array element
+                }
+            }
+
+            # Remove duplicates and sort
+            $uniqueResourceTypes = $uniqueResourceTypes | Sort-Object -Unique
+
+            # Debug: Print the unique resource types
+            Write-Host "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -ForegroundColor Cyan
+            Write-Log -Message "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -Level "INFO"
+
+            # Construct the resource type filter
+            # Original logic used 'type ==', ARG often uses '=~' for case-insensitivity
+            $resourceTypeConditions = $uniqueResourceTypes | ForEach-Object { "type == '$_'" } # Using original '=='
+            $resourceTypeFilter = $resourceTypeConditions -join ' or '
+
+            # Query Azure Resource Graph for specific resource types
+            # Original query structure
+            $query = "resources | where $resourceTypeFilter"
+            if ($subscriptionFilter -and $ResourceGroupName) {
+                 # Original used 'subscriptionId in ($subscriptionFilter)' and 'resourceGroup ==', which is generally correct ARG syntax
+                 # But ensure $subscriptionFilter is correctly formatted (it should be from earlier logic)
+                 $query += " | where subscriptionId in ($subscriptionFilter) and resourceGroup == '$ResourceGroupName'"
+            }
+            elseif ($subscriptionFilter) {
+                 $query += " | where subscriptionId in ($subscriptionFilter)"
+            }
+            $query += " | summarize count() by type"
+
+            Write-Log -Message "Querying Azure Resource Graph for specific resource types." -Level "INFO"
+            Write-Log -Message "Query: $query" -Level "DEBUG"
+            # Original script didn't handle potential errors from Search-AzGraph here
+            $resourceTypesInScope = Search-AzGraph -Query $query -First 1000
+
+            # Debug: Print the resource types found in scope
+            Write-Host "Resource types found in scope: $($resourceTypesInScope.type -join ', ')" -ForegroundColor Cyan
+            Write-Log -Message "Resource types found in scope: $($resourceTypesInScope.type -join ', ')" -Level "INFO"
+
+            # Initialize an array to store relevant YAML data
+            $yamlData = @()
+
+            # Process each YAML file (Original logic)
+            # Original used ForEach-Object -Parallel
+            $yamlFiles | ForEach-Object -Parallel {
+                $file = $_
+                $resourceTypesInScope = $using:resourceTypesInScope # Capture variable
+                $logFile = $using:logFile # Capture log file path
+
+                # Create a local function for logging within the parallel block
+                function Write-ParallelLog {
+                    param (
+                        [string]$Message,
+                        [string]$Level = "INFO"
+                    )
+                    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                    $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message"
+                    $logFile = $using:logFile # Access variable from parent scope
+                    Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
+                }
+
+                try {
+                    # Read the YAML file
+                    $yamlContent = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
+
+                    # Convert YAML to PowerShell object (Original assumed single object)
+                    $yamlObject = $yamlContent | ConvertFrom-Yaml
+
+                    # Split the recommendationResourceType into individual resource types
+                    $resourceTypes = $yamlObject.recommendationResourceType -split ' '
+
+                    # Check if any of the resource types exist in scope
+                    $matchFound = $false
+                    foreach ($resourceType in $resourceTypes) {
+                        # Original used '-in', which is case-sensitive for strings by default.
+                        # Use -contains (case-insensitive for collections) or explicit comparison
+                        # $resourceTypesInScope.type is likely an array of strings from ARG result
+                        if ($resourceTypesInScope.type -contains $resourceType) { # Case-insensitive check
+                            $matchFound = $true
+                            break
+                        }
+                    }
+
+                    # If a match is found, return the YAML object
+                    if ($matchFound) {
+                        return $yamlObject
+                    }
+                }
+                catch {
+                    Write-ParallelLog -Message "Failed to process YAML file '$($file.FullName)': $_" -Level "ERROR"
+                }
+            } -ThrottleLimit 5 -AsJob | Receive-Job -Wait -AutoRemoveJob | ForEach-Object {
+                if ($_) {
+                    $yamlData += $_ # Collect the returned YAML objects
+                }
+            }
 
             # Combine validated recommendations with CustomCost recommendations
-            $combinedData = $validatedYamlData + $customCostRecommendations
-            Write-Log -Message "Total manual recommendations (CustomCost + Validated): $($combinedData.Count)" -Level "INFO"
+            $combinedData = $yamlData + $customCostRecommendations
 
-            # Convert combined YAML data to a format suitable for Excel
+            # Convert YAML data to a format suitable for Excel (Original structure)
             $excelData = $combinedData | ForEach-Object {
-                # Handle potential missing properties gracefully
-                $Tags = if ($_.PSObject.Properties['tags']) { $_.tags } else { $null }
-                $LearnMoreLinks = if ($_.PSObject.Properties['learnMoreLink']) { $_.learnMoreLink } else { $null }
-
                 [PSCustomObject]@{
-                    Description                 = $_.PSObject.Properties['description']?.Value ?? ''
-                    AcorlGuid                   = $_.PSObject.Properties['acorlGuid']?.Value ?? ''
-                    RecommendationTypeId        = $_.PSObject.Properties['recommendationTypeId']?.Value ?? ''
-                    RecommendationControl       = $_.PSObject.Properties['recommendationControl']?.Value ?? ''
-                    RecommendationImpact        = $_.PSObject.Properties['recommendationImpact']?.Value ?? ''
-                    RecommendationResourceType  = $_.PSObject.Properties['recommendationResourceType']?.Value ?? ''
-                    RecommendationMetadataState = $_.PSObject.Properties['recommendationMetadataState']?.Value ?? ''
-                    RemediationAction           = $_.PSObject.Properties['remediationAction']?.Value ?? ''
-                    PotentialBenefits           = $_.PSObject.Properties['potentialBenefits']?.Value ?? ''
-                    PgVerified                  = $_.PSObject.Properties['pgVerified']?.Value ?? '' # Consider converting to boolean if needed
-                    PublishedToLearn            = $_.PSObject.Properties['publishedToLearn']?.Value ?? '' # Consider converting to boolean if needed
-                    AutomationAvailable         = $_.PSObject.Properties['automationAvailable']?.Value ?? '' # Consider converting to boolean if needed
-                    Tags                        = if ($Tags -is [array]) { $Tags -join '; ' } else { $Tags } # Join if it's an array
-                    LearnMoreLink               = if ($LearnMoreLinks -is [array]) { ($LearnMoreLinks | ForEach-Object { if ($_.name -and $_.url) { "$($_.name): $($_.url)" } }) -join "; " } else { '' } # Handle array of links
+                    Description                 = $_.description
+                    AcorlGuid                   = $_.acorlGuid
+                    RecommendationTypeId        = $_.recommendationTypeId
+                    RecommendationControl       = $_.recommendationControl
+                    RecommendationImpact        = $_.recommendationImpact
+                    RecommendationResourceType  = $_.recommendationResourceType
+                    RecommendationMetadataState = $_.recommendationMetadataState
+                    RemediationAction           = $_.remediationAction
+                    PotentialBenefits           = $_.potentialBenefits
+                    PgVerified                  = $_.pgVerified
+                    PublishedToLearn            = $_.publishedToLearn
+                    AutomationAvailable         = $_.automationAvailable
+                    Tags                        = $_.tags # Original didn't handle array format
+                    LearnMoreLink               = ($_.learnMoreLink | ForEach-Object { "$($_.name): $($_.url)" }) -join "; " # Original formatting
                 }
             }
 
             # Append YAML data to the Excel file
             if ($excelData.Count -gt 0) {
-                Write-Log -Message "Appending $($excelData.Count) manual recommendations to the Excel file: $ExcelFilePath" -Level "INFO"
-                # Ensure the Excel file exists or is created by a previous step (like Export-ResultsToExcel)
-                # If Export-ResultsToExcel hasn't run yet, this might create the file
-                try {
-                    # Check if file exists to use -Append or not (Export-Excel handles creation)
-                    $appendSwitch = if(Test-Path $ExcelFilePath) { $true } else { $false } # Not needed for Export-Excel >= 7
-                    $excelData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Manual Recommendations' -AutoSize -TableName 'ManualRecommendations' -TableStyle 'Light19' -ErrorAction Stop #-Append:$appendSwitch # Append parameter deprecated/implicit in newer versions
-                    Write-Log -Message "Successfully appended manual recommendations." -Level "INFO"
-                } catch {
-                    Write-Log -Message "Failed to append manual recommendations to Excel file '$ExcelFilePath': $_" -Level "ERROR"
-                }
+                Write-Log -Message "Appending $($excelData.Count) manual recommendations to the Excel file." -Level "INFO"
+                # Original didn't handle potential errors here
+                $excelData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Manual Recommendations' -AutoSize -TableName 'ManualRecommendations' -TableStyle 'Light19'
             }
             else {
-                Write-Log -Message "No manual recommendations (CustomCost or Validated) found to append to Excel." -Level "INFO"
+                Write-Log -Message "No manual recommendations found to append." -Level "WARNING"
             }
         }
         catch {
             Write-Log -Message "Error in Manual-Validations function: $_" -Level "ERROR"
-            # Decide if this should be a throwing error or just log
-            # throw # Uncomment if this failure should stop the script
+            throw # Original threw error
         }
     }
 
-
-    # Function to export Assessment results to Excel
+    # Function to export Assessment results to Excel (Original version)
     function Export-ResultsToExcel {
         param (
-            [Parameter(Mandatory=$true)]
-            [array]$AllResources, # KQL results
-
-            [Parameter(Mandatory=$false)]
-            [string]$AssessmentFilePath, # Optional WAF Assessment CSV path
-
-            [Parameter(Mandatory=$true)]
-            [string]$ExcelFilePath # Output Excel file path
+            [array]$AllResources,
+            [string]$AssessmentFilePath,
+            [string]$ExcelFilePath
         )
 
         # Export KQL results to Excel
-        if ($AllResources -and $AllResources.Count -gt 0) {
-            Write-Log -Message "Exporting $($AllResources.Count) KQL recommendations to Excel..." -Level "INFO"
-            try {
-                 $AllResources | Export-Excel -Path $ExcelFilePath -WorksheetName 'Recommendations' -AutoSize -TableName 'Table1' -TableStyle 'Light19' -ErrorAction Stop
-                 Write-Log -Message "KQL Recommendations exported successfully to '$ExcelFilePath' (Sheet: Recommendations)." -Level "INFO"
-            } catch {
-                 Write-Log -Message "Failed to export KQL recommendations to Excel: $_" -Level "ERROR"
-                 # Decide whether to continue if export fails
-            }
-        } else {
-             Write-Log -Message "No KQL recommendations provided to export." -Level "WARNING"
-             $excelDir = Split-Path $ExcelFilePath -Parent
-             if (-not (Test-Path $excelDir)) { New-Item -ItemType Directory -Path $excelDir -ErrorAction SilentlyContinue | Out-Null }
-        }
-
+        # Original didn't check if $AllResources was empty
+        $AllResources | Export-Excel -Path $ExcelFilePath -WorksheetName 'Recommendations' -AutoSize -TableName 'Table1' -TableStyle 'Light19'
+        Write-Log -Message "Results exported to Excel file: $ExcelFilePath" -Level "INFO"
 
         # Add assessment data if provided
-        if (-not [string]::IsNullOrWhiteSpace($AssessmentFilePath)) {
-            if (Test-Path $AssessmentFilePath -PathType Leaf) {
-                 Write-Log -Message "Importing Well-Architected Assessment from '$AssessmentFilePath'..." -Level "INFO"
-                try {
-                    $assessmentData = Import-Csv -Path $AssessmentFilePath -ErrorAction Stop
-                    if ($assessmentData -and $assessmentData.Count -gt 0) {
-                        Write-Log -Message "Appending Well-Architected Assessment data to '$ExcelFilePath' (Sheet: Well-Architected Assessment)." -Level "INFO"
-                        $assessmentData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -AutoSize -TableName 'WAFAssessment' -TableStyle 'Light19' -ErrorAction Stop
-                        Write-Log -Message "Successfully appended Well-Architected Assessment." -Level "INFO"
-                    } else {
-                         Write-Log -Message "Well-Architected Assessment file '$AssessmentFilePath' is empty or could not be read." -Level "WARNING"
-                    }
-                }
-                catch {
-                    Write-Log -Message "Failed to import or append the Well-Architected Cost Optimization assessment: $_" -Level "ERROR"
-                }
-            } else {
-                 Write-Log -Message "Well-Architected Assessment file not found at specified path: $AssessmentFilePath. Skipping." -Level "WARNING"
+        if ($AssessmentFilePath) {
+            try {
+                $assessmentData = Import-Csv -Path $AssessmentFilePath -ErrorAction Stop
+                $assessmentData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -AutoSize -TableName 'WAF Assessment' -TableStyle 'Light19'
+                Write-Log -Message "Added Well-Architected Cost Optimization assessment as a new tab in the Excel file." -Level "INFO"
             }
-        } else {
-             Write-Log -Message "No Well-Architected Assessment file path provided." -Level "DEBUG"
+            catch {
+                Write-Log -Message "Failed to import or add the Well-Architected Cost Optimization assessment: $_" -Level "ERROR"
+            }
         }
     }
 
     # Main script execution
     try {
         # --- Start Log Message with Version ---
-        Write-Log -Message "Starting script execution (Version $ScriptVersion)." -Level "INFO"
+        Write-Log -Message "Starting script execution (Version $ScriptVersion)." -Level "INFO" # Modified Log Message
 
         # --- Perform Version Check ---
-        Check-ScriptVersion -CurrentVersion $ScriptVersion -RemoteVersionUrl $RemoteVersionFileUrl
+        Check-ScriptVersion -CurrentVersion $ScriptVersion -RemoteVersionUrl $RemoteVersionFileUrl # Added Call
 
-        # Check PowerShell Version (already checked at top level)
+        # Check PowerShell Version (Original position)
+        if ($PSVersionTable.PSVersion.Major -lt 7) {
+            Write-Host "This script requires PowerShell 7 or later. Please upgrade to PowerShell 7." -ForegroundColor Red
+            Write-Host "Download PowerShell 7 from: https://aka.ms/powershell-release" -ForegroundColor Yellow
+            exit
+        }
 
-        # Install Modules (ErrorAction Stop inside function will halt here if needed)
         Install-AndImportModules -Modules @('Az.Accounts', 'Az.ResourceGraph', 'ImportExcel', 'powershell-yaml')
-
-        # Connect to Azure (Throws error if connection fails)
         Connect-ToAzure
 
-        # Set Working Directory and Download Recommendations
         $workingFolderPath = $PSScriptRoot
-        # Set-Location is sometimes problematic in scripts, use Join-Path instead
-        # Set-Location -Path $workingFolderPath
-        Write-Log -Message "Script running from directory: $workingFolderPath" -Level "INFO"
+        Set-Location -Path $workingFolderPath
+        Write-Log -Message "Set working directory to: $workingFolderPath" -Level "INFO"
 
-        # Hardcoded GitHub repository zip URL for recommendations content
-        $repoZipUrl = "https://github.com/microsoft/finops-toolkit/raw/features/wacoascripts/src/wacoa/tools/azure-resources.zip" 
-
+        # Hardcoded GitHub repository folder URL (Original)
+        $repoUrl = "https://github.com/microsoft/finops-toolkit/raw/refs/heads/features/wacoascripts/src/wacoa/content/azure-resources.zip"
 
 
-        # Define the destination directory for extracted content
-        $tempDir = Join-Path $workingFolderPath "Temp" # Base temp directory
-        $contentDir = Join-Path $tempDir "azure-resources" # Specific content directory
-
-        # Download and extract the zip file if the content directory doesn't exist
-        if (-not (Test-Path -Path $contentDir -PathType Container)) {
-            Write-Log -Message "Recommendation content folder '$contentDir' not found. Downloading and extracting from '$repoZipUrl'." -Level "INFO"
-            # Ensure Temp directory exists first
-             if (-not (Test-Path -Path $tempDir -PathType Container)) {
-                 New-Item -Path $tempDir -ItemType Directory -ErrorAction Stop | Out-Null
+        $tempBaseDir = Join-Path $workingFolderPath "Temp"
+        $tempDir = Join-Path $tempBaseDir "azure-resources" 
+        # Download and extract the zip file if the folder doesn't exist
+        if (-not (Test-Path -Path $tempDir -PathType Container)) { # Check for container
+             Write-Log -Message "Downloading and extracting zip file to $tempDir." -Level "INFO"
+             # Ensure base Temp folder exists
+             if (-not (Test-Path -Path $tempBaseDir -PathType Container)) {
+                New-Item -Path $tempBaseDir -ItemType Directory -ErrorAction Stop | Out-Null
              }
-             # Pass $tempDir as destination for extraction, Download function assumes zip extracts to a folder named 'azure-resources' inside it
-             $extractDestination = $tempDir # Extract into Temp, expecting 'azure-resources' folder to be created by Expand-Archive
-             Download-GitHubFolder -RepoUrl $repoZipUrl -Destination $extractDestination # Pass the parent temp dir
-
-             # Verify content directory exists after extraction
-             if (-not (Test-Path -Path $contentDir -PathType Container)) {
-                 Write-Log -Message "Expected content directory '$contentDir' not found after extraction. Please check the zip file structure and permissions." -Level "ERROR"
-                 throw "Failed to prepare recommendation content."
-             }
+             # Pass the base temp dir as destination, assuming zip extracts into 'azure-resources' folder
+             Download-GitHubFolder -RepoUrl $repoUrl -Destination $tempBaseDir
         }
         else {
-            Write-Log -Message "Recommendation content folder '$contentDir' already exists. Skipping download." -Level "INFO"
+            Write-Log -Message "Folder '$tempDir' already exists. Skipping download." -Level "INFO"
         }
 
-        # Prompt to include Well-Architected Cost Optimization assessment
-        $assessmentFilePath = $null # Initialize
-        while ($true) {
-            $includeAssessment = Read-Host "Would you like to include the results of a Well-Architected Cost Optimization assessment? (Yes/No or Y/N)"
-            if ($includeAssessment -ne $null) {
-                $includeAssessment = $includeAssessment.ToLower().Trim()
-                if ($includeAssessment -in ('yes', 'y')) {
-                    $assessmentFilePath = Get-FilePath # Calls the file browser/prompt function
-                    if (-not $assessmentFilePath) {
-                        Write-Log -Message "No file selected or file path invalid. Skipping Well-Architected Cost Optimization assessment." -Level "WARNING"
-                    } else {
-                         Write-Log -Message "Selected assessment file: $assessmentFilePath" -Level "INFO"
-                    }
-                    break # Exit loop
-                }
-                elseif ($includeAssessment -in ('no', 'n')) {
-                    Write-Log -Message "Skipping Well-Architected Cost Optimization assessment inclusion." -Level "INFO"
-                    break # Exit loop
-                }
-                else {
-                    Write-Host "Invalid input. Please enter 'Yes', 'No', 'Y', or 'N'." -ForegroundColor Red
-                }
-            } else {
-                 Write-Host "Input cannot be empty. Please enter 'Yes', 'No', 'Y', or 'N'." -ForegroundColor Red
+
+        # Prompt to include Well-Architected Cost Optimization assessment (Original logic)
+        $includeAssessment = Read-Host "Would you like to include the results of a Well-Architected Cost Optimization assessment? (Yes/No or Y/N)"
+        $assessmentFilePath = $null
+        if ($includeAssessment -eq "yes" -or $includeAssessment -eq "y") {
+            # Open file browser dialog to select the assessment file
+            $assessmentFilePath = Get-FilePath
+            if (-not $assessmentFilePath) {
+                Write-Log -Message "No file selected. Skipping Well-Architected Cost Optimization assessment." -Level "WARNING"
             }
         }
-
 
         # Prompt for scope selection
-        $scope = Get-Scope # Returns hashtable with SubscriptionIds and ResourceGroupName
-        $subscriptionIds = $scope.SubscriptionIds   # Can be null, comma-separated string
-        $resourceGroupName = $scope.ResourceGroupName # Can be null or string
+        $scope = Get-Scope
+        $subscriptionIds = $scope.SubscriptionIds
+        $resourceGroupName = $scope.ResourceGroupName
 
         # Define the Excel file path
-        $ExcelFilePath = Join-Path $workingFolderPath ('ACORL-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.xlsx')
-        Write-Log -Message "Output Excel file will be: $ExcelFilePath" -Level "INFO"
+        $ExcelFilePath = Join-Path $PSScriptRoot ('ACORL-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.xlsx')
 
-        # --- Run KQL Processing First ---
-        # Process KQL files based on scope
-        $kqlResults = Process-KQLFiles -BasePath $contentDir -SubscriptionIds $subscriptionIds -ResourceGroupName $resourceGroupName # Use contentDir
-
-        # --- Export KQL and Optional WAF Assessment Results ---
-        # This creates the Excel file and adds the first two sheets if data exists
-        Export-ResultsToExcel -AllResources $kqlResults.AllResources -AssessmentFilePath $assessmentFilePath -ExcelFilePath $ExcelFilePath
-
-        # --- Run Manual/YAML Checks ---
-        # Prompt user if they want to run these checks
-        $runManualChecksChoice = $null
-        while ($true) {
-            $runManualChecksChoice = Read-Host "Would you like to run manual checks (process YAML recommendations)? (Yes/No or Y/N)"
-            if($runManualChecksChoice -ne $null){
-                 $runManualChecksChoice = $runManualChecksChoice.ToLower().Trim()
-                 if ($runManualChecksChoice -in ('yes', 'y', 'no', 'n')) { break }
-                 else { Write-Host "Invalid input. Please enter 'Yes', 'No', 'Y', or 'N'." -ForegroundColor Red }
-            } else { Write-Host "Input cannot be empty." -ForegroundColor Red}
-        }
-
-
-        if ($runManualChecksChoice -in ('yes', 'y')) {
-            Write-Log -Message "Running manual checks (processing YAML files)..." -Level "INFO"
-            # Process YAML files (CustomCost + Validated) and append to the *existing* Excel file
-            Manual-Validations -BasePath $tempDir -ExcelFilePath $ExcelFilePath -SubscriptionIds $subscriptionIds -ResourceGroupName $resourceGroupName # Pass tempDir as BasePath
+        # Process YAML files and append to the Excel file (Original logic)
+        $runManualChecks = Read-Host "Would you like to run manual checks? (Yes/No or Y/N)"
+        if ($runManualChecks -eq "yes" -or $runManualChecks -eq "y") {
+            Write-Log -Message "Running manual checks." -Level "INFO"
+            # Process YAML files and append to the Excel file
+            # Pass $tempDir (e.g., ./Temp/azure-resources) as the BasePath for Manual-Validations
+            Manual-Validations -BasePath $tempDir -ExcelFilePath $ExcelFilePath -SubscriptionIds $subscriptionIds -ResourceGroupName $resourceGroupName
         }
         else {
-            Write-Log -Message "Skipping manual checks (YAML processing) as per user request." -Level "INFO"
+            Write-Log -Message "Skipping manual checks as per user request." -Level "INFO"
+            # No processing of CustomCost recommendations when manual checks are skipped in original logic
         }
 
-        # --- Summarize and Display KQL Results ---
-        if ($kqlResults.AllResources -and $kqlResults.AllResources.Count -gt 0) {
-            Write-Host "`nKQL Recommendations Summary:" -ForegroundColor Cyan
-            try {
-                # Grouping requires consistent property names. Verify 'x_RecommendationImpact', 'x_ResourceType' exist.
-                # Use Select-Object to handle potential missing properties during grouping
-                $summary = $kqlResults.AllResources |
-                    Select-Object @{N='Impact'; E={$_.x_RecommendationImpact}}, @{N='ResourceType'; E={$_.x_ResourceType}} |
-                    Where-Object { -not [string]::IsNullOrWhiteSpace($_.Impact) -and -not [string]::IsNullOrWhiteSpace($_.ResourceType) } |
-                    Group-Object -Property Impact, ResourceType |
-                    Select-Object @{Name = 'Impact'; Expression = {$_.Values[0]}},
-                                  @{Name = 'ResourceType'; Expression = {$_.Values[1]}},
-                                  @{Name = 'ImpactedResources'; Expression = {$_.Count}} |
-                    Sort-Object -Property Impact, ResourceType
 
-                # Display the summary table
-                $summary | Format-Table -AutoSize
-                Write-Log -Message "Displayed KQL recommendations summary." -Level "INFO"
+        # Process KQL files
+        # Pass $tempDir (e.g., ./Temp/azure-resources) as the BasePath for KQL files
+        $results = Process-KQLFiles -BasePath $tempDir -SubscriptionIds $subscriptionIds -ResourceGroupName $resourceGroupName
 
-            } catch {
-                 Write-Log -Message "Could not generate KQL recommendations summary: $_. Property names might be inconsistent (e.g., 'x_RecommendationImpact', 'x_ResourceType')." -Level "WARNING"
-                 Write-Host "Could not generate KQL recommendations summary due to error." -ForegroundColor Yellow
+        # Summarize recommendations by priority and resourceType (Original logic)
+        # Note: Original grouping used 'x_RecommendationImpact' which might not be correct, should maybe be 'x_RecommendationPriority'? Sticking to original for now.
+        $summary = $results.AllResources | Group-Object -Property @{
+            Expression = {
+                # Original used x_RecommendationImpact, but example output used Priority. Using original expression.
+                "$($_.x_RecommendationPriority) | $($_.x_ResourceType)" # Assuming x_RecommendationPriority exists
             }
-        } else {
-             Write-Host "`nNo KQL recommendations found to summarize." -ForegroundColor Yellow
-             Write-Log -Message "No KQL recommendations found to summarize." -Level "INFO"
-        }
+        } | ForEach-Object {
+            # Splitting the Group Name (e.g., "High | Microsoft.Compute/virtualMachines")
+             $groupParts = $_.Name -split ' \| '
+             # Check if split worked correctly
+             $priorityValue = if ($groupParts.Count -ge 1) { $groupParts[0] } else { 'Unknown Priority' }
+             $resourceTypeValue = if ($groupParts.Count -ge 2) { $groupParts[1] } else { 'Unknown Type' }
 
-        # Display KQL query errors, if any
-        if ($kqlResults.QueryErrors.Count -gt 0) {
-            Write-Host "`nThe following $($kqlResults.QueryErrors.Count) KQL query errors occurred:" -ForegroundColor Red
-            foreach ($error in $kqlResults.QueryErrors) {
-                Write-Host "- File: $($error.File)" -ForegroundColor Red
-                Write-Host "  Error: $($error.Error)" -ForegroundColor Red
-                 # Log the error details as well
-                 Write-Log -Message "KQL Query Error - File: $($error.File), Error: $($error.Error)" -Level "ERROR"
-                 # Optionally log the failed query if needed (can be long)
-                 # Write-Log -Message "Failed KQL Query: $($error.Query)" -Level "DEBUG"
+            [PSCustomObject]@{
+                Priority     = $priorityValue # Get priority from the group name
+                ResourceType = $resourceTypeValue # Get resource type from the group name
+                ImpactedResources = $_.Count
+            }
+        } | Sort-Object Priority, ResourceType # Added sort for consistent output
+
+
+        # Display the summary
+        Write-Host "`nRecommendations Summary:" -ForegroundColor Cyan
+        $summary | Format-Table -AutoSize
+
+        # Display Query Errors (using the error objects collected)
+        if ($results.QueryErrors.Count -gt 0) {
+            Write-Host "`nThe following query errors occurred:" -ForegroundColor Red
+            foreach ($error in $results.QueryErrors) {
+                 # Display the error message from the error object
+                 Write-Host "- File: $($error.File)" -ForegroundColor Red
+                 Write-Host "  Error: $($error.Error)" -ForegroundColor Red
             }
         }
 
-        # Final completion message
+        # Export KQL results to Excel
+        if ($results.AllResources.Count -gt 0) {
+            Export-ResultsToExcel -AllResources $results.AllResources -AssessmentFilePath $assessmentFilePath -ExcelFilePath $ExcelFilePath
+        }
+        else {
+            Write-Log -Message "No KQL resources found to export." -Level "WARNING" # Changed from "No resources found"
+            # Check if Assessment file was provided, if so, create the Excel file just for that
+            if($assessmentFilePath -and (Test-Path $assessmentFilePath)){
+                 Write-Log -Message "Exporting only Well-Architected Assessment as no KQL results were found." -Level "INFO"
+                 Export-ResultsToExcel -AllResources @() -AssessmentFilePath $assessmentFilePath -ExcelFilePath $ExcelFilePath # Call with empty KQL results
+            }
+        }
+
         Write-Log -Message "Script execution completed." -Level "INFO"
-        Write-Host "`nScript execution finished. Results are in: $ExcelFilePath" -ForegroundColor Green
-        Write-Host "Log file is located at: $logFile" -ForegroundColor Green
+        # Added final console messages for clarity
+        Write-Host "`nScript execution finished." -ForegroundColor Green
+        Write-Host "Results file: $ExcelFilePath" -ForegroundColor Green
+        Write-Host "Log file: $logFile" -ForegroundColor Green
+
 
     }
     catch {
-        # Catch any unhandled exceptions from the main block
-        Write-Log -Message "A critical error occurred during script execution: $_" -Level "ERROR"
-        Write-Host "A critical error occurred: $($_.Exception.Message)" -ForegroundColor Red
-        # Optionally re-throw if needed for external error handling
-        # throw
+        Write-Log -Message "An error occurred: $_" -Level "ERROR"
+        Write-Host "An error occurred: $($_.Exception.Message)" -ForegroundColor Red # Added console error message
     }
-    finally{
-         Write-Log -Message "Script execution finished." -Level "INFO" # Log end even if errors occurred
+    finally {
+         # Added finally block to ensure this message always logs
+         Write-Log -Message "Script execution finished run." -Level "INFO"
     }
 }
 
