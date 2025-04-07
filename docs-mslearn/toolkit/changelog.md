@@ -27,6 +27,7 @@ The following section lists features and enhancements that are currently in deve
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
+- Workaround subnets reordering and bicep limitation
 
 <br><a name="latest"></a>
 
