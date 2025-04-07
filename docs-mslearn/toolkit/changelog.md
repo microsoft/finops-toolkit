@@ -34,7 +34,7 @@ The following section lists features and enhancements that are currently in deve
 
 _Released April 7, 2025_
 
-This release is a minor patch to fix Power BI reports and the FinOps hub deployment. These files were updated in the existing 0.9 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep**, **PowerBI-KQL.zip**, **PowerBI-storage.zip**, or **PowerBI-demo.zip** between April 4-7, 2025, please update to the latest version.
+This release is a minor patch to fix the FinOps hub deployment and the Power BI Rate optimization reports for storage. These files were updated in the existing 0.9 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep**, **PowerBI-storage.zip**, or **PowerBI-demo.zip** between April 4-7, 2025, please update to the latest version.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9 Update 1
 
