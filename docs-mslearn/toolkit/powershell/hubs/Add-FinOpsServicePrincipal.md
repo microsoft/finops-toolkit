@@ -7,7 +7,7 @@ ms.date: 04/07/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
-ms.reviewer: msbrett
+ms.reviewer: brettwil
 #customer intent: As a FinOps user, I want to understand how to use the Add-FinOpsServicePrincipal command in the FinOpsToolkit module.
 ---
 
