@@ -28,6 +28,11 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Added**
+  - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
+
 <br><a name="latest"></a>
 
 ## v0.9 Update 1
