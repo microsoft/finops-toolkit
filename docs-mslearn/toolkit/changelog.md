@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/07/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -28,12 +28,34 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### FinOps hubs
+### [FinOps hubs](hubs/finops-hubs-overview.md)
 
-- **Fixed**
+- **Added**
+  - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
+
+**Fixed**
   - Workaround subnets reordering and bicep limitation
 
 <br><a name="latest"></a>
+
+## v0.9 Update 1
+
+_Released April 7, 2025_
+
+This release is a minor patch to fix the FinOps hub deployment and the Power BI Rate optimization reports for storage. These files were updated in the existing 0.9 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep**, **PowerBI-storage.zip**, or **PowerBI-demo.zip** between April 4-7, 2025, please update to the latest version.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9 Update 1
+
+- **Fixed**
+  - Removed a reference to old columns that are no longer applicable.
+    - This may have caused new deployments to fail on April 4. Upgrades were not affected. 
+
+### [Power BI reports](power-bi/reports.md) v0.9 Update 1
+
+- **Fixed**
+  - Fixed the column type for the x_BreakEvenDate column in Power BI reports.
+
+<br>
 
 ## v0.9
 
