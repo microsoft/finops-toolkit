@@ -221,7 +221,7 @@ var telemetryString = join([
   empty(dataExplorerName) || dataExplorerCapacity == 1 ? '' : 'x${dataExplorerCapacity}'
   // P = private endpoints enabled
   enablePublicAccess ? '' : 'P'
-], '')  
+], '')
 
 //==============================================================================
 // Resources
@@ -235,10 +235,10 @@ module appRegistration 'hub-app.bicep' = {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
   params: {
     hubName: hubName
-    namespace: 'Microsoft.FinOpsToolkit.Hubs'
     publisher: 'FinOps hubs'
-    appId: 'Core'
-    appName: 'FinOps hub core'
+    namespace: 'Microsoft.FinOpsToolkit.Hubs'
+    appName: 'Core'
+    displayName: 'FinOps hub core'
     appVersion: finOpsToolkitVersion
     telemetryString: telemetryString
     enableDefaultTelemetry: enableDefaultTelemetry
