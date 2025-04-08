@@ -122,7 +122,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                 Do you have a specific error code? Look up common errors for details and mitigation steps.
             </p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors.md">Review errors</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors">Review errors</a>
             </p>
         </div>
     </div>
@@ -133,7 +133,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
                 Please walk thru the troubleshooting guide to resolve the most common configuration issues.
             </p>
             <p>
-                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting.md">Start troubleshooting</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting">Start troubleshooting</a>
             </p>
         </div>
     </div>
