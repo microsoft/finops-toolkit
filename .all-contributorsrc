@@ -743,6 +743,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "timja",
+      "name": "Tim Jacomb",
+      "avatar_url": "https://avatars.githubusercontent.com/u/21194782?v=4",
+      "profile": "https://github.com/timja",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
