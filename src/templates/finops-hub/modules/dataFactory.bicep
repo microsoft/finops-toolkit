@@ -425,6 +425,7 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //------------------------------------------------------------------------------
 
 // cSpell:ignore linkedservices
+// TODO: Move to the hub-app module
 resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: keyVault.name
   parent: dataFactory
@@ -443,6 +444,7 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
   }
 }
 
+// TODO: Move to the hub-app module
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: storageAccount.name
   parent: dataFactory
@@ -812,97 +814,68 @@ resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-0
 // Triggers
 //------------------------------------------------------------------------------
 
-resource trigger_ExportManifestAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: exportManifestAddedTriggerName
-  parent: dataFactory
+// TODO: Create apps_PublishEvent pipeline { event, properties }
+
+module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
+  name: 'trigger_ExportManifestAdded'
   dependsOn: [
     stopTriggers
   ]
-  properties: {
-    annotations: []
-    pipelines: [
-      {
-        pipelineReference: {
-          referenceName: pipeline_ExecuteExportsETL.name
-          type: 'PipelineReference'
-        }
-        parameters: {
-          folderPath: '@triggerBody().folderPath'
-          fileName: '@triggerBody().fileName'
-        }
-      }
-    ]
-    type: 'BlobEventsTrigger'
-    typeProperties: {
-      blobPathBeginsWith: '/${exportContainerName}/blobs/'
-      blobPathEndsWith: 'manifest.json'
-      ignoreEmptyBlobs: true
-      scope: storageAccount.id
-      events: [
-        'Microsoft.Storage.BlobCreated'
-      ]
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: exportManifestAddedTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.CostManagement.ExportManifestAdded'
+    pipelineName: pipeline_ExecuteExportsETL.name
+    pipelineParameters: {
+      folderPath: '@triggerBody().folderPath'
+      fileName: '@triggerBody().fileName'
     }
+    
+    storageAccountName: storageAccount.name
+    storageContainer: exportContainerName
+    storagePathEndsWith: 'manifest.json'
   }
 }
 
-resource trigger_IngestionManifestAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (deployDataExplorer) {
-  name: ingestionManifestAddedTriggerName
-  parent: dataFactory
+module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = {
+  name: 'trigger_IngestionManifestAdded'
   dependsOn: [
     stopTriggers
   ]
-  properties: {
-    annotations: []
-    pipelines: [
-      {
-        pipelineReference: {
-          referenceName: pipeline_ExecuteIngestionETL.name
-          type: 'PipelineReference'
-        }
-        parameters: {
-          folderPath: '@triggerBody().folderPath'
-        }
-      }
-    ]
-    type: 'BlobEventsTrigger'
-    typeProperties: {
-      blobPathBeginsWith: '/${ingestionContainerName}/blobs/'
-      blobPathEndsWith: 'manifest.json'
-      ignoreEmptyBlobs: true
-      scope: storageAccount.id
-      events: [
-        'Microsoft.Storage.BlobCreated'
-      ]
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: ingestionManifestAddedTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.Hubs.IngestionManifestAdded'
+    pipelineName: pipeline_ExecuteIngestionETL.name
+    pipelineParameters: {
+      folderPath: '@triggerBody().folderPath'
     }
+    
+    storageAccountName: storageAccount.name
+    storageContainer: ingestionContainerName
+    storagePathEndsWith: 'manifest.json'
   }
 }
 
-resource trigger_SettingsUpdated 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: updateConfigTriggerName
-  parent: dataFactory
+module trigger_SettingsUpdated 'hub-event-trigger.bicep' = {
+  name: 'trigger_SettingsUpdated'
   dependsOn: [
     stopTriggers
   ]
-  properties: {
-    annotations: []
-    pipelines: [
-      {
-        pipelineReference: {
-          referenceName: pipeline_ConfigureExports.name
-          type: 'PipelineReference'
-        }
-      }
-    ]
-    type: 'BlobEventsTrigger'
-    typeProperties: {
-      blobPathBeginsWith: '/${configContainerName}/blobs/'
-      blobPathEndsWith: 'settings.json'
-      ignoreEmptyBlobs: true
-      scope: storageAccount.id
-      events: [
-        'Microsoft.Storage.BlobCreated'
-      ]
-    }
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: updateConfigTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.Hubs.SettingsUpdated'
+    pipelineName: pipeline_ConfigureExports.name
+    pipelineParameters: {}
+    
+    storageAccountName: storageAccount.name
+    storageContainer: configContainerName
+    // TODO: Change this to startswith
+    storagePathEndsWith: 'settings.json'
   }
 }
 
