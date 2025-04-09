@@ -43,15 +43,12 @@ _Released April 2025_
 
 - **Fixed**
   - Address new data quality issues with data ingested into Data Explorer:
-    - Corrected x_EffectiveUnitPrice when it's calculated and has a rounding error.
-    - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
-
-    - Fix `x_EffectiveUnitPrice` when it's calculated and there is a rounding error compared to `x_BilledUnitPrice` or `ContractedUnitPrice`.
+    - Fix x_EffectiveUnitPrice when it's calculated and there is a rounding error compared to x_BilledUnitPrice or ContractedUnitPrice.
     - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
     - Set ListCost based on ContractedCost or ListUnitPrice when not specified.
     - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
     - Corrected x_EffectiveUnitPrice when it's calculated and has a rounding error.
-    - Add new `x_SourceChanges` checks for `MissingConsumedQuantity`, `MissingPricingQuantity`, and `XEffectiveUnitPriceRoundingError`.
+    - Add new x_SourceChanges checks for "MissingConsumedQuantity", "MissingPricingQuantity", and "XEffectiveUnitPriceRoundingError".
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
