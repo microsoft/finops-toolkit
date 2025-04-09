@@ -272,90 +272,48 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     name: 'Ingestion'
     location: location
     kind: 'ReadWrite'
-    
-    // Open data functions are split to keep size under the 131KB limit for loadTextContent()
-    resource OpenDataFunctions_resource_type_1 'scripts' = { name: 'OpenDataFunctions_resource_type_1', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_1.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
-    resource OpenDataFunctions_resource_type_2 'scripts' = { name: 'OpenDataFunctions_resource_type_2', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
-    resource OpenDataFunctions_resource_type_3 'scripts' = { name: 'OpenDataFunctions_resource_type_3', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
-    resource OpenDataFunctions_resource_type_4 'scripts' = { name: 'OpenDataFunctions_resource_type_4', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
-
-    resource openDataScript 'scripts' = {
-      name: 'OpenDataFunctions'
-      dependsOn: [
-        ingestionDb::OpenDataFunctions_resource_type_1
-        ingestionDb::OpenDataFunctions_resource_type_2
-        ingestionDb::OpenDataFunctions_resource_type_3
-        ingestionDb::OpenDataFunctions_resource_type_4
-      ]
-      properties: {
-        scriptContent: loadTextContent('scripts/OpenDataFunctions.kql')
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
-
-    resource commonScript 'scripts' = {
-      name: 'CommonFunctions'
-      dependsOn: [
-        ingestionDb::openDataScript
-      ]
-      properties: {
-        scriptContent: loadTextContent('scripts/Common.kql')
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
-
-    resource setupScript 'scripts' = {
-      name: 'SetupScript'
-      dependsOn: [
-        ingestionDb::commonScript
-      ]
-      properties: {
-        scriptContent: replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
-          '$$adfPrincipalId$$', dataFactory.identity.principalId),
-          '$$adfTenantId$$', dataFactory.identity.tenantId),
-          '$$ftkOpenDataFolder$$', empty(ftkBranch) ? 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}' : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/${ftkBranch}/src/open-data'),
-          '$$rawRetentionInDays$$', string(rawRetentionInDays))
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
   }
 
   resource hubDb 'databases' = {
     name: 'Hub'
     location: location
     kind: 'ReadWrite'
-    dependsOn: [
-      ingestionDb::setupScript
-    ]
-
-    resource commonScript 'scripts' = {
-      name: 'CommonFunctions'
-      properties: {
-        scriptContent: loadTextContent('scripts/Common.kql')
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
-
-    resource setupScript 'scripts' = {
-      name: 'SetupScript'
-      dependsOn: [
-        hubDb::commonScript
-      ]
-      properties: {
-        scriptContent: replace(replace(loadTextContent('scripts/HubSetup.kql'),
-          '$$adfPrincipalId$$', dataFactory.identity.principalId),
-          '$$adfTenantId$$', dataFactory.identity.tenantId)
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
   }
 }
 
+module ingestionScripts 'hub-database.bicep' = {
+  name: 'ingestionScripts'
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
+      OpenDataFunctions_resource_type_1: loadTextContent('scripts/OpenDataFunctions_resource_type_1.kql')
+      OpenDataFunctions_resource_type_2: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql')
+      OpenDataFunctions_resource_type_3: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql')
+      OpenDataFunctions_resource_type_4: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql')
+      openDataScript: loadTextContent('scripts/OpenDataFunctions.kql')
+      commonScript: loadTextContent('scripts/Common.kql')
+      setupScript: replace(loadTextContent('scripts/IngestionSetup.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module hubScripts 'hub-database.bicep' = {
+  name: 'hubScripts'
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::hubDb.name
+    scripts: {
+      commonScript: loadTextContent('scripts/Common.kql')
+      setupScript: replace(loadTextContent('scripts/HubSetup.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+    
 // Authorize Kusto Cluster to read storage
 resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(cluster.name, subscription().id, 'Storage Blob Data Contributor')
