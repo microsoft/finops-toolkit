@@ -215,21 +215,21 @@ foreach ($vm in $deallocatedVMs.Rows)
                         }
                         if (-not($diskObj.Sku.Name -in ('Standard_LRS','StandardSSD_ZRS')))
                         {
-                            if ($diskObj.Sku.Name -like "*_LRS")
+                            if ($diskObj.Sku.Name -like "*_LRS" -and -not($diskObj.Sku.Name -like "*V2*"))
                             {
                                 Write-Output "Downgrading $($diskObj.Name) to Standard_LRS..."                            
                                 if (-not($Simulate))
                                 {
-                                    $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('Standard_LRS')
+                                    $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('Standard_LRS', 'Standard')
                                     $diskObj | Update-AzDisk | Out-Null        
                                 }
                             }
-                            elseif ($diskObj.Sku.Name -like "*_ZRS")
+                            elseif ($diskObj.Sku.Name -like "*_ZRS" -and -not($diskObj.Sku.Name -like "*V2*"))
                             {
                                 Write-Output "Downgrading $($diskObj.Name) to StandardSSD_ZRS..."                            
                                 if (-not($Simulate))
                                 {
-                                    $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('StandardSSD_ZRS')
+                                    $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('StandardSSD_ZRS', 'Standard')
                                     $diskObj | Update-AzDisk | Out-Null        
                                 }
                             }
