@@ -32,6 +32,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
+  - Enabled Purge protection for Azure keyvault resource
 
 **Fixed**
   - Workaround subnets reordering and bicep limitation
