@@ -70,7 +70,6 @@ Legend:
 > ➕ Added:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
-> 2. Enabled Purge protection for Azure keyvault resource
 
 <br><a name="latest"></a>
 
