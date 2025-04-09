@@ -106,6 +106,15 @@ Transforms:
   - Lowercase `BillingAccountId` to ensure the price join matches all rows.
   - Lowercase `CommitmentDiscountId` to avoid duplicate rows when aggregating data.
   - Add new `x_SourceChanges` checks for `ListCostLessThanContractedCost` and `ContractedCostLessThanEffectiveCost`.
+- v0.10+:
+  - Fix `x_EffectiveUnitPrice` when it's calculated and there is a rounding error compared to `x_BilledUnitPrice` or `ContractedUnitPrice`.
+  - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
+  - Set `ContractedCost` to `EffectiveCost` when it's not set.
+  - Set `ListCost` to `ContractedCost` when it's not set.
+  - Remove "-2" in the `x_InvoiceSectionId` column.
+  - Remove "Unassigned" in the `x_InvoiceSectionName` column.
+  - Corrected `x_EffectiveUnitPrice` when it's calculated and has a rounding error.
+  - Add new `x_SourceChanges` checks for `MissingConsumedQuantity`, `MissingPricingQuantity`, and `XEffectiveUnitPriceRoundingError`.
 
 ### Price data transforms
 
