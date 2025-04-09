@@ -5221,6 +5221,127 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
+      { // Get Existing Parquet Files
+        name: 'Get Existing Parquet Files'
+        description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
+        type: 'GetMetadata'
+        dependsOn: [
+          {
+            activity: 'Set Blob Timestamp'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          dataset: {
+            referenceName: dataset_ingestion_files.name
+            type: 'DatasetReference'
+            parameters: {
+              folderPath: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'blobExportTimestamp\'), pipeline().parameters.queryScope)'
+            }
+          }
+          fieldList: [
+            'childItems'
+          ]
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            enablePartitionDiscovery: false
+          }
+          formatSettings: {
+            type: 'ParquetReadSettings'
+          }
+        }
+      }
+      { // Filter Out Current Exports
+        name: 'Filter Out Current Exports'
+        description: 'Remove existing files from the current export so those files do not get deleted.'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Get Existing Parquet Files'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+          {
+            activity: 'Set Instance Id'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            type: 'Expression'
+          }
+          condition: {
+            // cSpell:ignore endswith
+            value: '@and(endswith(item().name, concat(pipeline().parameters.queryType, \'.parquet\')), not(startswith(item().name, concat(variables(\'instanceId\'), \'${ingestionIdFileNameSeparator}\'))))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // For Each Old File
+        name: 'For Each Old File'
+        description: 'Loop thru each of the existing files from previous exports.'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Filter Out Current Exports'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Filter Out Current Exports\').output.Value'
+            type: 'Expression'
+          }
+          activities: [
+            { // Delete Old Ingested File
+              name: 'Delete Old Ingested File'
+              description: 'Delete the previously ingested files from older exports.'
+              type: 'Delete'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                dataset: {
+                  referenceName: dataset_ingestion.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    blobPath: {
+                      value: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'blobExportTimestamp\'), pipeline().parameters.queryScope, \'/\', item().name)'
+                      type: 'Expression'
+                    }
+                  }
+                }
+                enableLogging: false
+                storeSettings: {
+                  type: 'AzureBlobFSReadSettings'
+                  recursive: false
+                  enablePartitionDiscovery: false
+                }
+              }
+            }
+          ]
+        }
+      }
       { // Load Schema Mappings
         name: 'Load Schema Mappings'
         type: 'Lookup'
@@ -5291,6 +5412,10 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           {
             activity: 'Set Query Error Value'
             dependencyConditions: ['Succeeded']
+          }
+          {
+            activity: 'For Each Old File'
+            dependencyConditions: ['Completed']
           }
         ]
         userProperties: []
