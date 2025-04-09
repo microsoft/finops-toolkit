@@ -50,7 +50,7 @@ This template creates a new Azure Monitor workbook for **governance**.
 
 The governance workbook is an Azure Monitor workbook that provides a comprehensive overview of the governance posture of your Azure environment. It includes the standard metrics aligned with the Cloud Adoption Framework for all disciplines and has the capability to identify and apply recommendations to address non-compliant resources.
 
-To learn more about the governance workbook, the roadmap, or how to contribute, see [FinOps toolkit documentation](https://aka.ms/finops/toolkit).
+To learn more about the governance workbook, the roadmap, or how to contribute, see [FinOps toolkit documentation](https://aka.ms/ftk/docs).
 
 <br>
 

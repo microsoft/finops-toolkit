@@ -1743,7 +1743,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "Effective Savings Rate": {
+			          "ESR": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -1763,7 +1763,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "ESR": {
+			          "Effective Savings Rate": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -6364,7 +6364,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "SKU": {
+			          "Size": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -76881,33 +76881,6 @@ cultureInfo en-US
 			      },
 			      "State": "Generated"
 			    },
-			    "costdetails.resourcenameunique": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "ResourceNameUnique"
-			        }
-			      },
-			      "State": "Generated"
-			    },
-			    "costdetails.subaccountnameunique": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "SubAccountNameUnique"
-			        }
-			      },
-			      "State": "Generated"
-			    },
-			    "costdetails.x_resourcegroupnameunique": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "x_ResourceGroupNameUnique"
-			        }
-			      },
-			      "State": "Generated"
-			    },
 			    "costdetails.x_chargemonth": {
 			      "Definition": {
 			        "Binding": {
@@ -77053,7 +77026,7 @@ cultureInfo en-US
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Flexibility group": {
+			          "Normalized group": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -77075,6 +77048,79 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "Term": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costs.x_skucorecountmeasure": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuCoreCountMeasure"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "vCPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costs.x_skulicensequantitymeasure": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuLicenseQuantityMeasure"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "AHB CPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Hybrid Benefit CPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservationrecommendations.x_breakevendate": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "ReservationRecommendations",
+			          "ConceptualProperty": "x_BreakEvenDate"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Target": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

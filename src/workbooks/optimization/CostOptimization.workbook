@@ -870,7 +870,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### Reference: [Microsoft Azure Well-Architected Framework - cost optimization pillar](https://learn.microsoft.com/en-us/azure/architecture/framework/cost/overview)",
+              "json": "### Reference: [Microsoft Azure Well-Architected Framework - cost optimization pillar](https://learn.microsoft.com/azure/architecture/framework/cost/overview)",
               "style": "upsell"
             },
             "name": "Reference"
@@ -878,7 +878,7 @@
           {
             "type": 1,
             "content": {
-              "json": "This workbook aims to offer a comprehensive overview of your Azure environment's resource usage, aligning with the WAF Cost Optimization pillar. It identifies recommendations to optimize efficiency, providing guidance on potential opportunities. Please note that the workbook serves as guidance to highlight optimization opportunities, and the extent of cost reduction depends on their implementation.\r\n\r\n## Overview of the cost optimization pillar\r\n\r\n* The cost optimization pillar provides principles for balancing business goals with technology needs to create a cost-effective workload while avoiding capital-intensive solutions.The workbook emphasizes the importance of reducing waste and improving operational efficiencies.\r\n\r\n* To assess your workload based on the principles outlined in the [Microsoft Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/architecture/framework/), reference the [Microsoft Azure Well-Architected Review](https://learn.microsoft.com/en-us/assessments/?id=azure-architecture-review&mode=pre-assessment&session=20dc50e4-5b71-4f38-bc49-51cc1d9f205c) tool.\r\n\r\n\r\n\r\n\r\n"
+              "json": "This workbook aims to offer a comprehensive overview of your Azure environment's resource usage, aligning with the WAF Cost Optimization pillar. It identifies recommendations to optimize efficiency, providing guidance on potential opportunities. Please note that the workbook serves as guidance to highlight optimization opportunities, and the extent of cost reduction depends on their implementation.\r\n\r\n## Overview of the cost optimization pillar\r\n\r\n* The cost optimization pillar provides principles for balancing business goals with technology needs to create a cost-effective workload while avoiding capital-intensive solutions.The workbook emphasizes the importance of reducing waste and improving operational efficiencies.\r\n\r\n* To assess your workload based on the principles outlined in the [Microsoft Azure Well-Architected Framework](https://learn.microsoft.com/azure/architecture/framework/), reference the [Microsoft Azure Well-Architected Review](https://learn.microsoft.com/assessments/?id=azure-architecture-review&mode=pre-assessment&session=20dc50e4-5b71-4f38-bc49-51cc1d9f205c) tool.\r\n\r\n\r\n\r\n\r\n"
             },
             "name": "objective"
           },
