@@ -33,6 +33,9 @@ The following section lists features and enhancements that are currently in deve
 - **Added**
   - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
 
+**Fixed**
+  - Workaround subnets reordering and bicep limitation
+
 <br><a name="latest"></a>
 
 ## v0.9 Update 1
