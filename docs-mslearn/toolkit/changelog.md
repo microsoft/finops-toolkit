@@ -32,6 +32,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
+  - Created a new bicep modules to support extensibility:
+    - The **hub-storage** module creates containers in the hub storage account.
 
 <br><a name="latest"></a>
 
