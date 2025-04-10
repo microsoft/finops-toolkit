@@ -89,78 +89,6 @@ table ManagementGroups
 
 		annotation SummarizationSetBy = Automatic
 
-	column displayName
-		dataType: string
-		lineageTag: c95adf9e-155b-4db2-a6e8-83d630a2892e
-		summarizeBy: none
-		sourceColumn: displayName
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'managementGroupAncestorsChain.displayName'
-		dataType: string
-		lineageTag: 6c8a61d3-6351-4374-b38b-85f967964e05
-		summarizeBy: none
-		sourceColumn: managementGroupAncestorsChain.displayName
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'managementGroupAncestorsChain.name'
-		dataType: string
-		lineageTag: 34bc6713-be52-4615-b9d5-dd89193cda7d
-		summarizeBy: none
-		sourceColumn: managementGroupAncestorsChain.name
-
-		annotation SummarizationSetBy = Automatic
-
-	column updatedTime
-		dataType: string
-		lineageTag: 7df50bf9-576b-4d14-ac15-b2e380019699
-		summarizeBy: none
-		sourceColumn: updatedTime
-
-		annotation SummarizationSetBy = Automatic
-
-	column updatedBy
-		dataType: string
-		lineageTag: 0534e99a-a2a7-444c-88ea-26d6e6a060f5
-		summarizeBy: none
-		sourceColumn: updatedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column version
-		dataType: string
-		lineageTag: 775e305e-38e1-4c55-988b-4f2b8a3b57d6
-		summarizeBy: none
-		sourceColumn: version
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'parent.displayName'
-		dataType: string
-		lineageTag: d766d044-4796-4bef-9dbb-5abc1f8a9366
-		summarizeBy: none
-		sourceColumn: parent.displayName
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'parent.name'
-		dataType: string
-		lineageTag: 363e53e3-8504-4dd9-bd88-8df6c587a964
-		summarizeBy: none
-		sourceColumn: parent.name
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'parent.id'
-		dataType: string
-		lineageTag: ded0c0a5-dc3f-42ff-8ee0-fbaca8fff87e
-		summarizeBy: none
-		sourceColumn: parent.id
-
-		annotation SummarizationSetBy = Automatic
-
 	column tags
 		dataType: string
 		lineageTag: 9084e19a-6639-447c-b365-671cd2e81486
@@ -193,22 +121,137 @@ table ManagementGroups
 
 		annotation SummarizationSetBy = Automatic
 
+	column properties
+		dataType: string
+		lineageTag: 3b170688-85ae-4e9d-890e-7e5661c505d0
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.displayName'
+		dataType: string
+		lineageTag: c2a83af4-ecb0-48e2-8c91-c539f010c832
+		summarizeBy: none
+		sourceColumn: properties.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details'
+		dataType: string
+		lineageTag: 22995768-4815-4e93-8dbd-380eb7d44f43
+		summarizeBy: none
+		sourceColumn: properties.details
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain'
+		dataType: string
+		lineageTag: d19480fb-6f16-49e7-b2b7-4fad83c35e7d
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.updatedTime'
+		dataType: string
+		lineageTag: 008e6ba3-287b-47b4-a4ab-739a14ac19fa
+		summarizeBy: none
+		sourceColumn: properties.details.updatedTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.updatedBy'
+		dataType: string
+		lineageTag: 7ba4276d-ba03-4243-b330-9b2961829e82
+		summarizeBy: none
+		sourceColumn: properties.details.updatedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.version'
+		dataType: string
+		lineageTag: cc74e405-4d3e-4c8f-b35f-2dd4d388b1d4
+		summarizeBy: none
+		sourceColumn: properties.details.version
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent'
+		dataType: string
+		lineageTag: 107025bb-de26-4e8b-8c2a-64c244d292d8
+		summarizeBy: none
+		sourceColumn: properties.details.parent
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.displayName'
+		dataType: string
+		lineageTag: b160c643-8416-4ffd-a945-3c0119eafadb
+		summarizeBy: none
+		sourceColumn: properties.details.parent.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.name'
+		dataType: string
+		lineageTag: e5cbe777-4e50-4c62-aec7-67ead1fe0b8d
+		summarizeBy: none
+		sourceColumn: properties.details.parent.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.id'
+		dataType: string
+		lineageTag: 42790a1e-b547-4fdb-808f-8c49218e9530
+		summarizeBy: none
+		sourceColumn: properties.details.parent.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain.displayName'
+		dataType: string
+		lineageTag: 4ca64703-7f49-4170-93f3-16087702156f
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain.name'
+		dataType: string
+		lineageTag: f5aa191d-ef68-4b44-92f7-63bdca6bc16c
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain.name
+
+		annotation SummarizationSetBy = Automatic
+
 	partition ManagementGroups = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("
+				  query = "
 				    resourcecontainers
 				    | where type == 'microsoft.management/managementgroups'
-				  " & (if ftk_DemoFilter() = "" then "" else "| where name startswith 'Trey'"), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"displayName", "details"}, {"displayName", "details"}),
-				  #"Expanded details" = Table.ExpandRecordColumn(#"Expanded properties", "details", {"managementGroupAncestorsChain", "updatedTime", "updatedBy", "version", "parent"}, {"managementGroupAncestorsChain", "updatedTime", "updatedBy", "version", "parent"}),
-				  #"Expanded parent" = Table.ExpandRecordColumn(#"Expanded details", "parent", {"displayName", "name", "id"}, {"parent.displayName", "parent.name", "parent.id"}),
-				  #"Expanded managementGroupAncestorsChain" = Table.ExpandListColumn(#"Expanded parent", "managementGroupAncestorsChain"),
-				  #"Expanded managementGroupAncestorsChain 1" = Table.ExpandRecordColumn(#"Expanded managementGroupAncestorsChain", "managementGroupAncestorsChain", {"displayName", "name"}, {"managementGroupAncestorsChain.displayName", "managementGroupAncestorsChain.name"})
+				    | extend
+				      ['properties.displayName'] = properties.displayName,
+				      ['properties.details'] = properties.details,
+				      ['properties.details.managementGroupAncestorsChain'] = properties.details.managementGroupAncestorsChain,
+				      ['properties.details.updatedTime'] = properties.details.updatedTime,
+				      ['properties.details.updatedBy'] = properties.details.updatedBy,
+				      ['properties.details.version'] = properties.details.version,
+				      ['properties.details.parent'] = properties.details.parent,
+				      ['properties.details.parent.displayName'] = properties.details.parent.displayName,
+				      ['properties.details.parent.name'] = properties.details.parent.name,
+				      ['properties.details.parent.id'] = properties.details.parent.id
+				    | mv-expand ['properties.details.managementGroupAncestorsChain']
+				    | extend
+				      ['properties.details.managementGroupAncestorsChain.displayName'] = properties.details.managementGroupAncestorsChain.displayName,
+				      ['properties.details.managementGroupAncestorsChain.name'] = properties.details.managementGroupAncestorsChain.name
+				    " & (if ftk_DemoFilter() = "" then "" else "| where name startswith 'Trey'"),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
 				in
-				  #"Expanded managementGroupAncestorsChain 1"
+				  Source
 
 	annotation PBI_NavigationStepName = Navigation
 

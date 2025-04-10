@@ -187,7 +187,7 @@ let StorageAccountsWithLastTags = $consumptionTableName
 | where todatetime(Date_s) between (lastday_stime..etime)
 | where MeterCategory_s == 'Storage' and ConsumedService_s == 'Microsoft.Storage' and MeterName_s endswith 'Data Stored' and ChargeType_s == 'Usage'
 | extend ResourceId = tolower(ResourceId)
-| distinct ResourceId, Tags_s;
+| summarize arg_max(todatetime(Date_s), Tags_s) by ResourceId;
 $consumptionTableName
 | where todatetime(Date_s) between (stime..etime)
 | where MeterCategory_s == 'Storage' and ConsumedService_s == 'Microsoft.Storage' and MeterName_s endswith 'Data Stored' and ChargeType_s == 'Usage'
@@ -204,6 +204,8 @@ $consumptionTableName
     | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
     | project SubscriptionId=SubscriptionGuid_g, SubscriptionName = ContainerName_s 
 ) on SubscriptionId
+| extend Tags_s = iif(Tags_s !startswith "{", strcat('{', Tags_s, '}'), Tags_s)
+| extend Tags_s = parse_json(tolower(Tags_s))
 "@
 
 try
