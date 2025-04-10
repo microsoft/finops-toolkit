@@ -3,11 +3,11 @@ title: FinOps education and enablement
 description: This article helps you understand the FinOps education and enablement capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 # customer intent: As a FinOps practitioner, I want to understand the FinOps education and enablement capability so that I can implement that in the Microsoft cloud.
 ---
 
@@ -28,7 +28,7 @@ Consider marketing initiatives to drive awareness, encourage discussion, and sha
 
 To learn from help and support initiatives, provide a direct channel to get help and support as people are learning. Be responsive and establish a feedback loop.
 
-By formalizing FinOps education and enablement, stakeholders develop the knowledge and skills needed to effectively manage and optimize cloud usage and costs. Organizations see:
+By formalizing FinOps education and enablement, stakeholders develop the knowledge and skills needed to effectively manage and optimize usage and costs. Organizations see:
 
 - Accelerated adoption of FinOps practices, leading to improved financial performance
 - Increased agility
