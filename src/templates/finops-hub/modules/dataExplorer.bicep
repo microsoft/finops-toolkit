@@ -129,9 +129,6 @@ param enablePublicAccess bool
 //------------------------------------------------------------------------------
 
 // cSpell:ignore ftkver, privatelink
-var ftkver = any(loadTextContent('ftkver.txt')) // any() is used to suppress a warning the array size (only happens when version does not contain a dash)
-var ftkVersion = contains(ftkver, '-') ? split(ftkver, '-')[0] : ftkver
-var ftkBranch = contains(ftkver, '-') ? split(ftkver, '-')[1] : ''
 var dataExplorerPrivateDnsZoneName = replace('privatelink.${location}.${replace(environment().suffixes.storage, 'core', 'kusto')}', '..', '.')
 
 // Actual = Minimum(ClusterMaximumConcurrentOperations, Number of nodes in cluster * Maximum(1, Core count per node * CoreUtilizationCoefficient))
@@ -331,7 +328,10 @@ module ingestion_SetupScript 'hub-database.bicep' = {
 }
 
 module hub_SetupScript 'hub-database.bicep' = {
-  name: 'hubScript'
+  name: 'hub_SetupScript'
+  dependsOn: [
+    ingestion_SetupScript
+  ]
   params: {
     clusterName: cluster.name
     databaseName: cluster::hubDb.name
