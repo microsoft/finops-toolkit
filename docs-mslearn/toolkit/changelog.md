@@ -32,8 +32,10 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
+  - Created a new bicep modules to support extensibility:
+    - The **hub-database** module runs KQL scripts in the Data Explorer database.
 
-**Fixed**
+- **Fixed**
   - Workaround subnets reordering and bicep limitation
 
 <br><a name="latest"></a>
