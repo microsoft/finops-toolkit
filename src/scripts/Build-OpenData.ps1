@@ -46,7 +46,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-opendata
 #>
-Param(
+param(
     [Parameter(Position = 0)]
     [string]
     $Name = "*",
@@ -341,6 +341,10 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
 
                 # Remove unnecessary properties/tags and switch opacity to fill-opacity (ffimg bug)
                 $icon = ($icon.Replace(" opacity=", " fill-opacity=") -replace ' xmlns:svg=', ' xmlns=' -replace " (focusable|role|xmlns:[^=]+)='[^']+'", "") -replace "<title>[^<]*</title>", ""
+                if ($icon -notmatch ' xmlns=')
+                {
+                    $icon = $icon -replace '<svg ', '<svg xmlns=''http://www.w3.org/2000/svg'' '
+                }
 
                 # Replace clip paths that change often
                 $icon = $icon -replace ' clip-path=''url\(#([^\)]+)', " clip-path='url(#$resourceType"
@@ -382,7 +386,9 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
             logOverrides $override.originalLowerSingular $override.lowerSingular $asset.lowerSingularDisplayName 'lower singular display name'
             logOverrides $override.originalLowerPlural   $override.lowerPlural   $asset.lowerPluralDisplayName   'lower plural display name'
             
-            [array]$links = $asset.links | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
+            [array]$links = $asset.links `
+            | Where-Object { @('https://aka.ms/portalfx/designpatterns', 'https://aka.ms/portalfx/browse') -notcontains $_.uri } `
+            | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
             $typeInfo = [PSCustomObject]@{
                 resourceType             = $resourceType
                 singularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
@@ -594,8 +600,8 @@ if ($Hubs)
     {
         if (
             $line -notmatch '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' `
-            -and $line -notmatch '^\+\s*$' `
-            -and $line -notmatch '^\-\s*$' `
+                -and $line -notmatch '^\+\s*$' `
+                -and $line -notmatch '^\-\s*$' `
         )
         {
             $hasFunctionalChanges = $true

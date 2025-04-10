@@ -50,12 +50,6 @@ relationship 52d8acfd-e4eb-fdfe-9d4f-9eae3f716ab4
 	fromColumn: NetworkInterfaces.'properties.ipConfigurations.properties.publicIPAddress.id'
 	toColumn: PublicIPAddresses.id
 
-relationship f2289f99-f546-f6c2-3c36-724c25d99e09
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: Disks.managedBy
-	toColumn: VirtualMachines.id
-
 relationship 26e1c802-749f-5e32-3d1c-82aba5427b7e
 	crossFilteringBehavior: bothDirections
 	fromColumn: Resources.type
@@ -104,7 +98,14 @@ relationship c0c15128-2725-100f-2945-f99368d742f6
 	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
 	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
 
-relationship e0505491-3bd3-169a-45cc-988f783a8946
+relationship 2d0a2bef-ef33-9e59-b9b6-714b0796ce66
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Disks.managedBy
+	toColumn: VirtualMachines.id
+
+relationship ccc483e5-27eb-8e62-2ffb-f7a7d609297d
+	crossFilteringBehavior: bothDirections
 	fromColumn: Costs.ResourceId
 	toColumn: Disks.id
 

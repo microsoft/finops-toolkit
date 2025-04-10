@@ -1,9 +1,9 @@
 ---
 title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -23,6 +23,16 @@ If the information provided doesn't resolve the issue, try the [Troubleshooting 
 <!--
 If the information provided doesn't help you, [Create a support request](/azure/cost-management-billing/costs/cost-management-error-codes#create-a-support-request).
 -->
+
+<br>
+
+## Access to the resource is forbidden
+
+<sup>Severity: Critical</sup>
+
+This error generally means the account you are connected with does not have access to the resource you're attempting to use.
+
+**Mitigation**: Confirm you are using the correct account in the correct Microsoft Entra ID tenant.
 
 <br>
 
@@ -70,6 +80,16 @@ This generally means you're deploying on top of an old deployment that was delet
 6. Select **Delete** in the confirmation dialog.
 
 You can now retry the deployment.
+
+<br>
+
+## ContractedCostLessThanEffectiveCost
+
+<sup>Severity: Warning</sup>
+
+`ContractedCost` (based on negotiated discounts) is less than `EffectiveCost` (after commitment discounts) in the data from Cost Management. This should never happen unless the commitment discount provides less of a discount than your existing negotiated discounts. This will cause your savings calculations to not add up precisely.
+
+**Mitigation**: Confirm the `ContractedUnitPrice` in the cost data matches what's in the price data. If the contracted price is correct, file a support request with the Cost Management team to confirm the `x_EffectiveUnitPrice` and `EffectiveCost` are correct. If they are correct, consider returning the commitment discount.
 
 <br>
 
@@ -123,6 +143,20 @@ Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. In
 
 <br>
 
+## DeploymentOutputEvaluationFailed
+
+<sup>Severity: Major</sup>
+
+FinOps hubs 0.8 sets the Azure Data Explorer "trustedExternaltenants" security setting to lock the cluster down so it can only be access from specific, trusted tenants. This setting can be set for the first deployment, but cannot be set again in a second deployment. You may see the following error if you try to redeploy FinOps hubs 0.8 on top of an existing 0.8 deployment:
+
+> _The template output 'clusterUri' is not valid: The language expression property 'uri' doesn't exist, available properties are 'trustedExternalTenants, enableStreamingIngest, publicNetworkAccess, enableAutoStop, provisioningState'._
+
+We are following up with the Azure Data Explorer team to identify the correct resolution.
+
+**Mitigation**: Deploy FinOps hubs 0.9. This setting has been removed from the template.
+
+<br>
+
 ## ExportDataNotFound
 
 <sup>Severity: Critical</sup>
@@ -130,6 +164,26 @@ Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. In
 Exports weren't found in the specified storage path.
 
 **Mitigation**: Confirm that a [Cost Management export](https://aka.ms/exportsv2) was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, correct the storage URL to point to the 'ingestion' container. Refer to the `storageUrlForPowerBI` output from the FinOps hub deployment for the full URL.
+
+<br>
+
+## ExportTypeNotDefined
+
+<sup>Severity: Critical</sup>
+
+This billing scope type is not supported by managed exports.
+
+**Mitigation**: Remove the unsupported billing scope from settings.json, confirm the billing scope is supported by FinOps hubs and manually create new Cost management exports for the billing scope.
+
+<br>
+
+## ExportTypeUnsupported
+
+<sup>Severity: Critical</sup>
+
+Microsoft Customer Agreements are not supported for managed exports.
+
+**Mitigation**: Remove the MCA billing scope from settings.json and manually create new Cost Management exports for each MCA billing profile for FOCUS cost, pricesheet, reservation details, reservation transactions and reservation recommendations.
 
 <br>
 
@@ -226,6 +280,16 @@ If using FinOps hubs with Data Explorer and seeing this in the `x_SourceChanges`
 If using storage reports and seeing this in the `x_SourceChanges` column of the Costs query, this message is a warning that this FOCUS version will be removed in a future update. While you can safely ignore this message, it will require an update in a future release. To avoid the message, update Cost Management exports to the latest FOCUS version, delete or move any older data using an older FOCUS version, and reexport historical data. If using FinOps hubs, delete or move data outside of the **ingestion** container. If hosting your own exports in storage, change the **Storage URL** parameter to a different folder path that does not include older FOCUS versions.
 
 As of FinOps toolkit 0.7, support for older FOCUS versions has been deprecated to improve performance and scalability. We recommend updating to the latest FOCUS version and reexporting data to improve your experience. Set the **Deprecated: Perform Extra Query Optimizations** parameter to `TRUE` to ensure older FOCUS versions are supported and set it to `FALSE` to speed up performance and support larger datasets covering more cost or time. As of 0.7, this parameter is enabled by default for backwards compatibility. In FinOps toolkit 0.8, it will be disabled by default, but still available for backwards compatibility until on or after June 2025. If you cannot move off of old FOCUS versions or for the best performance and support for larger accounts or longer periods of time, we recommend using FinOps hubs with Data Explorer.
+
+<br>
+
+## ListCostLessThanContractedCost
+
+<sup>Severity: Warning</sup>
+
+`ListCost` (based on public, retail prices) is less than `ContractedCost` (based on negotiated discounts) in the data from Cost Management. This should never happen. This will cause your savings calculations to not add up precisely.
+
+**Mitigation**: Confirm the `ListUnitPrice` in the cost data matches what's in the price data. If the list price is correct, file a support request with the Cost Management team to confirm both the `ListUnitPrice` and `ContractedUnitPrice` are correct and explain why the price after negotiated discounts would be higher than public, retail rates.
 
 <br>
 
@@ -368,11 +432,11 @@ This error code is shown in the `x_SourceChanges` column when `ProviderName` is 
 
 <sup>Severity: Minor</sup>
 
-The source of this error is unknown. This error may be surfaced randomly.
+The source of this error is unknown. This error may be surfaced randomly when refreshing Power BI data.
 
 **Mitigation**: If you receive this error, select **Apply change** again.
 
-This error has only been reported in storage reports. If you have long data refresh times or experience this error often, consider switching to [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. Data Explorer uses KQL reports which do not require scheduling or incremental refresh. Data is pulled when the report is access, so reports always leverage the latest data.
+This error has only been reported in storage reports. If you have long data refresh times or experience this error often, consider switching to [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. Data Explorer uses KQL reports which do not require scheduling or incremental refresh. Data is pulled when the report is opened, so reports always show the latest data.
 
 <br>
 
@@ -582,7 +646,7 @@ If you're facing an error not listed above or need more help, file a [support re
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Help.DataDictionary)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Toolkit/featureName/Help.DataDictionary)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
