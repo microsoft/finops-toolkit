@@ -32,6 +32,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
+  - Created a new bicep modules to support extensibility:
+    - The **hub-vault** module adds secrets to the hub vault.
 
 **Fixed**
   - Workaround subnets reordering and bicep limitation
