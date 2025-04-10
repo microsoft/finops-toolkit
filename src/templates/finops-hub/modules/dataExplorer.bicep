@@ -281,8 +281,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
 }
 
-module ingestionScripts 'hub-database.bicep' = {
-  name: 'ingestionScripts'
+module ingestion_OpenDataInternalScripts 'hub-database.bicep' = {
+  name: 'ingestion_OpenDataInternalScripts'
   params: {
     clusterName: cluster.name
     databaseName: cluster::ingestionDb.name
@@ -291,8 +291,38 @@ module ingestionScripts 'hub-database.bicep' = {
       OpenDataFunctions_resource_type_2: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql')
       OpenDataFunctions_resource_type_3: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql')
       OpenDataFunctions_resource_type_4: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql')
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module ingestion_CommonScripts 'hub-database.bicep' = {
+  name: 'ingestion_CommonScripts'
+  dependsOn: [
+    ingestion_OpenDataInternalScripts
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
       openDataScript: loadTextContent('scripts/OpenDataFunctions.kql')
       commonScript: loadTextContent('scripts/Common.kql')
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module ingestion_SetupScript 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript'
+  dependsOn: [
+    ingestion_CommonScripts
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
       setupScript: replace(loadTextContent('scripts/IngestionSetup.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
     }
     continueOnErrors: continueOnErrors
@@ -300,8 +330,8 @@ module ingestionScripts 'hub-database.bicep' = {
   }
 }
 
-module hubScripts 'hub-database.bicep' = {
-  name: 'hubScripts'
+module hub_SetupScript 'hub-database.bicep' = {
+  name: 'hubScript'
   params: {
     clusterName: cluster.name
     databaseName: cluster::hubDb.name
