@@ -981,476 +981,480 @@ resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-
 // config_InitializeHub pipeline
 //------------------------------------------------------------------------------
 @description('Initializes the hub instance based on the configuration settings.')
-resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
-  name: '${safeConfigContainerName}_InitializeHub'
-  parent: dataFactory
-  properties: {
-    activities: [
-      { // Get Config
-        name: 'Get Config'
-        type: 'Lookup'
-        dependsOn: []
-        policy: {
-          timeout: '0.00:05:00'
-          retry: 2
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'JsonSource'
-            storeSettings: {
-              type: 'AzureBlobFSReadSettings'
-              recursive: true
-              enablePartitionDiscovery: false
-            }
-            formatSettings: {
-              type: 'JsonReadSettings'
-            }
+module pipeline_InitializeHub 'hub-pipeline.bicep' = if (deployDataExplorer) {
+  name: 'pipeline_InitializeHub'
+  params: {
+    dataFactoryName: dataFactory.name
+    pipelineName: '${safeConfigContainerName}_InitializeHub'
+    pipelineProperties: {
+      activities: [
+        { // Get Config
+          name: 'Get Config'
+          type: 'Lookup'
+          dependsOn: []
+          policy: {
+            timeout: '0.00:05:00'
+            retry: 2
+            retryIntervalInSeconds: 30
+            secureOutput: false
+            secureInput: false
           }
-          dataset: {
-            referenceName: dataset_config.name
-            type: 'DatasetReference'
-          }
-        }
-      }
-      { // Set Version
-        name: 'Set Version'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Get Config'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'version'
-          value: {
-            value: '@activity(\'Get Config\').output.firstRow.version'
-            type: 'Expression'
-          }
-        }
-      }
-      { // Set Scopes
-        name: 'Set Scopes'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Get Config'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'scopes'
-          value: {
-            value: '@string(activity(\'Get Config\').output.firstRow.scopes)'
-            type: 'Expression'
-          }
-        }
-      }
-      { // Set Retention
-        name: 'Set Retention'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Get Config'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'retention'
-          value: {
-            value: '@string(activity(\'Get Config\').output.firstRow.retention)'
-            type: 'Expression'
-          }
-        }
-      }
-      { // Until Capacity Is Available
-        name: 'Until Capacity Is Available'
-        type: 'Until'
-        dependsOn: [
-          {
-            activity: 'Set Version'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-          {
-            activity: 'Set Scopes'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-          {
-            activity: 'Set Retention'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@equals(variables(\'tryAgain\'), false)'
-            type: 'Expression'
-          }
-          activities: [
-            { // Confirm Ingestion Capacity
-              name: 'Confirm Ingestion Capacity'
-              type: 'AzureDataExplorerCommand'
-              dependsOn: []
-              policy: {
-                timeout: '0.12:00:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
+          userProperties: []
+          typeProperties: {
+            source: {
+              type: 'JsonSource'
+              storeSettings: {
+                type: 'AzureBlobFSReadSettings'
+                recursive: true
+                enablePartitionDiscovery: false
               }
-              userProperties: []
-              typeProperties: {
-                // cSpell:ignore Ingestions
-                command: '.show capacity | where Resource == \'Ingestions\' | project Remaining'
-                commandTimeout: '00:20:00'
-              }
-              linkedServiceName: {
-                referenceName: linkedService_dataExplorer.name
-                type: 'LinkedServiceReference'
-                parameters: {
-                  database: dataExplorerIngestionDatabase
-                }
+              formatSettings: {
+                type: 'JsonReadSettings'
               }
             }
-            { // If Has Capacity
-              name: 'If Has Capacity'
-              type: 'IfCondition'
-              dependsOn: [
-                {
-                  activity: 'Confirm Ingestion Capacity'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
+            dataset: {
+              referenceName: dataset_config.name
+              type: 'DatasetReference'
+            }
+          }
+        }
+        { // Set Version
+          name: 'Set Version'
+          type: 'SetVariable'
+          dependsOn: [
+            {
+              activity: 'Get Config'
+              dependencyConditions: [
+                'Succeeded'
               ]
-              userProperties: []
-              typeProperties: {
-                expression: {
-                  value: '@or(equals(activity(\'Confirm Ingestion Capacity\').output.count, 0), greater(activity(\'Confirm Ingestion Capacity\').output.value[0].Remaining, 0))'
-                  type: 'Expression'
-                }
-                ifFalseActivities: [
-                  { // Wait for Ingestion
-                    name: 'Wait for Ingestion'
-                    type: 'Wait'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      waitTimeInSeconds: 15
-                    }
-                  }
-                  { // Try Again
-                    name: 'Try Again'
-                    type: 'SetVariable'
-                    dependsOn: [
-                      {
-                        activity: 'Wait for Ingestion'
-                        dependencyConditions: [
-                          'Succeeded'
-                        ]
-                      }
-                    ]
-                    policy: {
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'tryAgain'
-                      value: true
-                    }
-                  }
-                ]
-                ifTrueActivities: [
-                  { // Save ingestion policy in ADX
-                    name: 'Set ingestion policy in ADX'
-                    type: 'AzureDataExplorerCommand'
-                    dependsOn: []
-                    policy: {
-                      timeout: '0.12:00:00'
-                      retry: 0
-                      retryIntervalInSeconds: 30
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      command: {
-                        value: '.alter-merge database ${dataExplorerIngestionDatabase} policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
-                        type: 'Expression'
-                      }
-                      commandTimeout: '00:20:00'
-                    }
-                    linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
-                      type: 'LinkedServiceReference'
-                      parameters: {
-                        database: dataExplorerIngestionDatabase
-                      }
-                    }
-                  }
-                  { // Save Hub Settings in ADX
-                    name: 'Save Hub Settings in ADX'
-                    type: 'AzureDataExplorerCommand'
-                    dependsOn: [
-                      {
-                        activity: 'Set ingestion policy in ADX'
-                        dependencyConditions: [
-                          'Succeeded'
-                        ]
-                      }
-                    ]
-                    policy: {
-                      timeout: '0.12:00:00'
-                      retry: 0
-                      retryIntervalInSeconds: 30
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      command: {
-                        // cSpell:ignore isnull, isnotempty
-                        value: '@concat(\'.append HubSettingsLog <| print version="\', variables(\'version\'), \'",scopes=dynamic(\', variables(\'scopes\'), \'),retention=dynamic(\', variables(\'retention\'), \') | extend scopes = iff(isnull(scopes[0]), pack_array(scopes), scopes) | mv-apply scopeObj = scopes on (where isnotempty(scopeObj.scope) | summarize scopes = make_set(scopeObj.scope))\')'
-                        type: 'Expression'
-                      }
-                      commandTimeout: '00:20:00'
-                    }
-                    linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
-                      type: 'LinkedServiceReference'
-                      parameters: {
-                        database: dataExplorerIngestionDatabase
-                      }
-                    }
-                  }
-                  { // Update PricingUnits in ADX
-                    name: 'Update PricingUnits in ADX'
-                    type: 'AzureDataExplorerCommand'
-                    dependsOn: [
-                      {
-                        activity: 'Save Hub Settings in ADX'
-                        dependencyConditions: [
-                          'Succeeded'
-                        ]
-                      }
-                    ]
-                    policy: {
-                      timeout: '0.12:00:00'
-                      retry: 0
-                      retryIntervalInSeconds: 30
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      // cSpell:ignore externaldata
-                      command: '.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription: string, AccountTypes: string, x_PricingBlockSize: decimal, PricingUnit: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/PricingUnits.csv"] with (format="csv", ignoreFirstRecord=true) | project-away AccountTypes'
-                      commandTimeout: '00:20:00'
-                    }
-                    linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
-                      type: 'LinkedServiceReference'
-                      parameters: {
-                        database: dataExplorerIngestionDatabase
-                      }
-                    }
-                  }
-                  { // Update Regions in ADX
-                    name: 'Update Regions in ADX'
-                    type: 'AzureDataExplorerCommand'
-                    dependsOn: [
-                      {
-                        activity: 'Update PricingUnits in ADX'
-                        dependencyConditions: [
-                          'Succeeded'
-                        ]
-                      }
-                    ]
-                    policy: {
-                      timeout: '0.12:00:00'
-                      retry: 0
-                      retryIntervalInSeconds: 30
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      command: '.set-or-replace Regions <| externaldata(ResourceLocation: string, RegionId: string, RegionName: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/Regions.csv"] with (format="csv", ignoreFirstRecord=true)'
-                      commandTimeout: '00:20:00'
-                    }
-                    linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
-                      type: 'LinkedServiceReference'
-                      parameters: {
-                        database: dataExplorerIngestionDatabase
-                      }
-                    }
-                  }
-                  { // Update ResourceTypes in ADX
-                    name: 'Update ResourceTypes in ADX'
-                    type: 'AzureDataExplorerCommand'
-                    dependsOn: [
-                      {
-                        activity: 'Update Regions in ADX'
-                        dependencyConditions: [
-                          'Succeeded'
-                        ]
-                      }
-                    ]
-                    policy: {
-                      timeout: '0.12:00:00'
-                      retry: 0
-                      retryIntervalInSeconds: 30
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      command: '.set-or-replace ResourceTypes <| externaldata(x_ResourceType: string, SingularDisplayName: string, PluralDisplayName: string, LowerSingularDisplayName: string, LowerPluralDisplayName: string, IsPreview: bool, Description: string, IconUri: string, Links: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/ResourceTypes.csv"] with (format="csv", ignoreFirstRecord=true) | project-away Links'
-                      commandTimeout: '00:20:00'
-                    }
-                    linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
-                      type: 'LinkedServiceReference'
-                      parameters: {
-                        database: dataExplorerIngestionDatabase
-                      }
-                    }
-                  }
-                  { // Update Services in ADX
-                    name: 'Update Services in ADX'
-                    type: 'AzureDataExplorerCommand'
-                    dependsOn: [
-                      {
-                        activity: 'Update ResourceTypes in ADX'
-                        dependencyConditions: [
-                          'Succeeded'
-                        ]
-                      }
-                    ]
-                    policy: {
-                      timeout: '0.12:00:00'
-                      retry: 0
-                      retryIntervalInSeconds: 30
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
-                      commandTimeout: '00:20:00'
-                    }
-                    linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
-                      type: 'LinkedServiceReference'
-                      parameters: {
-                        database: dataExplorerIngestionDatabase
-                      }
-                    }
-                  }
-                  { // Ingestion Complete
-                    name: 'Ingestion Complete'
-                    type: 'SetVariable'
-                    dependsOn: [
-                      {
-                        activity: 'Update Services in ADX'
-                        dependencyConditions: [
-                          'Succeeded'
-                        ]
-                      }
-                    ]
-                    policy: {
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'tryAgain'
-                      value: false
-                    }
-                  }
-                ]
-              }
-            }
-            { // Abort On Error
-              name: 'Abort On Error'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'If Has Capacity'
-                  dependencyConditions: [
-                    'Failed'
-                  ]
-                }
-              ]
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'tryAgain'
-                value: false
-              }
             }
           ]
-          timeout: '0.02:00:00'
-        }
-      }
-      { // Timeout Error
-        name: 'Timeout Error'
-        type: 'Fail'
-        dependsOn: [
-          {
-            activity: 'Until Capacity Is Available'
-            dependencyConditions: [
-                'Failed'
-            ]
+          userProperties: []
+          typeProperties: {
+            variableName: 'version'
+            value: {
+              value: '@activity(\'Get Config\').output.firstRow.version'
+              type: 'Expression'
+            }
           }
-        ]
-        userProperties: []
-        typeProperties: {
-          message: 'Data Explorer ingestion timed out after 2 hours while waiting for available capacity. Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.'
-          errorCode: 'DataExplorerIngestionTimeout'
         }
-      }
-    ]
-    concurrency: 1
-    variables: {
-      version: {
-        type: 'String'
-      }
-      scopes: {
-        type: 'String'
-      }
-      retention: {
-        type: 'String'
-      }
-      tryAgain: {
-        type: 'Boolean'
-        defaultValue: true
+        { // Set Scopes
+          name: 'Set Scopes'
+          type: 'SetVariable'
+          dependsOn: [
+            {
+              activity: 'Get Config'
+              dependencyConditions: [
+                'Succeeded'
+              ]
+            }
+          ]
+          userProperties: []
+          typeProperties: {
+            variableName: 'scopes'
+            value: {
+              value: '@string(activity(\'Get Config\').output.firstRow.scopes)'
+              type: 'Expression'
+            }
+          }
+        }
+        { // Set Retention
+          name: 'Set Retention'
+          type: 'SetVariable'
+          dependsOn: [
+            {
+              activity: 'Get Config'
+              dependencyConditions: [
+                'Succeeded'
+              ]
+            }
+          ]
+          userProperties: []
+          typeProperties: {
+            variableName: 'retention'
+            value: {
+              value: '@string(activity(\'Get Config\').output.firstRow.retention)'
+              type: 'Expression'
+            }
+          }
+        }
+        { // Until Capacity Is Available
+          name: 'Until Capacity Is Available'
+          type: 'Until'
+          dependsOn: [
+            {
+              activity: 'Set Version'
+              dependencyConditions: [
+                'Succeeded'
+              ]
+            }
+            {
+              activity: 'Set Scopes'
+              dependencyConditions: [
+                'Succeeded'
+              ]
+            }
+            {
+              activity: 'Set Retention'
+              dependencyConditions: [
+                'Succeeded'
+              ]
+            }
+          ]
+          userProperties: []
+          typeProperties: {
+            expression: {
+              value: '@equals(variables(\'tryAgain\'), false)'
+              type: 'Expression'
+            }
+            activities: [
+              { // Confirm Ingestion Capacity
+                name: 'Confirm Ingestion Capacity'
+                type: 'AzureDataExplorerCommand'
+                dependsOn: []
+                policy: {
+                  timeout: '0.12:00:00'
+                  retry: 0
+                  retryIntervalInSeconds: 30
+                  secureOutput: false
+                  secureInput: false
+                }
+                userProperties: []
+                typeProperties: {
+                  // cSpell:ignore Ingestions
+                  command: '.show capacity | where Resource == \'Ingestions\' | project Remaining'
+                  commandTimeout: '00:20:00'
+                }
+                linkedServiceName: {
+                  referenceName: linkedService_dataExplorer.name
+                  type: 'LinkedServiceReference'
+                  parameters: {
+                    database: dataExplorerIngestionDatabase
+                  }
+                }
+              }
+              { // If Has Capacity
+                name: 'If Has Capacity'
+                type: 'IfCondition'
+                dependsOn: [
+                  {
+                    activity: 'Confirm Ingestion Capacity'
+                    dependencyConditions: [
+                      'Succeeded'
+                    ]
+                  }
+                ]
+                userProperties: []
+                typeProperties: {
+                  expression: {
+                    value: '@or(equals(activity(\'Confirm Ingestion Capacity\').output.count, 0), greater(activity(\'Confirm Ingestion Capacity\').output.value[0].Remaining, 0))'
+                    type: 'Expression'
+                  }
+                  ifFalseActivities: [
+                    { // Wait for Ingestion
+                      name: 'Wait for Ingestion'
+                      type: 'Wait'
+                      dependsOn: []
+                      userProperties: []
+                      typeProperties: {
+                        waitTimeInSeconds: 15
+                      }
+                    }
+                    { // Try Again
+                      name: 'Try Again'
+                      type: 'SetVariable'
+                      dependsOn: [
+                        {
+                          activity: 'Wait for Ingestion'
+                          dependencyConditions: [
+                            'Succeeded'
+                          ]
+                        }
+                      ]
+                      policy: {
+                        secureOutput: false
+                        secureInput: false
+                      }
+                      userProperties: []
+                      typeProperties: {
+                        variableName: 'tryAgain'
+                        value: true
+                      }
+                    }
+                  ]
+                  ifTrueActivities: [
+                    { // Save ingestion policy in ADX
+                      name: 'Set ingestion policy in ADX'
+                      type: 'AzureDataExplorerCommand'
+                      dependsOn: []
+                      policy: {
+                        timeout: '0.12:00:00'
+                        retry: 0
+                        retryIntervalInSeconds: 30
+                        secureOutput: false
+                        secureInput: false
+                      }
+                      userProperties: []
+                      typeProperties: {
+                        command: {
+                          value: '.alter-merge database ${dataExplorerIngestionDatabase} policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
+                          type: 'Expression'
+                        }
+                        commandTimeout: '00:20:00'
+                      }
+                      linkedServiceName: {
+                        referenceName: linkedService_dataExplorer.name
+                        type: 'LinkedServiceReference'
+                        parameters: {
+                          database: dataExplorerIngestionDatabase
+                        }
+                      }
+                    }
+                    { // Save Hub Settings in ADX
+                      name: 'Save Hub Settings in ADX'
+                      type: 'AzureDataExplorerCommand'
+                      dependsOn: [
+                        {
+                          activity: 'Set ingestion policy in ADX'
+                          dependencyConditions: [
+                            'Succeeded'
+                          ]
+                        }
+                      ]
+                      policy: {
+                        timeout: '0.12:00:00'
+                        retry: 0
+                        retryIntervalInSeconds: 30
+                        secureOutput: false
+                        secureInput: false
+                      }
+                      userProperties: []
+                      typeProperties: {
+                        command: {
+                          // cSpell:ignore isnull, isnotempty
+                          value: '@concat(\'.append HubSettingsLog <| print version="\', variables(\'version\'), \'",scopes=dynamic(\', variables(\'scopes\'), \'),retention=dynamic(\', variables(\'retention\'), \') | extend scopes = iff(isnull(scopes[0]), pack_array(scopes), scopes) | mv-apply scopeObj = scopes on (where isnotempty(scopeObj.scope) | summarize scopes = make_set(scopeObj.scope))\')'
+                          type: 'Expression'
+                        }
+                        commandTimeout: '00:20:00'
+                      }
+                      linkedServiceName: {
+                        referenceName: linkedService_dataExplorer.name
+                        type: 'LinkedServiceReference'
+                        parameters: {
+                          database: dataExplorerIngestionDatabase
+                        }
+                      }
+                    }
+                    { // Update PricingUnits in ADX
+                      name: 'Update PricingUnits in ADX'
+                      type: 'AzureDataExplorerCommand'
+                      dependsOn: [
+                        {
+                          activity: 'Save Hub Settings in ADX'
+                          dependencyConditions: [
+                            'Succeeded'
+                          ]
+                        }
+                      ]
+                      policy: {
+                        timeout: '0.12:00:00'
+                        retry: 0
+                        retryIntervalInSeconds: 30
+                        secureOutput: false
+                        secureInput: false
+                      }
+                      userProperties: []
+                      typeProperties: {
+                        // cSpell:ignore externaldata
+                        command: '.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription: string, AccountTypes: string, x_PricingBlockSize: decimal, PricingUnit: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/PricingUnits.csv"] with (format="csv", ignoreFirstRecord=true) | project-away AccountTypes'
+                        commandTimeout: '00:20:00'
+                      }
+                      linkedServiceName: {
+                        referenceName: linkedService_dataExplorer.name
+                        type: 'LinkedServiceReference'
+                        parameters: {
+                          database: dataExplorerIngestionDatabase
+                        }
+                      }
+                    }
+                    { // Update Regions in ADX
+                      name: 'Update Regions in ADX'
+                      type: 'AzureDataExplorerCommand'
+                      dependsOn: [
+                        {
+                          activity: 'Update PricingUnits in ADX'
+                          dependencyConditions: [
+                            'Succeeded'
+                          ]
+                        }
+                      ]
+                      policy: {
+                        timeout: '0.12:00:00'
+                        retry: 0
+                        retryIntervalInSeconds: 30
+                        secureOutput: false
+                        secureInput: false
+                      }
+                      userProperties: []
+                      typeProperties: {
+                        command: '.set-or-replace Regions <| externaldata(ResourceLocation: string, RegionId: string, RegionName: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/Regions.csv"] with (format="csv", ignoreFirstRecord=true)'
+                        commandTimeout: '00:20:00'
+                      }
+                      linkedServiceName: {
+                        referenceName: linkedService_dataExplorer.name
+                        type: 'LinkedServiceReference'
+                        parameters: {
+                          database: dataExplorerIngestionDatabase
+                        }
+                      }
+                    }
+                    { // Update ResourceTypes in ADX
+                      name: 'Update ResourceTypes in ADX'
+                      type: 'AzureDataExplorerCommand'
+                      dependsOn: [
+                        {
+                          activity: 'Update Regions in ADX'
+                          dependencyConditions: [
+                            'Succeeded'
+                          ]
+                        }
+                      ]
+                      policy: {
+                        timeout: '0.12:00:00'
+                        retry: 0
+                        retryIntervalInSeconds: 30
+                        secureOutput: false
+                        secureInput: false
+                      }
+                      userProperties: []
+                      typeProperties: {
+                        command: '.set-or-replace ResourceTypes <| externaldata(x_ResourceType: string, SingularDisplayName: string, PluralDisplayName: string, LowerSingularDisplayName: string, LowerPluralDisplayName: string, IsPreview: bool, Description: string, IconUri: string, Links: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/ResourceTypes.csv"] with (format="csv", ignoreFirstRecord=true) | project-away Links'
+                        commandTimeout: '00:20:00'
+                      }
+                      linkedServiceName: {
+                        referenceName: linkedService_dataExplorer.name
+                        type: 'LinkedServiceReference'
+                        parameters: {
+                          database: dataExplorerIngestionDatabase
+                        }
+                      }
+                    }
+                    { // Update Services in ADX
+                      name: 'Update Services in ADX'
+                      type: 'AzureDataExplorerCommand'
+                      dependsOn: [
+                        {
+                          activity: 'Update ResourceTypes in ADX'
+                          dependencyConditions: [
+                            'Succeeded'
+                          ]
+                        }
+                      ]
+                      policy: {
+                        timeout: '0.12:00:00'
+                        retry: 0
+                        retryIntervalInSeconds: 30
+                        secureOutput: false
+                        secureInput: false
+                      }
+                      userProperties: []
+                      typeProperties: {
+                        command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
+                        commandTimeout: '00:20:00'
+                      }
+                      linkedServiceName: {
+                        referenceName: linkedService_dataExplorer.name
+                        type: 'LinkedServiceReference'
+                        parameters: {
+                          database: dataExplorerIngestionDatabase
+                        }
+                      }
+                    }
+                    { // Ingestion Complete
+                      name: 'Ingestion Complete'
+                      type: 'SetVariable'
+                      dependsOn: [
+                        {
+                          activity: 'Update Services in ADX'
+                          dependencyConditions: [
+                            'Succeeded'
+                          ]
+                        }
+                      ]
+                      policy: {
+                        secureOutput: false
+                        secureInput: false
+                      }
+                      userProperties: []
+                      typeProperties: {
+                        variableName: 'tryAgain'
+                        value: false
+                      }
+                    }
+                  ]
+                }
+              }
+              { // Abort On Error
+                name: 'Abort On Error'
+                type: 'SetVariable'
+                dependsOn: [
+                  {
+                    activity: 'If Has Capacity'
+                    dependencyConditions: [
+                      'Failed'
+                    ]
+                  }
+                ]
+                policy: {
+                  secureOutput: false
+                  secureInput: false
+                }
+                userProperties: []
+                typeProperties: {
+                  variableName: 'tryAgain'
+                  value: false
+                }
+              }
+            ]
+            timeout: '0.02:00:00'
+          }
+        }
+        { // Timeout Error
+          name: 'Timeout Error'
+          type: 'Fail'
+          dependsOn: [
+            {
+              activity: 'Until Capacity Is Available'
+              dependencyConditions: [
+                  'Failed'
+              ]
+            }
+          ]
+          userProperties: []
+          typeProperties: {
+            message: 'Data Explorer ingestion timed out after 2 hours while waiting for available capacity. Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.'
+            errorCode: 'DataExplorerIngestionTimeout'
+          }
+        }
+      ]
+      concurrency: 1
+      variables: {
+        version: {
+          type: 'String'
+        }
+        scopes: {
+          type: 'String'
+        }
+        retention: {
+          type: 'String'
+        }
+        tryAgain: {
+          type: 'Boolean'
+          defaultValue: true
+        }
       }
     }
+    // TODO: event: 'Microsoft.FinOpsToolkit.Hubs.SettingsUpdated'
   }
 }
 
