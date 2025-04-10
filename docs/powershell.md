@@ -77,10 +77,10 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         <div class="language-powershell highlighter-rouge">
             <div class="highlight">
                 <pre class="highlight"><code><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Accounts</span><span class="w">
-                </span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Resources</span><span class="w">
-                </span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">FinOpsToolkit</span><span class="w">
-                </span><span class="n">Connect-AzAccount</span><span class="w">
-                </span></code></pre>
+</span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Resources</span><span class="w">
+</span><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">FinOpsToolkit</span><span class="w">
+</span><span class="n">Connect-AzAccount</span><span class="w">
+</span></code></pre>
             </div>
             <button type="button" aria-label="Copy code to clipboard"><svg viewBox="0 0 24 24" class="copy-icon"><use xlink:href="#svg-copy"></use></svg></button>
         </div>
