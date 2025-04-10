@@ -46,7 +46,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-opendata
 #>
-Param(
+param(
     [Parameter(Position = 0)]
     [string]
     $Name = "*",
