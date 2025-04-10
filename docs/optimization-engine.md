@@ -57,7 +57,7 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
     </div>
     <div class="ftk-tile">
         <div>📋 Monitor policy compliance</div>
-        <div>Monitor Azure Policy compliance across the whole tenant.<br>&nbsp;</div>
+        <div>Monitor Azure Policy compliance across the whole tenant.</div>
     </div>
 </div>
 <a name="deploy"></a>
