@@ -726,7 +726,7 @@ Function CostRecommendations {
         # Add assessment data if provided
         if ($AssessmentFilePath) {
             try {
-                $assessmentData = Import-Csv -Path $AssessmentFilePath -ErrorAction Stop
+                $assessmentData = Get-Content -Path $AssessmentFilePath | Select-Object -Skip 11 | ConvertFrom-Csv -ErrorAction Stop
                 $assessmentData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -AutoSize -TableName 'WAF Assessment' -TableStyle 'Light19'
                 Write-Log -Message "Added Well-Architected Cost Optimization assessment as a new tab in the Excel file." -Level "INFO"
             }
