@@ -56,8 +56,8 @@ $workspaceSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_LogA
 $workspaceTenantId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsWorkspaceTenantId"
 
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
-$storageAccountSinkRG = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkRG"
-$storageAccountSinkSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkSubId"
+
+
 $storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
@@ -162,8 +162,8 @@ $recommendationSearchTimeSpan = $growthLookbackDays + $consumptionOffsetDaysStar
 
 # Grab a context reference to the Storage Account where the recommendations file will be stored
 
-Select-AzSubscription -SubscriptionId $storageAccountSinkSubscriptionId
-$sa = Get-AzStorageAccount -ResourceGroupName $storageAccountSinkRG -Name $storageAccountSink
+
+$saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 
 if ($workspaceSubscriptionId -ne $storageAccountSinkSubscriptionId)
 {
@@ -187,7 +187,7 @@ let StorageAccountsWithLastTags = $consumptionTableName
 | where todatetime(Date_s) between (lastday_stime..etime)
 | where MeterCategory_s == 'Storage' and ConsumedService_s == 'Microsoft.Storage' and MeterName_s endswith 'Data Stored' and ChargeType_s == 'Usage'
 | extend ResourceId = tolower(ResourceId)
-| distinct ResourceId, Tags_s;
+| summarize arg_max(todatetime(Date_s), Tags_s) by ResourceId;
 $consumptionTableName
 | where todatetime(Date_s) between (stime..etime)
 | where MeterCategory_s == 'Storage' and ConsumedService_s == 'Microsoft.Storage' and MeterName_s endswith 'Data Stored' and ChargeType_s == 'Usage'
@@ -204,6 +204,8 @@ $consumptionTableName
     | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
     | project SubscriptionId=SubscriptionGuid_g, SubscriptionName = ContainerName_s 
 ) on SubscriptionId
+| extend Tags_s = iif(Tags_s !startswith "{", strcat('{', Tags_s, '}'), Tags_s)
+| extend Tags_s = parse_json(tolower(Tags_s))
 "@
 
 try
@@ -317,7 +319,7 @@ $recommendations | ConvertTo-Json | Out-File $jsonExportPath
 
 $jsonBlobName = $jsonExportPath
 $jsonProperties = @{"ContentType" = "application/json"};
-Set-AzStorageBlobContent -File $jsonExportPath -Container $storageAccountSinkContainer -Properties $jsonProperties -Blob $jsonBlobName -Context $sa.Context -Force
+Set-AzStorageBlobContent -File $jsonExportPath -Container $storageAccountSinkContainer -Properties $jsonProperties -Blob $jsonBlobName -Context $saCtx -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
 Write-Output "[$now] Uploaded $jsonBlobName to Blob Storage..."

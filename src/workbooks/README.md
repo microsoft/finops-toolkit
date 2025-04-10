@@ -19,7 +19,7 @@ On this page:
 
 Workbooks in the FinOps toolkit reuse common scaffolding in the `.scaffold` folder to generate the files needed when publishing. Use the following steps to create a new workbook:
 
-1. Create a folder for the workbook using kebab casing (e.g., `my-workbook`). Workbook names should be singular (e.g., `my-workbook` instead of `my-workbooks`).
+1. Create a folder for the workbook using kebab casing (for example, `my-workbook`). Workbook names should be singular (for example, `my-workbook` instead of `my-workbooks`).
 2. Create a `scaffold.json` file:
 
    1. Start with the following sample:

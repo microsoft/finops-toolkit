@@ -8,7 +8,9 @@ Describe 'CostExports' {
         # Arrange
         $context = Get-AzContext
         $rg = "ftk-integration-tests"
-        $scope = "/subscriptions/$($context.Subscription.Id)/resourceGroups/$rg"
+        $baScope = "/providers/Microsoft.Billing/billingAccounts/8611537"
+        $rgScope = "/subscriptions/$($context.Subscription.Id)/resourceGroups/$rg"
+        $scope = $baScope
         $loc = "East US"
         $storageName = ([guid]::NewGuid().Guid.Replace('-', '').Substring(0, 24))
         $exportName = "ftk-int-CostExports"
@@ -21,44 +23,46 @@ Describe 'CostExports' {
             -SkuName Standard_LRS
     }
 
-    It 'Should create-read-update-delete exports' {
-        Monitor "Export tests..." -Indent '  ' {
-            Monitor "Creating $exportName export..." {
+    It 'Should create-read-update-delete <_> export' -ForEach @('ActualCost', 'AmortizedCost', 'FocusCost', 'PriceSheet', 'ReservationTransactions', 'ReservationRecommendations', 'ReservationDetails') {
+        $datasetType = $_
+        $typedExportName = "$exportName-$datasetType"
+        Monitor "Export $datasetType tests..." -Indent '  ' {
+            Monitor "Creating $typedExportName export..." {
                 # Act -- create
-                $newResult = New-FinOpsCostExport -Name $exportName -Scope $scope -StorageAccountId $storage.Id -Execute -Backfill 1
+                $newResult = New-FinOpsCostExport -Name $typedExportName -Scope $scope -Dataset $datasetType -StorageAccountId $storage.Id -Execute -Backfill 1
                 # TODO: Run tests for all supported API versions: -ApiVersion '2023-08-01'
                 
                 # Assert
                 Report -Object $newResult
-                $newResult.Name | Should -Be $exportName
+                $newResult.Name | Should -Be $typedExportName
                 $newResult.RunHistory | Should -BeNullOrEmpty -Because "the -RunHistory option was not specified"
             }
 
-            Monitor "Getting $exportName..." {
+            Monitor "Getting $typedExportName..." {
                 # Act -- read
-                $getResult = Get-FinOpsCostExport -Name $exportName -Scope $scope -RunHistory
+                $getResult = Get-FinOpsCostExport -Name $typedExportName -Scope $scope -RunHistory
 
                 # Assert
                 Report "Found $($getResult.Count) export(s)"
                 Report -Object $getResult
                 $getResult.Count | Should -Be 1
-                $getResult.Name | Should -Be $exportName
+                $getResult.Name | Should -Be $typedExportName
                 $getResult.RunHistory.Count | Should -BeGreaterThan 0 -Because "-Execute -Backfill 1 was specified during creation"
             }
 
-            Monitor "Running $exportName..." {
+            Monitor "Running $typedExportName..." {
                 # Act -- run now
-                $runResult = Start-FinOpsCostExport -Name $exportName -Scope $scope
+                $runResult = Start-FinOpsCostExport -Name $typedExportName -Scope $scope
                 
                 # Assert
                 Report $runResult
                 $runResult | Should -BeTrue
             }
 
-            Monitor "Deleting $exportName..." {
+            Monitor "Deleting $typedExportName..." {
                 # Act -- delete
-                $deleteResult = Remove-FinOpsCostExport -Name $exportName -Scope $scope
-                $confirmDeleteResult = Get-FinOpsCostExport -Name $exportName -Scope $scope
+                $deleteResult = Remove-FinOpsCostExport -Name $typedExportName -Scope $scope
+                $confirmDeleteResult = Get-FinOpsCostExport -Name $typedExportName -Scope $scope
                 
                 # Assert
                 Report $deleteResult

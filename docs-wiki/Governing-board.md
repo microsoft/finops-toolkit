@@ -20,10 +20,10 @@ The board is responsible for identifying short-, medium-, and long-term goals an
 - **Mission**: Defining and upholding toolkit goals and principles.
 - **Vision**: Managing the direction and solutions included in the toolkit, including:
   - Defining objectives and key results (including quality and supportability).
-  - Outlining a [[high-level roadmap|Roadmap]] with key focus areas and opportunities to expand.
+  - Outlining a [high-level roadmap](https://aka.ms/ftk/roadmap) with key focus areas and opportunities to expand.
 - **Strategy**: Defining how we'll implement the vision, including:
   - Defining board roles and responsibilities.
-  - Managing the GitHub community (e.g., triaging issues, answering discussions, reviewing PRs).
+  - Managing the GitHub community (for example, triaging issues, answering discussions, reviewing PRs).
   - Establishing an official support process.
   - Managing and supporting contributors and engaging with new contributions.
   - Identifying and prioritizing initiatives.
@@ -34,6 +34,7 @@ The board is responsible for identifying short-, medium-, and long-term goals an
 - **Compliance**: Ensuring we're in compliance with Microsoft policies and procedures.
 
 Board members are also expected to facilitate [[Support escalations]] by:
+
 - Reviewing new and unresolved issues and discussions at least once per week.
 - Responding to Microsoft Support escalations within 2 business days.
 - Responding to security investigations within 1 business day.
@@ -66,18 +67,19 @@ If consensus cannot be reached within 14 days and the board believes the issue i
 
 The governing board consists of the following representative seats:
 
-| Seat | Member |
-|------|--------|
-| Business sponsor | Nelson Pereira |
-| Community | Sonia Cuff |
-| Consulting | Manfred Simonis |
-| Engineering | Arthur Clares |
-| Marketing | Vacant |
-| Product | Michael Flanakin |
-| FinOps Certified Professional | Vacant |
-| Internal customer (one per FinOps persona) | Mark Aggar |
-| External customer (one per FinOps persona) | Vacant |
-| Advisory Council | Vacant |
+| Seat                          | Member                | Time zone |
+| ----------------------------- | --------------------- | --------- |
+| Business sponsor              | Nelson Pereira        | UTC       |
+| Community                     | Sonia Cuff            | UTC+10    |
+| Consulting                    | Tanuja Shah           | UTC-5     |
+| Engineering                   | Arthur Clares         | UTC       |
+| Marketing                     | Fernando Vasconcellos | UTC-5     |
+| Product                       | Michael Flanakin      | UTC-8     |
+| FinOps Certified Professional | Dirk Brinkmann        | UTC+1     |
+| External                      | Vacant                |           |
+| External                      | Vacant                |           |
+| External                      | Vacant                |           |
+| Advisory Council              | Vacant                |           |
 
 Individuals must meet the following criteria in order to attain a board seat:
 
@@ -93,6 +95,14 @@ Individuals must meet the following criteria in order to attain a board seat:
 
 ## 📑 Meetings
 
-Governing board meetings are held on Tuesdays at 6am UTC. Meetings are recorded to support asynchronous collaboration for those not able to join. Advisory council members, contributors, and active community members may request to join these calls or view recordings. Recordings are only stored for 30 days.
+Governing board meetings are held monthly. Meetings are recorded to support asynchronous collaboration for those not able to join. Advisory council members, contributors, and active community members may request to join these calls or view recordings. Recordings are only stored for 30 days.
+
+Governing board meetings have the following agenda:
+
+- Monthly updates (5m)
+- Milestone progress, blockers, and risks (5-10m)
+- OKR and KPI review (5-10m)
+- New and ongoing initiatives (30m)
+- Action items and next steps (5m)
 
 <br>

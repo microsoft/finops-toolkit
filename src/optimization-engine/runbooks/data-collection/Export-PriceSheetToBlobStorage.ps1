@@ -18,10 +18,10 @@ param(
     [string] $billingPeriod, # YYYYMM format
 
     [Parameter(Mandatory = $false)] 
-    [string] $meterCategories, # comma-separated meter categories (e.g., "Virtual Machines,Storage")
+    [string] $meterCategories, # comma-separated meter categories (for example, "Virtual Machines,Storage")
 
     [Parameter(Mandatory = $false)] 
-    [string] $meterRegions # comma-separated billing meter regions (e.g., "EU North,EU West")
+    [string] $meterRegions # comma-separated billing meter regions (for example, "EU North,EU West")
 )
 
 $ErrorActionPreference = "Stop"
@@ -61,8 +61,8 @@ if ($authenticationOption -eq "UserAssignedManagedIdentity")
 }
 
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
-$storageAccountSinkRG = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkRG"
-$storageAccountSinkSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkSubId"
+
+
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
@@ -107,8 +107,8 @@ else
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    Select-AzSubscription -SubscriptionId $storageAccountSinkSubscriptionId
-    $saCtx = (Get-AzStorageAccount -ResourceGroupName $storageAccountSinkRG -Name $storageAccountSink).Context
+    
+    $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
 {

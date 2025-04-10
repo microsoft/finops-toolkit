@@ -1,975 +1,966 @@
 {
-    "version": "Notebook/1.0",
-    "items": [
-      {
-        "type": 9,
-        "content": {
-          "version": "KqlParameterItem/1.0",
-          "parameters": [
-            {
-              "id": "8ef006f0-db8d-40b2-b51f-7a62b03e235e",
-              "version": "KqlParameterItem/1.0",
-              "name": "LookbackPeriod",
-              "label": "Lookback Period",
-              "type": 4,
-              "isRequired": true,
-              "typeSettings": {
-                "selectableValues": [
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "8ef006f0-db8d-40b2-b51f-7a62b03e235e",
+            "version": "KqlParameterItem/1.0",
+            "name": "LookbackPeriod",
+            "label": "Lookback Period",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": {
+              "durationMs": 2592000000
+            }
+          },
+          {
+            "id": "40bacdd9-f9b9-4d42-b91b-624007f65182",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureOptimizationResourceContainersV1_CL | where todatetime(StatusDate_s) > datetime('{LookbackPeriod:startISO}') | where ContainerType_s =~ 'microsoft.resources/subscriptions' | project subscriptionId = SubscriptionGuid_g, SubscriptionName = ContainerName_s | distinct subscriptionId, SubscriptionName | order by SubscriptionName asc",
+            "typeSettings": {
+              "additionalResourceOptions": ["value::all"],
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": ["value::all"]
+          },
+          {
+            "id": "d91ac170-ca28-403d-b06d-164b4239aaa3",
+            "version": "KqlParameterItem/1.0",
+            "name": "Currency",
+            "type": 1,
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": "EUR"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "customWidth": "50",
+      "name": "globalParameters"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| summarize ['Usage Start']=min(todatetime(Date_s)), ['Usage End']=max(todatetime(Date_s))\r\n| extend ['Usage Days'] = toint(format_timespan(['Usage End']-['Usage Start'],'d'))",
+        "size": 4,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "table",
+        "tileSettings": {
+          "showBorder": false
+        }
+      },
+      "customWidth": "50",
+      "name": "usagePeriod"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "Only Block Blob storage usage is presented (Files, Queues, Page Blobs, etc. are not included). Costs are presented at the on-demand price, i.e., as if no Storage reservations were applied to usage.",
+        "style": "info"
+      },
+      "name": "disclaimer"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "1dcb642e-3696-4e44-9d71-00d434709cee",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "Overview",
+            "style": "link"
+          },
+          {
+            "id": "d18a71d4-3494-4329-bb5c-5bc1042358b8",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Data Stored Over Time",
+            "subTarget": "OverTime",
+            "style": "link"
+          },
+          {
+            "id": "980caea9-179c-4bcb-b501-bdb68d4a578c",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Standard v2",
+            "subTarget": "StorageV2",
+            "style": "link"
+          },
+          {
+            "id": "642cdd5a-b00a-4713-8fcf-41da789a3a22",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Standard v1",
+            "subTarget": "StorageV1",
+            "style": "link"
+          },
+          {
+            "id": "ae51c121-2917-43b1-bea1-9a519847c4a9",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Premium",
+            "subTarget": "Premium",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "areaTabs"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by StorageOffer",
+              "size": 4,
+              "title": "Storage Offers ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "storageOffers"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by FileStructure",
+              "size": 4,
+              "title": "File Structure ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "fileStructure"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| join kind=inner (StorageReplication) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Replication\r\n\r\n\r\n",
+              "size": 4,
+              "title": "Replication ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "replication"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nlet StorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterName_s has 'Data Stored'\r\n| summarize SizeGB=sum(todouble(Quantity_s)) by ResourceId, Date_s\r\n| summarize arg_max(todatetime(Date_s), SizeGB) by ResourceId\r\n| project SizeGB=round(SizeGB*30), ResourceId;\r\nlet StorageTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterName_s has 'Operations'\r\n| summarize Transactions=round(sum(todouble(Quantity_s))*10000) by ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| join kind=leftouter (StorageReplication) on ResourceId\r\n| join kind=leftouter (StorageSize) on ResourceId\r\n| join kind=leftouter (StorageTransactions) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| summarize ['Cost ({Currency:value})']=round(sum(FullCost)) by ['Storage Account']=ResourceId, Offer=StorageOffer, ['File Structure']=FileStructure, Replication, ['Size (GB)']=SizeGB, Transactions\r\n| order by ['Cost ({Currency:value})']\r\n\r\n\r\n",
+              "size": 0,
+              "showAnalytics": true,
+              "title": "Storage Accounts List",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
                   {
-                    "durationMs": 604800000
+                    "columnMatch": "Size",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
                   },
                   {
-                    "durationMs": 1209600000
+                    "columnMatch": "Transactions",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
                   },
                   {
-                    "durationMs": 2419200000
-                  },
-                  {
-                    "durationMs": 2592000000
-                  },
-                  {
-                    "durationMs": 5184000000
-                  },
-                  {
-                    "durationMs": 7776000000
+                    "columnMatch": "Cost (EUR)",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
                   }
                 ],
-                "allowCustom": true
-              },
-              "timeContext": {
-                "durationMs": 86400000
-              },
-              "value": {
-                "durationMs": 2592000000
+                "rowLimit": 10000
               }
             },
-            {
-              "id": "e560c503-9664-4cea-977e-8dbec62ddd64",
-              "version": "KqlParameterItem/1.0",
-              "name": "Subscriptions",
-              "type": 2,
-              "isRequired": true,
-              "multiSelect": true,
-              "quote": "'",
-              "delimiter": ",",
-              "query": "resourcecontainers\r\n| where type == 'microsoft.resources/subscriptions'\r\n| project subscriptionId, name\r\n| order by name asc",
-              "crossComponentResources": [
-                "value::tenant"
-              ],
-              "typeSettings": {
-                "additionalResourceOptions": [
-                  "value::all"
-                ]
-              },
-              "timeContext": {
-                "durationMs": 86400000
-              },
-              "queryType": 1,
-              "resourceType": "microsoft.resources/tenants",
-              "value": [
-                "value::all"
-              ]
-            },
-            {
-              "id": "d91ac170-ca28-403d-b06d-164b4239aaa3",
-              "version": "KqlParameterItem/1.0",
-              "name": "Currency",
-              "type": 1,
-              "timeContext": {
-                "durationMs": 86400000
-              },
-              "value": "EUR"
-            }
-          ],
-          "style": "above",
-          "queryType": 0,
-          "resourceType": "microsoft.operationalinsights/workspaces"
-        },
-        "customWidth": "50",
-        "name": "globalParameters"
-      },
-      {
-        "type": 3,
-        "content": {
-          "version": "KqlItem/1.0",
-          "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| summarize ['Usage Start']=min(todatetime(Date_s)), ['Usage End']=max(todatetime(Date_s))\r\n| extend ['Usage Days'] = toint(format_timespan(['Usage End']-['Usage Start'],'d'))",
-          "size": 4,
-          "queryType": 0,
-          "resourceType": "microsoft.operationalinsights/workspaces",
-          "visualization": "table",
-          "tileSettings": {
-            "showBorder": false
+            "name": "storageAccountsCosts"
           }
-        },
-        "customWidth": "50",
-        "name": "usagePeriod"
+        ]
       },
-      {
-        "type": 1,
-        "content": {
-          "json": "Only Block Blob storage usage is presented (Files, Queues, Page Blobs, etc. are not included). Costs are presented at the on-demand price, i.e., as if no Storage reservations were applied to usage.",
-          "style": "info"
-        },
-        "name": "disclaimer"
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
       },
-      {
-        "type": 11,
-        "content": {
-          "version": "LinkItem/1.0",
-          "style": "tabs",
-          "links": [
-            {
-              "id": "1dcb642e-3696-4e44-9d71-00d434709cee",
-              "cellValue": "selectedTab",
-              "linkTarget": "parameter",
-              "linkLabel": "Overview",
-              "subTarget": "Overview",
-              "style": "link"
-            },
-            {
-              "id": "d18a71d4-3494-4329-bb5c-5bc1042358b8",
-              "cellValue": "selectedTab",
-              "linkTarget": "parameter",
-              "linkLabel": "Data Stored Over Time",
-              "subTarget": "OverTime",
-              "style": "link"
-            },
-            {
-              "id": "980caea9-179c-4bcb-b501-bdb68d4a578c",
-              "cellValue": "selectedTab",
-              "linkTarget": "parameter",
-              "linkLabel": "Standard v2",
-              "subTarget": "StorageV2",
-              "style": "link"
-            },
-            {
-              "id": "642cdd5a-b00a-4713-8fcf-41da789a3a22",
-              "cellValue": "selectedTab",
-              "linkTarget": "parameter",
-              "linkLabel": "Standard v1",
-              "subTarget": "StorageV1",
-              "style": "link"
-            },
-            {
-              "id": "ae51c121-2917-43b1-bea1-9a519847c4a9",
-              "cellValue": "selectedTab",
-              "linkTarget": "parameter",
-              "linkLabel": "Premium",
-              "subTarget": "Premium",
-              "style": "link"
-            }
-          ]
-        },
-        "name": "areaTabs"
-      },
-      {
-        "type": 12,
-        "content": {
-          "version": "NotebookGroup/1.0",
-          "groupType": "editable",
-          "items": [
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by StorageOffer",
-                "size": 4,
-                "title": "Storage Offers ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "33",
-              "name": "storageOffers"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by FileStructure",
-                "size": 4,
-                "title": "File Structure ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "33",
-              "name": "fileStructure"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| join kind=inner (StorageReplication) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Replication\r\n\r\n\r\n",
-                "size": 4,
-                "title": "Replication ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "33",
-              "name": "replication"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nlet StorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterName_s has 'Data Stored'\r\n| summarize SizeGB=sum(todouble(Quantity_s)) by ResourceId, Date_s\r\n| summarize arg_max(todatetime(Date_s), SizeGB) by ResourceId\r\n| project SizeGB=round(SizeGB*30), ResourceId;\r\nlet StorageTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterName_s has 'Operations'\r\n| summarize Transactions=round(sum(todouble(Quantity_s))*10000) by ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| join kind=leftouter (StorageReplication) on ResourceId\r\n| join kind=leftouter (StorageSize) on ResourceId\r\n| join kind=leftouter (StorageTransactions) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| summarize ['Cost ({Currency:value})']=round(sum(FullCost)) by ['Storage Account']=ResourceId, Offer=StorageOffer, ['File Structure']=FileStructure, Replication, ['Size (GB)']=SizeGB, Transactions\r\n| order by ['Cost ({Currency:value})']\r\n\r\n\r\n",
-                "size": 0,
-                "showAnalytics": true,
-                "title": "Storage Accounts List",
-                "showExportToExcel": true,
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "table",
-                "gridSettings": {
-                  "formatters": [
-                    {
-                      "columnMatch": "Size",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Transactions",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Cost (EUR)",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    }
-                  ],
-                  "rowLimit": 10000
-                }
-              },
-              "name": "storageAccountsCosts"
-            }
-          ]
-        },
-        "conditionalVisibility": {
-          "parameterName": "selectedTab",
-          "comparison": "isEqualTo",
-          "value": "Overview"
-        },
-        "name": "overviewGroup"
-      },
-      {
-        "type": 12,
-        "content": {
-          "version": "NotebookGroup/1.0",
-          "groupType": "editable",
-          "items": [
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize sum(FullCost) by Tier, bin(todatetime(Date_s), 1d)",
-                "size": 1,
-                "title": "Tiering cost ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "barchart",
-                "chartSettings": {
-                  "seriesLabelSettings": [
-                    {
-                      "seriesName": "Hot",
-                      "color": "redBright"
-                    },
-                    {
-                      "seriesName": "Cool",
-                      "color": "blue"
-                    },
-                    {
-                      "seriesName": "Archive",
-                      "color": "gray"
-                    },
-                    {
-                      "seriesName": "Cold",
-                      "color": "lightBlue"
-                    }
-                  ]
-                }
-              },
-              "name": "tieringCost"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend Month = datetime_part(\"month\", todatetime(Date_s))\r\n| extend Multiplier = case(Month in (1,3,5,7,8,10,12), 31, Month == 2, 28, 30)\r\n| extend CapacityGB = todouble(Quantity_s) * Multiplier\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| summarize sum(CapacityGB) by Tier, bin(todatetime(Date_s), 1d)",
-                "size": 1,
-                "aggregation": 5,
-                "title": "Tiering capacity (GiB)",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "barchart",
-                "chartSettings": {
-                  "seriesLabelSettings": [
-                    {
-                      "seriesName": "Hot",
-                      "color": "redBright"
-                    },
-                    {
-                      "seriesName": "Cool",
-                      "color": "blue"
-                    },
-                    {
-                      "seriesName": "Archive",
-                      "color": "gray"
-                    },
-                    {
-                      "seriesName": "Cold",
-                      "color": "lightBlue"
-                    }
-                  ],
-                  "ySettings": {
-                    "numberFormatSettings": {
-                      "unit": 5,
-                      "options": {
-                        "style": "decimal",
-                        "useGrouping": true,
-                        "maximumFractionDigits": 1
-                      }
-                    }
-                  }
-                }
-              },
-              "name": "tieringCapacity"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize sum(FullCost) by Replication, bin(todatetime(Date_s), 1d)",
-                "size": 1,
-                "title": "Replication cost ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "barchart"
-              },
-              "name": "replicationCost"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend Month = datetime_part(\"month\", todatetime(Date_s))\r\n| extend Multiplier = case(Month in (1,3,5,7,8,10,12), 31, Month == 2, 28, 30)\r\n| extend CapacityGB = todouble(Quantity_s) * Multiplier\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| summarize sum(CapacityGB) by Replication, bin(todatetime(Date_s), 1d)",
-                "size": 1,
-                "aggregation": 5,
-                "title": "Replication capacity (GiB)",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "barchart",
-                "chartSettings": {
-                  "seriesLabelSettings": [
-                    {
-                      "seriesName": "Hot",
-                      "color": "redBright"
-                    },
-                    {
-                      "seriesName": "Cool",
-                      "color": "blue"
-                    },
-                    {
-                      "seriesName": "Archive",
-                      "color": "gray"
-                    },
-                    {
-                      "seriesName": "Cold",
-                      "color": "lightBlue"
-                    }
-                  ],
-                  "ySettings": {
-                    "numberFormatSettings": {
-                      "unit": 5,
-                      "options": {
-                        "style": "decimal",
-                        "useGrouping": true,
-                        "maximumFractionDigits": 1
-                      }
-                    }
-                  }
-                }
-              },
-              "name": "replicationCapacity"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| summarize sum(FullCost) by PricingModel, bin(todatetime(Date_s), 1d)",
-                "size": 1,
-                "title": "Pricing model cost ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "barchart",
-                "chartSettings": {
-                  "seriesLabelSettings": [
-                    {
-                      "seriesName": "OnDemand",
-                      "color": "red"
-                    },
-                    {
-                      "seriesName": "Reservation",
-                      "color": "green"
-                    }
-                  ]
-                }
-              },
-              "name": "pricingModelCost"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend Month = datetime_part(\"month\", todatetime(Date_s))\r\n| extend Multiplier = case(Month in (1,3,5,7,8,10,12), 31, Month == 2, 28, 30)\r\n| extend CapacityGB = todouble(Quantity_s) * Multiplier\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| summarize sum(CapacityGB) by PricingModel, bin(todatetime(Date_s), 1d)",
-                "size": 1,
-                "aggregation": 5,
-                "title": "Pricing model capacity (GiB)",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "barchart",
-                "chartSettings": {
-                  "seriesLabelSettings": [
-                    {
-                      "seriesName": "Reservation",
-                      "color": "green"
-                    },
-                    {
-                      "seriesName": "OnDemand",
-                      "color": "red"
-                    }
-                  ],
-                  "ySettings": {
-                    "numberFormatSettings": {
-                      "unit": 5,
-                      "options": {
-                        "style": "decimal",
-                        "useGrouping": true,
-                        "maximumFractionDigits": 1
-                      }
-                    }
-                  }
-                }
-              },
-              "name": "pricingModelCapacity"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize sum(FullCost) by Sku, bin(todatetime(Date_s), 1d)",
-                "size": 1,
-                "title": "On-demand SKU cost ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "barchart"
-              },
-              "name": "onDemandSkuCost"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend Month = datetime_part(\"month\", todatetime(Date_s))\r\n| extend Multiplier = case(Month in (1,3,5,7,8,10,12), 31, Month == 2, 28, 30)\r\n| extend CapacityGB = todouble(Quantity_s) * Multiplier\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| summarize sum(CapacityGB) by Sku, bin(todatetime(Date_s), 1d)",
-                "size": 1,
-                "aggregation": 5,
-                "title": "On-demand SKU capacity (GiB)",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "barchart",
-                "chartSettings": {
-                  "ySettings": {
-                    "numberFormatSettings": {
-                      "unit": 5,
-                      "options": {
-                        "style": "decimal",
-                        "useGrouping": true,
-                        "maximumFractionDigits": 1
-                      }
-                    }
-                  }
-                }
-              },
-              "name": "onDemandSkuCapacity"
-            }
-          ]
-        },
-        "conditionalVisibility": {
-          "parameterName": "selectedTab",
-          "comparison": "isEqualTo",
-          "value": "OverTime"
-        },
-        "name": "usageOverTimeGroup"
-      },
-      {
-        "type": 12,
-        "content": {
-          "version": "NotebookGroup/1.0",
-          "groupType": "editable",
-          "items": [
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by FileStructure",
-                "size": 4,
-                "title": "File Structure ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "25",
-              "name": "fileStructure"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| join kind=inner (StorageReplication) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Replication",
-                "size": 4,
-                "title": "Replication ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "25",
-              "name": "replication"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored' and (MeterName_s has 'Hot' or MeterName_s has 'Cool' or MeterName_s has 'Archive')\r\n| extend Tier = iif(MeterName_s has 'Hot', 'Hot', iif(MeterName_s has 'Cool', 'Cool', 'Archive'))\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Tier",
-                "size": 4,
-                "title": "Data Stored Tiering ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "25",
-              "name": "dataStoredTiering"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Operations' and (MeterName_s has 'Hot' or MeterName_s has 'Cool' or MeterName_s has 'Archive')\r\n| extend Tier = iif(MeterName_s has 'Hot', 'Hot', iif(MeterName_s has 'Cool', 'Cool', 'Archive'))\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Tier",
-                "size": 4,
-                "title": "Transactions Tiering ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "25",
-              "name": "transactionsTiering"
-            },
-            {
-              "type": 9,
-              "content": {
-                "version": "KqlParameterItem/1.0",
-                "parameters": [
+      "name": "overviewGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize sum(FullCost) by Tier, bin(todatetime(Date_s), 1d)",
+              "size": 1,
+              "title": "Tiering cost ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
                   {
-                    "id": "aa472561-a676-4733-8e13-e9ce6366a187",
-                    "version": "KqlParameterItem/1.0",
-                    "name": "Hot2CoolTarget",
-                    "label": "Hot to Cool Target (%)",
-                    "type": 1,
-                    "description": "The % of Hot data estimated to be moved to Cool with LCM",
-                    "isRequired": true,
-                    "value": "50"
+                    "seriesName": "Hot",
+                    "color": "redBright"
                   },
                   {
-                    "id": "0344b31d-bfbe-4b4b-a3a4-63310cd5a719",
-                    "version": "KqlParameterItem/1.0",
-                    "name": "MoveToHotThreshold",
-                    "label": "Trans. Move to Hot (%)",
-                    "type": 1,
-                    "description": "The max. % of transactions costs vs. total costs and of Cool transactions costs vs. total transactions costs",
-                    "isRequired": true,
-                    "timeContext": {
-                      "durationMs": 86400000
-                    },
-                    "value": "50"
+                    "seriesName": "Cool",
+                    "color": "blue"
                   },
                   {
-                    "id": "de446dba-7535-4cc0-ab16-23c9ae3aa9fa",
-                    "version": "KqlParameterItem/1.0",
-                    "name": "ErrorMargin",
-                    "label": "Comfort Margin (%)",
-                    "type": 1,
-                    "description": "The comfort margin (%) for estimation errors (difference between Enable vs. Maybe LCM)",
-                    "isRequired": true,
-                    "timeContext": {
-                      "durationMs": 86400000
-                    },
-                    "value": "20"
+                    "seriesName": "Archive",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "Cold",
+                    "color": "lightBlue"
+                  }
+                ]
+              }
+            },
+            "name": "tieringCost"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend Month = datetime_part(\"month\", todatetime(Date_s))\r\n| extend Multiplier = case(Month in (1,3,5,7,8,10,12), 31, Month == 2, 28, 30)\r\n| extend CapacityGB = todouble(Quantity_s) * Multiplier\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| summarize sum(CapacityGB) by Tier, bin(todatetime(Date_s), 1d)",
+              "size": 1,
+              "aggregation": 5,
+              "title": "Tiering capacity (GiB)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Hot",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Cool",
+                    "color": "blue"
+                  },
+                  {
+                    "seriesName": "Archive",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "Cold",
+                    "color": "lightBlue"
                   }
                 ],
-                "style": "above",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces"
-              },
-              "name": "storageV2Parameters"
-            },
-            {
-              "type": 1,
-              "content": {
-                "json": "Enable Lifecycle Management recommendations may not apply when there is a very large object count to be moved to cooler tiers. Each object moved to a cooler tier will trigger a SetBlobTier transaction billed at Cool Write Operations pricing. Please review the blob count metrics and estimate Lifecycle Management operations costs before applying the recommendation. See more details [here](https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview#changing-a-blobs-access-tier). For pricing, check [here](https://azure.microsoft.com/en-us/pricing/details/storage/blobs/).",
-                "style": "warning"
-              },
-              "name": "lcmWarning"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "let MoveToHotThreshold = todouble({MoveToHotThreshold})/100;\r\nlet Hot2CoolPercentage = todouble({Hot2CoolTarget})/100;\r\nlet ErrorMarginPercentage = todouble({ErrorMargin})/100;\r\nlet StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nlet StorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize SizeGB=sum(todouble(Quantity_s)), CostStored=sum(FullCost) by ResourceId, Date_s\r\n| summarize arg_max(todatetime(Date_s), SizeGB), CostStored=round(sum(CostStored)) by ResourceId\r\n| project SizeGB=round(SizeGB*30), CostStored, ResourceId;\r\nlet StorageTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Operations'\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Transactions=round(sum(todouble(Quantity_s))*10000), TransactionsCost=round(sum(FullCost)) by ResourceId;\r\nlet HotStorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored' and MeterName_s has 'Hot'\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize HotSizeCost=round(sum(FullCost)) by ResourceId;\r\nlet HotTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Operations' and (MeterName_s has 'Hot' or MeterName_s has 'List and Create Container' or MeterName_s has 'All Other')\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize HotTransactions=round(sum(todouble(Quantity_s))*10000), HotTransactionsCost=round(sum(FullCost)) by ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| join kind=leftouter (StorageReplication) on ResourceId\r\n| join kind=leftouter (StorageSize) on ResourceId\r\n| join kind=leftouter (StorageTransactions) on ResourceId\r\n| join kind=leftouter (HotStorageSize) on ResourceId\r\n| join kind=leftouter (HotTransactions) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| summarize TotalCost=round(sum(FullCost)) by ['Storage Account']=ResourceId, Structure=FileStructure, Replication, ['Size (GB)']=SizeGB, CostStored, HotSizeCost, Transactions, TransactionsCost, HotTransactionsCost\r\n| extend TransactionsFactor = round(TransactionsCost/TotalCost,1)\r\n| extend HotTransactionsFactor = round(HotTransactionsCost/TransactionsCost,1)\r\n| extend CostStored = iif(isnotempty(CostStored), CostStored, 0.0)\r\n| extend HotSizeCost = iif(isnotempty(HotSizeCost), HotSizeCost, 0.0)\r\n| extend TransactionsCost = iif(isnotempty(TransactionsCost), TransactionsCost, 0.0)\r\n| extend HotTransactionsCost = iif(isnotempty(HotTransactionsCost), HotTransactionsCost, 0.0)\r\n| extend EstimatedSavings = round(HotSizeCost*Hot2CoolPercentage/2-HotTransactionsCost*Hot2CoolPercentage*2)\r\n| extend EstimatedSavingsWithError = round(HotSizeCost*Hot2CoolPercentage/2*(1-ErrorMarginPercentage)-HotTransactionsCost*Hot2CoolPercentage*2)*(1+ErrorMarginPercentage)\r\n| extend Recommendation = iif(TransactionsFactor > MoveToHotThreshold and HotTransactionsFactor < MoveToHotThreshold, 'Move to Hot', iif(EstimatedSavingsWithError > 0, 'Enable LCM', iif(EstimatedSavings > 0, 'Maybe LCM', 'No tier change')))\r\n| extend EstimatedSavings = iif(Recommendation != 'Move to Hot', EstimatedSavings, round((TransactionsCost-HotTransactionsCost)/2-(CostStored-HotSizeCost)*2))\r\n| extend Recommendation = iif(Recommendation != 'No tier change' and EstimatedSavings <= 0, 'No tier change', Recommendation)\r\n| project-away HotTransactionsFactor, TransactionsFactor, EstimatedSavingsWithError\r\n| order by TotalCost\r\n| project-rename ['Total ({Currency})']=TotalCost, ['Size ({Currency})']=CostStored, ['Hot Size ({Currency})']=HotSizeCost, ['Trans. ({Currency})']=TransactionsCost, ['Hot Trans. ({Currency})']=HotTransactionsCost, ['Savings ({Currency})']=EstimatedSavings",
-                "size": 0,
-                "showAnalytics": true,
-                "title": "Storage Accounts List",
-                "showExportToExcel": true,
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "table",
-                "gridSettings": {
-                  "formatters": [
-                    {
-                      "columnMatch": "Storage Account",
-                      "formatter": 0,
-                      "formatOptions": {
-                        "customColumnWidthSetting": "29ch"
-                      }
-                    },
-                    {
-                      "columnMatch": "Size",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Transactions",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Trans. (EUR)",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Hot Trans. (EUR)",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Total Cost (EUR)",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Est. Savings (EUR)",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Recommendation",
-                      "formatter": 18,
-                      "formatOptions": {
-                        "thresholdsOptions": "icons",
-                        "thresholdsGrid": [
-                          {
-                            "operator": "==",
-                            "thresholdValue": "Move to Hot",
-                            "representation": "3",
-                            "text": "{0}{1}"
-                          },
-                          {
-                            "operator": "==",
-                            "thresholdValue": "Enable LCM",
-                            "representation": "success",
-                            "text": "{0}{1}"
-                          },
-                          {
-                            "operator": "==",
-                            "thresholdValue": "Maybe LCM",
-                            "representation": "1",
-                            "text": "{0}{1}"
-                          },
-                          {
-                            "operator": "Default",
-                            "thresholdValue": null,
-                            "representation": "stopped",
-                            "text": "{0}{1}"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "columnMatch": "File Structure",
-                      "formatter": 0,
-                      "formatOptions": {
-                        "customColumnWidthSetting": "17ch"
-                      }
-                    },
-                    {
-                      "columnMatch": "Cost (EUR)",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 5,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 1
                     }
-                  ],
-                  "rowLimit": 10000
+                  }
                 }
-              },
-              "name": "storageAccountsCosts"
-            }
-          ]
-        },
-        "conditionalVisibility": {
-          "parameterName": "selectedTab",
-          "comparison": "isEqualTo",
-          "value": "StorageV2"
-        },
-        "name": "storageV2Group"
+              }
+            },
+            "name": "tieringCapacity"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize sum(FullCost) by Replication, bin(todatetime(Date_s), 1d)",
+              "size": 1,
+              "title": "Replication cost ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart"
+            },
+            "name": "replicationCost"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend Month = datetime_part(\"month\", todatetime(Date_s))\r\n| extend Multiplier = case(Month in (1,3,5,7,8,10,12), 31, Month == 2, 28, 30)\r\n| extend CapacityGB = todouble(Quantity_s) * Multiplier\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| summarize sum(CapacityGB) by Replication, bin(todatetime(Date_s), 1d)",
+              "size": 1,
+              "aggregation": 5,
+              "title": "Replication capacity (GiB)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Hot",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Cool",
+                    "color": "blue"
+                  },
+                  {
+                    "seriesName": "Archive",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "Cold",
+                    "color": "lightBlue"
+                  }
+                ],
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 5,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 1
+                    }
+                  }
+                }
+              }
+            },
+            "name": "replicationCapacity"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| summarize sum(FullCost) by PricingModel, bin(todatetime(Date_s), 1d)",
+              "size": 1,
+              "title": "Pricing model cost ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  },
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "name": "pricingModelCost"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend Month = datetime_part(\"month\", todatetime(Date_s))\r\n| extend Multiplier = case(Month in (1,3,5,7,8,10,12), 31, Month == 2, 28, 30)\r\n| extend CapacityGB = todouble(Quantity_s) * Multiplier\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| summarize sum(CapacityGB) by PricingModel, bin(todatetime(Date_s), 1d)",
+              "size": 1,
+              "aggregation": 5,
+              "title": "Pricing model capacity (GiB)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  }
+                ],
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 5,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 1
+                    }
+                  }
+                }
+              }
+            },
+            "name": "pricingModelCapacity"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize sum(FullCost) by Sku, bin(todatetime(Date_s), 1d)",
+              "size": 1,
+              "title": "On-demand SKU cost ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart"
+            },
+            "name": "onDemandSkuCost"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and MeterName_s endswith \"Data Stored\" and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| extend Month = datetime_part(\"month\", todatetime(Date_s))\r\n| extend Multiplier = case(Month in (1,3,5,7,8,10,12), 31, Month == 2, 28, 30)\r\n| extend CapacityGB = todouble(Quantity_s) * Multiplier\r\n| extend StorageOffer = iif(MeterSubCategory_s == 'General Block Blob', 'Standard v1', iif(MeterSubCategory_s has 'Premium', 'Premium', 'Standard v2'))\r\n| extend Tier = iif(MeterSubCategory_s == 'General Block Blob', 'Hot', tostring(split(MeterName_s,' ')[0]))\r\n| extend Replication = tostring(split(MeterName_s,' ')[-3])\r\n| extend Sku = strcat(Tier, ' ', Replication, ' ', ResourceLocation_s)\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| summarize sum(CapacityGB) by Sku, bin(todatetime(Date_s), 1d)",
+              "size": 1,
+              "aggregation": 5,
+              "title": "On-demand SKU capacity (GiB)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 5,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true,
+                      "maximumFractionDigits": 1
+                    }
+                  }
+                }
+              }
+            },
+            "name": "onDemandSkuCapacity"
+          }
+        ]
       },
-      {
-        "type": 12,
-        "content": {
-          "version": "NotebookGroup/1.0",
-          "groupType": "editable",
-          "items": [
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| join kind=inner (StorageReplication) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Replication\r\n\r\n\r\n",
-                "size": 1,
-                "title": "Replication ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "33",
-              "name": "replication"
-            },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nlet StorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| summarize SizeGB=sum(todouble(Quantity_s)) by ResourceId, Date_s\r\n| summarize arg_max(todatetime(Date_s), SizeGB) by ResourceId\r\n| project SizeGB=round(SizeGB*30), ResourceId;\r\nlet StorageTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| where MeterName_s has 'Operations'\r\n| summarize Transactions=round(sum(todouble(Quantity_s))*10000) by ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| join kind=leftouter (StorageReplication) on ResourceId\r\n| join kind=leftouter (StorageSize) on ResourceId\r\n| join kind=leftouter (StorageTransactions) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize ['Cost ({Currency:value})']=round(sum(FullCost)) by ['Storage Account']=ResourceId, Replication, ['Size (GB)']=SizeGB, Transactions\r\n| order by ['Cost ({Currency:value})']",
-                "size": 0,
-                "showAnalytics": true,
-                "title": "Storage Accounts List",
-                "showExportToExcel": true,
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "table",
-                "gridSettings": {
-                  "formatters": [
-                    {
-                      "columnMatch": "Size",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Transactions",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Cost (EUR)",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    }
-                  ],
-                  "rowLimit": 10000
-                }
-              },
-              "name": "storageAccountsCosts"
-            }
-          ]
-        },
-        "conditionalVisibility": {
-          "parameterName": "selectedTab",
-          "comparison": "isEqualTo",
-          "value": "StorageV1"
-        },
-        "name": "storageV1Group"
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "OverTime"
       },
-      {
-        "type": 12,
-        "content": {
-          "version": "NotebookGroup/1.0",
-          "groupType": "editable",
-          "items": [
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by FileStructure",
-                "size": 4,
-                "title": "File Structure ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "33",
-              "name": "fileStructure"
+      "name": "usageOverTimeGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by FileStructure",
+              "size": 4,
+              "title": "File Structure ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
             },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| join kind=inner (StorageReplication) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Replication",
-                "size": 1,
-                "title": "Replication ({Currency:value})",
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "piechart"
-              },
-              "customWidth": "33",
-              "name": "replication"
+            "customWidth": "25",
+            "name": "fileStructure"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| join kind=inner (StorageReplication) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Replication",
+              "size": 4,
+              "title": "Replication ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
             },
-            {
-              "type": 3,
-              "content": {
-                "version": "KqlItem/1.0",
-                "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nlet StorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| where MeterName_s has 'Data Stored'\r\n| summarize SizeGB=sum(todouble(Quantity_s)) by ResourceId, Date_s\r\n| summarize arg_max(todatetime(Date_s), SizeGB) by ResourceId\r\n| project SizeGB=round(SizeGB*30), ResourceId;\r\nlet StorageTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| where MeterName_s has 'Operations'\r\n| summarize Transactions=round(sum(todouble(Quantity_s))*10000) by ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| join kind=leftouter (StorageReplication) on ResourceId\r\n| join kind=leftouter (StorageSize) on ResourceId\r\n| join kind=leftouter (StorageTransactions) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| summarize ['Cost ({Currency:value})']=round(sum(FullCost)) by ['Storage Account']=ResourceId, ['File Structure']=FileStructure, Replication, ['Size (GB)']=SizeGB, Transactions\r\n| order by ['Cost ({Currency:value})']",
-                "size": 0,
-                "showAnalytics": true,
-                "title": "Storage Accounts List",
-                "showExportToExcel": true,
-                "queryType": 0,
-                "resourceType": "microsoft.operationalinsights/workspaces",
-                "visualization": "table",
-                "gridSettings": {
-                  "formatters": [
-                    {
-                      "columnMatch": "Size",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Transactions",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
-                      }
-                    },
-                    {
-                      "columnMatch": "Cost (EUR)",
-                      "formatter": 2,
-                      "numberFormat": {
-                        "unit": 0,
-                        "options": {
-                          "style": "decimal",
-                          "useGrouping": true
-                        }
+            "customWidth": "25",
+            "name": "replication"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored' and (MeterName_s has 'Hot' or MeterName_s has 'Cool' or MeterName_s has 'Archive')\r\n| extend Tier = iif(MeterName_s has 'Hot', 'Hot', iif(MeterName_s has 'Cool', 'Cool', 'Archive'))\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Tier",
+              "size": 4,
+              "title": "Data Stored Tiering ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "25",
+            "name": "dataStoredTiering"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Operations' and (MeterName_s has 'Hot' or MeterName_s has 'Cool' or MeterName_s has 'Archive')\r\n| extend Tier = iif(MeterName_s has 'Hot', 'Hot', iif(MeterName_s has 'Cool', 'Cool', 'Archive'))\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Tier",
+              "size": 4,
+              "title": "Transactions Tiering ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "25",
+            "name": "transactionsTiering"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "aa472561-a676-4733-8e13-e9ce6366a187",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Hot2CoolTarget",
+                  "label": "Hot to Cool Target (%)",
+                  "type": 1,
+                  "description": "The % of Hot data estimated to be moved to Cool with LCM",
+                  "isRequired": true,
+                  "value": "50"
+                },
+                {
+                  "id": "0344b31d-bfbe-4b4b-a3a4-63310cd5a719",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "MoveToHotThreshold",
+                  "label": "Trans. Move to Hot (%)",
+                  "type": 1,
+                  "description": "The max. % of transactions costs vs. total costs and of Cool transactions costs vs. total transactions costs",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "50"
+                },
+                {
+                  "id": "de446dba-7535-4cc0-ab16-23c9ae3aa9fa",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ErrorMargin",
+                  "label": "Comfort Margin (%)",
+                  "type": 1,
+                  "description": "The comfort margin (%) for estimation errors (difference between Enable vs. Maybe LCM)",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "20"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "storageV2Parameters"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "Enable Lifecycle Management recommendations may not apply when there is a very large object count to be moved to cooler tiers. Each object moved to a cooler tier will trigger a SetBlobTier transaction billed at Cool Write Operations pricing. Please review the blob count metrics and estimate Lifecycle Management operations costs before applying the recommendation. See more details [here](https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview#changing-a-blobs-access-tier). For pricing, check [here](https://azure.microsoft.com/pricing/details/storage/blobs/).",
+              "style": "warning"
+            },
+            "name": "lcmWarning"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let MoveToHotThreshold = todouble({MoveToHotThreshold})/100;\r\nlet Hot2CoolPercentage = todouble({Hot2CoolTarget})/100;\r\nlet ErrorMarginPercentage = todouble({ErrorMargin})/100;\r\nlet StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nlet StorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize SizeGB=sum(todouble(Quantity_s)), CostStored=sum(FullCost) by ResourceId, Date_s\r\n| summarize arg_max(todatetime(Date_s), SizeGB), CostStored=round(sum(CostStored)) by ResourceId\r\n| project SizeGB=round(SizeGB*30), CostStored, ResourceId;\r\nlet StorageTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Operations'\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Transactions=round(sum(todouble(Quantity_s))*10000), TransactionsCost=round(sum(FullCost)) by ResourceId;\r\nlet HotStorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Data Stored' and MeterName_s has 'Hot'\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize HotSizeCost=round(sum(FullCost)) by ResourceId;\r\nlet HotTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| where MeterName_s has 'Operations' and (MeterName_s has 'Hot' or MeterName_s has 'List and Create Container' or MeterName_s has 'All Other')\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize HotTransactions=round(sum(todouble(Quantity_s))*10000), HotTransactionsCost=round(sum(FullCost)) by ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s !has 'Premium' and MeterSubCategory_s != 'General Block Blob'\r\n| join kind=leftouter (StorageReplication) on ResourceId\r\n| join kind=leftouter (StorageSize) on ResourceId\r\n| join kind=leftouter (StorageTransactions) on ResourceId\r\n| join kind=leftouter (HotStorageSize) on ResourceId\r\n| join kind=leftouter (HotTransactions) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| summarize TotalCost=round(sum(FullCost)) by ['Storage Account']=ResourceId, Structure=FileStructure, Replication, ['Size (GB)']=SizeGB, CostStored, HotSizeCost, Transactions, TransactionsCost, HotTransactionsCost\r\n| extend TransactionsFactor = round(TransactionsCost/TotalCost,1)\r\n| extend HotTransactionsFactor = round(HotTransactionsCost/TransactionsCost,1)\r\n| extend CostStored = iif(isnotempty(CostStored), CostStored, 0.0)\r\n| extend HotSizeCost = iif(isnotempty(HotSizeCost), HotSizeCost, 0.0)\r\n| extend TransactionsCost = iif(isnotempty(TransactionsCost), TransactionsCost, 0.0)\r\n| extend HotTransactionsCost = iif(isnotempty(HotTransactionsCost), HotTransactionsCost, 0.0)\r\n| extend EstimatedSavings = round(HotSizeCost*Hot2CoolPercentage/2-HotTransactionsCost*Hot2CoolPercentage*2)\r\n| extend EstimatedSavingsWithError = round(HotSizeCost*Hot2CoolPercentage/2*(1-ErrorMarginPercentage)-HotTransactionsCost*Hot2CoolPercentage*2)*(1+ErrorMarginPercentage)\r\n| extend Recommendation = iif(TransactionsFactor > MoveToHotThreshold and HotTransactionsFactor < MoveToHotThreshold, 'Move to Hot', iif(EstimatedSavingsWithError > 0, 'Enable LCM', iif(EstimatedSavings > 0, 'Maybe LCM', 'No tier change')))\r\n| extend EstimatedSavings = iif(Recommendation != 'Move to Hot', EstimatedSavings, round((TransactionsCost-HotTransactionsCost)/2-(CostStored-HotSizeCost)*2))\r\n| extend Recommendation = iif(Recommendation != 'No tier change' and EstimatedSavings <= 0, 'No tier change', Recommendation)\r\n| project-away HotTransactionsFactor, TransactionsFactor, EstimatedSavingsWithError\r\n| order by TotalCost\r\n| project-rename ['Total ({Currency})']=TotalCost, ['Size ({Currency})']=CostStored, ['Hot Size ({Currency})']=HotSizeCost, ['Trans. ({Currency})']=TransactionsCost, ['Hot Trans. ({Currency})']=HotTransactionsCost, ['Savings ({Currency})']=EstimatedSavings",
+              "size": 0,
+              "showAnalytics": true,
+              "title": "Storage Accounts List",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Storage Account",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "29ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Size",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
                       }
                     }
-                  ],
-                  "rowLimit": 10000
-                }
-              },
-              "name": "storageAccountsCosts"
-            }
-          ]
-        },
-        "conditionalVisibility": {
-          "parameterName": "selectedTab",
-          "comparison": "isEqualTo",
-          "value": "Premium"
-        },
-        "name": "premiumGroup"
-      }
-    ],
-    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
-  }
+                  },
+                  {
+                    "columnMatch": "Transactions",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Trans. (EUR)",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Hot Trans. (EUR)",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Total Cost (EUR)",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Est. Savings (EUR)",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Recommendation",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Move to Hot",
+                          "representation": "3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Enable LCM",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Maybe LCM",
+                          "representation": "1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "stopped",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "File Structure",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "17ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Cost (EUR)",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 10000
+              }
+            },
+            "name": "storageAccountsCosts"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "StorageV2"
+      },
+      "name": "storageV2Group"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| join kind=inner (StorageReplication) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Replication\r\n\r\n\r\n",
+              "size": 1,
+              "title": "Replication ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "replication"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nlet StorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| where MeterName_s has 'Data Stored'\r\n| summarize SizeGB=sum(todouble(Quantity_s)) by ResourceId, Date_s\r\n| summarize arg_max(todatetime(Date_s), SizeGB) by ResourceId\r\n| project SizeGB=round(SizeGB*30), ResourceId;\r\nlet StorageTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| where MeterName_s has 'Operations'\r\n| summarize Transactions=round(sum(todouble(Quantity_s))*10000) by ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s == 'General Block Blob'\r\n| join kind=leftouter (StorageReplication) on ResourceId\r\n| join kind=leftouter (StorageSize) on ResourceId\r\n| join kind=leftouter (StorageTransactions) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize ['Cost ({Currency:value})']=round(sum(FullCost)) by ['Storage Account']=ResourceId, Replication, ['Size (GB)']=SizeGB, Transactions\r\n| order by ['Cost ({Currency:value})']",
+              "size": 0,
+              "showAnalytics": true,
+              "title": "Storage Accounts List",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Size",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Transactions",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Cost (EUR)",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 10000
+              }
+            },
+            "name": "storageAccountsCosts"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "StorageV1"
+      },
+      "name": "storageV1Group"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by FileStructure",
+              "size": 4,
+              "title": "File Structure ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "fileStructure"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| join kind=inner (StorageReplication) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| summarize Cost=sum(FullCost) by Replication",
+              "size": 1,
+              "title": "Replication ({Currency:value})",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "replication"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let StorageReplication = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| where MeterName_s has 'Data Stored'\r\n| extend Replication = tostring(split(MeterName_s, ' ')[-3])\r\n| distinct ResourceId, Replication;\r\nlet StorageSize = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| where MeterName_s has 'Data Stored'\r\n| summarize SizeGB=sum(todouble(Quantity_s)) by ResourceId, Date_s\r\n| summarize arg_max(todatetime(Date_s), SizeGB) by ResourceId\r\n| project SizeGB=round(SizeGB*30), ResourceId;\r\nlet StorageTransactions = AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| where MeterName_s has 'Operations'\r\n| summarize Transactions=round(sum(todouble(Quantity_s))*10000) by ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) between (todatetime('{LookbackPeriod:startISO}')..todatetime('{LookbackPeriod:endISO}'))\r\n| where SubscriptionId in ({Subscriptions:value})\r\n| where ChargeType_s == 'Usage' and MeterCategory_s == 'Storage' and (MeterSubCategory_s has 'Block Blob' or MeterSubCategory_s has 'Hierarchical Namespace' or MeterSubCategory_s has 'Blob Storage')\r\n| where ResourceId has 'microsoft.storage' or ResourceId has 'microsoft.classicstorage'\r\n| where MeterSubCategory_s has 'Premium'\r\n| join kind=leftouter (StorageReplication) on ResourceId\r\n| join kind=leftouter (StorageSize) on ResourceId\r\n| join kind=leftouter (StorageTransactions) on ResourceId\r\n| extend FullCost = todouble(Quantity_s) * todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s))\r\n| extend FileStructure = iif(MeterSubCategory_s has 'Hierarchical Namespace', 'HNS', 'Flat')\r\n| summarize ['Cost ({Currency:value})']=round(sum(FullCost)) by ['Storage Account']=ResourceId, ['File Structure']=FileStructure, Replication, ['Size (GB)']=SizeGB, Transactions\r\n| order by ['Cost ({Currency:value})']",
+              "size": 0,
+              "showAnalytics": true,
+              "title": "Storage Accounts List",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Size",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Transactions",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Cost (EUR)",
+                    "formatter": 2,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": true
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 10000
+              }
+            },
+            "name": "storageAccountsCosts"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Premium"
+      },
+      "name": "premiumGroup"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

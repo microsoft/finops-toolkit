@@ -1113,6 +1113,18 @@ if ("Y", "y" -contains $continueInput) {
         Write-Host "Enabling Entra ID-only authentication in SQL Database..." -ForegroundColor Green
         Enable-AzSqlServerActiveDirectoryOnlyAuthentication -ServerName $sqlServerName -ResourceGroupName $resourceGroupName | Out-Null
     }
+
+    # Ensuring the Automation Account identity has the necessary permissions to access the Storage Account (needed for partial upgrades)
+    $sa = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
+    $auto = Get-AzAutomationAccount -Name $automationAccountName -ResourceGroupName $resourceGroupName
+    $spnId = $auto.Identity.PrincipalId
+    $storageBlobContributorRoleId = "ba92f5b4-2d11-453d-a403-e96b0029c9fe" # Storage Blob Data Contributor role
+    $roleAssignment = Get-AzRoleAssignment -ObjectId $spnId -Scope $sa.Id -ErrorAction SilentlyContinue
+    if (-not($roleAssignment) -or -not($roleAssignment.RoleDefinitionId -contains $storageBlobContributorRoleId))
+    {
+        Write-Host "Granting Storage Blob Data Contributor role to the Automation Account identity..." -ForegroundColor Green
+        New-AzRoleAssignment -ObjectId $spnId -RoleDefinitionId $storageBlobContributorRoleId -Scope $sa.Id | Out-Null
+    }
     
     #region Open SQL Server firewall rule
     if (-not($sqlServerName -like "*.database.*"))
@@ -1153,10 +1165,10 @@ if ("Y", "y" -contains $continueInput) {
         try {
             
             $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
-            $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+            $dbToken = (Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
 
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
     
             $createTableQuery = Get-Content -Path "./model/loganalyticsingestcontrol-table.sql"
@@ -1168,7 +1180,7 @@ if ("Y", "y" -contains $continueInput) {
             $Conn.Close()
     
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
     
             $initTableQuery = Get-Content -Path "./model/loganalyticsingestcontrol-initialize.sql"
@@ -1180,7 +1192,7 @@ if ("Y", "y" -contains $continueInput) {
             $Conn.Close()
     
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
     
             $upgradeTableQuery = Get-Content -Path "./model/loganalyticsingestcontrol-upgrade.sql"
@@ -1192,7 +1204,7 @@ if ("Y", "y" -contains $continueInput) {
             $Conn.Close()
     
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
     
             $createTableQuery = Get-Content -Path "./model/sqlserveringestcontrol-table.sql"
@@ -1204,7 +1216,7 @@ if ("Y", "y" -contains $continueInput) {
             $Conn.Close()
 
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
     
             $initTableQuery = Get-Content -Path "./model/sqlserveringestcontrol-initialize.sql"
@@ -1216,7 +1228,7 @@ if ("Y", "y" -contains $continueInput) {
             $Conn.Close()
 
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
     
             $createTableQuery = Get-Content -Path "./model/recommendations-table.sql"
@@ -1228,7 +1240,7 @@ if ("Y", "y" -contains $continueInput) {
             $Conn.Close()
 
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
     
             $createTableQuery = Get-Content -Path "./model/recommendations-sp.sql"
@@ -1240,7 +1252,7 @@ if ("Y", "y" -contains $continueInput) {
             $Conn.Close()
 
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
     
             $createTableQuery = Get-Content -Path "./model/filters-table.sql"
@@ -1252,7 +1264,7 @@ if ("Y", "y" -contains $continueInput) {
             $Conn.Close()
 
             $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-            $Conn.AccessToken = $dbToken.Token
+            $Conn.AccessToken = $dbToken
             $Conn.Open() 
 
             $createUserQuery = (Get-Content -Path "./model/automation-user.sql").Replace("<automation-account-name>", $automationAccountName)

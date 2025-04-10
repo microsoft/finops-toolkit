@@ -85,7 +85,7 @@ if (Test-Path -Path $databaseConnectionSettingsPath)
 
 if (-not($dbConnectionSettings["DatabaseServer"]))
 {
-    $databaseServer = Read-Host "Please, enter the AOE Azure SQL server hostname (e.g., xpto.database.windows.net)"
+    $databaseServer = Read-Host "Please, enter the AOE Azure SQL server hostname (for example, xpto.database.windows.net)"
     $dbConnectionSettings["DatabaseServer"] = $databaseServer
 }
 else
@@ -95,7 +95,7 @@ else
 
 if (-not($dbConnectionSettings["DatabaseName"]))
 {
-    $databaseName = Read-Host "Please, enter the AOE Azure SQL Database name (e.g., azureoptimization)"
+    $databaseName = Read-Host "Please, enter the AOE Azure SQL Database name (for example, azureoptimization)"
     $dbConnectionSettings["DatabaseName"] = $databaseName
 }
 else
@@ -114,9 +114,9 @@ $connectionSuccess = $false
 do {
     $tries++
     try {
-        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString
         $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-        $Conn.AccessToken = $dbToken.Token
+        $Conn.AccessToken = $dbToken.Token | ConvertFrom-SecureString -AsPlainText
         $Conn.Open() 
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
@@ -261,9 +261,9 @@ if ("Y", "y" -contains $continueInput)
 
     $sqlStatement = "INSERT INTO [$suppressionsTable] VALUES (NEWID(), '$($controlRows.RecommendationSubTypeId)', '$suppressionType', $scope, GETDATE(), $endDate, '$author', '$notes', 1)"
 
-    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString
     $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-    $Conn2.AccessToken = $dbToken.Token
+    $Conn2.AccessToken = $dbToken.Token | ConvertFrom-SecureString -AsPlainText
     $Conn2.Open() 
     
     $Cmd=new-object system.Data.SqlClient.SqlCommand

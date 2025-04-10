@@ -12,19 +12,28 @@
 
     Returns the string '123456hyfpqje'.
 #>
-function Get-HubIdentifier
+function Get-HubIdentifier 
 {
-    param
-    (
+    param (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string[]]
         $Collection
     )
 
+    $idPattern = '[a-z0-9]{13}'  # Matches exactly 13 alphanumeric characters
     $substrings = @()
+
     foreach ($string in $Collection)
     {
+        # Use regex to find valid 13-character matches
+        $match = [regex]::Matches($string, $idPattern)
+        if ($match.Count -gt 0)
+        {
+            $substrings += $match | ForEach-Object { $_.Value }
+        }
+
+        # Generate all possible substrings
         for ($startIndex = 0; $startIndex -lt $string.Length; $startIndex++)
         {
             for ($endIndex = 1; $endIndex -le ($string.Length - $startIndex); $endIndex++)
@@ -34,11 +43,7 @@ function Get-HubIdentifier
         }
     }
 
-    $id = $substrings | Group-Object | Where-Object -FilterScript {$_.count -eq $Collection.length -and $_.Name.Length -eq 13} | Select-Object -Expand 'Name'
-    if ($id -notcontains '-' -and $id -notcontains '_')
-    {
-        return $id
-    }
-
-    return $null
+    # Filter out matches that have hyphens or underscores and return the first valid match
+    $validMatches = $substrings | Group-Object | Where-Object { $_.Count -eq $Collection.Length -and $_.Name.Length -eq 13 -and $_.Name -notmatch '[-_]' } | Select-Object -ExpandProperty Name
+    return $validMatches | Select-Object -First 1
 }
