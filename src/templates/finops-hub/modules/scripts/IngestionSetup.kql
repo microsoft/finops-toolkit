@@ -1675,8 +1675,8 @@ Recommendations_transform_v1_0()
 
 //===| Transactions |===================================================================================================
 // Supported versions:
-// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
-// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
+// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
+// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
 // Transactions_raw table
