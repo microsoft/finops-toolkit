@@ -1604,7 +1604,7 @@ Recommendations_transform_v1_0()
         'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
         'CommitmentDiscountNormalizedSize', NormalizedSize,
         'CommitmentDiscountResourceType', ResourceType,
-        'CommitmentDiscountScope', coalesce(Scope, scope),
+        'CommitmentDiscountScope', Scope,
         'LookbackPeriodDuration', case(
             LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
             LookBackPeriod matches regex @'^[0-9]+$',           strcat('P', LookBackPeriod, 'D'),
