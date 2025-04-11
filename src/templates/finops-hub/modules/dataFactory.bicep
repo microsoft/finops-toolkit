@@ -4910,6 +4910,23 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
           firstRowOnly: false
         }
       }
+      { // Set ingestion id
+        name: 'Set Ingestion Id'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'ingestionId'
+          value: {
+            value: '@guid()'
+            type: 'Expression'
+          }
+        }
+      }
       { // Iterate Files
         name: 'Iterate Files'
         type: 'ForEach'
@@ -4919,6 +4936,10 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
             dependencyConditions: [
               'Succeeded'
             ]
+          }
+          {
+            activity: 'Set Ingestion Id'
+            dependencyConditions: ['Succeeded']
           }
         ]
         userProperties: []
@@ -4946,6 +4967,10 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
                 }
                 waitOnCompletion: true
                 parameters: {
+                  ingestionId: {
+                    value: '@variables(\'ingestionId\')'
+                    type: 'Expression'
+                  }
                   inputDataset: {
                     value: '@item().queryEngine'
                     type: 'Expression'
@@ -4998,7 +5023,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
               ]
               userProperties: [ ]
               typeProperties: {
-                variableName: 'ManifestPaths'
+                variableName: 'manifestPaths'
                 value: {
                   value: '@concat(item().dataset, \'/\', item().scope)'
                   type: 'Expression'
@@ -5025,9 +5050,9 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
         }
         userProperties: [ ]
         typeProperties: {
-          variableName: 'UniqueManifestPaths'
+          variableName: 'uniqueManifestPaths'
           value: {
-            value: '@union(variables(\'ManifestPaths\'), variables(\'ManifestPaths\'))'
+            value: '@union(variables(\'manifestPaths\'), variables(\'manifestPaths\'))'
             type: 'Expression'
           }
         }
@@ -5046,7 +5071,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
         userProperties: []
         typeProperties: {
           items: {
-            value: '@variables(\'UniqueManifestPaths\')'
+            value: '@variables(\'uniqueManifestPaths\')'
             type: 'Expression'
           }
           batchCount: 2
@@ -5120,10 +5145,13 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
       }
     ]
     variables: {
-      ManifestPaths: {
+      ingestionId: {
+        type: 'String'
+      }
+      manifestPaths: {
         type: 'Array'
       }
-      UniqueManifestPaths: {
+      uniqueManifestPaths: {
         type: 'Array'
       }
     }
@@ -5161,23 +5189,6 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      { // Set instance id
-        name: 'Set Instance Id'
-        type: 'SetVariable'
-        dependsOn: []
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'instanceId'
-          value: {
-            value: '@guid()'
-            type: 'Expression'
-          }
-        }
-      }
       { // Set initial query error value
         name: 'Set Query Error Value'
         type: 'SetVariable'
@@ -5203,10 +5214,6 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
             activity: 'Set Blob Timestamp'
             dependencyConditions: ['Succeeded']
           }
-          {
-            activity: 'Set Instance Id'
-            dependencyConditions: ['Succeeded']
-          }
         ]
         policy: {
           secureOutput: false
@@ -5216,7 +5223,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         typeProperties: {
           variableName: 'blobBasePath'
           value: {
-            value: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'blobExportTimestamp\'), pipeline().parameters.queryScope, \'/\', variables(\'instanceId\'), \'${ingestionIdFileNameSeparator}\')'
+            value: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'blobExportTimestamp\'), pipeline().parameters.queryScope, \'/\', pipeline().parameters.ingestionId, \'${ingestionIdFileNameSeparator}\')'
             type: 'Expression'
           }
         }
@@ -5270,10 +5277,6 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
               'Completed'
             ]
           }
-          {
-            activity: 'Set Instance Id'
-            dependencyConditions: ['Succeeded']
-          }
         ]
         userProperties: []
         typeProperties: {
@@ -5283,7 +5286,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           }
           condition: {
             // cSpell:ignore endswith
-            value: '@and(endswith(item().name, concat(pipeline().parameters.queryType, \'.parquet\')), not(startswith(item().name, concat(variables(\'instanceId\'), \'${ingestionIdFileNameSeparator}\'))))'
+            value: '@and(endswith(item().name, concat(pipeline().parameters.queryType, \'.parquet\')), not(startswith(item().name, concat(pipeline().parameters.ingestionId, \'${ingestionIdFileNameSeparator}\'))))'
             type: 'Expression'
           }
         }
@@ -5568,9 +5571,6 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
       elapsedTimeMetric: {}
     }
     variables: {
-      instanceId: {
-        type: 'String'
-      }
       blobExportTimestamp: {
         type: 'String'
       }
@@ -5582,6 +5582,9 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
       }
     }
     parameters: {
+      ingestionId: {
+        type: 'String'
+      }
       inputDataset: {
         type: 'string'
       }
