@@ -20,9 +20,9 @@ Optimize your Azure environment.
 The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment. See it like a fully customizable Azure Advisor.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
     <p>
-        February improved multi-tenancy support with Azure Lighthouse guidance.
+        In March, AOE fixed an issue with breaking storage account recommendations when resource tags are duplicated after tag inheritance.
     </p>
     <p class="mt-2 mb-0 ftk-externallink"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -57,7 +57,7 @@ The Azure Optimization Engine (AOE) is an extensible solution designed to genera
     </div>
     <div class="ftk-tile">
         <div>📋 Monitor policy compliance</div>
-        <div>Monitor Azure Policy compliance across the whole tenant.<br>&nbsp;</div>
+        <div>Monitor Azure Policy compliance across the whole tenant.</div>
     </div>
 </div>
 <a name="deploy"></a>

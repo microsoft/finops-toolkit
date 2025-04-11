@@ -173,16 +173,6 @@ table AdvisorRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'properties.extendedProperties.savingsAmount'
-		dataType: double
-		lineageTag: fe066f63-af23-441a-b614-df90e7b459c2
-		summarizeBy: sum
-		sourceColumn: properties.extendedProperties.savingsAmount
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column 'properties.extendedProperties.DatabaseSize'
 		dataType: string
 		lineageTag: 291bcdda-5321-4bb3-8900-62cb86a30af8
@@ -367,17 +357,6 @@ table AdvisorRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'properties.lastUpdated'
-		dataType: dateTime
-		formatString: Mmm d h:nn AM/PM
-		lineageTag: d3bf7cce-83bc-4589-a2da-ece0e146e1d3
-		summarizeBy: none
-		sourceColumn: properties.lastUpdated
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isCustom":true}
-
 	column 'properties.category'
 		dataType: string
 		lineageTag: d4071f11-546e-49cc-9131-675482ae0927
@@ -469,6 +448,25 @@ table AdvisorRecommendations
 		sourceColumn: properties.resourceMetadata
 
 		annotation SummarizationSetBy = Automatic
+
+	column 'properties.lastUpdated'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 432519ca-6b39-470a-875a-7011290482ba
+		summarizeBy: none
+		sourceColumn: properties.lastUpdated
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.savingsAmount'
+		dataType: double
+		lineageTag: 588d3c29-5bb7-4bb6-a5bd-b35aedd8131a
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.savingsAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	partition AdvisorRecommendations = m
 		mode: import

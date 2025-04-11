@@ -41,7 +41,7 @@
 
     Builds the latest code, generates ZIP files for each template, and opens Power BI projects to be saved as PBIX files.
 #>
-Param(
+param(
     [Parameter(Position = 0)][string]$Template = "*",
     [switch]$Build,
     [switch]$CopyFiles,
@@ -84,7 +84,7 @@ function Copy-TemplateFiles()
     Remove-Item "$relDir/*.zip" -Force
 
     return Get-ChildItem "$relDir/$Template*" -Directory `
-    | Where-Object { $_.Name -ne 'pbix' } `
+    | Where-Object { @('pbit', 'pbix', 'FinOpsToolkit') -notcontains $_.Name } `
     | ForEach-Object {
         Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
         $srcPath = $_

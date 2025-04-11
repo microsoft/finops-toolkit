@@ -776,23 +776,23 @@ Costs_transform_v1_0()
     //
     // Identify data quality issues
     | extend x_SourceChanges = trim_end(',', strcat(
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based',                 'InvalidChargeFrequency,',              ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and EffectiveCost > 0,                                'InvalidEffectiveCost,',                ''),
-        iff((isempty(ContractedCost)      or ContractedCost == 0)      and EffectiveCost != 0,                                      'MissingContractedCost,',               ''),
-        iff((isempty(ContractedUnitPrice) or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0,                               'MissingContractedUnitPrice,',          ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based',                 'InvalidChargeFrequency,',           ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and EffectiveCost > 0,                                'InvalidEffectiveCost,',             ''),
+        iff((isempty(ContractedCost)      or ContractedCost == 0)      and EffectiveCost != 0,                                      'MissingContractedCost,',            ''),
+        iff((isempty(ContractedUnitPrice) or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0,                               'MissingContractedUnitPrice,',       ''),
         iff(ListCost < ContractedCost,                                                                                              'ListCostLessThanContractedCost,',      ''),
         iff(ContractedCost < EffectiveCost,                                                                                         'ContractedCostLessThanEffectiveCost,', ''),
-        iff((isempty(ListCost)            or ListCost == 0)            and (ContractedCost != 0      or EffectiveCost != 0),        'MissingListCost,',                     ''),
-        iff((isempty(ListUnitPrice)       or ListUnitPrice == 0)       and (ContractedUnitPrice != 0 or x_EffectiveUnitPrice != 0), 'MissingListUnitPrice,',                ''),
-        iff(isempty(ProviderName),                                                                                                  'MissingProviderName,',                 ''),
-        iff(isempty(PublisherName),                                                                                                 'MissingPublisherName,',                ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceId),                              'MissingResourceId,',                   ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceName),                            'MissingResourceName,',                 ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceType),                            'MissingResourceType,',                 ''),
-        iff(BilledCost > 0 and x_BilledUnitPrice == 0,                                                                              'MissingXBilledUnitPrice,',             ''),
-        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(x_ResourceType),                          'MissingXResourceType,',                ''),
-        iff(PricingCategory == 'Standard' and isnotempty(CommitmentDiscountId) and ChargeCategory == 'Usage',                       'PricingCategoryShouldBeCommitted,',    ''),
-        iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',            '')
+        iff((isempty(ListCost)            or ListCost == 0)            and (ContractedCost != 0      or EffectiveCost != 0),        'MissingListCost,',                  ''),
+        iff((isempty(ListUnitPrice)       or ListUnitPrice == 0)       and (ContractedUnitPrice != 0 or x_EffectiveUnitPrice != 0), 'MissingListUnitPrice,',             ''),
+        iff(isempty(ProviderName),                                                                                                  'MissingProviderName,',              ''),
+        iff(isempty(PublisherName),                                                                                                 'MissingPublisherName,',             ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceId),                              'MissingResourceId,',                ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceName),                            'MissingResourceName,',              ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceType),                            'MissingResourceType,',              ''),
+        iff(BilledCost > 0 and x_BilledUnitPrice == 0,                                                                              'MissingXBilledUnitPrice,',          ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(x_ResourceType),                          'MissingXResourceType,',             ''),
+        iff(PricingCategory == 'Standard' and isnotempty(CommitmentDiscountId) and ChargeCategory == 'Usage',                       'PricingCategoryShouldBeCommitted,', ''),
+        iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',         '')
     ))
     //
     // Fix columns needed in other changes
@@ -1360,8 +1360,8 @@ CommitmentDiscountUsage_transform_v1_0()
 
 //===| Recommendations |================================================================================================
 // Supported datasets/versions:
-// - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
-// - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
+// - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
+// - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
 //======================================================================================================================
 
 // Recommendations_raw table
@@ -1434,7 +1434,7 @@ CommitmentDiscountUsage_transform_v1_0()
 
 // Recommendations_transform_v1_0 function
 .create-or-alter function
-with (docstring='All recommendations transformed to FOCUS 1.0.', folder='Recommendations')
+with (docstring = "All recommendations transformed to FOCUS 1.0.",folder = "Recommendations")
 Recommendations_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -1472,7 +1472,7 @@ Recommendations_transform_v1_0()
         'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
         'CommitmentDiscountNormalizedSize', NormalizedSize,
         'CommitmentDiscountResourceType', ResourceType,
-        'CommitmentDiscountScope', coalesce(Scope, scope),
+        'CommitmentDiscountScope', Scope,
         'LookbackPeriodDuration', case(
             LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
             LookBackPeriod matches regex @'^[0-9]+$',           strcat('P', LookBackPeriod, 'D'),
@@ -1483,7 +1483,7 @@ Recommendations_transform_v1_0()
         'RecommendedQuantityNormalized', RecommendedQuantityNormalized,
         'RegionId', Location,
         'RegionName', RegionName,
-        'SkuMeterId', coalesce(MeterId, MeterID),
+        'SkuMeterId', MeterId,
         'SkuPriceDetails', SkuProperties,
         'SkuSize', coalesce(SKU, SkuName),
         'SkuTerm', isoMonths(Term)
@@ -1492,19 +1492,21 @@ Recommendations_transform_v1_0()
     )
     //
     // Sort columns and apply final transforms
+    | extend x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d)
+    | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
     | project
-      ProviderName,
-      SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+        ProviderName,
+        SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
       x_IngestionTime,
-      x_EffectiveCostAfter = TotalCostWithReservedInstances,
-      x_EffectiveCostBefore = CostWithNoReservedInstances,
-      x_EffectiveCostSavings = NetSavings,
-      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d),
-      x_RecommendationDetails,
-      x_SourceName,
-      x_SourceProvider,
-      x_SourceType,
-      x_SourceVersion
+        x_EffectiveCostAfter = TotalCostWithReservedInstances,
+        x_EffectiveCostBefore = CostWithNoReservedInstances,
+        x_EffectiveCostSavings = NetSavings,
+        x_RecommendationDate,
+        x_RecommendationDetails,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1543,8 +1545,8 @@ Recommendations_transform_v1_0()
 
 //===| Transactions |===================================================================================================
 // Supported versions:
-// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
-// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
+// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
+// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
 // Transactions_raw table

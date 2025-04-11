@@ -19,6 +19,7 @@ Engineering hub to maximize cloud ROI through FinOps.
 
 FinOps workbooks are Azure workbooks that provide a series of tools to help engineers perform targeted FinOps tasks, modeled after the Well-Architected Framework guidance.
 
+<!--
 <div id="whats-new" class="ftk-new">
     <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
     <p>
@@ -26,6 +27,8 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
+-->
+
 <a name="features"></a>
 
 ## A central hub for efficiency and control
