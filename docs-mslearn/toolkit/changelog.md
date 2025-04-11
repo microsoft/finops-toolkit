@@ -28,10 +28,12 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md)
+### [FinOps hubs](hubs/finops-hubs-overview.md) pending updates
 
 - **Added**
-  - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
+  - Added documentation for the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
+  - Created a new bicep modules to support extensibility:
+    - The **hub-app** module tracks telemetry when an app is deployed.
 
 **Fixed**
   - Workaround subnets reordering and bicep limitation
