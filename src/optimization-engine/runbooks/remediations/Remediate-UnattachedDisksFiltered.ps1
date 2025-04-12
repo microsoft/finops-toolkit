@@ -200,7 +200,7 @@ foreach ($disk in $unattachedDisks.Rows)
                                 $diskObj | Update-AzDisk | Out-Null        
                             }
                         }
-                        elseif ($diskObj.Sku.Name -like "*_ZRS" -and -not($diskObj.Sku.Name -like "*V2*"))
+                        elseif ($diskObj.Sku.Name -like "*_ZRS" -and $diskObj.Sku.Name -notlike "*V2*")
                         {
                             Write-Output "Downgrading $($diskObj.Name) to StandardSSD_ZRS..."                            
                             if (-not($Simulate))
