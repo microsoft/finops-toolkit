@@ -191,7 +191,7 @@ foreach ($disk in $unattachedDisks.Rows)
                 {
                     if ($diskObj.Sku.Name -notin ('Standard_LRS','StandardSSD_ZRS'))
                     {
-                        if ($diskObj.Sku.Name -like "*_LRS" -and -not($diskObj.Sku.Name -like "*V2*"))
+                        if ($diskObj.Sku.Name -like "*_LRS" -and $diskObj.Sku.Name -notlike "*V2*")
                         {
                             Write-Output "Downgrading $($diskObj.Name) to Standard_LRS..."                            
                             if (-not($Simulate))
