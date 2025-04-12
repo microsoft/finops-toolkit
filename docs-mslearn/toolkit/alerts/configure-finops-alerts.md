@@ -1,9 +1,9 @@
 ---
 title: Configure FinOps alerts 
-description: FinOps alerts will accelerate your cost optimization efforts with scheduled notifications that continuously monitor your cloud environment, empowering you to make informed decisions without the hassle.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+description: Learn how to configure and customize FinOps alerts to perform notifications and actions based on your organizational needs.
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -40,11 +40,11 @@ To configure FinOps alerts, follow these steps:
 
    1. Select the **API connection** resource, then select **Edit API   Connection** in the General tab to authorize the connection. Once you enable connection select **Save**.
 
-    :::image type="content" source="./media/finops-alerts/authorize-api-connection.png" alt-text="Screenshot of editing API connection." lightbox="./media/finops-alerts/authorize-api-connection.png" :::
+    :::image type="content" source="./media/configure-finops-alerts/authorize-api-connection.png" alt-text="Screenshot of the edit form for API connections." lightbox="./media/configure-finops-alerts/authorize-api-connection.png" :::
 
 3. **Assigning reader permission**
 
-    1. The Logic App’s system-assigned identity must have the **Reader** role on the targeted subscriptions. This role enables it to query resource utilization data. Follow [these steps](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal-managed-identity#system-assigned-managed-identity) to assign the reader role.
+    1. The Logic App’s system-assigned identity must have the **Reader** role on the targeted subscriptions. This role enables it to query resource utilization data. Follow [these steps](/azure/role-based-access-control/role-assignments-portal-managed-identity#system-assigned-managed-identity) to assign the reader role.
 
         1. For environments that span multiple subscriptions, consider assigning the Reader role at the management group level to streamline permissions management and ensure comprehensive monitoring.
 
@@ -69,7 +69,7 @@ To configure FinOps alerts, follow these steps:
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.8/bladeName/Alerts/featureName/Overview)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.9/bladeName/Alerts/featureName/Overview)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
@@ -87,7 +87,7 @@ Related FinOps capabilities:
 
 Related products:
 
-- [Azure Logic Apps](/azure/azure-logic-apps/)
+- [Azure Logic Apps](/azure/logic-apps/)
 
 Related solutions:
 

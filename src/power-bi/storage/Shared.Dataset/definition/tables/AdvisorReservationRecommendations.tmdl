@@ -133,9 +133,10 @@ table AdvisorReservationRecommendations
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.lookbackPeriod'
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 82a3a6d5-01c1-4db7-be17-572b62ceb699
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.lookbackPeriod
 
 		annotation SummarizationSetBy = Automatic
@@ -426,18 +427,18 @@ table AdvisorReservationRecommendations
 				      ['properties.suppressionIds'] = properties.suppressionIds,
 				      ['properties.impactedField'] = properties.impactedField,
 				      ['properties.impactedValue'] = properties.impactedValue,
-				      ['properties.lastUpdated'] = properties.lastUpdated,
+				      ['properties.lastUpdated'] = todatetime(properties.lastUpdated),
 				      ['properties.category'] = properties.category,
 				      ['properties.metadata'] = properties.metadata,
 				      ['properties.impact'] = properties.impact,
 				      ['properties.shortDescription.problem'] = properties.shortDescription.problem,
 				      ['properties.shortDescription.solution'] = properties.shortDescription.solution,
 				      ['properties.extendedProperties.reservedResourceType'] = properties.extendedProperties.reservedResourceType,
-				      ['properties.extendedProperties.annualSavingsAmount'] = coalesce(todecimal(properties.extendedProperties.annualSavingsAmount), todecimal(0)),
+				      ['properties.extendedProperties.annualSavingsAmount'] = properties.extendedProperties.annualSavingsAmount,
 				      ['properties.extendedProperties.targetResourceCount'] = toint(properties.extendedProperties.targetResourceCount),
 				      ['properties.extendedProperties.savingsCurrency'] = properties.extendedProperties.savingsCurrency,
 				      ['properties.extendedProperties.lookbackPeriod'] = properties.extendedProperties.lookbackPeriod,
-				      ['properties.extendedProperties.savingsAmount'] = coalesce(todecimal(properties.extendedProperties.savingsAmount), todecimal(0)),
+				      ['properties.extendedProperties.savingsAmount'] = properties.extendedProperties.savingsAmount,
 				      ['properties.extendedProperties.displaySKU'] = properties.extendedProperties.displaySKU,
 				      ['properties.extendedProperties.displayQty'] = toint(properties.extendedProperties.displayQty),
 				      ['properties.extendedProperties.location'] = properties.extendedProperties.location,
@@ -460,14 +461,16 @@ table AdvisorReservationRecommendations
 				  " & ftk_DemoFilter(),
 				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
 				  Types = Table.TransformColumnTypes(Source, {
-				    {"properties.extendedProperties.annualSavingsAmount", type number},
-				    {"properties.extendedProperties.savingsAmount",       type number},
-				    {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
-				    {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
+				    {"properties.extendedProperties.annualSavingsAmount",        type number},
+				    {"properties.extendedProperties.savingsAmount",              type number},
+				    {"properties.extendedProperties.qty",                        Int64.Type},
+				    {"properties.extendedProperties.displayQty",                 Int64.Type},
+				    {"properties.extendedProperties.lookbackPeriod",             Int64.Type},
+				    {"properties.extendedProperties.targetResourceCount",        Int64.Type},
 				    {"properties.lastUpdated",                                   type datetimezone}
 				  })
 				in
-				  Source
+				  Types
 
 	annotation PBI_NavigationStepName = Navigation
 

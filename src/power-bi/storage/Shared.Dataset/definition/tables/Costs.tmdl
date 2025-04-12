@@ -1203,54 +1203,6 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
-	column CommitmentDiscountNameUnique
-		dataType: string
-		lineageTag: fab2c83c-a0da-40d2-aeaf-3f147d997db8
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountNameUnique
-
-		annotation SummarizationSetBy = Automatic
-
-	column ResourceNameUnique
-		dataType: string
-		lineageTag: 2f597d4c-4e4c-46ff-bf5c-451758ac5988
-		summarizeBy: none
-		sourceColumn: ResourceNameUnique
-
-		annotation SummarizationSetBy = Automatic
-
-	column SubAccountNameUnique
-		dataType: string
-		lineageTag: 075b0376-91cf-4627-8408-7231aa14294c
-		summarizeBy: none
-		sourceColumn: SubAccountNameUnique
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_FreeReason
-		dataType: string
-		lineageTag: ae4d18e7-7ce7-453a-b5ae-6f33d44459fa
-		summarizeBy: none
-		sourceColumn: x_FreeReason
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_ResourceGroupNameUnique
-		dataType: string
-		lineageTag: 8998d466-48f5-4f38-befa-ff5058fb71ff
-		summarizeBy: none
-		sourceColumn: x_ResourceGroupNameUnique
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_SourceChanges
-		dataType: string
-		lineageTag: a4435a0f-a472-4469-be00-bd732eedae86
-		summarizeBy: none
-		sourceColumn: x_SourceChanges
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_ChargeMonth
 		dataType: dateTime
 		formatString: Mmm yyyy

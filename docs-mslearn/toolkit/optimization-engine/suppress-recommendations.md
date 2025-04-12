@@ -1,9 +1,9 @@
 ---
 title: Suppress recommendations
 description: Learn how to adjust the Azure Optimization Engine recommendation results for your environment characteristics by suppressing irrelevant recommendations.
-author: bandersmsft
-ms.author: banders
-ms.date: 10/31/2024
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

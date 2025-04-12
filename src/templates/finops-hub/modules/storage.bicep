@@ -69,6 +69,8 @@ var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))
 var scriptStorageAccountName = '${take(safeHubName, 16 - length(storageAccountSuffix))}script${storageAccountSuffix}'
 var schemaFiles = {
   // cSpell:ignore focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
+  'actualcost_c360-2025-04': loadTextContent('../schemas/actualcost_c360-2025-04.json')
+  'amortizedcost_c360-2025-04': loadTextContent('../schemas/amortizedcost_c360-2025-04.json')
   'focuscost_1.0r2': loadTextContent('../schemas/focuscost_1.0r2.json')
   'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
   'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
