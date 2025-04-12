@@ -213,7 +213,7 @@ foreach ($vm in $deallocatedVMs.Rows)
                                 }
                             }
                         }
-                        if (-not($diskObj.Sku.Name -in ('Standard_LRS','StandardSSD_ZRS')))
+                        if ($diskObj.Sku.Name -notin ('Standard_LRS','StandardSSD_ZRS'))
                         {
                             if ($diskObj.Sku.Name -like "*_LRS" -and -not($diskObj.Sku.Name -like "*V2*"))
                             {
