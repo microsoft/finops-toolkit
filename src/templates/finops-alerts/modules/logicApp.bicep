@@ -4201,7 +4201,7 @@ resource apiConnection 'Microsoft.Web/connections@2016-06-01' = {
   location: location
   properties: {
     api: {
-      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location ,'office365')
+      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'office365')
     }
     displayName:displayName
   }
