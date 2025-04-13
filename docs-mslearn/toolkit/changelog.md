@@ -38,6 +38,12 @@ The following section lists features and enhancements that are currently in deve
 **Fixed**
   - Workaround subnets reordering and bicep limitation
 
+### [FinOps alerts](alerts/finops-alerts-overview.md) pending updates
+
+- **Fixed**
+  - Update the 'id' property for the managedApi to a valid scope
+    - This caused a deployment error because the path could not be deserialized.
+
 <br><a name="latest"></a>
 
 ## v0.9 Update 1
