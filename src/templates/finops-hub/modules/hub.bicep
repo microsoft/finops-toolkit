@@ -206,8 +206,9 @@ var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 
 // The last segment of the GUID in the telemetryId (40b) is used to identify this module
 // Remaining characters identify settings; must be <= 12 chars -- Example: (guid)_RLXD##x1000P
-var telemetryId = join([
-  '00f120b5-2007-6120-0000-40b000000000_'
+var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
+
+var telemetryString = join([
   // R = remote hubs enabled
   empty(remoteHubStorageUri) || empty(remoteHubStorageKey) ? '' : 'R'
   // L = LRS, Z = ZRS
@@ -227,27 +228,20 @@ var telemetryId = join([
 //==============================================================================
 
 //------------------------------------------------------------------------------
-// Telemetry
-// Used to anonymously count the number of times the template has been deployed
-// and to track and fix deployment bugs to ensure the highest quality.
-// No information about you or your cost data is collected.
+// App registration
 //------------------------------------------------------------------------------
 
-resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
-  name: 'pid-${telemetryId}_${uniqueString(deployment().name, location)}'
-  properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-      contentVersion: '1.0.0.0'
-      metadata: {
-        _generator: {
-          name: 'FinOps toolkit'
-          version: loadTextContent('ftkver.txt')
-        }
-      }
-      resources: []
-    }
+module appRegistration 'hub-app.bicep' = {
+  name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  params: {
+    hubName: hubName
+    publisher: 'FinOps hubs'
+    namespace: 'Microsoft.FinOpsToolkit.Hubs'
+    appName: 'Core'
+    displayName: 'FinOps hub core'
+    appVersion: finOpsToolkitVersion
+    telemetryString: telemetryString
+    enableDefaultTelemetry: enableDefaultTelemetry
   }
 }
 

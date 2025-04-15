@@ -425,6 +425,7 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //------------------------------------------------------------------------------
 
 // cSpell:ignore linkedservices
+// TODO: Move to the hub-app module
 resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: keyVault.name
   parent: dataFactory
@@ -436,13 +437,14 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
     typeProperties: {
       baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
-    connectVia: enablePublicAccess ? null : { 
+    connectVia: enablePublicAccess ? null : {
       referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
   }
 }
 
+// TODO: Move to the hub-app module
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: storageAccount.name
   parent: dataFactory
@@ -454,7 +456,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
     }
-    connectVia: enablePublicAccess ? null : { 
+    connectVia: enablePublicAccess ? null : {
       referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
@@ -479,7 +481,7 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
       tenant: dataFactory.identity.tenantId
       servicePrincipalId: dataFactory.identity.principalId
     }
-    connectVia: enablePublicAccess ? null : { 
+    connectVia: enablePublicAccess ? null : {
       referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
@@ -505,7 +507,7 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
         secretName: '${toLower(hubName)}-storage-key'
       }
     }
-    connectVia: enablePublicAccess ? null : { 
+    connectVia: enablePublicAccess ? null : {
       referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
@@ -529,7 +531,7 @@ resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
     }
-    connectVia: enablePublicAccess ? null : { 
+    connectVia: enablePublicAccess ? null : {
       referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
@@ -812,97 +814,68 @@ resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-0
 // Triggers
 //------------------------------------------------------------------------------
 
-resource trigger_ExportManifestAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: exportManifestAddedTriggerName
-  parent: dataFactory
+// TODO: Create apps_PublishEvent pipeline { event, properties }
+
+module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
+  name: 'trigger_ExportManifestAdded'
   dependsOn: [
     stopTriggers
   ]
-  properties: {
-    annotations: []
-    pipelines: [
-      {
-        pipelineReference: {
-          referenceName: pipeline_ExecuteExportsETL.name
-          type: 'PipelineReference'
-        }
-        parameters: {
-          folderPath: '@triggerBody().folderPath'
-          fileName: '@triggerBody().fileName'
-        }
-      }
-    ]
-    type: 'BlobEventsTrigger'
-    typeProperties: {
-      blobPathBeginsWith: '/${exportContainerName}/blobs/'
-      blobPathEndsWith: 'manifest.json'
-      ignoreEmptyBlobs: true
-      scope: storageAccount.id
-      events: [
-        'Microsoft.Storage.BlobCreated'
-      ]
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: exportManifestAddedTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.CostManagement.ExportManifestAdded'
+    pipelineName: pipeline_ExecuteExportsETL.name
+    pipelineParameters: {
+      folderPath: '@triggerBody().folderPath'
+      fileName: '@triggerBody().fileName'
     }
+    
+    storageAccountName: storageAccount.name
+    storageContainer: exportContainerName
+    storagePathEndsWith: 'manifest.json'
   }
 }
 
-resource trigger_IngestionManifestAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (deployDataExplorer) {
-  name: ingestionManifestAddedTriggerName
-  parent: dataFactory
+module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = {
+  name: 'trigger_IngestionManifestAdded'
   dependsOn: [
     stopTriggers
   ]
-  properties: {
-    annotations: []
-    pipelines: [
-      {
-        pipelineReference: {
-          referenceName: pipeline_ExecuteIngestionETL.name
-          type: 'PipelineReference'
-        }
-        parameters: {
-          folderPath: '@triggerBody().folderPath'
-        }
-      }
-    ]
-    type: 'BlobEventsTrigger'
-    typeProperties: {
-      blobPathBeginsWith: '/${ingestionContainerName}/blobs/'
-      blobPathEndsWith: 'manifest.json'
-      ignoreEmptyBlobs: true
-      scope: storageAccount.id
-      events: [
-        'Microsoft.Storage.BlobCreated'
-      ]
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: ingestionManifestAddedTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.Hubs.IngestionManifestAdded'
+    pipelineName: pipeline_ExecuteIngestionETL.name
+    pipelineParameters: {
+      folderPath: '@triggerBody().folderPath'
     }
+    
+    storageAccountName: storageAccount.name
+    storageContainer: ingestionContainerName
+    storagePathEndsWith: 'manifest.json'
   }
 }
 
-resource trigger_SettingsUpdated 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: updateConfigTriggerName
-  parent: dataFactory
+module trigger_SettingsUpdated 'hub-event-trigger.bicep' = {
+  name: 'trigger_SettingsUpdated'
   dependsOn: [
     stopTriggers
   ]
-  properties: {
-    annotations: []
-    pipelines: [
-      {
-        pipelineReference: {
-          referenceName: pipeline_ConfigureExports.name
-          type: 'PipelineReference'
-        }
-      }
-    ]
-    type: 'BlobEventsTrigger'
-    typeProperties: {
-      blobPathBeginsWith: '/${configContainerName}/blobs/'
-      blobPathEndsWith: 'settings.json'
-      ignoreEmptyBlobs: true
-      scope: storageAccount.id
-      events: [
-        'Microsoft.Storage.BlobCreated'
-      ]
-    }
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: updateConfigTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.Hubs.SettingsUpdated'
+    pipelineName: pipeline_ConfigureExports.name
+    pipelineParameters: {}
+    
+    storageAccountName: storageAccount.name
+    storageContainer: configContainerName
+    // TODO: Change this to startswith
+    storagePathEndsWith: 'settings.json'
   }
 }
 
@@ -1910,7 +1883,7 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
                 }
                 method: 'POST'
                 headers: {
-                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
+                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'
                   'Content-Type': 'application/json'
                   ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                 }
@@ -2532,7 +2505,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                         type: 'WebActivity'
                         dependsOn: [
                           {
-                            activity: 'EA open month focus export' 
+                            activity: 'EA open month focus export'
                             dependencyConditions: [ 'Succeeded' ]
                           }
                         ]
@@ -2554,10 +2527,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
-                          headers: {  
-                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${ftkVersion}'  
-                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
-                          }  
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2572,7 +2545,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                         type: 'WebActivity'
                         dependsOn: [
                           {
-                            activity: 'EA closed month focus export' 
+                            activity: 'EA closed month focus export'
                             dependencyConditions: [ 'Succeeded' ]
                           }
                         ]
@@ -2594,10 +2567,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'Pricesheet', exportSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
-                          headers: {  
-                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.Prices@${ftkVersion}'  
-                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
-                          }  
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.Prices@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2612,7 +2585,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                         type: 'WebActivity'
                         dependsOn: [
                           {
-                            activity: 'EA monthly pricesheet export' 
+                            activity: 'EA monthly pricesheet export'
                             dependencyConditions: [ 'Succeeded' ]
                           }
                         ]
@@ -2649,7 +2622,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                         type: 'WebActivity'
                         dependsOn: [
                           {
-                            activity: 'EA monthly pricesheet export' 
+                            activity: 'EA monthly pricesheet export'
                             dependencyConditions: [ 'Succeeded' ]
                           }
                         ]
@@ -2671,10 +2644,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'ReservationDetails', reservationDetailsSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
-                          headers: {  
-                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationDetails@${ftkVersion}'  
-                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
-                          }  
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationDetails@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2689,7 +2662,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                         type: 'WebActivity'
                         dependsOn: [
                           {
-                            activity: 'EA daily reservation details export' 
+                            activity: 'EA daily reservation details export'
                             dependencyConditions: [ 'Succeeded' ]
                           }
                         ]
@@ -2711,10 +2684,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'ReservationTransactions', exportSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
-                          headers: {  
-                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationTransactions@${ftkVersion}'  
-                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
-                          } 
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationTransactions@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2729,7 +2702,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                         type: 'WebActivity'
                         dependsOn: [
                           {
-                            activity: 'EA daily reservation transactions export' 
+                            activity: 'EA daily reservation transactions export'
                             dependencyConditions: [ 'Succeeded' ]
                           }
                         ]
@@ -2751,10 +2724,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'ReservationRecommendations', exportSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', 'Shared', 'Last30Days', 'VirtualMachines')
                             type: 'Expression'
                           }
-                          headers: {  
-                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationRecommendations.VM.Shared.30d@${ftkVersion}'  
-                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
-                          } 
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationRecommendations.VM.Shared.30d@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -2792,9 +2765,9 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
-                          headers: {  
-                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${ftkVersion}'  
-                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                           }
                           authentication: {
                             type: 'MSI'
@@ -2810,7 +2783,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                         type: 'WebActivity'
                         dependsOn: [
                           {
-                            activity: 'Subscription open month focus export' 
+                            activity: 'Subscription open month focus export'
                             dependencyConditions: [ 'Succeeded' ]
                           }
                         ]
@@ -2832,10 +2805,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                             value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                             type: 'Expression'
                           }
-                          headers: {  
-                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${ftkVersion}'  
-                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'  
-                          } 
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
                           authentication: {
                             type: 'MSI'
                             resource: {
@@ -3523,8 +3496,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         typeProperties: {
           variableName: 'hubDataset'
           value: {
-            // cSpell:ignore focuscost, reservationdetails
-            value: '@if(equals(toLower(variables(\'exportDatasetType\')), \'focuscost\'), \'Costs\', if(equals(toLower(variables(\'exportDatasetType\')), \'pricesheet\'), \'Prices\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationdetails\'), \'CommitmentDiscountUsage\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationrecommendations\'), \'Recommendations\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationtransactions\'), \'Transactions\', toLower(variables(\'exportDatasetType\')))))))'
+            value: '@if(equals(toLower(variables(\'exportDatasetType\')), \'focuscost\'), \'Costs\', if(equals(toLower(variables(\'exportDatasetType\')), \'pricesheet\'), \'Prices\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationdetails\'), \'CommitmentDiscountUsage\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationrecommendations\'), \'Recommendations\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationtransactions\'), \'Transactions\', if(equals(toLower(variables(\'exportDatasetType\')), \'actualcost\'), \'ActualCosts\', if(equals(toLower(variables(\'exportDatasetType\')), \'amortizedcost\'), \'AmortizedCosts\', toLower(variables(\'exportDatasetType\')))))))))'
             type: 'Expression'
           }
         }
