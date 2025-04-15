@@ -34,6 +34,7 @@ The following section lists features and enhancements that are currently in deve
   - Added documentation for the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
   - Created a new bicep modules to support extensibility:
     - The **hub-app** module tracks telemetry when an app is deployed.
+    - The **hub-storage** module creates containers in the hub storage account.
 
 **Fixed**
   - Workaround subnets reordering and bicep limitation

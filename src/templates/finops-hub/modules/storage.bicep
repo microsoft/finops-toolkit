@@ -96,6 +96,7 @@ var blobUploadRbacRoles = [
 // Resources
 //==============================================================================
 
+// TODO: Move storage account creation to the hub-app module + output SA name
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: location
@@ -346,30 +347,27 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
   name: 'default'
 }
 
-resource configContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'config'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
+module configContainer 'hub-storage.bicep' = {
+  name: 'configContainer'
+  params: {
+    storageAccountName: storageAccount.name
+    container: 'config'
   }
 }
 
-resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'msexports'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
+module exportContainer 'hub-storage.bicep' = {
+  name: 'exportContainer'
+  params: {
+    storageAccountName: storageAccount.name
+    container: 'msexports'
   }
 }
 
-resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'ingestion'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
+module ingestionContainer 'hub-storage.bicep' = {
+  name: 'ingestionContainer'
+  params: {
+    storageAccountName: storageAccount.name
+    container: 'ingestion'
   }
 }
 
@@ -491,10 +489,10 @@ output scriptStorageAccountResourceId string = scriptStorageAccount.id
 output scriptStorageAccountName string = scriptStorageAccount.name
 
 @description('The name of the container used for configuration settings.')
-output configContainer string = configContainer.name
+output configContainer string = configContainer.outputs.containerName
 
 @description('The name of the container used for Cost Management exports.')
-output exportContainer string = exportContainer.name
+output exportContainer string = exportContainer.outputs.containerName
 
 @description('The name of the container used for normalized data ingestion.')
-output ingestionContainer string = ingestionContainer.name
+output ingestionContainer string = ingestionContainer.outputs.containerName
