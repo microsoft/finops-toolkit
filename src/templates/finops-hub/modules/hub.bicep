@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { getHubTags, getPublisherTags, HubCoreConfig, newHubCoreConfig } from 'hub-types.bicep'
+
+
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -142,23 +145,28 @@ param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
-//------------------------------------------------------------------------------
-// Variables
-//------------------------------------------------------------------------------
 
-// cSpell:ignore ftkver
-// Add cm-resource-parent to group resources in Cost Management
-var finOpsToolkitVersion = loadTextContent('ftkver.txt')
-var resourceTags = union(tags, {
-  'cm-resource-parent': '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${hubName}'
-  'ftk-version': finOpsToolkitVersion
-  'ftk-tool': 'FinOps hubs'
-})
+//==============================================================================
+// Variables
+//==============================================================================
+
+// TODO: Move hub config to be retrieved from the cloud
+
+// Hub details
+var coreConfig = newHubCoreConfig(
+  hubName,
+  location,
+  tags,
+  tagsByResource,
+  storageSku,
+  enableInfrastructureEncryption,
+  enablePublicAccess,
+  virtualNetworkAddressPrefix
+)
 
 // Generate globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
-var uniqueSuffix = uniqueString(hubName, resourceGroup().id)
 var dataFactoryPrefix = '${replace(hubName, '_', '-')}-engine'
-var dataFactorySuffix = '-${uniqueSuffix}'
+var dataFactorySuffix = '-${coreConfig.hub.suffix}'
 var dataFactoryName = replace(
   '${take(dataFactoryPrefix, 63 - length(dataFactorySuffix))}${dataFactorySuffix}',
   '--',
@@ -176,13 +184,13 @@ var safeDataExplorerPrincipalId =  !deployDataExplorer ? '' : dataExplorer.outpu
 var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
 var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
 var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
-var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
+// var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 
 // cSpell:ignore eventgrid
-// var eventGridName = 'finops-hub-eventgrid-${uniqueSuffix}'
+// var eventGridName = 'finops-hub-eventgrid-${config.hub.suffix}'
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
-// var eventGridSuffix = '-${uniqueSuffix}'
+// var eventGridSuffix = '-${config.hub.suffix}'
 // var eventGridName = replace(
 //   '${take(eventGridPrefix, 50 - length(eventGridSuffix))}${eventGridSuffix}',
 //   '--',
@@ -207,7 +215,6 @@ var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 // The last segment of the GUID in the telemetryId (40b) is used to identify this module
 // Remaining characters identify settings; must be <= 12 chars -- Example: (guid)_RLXD##x1000P
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
-
 var telemetryString = join([
   // R = remote hubs enabled
   empty(remoteHubStorageUri) || empty(remoteHubStorageKey) ? '' : 'R'
@@ -223,9 +230,21 @@ var telemetryString = join([
   enablePublicAccess ? '' : 'P'
 ], '')
 
+
 //==============================================================================
 // Resources
 //==============================================================================
+
+//------------------------------------------------------------------------------
+// Base resources needed for hub apps
+//------------------------------------------------------------------------------
+
+module coreNetwork 'core-network.bicep' = {
+  name: 'Microsoft.FinOpsToolkit.Hubs.Core_Network'
+  params: {
+    coreConfig: coreConfig
+  }
+}
 
 //------------------------------------------------------------------------------
 // App registration
@@ -234,14 +253,19 @@ var telemetryString = join([
 module appRegistration 'hub-app.bicep' = {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
   params: {
-    hubName: hubName
+    // TODO: hubName: hubName
     publisher: 'FinOps hubs'
     namespace: 'Microsoft.FinOpsToolkit.Hubs'
     appName: 'Core'
     displayName: 'FinOps hub core'
-    appVersion: finOpsToolkitVersion
+    appVersion: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
+    features: [
+      'Storage'
+    ]
     telemetryString: telemetryString
     enableDefaultTelemetry: enableDefaultTelemetry
+
+    coreConfig: coreConfig
   }
 }
 
@@ -250,13 +274,14 @@ module appRegistration 'hub-app.bicep' = {
 //------------------------------------------------------------------------------
 
 // cSpell:ignore vnet
+// TODO: Move to core-network.bicep
 module vnet 'vnet.bicep' = if (!enablePublicAccess) {
   name: 'vnet'
   params: {
     hubName: hubName
     location: location
-    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    tags: resourceTags
+    virtualNetworkAddressPrefix: coreConfig.network.addressPrefix
+    tags: coreConfig.hub.tags
     tagsByResource: tagsByResource
   }
 }
@@ -267,23 +292,22 @@ module vnet 'vnet.bicep' = if (!enablePublicAccess) {
 
 module storage 'storage.bicep' = {
   name: 'storage'
+  dependsOn: [
+    coreNetwork
+    vnet
+  ]
   params: {
-    hubName: hubName
-    uniqueSuffix: uniqueSuffix
-    sku: storageSku
+    storageAccountName: appRegistration.outputs.config.publisher.storage
     location: location
-    tags: resourceTags
+    tags: coreConfig.hub.tags
     tagsByResource: tagsByResource
-    enableInfrastructureEncryption: enableInfrastructureEncryption
     scopesToMonitor: scopesToMonitor
-    // cSpell:ignore msexport
-    msexportRetentionInDays: exportRetentionInDays
+    msexportRetentionInDays: exportRetentionInDays  // cSpell:ignore msexport
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
-    virtualNetworkId: safeVnetId
-    privateEndpointSubnetId: safeFinopsHubSubnetId
-    scriptSubnetId: safeScriptSubnetId
+    scriptSubnetId: coreConfig.network.subnets.scripts
+    scriptStorageAccountName: coreConfig.deployment.storage
     enablePublicAccess: enablePublicAccess
   }
 }
@@ -300,7 +324,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     clusterCapacity: dataExplorerCapacity
     // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
     location: location
-    tags: resourceTags
+    tags: coreConfig.hub.tags
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
@@ -318,10 +342,8 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   name: dataFactoryName
   location: location
-  tags: union(
-    resourceTags,
-    tagsByResource[?'Microsoft.DataFactory/factories'] ?? {}
-  )
+  // TODO: Switch to use publisher tags
+  tags: getHubTags(coreConfig, 'Microsoft.DataFactory/factories')
   identity: { type: 'SystemAssigned' }
   properties: any({ // Using any() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet
       globalConfigurations: {
@@ -336,7 +358,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     hubName: hubName
     dataFactoryName: dataFactory.name
     location: location
-    tags: resourceTags
+    tags: appRegistration.outputs.config.publisher.tags
     tagsByResource: tagsByResource
     storageAccountName: storage.outputs.name
     exportContainerName: storage.outputs.exportContainer
@@ -362,14 +384,14 @@ module keyVault 'keyVault.bicep' = if (!empty(remoteHubStorageKey)) {
   name: 'keyVault'
   params: {
     hubName: hubName
-    uniqueSuffix: uniqueSuffix
+    uniqueSuffix: coreConfig.hub.suffix
     location: location
-    tags: resourceTags
+    tags: appRegistration.outputs.config.app.tags
     tagsByResource: tagsByResource
     storageAccountKey: remoteHubStorageKey
     enablePublicAccess: enablePublicAccess
     virtualNetworkId: safeVnetId
-    privateEndpointSubnetId:safeFinopsHubSubnetId
+    privateEndpointSubnetId: safeFinopsHubSubnetId
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId
