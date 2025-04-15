@@ -3729,7 +3729,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               {
                 name: 'resourcesTable'
                 type: 'string'
-                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in ("\', replace(replace(replace(string(variables(\'IncludedSubscriptions\')), \'\\n\', \'\'), \'[\', \'\'), \']\', \'\'), \'")\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in ("\', replace(replace(replace(string(variables(\'ExcludedSubscriptions\')), \'\\n\', \'\'), \'[\', \'\'), \']\', \'\'), \'")\'))}'
+                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in (\', replace(replace(replace(string(variables(\'IncludedSubscriptions\')), \'\n\', \'\'), \'[\', \'\'), \']\', \'\'), \')\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in (\', replace(replace(replace(string(variables(\'ExcludedSubscriptions\')), \'\n\', \'\'), \'[\', \'\'), \']\', \'\'), \')\'))}'
               }
             ]
           }
