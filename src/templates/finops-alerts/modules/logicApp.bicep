@@ -3729,7 +3729,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               {
                 name: 'resourcesTable'
                 type: 'string'
-                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in ("\', replace(replace(string(variables(\'IncludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \'")\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in ("\', replace(replace(string(variables(\'ExcludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \'")\'))}'
+                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in ("\', replace(replace(replace(string(variables(\'IncludedSubscriptions\')), \'\\n\', \'\'), \'[\', \'\'), \']\', \'\'), \'")\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in ("\', replace(replace(replace(string(variables(\'ExcludedSubscriptions\')), \'\\n\', \'\'), \'[\', \'\'), \']\', \'\'), \'")\'))}'
               }
             ]
           }
@@ -4183,7 +4183,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           office365: {
             connectionId: apiConnection.id
             connectionName: connectionName
-            id: resourceId('Microsoft.Web/locations/managedApis', location, 'office365')
+            id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'office365')
           }
         }
       }
@@ -4201,7 +4201,7 @@ resource apiConnection 'Microsoft.Web/connections@2016-06-01' = {
   location: location
   properties: {
     api: {
-      id: resourceId('Microsoft.Web/locations/managedApis', location, 'office365')
+      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'office365')
     }
     displayName:displayName
   }

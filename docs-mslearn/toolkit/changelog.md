@@ -41,16 +41,22 @@ The following section lists features and enhancements that are currently in deve
 **Fixed**
   - Workaround subnets reordering and bicep limitation
 
-### [Optimization engine](optimization-engine/overview.md)
-
-- **Fixed**
-  - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
-
 <br><a name="latest"></a>
 
 ## v0.10
 
 _Released April 2025_
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) pending updates
+
+- **Fixed**
+  - Update the 'id' property for the managedApi to a valid scope
+    - This caused a deployment error because the path could not be deserialized.
+
+### [Optimization engine](optimization-engine/overview.md)
+
+- **Fixed**
+  - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
