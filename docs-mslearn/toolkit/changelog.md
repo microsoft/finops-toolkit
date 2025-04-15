@@ -28,17 +28,35 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md)
+### [FinOps hubs](hubs/finops-hubs-overview.md) pending updates
 
 - **Added**
-  - Added mslearn docs for Add-FinOpsServicePrincipal powershell command.
+  - Added documentation for the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
   - Created a new bicep modules to support extensibility:
+    - The **hub-app** module tracks telemetry when an app is deployed.
+    - The **hub-storage** module creates containers in the hub storage account.
     - The **hub-vault** module adds secrets to the hub vault.
 
 **Fixed**
   - Workaround subnets reordering and bicep limitation
 
+### [Optimization engine](optimization-engine/overview.md)
+
+- **Fixed**
+  - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
+
 <br><a name="latest"></a>
+
+## v0.10
+
+_Released April 2025_
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+
+<br>
 
 ## v0.9 Update 1
 
