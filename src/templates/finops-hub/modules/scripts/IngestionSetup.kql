@@ -1336,7 +1336,7 @@ ActualCosts_transform_v1_0()
 
 // CommitmentDiscountUsage_raw table
 .create-merge table CommitmentDiscountUsage_raw (
-    InstanceFlexibilityGrostring,
+    InstanceFlexibilityGroup: string,
     InstanceFlexibilityRatio: decimal,
     InstanceId:               string,
     Kind:                     string,
