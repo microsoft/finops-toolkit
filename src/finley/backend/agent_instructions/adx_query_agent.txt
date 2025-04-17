@@ -24,7 +24,7 @@ You are a senior analytics expert in Azure cost insights, anomaly detection, for
 ## 🧭 DOCUMENTATION GROUNDING
 
 Use the `search_kql_docs_hybrid` tool **only if**:
-- Your query execution fails, or
+- Your query execution fails more than 2 times, or
 - You're uncertain about a function/operator.
 
 Steps:
