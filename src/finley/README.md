@@ -1,21 +1,118 @@
 # 🤖 Finley: Multi-Agent FinOps Assistant for Azure
 
-**Finley** is an intelligent, multi-agent assistant designed to help organizations explore, analyze, and optimize their Azure cloud environment. Powered by [Azure AI Agents](https://learn.microsoft.com/en-us/azure/ai-services/agents/) and [Semantic Kernel](https://github.com/microsoft/semantic-kernel), Finley coordinates a team of specialized agents to handle cost and resource-related questions using real Azure data.
+A sophisticated multi-agent system built on Azure AI Foundry, enabling collaborative AI agents to work together on complex tasks.
+
+**Finley** is an intelligent, multi-agent assistant designed to help organizations explore, analyze, and optimize their Azure cloud environment. Powered by [Azure AI Agents](https://learn.microsoft.com/en-us/azure/ai-services/agents/), Finley coordinates a team of specialized agents to handle cost and resource-related questions using real Azure data.
 
 ---
+## Overview
 
+This project implements a team-based AI agent system that leverages Azure AI Foundry's capabilities to create, manage, and coordinate multiple AI agents. The system allows for dynamic task delegation, inter-agent communication, and collaborative problem-solving.
+
+## Features
+
+- **Team-based Architecture**: Create and manage teams of AI agents with specialized roles
+- **Dynamic Task Delegation**: Agents can delegate tasks to other team members
+- **Configurable Agent Roles**: Define custom roles and capabilities for each agent
+- **Azure Integration**: Built on Azure AI Foundry for enterprise-grade AI capabilities
+- **OpenTelemetry Support**: Built-in tracing and monitoring capabilities
+- **YAML-based Configuration**: Easy configuration of agent teams and their capabilities
+
+## Project Structure
+
+```
+backend/
+└── agent_instructions/ # Agent instructions and guidelines
+├── utils/             # Utility functions and helpers
+├── user_functions/     # Custom user-defined functions
+├── agent_team.py      # Core agent team implementation
+├── agent_trace_configurator # Core Telemetry implementation
+├── agent_team_config.yaml  # Team configuration
+├── finley_team_orchestration.py   # Finley-specific team 
+├── finley_team_singleton.py   # Finley-specific team to launch instance and interact with API
+├── main.py   # API entry point for interaction with Front-end 
+├── requirements.txt   # Project dependencies
+├── README.md
+├── frontend/      # Frontend (React/Vite UI Interface)
+
+.env # For local dev and to be able to run the solution
+.env.example
+```
 
 ## Architecture
 ![Alt text](finleyarchitecture.png)
 
 
+## Architecture - Workflow
+```mermaid
+graph TD
+  %% Backend Components
+  subgraph Backend
+    A[AI Foundry SDK]
+    B[Azure AI Clients]
+    D[OpenTelemetry]
+  end
+
+  %% Azure AI Foundry Components
+  subgraph Azure_AI_Foundry
+    E[AI Projects]
+    F[AI Agents]
+    G[AI Inference]
+    H[AI Evaluation]
+    I[Event Processor]
+    J[AI Agent Tools]
+    K[AI Search]
+    L[ADX Query Tool]
+    M[Code Interpreter - Optional]
+  end
+  
+  %% Finley Team Components
+  subgraph Finley_Team
+    N[Finley]
+    O[ADX Query Agent]
+  end
+
+  %% UI Components
+  subgraph UI
+    Q[React Vite Interface]
+    R[User Input]
+    S[Response Output]
+  end
+
+  %% Interactions
+  A --> B
+  A --> D
+  B --> E
+  E --> F
+  E --> G
+  E --> H
+  E --> I
+  F --> J
+  J --> K
+  J --> L
+  J --> M
+  F --> N
+  F --> O
+
+  %% Data Flow (Task delegation, Tools, Functions)
+  N --> O
+  O --> J
+
+  %% UI and Backend Flow
+  Q --> R
+  R --> A
+  S --> Q
+  S --> N
+  S --> O
+
+
+```
 ## 🧠 Agents
 
 | Agent Name         | Role & Capabilities                                                                 |
 |--------------------|--------------------------------------------------------------------------------------|
 | **Finley**         | Team lead and planner. Delegates tasks based on user intent and summarizes results. |
-| **ADXQueryAgent**  | Specialist in Azure Data Explorer (KQL) queries for cost & usage analytics.         |
-| **ARGQueryAgent**  | Specialist in Azure Resource Graph queries for resource inventory and metadata.     |
+| **ADXQueryAgent**  | Specialist in Azure Data Explorer (KQL) queries for cost & usage analytics. Uses vector search for kusto language knowledge grounding        |
 
 ---
 
@@ -25,11 +122,11 @@
 2. 🧠 **Finley** interprets the intent and delegates the task to the appropriate expert agent.
 3. ⚙️ That agent runs a real-time query using:
    - Azure Data Explorer (ADX)
-   - Azure Resource Graph (ARG)
+   - AI Search Tool
 4. 📄 The agent returns results as structured JSON.
 5. 📊 The system generates:
    - A readable Markdown table
-   - A downloadable CSV file
+   - A formatted summary
 
 ---
 
@@ -37,21 +134,9 @@
 
 ```bash
 💬 Input:
-Show all VMs that haven't been used in 30 days.
-
-✅ Output files saved:
- - Markdown: outputs/ARGQueryAgent-output.md
- - CSV:      outputs/ARGQueryAgent-output.csv
+What are my top 5 consumers by resource for the last 6 months?
 ```
 ## Markdown preview:
-
-List of Virtual Machines that have not been used in the last 30 days.
-
-| PowerState | location | name | resourceGroup |
-| --- | --- | --- | --- |
-| VM deallocated | uksouth | myVM0 | aoetestresources |
-| VM deallocated | northeurope | tubdemosec-vm-01 | rg-tubsecdemo |
-
 
 Top 5 cost consumers by resource for the last 6 months have been identified.
 
@@ -64,26 +149,125 @@ Top 5 cost consumers by resource for the last 6 months have been identified.
 | azfw-vnet-hub-secured | 658.79 |
 
 ## UI Output Examples
-![alt text](image-2.png)
-![alt text](image-3.png)
-![alt text](image-4.png)
-![alt text](image-1.png)
-![alt text](image-6.png)
-![alt text](image.png)
-![alt text](image-5.png)
-![alt text](image-9.png)
-![alt text](image-8.png)
-![alt text](image-7.png)
+
 ## 🛠 Tech Stack
 - Python 3.11+
 - Azure AI Agent SDK
-- Semantic Kernel
 - Azure Identity
 - Azure Data Explorer (ADX)
-- Azure Resource Graph
-- Gradio UI
+- AI Search
+- React Vite UI
 
-## How to test
-1. Create python virtual environment
-2. Install packages from the requirements file
-3. start the Gradio UI server by navigation to the multiagent_finley folder, backend and running 'python .\ui_app.py'
+## Prerequisites
+
+- Python 3.10 or higher
+- Azure subscription with AI Foundry access
+- Azure AI Foundry Project, Hub and dependent resources: Models, AI Search,....
+- An instance of FinOps Hub   
+- Required Azure credentials and permissions
+
+## Installation - Backend
+
+1. Clone the repository
+2. Create a virtual environment:
+   ```bash
+   python -m venv venve2e
+   source venve2e/bin/activate  # On Windows: venvmultiagentaifoundry\Scripts\activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Configuration
+Create a file named `.env` in the project root with:
+   ```
+   PROJECT_CONNECTION_STRING=your_connection_string_here
+   AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME=your_deployment_name_here
+   ```
+**Check the example file for all variables needed.**
+
+## Frontend Usage
+
+
+## Example when unrelated questions asked:
+
+### Quick Start Guide
+
+1. **Create .env file**
+   Create a file named `.env` in the project root with:
+   ```
+   PROJECT_CONNECTION_STRING=your_connection_string_here
+   AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME=your_deployment_name_here
+   Check the example file for all variables needed.
+   ```
+
+2. **Install Dependencies**
+    Make sure you running inside the virtual environment!
+    Create it using python -m venv venv or any other name
+    Activate it! See Installation steps above
+   ```bash
+   pip install -r requirements.txt
+3. **Run the Backend**
+   uvicorn main:app --host 127.0.0.1 --port 8000
+   ```
+4. **Log into azure using az login**
+
+3. **Run the Solution**
+    First install all necessary packages by running npm install inside the frontend folder
+    ```bash
+    npm install 
+   ```
+   **Web Interface:**
+   ```bash
+   npm run dev
+   ```
+   This will launch a user-friendly web interface where you can chat with the agent.
+
+## Testing
+
+### Quick Start Guide for Testing
+
+1. **Setup**
+   ```bash
+   # Create a directory for your test results
+   mkdir prompt_test_results
+   cd prompt_test_results
+   ```
+
+2. **Running Tests**
+   - Open a Python terminal or notebook
+   - Import and initialize the team as shown in the Usage section
+   - Start asking questions using the web interface
+   - Save responses in your `prompt_test_results` folder
+
+3. **Documentation**
+   - Keep a simple text file or spreadsheet to track:
+     - Questions asked
+     - Responses received
+     - Any issues or observations
+
+4. **Tips**
+   - Start with simple questions to verify basic functionality
+   - Test different types of queries (analytical, creative, technical)
+   - Note any unexpected responses or behaviors
+   - Keep track of response times and quality
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Azure AI Foundry team
+- OpenTelemetry community
+- Contributors and maintainers
+

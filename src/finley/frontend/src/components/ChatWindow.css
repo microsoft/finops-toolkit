@@ -1,0 +1,97 @@
+/* ChatWindow.css */
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 16rem; /* or 8% if you prefer percentage */
+}
+.ftk-scroll-btn-container {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 100;
+}
+
+.ftk-scroll-btn {
+  position: fixed;
+  bottom: 100px;
+  right: 32px;
+  z-index: 1000;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  animation: bounce 1.6s infinite;
+  transition: background-color 0.2s;
+}
+
+.ftk-scroll-btn:hover {
+  background-color: #3730a3;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+
+
+.prompt-tile-glow {
+    position: relative;
+    padding: 8px 16px;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    z-index: 0;
+    color: #333;
+  }
+  
+  .prompt-tile-glow::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #4f46e5, #9333ea, #4f46e5);
+    background-size: 200% 200%;
+    animation: gradient-border-glow 2s ease infinite;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    mask: 
+      linear-gradient(#ffffff 0 0) content-box, 
+      linear-gradient(#ffffff 0 0); 
+    mask-composite: exclude;
+    -webkit-mask-composite: destination-out;
+    padding: 2px;
+  }
+  
+  .prompt-tile-glow:hover::before {
+    opacity: 1;
+  }
+  
+  .prompt-tile-glow:hover {
+    transform: scale(1.01);
+    cursor: pointer;
+  }
+  
+  @keyframes gradient-border-glow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }

@@ -1,0 +1,26 @@
+.braille-spinner {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 24px;
+  color: #4f46e5; /* FTK primary color (adjust if needed) */
+  margin-top: 4px;
+  animation: fadePulse 1.2s ease-in-out infinite;
+  letter-spacing: 1px;
+  display: inline-block;
+}
+@keyframes fadePulse {
+  0% {
+    opacity: 0.5;
+    color: #6366f1; /* Indigo-500 */
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    color: #7c3aed; /* Violet-600 */
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.5;
+    color: #6366f1;
+    transform: scale(0.95);
+  }
+}
