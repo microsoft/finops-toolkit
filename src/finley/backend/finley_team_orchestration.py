@@ -275,7 +275,7 @@ class FinleyTeam:
         # 🧠 Register Team Leader
         self.agent_team.set_team_leader(
             model=self.model_deployment_name,
-            name="Finley",
+            name="TeamLeader",
             instructions=TEAM_LEADER_INSTRUCTIONS,
             toolset=toolset,
         )
@@ -395,8 +395,8 @@ class FinleyTeam:
 
     def map_role_name(self, role_str):
         return {
-            "assistant": "Finley",
-            "agent": "Finley",
+            "assistant": "TeamLeader",
+            "agent": "TeamLeader",
             "user": "You",
             "system": "",  # Optional
         }.get(role_str.lower(), "")
@@ -488,7 +488,7 @@ class FinleyTeam:
             yield json.dumps(
                 {
                     "role": "system",
-                    "agent": "Finley",
+                    "agent": "TeamLeader",
                     "content": "Finley is planning your request...",
                 }
             )
@@ -614,7 +614,7 @@ class FinleyTeam:
                 yield json.dumps(
                     {
                         "role": "system",
-                        "agent": "Finley",
+                        "agent": "TeamLeader",
                         "content": f"{agent.name} is now working on the task...",
                     }
                 )
@@ -786,7 +786,7 @@ class FinleyTeam:
 
             logger.debug("All tasks completed successfully!")
             yield from self.yield_all_messages(self.agent_team._agent_thread.id)
-            yield json.dumps({"role": "system", "agent": "Finley", "content": "[DONE]"})
+            yield json.dumps({"role": "system", "agent": "TeamLeader", "content": "[DONE]"})
         except Exception as e:
             logger.error(f"Error processing request: {str(e)}")
             yield f"Error: {str(e)}"
