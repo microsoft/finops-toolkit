@@ -28,32 +28,33 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) pending updates
-
-- **Added**
-  - Added documentation for the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
-  - Created a new bicep modules to support extensibility:
-    - The **hub-app** module tracks telemetry when an app is deployed.
-    - The **hub-storage** module creates containers in the hub storage account.
-    - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
-    - The **hub-vault** module adds secrets to the hub vault.
-
-**Fixed**
-  - Workaround subnets reordering and bicep limitation
-
 <br><a name="latest"></a>
 
 ## v0.10
 
 _Released April 2025_
 
-### [FinOps alerts](alerts/finops-alerts-overview.md) pending updates
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
+
+- **Added**
+  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
+  - Documented how to connect FinOps hubs to Microsoft Fabric.
+  - Created a new bicep modules to support extensibility:
+    - The **hub-app** module tracks telemetry when an app is deployed.
+    - The **hub-storage** module creates containers in the hub storage account.
+    - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
+    - The **hub-vault** module adds secrets to the hub vault.
 
 - **Fixed**
-  - Update the 'id' property for the managedApi to a valid scope
+  - Workaround subnets reordering and bicep limitation
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
+
+- **Fixed**
+  - Update the `id` property for the managedApi to a valid scope.
     - This caused a deployment error because the path could not be deserialized.
 
-### [Optimization engine](optimization-engine/overview.md)
+### [Optimization engine](optimization-engine/overview.md) v0.10
 
 - **Fixed**
   - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
@@ -62,6 +63,11 @@ _Released April 2025_
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+
+### [PowerShell module](powershell/powershell-commands.md) v0.10
+
+- **Added**
+  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
 
 <br>
 
