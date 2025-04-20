@@ -109,38 +109,16 @@ The FinOps toolkit includes five Power BI reports that are available in three se
 
 To create a new FinOps hub, follow these steps:
 
-1. **Deploy your FinOps hub.**
+1. Enable the EventGrid resource provider for your subscription.
+2. Plan for public or private network routing with your network admins. [Learn more](private-networking.md).
+3. Deploy the FinOps hub template.
+   - [Deploy to Azure](https://aka.ms/finops/hubs/deploy)
+   - [Deploy to Azure Gov](https://aka.ms/finops/hubs/deploy/gov)
+   - [Deploy to Azure China](https://aka.ms/finops/hubs/deploy/china) (MCA only)
+4. Create exports in Cost Management or grant access to FinOps hubs. [Learn more](configure-scopes.md).
+5. Set up the [Data Explorer dashboard](configure-dashboards.md) or [Power BI reports](../power-bi/reports.md#connect-to-your-data).
 
-   > [!div class="nextstepaction"]
-   > [Deploy to Azure](https://aka.ms/finops/hubs/deploy)
-
-   [Learn more](../help/deploy.md)
-
-2. **Configure scopes to monitor.**
-
-   FinOps hubs use Cost Management exports to load the data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you.
-
-   For more information, see [Configure scopes](configure-scopes.md).
-
-3. **Connect to your data.**
-
-   You can connect to your data from any system that supports Azure Data Explorer or Azure storage. For ideas, see [get started with hubs](#get-started-with-hubs). We recommend using prebuilt Power BI starter templates to get started quickly.
-
-   For more information, see [Connect to your data](../power-bi/reports.md#connect-to-your-data).
-
-If you run into any issues, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
-
-> [!NOTE]
-> If you need to deploy to Azure Gov or Azure China, use [FinOps hubs 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1). Instructions are the same except you will create an amortized cost export instead of a FOCUS export.
->
-> > [!div class="nextstepaction"]
-> > [Deploy to Azure Gov](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json)
-> > [!div class="nextstepaction"]
-> > [Deploy to Azure China](https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json)
-
-If you run into any issues, refer to the [Troubleshooting guide](../help/troubleshooting.md).
-
-A _scope_ is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope is the Azure Resource Manager URI that identifies the scope (for example, "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). For more information, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).
+For more detailed instructions, see [Create and update FinOps hubs](deploy.md). If you run into any issues, refer to the [Troubleshooting guide](../help/troubleshooting.md).
 
 <br>
 
