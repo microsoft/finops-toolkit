@@ -59,7 +59,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 <div id="pricing" class="ftk-pricing">
     <h3>Estimated cost for FinOps hubs</h3>
-    <p>FinOps hubs starts at $120/mo + $10 per $1 million in monitored spend.</p>
+    <p>FinOps hubs starts at $120/mo + $10/mo per $1 million in monitored spend.</p>
     <p>Costs may be lower depending on your negotiated and commitment discounts.</p>
 </div>
 <a name="deploy"></a>
@@ -126,6 +126,8 @@ Create a new or update an existing FinOps hub instance.
             </p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy/gov">Deploy to Azure Gov</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy/china">Deploy to Azure China</a>
                 <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">About the template</a>
             </p>
         </div>

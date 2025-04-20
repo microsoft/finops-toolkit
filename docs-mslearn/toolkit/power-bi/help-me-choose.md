@@ -43,42 +43,38 @@ _² The $2M limits are for Power BI data refreshes and apply on a monthly basis 
 
 In general, we recommend starting with Power BI reports by connecting to the Cost Management exports. The most common reasons to switch to FinOps hubs are for performance, scale, and to enable more advanced capabilities. Use the following comparison to help you make the decision:
 
-| Capabilities                                     |           Connector           |            Exports             |  FinOps hubs (storage)   |  FinOps hubs (Data Explorer)  |        Microsoft Fabric¹        |
-| ------------------------------------------------ | :---------------------------: | :----------------------------: | :----------------------: | :---------------------------: | :-----------------------------: |
-| Monthly Azure cost (based on list prices)        |              $0               |          ~$3 per $1M           |       ~$5 per $1M        | Starts at $120 + ~$10 per $1M |              $300+              |
-| Monthly Power BI cost (based on list prices)     |         $20 per user          |          $20 per user          |       $20 per user       |         $20 per user          |               $0                |
-| Data storage                                     |           Power BI            |       Data Lake Storage        |    Data Lake Storage     |         Data Explorer         |             OneLake             |
-| Est. max raw cost details per month²             |           Up to $2M           |          Up to $2M/mo          |       Up to $2M/mo       |              N/A              |               N/A               |
-| Est. max total with incremental refresh²         |           Up to $2M           |           Up to $26M           |        Up to $26M        |              N/A              |               N/A               |
-| Latest API version³                              |               ✘               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Azure Government                                 |               ✘               |         In development         |        ✔ (0.1.1)         |        In development         |          ✔ (via Hubs)           |
-| Azure China                                      |               ✘               |         In development         |        ✔ (0.1.1)         |        In development         |          ✔ (via Hubs)           |
-| Enterprise Agreement                             |    ✔ (billing scopes only)    |               ✔                |            ✔             |               ✔               |                ✔                |
-| Microsoft Customer Agreement                     |    ✔ (billing scopes only)    |               ✔                |            ✔             |               ✔               |                ✔                |
-| Microsoft Partner Agreement                      |       ✔ (partners only)       |               ✔                |            ✔             |               ✔               |                ✔                |
-| Microsoft Online Services Agreement              |               ✘               |               ✘                |            ✘             |               ✘               |                ✘                |
-| Billing accounts                                 |               ✔               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Billing profiles                                 |               ✔               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Invoice sections                                 |               ✘               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Cloud Solution Provider customers (partner only) |               ✘               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Management groups                                |               ✘               |               ✘                |            ✘             |               ✘               |                ✘                |
-| Subscriptions                                    |               ✘               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Resource groups                                  |               ✘               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Calculate EA and MCA cost savings                |               ✘               |           ✔ (opt-in)           |        ✔ (opt-in)        |               ✔               | ✔ (via Hubs with Data Explorer) |
-| Supports savings plans³                          |               ✘               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Supports multiple scopes                         |               ✘               |               ✔                |            ✔             |               ✔               |                ✔                |
-| Supports scopes in different tenants             |               ✘               |               ✘⁴               |            ✔             |               ✔               |          ✔ (via Hubs)           |
-| Faster data load times                           |               ✘               |               ✘                |            ✘             |               ✔               |                ✔                |
-| Supports >$65M in cost details                   |               ✘               |               ✘                |            ✘             |               ✔               |                ✔                |
-| Accessible outside of Power BI                   |               ✘               |      ✔ (via CSV/parquet)       |     ✔ (via parquet)      |      ✔ (via parquet/API)      |     ✔ (via CSV/parquet/API)     |
-| Kusto Query Language (KQL) support               |               ✘               |               ✘                |            ✘             |               ✔               |                ✔                |
-| Data Explorer dashboard support                  |               ✘               |               ✘                |            ✘             |               ✔               |                ✘                |
-| Azure Monitor workbooks support                  |               ✘               |               ✘                |            ✘             |               ✔               |                ✘                |
-| Learn more                                       | [Learn more][about-connector] | [Learn more][about-rawexports] | [Learn more][about-hubs] |   [Learn more][about-hubs]    | [Learn more][about-workspaces]  |
-
-<!--
-| Supports savings plan recommendations            |               ✘               |               ✘                |      In development      |          In development           |         In development          |
--->
+| Capabilities                                     |           Connector           |            Exports             |  FinOps hubs (storage)   |  FinOps hubs (Data Explorer)  |       Microsoft Fabric¹        |
+| ------------------------------------------------ | :---------------------------: | :----------------------------: | :----------------------: | :---------------------------: | :----------------------------: |
+| Monthly Azure cost (based on list prices)        |              $0               |          ~$3 per $1M           |       ~$5 per $1M        | Starts at $120 + ~$10 per $1M |             $300+              |
+| Monthly Power BI cost (based on list prices)     |         $20 per user          |          $20 per user          |       $20 per user       |         $20 per user          |               $0               |
+| Data storage                                     |           Power BI            |       Data Lake Storage        |    Data Lake Storage     |         Data Explorer         |            OneLake             |
+| Est. max raw cost details per month²             |           Up to $2M           |          Up to $2M/mo          |       Up to $2M/mo       |              N/A              |              N/A               |
+| Est. max total with incremental refresh²         |           Up to $2M           |           Up to $26M           |        Up to $26M        |              N/A              |              N/A               |
+| Latest API version³                              |               ✘               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Azure Government                                 |               ✘               |               ✔                |            ✔             |               ✔               |          ✔ (via Hubs)          |
+| Azure China                                      |               ✘               |               ✔                |            ✔             |               ✔               |          ✔ (via Hubs)          |
+| Enterprise Agreement                             |    ✔ (billing scopes only)    |               ✔                |            ✔             |               ✔               |               ✔                |
+| Microsoft Customer Agreement                     |    ✔ (billing scopes only)    |               ✔                |            ✔             |               ✔               |               ✔                |
+| Microsoft Partner Agreement                      |       ✔ (partners only)       |               ✔                |            ✔             |               ✔               |               ✔                |
+| Microsoft Online Services Agreement              |               ✘               |               ✘                |        ✔ (0.1.1)         |               ✘               |               ✘                |
+| Billing accounts                                 |               ✔               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Billing profiles                                 |               ✔               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Invoice sections                                 |               ✘               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Cloud Solution Provider customers (partner only) |               ✘               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Management groups                                |               ✘               |               ✘                |            ✘             |               ✘               |               ✘                |
+| Subscriptions                                    |               ✘               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Resource groups                                  |               ✘               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Calculate EA and MCA cost savings                |               ✘               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Supports savings plans³                          |               ✘               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Supports multiple scopes                         |               ✘               |               ✔                |            ✔             |               ✔               |               ✔                |
+| Supports scopes in different tenants             |               ✘               |               ✘⁴               |            ✔             |               ✔               |          ✔ (via Hubs)          |
+| Faster data load times                           |               ✘               |               ✘                |            ✘             |               ✔               |               ✔                |
+| Supports >$65M in cost details                   |               ✘               |               ✘                |            ✘             |               ✔               |               ✔                |
+| Accessible outside of Power BI                   |               ✘               |      ✔ (via CSV/parquet)       |     ✔ (via parquet)      |      ✔ (via parquet/API)      |    ✔ (via CSV/parquet/API)     |
+| Kusto Query Language (KQL) support               |               ✘               |               ✘                |            ✘             |               ✔               |               ✔                |
+| Data Explorer dashboard support                  |               ✘               |               ✘                |            ✘             |               ✔               |               ✘                |
+| Azure Monitor workbooks support                  |               ✘               |               ✘                |            ✘             |               ✔               |               ✘                |
+| Learn more                                       | [Learn more][about-connector] | [Learn more][about-rawexports] | [Learn more][about-hubs] |   [Learn more][about-hubs]    | [Learn more][about-workspaces] |
 
 [about-connector]: /power-bi/connect-data/desktop-connect-azure-cost-management
 [about-rawexports]: ../power-bi/setup.md

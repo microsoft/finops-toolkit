@@ -58,10 +58,10 @@ FinOps hubs provide many benefits over using Cost Management exports.
 - Clean up duplicated data in daily Cost Management exports (and save money on storage).
 - Convert exported data to parquet for faster data access.
 - Extensible via standard Data Factory and Power BI capabilities to integrate business or other providers cost data.
-- Connect Power BI to Azure Government and Azure China¹.
+- Connect Power BI to Azure Government and Azure China.
 - Connect Power BI to Microsoft Online Services Agreement (MOSA) subscriptions¹.
 
-_¹ Azure Government, Azure China, and MOSA (or pay-as-you-go) subscriptions are only supported in FinOps hubs 0.1.1. FinOps hubs 0.2+ requires FOCUS cost data from Cost Management exports, which aren't supported for MOSA subscriptions. Contact support about transitioning to a Microsoft Customer Agreement account._
+_¹ MOSA (or pay-as-you-go) subscriptions are only supported in FinOps hubs 0.1.1. FinOps hubs 0.2+ requires FOCUS cost data from Cost Management exports, which aren't supported for MOSA subscriptions. Contact support about transitioning to a Microsoft Customer Agreement account._
 
 <br>
 
