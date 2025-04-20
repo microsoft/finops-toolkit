@@ -47,6 +47,11 @@ The following section lists features and enhancements that are currently in deve
 
 _Released April 2025_
 
+### [Power BI reports](power-bi/reports.md) v0.10
+
+- **Fixed**
+  - Document the ADLS storage requirement.
+
 ### [FinOps alerts](alerts/finops-alerts-overview.md) pending updates
 
 - **Fixed**
