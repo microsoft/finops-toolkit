@@ -58,12 +58,30 @@ function Invoke-Rest
     $ver = 'unknown'
     try { $ver = Get-VersionNumber } catch {}
 
-    $arm = (Get-AzContext).Environment.ResourceManagerUrl
+    Write-Verbose -Message "Get access token for the $Method $Uri request"
+    
+    if ($Uri -like '/*')
+    {
+        $accessToken = (Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
+        $arm = (Get-AzContext).Environment.ResourceManagerUrl
+        $fullUri = $arm.Trim('/') + '/' + $Uri.Trim('/')
+    }
+    elseif ($Uri -like 'https://api.powerbi.com/*')
+    {
+        $accessToken = (Get-AzAccessToken -AsSecureString -ResourceUrl 'https://graph.microsoft.com').Token | ConvertFrom-SecureString -AsPlainText
+        $fullUri = $Uri
+    }
+    else
+    {
+        $accessToken = (Get-AzAccessToken -AsSecureString -ResourceUrl "https://$($Uri.Split('/')[2])").Token | ConvertFrom-SecureString -AsPlainText
+        $fullUri = $Uri
+    }
+
     $params = @{
         Method      = $Method
-        Uri         = $arm.Trim('/') + '/' + $Uri.Trim('/')
+        Uri         = $fullUri
         Headers     = @{
-            Authorization             = "Bearer $((Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText)"
+            Authorization             = "Bearer $accessToken"
             ClientType                = "FinOpsToolkit.PowerShell.$CommandName@$ver"
             "Content-Type"            = 'application/json'
             "x-ms-command-name"       = "FinOpsToolkit.PowerShell.$CommandName@$ver"
