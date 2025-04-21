@@ -817,7 +817,12 @@ class FinleyTeam:
                                 formatted_table = self.format_adx_response(content)
                                 final_response = f"{formatted_table}"
                                 break
-                    yield final_response
+                    yield json.dumps({
+                        "role": "agent",
+                        "agent": agent.name,
+                        "content": final_response
+                    })
+                                        
                     # yield from self.yield_all_messages(self.agent_team._agent_thread.id)
 
             logger.debug("All tasks completed successfully!")
