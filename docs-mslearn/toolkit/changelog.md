@@ -28,6 +28,12 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+<br><a name="latest"></a>
+
+## v0.10
+
+_Released April 2025_
+
 ### [FinOps hubs](hubs/finops-hubs-overview.md) pending updates
 
 - **Added**
@@ -38,25 +44,20 @@ The following section lists features and enhancements that are currently in deve
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
     - The **hub-vault** module adds secrets to the hub vault.
 
-**Fixed**
+- **Fixed**
   - Workaround subnets reordering and bicep limitation
 
-<br><a name="latest"></a>
-
-## v0.10
-
-_Released April 2025_
-
-### [FinOps alerts](alerts/finops-alerts-overview.md) pending updates
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
 
 - **Fixed**
   - Update the 'id' property for the managedApi to a valid scope
     - This caused a deployment error because the path could not be deserialized.
 
-### [Optimization engine](optimization-engine/overview.md)
+### [Optimization engine](optimization-engine/overview.md) v0.10
 
 - **Fixed**
   - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
+  - Fixed issue with the Reservations Usage workbook that was listing multiple display names for the same reservation in case its name changed over the course of the lookback period ([#1455](https://github.com/microsoft/finops-toolkit/issues/1455)).
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
