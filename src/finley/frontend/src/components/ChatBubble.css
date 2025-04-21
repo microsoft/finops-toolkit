@@ -47,7 +47,13 @@
   justify-content: space-between;
   align-items: center;
 }
-
+.hljs {
+    background: #282c34;
+    color: #ffffff;
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+}
 .ftk-chat-role {
   display: inline-block;
 }
@@ -59,8 +65,9 @@
 
 /* Content */
 .ftk-chat-content {
-  font-size: 0.95em;
-  line-height: 1.5;
+  font-size: 0.905em;
+  line-height: 1.3;
+  display: block;
 }
 
 .ftk-chat-content h1,
@@ -68,14 +75,14 @@
 .ftk-chat-content h3,
 .ftk-chat-content p,
 .ftk-chat-content li {
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
+  margin-top: 0.08rem;
+  margin-bottom: 0.08rem;
 }
 
 .ftk-chat-content strong {
   font-weight: 600;
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.10rem;
 }
 
 /* Markdown Table */

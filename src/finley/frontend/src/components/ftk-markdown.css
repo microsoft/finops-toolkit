@@ -1,0 +1,43 @@
+.ftk-chat-content p {
+    margin-bottom: 0.75em;
+  }
+  
+  .ftk-chat-content h1,
+  .ftk-chat-content h2,
+  .ftk-chat-content h3 {
+    margin-top: 1.25em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+  }
+  
+  .ftk-chat-content ul,
+  .ftk-chat-content ol {
+    padding-left: 1.5em;
+    margin-bottom: 0.75em;
+  }
+  
+  .ftk-chat-content li {
+    margin-bottom: 0.25em;
+  }
+  
+  .ftk-code-wrapper {
+    position: relative;
+  }
+  
+  .ftk-copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #eee;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 1;
+    transition: background 0.2s ease;
+  }
+  .ftk-copy-button:hover {
+    background: #ddd;
+  }
+  

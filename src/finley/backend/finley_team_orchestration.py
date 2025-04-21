@@ -24,12 +24,13 @@ from azure.ai.projects.models import (
 from agent_team import AgentTeam, AgentTask
 from agent_trace_configurator import AgentTraceConfigurator
 from utils.safe_serialize import safe_serialize
-from user_functions.vector_search import run_vector_search
+
+# from user_functions.vector_search import run_vector_search
 from utils.format_output import format_markdown_table
 from utils.json_extract import extract_json_from_text
 from utils.schemas import ADXQueryResult
 from user_functions.adxagent_functions import query_adx_database, run_vector_search2
-from user_functions.search_kql_docs import search_kql_docs_hybrid
+from user_functions.search_kql_docs import search_kql_docs_vector_only
 from datetime import datetime
 
 import json
@@ -63,6 +64,27 @@ TEAM_LEADER_INSTRUCTIONS = load_prompt("agent_instructions/team_leader.txt")
 TEAM_LEADER_INSTRUCTIONS += f"\n\nToday's date is {today}."
 
 model = os.environ["AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME"]
+
+
+def safe_tool_output(result, max_length=1048576):
+    try:
+        serialized = safe_serialize(result)
+        if len(serialized) > max_length:
+            print(f"⚠️ Tool output too large ({len(serialized)} chars), truncating.")
+            return json.dumps(
+                {
+                    "summary": "Output was too large and has been truncated.",
+                    "truncated": True,
+                    "preview": (
+                        result.get("preview", [])[:50]
+                        if isinstance(result, dict)
+                        else "Truncated output"
+                    ),
+                }
+            )
+        return serialized
+    except Exception as e:
+        return json.dumps({"error": f"Serialization failed: {str(e)}"})
 
 
 def create_task(team_name: str, recipient: str, request: str, requestor: str) -> str:
@@ -152,7 +174,7 @@ class StreamingEventHandler(AgentEventHandler):
                             tool_outputs.append(
                                 {
                                     "tool_call_id": tool_call.id,
-                                    "output": safe_serialize(result),
+                                    "output": safe_tool_output(result),
                                 }
                             )
                         except Exception as e:
@@ -252,10 +274,9 @@ class FinleyTeam:
         # Add Azure AI Search tool to ADXQueryAgent
         # adx_grounding_tool = FunctionTool(functions={search_kql_docs_hybrid})
         adx_combined_tool = FunctionTool(
-            functions={search_kql_docs_hybrid, query_adx_database}
+            functions={search_kql_docs_vector_only, query_adx_database}
         )
         adx_toolset.add(adx_combined_tool)
-
 
         adx_response_format = ResponseFormatJsonSchemaType(
             json_schema=ResponseFormatJsonSchema(
@@ -278,6 +299,12 @@ class FinleyTeam:
             name="TeamLeader",
             instructions=TEAM_LEADER_INSTRUCTIONS,
             toolset=toolset,
+            headers={
+                "x-azureai-temperature": "0.7",
+                "x-azureai-top-p": "0.9",
+                "x-azureai-frequency-penalty": "0",
+                "x-azureai-presence-penalty": "0",
+            },
         )
 
         # ➕ Add ADX Query Agent
@@ -289,8 +316,14 @@ class FinleyTeam:
             instructions=ADX_QUERY_AGENT_INSTRUCTIONS,
             toolset=adx_toolset,
             can_delegate=True,
+            headers={
+                "x-azureai-temperature": "0.3",
+                "x-azureai-top-p": "0.95",
+                # "x-azureai-max-tokens": "2048",
+                "x-ms-enable-preview": "true",
+            },
             response_format=adx_response_format,
-            headers={"x-ms-enable-preview": "true"},
+            # headers={"x-ms-enable-preview": "true"}
         )
 
         # ✅ Show registered agents
@@ -659,7 +692,7 @@ class FinleyTeam:
                                         tool_outputs.append(
                                             {
                                                 "tool_call_id": tool_call.id,
-                                                "output": result,
+                                                "output": safe_tool_output(result),
                                             }
                                         )
 
@@ -712,7 +745,10 @@ class FinleyTeam:
                                                 "output": f"Error: {str(e)}",
                                             }
                                         )
-                                elif tool_call.function.name == "search_kql_docs_hybrid":
+                                elif (
+                                    tool_call.function.name
+                                    == "search_kql_docs_vector_only"
+                                ):
                                     try:
                                         args = tool_call.function.arguments
                                         if isinstance(args, str):
@@ -727,7 +763,7 @@ class FinleyTeam:
                                         print(
                                             f"📚 Retrieving KQL grounding docs for: {query}"
                                         )
-                                        results = search_kql_docs_hybrid(query)
+                                        results = search_kql_docs_vector_only(query)
                                         tool_outputs.append(
                                             {
                                                 "tool_call_id": tool_call.id,
@@ -786,7 +822,9 @@ class FinleyTeam:
 
             logger.debug("All tasks completed successfully!")
             yield from self.yield_all_messages(self.agent_team._agent_thread.id)
-            yield json.dumps({"role": "system", "agent": "TeamLeader", "content": "[DONE]"})
+            yield json.dumps(
+                {"role": "system", "agent": "TeamLeader", "content": "[DONE]"}
+            )
         except Exception as e:
             logger.error(f"Error processing request: {str(e)}")
             yield f"Error: {str(e)}"

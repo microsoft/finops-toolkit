@@ -73,7 +73,7 @@ export default function ChatWindow() {
 
       const msg: ChatMessage = {
         role: data.role || "agent",
-        agent: data.agent || "Finley",
+        agent: data.agent || "TeamLeader",
         content: data.content,
         sources: data.sources || [],
       };
@@ -93,7 +93,7 @@ export default function ChatWindow() {
         ...prev,
         {
           role: "agent",
-          agent: "Finley",
+          agent: "TeamLeader",
           content: "⚠️ Something went wrong. Please try again or check the server.",
         },
       ]);

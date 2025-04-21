@@ -5,7 +5,6 @@ from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.models import VectorizableTextQuery
 import openai
 import logging
-from azure.search.documents.models import QueryType, QueryCaptionType, QueryAnswerType
 
 load_dotenv()
 logging.basicConfig(level=logging.ERROR)
@@ -20,11 +19,11 @@ AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT")
 AZURE_OPENAI_API_VERSION = "2023-05-15"
 
-def search_kql_docs_vector_only(query: str, top_k: int = 3) -> list[dict]:
-    """Performs pure vector search over indexed KQL docs using Azure AI Search and OpenAI embeddings."""
+def search_kql_docs_hybrid(query: str, top_k: int = 3) -> list[dict]:
+    """Performs hybrid (vector + semantic) search over indexed KQL docs using Azure AI Search and OpenAI embeddings."""
 
     if not query or not query.strip():
-        logger.warning("⚠️ Empty query provided to vector search.")
+        logger.warning("⚠️ Empty query provided to hybrid search.")
         return []
 
     # Initialize clients
@@ -45,38 +44,25 @@ def search_kql_docs_vector_only(query: str, top_k: int = 3) -> list[dict]:
         logger.error(f"❌ Failed to generate embedding for query: {e}")
         return []
 
-    # Build vector search query
+    # Prepare vector query
     vector_query = VectorizableTextQuery(
-        text=query,
+        text=query,  # required even for vector + hybrid search
         vector=embedding,
-        k_nearest_neighbors=50,
-        fields="contentVector",
-        exhaustive=True
+        k_nearest_neighbors=100,
+        fields="contentVector"
     )
 
-#     results = search_client.search(  
-#         search_text=query,  
-#         vector_queries=[vector_query],
-#         select=["title", "content"],
-#         query_type=QueryType.SEMANTIC,
-#         semantic_configuration_name='my-semantic-config',
-#         query_caption=QueryCaptionType.EXTRACTIVE,
-#         query_answer=QueryAnswerType.EXTRACTIVE,
-#         top=3
-# )
     try:
         results = search_client.search(
-            search_text=query, 
+            search_text=query,
             vector_queries=[vector_query],
             select=["title", "content", "source_url"],
             top=top_k,
             query_type="semantic",
-            semantic_configuration_name="my-semantic-config",
-            query_rewrites="generative",
-            query_language="en"
+            semantic_configuration_name="my-semantic-config"
         )
     except Exception as e:
-        logger.error(f"❌ Vector search failed: {e}")
+        logger.error(f"❌ Search operation failed: {e}")
         return []
 
     seen_urls = set()
@@ -87,32 +73,20 @@ def search_kql_docs_vector_only(query: str, top_k: int = 3) -> list[dict]:
         if not url or url in seen_urls:
             continue
 
-        content = result.get("content", "").strip()
+        content_snippet = result.get("content", "").strip()
         title = result.get("title", "").strip()
-        score = result.get("@search.score", 0)  # ✅ Corrected this line
 
-        if not content:
+        if not content_snippet:
             continue
 
         output.append({
             "title": title,
             "url": url,
-            "content": content[:500],
-            "score": round(score, 3)
+            "content": content_snippet[:500]
         })
         seen_urls.add(url)
-
 
     if not output:
         logger.warning("⚠️ No relevant documents found for query.")
 
     return output
-
-# if __name__ == "__main__":
-#     results = search_kql_docs_vector_only("forecast", top_k=5)
-#     for result in results:
-#         print(f"Title: {result['title']}")
-#         print(f"URL: {result['url']}")
-#         print(f"Content: {result['content']}")
-#         print(f"Score: {result['score']}")
-#         print("-" * 80)

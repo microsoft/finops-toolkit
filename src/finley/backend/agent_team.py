@@ -7,12 +7,21 @@ import yaml  # type: ignore
 from azure.core.settings import settings  # type: ignore
 
 from opentelemetry import trace
-from opentelemetry.trace import StatusCode, Span  # noqa: F401 # pylint: disable=unused-import
+from opentelemetry.trace import (
+    StatusCode,
+    Span,
+)  # noqa: F401 # pylint: disable=unused-import
 from opentelemetry.trace import Span
 from azure.core.tracing import AbstractSpan
 from typing import Any, Dict, Optional, Set, Tuple, List
 from azure.ai.projects import AIProjectClient
-from azure.ai.projects.models import FunctionTool, ToolSet, MessageRole, Agent, AgentThread
+from azure.ai.projects.models import (
+    FunctionTool,
+    ToolSet,
+    MessageRole,
+    Agent,
+    AgentThread,
+)
 
 tracer = trace.get_tracer(__name__)
 
@@ -30,7 +39,14 @@ class _AgentTeamMember:
     """
 
     def __init__(
-        self, model: str, name: str, instructions: str, toolset: Optional[ToolSet] = None, can_delegate: bool = True
+        self,
+        model: str,
+        name: str,
+        instructions: str,
+        toolset: Optional[ToolSet] = None,
+        can_delegate: bool = True,
+        headers: Optional[Dict[str, str]] = None,
+        response_format: Optional[Any] = None,
     ) -> None:
         self.model = model
         self.name = name
@@ -38,6 +54,8 @@ class _AgentTeamMember:
         self.agent_instance: Optional[Agent] = None
         self.toolset: Optional[ToolSet] = toolset
         self.can_delegate = can_delegate
+        headers: Optional[Dict[str, str]] = None
+        response_format: Optional[Any] = None
 
 
 class AgentTask:
@@ -101,8 +119,12 @@ class AgentTeam:
             self.TEAM_LEADER_TASK_COMPLETENESS_CHECK_INSTRUCTIONS = config[
                 "TEAM_LEADER_TASK_COMPLETENESS_CHECK_INSTRUCTIONS"
             ]
-            self.TEAM_MEMBER_CAN_DELEGATE_INSTRUCTIONS = config["TEAM_MEMBER_CAN_DELEGATE_INSTRUCTIONS"]
-            self.TEAM_MEMBER_NO_DELEGATE_INSTRUCTIONS = config["TEAM_MEMBER_NO_DELEGATE_INSTRUCTIONS"]
+            self.TEAM_MEMBER_CAN_DELEGATE_INSTRUCTIONS = config[
+                "TEAM_MEMBER_CAN_DELEGATE_INSTRUCTIONS"
+            ]
+            self.TEAM_MEMBER_NO_DELEGATE_INSTRUCTIONS = config[
+                "TEAM_MEMBER_NO_DELEGATE_INSTRUCTIONS"
+            ]
             self.TEAM_LEADER_MODEL = config["TEAM_LEADER_MODEL"].strip()
 
     @staticmethod
@@ -196,7 +218,15 @@ class AgentTeam:
         member.agent_instance = agent
         self._members.append(member)
 
-    def set_team_leader(self, model: str, name: str, instructions: str, toolset: Optional[ToolSet] = None) -> None:
+    def set_team_leader(
+        self,
+        model: str,
+        name: str,
+        instructions: str,
+        toolset: Optional[ToolSet] = None,
+        headers: Optional[Dict[str, str]] = None,
+        response_format: Optional[Any] = None,
+    ) -> None:
         """
         Set the team leader for this AgentTeam.
 
@@ -212,8 +242,12 @@ class AgentTeam:
         :param toolset: An optional ToolSet to configure specific tools (functions, etc.)
                         for the team leader.
         """
-        member = _AgentTeamMember(model=model, name=name, instructions=instructions, toolset=toolset)
+        member = _AgentTeamMember(
+            model=model, name=name, instructions=instructions, toolset=toolset
+        )
         self._team_leader = member
+        member.headers = headers
+        member.response_format = response_format
 
     def add_task(self, task: AgentTask) -> None:
         """
@@ -235,6 +269,8 @@ class AgentTeam:
             name=self._team_leader.name,
             instructions=self._team_leader.instructions,
             toolset=self._team_leader.toolset,
+            headers=self._team_leader.headers,
+            response_format=self._team_leader.response_format,
         )
 
     def _set_default_team_leader(self):
@@ -243,7 +279,12 @@ class AgentTeam:
         """
         toolset = ToolSet()
         toolset.add(default_function_tool)
-        instructions = self.TEAM_LEADER_INSTRUCTIONS.format(agent_name="TeamLeader", team_name=self.team_name) + "\n"
+        instructions = (
+            self.TEAM_LEADER_INSTRUCTIONS.format(
+                agent_name="TeamLeader", team_name=self.team_name
+            )
+            + "\n"
+        )
         # List all agents (will be empty at this moment if you haven't added any, or you can append after they're added)
         for member in self._members:
             instructions += f"- {member.name}: {member.instructions}\n"
@@ -275,24 +316,33 @@ class AgentTeam:
             team_description = ""
             for other_member in self._members:
                 if other_member != member:
-                    team_description += f"- {other_member.name}: {other_member.instructions}\n"
+                    team_description += (
+                        f"- {other_member.name}: {other_member.instructions}\n"
+                    )
 
             if member.can_delegate:
-                extended_instructions = self.TEAM_MEMBER_CAN_DELEGATE_INSTRUCTIONS.format(
-                    name=member.name,
-                    team_name=self._team_name,
-                    original_instructions=member.instructions,
-                    team_description=team_description,
+                extended_instructions = (
+                    self.TEAM_MEMBER_CAN_DELEGATE_INSTRUCTIONS.format(
+                        name=member.name,
+                        team_name=self._team_name,
+                        original_instructions=member.instructions,
+                        team_description=team_description,
+                    )
                 )
             else:
-                extended_instructions = self.TEAM_MEMBER_NO_DELEGATE_INSTRUCTIONS.format(
-                    name=member.name,
-                    team_name=self._team_name,
-                    original_instructions=member.instructions,
-                    team_description=team_description,
+                extended_instructions = (
+                    self.TEAM_MEMBER_NO_DELEGATE_INSTRUCTIONS.format(
+                        name=member.name,
+                        team_name=self._team_name,
+                        original_instructions=member.instructions,
+                        team_description=team_description,
+                    )
                 )
             member.agent_instance = self._project_client.agents.create_agent(
-                model=member.model, name=member.name, instructions=extended_instructions, toolset=member.toolset
+                model=member.model,
+                name=member.name,
+                instructions=extended_instructions,
+                toolset=member.toolset,
             )
 
     def dismantle_team(self) -> None:
@@ -303,7 +353,9 @@ class AgentTeam:
 
         if self._team_leader and self._team_leader.agent_instance:
             print(f"Deleting team leader agent '{self._team_leader.name}'")
-            self._project_client.agents.delete_agent(self._team_leader.agent_instance.id)
+            self._project_client.agents.delete_agent(
+                self._team_leader.agent_instance.id
+            )
         for member in self._members:
             if member is not self._team_leader and member.agent_instance:
                 print(f"Deleting agent '{member.name}'")
@@ -319,6 +371,7 @@ class AgentTeam:
         attributes: Dict[str, Any] = {}
         attributes["agent_team.task.result"] = result
         span.add_event(name=f"agent_team.task_completed", attributes=attributes)
+
     def process_request(self, request: str) -> None:
         """
         Handle a user's request by creating a team and delegating tasks to
@@ -336,8 +389,12 @@ class AgentTeam:
         with tracer.start_as_current_span("agent_team_request") as current_request_span:
             self._current_request_span = current_request_span
             if self._current_request_span is not None:
-                self._current_request_span.set_attribute("agent_team.name", self.team_name)
-            team_leader_request = self.TEAM_LEADER_INITIAL_REQUEST.format(original_request=request)
+                self._current_request_span.set_attribute(
+                    "agent_team.name", self.team_name
+                )
+            team_leader_request = self.TEAM_LEADER_INITIAL_REQUEST.format(
+                original_request=request
+            )
             _create_task(
                 team_name=self.team_name,
                 recipient=self._team_leader.name,
@@ -346,13 +403,23 @@ class AgentTeam:
             )
             while self._tasks:
                 task = self._tasks.pop(0)
-                with tracer.start_as_current_span("agent_team_task") as current_task_span:
+                with tracer.start_as_current_span(
+                    "agent_team_task"
+                ) as current_task_span:
                     self._current_task_span = current_task_span
                     if self._current_task_span is not None:
-                        self._current_task_span.set_attribute("agent_team.name", self.team_name)
-                        self._current_task_span.set_attribute("agent_team.task.recipient", task.recipient)
-                        self._current_task_span.set_attribute("agent_team.task.requestor", task.requestor)
-                        self._current_task_span.set_attribute("agent_team.task.description", task.task_description)
+                        self._current_task_span.set_attribute(
+                            "agent_team.name", self.team_name
+                        )
+                        self._current_task_span.set_attribute(
+                            "agent_team.task.recipient", task.recipient
+                        )
+                        self._current_task_span.set_attribute(
+                            "agent_team.task.requestor", task.requestor
+                        )
+                        self._current_task_span.set_attribute(
+                            "agent_team.task.description", task.task_description
+                        )
                     print(
                         f"Starting task for agent '{task.recipient}'. "
                         f"Requestor: '{task.requestor}'. "
@@ -363,24 +430,41 @@ class AgentTeam:
                         role="user",
                         content=task.task_description,
                     )
-                    print(f"Created message with ID: {message.id} for task in thread {self._agent_thread.id}")
+                    print(
+                        f"Created message with ID: {message.id} for task in thread {self._agent_thread.id}"
+                    )
                     agent = self._get_member_by_name(task.recipient)
                     if agent and agent.agent_instance:
                         run = self._project_client.agents.create_and_process_run(
-                            thread_id=self._agent_thread.id, agent_id=agent.agent_instance.id
+                            thread_id=self._agent_thread.id,
+                            agent_id=agent.agent_instance.id,
                         )
-                        print(f"Created and processed run for agent '{agent.name}', run ID: {run.id}")
-                        messages = self._project_client.agents.list_messages(thread_id=self._agent_thread.id)
-                        text_message = messages.get_last_text_message_by_role(role=MessageRole.AGENT)
+                        print(
+                            f"Created and processed run for agent '{agent.name}', run ID: {run.id}"
+                        )
+                        messages = self._project_client.agents.list_messages(
+                            thread_id=self._agent_thread.id
+                        )
+                        text_message = messages.get_last_text_message_by_role(
+                            role=MessageRole.AGENT
+                        )
                         if text_message and text_message.text:
-                            print(f"Agent '{agent.name}' completed task. " f"Outcome: {text_message.text.value}")
+                            print(
+                                f"Agent '{agent.name}' completed task. "
+                                f"Outcome: {text_message.text.value}"
+                            )
                             if self._current_task_span is not None:
-                                self._add_task_completion_event(self._current_task_span, result=text_message.text.value)
+                                self._add_task_completion_event(
+                                    self._current_task_span,
+                                    result=text_message.text.value,
+                                )
 
                     # If no tasks remain AND the recipient is not the TeamLeader,
                     # let the TeamLeader see if more delegation is needed.
                     if not self._tasks and not task.recipient == "TeamLeader":
-                        team_leader_request = self.TEAM_LEADER_TASK_COMPLETENESS_CHECK_INSTRUCTIONS
+                        team_leader_request = (
+                            self.TEAM_LEADER_TASK_COMPLETENESS_CHECK_INSTRUCTIONS
+                        )
                         _create_task(
                             team_name=self.team_name,
                             recipient=self._team_leader.name,
@@ -433,6 +517,8 @@ def _add_create_task_event(
     attributes["agent_team.task.recipient"] = recipient
     attributes["agent_team.task.description"] = request
     span.add_event(name=f"agent_team.create_task", attributes=attributes)
+
+
 def _create_task(team_name: str, recipient: str, request: str, requestor: str) -> str:
     """
     Requests another agent in the team to complete a task.
@@ -456,7 +542,11 @@ def _create_task(team_name: str, recipient: str, request: str, requestor: str) -
 
         if span is not None:
             _add_create_task_event(
-                span=span, team_name=team_name, requestor=requestor, recipient=recipient, request=request
+                span=span,
+                team_name=team_name,
+                requestor=requestor,
+                recipient=recipient,
+                request=request,
             )
     except:
         pass
@@ -464,6 +554,7 @@ def _create_task(team_name: str, recipient: str, request: str, requestor: str) -
         team.add_task(task)
         return "True"
     return "False"
+
 
 # Any additional functions that might be used by the agents:
 agent_team_default_functions: Set = {
