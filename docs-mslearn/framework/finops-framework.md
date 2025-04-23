@@ -3,11 +3,11 @@ title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/23/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -35,13 +35,13 @@ In the next few sections, we cover the basic concepts of the FinOps Framework:
 
 ## Principles
 
-Before digging into FinOps, it's important to understand the core principles that should guide your FinOps efforts. The FinOps community developed the principles by applying their collective experience, and helps you create a culture of shared accountability and transparency.
+Before digging into FinOps, it's important to understand the core principles that should guide your FinOps efforts. The FinOps community developed the principles by applying their collective experience to help you create a culture of shared accountability and transparency.
 
 - **Teams need to collaborate** – Build a common focus on cost efficiency, processes, and cost decisions across teams that might not typically work closely together.
-- **Decisions are driven by the business value of cloud** – Balance cost decisions with business benefits including quality, speed, and business capability.
-- **Everyone takes ownership for their cloud usage** – Decentralize decisions about cloud resource usage and optimization, and drive technical teams to consider cost as well as uptime and performance.
-- **FinOps data should be accessible and timely** – Provide clear usage and cost data quickly, to the right people, to enable prompt decisions and forecasting.
-- **A centralized team drives FinOps** – Centralize management of FinOps practices for consistency, automation, and rate negotiations.
+- **Business value drives technology decisions** – Balance cost decisions with business benefits including quality, speed, and business capability.
+- **Everyone takes ownership for their technology usage** – Decentralize decisions about cloud resource usage and optimization, and drive technical teams to consider cost as well as uptime and performance.
+- **FinOps data should be accessible, timely, and accurate** – Provide clear usage and cost data quickly, to the right people, to enable prompt decisions and forecasting.
+- **FinOps should be enabled centrally** – Centralize management of FinOps practices for consistency, automation, and rate negotiations.
 - **Take advantage of the variable cost model of the cloud** – Make continuous small adjustments in cloud usage and optimization.
 
 For more information about FinOps principles, including tips from the experts, see [FinOps with Azure – Bringing FinOps to life through organizational and cultural alignment](https://azure.microsoft.com/resources/finops-with-azure-bringing-finops-to-life-through-organizational-and-cultural-alignment/).
