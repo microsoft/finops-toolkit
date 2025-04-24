@@ -18,10 +18,13 @@ const promptSuggestions = [
   "Which region has the highest usage?",
   "What were my total savings of the last 3 months?",
   "Identify resource outliers for this month based on cost.",
-  // "Based on averaging past monthly costs, create a forecast for this environment for the next 3 months",
-  // "Based on averaging past monthly costs, create a forecast for resource group rg-finopshubs0-7-adx for the next 3 months",
+  "What was the cost of the top consuming resource in West Europe?",
+  "List untagged resources with high costs.",
+  "Can you provide the monthly cost consumption forecast for the next six months based on historical data? Please ensure a linear or average growth rate method is applied if more advanced plugins are unavailable.",
+  // "Based on averaging past monthly costs, create a forecast for this environment for the next 3 months"
+  // "Based on averaging past monthly costs, create a forecast for resource group rg-finopshubs0-7-adx for the next 3 months"
   "Give me the list of the top 3 biggest consumers, meaning resource based on aggregated cost of the past 3 months.",
-  "Can you provide a detailed analysis of aggregated costs for each individual resource in the resource group rg-mgmt over the past three months? I want to identify trends and spikes for Virtual Machines, Storage Accounts, and Azure Cognitive Services, and highlight any opportunities for cost optimization.Please ensure the analysis includes all costs across the entire three-month period.",
+//   "Can you provide a detailed analysis of aggregated costs for each individual resource in the resource group rg-mgmt over the past three months? I want to identify trends and spikes for Virtual Machines, Storage Accounts, and Azure Cognitive Services, and highlight any opportunities for cost optimization.Please ensure the analysis includes all costs across the entire three-month period.",
   // "Are there any cost optimization recommendations for this resource group, such as underutilized resources or resizing opportunities?",
   // "Give me a summary table of the consumption for AI and Machine Learning service category of this month and list the resources by name meaning resource based on aggregated cost by subscription name.",
   // "Give me a list of the top 10 consumers of the service category of AI and Machine Learning by resource name and aggregated cost of the past 3 months.",
@@ -73,7 +76,7 @@ export default function ChatWindow() {
 
       const msg: ChatMessage = {
         role: data.role || "agent",
-        agent: data.agent || "TeamLeader",
+        agent: data.agent || "Finley",
         content: data.content,
         sources: data.sources || [],
       };
@@ -93,7 +96,7 @@ export default function ChatWindow() {
         ...prev,
         {
           role: "agent",
-          agent: "TeamLeader",
+          agent: "Finley",
           content: "⚠️ Something went wrong. Please try again or check the server.",
         },
       ]);

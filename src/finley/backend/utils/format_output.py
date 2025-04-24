@@ -11,18 +11,25 @@ def flatten_dict(d, parent_key='', sep='.'):
             items.append((new_key, v))
     return dict(items)
 
-def format_markdown_table(summary: str, data: list[dict]) -> str:
+def format_markdown_table(data: list[dict]) -> str:
+    """
+    Takes a non-empty list of dicts and returns a Markdown table string.
+    Returns empty string if data is empty.
+    """
     if not data:
-        return summary or "No data available."
+        return ""
 
     flat_data = [flatten_dict(row) for row in data]
     keys = sorted({key for row in flat_data for key in row})
 
-    md = f"{summary}\n\n"
-    md += "| " + " | ".join(keys) + " |\n"
-    md += "| " + " | ".join(["---"] * len(keys)) + " |\n"
+    # build header
+    md = "| " + " | ".join(keys) + " |\n"
+    md += "| " + " | ".join("---" for _ in keys) + " |\n"
+
+    # build rows
     for row in flat_data:
         md += "| " + " | ".join(str(row.get(k, "")) for k in keys) + " |\n"
+
     return md
 
 def save_csv(data: list[dict], filepath: str):

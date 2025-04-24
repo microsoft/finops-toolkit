@@ -37,15 +37,18 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.projects.models import FunctionTool, RequiredFunctionToolCall, SubmitToolOutputsAction, ToolOutput
 from user_functions import user_functions
 import json
+import sys
 from utils.format_output import format_markdown_table, save_csv
-
-# Load .env
+# === Setup ===
 load_dotenv()
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
+
 
 # Initialize client
 project_client = AIProjectClient.from_connection_string(
     credential=DefaultAzureCredential(),
-    conn_str=os.environ["PROJECT_CONNECTION_STRING"]
+    conn_str=os.environ["PROJECT_CONNECTION_STRING"],
 )
 # Load instructions from external .txt file
 instructions_path = "agent_instructions.txt"

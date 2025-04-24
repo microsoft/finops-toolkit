@@ -52,13 +52,17 @@ def search_kql_docs_hybrid(query: str, top_k: int = 3) -> list[dict]:
         )
         print("✅ Connected to Azure Search")
 
-        vector_query = VectorizableTextQuery(text=query, k_nearest_neighbors=100, fields="contentVector")
+        vector_query = VectorizableTextQuery(text=query, k_nearest_neighbors=50, fields="contentVector")
 
         results = search_client.search(  
             search_text=query,
             vector_queries= [vector_query],
-            select=["title", "content"],
-            top=top_k
+            select=["title", "content", "source_url"],
+            top=top_k,
+            query_type="semantic",
+            semantic_configuration_name="my-semantic-config",
+            query_rewrites="generative",
+            query_language="en"
         )  
 
         output = []
@@ -66,7 +70,9 @@ def search_kql_docs_hybrid(query: str, top_k: int = 3) -> list[dict]:
             output.append({
                 "title": result.get("title"),
                 "url": result.get("source_url"),
-                "content": result.get("content", "")[:500]
+                "content": result.get("content", "")[:1000],
+                "score": result.get("@search.score"),
+                "highlights": result.get("@search.highlights", [])
             })
 
         return output
@@ -76,13 +82,13 @@ def search_kql_docs_hybrid(query: str, top_k: int = 3) -> list[dict]:
         return []
 
 if __name__ == "__main__":
-    query = "how to use where clause in KQL"
+    query = "ResourceId ?"
     print(f"🔎 Running test query: '{query}'\n")
     results = search_kql_docs_hybrid(query)
     if results:
         print("\n🔹 Top Results:")
-        for i, r in enumerate(results, 1):
-            print(f"\n{i}. {r['title']}\n{r['url']}\n{r['content']}")
+        for i, r in enumerate(results, 3):
+            print(f"\n{i}. {r['title']}\n{r['url']}\n{r['content']}\n{r['highlights']}\nScore: {r['score']}")
     else:
         print("⚠️ No results returned.")
 

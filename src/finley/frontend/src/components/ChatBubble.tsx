@@ -16,7 +16,9 @@ interface ChatBubbleProps {
     agent?: string;
     content: string;
     sources?: string[];
+
 }
+
 
 function tryRenderJsonTable(jsonString: string): JSX.Element | null {
     try {
@@ -59,7 +61,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
     role,
     agent = "TeamLeader",
     content,
-    sources = [],
+    sources = []
 }) => {
     const isUser = role === "user";
 
@@ -70,7 +72,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
         return content.trim();
     }, [content]);
 
-    const jsonTable = tryRenderJsonTable(cleanedContent);
+    const jsonTable = role === "user" ? tryRenderJsonTable(cleanedContent) : null;
 
     return (
         <div className={`ftk-chat-bubble ${isUser ? "ftk-user" : "ftk-agent"}`}>
@@ -78,9 +80,6 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
                 <span className={`ftk-chat-role ftk-tag-${role}`}>
                     {isUser ? "🧑 You" : `${agentEmojis[agent] || "🤖"} ${agent}`}
                 </span>
-                {!isUser && (
-                    <span className="ftk-chat-time">{new Date().toLocaleTimeString()}</span>
-                )}
             </div>
             <div className="ftk-chat-content">
                 {jsonTable ? (
@@ -104,55 +103,70 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
                                 />
                             ),
                             code: (props) => {
-                                const { inline, className, children, ...rest } = props as any;
+                                const { inline, className, children } = props as any;
                                 const codeText = (children || "").toString().trim();
-
-                                // JSON → table logic (preserve as-is)
+                              
+                                // only intercept fenced JSON blocks
                                 if (!inline && className?.includes("language-json")) {
-                                    try {
-                                        const parsed = JSON.parse(codeText);
-                                        if (Array.isArray(parsed) && typeof parsed[0] === "object") {
-                                            const headers = Object.keys(parsed[0]);
-                                            return (
-                                                <div style={{ overflowX: "auto" }}>
-                                                    <table className="ftk-table">
-                                                        <thead>
-                                                            <tr>{headers.map((key) => <th key={key}>{key}</th>)}</tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {parsed.map((row, idx) => (
-                                                                <tr key={idx}>
-                                                                    {headers.map((key) => (
-                                                                        <td key={key}>{String(row[key] ?? "")}</td>
-                                                                    ))}
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            );
-                                        }
-                                    } catch (err) { }
+                                  try {
+                                    const parsed = JSON.parse(codeText);
+                              
+                                    // if it looks like { summary, preview: [ … ] }
+                                    if (
+                                      parsed &&
+                                      typeof parsed === "object" &&
+                                      typeof parsed.summary === "string" &&
+                                      Array.isArray(parsed.preview)
+                                    ) {
+                                      // render the summary
+                                      const summaryEl = (
+                                        <div style={{ marginBottom: "1em" }}>
+                                          <strong>Summary</strong>
+                                          <p>{parsed.summary}</p>
+                                        </div>
+                                      );
+                              
+                                      // render the preview array as a table
+                                      const headers = Object.keys(parsed.preview[0] || {});
+                                      const rows = parsed.preview;
+                              
+                                      const tableEl = (
+                                        <div style={{ overflowX: "auto" }}>
+                                          <table className="ftk-table">
+                                            <thead>
+                                              <tr>{headers.map((h) => <th key={h}>{h}</th>)}</tr>
+                                            </thead>
+                                            <tbody>
+                                              {rows.map((row: any, i: number) => (
+                                                <tr key={i}>
+                                                  {headers.map((h) => <td key={h}>{String(row[h] ?? "")}</td>)}
+                                                </tr>
+                                              ))}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      );
+                              
+                                      return (
+                                        <div style={{ margin: "1em 0" }}>
+                                          {summaryEl}
+                                          {tableEl}
+                                        </div>
+                                      );
+                                    }
+                                  } catch (e) {
+                                    // fall back to normal code block
+                                  }
                                 }
 
-                                return !inline ? (
-                                    <div className="ftk-code-wrapper">
-                                        <button
-                                            className="ftk-copy-button"
-                                            onClick={() => navigator.clipboard.writeText(codeText)}
-                                            title="Copy to clipboard"
-                                        >
-                                            <Copy20Regular />
-                                        </button>
-
-                                        <pre className="ftk-code-block">
-                                            <code className={className} {...rest}>{children}</code>
-                                        </pre>
-                                    </div>
-                                ) : (
-                                    <code className={className} {...rest}>{children}</code>
-                                );
-                            },
+                                return inline ? (
+                                    <code className={className}>{children}</code>
+                                  ) : (
+                                    <pre className="ftk-code-block">
+                                      <code className={className}>{children}</code>
+                                    </pre>
+                                  );
+                                },
                             details: ({ children }) => (
                                 <details style={{ marginTop: 8 }}>{children}</details>
                             ),

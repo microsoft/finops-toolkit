@@ -226,6 +226,12 @@ Create a file named `.env` in the project root with:
 
 ## Testing
 
+
+## Logging and Troubleshooting:
+Tracing is enabled. We use Application Insights for logging and troubleshooting.
+
+![alt text](image.png)
+![alt text](image-1.png)
 ### Quick Start Guide for Testing
 
 1. **Setup**

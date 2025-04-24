@@ -26,13 +26,15 @@ from agent_trace_configurator import AgentTraceConfigurator
 from utils.safe_serialize import safe_serialize
 
 # from user_functions.vector_search import run_vector_search
+from user_functions.fabric_query import query_fabric_sql
 from utils.format_output import format_markdown_table
 from utils.json_extract import extract_json_from_text
 from utils.schemas import ADXQueryResult
 from user_functions.adxagent_functions import query_adx_database, run_vector_search2
 from user_functions.search_kql_docs import search_kql_docs_vector_only
 from datetime import datetime
-
+from http.client import RemoteDisconnected
+from requests.exceptions import ConnectionError
 import json
 import logging
 
@@ -44,8 +46,10 @@ sys.path.append(parent_dir)
 
 # === Globals ===
 _team_instance = None
+MAX_RETRY_ATTEMPTS = 3 
+RETRY_DELAY_SEC   = 10  
 # Setup logging
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -62,6 +66,7 @@ ADX_QUERY_AGENT_INSTRUCTIONS = load_prompt("agent_instructions/adx_query_agent.t
 ADX_QUERY_AGENT_INSTRUCTIONS += f"\n\nToday's date is {today} (UTC). Use this if you're analyzing time ranges or forecasting."
 TEAM_LEADER_INSTRUCTIONS = load_prompt("agent_instructions/team_leader.txt")
 TEAM_LEADER_INSTRUCTIONS += f"\n\nToday's date is {today}."
+FABRIC_AGENT_INSTRUCTIONS = load_prompt("agent_instructions/fabric_sql_agent.txt")
 
 model = os.environ["AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME"]
 
@@ -234,7 +239,7 @@ class FinleyTeam:
         self.project_client = AIProjectClient.from_connection_string(
             credential=DefaultAzureCredential(),
             conn_str=os.environ["PROJECT_CONNECTION_STRING"],
-            connection={"timeout": (5, 60)},
+            connection={"timeout": (10, 300)},
         )
         # Optional tracing
         AgentTraceConfigurator(self.project_client).setup_tracing()
@@ -285,6 +290,10 @@ class FinleyTeam:
                 schema=ADXQueryResult.model_json_schema(),
             )
         )
+        fabric_toolset = ToolSet()
+        fabric_toolset.add(FunctionTool(functions={query_fabric_sql}))
+
+
 
         # ✅ Set up Agent Team
         print("👥 Setting up team leader...")
@@ -317,15 +326,25 @@ class FinleyTeam:
             toolset=adx_toolset,
             can_delegate=True,
             headers={
-                "x-azureai-temperature": "0.3",
+                "x-azureai-temperature": "0.5",
                 "x-azureai-top-p": "0.95",
                 # "x-azureai-max-tokens": "2048",
                 "x-ms-enable-preview": "true",
             },
-            response_format=adx_response_format,
-            # headers={"x-ms-enable-preview": "true"}
+            response_format=adx_response_format
         )
-
+        print("➕ Adding FabricSQLAgent...")
+        self.agent_team.add_agent(
+            model=self.modelstructured,
+            name="FabricSQLAgent",
+            instructions=FABRIC_AGENT_INSTRUCTIONS,
+            toolset=fabric_toolset,
+            can_delegate=False,
+            headers={
+                "x-azureai-temperature": "0.5",
+                "x-azureai-top-p": "0.9",
+            },
+        )
         # ✅ Show registered agents
         print("📋 Registered agents:")
         for member in self.agent_team._members:
@@ -339,6 +358,41 @@ class FinleyTeam:
         _team_instance = self.agent_team
 
         print("✅ Finley and team are available for requests.")
+    # ──────────────────────────────────────────────────────────────────
+    def _start_run_with_retry(
+        self,
+        thread_id: str,
+        agent_id: str,
+        *,
+        retryable_codes: tuple[str, ...] = ("rate_limit_exceeded", "server_error"),
+    ) -> ThreadRun:
+        """
+        Wrapper around project_client.agents.create_run that retries a few
+        times when the Platform answers with a transient failure *on creation*.
+        """
+        attempt = 0
+        while True:
+            attempt += 1
+            try:
+                run: ThreadRun = self.project_client.agents.create_run(
+                    thread_id=thread_id,
+                    agent_id=agent_id,
+                )
+                # If creation succeeded we’re done.
+                return run
+            except Exception as exc:
+                # Not every exception object exposes .code; fall back to str()
+                code = getattr(exc, "code", "") or str(exc).lower()
+
+                if attempt >= MAX_RETRY_ATTEMPTS or all(c not in code for c in retryable_codes):
+                    # Exhausted retries or not retryable → raise upwards.
+                    raise
+
+                print(
+                    f"⏳  create_run failed with “{code}”. "
+                    f"Retry {attempt}/{MAX_RETRY_ATTEMPTS} in {RETRY_DELAY_SEC}s…"
+                )
+                time.sleep(RETRY_DELAY_SEC)
 
     def submit_tool_outputs(self, thread_id, run_id, tool_outputs):
         try:
@@ -495,25 +549,40 @@ class FinleyTeam:
         try:
             logger.debug("Starting request processing...")
             logger.debug(f"User input: {user_input}")
-            # Check if agent thread exists, if not create one
-            if (
-                not hasattr(self.agent_team, "_agent_thread")
-                or not self.agent_team._agent_thread
-            ):
+            # Retry-once block for remote disconnects
+            try:
+                if (
+                    not hasattr(self.agent_team, "_agent_thread")
+                    or not self.agent_team._agent_thread
+                ):
+                    self.agent_team._agent_thread = (
+                        self.project_client.agents.create_thread()
+                    )
+            except (RemoteDisconnected, ConnectionError) as e:
+                logger.warning(f"Agent thread creation failed due to idle disconnect: {e}. Recreating client and retrying...")
+                self._reset_project_client()
                 self.agent_team._agent_thread = (
                     self.project_client.agents.create_thread()
                 )
 
-            # Create message
-            message = self.project_client.agents.create_message(
-                thread_id=self.agent_team._agent_thread.id,
-                role="user",
-                content=user_input,
-            )
+            try:
+                message = self.project_client.agents.create_message(
+                    thread_id=self.agent_team._agent_thread.id,
+                    role="user",
+                    content=user_input,
+                )
+            except (RemoteDisconnected, ConnectionError) as e:
+                logger.warning(f"Message creation failed due to idle disconnect: {e}. Recreating client and retrying...")
+                self._reset_project_client()
+                message = self.project_client.agents.create_message(
+                    thread_id=self.agent_team._agent_thread.id,
+                    role="user",
+                    content=user_input,
+                )
             logger.debug(f"Created message ID: {message.id}")
 
             # Create TeamLeader run
-            run = self.project_client.agents.create_run(
+            run = self._start_run_with_retry(
                 thread_id=self.agent_team._agent_thread.id,
                 agent_id=self.agent_team._team_leader.agent_instance.id,
             )
@@ -522,14 +591,14 @@ class FinleyTeam:
                 {
                     "role": "system",
                     "agent": "TeamLeader",
-                    "content": "Finley is planning your request...",
+                    "content": "Finley is planning your request..."
                 }
             )
 
             start_time = time.time()
-            max_wait_time = 30
+            max_wait_time = 120
             action_attempts = 0
-            max_action_attempts = 10
+            max_action_attempts = 20
 
             while run.status in ["queued", "in_progress", "requires_action"]:
                 if time.time() - start_time > max_wait_time:
@@ -638,7 +707,7 @@ class FinleyTeam:
                     role="user",
                     content=f"@{task.recipient} {task.task_description}",
                 )
-                run = self.project_client.agents.create_run(
+                run = self._start_run_with_retry(
                     thread_id=self.agent_team._agent_thread.id,
                     agent_id=agent.agent_instance.id,
                 )
@@ -745,10 +814,7 @@ class FinleyTeam:
                                                 "output": f"Error: {str(e)}",
                                             }
                                         )
-                                elif (
-                                    tool_call.function.name
-                                    == "search_kql_docs_vector_only"
-                                ):
+                                elif tool_call.function.name == "search_kql_docs_vector_only":
                                     try:
                                         args = tool_call.function.arguments
                                         if isinstance(args, str):
@@ -757,7 +823,7 @@ class FinleyTeam:
                                         query = args.get(
                                             "query",
                                             args.get(
-                                                "query_text", args.get("question")
+                                                "query_text", args.get("query")
                                             ),
                                         )
                                         print(
@@ -791,6 +857,25 @@ class FinleyTeam:
                                             }
                                         )
                                         yield f"Error: {str(e)}"
+                                elif tool_call.function.name == "query_fabric_sql":
+                                    try:
+                                        args = tool_call.function.arguments
+                                        if isinstance(args, str):
+                                            args = json.loads(args)
+                                        query = args.get("query")
+                                        print(f"🏢 Executing Fabric SQL query: {query}")
+                                        result = query_fabric_sql(query)
+                                        tool_outputs.append({
+                                            "tool_call_id": tool_call.id,
+                                            "output": safe_tool_output(result),
+                                        })
+                                    except Exception as e:
+                                        print(f"❌ Error executing Fabric SQL query: {str(e)}")
+                                        tool_outputs.append({
+                                            "tool_call_id": tool_call.id,
+                                            "output": f"Error: {str(e)}",
+                                        })
+                                        yield f"Error: {str(e)}"
                         if tool_outputs:
                             logger.debug(f"Submitting tool outputs for {agent.name}")
                             self.project_client.agents.submit_tool_outputs_to_run(
@@ -811,29 +896,41 @@ class FinleyTeam:
                         )
                     )
                     for m in reversed(messages):
-                        if isinstance(m, dict) and m.get("role") == "assistant":
+                        if isinstance(m, dict) and m.get("role") in [
+                            "assistant",
+                            "agent",
+                        ]:
                             content = m.get("content", "")
                             if content:
                                 formatted_table = self.format_adx_response(content)
                                 final_response = f"{formatted_table}"
                                 break
-                    yield json.dumps({
-                        "role": "agent",
-                        "agent": agent.name,
-                        "content": final_response
-                    })
-                                        
+                    yield json.dumps(
+                        {
+                            "role": "agent",
+                            "agent": agent.name,
+                            "content": final_response,
+                        }
+                    )
+
                     # yield from self.yield_all_messages(self.agent_team._agent_thread.id)
 
             logger.debug("All tasks completed successfully!")
             yield from self.yield_all_messages(self.agent_team._agent_thread.id)
             yield json.dumps(
-                {"role": "system", "agent": "TeamLeader", "content": "[DONE]"}
+                {
+                    "role": "system",
+                    "agent": "TeamLeader",
+                    "content": "[DONE]"
+                }
             )
         except Exception as e:
             logger.error(f"Error processing request: {str(e)}")
             yield f"Error: {str(e)}"
 
-        def __del__(self):
+    def __del__(self):
+        try:
             if hasattr(self, "project_client"):
                 self.project_client.close()
+        except Exception as e:
+            logger.warning(f"Error closing project client: {e}")

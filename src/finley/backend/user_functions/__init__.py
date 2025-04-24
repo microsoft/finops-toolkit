@@ -5,7 +5,8 @@ from typing import Set, Callable
 from user_functions.vector_search import run_vector_search
 # from finley.backend.user_functions.search_kql_docs_old import search_kql_docs_hybrid
 from user_functions.search_kql_docs import search_kql_docs_vector_only
-from user_functions.adxagent_functions import (
+from user_functions.search_web_docs import search_web_docs
+from user_functions.finley_functions import (
     query_adx_database,
     run_vector_search2,
     
@@ -17,5 +18,6 @@ user_functions: Set[Callable] = {
     run_vector_search,
     run_vector_search2,
     # search_kql_docs_hybrid,
-    search_kql_docs_vector_only
+    search_kql_docs_vector_only,
+    search_web_docs
 }

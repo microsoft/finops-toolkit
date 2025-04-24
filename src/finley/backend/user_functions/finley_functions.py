@@ -31,6 +31,33 @@ from datetime import datetime
 from typing import Optional
 
 def query_adx_database(cluster_url: str, database: str, kql_query: str) -> str:
+    """
+    Run KQL queries on Azure Data Explorer (ADX).
+    This tool helps analyze costs, trends, and anomalies using the Costs_v1_0 table.
+    All queries must be read-only.
+        <table>Costs_v1_0</table>
+    <columns>
+      AvailabilityZone, BilledCost, BillingAccountId, BillingAccountName, BillingAccountType, BillingCurrency,
+      BillingPeriodEnd, BillingPeriodStart, ChargeCategory, ChargeClass, ChargeDescription, ChargeFrequency,
+      ChargePeriodEnd, ChargePeriodStart, CommitmentDiscountCategory, CommitmentDiscountId, CommitmentDiscountName,
+      CommitmentDiscountStatus, CommitmentDiscountType, ConsumedQuantity, ConsumedUnit, ContractedCost, ContractedUnitPrice,
+      EffectiveCost, InvoiceIssuerName, ListCost, ListUnitPrice, PricingCategory, PricingQuantity, PricingUnit,
+      ProviderName, PublisherName, RegionId, RegionName, ResourceId, ResourceName, ResourceType, ServiceCategory,
+      ServiceName, SkuId, SkuPriceId, SubAccountId, SubAccountName, SubAccountType, Tags, x_AccountId, x_AccountName,
+      x_AccountOwnerId, x_BilledCostInUsd, x_BilledUnitPrice, x_BillingAccountAgreement, x_BillingAccountId,
+      x_BillingAccountName, x_BillingExchangeRate, x_BillingExchangeRateDate, x_BillingProfileId, x_BillingProfileName,
+      x_ChargeId, x_ContractedCostInUsd, x_CostAllocationRuleName, x_CostCategories, x_CostCenter, x_Credits, x_CostType,
+      x_CurrencyConversionRate, x_CustomerId, x_CustomerName, x_Discount, x_EffectiveCostInUsd, x_EffectiveUnitPrice,
+      x_ExportTime, x_IngestionTime, x_InvoiceId, x_InvoiceIssuerId, x_InvoiceSectionId, x_InvoiceSectionName,
+      x_ListCostInUsd, x_Location, x_Operation, x_PartnerCreditApplied, x_PartnerCreditRate, x_PricingBlockSize,
+      x_PricingCurrency, x_PricingSubcategory, x_PricingUnitDescription, x_Project, x_PublisherCategory, x_PublisherId,
+      x_ResellerId, x_ResellerName, x_ResourceGroupName, x_ResourceType, x_ServiceCode, x_ServiceId, x_ServicePeriodEnd,
+      x_ServicePeriodStart, x_SkuDescription, x_SkuDetails, x_SkuIsCreditEligible, x_SkuMeterCategory, x_SkuMeterId,
+      x_SkuMeterName, x_SkuMeterSubcategory, x_SkuOfferId, x_SkuOrderId, x_SkuOrderName, x_SkuPartNumber, x_SkuRegion,
+      x_SkuServiceFamily, x_SkuTerm, x_SkuTier, x_SourceChanges, x_SourceName, x_SourceProvider, x_SourceType,
+      x_SourceVersion, x_UsageType
+    </columns>
+    """
     today = datetime.utcnow().strftime("%Y-%m-%d")
 
     print("🔍 query_adx_database() was called")

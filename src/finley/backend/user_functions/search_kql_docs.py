@@ -6,6 +6,7 @@ from azure.search.documents.models import VectorizableTextQuery
 import openai
 import logging
 from azure.search.documents.models import QueryType, QueryCaptionType, QueryAnswerType
+from azure.search.documents.models import QueryType, QueryCaptionType, QueryAnswerType
 
 load_dotenv()
 logging.basicConfig(level=logging.ERROR)
@@ -21,7 +22,9 @@ AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT
 AZURE_OPENAI_API_VERSION = "2023-05-15"
 
 def search_kql_docs_vector_only(query: str, top_k: int = 3) -> list[dict]:
-    """Performs pure vector search over indexed KQL docs using Azure AI Search and OpenAI embeddings."""
+    """Performs pure vector search over indexed KQL docs using Azure AI Search and OpenAI embeddings. 
+    This tool provides grounded answers by searching a vectorized FinOps documentation index. You must always include citations for any information retrieved from this tool.
+"""
 
     if not query or not query.strip():
         logger.warning("⚠️ Empty query provided to vector search.")
@@ -39,6 +42,7 @@ def search_kql_docs_vector_only(query: str, top_k: int = 3) -> list[dict]:
         embedding_response = embedding_client.embeddings.create(
             input=[query],
             model=AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
+            dimensions=3072
         )
         embedding = embedding_response.data[0].embedding
     except Exception as e:
@@ -46,38 +50,40 @@ def search_kql_docs_vector_only(query: str, top_k: int = 3) -> list[dict]:
         return []
 
     # Build vector search query
-    vector_query = VectorizableTextQuery(
-        text=query,
-        vector=embedding,
-        k_nearest_neighbors=50,
-        fields="contentVector",
-        exhaustive=True
+    # vector_query = VectorizableTextQuery(
+    #     text=query,
+    #     vector=embedding,
+    #     k_nearest_neighbors=60,
+    #     fields="contentVector",
+    #     exhaustive=True
+    # )
+    vector_query = VectorizableTextQuery(text=query, vector=embedding, k_nearest_neighbors=50, fields="contentVector", exhaustive=True)
+
+    results = search_client.search(  
+        search_text=query,  
+        vector_queries=[vector_query],
+        select=["title", "content","source_url"],
+        query_type=QueryType.SEMANTIC,
+        semantic_configuration_name='my-semantic-config',
+        query_caption=QueryCaptionType.EXTRACTIVE,
+        query_answer=QueryAnswerType.EXTRACTIVE,
+        top=3
     )
 
-#     results = search_client.search(  
-#         search_text=query,  
-#         vector_queries=[vector_query],
-#         select=["title", "content"],
-#         query_type=QueryType.SEMANTIC,
-#         semantic_configuration_name='my-semantic-config',
-#         query_caption=QueryCaptionType.EXTRACTIVE,
-#         query_answer=QueryAnswerType.EXTRACTIVE,
-#         top=3
-# )
-    try:
-        results = search_client.search(
-            search_text=query, 
-            vector_queries=[vector_query],
-            select=["title", "content", "source_url"],
-            top=top_k,
-            query_type="semantic",
-            semantic_configuration_name="my-semantic-config",
-            query_rewrites="generative",
-            query_language="en"
-        )
-    except Exception as e:
-        logger.error(f"❌ Vector search failed: {e}")
-        return []
+    # try:
+    #     results = search_client.search(
+    #         search_text=query, 
+    #         vector_queries=[vector_query],
+    #         select=["title", "content", "source_url"],
+    #         top=top_k,
+    #         query_type="semantic",
+    #         semantic_configuration_name="my-semantic-config",
+    #         query_rewrites="generative",
+    #         query_language="en"
+    #     )
+    # except Exception as e:
+    #     logger.error(f"❌ Vector search failed: {e}")
+    #     return []
 
     seen_urls = set()
     output = []
@@ -89,7 +95,7 @@ def search_kql_docs_vector_only(query: str, top_k: int = 3) -> list[dict]:
 
         content = result.get("content", "").strip()
         title = result.get("title", "").strip()
-        score = result.get("@search.score", 0)  # ✅ Corrected this line
+        score = result.get("@search.score", 0)
 
         if not content:
             continue
@@ -109,10 +115,10 @@ def search_kql_docs_vector_only(query: str, top_k: int = 3) -> list[dict]:
     return output
 
 # if __name__ == "__main__":
-#     results = search_kql_docs_vector_only("forecast", top_k=5)
+#     results = search_kql_docs_vector_only("focus domains", top_k=3)
 #     for result in results:
 #         print(f"Title: {result['title']}")
 #         print(f"URL: {result['url']}")
 #         print(f"Content: {result['content']}")
 #         print(f"Score: {result['score']}")
-#         print("-" * 80)
+#         print("-" * 400)

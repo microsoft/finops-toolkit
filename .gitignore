@@ -305,8 +305,9 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-.venve2e/
-
+.venv/
+.venvfinley
+.env
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config

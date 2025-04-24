@@ -20,7 +20,6 @@ const TypingBubble = ({ message = "Finley is thinking..." }) => {
     <div className="ftk-chat-bubble ftk-agent">
       <div className="ftk-chat-meta">
         <span className="ftk-chat-role ftk-tag-agent">🤖 Finley</span>
-        <span className="ftk-chat-time">{new Date().toLocaleTimeString()}</span>
       </div>
       <div className="ftk-chat-content">
         <div>{message}</div>
