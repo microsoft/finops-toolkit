@@ -55,7 +55,7 @@ def finops_expert_with_tavily(query: str) -> str:
             max_results=1,
             include_answer="advanced",
             # include_domains=["learn.microsoft.com", "finops.org", "microsoft.com"],
-            include_domains=["finops.org","focus.finops.org"],
+            include_domains=["finops.org","focus.finops.org","x.finops.org"],
         )
 
         docs_summary = response.get("answer", "")
