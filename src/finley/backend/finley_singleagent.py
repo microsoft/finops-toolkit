@@ -18,8 +18,6 @@ from azure.ai.projects.models import (
     ResponseFormatJsonSchemaType,
     ResponseFormatJsonSchema
 )
-from azure.ai.projects.models import FilePurpose
-from utils.schemas import ADXQueryResult,ADXPreviewRow
 from user_functions.finley_functions import query_adx_database, run_vector_search2
 from user_functions.search_web_docs import search_web_docs
 from user_functions.search_kql_docs import search_kql_docs_vector_only
@@ -54,13 +52,6 @@ tracer = trace.get_tracer(__name__)
 
 
 # === Utils ===
-adx_response_format = ResponseFormatJsonSchemaType(
-            json_schema=ResponseFormatJsonSchema(
-                name="adx_query_result",
-                description="Structured output from ADX queries with required BillingCurrency and dynamic row data.",
-                schema=ADXQueryResult.model_json_schema(),
-            )
-        )
 def safe_tool_output(result, max_length=1048576):
     try:
         serialized = json.dumps(result)
@@ -158,8 +149,7 @@ def stream_response(user_input: str, session_id: str):
                 name="Finley",
                 instructions=load_prompt(),
                 tools=function_tool.definitions,
-                temperature=0.3,
-                response_format=adx_response_format           
+                temperature=0.3
                 )
 
             # Use or create thread

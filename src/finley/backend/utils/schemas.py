@@ -10,13 +10,3 @@ class ADXPreviewRow(BaseModel):
 class ADXQueryResult(BaseModel):
     summary: str
     preview: List[ADXPreviewRow]
-
-class SourceCitation(BaseModel):
-    title: str
-    filename: str
-    url: Optional[str] = None  # Optional link to the markdown file
-
-class FocusAgentOutput(BaseModel):
-    summary: str
-    explanation: str
-    sources: List[SourceCitation]
