@@ -38,7 +38,7 @@ param pipelineParameters object
 // Get references to existing resources
 //------------------------------------------------------------------------------
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: storageAccountName
 }
 

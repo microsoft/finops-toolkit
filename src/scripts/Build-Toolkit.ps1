@@ -21,7 +21,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-toolkit
 #>
-Param(
+param(
     [Parameter(Position = 0)][string]$Template = "*",
     [switch]$Major,
     [switch]$Minor,
@@ -117,6 +117,22 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
         }
     }
 
+    # TODO: Create a way to define trimmed files
+    if ($templateName -eq "finops-hub")
+    {
+        Write-Host "  Trimming KQL files..."
+        Get-ChildItem "$destDir/*.kql" -Recurse `
+        | ForEach-Object {
+            (Get-Content $_.FullName -Raw) `
+                -replace '(\r?\n)//.*\r?\n', '$1' `
+                -replace '(\r?\n)(\r?\n)*', '$1' `
+                -replace '(\r?\n)([ \t]*//.*\r?\n)+', '$1' `
+                -replace '(\r?\n)(\r?\n)+', '$1' `
+                -replace '^// Copyright.*(\r?\n)', '' #'// Copyright (c) Microsoft Corporation.$1// Licensed under the MIT License.$1$1'
+            | Out-File $_.FullName -Encoding utf8 -Force
+        }
+    }
+    
     # TODO: Create a way to define required dependencies
     if ($templateName -eq "finops-workbooks")
     {

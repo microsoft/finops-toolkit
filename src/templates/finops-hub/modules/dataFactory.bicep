@@ -381,7 +381,8 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 
 resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactory.name}_stopTriggers'
-  location: location
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {

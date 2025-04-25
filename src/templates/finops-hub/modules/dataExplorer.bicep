@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -91,12 +94,6 @@ param clusterCapacity int = 1
 // @description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
 // param clusterTrustedExternalTenants string[] = []
 
-@description('Optional. Forces the table to be updated if different from the last time it was deployed.')
-param forceUpdateTag string = utcNow()
-
-@description('Optional. If true, ingestion will continue even if some rows fail to ingest. Default: false.')
-param continueOnErrors bool = false
-
 @description('Optional. Azure location to use for the managed identity and deployment script to auto-start triggers. Default: (resource group location).')
 param location string = resourceGroup().location
 
@@ -108,9 +105,6 @@ param tagsByResource object = {}
 
 @description('Required. Name of the Data Factory instance.')
 param dataFactoryName string
-
-@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
-param rawRetentionInDays int = 0
 
 @description('Required. Name of the storage account to use for data ingestion.')
 param storageAccountName string
@@ -128,10 +122,7 @@ param enablePublicAccess bool
 // Variables
 //------------------------------------------------------------------------------
 
-// cSpell:ignore ftkver, privatelink
-var ftkver = any(loadTextContent('ftkver.txt')) // any() is used to suppress a warning the array size (only happens when version does not contain a dash)
-var ftkVersion = contains(ftkver, '-') ? split(ftkver, '-')[0] : ftkver
-var ftkBranch = contains(ftkver, '-') ? split(ftkver, '-')[1] : ''
+// cSpell:ignore privatelink
 var dataExplorerPrivateDnsZoneName = replace('privatelink.${location}.${replace(environment().suffixes.storage, 'core', 'kusto')}', '..', '.')
 
 // Actual = Minimum(ClusterMaximumConcurrentOperations, Number of nodes in cluster * Maximum(1, Core count per node * CoreUtilizationCoefficient))
@@ -236,7 +227,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 //------------------------------------------------------------------------------
 
 //  Kusto cluster
-resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
+resource cluster 'Microsoft.Kusto/clusters@2024-04-13' = {
   name: clusterName
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Kusto/clusters'] ?? {})
@@ -272,87 +263,12 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     name: 'Ingestion'
     location: location
     kind: 'ReadWrite'
-    
-    // Open data functions are split to keep size under the 131KB limit for loadTextContent()
-    resource OpenDataFunctions_resource_type_1 'scripts' = { name: 'OpenDataFunctions_resource_type_1', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_1.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
-    resource OpenDataFunctions_resource_type_2 'scripts' = { name: 'OpenDataFunctions_resource_type_2', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
-    resource OpenDataFunctions_resource_type_3 'scripts' = { name: 'OpenDataFunctions_resource_type_3', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
-    resource OpenDataFunctions_resource_type_4 'scripts' = { name: 'OpenDataFunctions_resource_type_4', properties: { scriptContent: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql'), continueOnErrors: continueOnErrors, forceUpdateTag: forceUpdateTag }}
-
-    resource openDataScript 'scripts' = {
-      name: 'OpenDataFunctions'
-      dependsOn: [
-        ingestionDb::OpenDataFunctions_resource_type_1
-        ingestionDb::OpenDataFunctions_resource_type_2
-        ingestionDb::OpenDataFunctions_resource_type_3
-        ingestionDb::OpenDataFunctions_resource_type_4
-      ]
-      properties: {
-        scriptContent: loadTextContent('scripts/OpenDataFunctions.kql')
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
-
-    resource commonScript 'scripts' = {
-      name: 'CommonFunctions'
-      dependsOn: [
-        ingestionDb::openDataScript
-      ]
-      properties: {
-        scriptContent: loadTextContent('scripts/Common.kql')
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
-
-    resource setupScript 'scripts' = {
-      name: 'SetupScript'
-      dependsOn: [
-        ingestionDb::commonScript
-      ]
-      properties: {
-        scriptContent: replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
-          '$$adfPrincipalId$$', dataFactory.identity.principalId),
-          '$$adfTenantId$$', dataFactory.identity.tenantId),
-          '$$ftkOpenDataFolder$$', empty(ftkBranch) ? 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}' : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/${ftkBranch}/src/open-data'),
-          '$$rawRetentionInDays$$', string(rawRetentionInDays))
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
   }
 
   resource hubDb 'databases' = {
     name: 'Hub'
     location: location
     kind: 'ReadWrite'
-    dependsOn: [
-      ingestionDb::setupScript
-    ]
-
-    resource commonScript 'scripts' = {
-      name: 'CommonFunctions'
-      properties: {
-        scriptContent: loadTextContent('scripts/Common.kql')
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
-
-    resource setupScript 'scripts' = {
-      name: 'SetupScript'
-      dependsOn: [
-        hubDb::commonScript
-      ]
-      properties: {
-        scriptContent: replace(replace(loadTextContent('scripts/HubSetup.kql'),
-          '$$adfPrincipalId$$', dataFactory.identity.principalId),
-          '$$adfTenantId$$', dataFactory.identity.tenantId)
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
   }
 }
 

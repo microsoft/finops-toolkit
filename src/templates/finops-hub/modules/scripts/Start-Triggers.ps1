@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-Param(
+param(
     [switch] $Stop
 )
 
@@ -14,37 +14,40 @@ if (-not $Stop)
 }
 
 # Loop thru triggers
-$env:Triggers.Split('|') `
-| ForEach-Object {
-    $trigger = $_
-    if ($Stop)
-    {
-        Write-Output "Stopping trigger $trigger..."
-        $triggerOutput = Stop-AzDataFactoryV2Trigger `
-            -ResourceGroupName $env:DataFactoryResourceGroup `
-            -DataFactoryName $env:DataFactoryName `
-            -Name $trigger `
-            -Force `
-            -ErrorAction SilentlyContinue # Ignore errors, since the trigger may not exist
+if (-not [string]::IsNullOrWhiteSpace($env:Triggers))
+{
+    $env:Triggers.Split('|') `
+    | ForEach-Object {
+        $trigger = $_
+        if ($Stop)
+        {
+            Write-Output "Stopping trigger $trigger..."
+            $triggerOutput = Stop-AzDataFactoryV2Trigger `
+                -ResourceGroupName $env:DataFactoryResourceGroup `
+                -DataFactoryName $env:DataFactoryName `
+                -Name $trigger `
+                -Force `
+                -ErrorAction SilentlyContinue # Ignore errors, since the trigger may not exist
+        }
+        else
+        {
+            Write-Output "Starting trigger $trigger..."
+            $triggerOutput = Start-AzDataFactoryV2Trigger `
+                -ResourceGroupName $env:DataFactoryResourceGroup `
+                -DataFactoryName $env:DataFactoryName `
+                -Name $trigger `
+                -Force
+        }
+        if ($triggerOutput)
+        {
+            Write-Output "done..."
+        }
+        else
+        {
+            Write-Output "failed..."
+        }
+        $DeploymentScriptOutputs[$trigger] = $triggerOutput
     }
-    else
-    {
-        Write-Output "Starting trigger $trigger..."
-        $triggerOutput = Start-AzDataFactoryV2Trigger `
-            -ResourceGroupName $env:DataFactoryResourceGroup `
-            -DataFactoryName $env:DataFactoryName `
-            -Name $trigger `
-            -Force
-    }
-    if ($triggerOutput)
-    {
-        Write-Output "done..."
-    }
-    else
-    {
-        Write-Output "failed..."
-    }
-    $DeploymentScriptOutputs[$trigger] = $triggerOutput
 }
 
 if ($Stop)

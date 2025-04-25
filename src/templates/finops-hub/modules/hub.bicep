@@ -204,10 +204,6 @@ var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 // }
 // var finalEventGridLocation = eventGridLocation != null && !empty(eventGridLocation) ? eventGridLocation : (eventGridLocationFallback[?location] ?? location)
 
-// The last segment of the GUID in the telemetryId (40b) is used to identify this module
-// Remaining characters identify settings; must be <= 12 chars -- Example: (guid)_RLXD##x1000P
-var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
-
 var telemetryString = join([
   // R = remote hubs enabled
   empty(remoteHubStorageUri) || empty(remoteHubStorageKey) ? '' : 'R'
@@ -223,27 +219,10 @@ var telemetryString = join([
   enablePublicAccess ? '' : 'P'
 ], '')
 
+
 //==============================================================================
 // Resources
 //==============================================================================
-
-//------------------------------------------------------------------------------
-// App registration
-//------------------------------------------------------------------------------
-
-module appRegistration 'hub-app.bicep' = {
-  name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
-  params: {
-    hubName: hubName
-    publisher: 'FinOps hubs'
-    namespace: 'Microsoft.FinOpsToolkit.Hubs'
-    appName: 'Core'
-    displayName: 'FinOps hub core'
-    appVersion: finOpsToolkitVersion
-    telemetryString: telemetryString
-    enableDefaultTelemetry: enableDefaultTelemetry
-  }
-}
 
 //------------------------------------------------------------------------------
 // Virtual network
@@ -303,7 +282,6 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     tags: resourceTags
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
-    rawRetentionInDays: dataExplorerRawRetentionInDays
     virtualNetworkId: safeVnetId
     privateEndpointSubnetId: safeDataExplorerSubnetId
     enablePublicAccess: enablePublicAccess
@@ -351,6 +329,28 @@ module dataFactoryResources 'dataFactory.bicep' = {
     keyVaultName: empty(remoteHubStorageKey) ? '' : keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
     enablePublicAccess: enablePublicAccess
+  }
+}
+
+//------------------------------------------------------------------------------
+// Core app
+//------------------------------------------------------------------------------
+
+module coreApp 'core.bicep' = {
+  name: 'Microsoft.FinOpsToolkit.Hubs.Core_${telemetryString}'
+  dependsOn: [
+    dataFactoryResources
+  ]
+  params: {
+    hubName: hubName
+    dataFactoryName: dataFactory.name
+    clusterName: safeDataExplorerName
+    location: location
+    tags: resourceTags
+    tagsByResource: tagsByResource
+    rawRetentionInDays: dataExplorerRawRetentionInDays
+    telemetryString: telemetryString
+    enableDefaultTelemetry: enableDefaultTelemetry
   }
 }
 
