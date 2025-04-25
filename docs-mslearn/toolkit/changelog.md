@@ -38,6 +38,7 @@ _Released April 2025_
 
 - **Added**
   - Added documentation for the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
+  - Enabled Purge protection for Azure Key Vault when a remote hub is enabled
   - Created a new bicep modules to support extensibility:
     - The **hub-app** module tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
