@@ -3,11 +3,11 @@ title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/25/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -26,6 +26,7 @@ Microsoft's guidance is largely based on the FinOps Framework with a few enhance
 In the next few sections, we cover the basic concepts of the FinOps Framework:
 
 - The **principles** that should guide your FinOps efforts.
+- The **scopes** to which you apply FinOps concepts.
 - The **stakeholders** that should be involved.
 - The **lifecycle** that you iterate through.
 - The **capabilities** that you implement with stakeholders throughout the lifecycle.
@@ -45,6 +46,16 @@ Before digging into FinOps, it's important to understand the core principles tha
 - **Take advantage of the variable cost model of the cloud** – Make continuous small adjustments in cloud usage and optimization.
 
 For more information about FinOps principles, including tips from the experts, see [FinOps with Azure – Bringing FinOps to life through organizational and cultural alignment](https://azure.microsoft.com/resources/finops-with-azure-bringing-finops-to-life-through-organizational-and-cultural-alignment/).
+
+<br>
+
+## Scopes
+
+FinOps scopes are crucial for setting the boundaries for which you apply your FinOps efforts, identifying which personas are involved, and what capabilities are in-focus. These scopes help ensure that your FinOps efforts are aligned with your organization's strategic goals and operational needs.
+
+- **Scopes are more than a single type of infrastructure** – A FinOps scope can cover multiple types of infrastructure, and multiple scopes may exist within a single segment. Key performance indicators (KPIs) for measuring success or performance of the capabilities included can vary depending on the scope to which they are applied.
+
+- **Scopes are driven by the business and technology strategy** – Organizations can define their scopes based on their business needs, allowing for custom selection of which personas, domains, and capabilities are involved.
 
 <br>
 
