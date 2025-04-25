@@ -86,6 +86,35 @@ Public routing does not require additional configuration. If you opt for private
 
 <br>
 
+## Optional: Set up Microsoft Fabric
+
+If deploying to Microsoft Fabric, you will need to create a workspace and eventhouse before deploying the FinOps hub template to your Azure subscription. Microsoft Fabric setup is mostly manual today.
+
+1. Create a workspace and eventhouse:
+   1. From Microsoft Fabric, open the desired workspace or create a new workspace. [Learn more](/fabric/fundamentals/create-workspaces).
+   2. From your Fabric workspace, select the **+ New item** command at the top of the page.
+   3. Select **Store data** > **Eventhouse**.
+   4. Specify a name (e.g., `FinOpsHub`) and select **Create**.
+2. Create and configure the **Ingestion** database:
+   1. Select **Eventhouse** > **+ Database** at the top of the page, set the name to `Ingestion`, and select **Create**.
+   2. Select the **Ingestion_queryset** in the left menu.
+   3. Delete all text in the file.
+   4. Download and open the [finops-hub-fabric-setup-Ingestion.kql file](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-fabric-setup-Ingestion.kql) in a text editor.
+   5. Copy the entire text from this file into the Fabric queryset editor.
+   6. Press <kbd>Ctrl+H</kbd> to trigger the find and replace dialog, set the find text to `$$rawRetentionInDays$$` and replace it with `0` or desired number of days to keep data in **_raw** tables, then press <kbd>Ctrl+Alt+Enter</kbd> to replace all instances.
+   7. Starting at the top of the file, put your cursor on the first `.create-or-alter` statement, then select the **Run** command above the editor.
+   8. Wait for the script to complete and then run the next `.create-or-alter`, `.create-merge`, or `.alter` statement. Repeat for every statement.
+      - Consider collapsing all query blocks with <kbd>Ctrl+K, Ctrl+0</kbd> and running each of the commands and comment blocks to simplify the process.
+      - Ignore `//===` and `//---` comment blocks.
+      - If you receive an error on a comment block, place the cursor inside the command, and try to run it again.
+      - If you continue to receive errors, review the error to determine if one of the previous commands was missed.
+      - If needed, you can rerun any commands as long as they are run sequentially. Skipping commands may result in errors.
+3. Repeat step 2 for the **Hub** database using the [finops-hub-fabric-setup-Hub.kql file](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-fabric-setup-Hub.kql) script file.
+4. In the left pane, select **System overview**, then select the **Copy URI** link for the **Query URI** property in the details pane on the right.
+   - Make note of the query URI. You will use it in the next step.
+
+<br>
+
 ## Deploy the FinOps hub template
 
 The core engine for FinOps hubs is deployed via an Azure Resource Manager deployment template. The template is available in [bicep](/azure/azure-resource-manager/bicep/overview). The template includes a storage account, Azure Data Factory, Azure Data Explorer, and other supporting resources. To learn more about what's included in the template and least-privileged access requirements, refer to the [FinOps hub template details](template.md).
@@ -99,13 +128,14 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
    - [Deploy to Azure China](https://aka.ms/finops/hubs/deploy/china) (MCA only)
 2. Select the desired subscription and resource group.
 3. Select an Azure region where you would like to deploy resources to.
-   - If connecting to Microsoft Fabric, select the same region you use for Fabric capacity. You can find this in your workspace settings > License info > License capacity.
+   - If connecting to Microsoft Fabric, select the same region you use for Fabric capacity. You can find this in your workspace settings > **License info** > **License capacity**.
 4. Specify a hub name used for core resources and reporting purposes.
    - All resources have a common **cm-resource-parent** tag to group them together under the hub in Cost Management.
 5. Specify a unique Azure Data Explorer cluster name.
    - This will be used to query data and connect to reports, dashboards, and other tools.
+   - If deploying to Microsoft Fabric, use your Fabric eventhouse query URI.
    - Data Explorer is optional, but recommended if monitoring more than $100,000 in total spend.
-   - Warning: Power BI may experience timeouts and data refresh issues if ingestion more than $1 million in spend. If you experience issues, please redeploy with Data Explorer.
+   - Warning: Power BI may experience timeouts and data refresh issues if relying on storage for more than $1 million in spend. If you experience issues, please redeploy with Data Explorer or Microsoft Fabric.
 6. Select the **Next** button at the bottom of the form.
 7. If desired, you can change the storage redundancy or Data Explorer SKU.
    - We do not recommend changing either setting for your initial deployment.
@@ -132,11 +162,19 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
 The following command is part of the FinOps toolkit PowerShell module. To install the module, see [Install the FinOps toolkit PowerShell module](../powershell/powershell-commands.md#install-the-module).
 
 ```powershell
+# Deploying to Azure Data Explorer
 Deploy-FinOpsHub `
     -Name MyHub `
     -ResourceGroupName MyNewResourceGroup `
     -Location westus `
     -DataExplorerName MyFinOpsHubCluster
+
+# Deploying to Microsoft Fabric
+Deploy-FinOpsHub `
+    -Name MyHub `
+    -ResourceGroupName MyNewResourceGroup `
+    -Location westus `
+    -DataExplorerName https://abcxyz123789.x0.kusto.fabric.microsoft.com
 ```
 
 For additional parameters, see [Deploy-FinOpsHub](../powershell/hubs/Deploy-FinOpsHub.md).

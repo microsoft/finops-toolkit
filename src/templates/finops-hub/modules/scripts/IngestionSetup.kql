@@ -447,6 +447,9 @@ Prices_transform_v1_0()
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// Disable Prices_raw streaming ingestion (required for Fabric)
+.alter table Prices_raw policy streamingingestion disable
+
 // Update policy for Prices_raw -> Prices_final_v1_0
 // NOTE: Must be after transform function is defined
 .alter table Prices_final_v1_0 policy update
@@ -1182,6 +1185,9 @@ Costs_transform_v1_0()
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// Disable Costs_raw streaming ingestion (required for Fabric)
+.alter table Costs_raw policy streamingingestion disable
+
 // Update policy for Costs_raw -> Costs_final_v1_0 table
 // NOTE: Must be after transform function is defined
 .alter table Costs_final_v1_0 policy update
@@ -1476,6 +1482,9 @@ CommitmentDiscountUsage_transform_v1_0()
 
 //----------------------------------------------------------------------------------------------------------------------
 
+// Disable CommitmentDiscountUsage_raw streaming ingestion (required for Fabric)
+.alter table CommitmentDiscountUsage_raw policy streamingingestion disable
+
 // Update policy for CommitmentDiscountUsage_raw -> CommitmentDiscountUsage_final_v1_0 table
 // NOTE: Must be after transform function is defined
 .alter table CommitmentDiscountUsage_final_v1_0 policy update
@@ -1660,6 +1669,9 @@ Recommendations_transform_v1_0()
 )
 
 //----------------------------------------------------------------------------------------------------------------------
+
+// Disable Recommendations_raw streaming ingestion (required for Fabric)
+.alter table Recommendations_raw policy streamingingestion disable
 
 // Update policy for Recommendations_raw -> Recommendations_final_v1_0 table
 // NOTE: Must be after transform function is defined
@@ -1899,6 +1911,9 @@ Transactions_transform_v1_0()
 )
 
 //----------------------------------------------------------------------------------------------------------------------
+
+// Disable Transactions_raw streaming ingestion (required for Fabric)
+.alter table Transactions_raw policy streamingingestion disable
 
 // Update policy for Transactions_raw -> Transactions_final_v1_0 table
 // NOTE: Must be after transform function is defined

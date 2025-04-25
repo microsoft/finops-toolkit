@@ -117,6 +117,34 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
         }
     }
 
+    # TODO: Create a way to define file consolidation via config (or maybe a custom build script in the folder)
+    @(
+        @{
+            Database = "Ingestion"
+            Scripts  = @(
+                "OpenDataFunctions_resource_type_1.kql",
+                "OpenDataFunctions_resource_type_2.kql",
+                "OpenDataFunctions_resource_type_3.kql",
+                "OpenDataFunctions_resource_type_4.kql",
+                "OpenDataFunctions.kql",
+                "Common.kql",
+                "IngestionSetup.kql"
+            )
+        }
+        @{
+            Database = "Hub"
+            Scripts  = @(
+                "Common.kql",
+                "HubSetup.kql"
+            )
+        }
+    ) | ForEach-Object {
+        $_.Scripts | ForEach-Object {
+            Get-Content "$srcDir/modules/scripts/$_" -Raw
+        } | Out-File $destDir/../finops-hub-fabric-setup-$($_.Database).kql -Encoding utf8 -Force
+        Write-Verbose "  Created finops-hub-fabric-setup-$($_.Database).kql"
+    }
+
     # TODO: Create a way to define required dependencies
     if ($templateName -eq "finops-workbooks")
     {
