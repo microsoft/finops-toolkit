@@ -15,7 +15,11 @@ from azure.ai.projects.models import (
     SubmitToolOutputsAction,
     ToolOutput,
     ListSortOrder,
+    ResponseFormatJsonSchemaType,
+    ResponseFormatJsonSchema
 )
+from azure.ai.projects.models import FilePurpose
+from utils.schemas import ADXQueryResult,ADXPreviewRow
 from user_functions.finley_functions import query_adx_database, run_vector_search2
 from user_functions.search_web_docs import search_web_docs
 from user_functions.search_kql_docs import search_kql_docs_vector_only
@@ -50,6 +54,13 @@ tracer = trace.get_tracer(__name__)
 
 
 # === Utils ===
+adx_response_format = ResponseFormatJsonSchemaType(
+            json_schema=ResponseFormatJsonSchema(
+                name="adx_query_result",
+                description="Structured output from ADX queries with required BillingCurrency and dynamic row data.",
+                schema=ADXQueryResult.model_json_schema(),
+            )
+        )
 def safe_tool_output(result, max_length=1048576):
     try:
         serialized = json.dumps(result)
@@ -94,6 +105,7 @@ def format_adx_response(content: str) -> str:
         return content
 
 
+
 def extract_text_content(msg):
     if hasattr(msg, "text") and msg.text:
         return msg.text.value
@@ -101,15 +113,14 @@ def extract_text_content(msg):
         return msg.content
     return str(msg)
 
-
-# === Tool registration ===
+# === FunctionTool setup ===
 function_tool = FunctionTool(
     functions=[
         query_adx_database,
         query_fabric_sql,
         run_vector_search2,
         search_kql_docs_vector_only,
-        search_web_docs,
+        search_web_docs
     ]
 )
 
@@ -140,7 +151,6 @@ def stream_response(user_input: str, session_id: str):
             credential=DefaultAzureCredential(),
             conn_str=os.environ["PROJECT_CONNECTION_STRING"],
         )
-
         with project_client:
             # Create agent
             agent = project_client.agents.create_agent(
@@ -149,7 +159,8 @@ def stream_response(user_input: str, session_id: str):
                 instructions=load_prompt(),
                 tools=function_tool.definitions,
                 temperature=0.3,
-            )
+                response_format=adx_response_format           
+                )
 
             # Use or create thread
             if session_id not in session_threads:
@@ -226,7 +237,6 @@ def stream_response(user_input: str, session_id: str):
                     try:
                         full_text = ""
 
-                        # New style: structured text_messages
                         if hasattr(msg, "text_messages") and msg.text_messages:
                             full_text = "\n".join(
                                 tm.text.value
