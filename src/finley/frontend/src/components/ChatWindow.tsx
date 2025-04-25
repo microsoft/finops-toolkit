@@ -13,6 +13,8 @@ type ChatMessage = {
 };
 
 const promptSuggestions = [
+  "Educate me on the Finops Framework.",
+  "What is FOCUS and why should I care?",
   "What are the top 5 costly services?",
   "Show me monthly trends for storage costs",
   "Which region has the highest usage?",
@@ -26,9 +28,9 @@ const promptSuggestions = [
   "Give me the list of the top 3 biggest consumers, meaning resource based on aggregated cost of the past 3 months.",
 //   "Can you provide a detailed analysis of aggregated costs for each individual resource in the resource group rg-mgmt over the past three months? I want to identify trends and spikes for Virtual Machines, Storage Accounts, and Azure Cognitive Services, and highlight any opportunities for cost optimization.Please ensure the analysis includes all costs across the entire three-month period.",
   // "Are there any cost optimization recommendations for this resource group, such as underutilized resources or resizing opportunities?",
-  // "Give me a summary table of the consumption for AI and Machine Learning service category of this month and list the resources by name meaning resource based on aggregated cost by subscription name.",
+  "Give me a summary table of the consumption for AI and Machine Learning service category of this month and list the resources by name meaning resource based on aggregated cost by subscription name.",
   // "Give me a list of the top 10 consumers of the service category of AI and Machine Learning by resource name and aggregated cost of the past 3 months.",
-  "Can you detect any cost anomalies over the past 7 days by comparing daily cost deviations from the weekly average using standard deviation?"
+//   "Can you detect any cost anomalies over the past 7 days by comparing daily cost deviations from the weekly average using standard deviation?"
 ];
 
 export default function ChatWindow() {
