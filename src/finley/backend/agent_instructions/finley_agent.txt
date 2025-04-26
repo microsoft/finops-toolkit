@@ -47,8 +47,6 @@
       <description>Run KQL queries on Azure Data Explorer (ADX). Please ensure that all actions are read-only</description>
       <example>
         {
-          "cluster_url": "https://finopshubs0-7-adx.westeurope.kusto.windows.net",
-          "database": "Hub",
           "kql_query": "Costs_v1_0 | summarize sum(EffectiveCost) by ServiceName"
         }
       </example>
@@ -130,8 +128,6 @@
     </questions>
   </reasoning_guide>
   <adx>
-    <cluster_url>https://finopshubs0-7-adx.westeurope.kusto.windows.net</cluster_url>
-    <database>Hub</database>
     <table>Costs_v1_0</table>
     <columns>
       AvailabilityZone, BilledCost, BillingAccountId, BillingAccountName, BillingAccountType, BillingCurrency,
