@@ -52,7 +52,7 @@ def finops_expert_with_tavily(query: str) -> str:
         response = tavily_client.search(
             query=search_query,
             search_depth="advanced",
-            max_results=1,
+            max_results=3,
             include_answer="advanced",
             # include_domains=["learn.microsoft.com", "finops.org", "microsoft.com"],
             include_domains=["finops.org","focus.finops.org","x.finops.org"],
@@ -86,7 +86,8 @@ def finops_expert_with_tavily(query: str) -> str:
         response = deepseek_client.complete(
             model=model_name,
             temperature=0.1,
-            max_tokens=2048,
+            top_p=0.3,
+            max_tokens=5000,
             messages=[
                 SystemMessage(content=system_prompt),
                 UserMessage(content=user_prompt),

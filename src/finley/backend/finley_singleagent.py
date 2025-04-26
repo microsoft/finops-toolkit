@@ -1,3 +1,46 @@
+"""
+finley_singleagent.py
+
+This module implements a FastAPI-based service for interacting with an AI agent named "Finley." 
+The agent is designed to process user inputs, execute various tools, and return structured responses 
+in a streaming format. The service integrates with Azure AI services, supports multiple tools for 
+data querying and processing, and provides a real-time streaming API for client interactions.
+
+Key Features:
+- **Azure AI Integration**: Uses Azure AI Project Client for managing agents, threads, and runs.
+- **Tool Execution**: Supports tools for querying databases, running vector searches, and searching documentation.
+- **Streaming Responses**: Provides real-time streaming responses to user queries.
+- **FastAPI Framework**: Implements RESTful endpoints for POST and GET requests.
+- **In-Memory Session Management**: Tracks user sessions and threads in memory.
+- **Error Handling**: Includes robust error handling for tool execution and response formatting.
+- **Markdown Formatting**: Formats responses into Markdown for better readability.
+
+Modules and Libraries:
+- **FastAPI**: For building the web service.
+- **Azure SDK**: For interacting with Azure AI services.
+- **Pydantic**: For request validation and data modeling.
+- **OpenTelemetry**: For monitoring and tracing.
+- **Custom Utilities**: Includes functions for formatting output, extracting JSON, and managing tools.
+
+Endpoints:
+- `POST /ask`: Accepts user input and streams the agent's response.
+- `GET /api/ask-stream`: Streams the agent's response for a given prompt.
+
+Environment Variables:
+- `AZURE_MONITOR_CONNECTION_STRING`: Connection string for Azure Monitor.
+- `PROJECT_CONNECTION_STRING`: Connection string for Azure AI Project.
+- `AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED`: Name of the deployed AI model.
+
+Dependencies:
+- Requires a `.env` file for loading environment variables.
+- Relies on custom user functions for querying and processing data.
+
+Usage:
+1. Start the FastAPI server.
+2. Use the `/ask` or `/api/ask-stream` endpoints to interact with the Finley agent.
+3. Monitor and trace interactions using Azure Monitor and OpenTelemetry.
+
+"""
 import os
 import time
 import json
@@ -53,6 +96,10 @@ tracer = trace.get_tracer(__name__)
 
 # === Utils ===
 def safe_tool_output(result, max_length=1048576):
+    """
+    Safely serialize the result of a tool execution to JSON.
+    If the serialized output exceeds max_length, return a truncated version.
+    """
     try:
         serialized = json.dumps(result)
         if len(serialized) > max_length:
@@ -73,6 +120,12 @@ def safe_tool_output(result, max_length=1048576):
 
 
 def format_adx_response(content: str) -> str:
+    """
+    Format the response from the AI agent for better readability.
+    - Extracts JSON data from the content.
+    - Formats the summary and preview into Markdown.
+    - Returns the formatted content.
+    """
     try:
         parsed = extract_json_from_text(content)
         if not parsed or not isinstance(parsed, dict):
@@ -98,6 +151,10 @@ def format_adx_response(content: str) -> str:
 
 
 def extract_text_content(msg):
+    """
+    Extract text content from a message object.
+    Handles different structures of the message object.
+    """
     if hasattr(msg, "text") and msg.text:
         return msg.text.value
     if hasattr(msg, "content"):
@@ -137,6 +194,11 @@ session_threads: Dict[str, str] = {}
 
 # === Streaming core logic ===
 def stream_response(user_input: str, session_id: str):
+    """
+    Stream the response from the Finley agent.
+    This function handles the interaction with the Azure AI Project Client,
+    manages the agent and thread, and streams the response back to the client.
+    """
     try:
         project_client = AIProjectClient.from_connection_string(
             credential=DefaultAzureCredential(),
@@ -149,7 +211,8 @@ def stream_response(user_input: str, session_id: str):
                 name="Finley",
                 instructions=load_prompt(),
                 tools=function_tool.definitions,
-                temperature=0.3
+                temperature=0.0,
+                top_p=0.3,
                 )
 
             # Use or create thread
@@ -270,6 +333,11 @@ def stream_response(user_input: str, session_id: str):
 # === API routes ===
 @app.post("/ask")
 async def ask_finley_post(request: Request):
+    """
+    Handle POST requests to the /ask endpoint.
+    Expects a JSON body with a 'message' field.
+    Streams the response from the Finley agent.
+    """
     body = await request.json()
     user_input = body["message"]
     session_id = request.headers.get("x-session-id", "default")
@@ -280,6 +348,11 @@ async def ask_finley_post(request: Request):
 
 @app.get("/api/ask-stream")
 async def ask_finley_get(prompt: str = Query(...), request: Request = None):
+    """
+    Handle GET requests to the /api/ask-stream endpoint.
+    Expects a query parameter 'prompt'.
+    Streams the response from the Finley agent.
+    """
     session_id = request.headers.get("x-session-id", "default")
     return StreamingResponse(
         stream_response(prompt, session_id), media_type="text/event-stream"
