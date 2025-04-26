@@ -112,7 +112,7 @@
         </when_to_use>
         <output_expectation>
             <item>Output format is taken care of by another process, so you can output it as is</item>
-        </output_expectations>
+        </output_expectation>
     </tool>
   </tools>
   <reasoning_guide>
@@ -178,6 +178,7 @@
   <examples>
     <example title="search_web_docs: what is finops?">
         FinOps is an operational framework and cultural practice which maximizes the business value of cloud and technology, enables timely data-driven decision making, and creates financial accountability through collaboration between engineering, finance, and business teams.
+    </example>
     <example title="ADX: Daily Anomaly Detection">
       let numberOfDays = int(30);
       Costs_v1_0
