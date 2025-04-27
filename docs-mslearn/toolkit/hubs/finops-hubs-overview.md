@@ -25,7 +25,7 @@ FinOps hubs extend Cost Management to provide a scalable platform for advanced d
 > [!NOTE]
 > Estimated cost: Starts at $120/mo + $10/mo per $1M in cost being monitored.
 >
-> Estimated monthly cost includes $120 for a single-node Azure Data Explorer cluster, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on discounts, data size (we estimate ~20GB per $1M), and Power BI license requirements. Cost without Data Explorer is $5 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
+> Estimated monthly cost includes $120 for a single-node Azure Data Explorer cluster or $300 for F2 Fabric capacity, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on discounts, data size (we estimate ~20GB per $1M), and Fabric or Power BI license requirements. Cost without Data Explorer or Fabric is $5 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
 
 <br>
 
@@ -53,15 +53,10 @@ FinOps hubs provide many benefits over using Cost Management exports.
 
 - Report on cost and usage across multiple accounts and subscriptions in separate tenants.
 - Run advanced analytical queries and report on year over year cost trends in seconds.
+- Direct support for Microsoft Fabric via Real-Time Intelligence (RTI).
 - Report on negotiated and commitment discount savings for EA billing accounts and MCA billing profiles.
-- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../focus/what-is-focus.md).
-- Clean up duplicated data in daily Cost Management exports (and save money on storage).
-- Convert exported data to parquet for faster data access.
-- Extensible via standard Data Factory and Power BI capabilities to integrate business or other providers cost data.
-- Connect Power BI to Azure Government and Azure China¹.
-- Connect Power BI to Microsoft Online Services Agreement (MOSA) subscriptions¹.
-
-_¹ Azure Government, Azure China, and MOSA (or pay-as-you-go) subscriptions are only supported in FinOps hubs 0.1.1. FinOps hubs 0.2+ requires FOCUS cost data from Cost Management exports, which aren't supported for MOSA subscriptions. Contact support about transitioning to a Microsoft Customer Agreement account._
+- Extensible via Data Factory, Data Explorer, Fabric, and Power BI capabilities to integrate business or other providers cost data.
+- Backwards compatibility as future dataset versions add new or change existing columns.
 
 <br>
 
@@ -70,11 +65,12 @@ _¹ Azure Government, Azure China, and MOSA (or pay-as-you-go) subscriptions are
 The FinOps hub template includes the following resources:
 
 - Azure Data Explorer (Kusto) as a scalable datastore for advanced analytics (optional).
+  - Alternatively, FinOps hubs can also connect to Microsoft Fabric Real-Time Intelligence (RTI).
 - Storage account (Data Lake Storage Gen2) as a staging area for data ingestion.
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
 
-Once deployed, you can query data directly using Data Explorer queries, visualize data using the available Data Explorer dashboards or Power BI reports, or connect to the database or storage account directly from your own tools.
+Once deployed, you can query data directly using KQL queries, visualize data using the available Data Explorer dashboards, Fabric Real-Time dashboards, or Power BI reports; or connect to the database or storage account directly from your own tools.
 
 > [!div class="nextstepaction"]
 > [See the template](template.md)
@@ -111,12 +107,13 @@ To create a new FinOps hub, follow these steps:
 
 1. Enable the EventGrid resource provider for your subscription.
 2. Plan for public or private network routing with your network admins. [Learn more](private-networking.md).
-3. Deploy the FinOps hub template.
+3. Optional: Set up Microsoft Fabric Real-Time Intelligence.
+4. Deploy the FinOps hub template.
    - [Deploy to Azure](https://aka.ms/finops/hubs/deploy)
    - [Deploy to Azure Gov](https://aka.ms/finops/hubs/deploy/gov)
    - [Deploy to Azure China](https://aka.ms/finops/hubs/deploy/china) (MCA only)
-4. Create exports in Cost Management or grant access to FinOps hubs. [Learn more](configure-scopes.md).
-5. Set up the [Data Explorer dashboard](configure-dashboards.md) or [Power BI reports](../power-bi/reports.md#connect-to-your-data).
+5. Create exports in Cost Management or grant access to FinOps hubs. [Learn more](configure-scopes.md).
+6. Set up the [Data Explorer dashboard](configure-dashboards.md) or [Power BI reports](../power-bi/reports.md#connect-to-your-data).
 
 For more detailed instructions, see [Create and update FinOps hubs](deploy.md). If you run into any issues, refer to the [Troubleshooting guide](../help/troubleshooting.md).
 
@@ -176,7 +173,7 @@ Configuring and managing FinOps hubs requires the following permissions:
   - For least-privileged access, see  [template details](template.md#prerequisites).
 - Configuring Power BI requires one of the following
   - Storage reports: [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
-  - KQL reports: Viewer on the Hub database.
+  - KQL reports: Viewer on the Hub and Ingestion databases.
 
 CSP customers need to configure exports for each subscription in order to ingest their total cost into FinOps hubs. Cost Management doesn't support management group exports for MCA or CSP subscriptions (as of May 2024).
 

@@ -88,16 +88,18 @@ Public routing does not require additional configuration. If you opt for private
 
 ## Optional: Set up Microsoft Fabric
 
-If deploying to Microsoft Fabric, you will need to create a workspace and eventhouse before deploying the FinOps hub template to your Azure subscription. Microsoft Fabric setup is mostly manual today.
+Many organizations adopt Microsoft Fabric as a unified data platform to streamline data analytics, storage, and processing. FinOps hubs can use Microsoft Fabric Real-Time Intelligence (RTI) as either a primary or secondary data store. This section only applies when configuring Microsoft Fabric as a primary data store instead of Azure Data Explorer.
 
-1. Create a workspace and eventhouse:
+Configuring Microsoft Fabric is a manual process and requires explicit steps before and after template deployment. This section covers the initial setup requirements.
+
+1. Create a workspace and eventhouse:<!-- cSpell:ignore eventhouse -->
    1. From Microsoft Fabric, open the desired workspace or create a new workspace. [Learn more](/fabric/fundamentals/create-workspaces).
    2. From your Fabric workspace, select the **+ New item** command at the top of the page.
    3. Select **Store data** > **Eventhouse**.
    4. Specify a name (e.g., `FinOpsHub`) and select **Create**.
 2. Create and configure the **Ingestion** database:
    1. Select **Eventhouse** > **+ Database** at the top of the page, set the name to `Ingestion`, and select **Create**.
-   2. Select the **Ingestion_queryset** in the left menu.
+   2. Select the **Ingestion_queryset** in the left menu.<!-- cSpell:ignore queryset -->
    3. Delete all text in the file.
    4. Download and open the [finops-hub-fabric-setup-Ingestion.kql file](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-fabric-setup-Ingestion.kql) in a text editor.
    5. Copy the entire text from this file into the Fabric queryset editor.
@@ -180,6 +182,44 @@ Deploy-FinOpsHub `
 For additional parameters, see [Deploy-FinOpsHub](../powershell/hubs/Deploy-FinOpsHub.md).
 
 ---
+
+<br>
+
+## Optional: Configure Fabric access
+
+If you chose to setup Microsoft Fabric as a primary data store, you will need to configure access for Data Factory and the Fabric eventhouse.
+
+1. Get the Data Factory identity:
+   1. From the Azure portal, open the FinOps hub resource group.
+   2. In the list of resources, select the Data Factory instance.
+   3. In the menu on the left, select **Settings** > **Managed identities** and copy the **Object (principal) ID**.
+2. Give Data Factory access to the Hub and Ingestion databases:
+   1. From Microsoft Fabric, open the desired workspace and select the target eventhouse.
+   2. Select the **Ingestion** database in the left pane.
+   3. Select **Ingestion_queryset** in the left pane.
+   4. Run the following commands separately, replacing `<adf-identity-id>` with the Data Factory managed identity object ID from step 1:
+
+      <!-- cSpell:ignore aadapp -->
+      ```kusto
+      .add database Ingestion admins ('aadapp=<adf-identity-id>')
+
+      .add database Hub admins ('aadapp=<adf-identity-id>')
+      ```
+<!--
+1. Create an identity for your Fabric workspace:
+   1. From Microsoft Fabric, open the workspace and select **Workspace settings** in the top-right corner.
+   2. In the flyout menu, select **Workspace identity** and then select the **+ Workspace identity** button.
+   3. Copy the ID.
+2. Grant your Fabric workspace access to storage:
+   1. From the Azure portal, open the FinOps hub resource group.
+   2. In the list of resources, select the primary storage account (not the "script" storage).
+   3. Select **Access control (IAM)** > **+ Add** > **Add role assignment**.
+   4. Select **Storage Blob Data Reader** and then **Next**.
+   5. Select **+ Select members**.
+   6. In the filter box, paste the workspace identity ID from step 3.
+   7. Select the workspace "application" from the list and then the **Select** button at the bottom.
+   8. Select **Review + assign** at the bottom-left of the page.
+-->
 
 <br>
 
@@ -338,9 +378,10 @@ For additional parameters, see [Start-FinOpsCostExport](../powershell/hubs/Start
 
 <br>
 
-## Optional: Connect to Microsoft Fabric
+## Optional: Connect to Microsoft Fabric as a follower
 
-Many organizations adopt Microsoft Fabric as a unified data platform to streamline data analytics, storage, and processing. You can extend FinOps hubs to integrate with Microsoft Fabric through Fabric eventhouses.
+<!-- cSpell:ignore eventhouses -->
+If you chose to configure FinOps hubs with Data Explorer, but are still interested in making data available in Microsoft Fabric, you can create a shortcut (follower) database using Fabric eventhouses. This is not necessary if you ingested directly into a Fabric eventhouse.
 
 1. From your Fabric workspace, select the **+ New item** command at the top of the page.
 2. Select **Store data** > **Eventhouse**.
@@ -388,10 +429,10 @@ For more details, see [Configure Data Explorer dashboards](configure-dashboards.
 ### [Power BI reports](#tab/power-bi)
 
 1. Download the Power BI reports for your backend:
-   - If connecting to FinOps hubs with Data Explorer, use [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip).
+   - If connecting to Data Explorer or Microsoft Fabric, use [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip).
    - If connecting to storage (including FinOps hubs), use [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip).
 2. Open each report and specify applicable report parameters:
-   - **Cluster URI** is the Data Explorer cluster URI, if applicable.
+   - **Cluster URI** is the Data Explorer cluster URI or Microsoft Fabric eventhouse query URI.
    - **Storage URL** is the DFS endpoint for the Azure Data Lake Storage account.
    - All other parameters are optional or have defaults.
 3. Authorize each data source:
