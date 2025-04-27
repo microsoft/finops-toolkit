@@ -18,6 +18,9 @@ from azure.kusto.data.helpers import dataframe_from_result_table
 # Load environment variables
 load_dotenv()
 
+ADX_CLUSTER_URL=os.getenv("ADX_CLUSTER_URL")
+ADX_DATABASE=os.getenv("ADX_DATABASE")
+
 def safe_serialize(data):
     def convert(obj):
         if isinstance(obj, pd.Timestamp):
@@ -30,7 +33,7 @@ def safe_serialize(data):
 from datetime import datetime
 from typing import Optional
 
-def query_adx_database(cluster_url: str, database: str, kql_query: str) -> str:
+def query_adx_database(kql_query: str) -> str:
     """
     Run KQL queries on Azure Data Explorer (ADX).
     This tool helps analyze costs, trends, and anomalies using the Costs_v1_0 table.
@@ -62,8 +65,8 @@ def query_adx_database(cluster_url: str, database: str, kql_query: str) -> str:
 
     print("🔍 query_adx_database() was called")
     print(f"📆 Today (UTC): {today}")
-    print(f"🔗 Cluster URL: {cluster_url}")
-    print(f"📦 Database: {database}")
+    print(f"🔗 Cluster URL: {ADX_CLUSTER_URL}")
+    print(f"📦 Database: {ADX_DATABASE}")
     print(f"📄 Original KQL: {kql_query}")
 
     # 🔁 Replace placeholder if used in the query
@@ -74,9 +77,9 @@ def query_adx_database(cluster_url: str, database: str, kql_query: str) -> str:
         print("⚠️ No token replacement needed.")
 
     try:
-        kcsb = KustoConnectionStringBuilder.with_az_cli_authentication(cluster_url)
+        kcsb = KustoConnectionStringBuilder.with_az_cli_authentication(ADX_CLUSTER_URL)
         client = KustoClient(kcsb)
-        response = client.execute(database, kql_query)
+        response = client.execute(ADX_DATABASE, kql_query)
         result_table = response.primary_results[0]
         df = dataframe_from_result_table(result_table)
 
