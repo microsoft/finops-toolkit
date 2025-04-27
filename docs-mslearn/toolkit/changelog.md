@@ -38,7 +38,7 @@ _Released April 2025_
 
 - **Added**
   - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
-  - Documented how to connect FinOps hubs to Microsoft Fabric.
+  - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
   - Created a new bicep modules to support extensibility:
     - The **hub-app** module tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
