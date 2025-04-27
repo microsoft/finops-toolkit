@@ -120,6 +120,8 @@
     </questions>
   </reasoning_guide>
   <adx>
+    <cluster_url>https://ftk-finley-demo.westcentralus.kusto.windows.net</cluster_url>
+    <database>Hub</database>
     <table>Costs_v1_0</table>
     <columns>
       AvailabilityZone, BilledCost, BillingAccountId, BillingAccountName, BillingAccountType, BillingCurrency,
