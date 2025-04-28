@@ -62,7 +62,7 @@ resource searchService 'Microsoft.Search/searchServices@2024-06-01-preview' = {
   }
 }
 
-resource searchPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource searchPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: searchPrivateLinkName
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -89,12 +89,12 @@ resource searchPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' =
   }
 }
 
-resource searchPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
+resource searchPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: searchPrivateDnsZoneName
   location: 'global'
 }
 
-resource searchPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource searchPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   parent: searchPrivateEndpoint
   name: 'search-PrivateDnsZoneGroup'
   properties: {
@@ -109,7 +109,7 @@ resource searchPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDns
   }
 }
 
-resource searchPrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
+resource searchPrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   parent: searchPrivateDnsZone
   name: uniqueString(searchService.id)
   location: 'global'

@@ -61,7 +61,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' =
   }
 }
 
-resource containerRegistryPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource containerRegistryPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: containerRegistryPleName
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -83,12 +83,12 @@ resource containerRegistryPrivateEndpoint 'Microsoft.Network/privateEndpoints@20
   }
 }
 
-resource acrPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
+resource acrPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: privateDnsZoneName
   location: 'global'
 }
 
-resource privateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource privateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   parent: containerRegistryPrivateEndpoint
   name: '${groupName}-PrivateDnsZoneGroup'
   properties:{
@@ -103,7 +103,7 @@ resource privateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGr
   }
 }
 
-resource acrPrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
+resource acrPrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   parent: acrPrivateDnsZone
   name: uniqueString(containerRegistry.id)
   location: 'global'

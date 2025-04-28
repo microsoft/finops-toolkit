@@ -36,7 +36,7 @@ var aiServiceNameCleaned = replace(aiServiceName, '-', '')
 var cognitiveServicesPrivateDnsZoneName = 'privatelink.cognitiveservices.azure.com'
 var openAiPrivateDnsZoneName = 'privatelink.openai.azure.com'
 
-resource aiServices 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
+resource aiServices 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
   name: aiServiceNameCleaned
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.CognitiveServices/accounts'] ?? {})
@@ -47,9 +47,6 @@ resource aiServices 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   properties: {
     publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
     disableLocalAuth: false
-    apiProperties: {
-      statisticsEnabled: false
-    }
     networkAcls: {
       defaultAction: enablePublicAccess ? 'Allow' : 'Deny'
       virtualNetworkRules: enablePublicAccess ? [] : [
@@ -161,7 +158,7 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01
   sku: deployment.?sku ?? null
 }]
 
-resource aiServicesPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource aiServicesPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: aiServicesPleName
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -188,17 +185,17 @@ resource aiServicesPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-0
   }
 }
 
-resource cognitiveServicesPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
+resource cognitiveServicesPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: cognitiveServicesPrivateDnsZoneName
   location: 'global'
 }
 
-resource openAiPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
+resource openAiPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: openAiPrivateDnsZoneName
   location: 'global'
 }
 
-resource cognitiveServicesVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
+resource cognitiveServicesVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   parent: cognitiveServicesPrivateDnsZone
   name: uniqueString(virtualNetworkId)
   location: 'global'
@@ -210,7 +207,7 @@ resource cognitiveServicesVnetLink 'Microsoft.Network/privateDnsZones/virtualNet
   }
 }
 
-resource openAiVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
+resource openAiVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   parent: openAiPrivateDnsZone
   name: uniqueString(virtualNetworkId)
   location: 'global'
@@ -222,7 +219,7 @@ resource openAiVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2
   }
 }
 
-resource aiServicesPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource aiServicesPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   parent: aiServicesPrivateEndpoint
   name: 'default'
   properties:{

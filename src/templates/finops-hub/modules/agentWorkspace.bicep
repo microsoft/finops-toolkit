@@ -155,7 +155,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
 
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: privateEndpointName
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -177,21 +177,21 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!
 
 }
 
-resource privateLinkApi 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
+resource privateLinkApi 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.api.azureml.ms'
   location: 'global'
   tags: {}
   properties: {}
 }
 
-resource privateLinkNotebooks 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
+resource privateLinkNotebooks 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.notebooks.azure.net'
   location: 'global'
   tags: {}
   properties: {}
 }
 
-resource vnetLinkApi 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
+resource vnetLinkApi 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   parent: privateLinkApi
   name: '${uniqueString(virtualNetworkId)}-api'
   location: 'global'
@@ -203,7 +203,7 @@ resource vnetLinkApi 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020
   }
 }
 
-resource vnetLinkNotebooks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
+resource vnetLinkNotebooks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   parent: privateLinkNotebooks
   name: '${uniqueString(virtualNetworkId)}-notebooks'
   location: 'global'
@@ -215,7 +215,7 @@ resource vnetLinkNotebooks 'Microsoft.Network/privateDnsZones/virtualNetworkLink
   }
 }
 
-resource dnsZoneGroupAiHub 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource dnsZoneGroupAiHub 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   parent: privateEndpoint
   name: 'default'
   properties: {

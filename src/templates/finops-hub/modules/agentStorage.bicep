@@ -96,7 +96,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   }
 }
 
-resource storagePrivateEndpointBlob 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource storagePrivateEndpointBlob 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: storagePleBlobName
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -123,7 +123,7 @@ resource storagePrivateEndpointBlob 'Microsoft.Network/privateEndpoints@2023-11-
   }
 }
 
-resource storagePrivateEndpointFile 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource storagePrivateEndpointFile 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: storagePleFileName
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -150,12 +150,12 @@ resource storagePrivateEndpointFile 'Microsoft.Network/privateEndpoints@2023-11-
   }
 }
 
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' existing = if (!enablePublicAccess) {
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (!enablePublicAccess) {
   name: blobPrivateDnsZoneName
   //location: 'global'
 }
 
-resource blobPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource blobPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   parent: storagePrivateEndpointBlob
   name: 'blob-PrivateDnsZoneGroup'
   properties:{
@@ -170,12 +170,12 @@ resource blobPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZo
   }
 }
 
-resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' existing = if (!enablePublicAccess) {
+resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (!enablePublicAccess) {
   name: filePrivateDnsZoneName
   //location: 'global'
 }
 
-resource filePrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource filePrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   parent: storagePrivateEndpointFile
   name: 'flie-PrivateDnsZoneGroup'
   properties:{
