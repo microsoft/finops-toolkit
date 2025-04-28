@@ -178,6 +178,13 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
   properties: {}
 }
 
+resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
+  name: 'privatelink.file.${environment().suffixes.storage}'
+  location: 'global'
+  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
+  properties: {}
+}
+
 resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   parent: blobPrivateDnsZone
   name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
@@ -220,6 +227,19 @@ resource queuePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwo
 resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
   parent: tablePrivateDnsZone
   name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+  }
+}
+
+resource filePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
+  parent: filePrivateDnsZone
+  name: '${replace(filePrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
   properties: {

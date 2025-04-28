@@ -170,18 +170,6 @@ resource blobPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZo
   }
 }
 
-resource blobPrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
-  parent: blobPrivateDnsZone
-  name: uniqueString(storage.id)
-  location: 'global'
-  properties: {
-    registrationEnabled: false
-    virtualNetwork: {
-      id: virtualNetworkId
-    }
-  }
-}
-
 resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' existing = if (!enablePublicAccess) {
   name: filePrivateDnsZoneName
   //location: 'global'
@@ -199,18 +187,6 @@ resource filePrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZo
         }
       }
     ]
-  }
-}
-
-resource filePrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
-  parent: filePrivateDnsZone
-  name: uniqueString(storage.id)
-  location: 'global'
-  properties: {
-    registrationEnabled: false
-    virtualNetwork: {
-      id: virtualNetworkId
-    }
   }
 }
 
