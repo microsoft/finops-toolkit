@@ -1,17 +1,23 @@
 @description('Azure region of the deployment')
 param location string
 
-@description('Tags to add to the resources')
-param tags object
+@description('Optional. Resource tags.')
+param tags object = {}
+
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
 
 @description('Name of the Azure Cognitive Search service')
 param searchServiceName string
+
+@description('Optional. Enable public access to the data lake.  Default: false.')
+param enablePublicAccess bool
 
 @description('Name of the private link endpoint for the search service')
 param searchPrivateLinkName string
 
 @description('Resource ID of the subnet')
-param subnetId string
+param privateEndpointSubnetId string
 
 @description('Resource ID of the virtual network')
 param virtualNetworkId string
@@ -32,7 +38,7 @@ var searchPrivateDnsZoneName = 'privatelink.search.windows.net'
 resource searchService 'Microsoft.Search/searchServices@2024-06-01-preview' = {
   name: searchServiceName
   location: location
-  tags: tags
+  tags: union(tags, tagsByResource[?'Microsoft.Search/searchServices'] ?? {})
   sku: {
     name: searchSkuName
   }
@@ -52,14 +58,14 @@ resource searchService 'Microsoft.Search/searchServices@2024-06-01-preview' = {
       ipRules: []
       bypass: 'AzureServices'
     }
-    publicNetworkAccess: 'disabled'
+    publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
   }
 }
 
-resource searchPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource searchPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: searchPrivateLinkName
   location: location
-  tags: tags
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
     privateLinkServiceConnections: [
       {
@@ -78,17 +84,17 @@ resource searchPrivateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' =
       }
     ]
     subnet: {
-      id: subnetId
+      id: privateEndpointSubnetId
     }
   }
 }
 
-resource searchPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource searchPrivateDnsZone 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
   name: searchPrivateDnsZoneName
   location: 'global'
 }
 
-resource searchPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+resource searchPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
   parent: searchPrivateEndpoint
   name: 'search-PrivateDnsZoneGroup'
   properties: {
@@ -103,7 +109,7 @@ resource searchPrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDns
   }
 }
 
-resource searchPrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource searchPrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
   parent: searchPrivateDnsZone
   name: uniqueString(searchService.id)
   location: 'global'

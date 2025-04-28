@@ -6,6 +6,9 @@ param location string
 @description('Tags to add to the resources')
 param tags object
 
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
 @description('AI hub name')
 param aiHubName string
 
@@ -15,8 +18,8 @@ param aiHubFriendlyName string = aiHubName
 @description('AI hub description')
 param aiHubDescription string
 
-@description('Resource ID of the application insights resource for storing diagnostics logs')
-param applicationInsightsId string
+//@description('Resource ID of the application insights resource for storing diagnostics logs')
+//param applicationInsightsId string
 
 @description('Resource ID of the container registry resource for storing docker images')
 param containerRegistryId string
@@ -39,11 +42,14 @@ param searchId string
 @description('Resource ID of the AI Search endpoint')
 param searchTarget string
 
-@description('Resource Id of the virtual network to deploy the resource into.')
-param vnetResourceId string
+@description('Optional. Enable public access to the data lake.  Default: false.')
+param enablePublicAccess bool
 
-@description('Subnet Id to deploy into.')
-param subnetResourceId string
+@description('Resource Id of the virtual network to deploy the resource into.')
+param virtualNetworkId string
+
+@description('Resource ID of the subnet')
+param privateEndpointSubnetId string
 
 @description('Unique Suffix used for name generation')
 param uniqueSuffix string
@@ -70,7 +76,7 @@ var targetSubResource = [
 resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview' = {
   name: aiHubName
   location: location
-  tags: tags
+  tags: union(tags, tagsByResource[?'Microsoft.MachineLearningServices/workspaces'] ?? {})
   identity: {
     type: 'SystemAssigned'
   }
@@ -82,12 +88,12 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
     // dependent resources
     keyVault: keyVaultId
     storageAccount: storageAccountId
-    applicationInsights: applicationInsightsId
+    //applicationInsights: applicationInsightsId
     containerRegistry: containerRegistryId
 
     // network settings
     provisionNetworkNow: true
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
     managedNetwork: {
       isolationMode: 'AllowInternetOutBound'
     }
@@ -149,12 +155,13 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
 
 }
 
-resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
   name: privateEndpointName
   location: location
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
     subnet: {
-      id: subnetResourceId
+      id: privateEndpointSubnetId
     }
     customNetworkInterfaceName: '${aiHubName}-nic-${uniqueSuffix}'
     privateLinkServiceConnections: [
@@ -170,47 +177,45 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
 
 }
 
-resource privateLinkApi 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateLinkApi 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.api.azureml.ms'
   location: 'global'
   tags: {}
   properties: {}
 }
 
-resource privateLinkNotebooks 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateLinkNotebooks 'Microsoft.Network/privateDnsZones@2020-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.notebooks.azure.net'
   location: 'global'
   tags: {}
   properties: {}
 }
 
-resource vnetLinkApi 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource vnetLinkApi 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
   parent: privateLinkApi
-  name: '${uniqueString(vnetResourceId)}-api'
+  name: '${uniqueString(virtualNetworkId)}-api'
   location: 'global'
   properties: {
     virtualNetwork: {
-      id: vnetResourceId
+      id: virtualNetworkId
     }
     registrationEnabled: false
   }
 }
 
-resource vnetLinkNotebooks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource vnetLinkNotebooks 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if (!enablePublicAccess) {
   parent: privateLinkNotebooks
-  name: '${uniqueString(vnetResourceId)}-notebooks'
+  name: '${uniqueString(virtualNetworkId)}-notebooks'
   location: 'global'
   properties: {
     virtualNetwork: {
-      id: vnetResourceId
+      id: virtualNetworkId
     }
     registrationEnabled: false
   }
 }
 
-
-
-resource dnsZoneGroupAiHub 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+resource dnsZoneGroupAiHub 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
   parent: privateEndpoint
   name: 'default'
   properties: {

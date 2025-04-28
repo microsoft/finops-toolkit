@@ -25,6 +25,17 @@ param privateEndpointSubnetId string
 @description('The location into which the resources should be deployed.')
 param location string 
 
+param cognitiveServicesSku string = 'S0'
+param aoaisku string = 'Standard'
+param aoaiskuCapacity int = 30
+param aoaiversion string = '2024-11-20'
+param textEmbeddingSku string = 'Standard'
+param textEmbeddingSkuCapacity int = 30
+param textEmbeddingVersion string = '1'
+param deepSeekVersion string = '1'
+param deepseekSku string = 'GlobalStandard'
+param deepseekSkuCapacity int = 1
+
 @description('Determines whether or not to use credentials for the system datastores of the workspace workspaceblobstore and workspacefilestore. The default value is accessKey, in which case, the workspace will create the system datastores with credentials. If set to identity, the workspace will create the system datastores with no credentials.')
 @allowed([
   'identity'
@@ -40,31 +51,127 @@ param systemDatastoresAuthMode string = 'identity'
 param connectionAuthMode string = 'ApiKey'
 
 // Variables
-var name = toLower('${hubName}')
+var agentName = toLower('ai${hubName}')
 
 // Dependent resources for the Azure Machine Learning workspace
-module aiDependencies 'aiDependencies.bicep' = {
-  name: 'finley-dependencies'
+
+module agentKeyvault 'keyvault.bicep' = {
+  name: 'agent-keyvault'
   params: {
     location: location
-    hubName: name
-    uniqueSuffix: uniqueSuffix
     enablePublicAccess: enablePublicAccess
-    virtualNetworkId: virtualNetworkId
     privateEndpointSubnetId: privateEndpointSubnetId
+    virtualNetworkId: virtualNetworkId
+    hubName: agentName
+    uniqueSuffix: uniqueSuffix
+    tags: tags
     tagsByResource: tagsByResource
+    storageAccountKey: '' // This is not used in this module, but is required for the keyvault module
+  }
+}
+
+module agentContainerRegistry 'agentContainerRegistry.bicep' = {
+  name: 'agent-container-registry'
+  params: {
+    location: location
+    containerRegistryName: '${agentName}${uniqueSuffix}'
+    containerRegistryPleName: 'ple-${agentName}-${uniqueSuffix}-cr'
+    privateEndpointSubnetId: privateEndpointSubnetId
+    virtualNetworkId: virtualNetworkId
     tags: tags
   }
 }
 
-/*
-module aiHub './aiHub.bicep' = {
-  name: 'ai-${name}-${uniqueSuffix}-deployment'
+module agentSearchService 'agentSearch.bicep' = {
+  name: 'agent-search-service'
+  params: {
+    location: location
+    searchServiceName: '${agentName}${uniqueSuffix}search'
+    searchPrivateLinkName: 'ple-${agentName}-${uniqueSuffix}-search'
+    enablePublicAccess: enablePublicAccess
+    privateEndpointSubnetId: privateEndpointSubnetId
+    virtualNetworkId: virtualNetworkId
+    tags: tags
+    tagsByResource: tagsByResource
+  }
+}
+
+module agentStorage 'agentStorage.bicep' = {
+  name: 'agent-storage'
+  params: {
+    storageName: '${take(agentName, 24 - length(uniqueSuffix))}${uniqueSuffix}'
+    storagePleBlobName: 'ple-${agentName}-${uniqueSuffix}-blob'
+    storagePleFileName: 'ple-${agentName}-${uniqueSuffix}-file'
+    storageSkuName: 'Standard_LRS'
+    location: location
+    enablePublicAccess: enablePublicAccess
+    privateEndpointSubnetId: privateEndpointSubnetId
+    virtualNetworkId: virtualNetworkId
+    tags: tags
+    tagsByResource: tagsByResource
+  }
+}
+
+module agentcognitiveservices 'agentCognitiveServices.bicep'  = {
+  name: 'agent-cognitive-services'
+  params: {
+    location: location
+    enablePublicAccess: enablePublicAccess
+    virtualNetworkId: virtualNetworkId
+    privateEndpointSubnetId: privateEndpointSubnetId
+    aiServiceName: '${agentName}${uniqueSuffix}'
+    aiServicesPleName: 'ple-${agentName}-${uniqueSuffix}-cog'
+    aiServiceSkuName: cognitiveServicesSku
+    tags: tags
+    tagsByResource: tagsByResource
+    deployments: [
+      {
+        name: 'gpt-4o'
+        model: {
+          format: 'OpenAI'
+          name: 'gpt-4o'
+          version: aoaiversion
+        }
+        sku: {
+          name: aoaisku
+          capacity: aoaiskuCapacity
+        }
+      }
+      {
+        name: 'text-embedding-3-large'
+        model: {
+          format: 'OpenAI'
+          name: 'text-embedding-3-large'
+          version: textEmbeddingVersion
+        }
+        sku: {
+          name: textEmbeddingSku
+          capacity: textEmbeddingSkuCapacity
+        }
+      }
+      {
+        name: 'DeepSeek-R1'
+        model: {
+          format: 'DeepSeek'
+          name: 'DeepSeek-R1'
+          version: deepSeekVersion
+        }
+        sku: {
+          name: deepseekSku
+          capacity: deepseekSkuCapacity
+        }
+      }
+    ]
+  }  
+}
+
+module agentworkspace 'agentWorkspace.bicep' = {
+  name: 'agent-ml-workspace'
   params: {
     // workspace organization
-    aiHubName: 'aih-${name}-${uniqueSuffix}'
-    aiHubFriendlyName: aiHubFriendlyName
-    aiHubDescription: aiHubDescription
+    aiHubName: '${agentName}${uniqueSuffix}hub'
+    aiHubFriendlyName: '${hubName} AI Hub'
+    aiHubDescription: 'AI Hub for ${hubName}'
     location: location
     tags: tags
 
@@ -72,18 +179,19 @@ module aiHub './aiHub.bicep' = {
     uniqueSuffix: uniqueSuffix
 
     //network related
-    vnetResourceId: vnetResourceId
-    subnetResourceId: subnetResourceId
+    enablePublicAccess: enablePublicAccess
+    virtualNetworkId: virtualNetworkId
+    privateEndpointSubnetId: privateEndpointSubnetId
 
     // dependent resources
-    aiServicesId: aiDependencies.outputs.aiservicesID
-    aiServicesTarget: aiDependencies.outputs.aiservicesTarget
-    applicationInsightsId: aiDependencies.outputs.applicationInsightsId
-    containerRegistryId: aiDependencies.outputs.containerRegistryId
-    keyVaultId: aiDependencies.outputs.keyvaultId
-    storageAccountId: aiDependencies.outputs.storageId
-    searchId: aiDependencies.outputs.searchServiceId
-    searchTarget: aiDependencies.outputs.searchServiceTarget
+    aiServicesId: agentcognitiveservices.outputs.aiServicesId
+    aiServicesTarget: agentcognitiveservices.outputs.aiServicesEndpoint
+    //applicationInsightsId: aiDependencies.outputs.applicationInsightsId
+    containerRegistryId: agentContainerRegistry.outputs.containerRegistryId
+    keyVaultId: agentKeyvault.outputs.resourceId
+    storageAccountId: agentStorage.outputs.storageId
+    searchId: agentSearchService.outputs.searchServiceId
+    searchTarget: agentSearchService.outputs.searchServiceEndpoint
 
     //configuration settings
     systemDatastoresAuthMode: systemDatastoresAuthMode
@@ -93,16 +201,16 @@ module aiHub './aiHub.bicep' = {
 }
 
 // Assignment of roles necessary for template usage
-module roleAssignments 'aiRoleAssignments.bicep' = {
-  name: 'role-assignments-${name}-${uniqueSuffix}-deployment'
+module agentroleassignments 'agentRoleAssignments.bicep' = {
+  name: 'agent-role-assignments'
   params: {
-    aiHubName: aiHub.outputs.aiHubName
-    aiHubPrincipalId: aiHub.outputs.aiHubPrincipalId
-    aiServicesPrincipalId: aiDependencies.outputs.aiServicesPrincipalId
-    aiServicesName: aiDependencies.outputs.aiservicesName
-    searchServicePrincipalId: aiDependencies.outputs.searchServicePrincipalId
-    searchServiceName: aiDependencies.outputs.searchServiceName
-    storageName: aiDependencies.outputs.storageName
+    aiHubName: agentworkspace.outputs.aiHubName
+    aiHubPrincipalId: agentworkspace.outputs.aiHubPrincipalId
+    aiServicesPrincipalId: agentcognitiveservices.outputs.aiServicesPrincipalId
+    aiServicesName: agentcognitiveservices.outputs.aiServicesName
+    searchServicePrincipalId: agentSearchService.outputs.searchServicePrincipalId
+    searchServiceName: agentSearchService.outputs.searchServiceName
+    storageName: agentStorage.outputs.storageName
   }
 }
-*/
+

@@ -393,6 +393,24 @@ module keyVault 'keyVault.bicep' = if (!empty(remoteHubStorageKey)) {
   }
 }
 
+//------------------------------------------------------------------------------
+// Hub FinOps Agent
+//------------------------------------------------------------------------------
+
+module hubAgent 'hubAgent.bicep' = if (enableHubAgent) {
+  name: 'hubAgent'
+  params: {
+    hubName: hubName
+    uniqueSuffix: uniqueSuffix
+    location: location
+    tags: resourceTags
+    tagsByResource: tagsByResource
+    enablePublicAccess: enablePublicAccess
+    virtualNetworkId: safeVnetId
+    privateEndpointSubnetId: safeFinopsHubSubnetId
+  }
+}
+
 //==============================================================================
 // Outputs
 //==============================================================================
