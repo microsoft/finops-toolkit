@@ -215,6 +215,19 @@ Unable to locate parquet files to ingest from the specified folder path.
 
 <br>
 
+## InternalServiceError
+
+Microsoft Fabric Real-Time Intelligence may return an "InternalServiceError (520-UnknownError)" error code when ingesting data. The detailed error message may say:
+
+> _Kusto client failed to send a request to the service: 'Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host.'`_
+
+The exact reason for this error is unknown. If you experience it, please file a support request with Microsoft Fabric to investigate further.
+
+<!-- cSpell:ignore eventhouse -->
+**Mitigation**: As a workaround, change the minimum consumption for the Fabric eventhouse to **Medium (18 CUs)**, wait 30 minutes, and rerun the **ingestion_ExecuteETL** pipeline for that dataset and month. To learn more minimum consumption, see [Minimum consumption](/fabric/real-time-intelligence/manage-monitor-eventhouse#enable-minimum-consumption) in the eventhouse overview.
+
+<br>
+
 ## InvalidEffectiveCost
 
 <sup>Severity: Major</sup>
