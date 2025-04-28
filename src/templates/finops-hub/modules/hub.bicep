@@ -133,6 +133,9 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
+@description('Optional. Enable Hub FinOps Agent. Default: false.')
+param enableHubAgent bool = false
+
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
