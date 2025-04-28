@@ -395,7 +395,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 }
 
 // Private endpoint
-resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: '${cluster.name}-ep'
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -416,7 +416,7 @@ resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = 
 }
 
 // DNS records for private endpoint
-resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   name: 'dataExplorer-endpoint-zone'
   parent: dataExplorerEndpoint
   properties: {

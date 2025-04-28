@@ -250,7 +250,7 @@ resource filePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwor
   }
 }
 
-resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource blobEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: '${storageAccount.name}-blob-ep'
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -270,7 +270,7 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!ena
   }
 }
 
-resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: '${scriptStorageAccount.name}-blob-ep'
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -290,7 +290,7 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!e
   }
 }
 
-resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
+resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: '${storageAccount.name}-dfs-ep'
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
@@ -310,7 +310,7 @@ resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enab
   }
 }
 
-resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   name: 'storage-endpoint-zone'
   parent: blobEndpoint
   properties: {
@@ -325,7 +325,7 @@ resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZ
   }
 }
 
-resource dfsPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource dfsPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   name: 'dfs-endpoint-zone'
   parent: dfsEndpoint
   properties: {
@@ -340,7 +340,7 @@ resource dfsPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZo
   }
 }
 
-resource scriptPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
+resource scriptPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   name: 'blob-endpoint-zone'
   parent: scriptEndpoint
   properties: {

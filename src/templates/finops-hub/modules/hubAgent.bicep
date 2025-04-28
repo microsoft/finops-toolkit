@@ -29,12 +29,21 @@ param dataExplorerSubnetId string
 param location string 
 
 param cognitiveServicesSku string = 'S0'
+
+param aoamodel string = 'gpt-4o'
+param aoaiformat string = 'OpenAI'
 param aoaisku string = 'Standard'
 param aoaiskuCapacity int = 30
 param aoaiversion string = '2024-11-20'
+
+param textEmbeddingModel string = 'text-embedding-3-large'
+param textEmbeddingFormat string = 'OpenAI'
 param textEmbeddingSku string = 'Standard'
 param textEmbeddingSkuCapacity int = 30
 param textEmbeddingVersion string = '1'
+
+param deepSeekModel string = 'DeepSeek-R1'
+param deepSeekFormat string = 'DeepSeek'
 param deepSeekVersion string = '1'
 param deepseekSku string = 'GlobalStandard'
 param deepseekSkuCapacity int = 1
@@ -129,10 +138,10 @@ module agentcognitiveservices 'agentCognitiveServices.bicep'  = {
     tagsByResource: tagsByResource
     deployments: [
       {
-        name: 'gpt-4o'
+        name: aoamodel
         model: {
-          format: 'OpenAI'
-          name: 'gpt-4o'
+          format: aoaiformat
+          name: aoamodel
           version: aoaiversion
         }
         sku: {
@@ -141,10 +150,10 @@ module agentcognitiveservices 'agentCognitiveServices.bicep'  = {
         }
       }
       {
-        name: 'text-embedding-3-large'
+        name: textEmbeddingModel
         model: {
-          format: 'OpenAI'
-          name: 'text-embedding-3-large'
+          format: textEmbeddingFormat
+          name: textEmbeddingModel
           version: textEmbeddingVersion
         }
         sku: {
@@ -153,10 +162,10 @@ module agentcognitiveservices 'agentCognitiveServices.bicep'  = {
         }
       }
       {
-        name: 'DeepSeek-R1'
+        name: deepSeekModel
         model: {
-          format: 'DeepSeek'
-          name: 'DeepSeek-R1'
+          format: deepSeekFormat
+          name: deepSeekModel
           version: deepSeekVersion
         }
         sku: {
