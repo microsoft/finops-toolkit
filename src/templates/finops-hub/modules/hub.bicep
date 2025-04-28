@@ -399,6 +399,10 @@ module keyVault 'keyVault.bicep' = if (!empty(remoteHubStorageKey)) {
 
 module hubAgent 'hubAgent.bicep' = if (enableHubAgent) {
   name: 'hubAgent'
+  dependsOn: [
+    storage // needed for the DNS zones
+    // dataExplorer // probably needed
+  ]
   params: {
     hubName: hubName
     uniqueSuffix: uniqueSuffix
