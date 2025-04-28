@@ -17,7 +17,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in March 2025<span class="ftk-version">v0.8</span></h3>
+    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
     <p>
         March introduces a new FinOps alerts tool for getting notified about optimization opportunities, FinOps hubs expanded coverage of managed exports, Power BI added the reservation break-even point and performance improvements, and many additional small fixes and improvements across the board.
     </p>

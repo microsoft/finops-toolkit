@@ -139,6 +139,9 @@ param enablePublicAccess bool = true
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
+@description('The wildcard folder path for the GCP billing data stored in Google Cloud storage.')
+param googleCloudStoragePath string
+
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
@@ -206,8 +209,9 @@ var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 
 // The last segment of the GUID in the telemetryId (40b) is used to identify this module
 // Remaining characters identify settings; must be <= 12 chars -- Example: (guid)_RLXD##x1000P
-var telemetryId = join([
-  '00f120b5-2007-6120-0000-40b000000000_'
+var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
+
+var telemetryString = join([
   // R = remote hubs enabled
   empty(remoteHubStorageUri) || empty(remoteHubStorageKey) ? '' : 'R'
   // L = LRS, Z = ZRS
@@ -227,27 +231,20 @@ var telemetryId = join([
 //==============================================================================
 
 //------------------------------------------------------------------------------
-// Telemetry
-// Used to anonymously count the number of times the template has been deployed
-// and to track and fix deployment bugs to ensure the highest quality.
-// No information about you or your cost data is collected.
+// App registration
 //------------------------------------------------------------------------------
 
-resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
-  name: 'pid-${telemetryId}_${uniqueString(deployment().name, location)}'
-  properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-      contentVersion: '1.0.0.0'
-      metadata: {
-        _generator: {
-          name: 'FinOps toolkit'
-          version: loadTextContent('ftkver.txt')
-        }
-      }
-      resources: []
-    }
+module appRegistration 'hub-app.bicep' = {
+  name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  params: {
+    hubName: hubName
+    publisher: 'FinOps hubs'
+    namespace: 'Microsoft.FinOpsToolkit.Hubs'
+    appName: 'Core'
+    displayName: 'FinOps hub core'
+    appVersion: finOpsToolkitVersion
+    telemetryString: telemetryString
+    enableDefaultTelemetry: enableDefaultTelemetry
   }
 }
 
@@ -357,6 +354,25 @@ module dataFactoryResources 'dataFactory.bicep' = {
     keyVaultName: empty(remoteHubStorageKey) ? '' : keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
     enablePublicAccess: enablePublicAccess
+  }
+}
+
+module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStoragePath)) {
+  name: 'Microsoft.FinOpsToolkit.Hubs.GoogleCloud'
+  params: {
+    dataFactoryName: dataFactory.name
+    storageAccountName: storage.outputs.name
+    location: location
+    tags: resourceTags
+    tagsByResource: tagsByResource
+    gcpBillingWildcardFolderPath: googleCloudStoragePath
+    configDatasetName: dataFactoryResources.outputs.configDatasetName
+    schemaContainerName: dataFactoryResources.outputs.schemaContainerName
+    schemaFolderPath: dataFactoryResources.outputs.schemaFolderPath
+    blobManagerIdentityName: storage.outputs.blobManagerIdentityName
+    enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: storage.outputs.scriptStorageAccountName
+    scriptSubnetId: safeScriptSubnetId
   }
 }
 
