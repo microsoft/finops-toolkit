@@ -139,6 +139,9 @@ param enablePublicAccess bool = true
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
+@description('The wildcard folder path for the GCP billing data stored in Google Cloud storage.')
+param googleCloudStoragePath string
+
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
@@ -342,6 +345,14 @@ module dataFactoryResources 'dataFactory.bicep' = {
     keyVaultName: keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
     enablePublicAccess: enablePublicAccess
+  }
+}
+
+module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStoragePath)) {
+  name: 'Microsoft.FinOpsToolkit.Hubs.GoogleCloud'
+  params: {
+    dataFactoryName: dataFactory.name
+    gcpBillingWildcardFolderPath: googleCloudStoragePath
   }
 }
 
