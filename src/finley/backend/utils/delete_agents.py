@@ -1,13 +1,16 @@
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
 import os
-
+from dotenv import load_dotenv
+# Load environment variables
+load_dotenv()
 # Load your project
 credential = DefaultAzureCredential()
 project_client = AIProjectClient.from_connection_string(
     credential=credential,
     conn_str=os.environ["PROJECT_CONNECTION_STRING"]
 )
+
 
 def delete_all_agents():
     agents = project_client.agents.list_agents().data

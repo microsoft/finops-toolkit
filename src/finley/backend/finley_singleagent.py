@@ -165,9 +165,9 @@ def extract_text_content(msg):
 function_tool = FunctionTool(
     functions=[
         query_adx_database,
-        query_fabric_sql,
-        run_vector_search2,
-        search_kql_docs_vector_only,
+        # query_fabric_sql,
+        # run_vector_search2,
+        # search_kql_docs_vector_only,
         search_web_docs
     ]
 )
