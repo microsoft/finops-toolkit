@@ -352,7 +352,18 @@ module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStoragePath)) {
   name: 'Microsoft.FinOpsToolkit.Hubs.GoogleCloud'
   params: {
     dataFactoryName: dataFactory.name
+    storageAccountName: storage.outputs.name
+    location: location
+    tags: resourceTags
+    tagsByResource: tagsByResource
     gcpBillingWildcardFolderPath: googleCloudStoragePath
+    configDatasetName: dataFactoryResources.outputs.configDatasetName
+    schemaContainerName: dataFactoryResources.outputs.schemaContainerName
+    schemaFolderPath: dataFactoryResources.outputs.schemaFolderPath
+    blobManagerIdentityName: storage.outputs.blobManagerIdentityName
+    enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: storage.outputs.scriptStorageAccountName
+    scriptSubnetId: safeScriptSubnetId
   }
 }
 

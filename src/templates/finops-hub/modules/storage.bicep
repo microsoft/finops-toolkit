@@ -496,3 +496,6 @@ output exportContainer string = exportContainer.name
 
 @description('The name of the container used for normalized data ingestion.')
 output ingestionContainer string = ingestionContainer.name
+
+@description('The resource ID of the managed identity used to upload files.')
+output blobManagerIdentityName string = identity.name

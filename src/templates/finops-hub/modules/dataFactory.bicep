@@ -126,6 +126,8 @@ var storageRbacRoles = [
   '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
 ]
 
+var schemaFolderPath = 'schemas'
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -3140,7 +3142,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                 value: '@variables(\'schemaFile\')'
                 type: 'Expression'
               }
-              folderPath: '${configContainerName}/schemas'
+              folderPath: '${configContainerName}/${schemaFolderPath}'
             }
           }
           fieldList: ['exists']
@@ -4806,3 +4808,13 @@ output resourceId string = dataFactory.id
 
 @description('The Name of the Azure Data Factory instance.')
 output name string = dataFactory.name
+
+@description('The name of the config container dataset.')
+output configDatasetName string = dataset_config.name
+
+@description('The folder path of the schema folder in the config container.')
+output schemaContainerName string = configContainerName
+
+@description('The folder path of the schema folder in the config container.')
+output schemaFolderPath string = schemaFolderPath
+
