@@ -9,6 +9,12 @@ param tags object = {}
 @description('AI services name')
 param aiServicesName string
 
+@description('AI hub name')
+param aiHubName string
+
+@description('AI friendly name')
+param aiHubFriendlyName string
+
 @description('Application Insights resource name')
 param applicationInsightsName string
 
@@ -45,6 +51,24 @@ param sku object = {
   'OpenAI'
 ])
 param kind string = 'AIServices'
+
+@description('Search SKU')
+@allowed([
+  'basic'
+  'standard'
+  'standard2'
+  'standard3'
+  'storage_optimized_l1'
+  'storage_optimized_l2'
+])
+param searchSkuName string = 'standard'
+
+@description('AI Service Connection Auth Mode')
+@allowed([
+  'ApiKey'
+  'AAD'
+])
+param connectionAuthMode string
 
 @description('List of deployments for Cognitive Services.')
 param deployments array = []
@@ -208,6 +232,33 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
+resource searchService 'Microsoft.Search/searchServices@2024-06-01-preview' = {
+  name: aiServicesName
+  location: location
+  tags: tags
+  sku: {
+    name: searchSkuName
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    authOptions: { 
+      aadOrApiKey: { 
+        aadAuthFailureMode: 'http403'
+      }
+    }
+    hostingMode: 'default'
+    partitionCount: 1
+    replicaCount: 1
+    networkRuleSet: {
+      ipRules: []
+      bypass: 'AzureServices'
+    }
+    publicNetworkAccess: 'Enabled'
+  }
+}
+
 resource raiPolicy 'Microsoft.CognitiveServices/accounts/raiPolicies@2024-10-01' = {
   parent: aiServices
   name: policyName
@@ -302,6 +353,87 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01
   }
   sku: deployment.?sku ?? null
 }]
+
+resource aiHub 'Microsoft.MachineLearningServices/workspaces@2025-01-01-preview' = {
+  name: aiHubName
+  location: location
+  tags: tags
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    // organization
+    friendlyName: '${aiHubFriendlyName} resources'
+    description: '${aiHubFriendlyName} resources'
+
+    // dependent resources
+    keyVault: keyVault.id
+    storageAccount: storage.id
+    applicationInsights: applicationInsights.id
+    containerRegistry: containerRegistry.id
+  }
+  kind: 'hub'
+
+  resource aiServicesConnection 'connections@2024-01-01-preview' = {
+    name: '${aiHubName}-connection-AzureOpenAI'
+    properties: {
+      category: 'AzureOpenAI'
+      target: aiServices.properties.endpoint
+      authType: 'ApiKey'
+      isSharedToAll: true
+      credentials: {
+        key: '${listKeys(aiServices.id, '2021-10-01').key1}'
+      }
+      metadata: {
+        ApiType: 'Azure'
+        ResourceId: aiServices.id
+      }
+    }
+  }
+
+  resource searchServiceConnection 'connections@2024-01-01-preview' = {
+    name: '${aiHubName}-connection-Search'
+    properties: {
+      category: 'CognitiveSearch'
+      target: 'https://${searchService.name}.search.windows.net'
+      #disable-next-line BCP225
+      authType: connectionAuthMode 
+      isSharedToAll: true
+      useWorkspaceManagedIdentity: false
+      sharedUserList: []
+
+      credentials: connectionAuthMode == 'ApiKey'
+      ? {
+          key: '${listAdminKeys(searchService.id, '2023-11-01')}'
+        }
+      : null
+
+      metadata: {
+        ApiType: 'Azure'
+        ResourceId: searchService.id
+      }
+    }
+  }
+}
+
+resource project 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' = {
+  name: '${aiHubName}-project'
+  kind: 'Project'
+  location: location
+  identity: {
+    type: 'systemAssigned'
+  }
+  sku: {
+    tier: 'Standard'
+    name: 'standard'
+  }
+  properties: {
+    description: '${aiHubFriendlyName} project'
+    friendlyName: '${aiHubFriendlyName} project'
+    hbiWorkspace: false
+    hubResourceId: aiHub.id
+  }
+}
 
 output aiservicesID string = aiServices.id
 output aiservicesTarget string = aiServices.properties.endpoint

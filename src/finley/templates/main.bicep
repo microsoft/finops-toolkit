@@ -27,6 +27,24 @@ param deepSeekVersion string = '1'
 param deepseekSku string = 'GlobalStandard'
 param deepseekSkuCapacity int = 1
 
+@description('Search SKU')
+@allowed([
+  'basic'
+  'standard'
+  'standard2'
+  'standard3'
+  'storage_optimized_l1'
+  'storage_optimized_l2'
+])
+param searchSkuName string = 'basic'
+
+@description('Determines whether to use an API key or Azure Active Directory (AAD) for the AI service connection authentication. The default value is apiKey.')
+@allowed([
+  'ApiKey'
+  'AAD'
+])
+param connectionAuthMode string = 'ApiKey'
+
 // Variables
 var name = toLower('${hubName}')
 var uniqueSuffix = substring(uniqueString(name, subscription().subscriptionId , resourceGroup().id), 0, 4)
@@ -41,6 +59,10 @@ module aiDependencies 'modules/ai-resources.bicep' = {
     applicationInsightsName: 'appi-${name}-${uniqueSuffix}'
     containerRegistryName: 'cr${name}${uniqueSuffix}'
     aiServicesName: 'ais${name}${uniqueSuffix}'
+    searchSkuName: searchSkuName
+    connectionAuthMode: connectionAuthMode
+    aiHubName: 'aih-${name}-${uniqueSuffix}'
+    aiHubFriendlyName: aiHubFriendlyName
     tags: tags
     sku: {
       name: cognitiveServicesSku
@@ -84,25 +106,5 @@ module aiDependencies 'modules/ai-resources.bicep' = {
         }
       }
     ]
-  }
-}
-
-
-module aiHub 'modules/ai-hub.bicep' = {
-  name: 'ai-${name}-${uniqueSuffix}-deployment'
-  params: {
-    // workspace organization
-    aiHubName: 'aih-${name}-${uniqueSuffix}'
-    aiHubFriendlyName: aiHubFriendlyName
-    location: location
-    tags: tags
-
-    // dependent resources
-    aiServicesId: aiDependencies.outputs.aiservicesID
-    aiServicesTarget: aiDependencies.outputs.aiservicesTarget
-    applicationInsightsId: aiDependencies.outputs.applicationInsightsId
-    containerRegistryId: aiDependencies.outputs.containerRegistryId
-    keyVaultId: aiDependencies.outputs.keyvaultId
-    storageAccountId: aiDependencies.outputs.storageId
   }
 }
