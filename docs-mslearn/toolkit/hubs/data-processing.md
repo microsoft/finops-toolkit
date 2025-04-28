@@ -1,9 +1,9 @@
 ---
 title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -89,7 +89,7 @@ The following datasets were accounted for in the design, but are not natively su
 Transforms:
 
 - v0.7+:
-  - Align column names to FOCUS 1.0.
+  - Align FOCUS 1.0-preview column names to FOCUS 1.0.
     - Includes converting FOCUS 1.0 preview to 1.0.
   - Add `x_IngestionTime` to indicate when the row was last updated.
   - Add `x_SourceChanges` to identify when data in a row is changed by hubs.
@@ -102,6 +102,10 @@ Transforms:
   - Add `x_BillingAccountAgreement` based on the account type.
 - v0.8+:
   - Fix any `ResourceType` values that use internal resource type IDs (for example, microsoft.compute/virtualmachines).
+- v0.9+:
+  - Lowercase `BillingAccountId` to ensure the price join matches all rows.
+  - Lowercase `CommitmentDiscountId` to avoid duplicate rows when aggregating data.
+  - Add new `x_SourceChanges` checks for `ListCostLessThanContractedCost` and `ContractedCostLessThanEffectiveCost`.
 
 ### Price data transforms
 
@@ -111,22 +115,25 @@ Supported datasets:
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Convert `x_SkuTerm` ISO duration to the specific number of months to match cost details.
-   - We're waiting for FOCUS to make a determination for how to define durations before changing this value to ISO or another format.
-3. Replace `ContractedUnitPrice` for savings plan usage with the on-demand equivalent.
-4. Set `ListUnitPrice` for savings plan usage set to the on-demand equivalent.
-5. Add `SkuPriceIdv2` as a more accurate `SkuPriceId` value than what is currently in cost details.
-6. Add `x_IngestionTime` to indicate when the row was last updated.
-7. Add `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility`.
-8. Expand `x_PricingUnitDescription` into `PricingUnit` and `x_PricingBlockSize`.
-9. Add `x_BillingAccountAgreement` based on the account type.
-10. Change `x_EffectivePeriodEnd` to be an exclusive end date.
-11. Add `x_EffectiveUnitPriceDiscount`, `x_ContractedUnitPriceDiscount`, and `x_TotalUnitPriceDiscount` to summarize available discounts per SKU.
-12. Add `x_EffectiveUnitPriceDiscountPercent`, `x_ContractedUnitPriceDiscountPercent`, and `x_TotalUnitPriceDiscountPercent` to summarize the percentage of the discount per SKU.
-13. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Convert `x_SkuTerm` ISO duration to the specific number of months to match cost details.
+    - We're waiting for FOCUS to make a determination for how to define durations before changing this value to ISO or another format.
+  - Replace `ContractedUnitPrice` for savings plan usage with the on-demand equivalent.
+  - Set `ListUnitPrice` for savings plan usage set to the on-demand equivalent.
+  - Add `SkuPriceIdv2` as a more accurate `SkuPriceId` value than what is currently in cost details.
+  - Add `x_IngestionTime` to indicate when the row was last updated.
+  - Add `x_CommitmentDiscountSpendEligibility` and `x_CommitmentDiscountUsageEligibility`.
+  - Expand `x_PricingUnitDescription` into `PricingUnit` and `x_PricingBlockSize`.
+  - Add `x_BillingAccountAgreement` based on the account type.
+  - Change `x_EffectivePeriodEnd` to be an exclusive end date.
+  - Add `x_EffectiveUnitPriceDiscount`, `x_ContractedUnitPriceDiscount`, and `x_TotalUnitPriceDiscount` to summarize available discounts per SKU.
+  - Add `x_EffectiveUnitPriceDiscountPercent`, `x_ContractedUnitPriceDiscountPercent`, and `x_TotalUnitPriceDiscountPercent` to summarize the percentage of the discount per SKU.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.9+:
+  - Lowercase `BillingAccountId` to ensure the cost join matches all rows.
 
 ### Recommendation data transforms
 
@@ -213,53 +220,43 @@ FinOps hubs leverage Cost Management exports to obtain cost data. Cost Managemen
 
 FinOps hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
 
-> [!WARNING]
-> Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
->
-> To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
+Don't export data to the **ingestion** container. Exported CSVs _must_ be published to the **msexports** container to be processed by the hubs engine.
 
-Export manifests can change with API versions. Here's an example with API version `2023-07-01-preview`:
+To ingest custom data, save parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected. After all parquet files are added, add an empty **manifest.json** file to trigger ingestion.
+
+To ingest CSV file from Cost Management exports, save files in a specific folder in the **msexports** container. After all files are added, add a **manifest.json** file based on the below template. Make the following changes to ensure successful ingestion:
+
+1. Change `<export-name>` to a unique value within the scope for the dataset you're ingesting.
+   - This is only used for recommendations to differentiate the many different types of recommendations getting ingested which aren't identifiable from the export manifest alone. For reservation recommendations, ideally include the service, scope (single/shared), and lookback period.
+2. Change `<dataset>` and `<version>` to the Cost Management export type and version. See the list below for supported datasets.
+3. Change `<scope>` to the Azure resource ID for the scope the data came from.
+4. Change `<guid>` to a unique GUID.
+5. Change `<yyyy-MM>` to the year and month of the dataset.
+6. Change `<path-to-file>` to the full folder path under the container (do not include "msexports").
+7. Change `<file-name>` to the name of the first file uploaded to storage.
+8. If you have more than one CSV file, copy the blob object for each file you uploaded and update the file name.
 
 ```json
 {
+  "blobCount": 1,
+  "dataRowCount": 1,
   "exportConfig": {
     "exportName": "<export-name>",
-    "resourceId": "/<scope>/providers/Microsoft.CostManagement/exports/<export-name>",
-    "dataVersion": "<dataset-version>",
-    "apiVersion": "<api-version>",
-    "type": "<dataset-type>",
-    "timeFrame": "OneTime|TheLastMonth|MonthToDate",
-    "granularity": "Daily"
-  },
-  "deliveryConfig": {
-    "partitionData": true,
-    "dataOverwriteBehavior": "CreateNewReport|OverwritePreviousReport",
-    "fileFormat": "Csv",
-    "containerUri": "<storage-resource-id>",
-    "rootFolderPath": "<path>"
+    "type": "<dataset>",
+    "dataVersion": "<version>",
+    "resourceId": "<scope>/providers/Microsoft.CostManagement/exports/export-name"
   },
   "runInfo": {
-    "executionType": "Scheduled",
-    "submittedTime": "2024-02-03T18:33:03.1032074Z",
-    "runId": "af754a8e-30fc-4ef3-bfc6-71bd1efb8598",
-    "startDate": "2024-01-01T00:00:00",
-    "endDate": "2024-01-31T00:00:00"
+    "runId": "<guid>",
+    "startDate": "<yyyy-MM>-01T00:00:00"
   },
   "blobs": [
     {
-      "blobName": "<path>/<export-name>/<date-range>/<export-time>/<guid>/<file-name>.csv",
-      "byteCount": ###
+      "blobName": "<path-to-file>/<file-name>.csv"
     }
   ]
 }
 ```
-
-FinOps hubs leverage the following properties:
-
-- `eportConfig.resourceId` to identify the scope.
-- `eportConfig.type` to identify the dataset type.
-- `eportConfig.dataVersion` to identify the dataset version.
-- `runInfo.startDate` to identify the exported month.
 
 <a name="datasets"></a>FinOps hubs support the following dataset types, versions, and API versions:
 
@@ -593,7 +590,7 @@ The following steps outline the process for exporting and processing cost data u
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.8/bladeName/Hubs/featureName/DataProcessing)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.9/bladeName/Hubs/featureName/DataProcessing)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

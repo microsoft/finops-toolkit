@@ -69,6 +69,8 @@ var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))
 var scriptStorageAccountName = '${take(safeHubName, 16 - length(storageAccountSuffix))}script${storageAccountSuffix}'
 var schemaFiles = {
   // cSpell:ignore focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
+  'actualcost_c360-2025-04': loadTextContent('../schemas/actualcost_c360-2025-04.json')
+  'amortizedcost_c360-2025-04': loadTextContent('../schemas/amortizedcost_c360-2025-04.json')
   'focuscost_1.0r2': loadTextContent('../schemas/focuscost_1.0r2.json')
   'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
   'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
@@ -94,6 +96,7 @@ var blobUploadRbacRoles = [
 // Resources
 //==============================================================================
 
+// TODO: Move storage account creation to the hub-app module + output SA name
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: location
@@ -344,30 +347,27 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
   name: 'default'
 }
 
-resource configContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'config'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
+module configContainer 'hub-storage.bicep' = {
+  name: 'configContainer'
+  params: {
+    storageAccountName: storageAccount.name
+    container: 'config'
   }
 }
 
-resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'msexports'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
+module exportContainer 'hub-storage.bicep' = {
+  name: 'exportContainer'
+  params: {
+    storageAccountName: storageAccount.name
+    container: 'msexports'
   }
 }
 
-resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'ingestion'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
+module ingestionContainer 'hub-storage.bicep' = {
+  name: 'ingestionContainer'
+  params: {
+    storageAccountName: storageAccount.name
+    container: 'ingestion'
   }
 }
 
@@ -489,13 +489,13 @@ output scriptStorageAccountResourceId string = scriptStorageAccount.id
 output scriptStorageAccountName string = scriptStorageAccount.name
 
 @description('The name of the container used for configuration settings.')
-output configContainer string = configContainer.name
+output configContainer string = configContainer.outputs.containerName
 
 @description('The name of the container used for Cost Management exports.')
-output exportContainer string = exportContainer.name
+output exportContainer string = exportContainer.outputs.containerName
 
 @description('The name of the container used for normalized data ingestion.')
-output ingestionContainer string = ingestionContainer.name
+output ingestionContainer string = ingestionContainer.outputs.containerName
 
 @description('The resource ID of the managed identity used to upload files.')
 output blobManagerIdentityName string = identity.name

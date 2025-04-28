@@ -109,8 +109,8 @@ param dataExplorerSku string = 'Dev(No SLA)_Standard_D11_v2'
 @maxValue(1000)
 param dataExplorerCapacity int = 1
 
-@description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
-param dataExplorerTrustedExternalTenants string[] = []
+// @description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
+// param dataExplorerTrustedExternalTenants string[] = []
 
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
@@ -207,35 +207,44 @@ var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 // }
 // var finalEventGridLocation = eventGridLocation != null && !empty(eventGridLocation) ? eventGridLocation : (eventGridLocationFallback[?location] ?? location)
 
-// The last segment of the telemetryId is used to identify this module
+// The last segment of the GUID in the telemetryId (40b) is used to identify this module
+// Remaining characters identify settings; must be <= 12 chars -- Example: (guid)_RLXD##x1000P
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
+
+var telemetryString = join([
+  // R = remote hubs enabled
+  empty(remoteHubStorageUri) || empty(remoteHubStorageKey) ? '' : 'R'
+  // L = LRS, Z = ZRS
+  substring(split(storageSku, '_')[1], 0, 1)
+  // X = ADX enabled + D (dev) or S (standard) SKU
+  empty(dataExplorerName) ? '' : 'X${substring(dataExplorerSku, 0, 1)}'
+  // Number of cores in the VM size
+  empty(dataExplorerName) ? '' : replace(replace(replace(replace(replace(replace(replace(replace(split(split(dataExplorerSku, 'Standard_')[1], '_')[0], 'C', ''), 'D', ''), 'E', ''), 'L', ''), 'a', ''), 'd', ''), 'i', ''), 's', '')
+  // Number of nodes in the cluster
+  empty(dataExplorerName) || dataExplorerCapacity == 1 ? '' : 'x${dataExplorerCapacity}'
+  // P = private endpoints enabled
+  enablePublicAccess ? '' : 'P'
+], '')
 
 //==============================================================================
 // Resources
 //==============================================================================
 
 //------------------------------------------------------------------------------
-// Telemetry
-// Used to anonymously count the number of times the template has been deployed
-// and to track and fix deployment bugs to ensure the highest quality.
-// No information about you or your cost data is collected.
+// App registration
 //------------------------------------------------------------------------------
 
-resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
-  name: 'pid-${telemetryId}-${uniqueString(deployment().name, location)}'
-  properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-      contentVersion: '1.0.0.0'
-      metadata: {
-        _generator: {
-          name: 'FinOps toolkit'
-          version: loadTextContent('ftkver.txt')
-        }
-      }
-      resources: []
-    }
+module appRegistration 'hub-app.bicep' = {
+  name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  params: {
+    hubName: hubName
+    publisher: 'FinOps hubs'
+    namespace: 'Microsoft.FinOpsToolkit.Hubs'
+    appName: 'Core'
+    displayName: 'FinOps hub core'
+    appVersion: finOpsToolkitVersion
+    telemetryString: telemetryString
+    enableDefaultTelemetry: enableDefaultTelemetry
   }
 }
 
@@ -292,7 +301,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
-    clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
+    // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
@@ -342,7 +351,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerIngestionCapacity: safeDataExplorerIngestionCapacity
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
-    keyVaultName: keyVault.outputs.name
+    keyVaultName: empty(remoteHubStorageKey) ? '' : keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
     enablePublicAccess: enablePublicAccess
   }
@@ -371,7 +380,7 @@ module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStoragePath)) {
 // Key Vault for storing secrets
 //------------------------------------------------------------------------------
 
-module keyVault 'keyVault.bicep' = {
+module keyVault 'keyVault.bicep' = if (!empty(remoteHubStorageKey)) {
   name: 'keyVault'
   params: {
     hubName: hubName

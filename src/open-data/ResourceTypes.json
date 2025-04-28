@@ -57,7 +57,7 @@
     "lowerSingularDisplayName": "commvault cloud account",
     "lowerPluralDisplayName": "commvault cloud accounts",
     "isPreview": false,
-    "description": "A Commvault Cloud Account Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/commvault.contentstore/cloudaccounts.svg",
     "links": null
   },
@@ -70,7 +70,8 @@
     "isPreview": false,
     "description": "A Commvault Plan Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/commvault.contentstore/cloudaccounts/plans.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "commvault.contentstore/cloudaccounts/protectiongroups",
@@ -81,7 +82,8 @@
     "isPreview": false,
     "description": "A Commvault Plan Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/commvault.contentstore/cloudaccounts/protectiongroups.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "commvault.contentstore/cloudaccounts/protectiongroups/protecteditems",
@@ -92,7 +94,8 @@
     "isPreview": false,
     "description": "Concrete proxy resource types can be created by aliasing this type using a specific property type.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/commvault.contentstore/cloudaccounts/protectiongroups/protecteditems.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "commvault.contentstore/cloudaccounts/storages",
@@ -103,7 +106,8 @@
     "isPreview": false,
     "description": "A Commvault Storage Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/commvault.contentstore/cloudaccounts/storages.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "dell.storage/filesystems",
@@ -166,7 +170,7 @@
     "lowerSingularDisplayName": "Azure Native LambdaTest Cloud Service",
     "lowerPluralDisplayName": "Azure Native LambdaTest Cloud Service",
     "isPreview": false,
-    "description": "Concrete tracked resource types can be created by aliasing this type using a specific property type.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/lambdatest.hyperexecute/organizations.svg",
     "links": null
   },
@@ -179,7 +183,12 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.aad/domainservices.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://learn.microsoft.com/entra/identity/domain-services/overview"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.aadiam/diagnosticsettings",
@@ -214,6 +223,17 @@
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.advisor/advisorscore.svg",
     "links": null,
     "missingMetadata": true
+  },
+  {
+    "resourceType": "microsoft.advisor/assessments",
+    "singularDisplayName": "Microsoft.Advisor assessment",
+    "pluralDisplayName": "Microsoft.Advisor assessments",
+    "lowerSingularDisplayName": "microsoft.advisor assessment",
+    "lowerPluralDisplayName": "microsoft.advisor assessments",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.advisor/assessments.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.advisor/configurations",
@@ -273,6 +293,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.advisor/resiliencyreviews",
+    "singularDisplayName": "Microsoft.Advisor resiliency review",
+    "pluralDisplayName": "Microsoft.Advisor resiliency reviews",
+    "lowerSingularDisplayName": "microsoft.advisor resiliency review",
+    "lowerPluralDisplayName": "microsoft.advisor resiliency reviews",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.advisor/resiliencyreviews.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.agfoodplatform/farmbeats",
     "singularDisplayName": "Azure Data Manager for Agriculture",
     "pluralDisplayName": "Azure Data Manager for Agriculture",
@@ -307,10 +338,10 @@
   },
   {
     "resourceType": "microsoft.agricultureplatform/agriservices",
-    "singularDisplayName": "Azure Data Manager for Agriculture",
-    "pluralDisplayName": "Azure Data Manager for Agriculture",
-    "lowerSingularDisplayName": "Azure Data Manager for Agriculture",
-    "lowerPluralDisplayName": "Azure Data Manager for Agriculture",
+    "singularDisplayName": "Agriculture data solutions",
+    "pluralDisplayName": "Agriculture data solutions",
+    "lowerSingularDisplayName": "Agriculture data solutions",
+    "lowerPluralDisplayName": "Agriculture data solutions",
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.agricultureplatform/agriservices.svg",
@@ -799,7 +830,7 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation report",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports",
     "isPreview": false,
-    "description": "A class represent an AppComplianceAutomation report resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports.svg",
     "links": null
   },
@@ -810,7 +841,7 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation reports evidence",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports evidences",
     "isPreview": false,
-    "description": "A class represent an AppComplianceAutomation evidence resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports/evidences.svg",
     "links": null
   },
@@ -821,7 +852,7 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation reports scoping configuration",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports scoping configurations",
     "isPreview": false,
-    "description": "A class represent an AppComplianceAutomation scoping configuration resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports/scopingconfigurations.svg",
     "links": null
   },
@@ -832,8 +863,19 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation reports snapshot",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports snapshots",
     "isPreview": false,
-    "description": "A class represent a AppComplianceAutomation snapshot resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports/snapshots.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.appcomplianceautomation/reports/snapshots/controls",
+    "singularDisplayName": "Microsoft.AppComplianceAutomation reports snapshots control",
+    "pluralDisplayName": "Microsoft.AppComplianceAutomation reports snapshots controls",
+    "lowerSingularDisplayName": "microsoft.appcomplianceautomation reports snapshots control",
+    "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports snapshots controls",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports/snapshots/controls.svg",
     "links": null
   },
   {
@@ -843,7 +885,7 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation reports webhook",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports webhooks",
     "isPreview": false,
-    "description": "A class represent an AppComplianceAutomation webhook resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports/webhooks.svg",
     "links": null
   },
@@ -882,6 +924,17 @@
         "uri": "https://aka.ms/azurespringapps"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.appsecurity/appprotectmanagedrulesetmanifests",
+    "singularDisplayName": "Microsoft.AppSecurity app protect managed rule set manifest",
+    "pluralDisplayName": "Microsoft.AppSecurity app protect managed rule set manifests",
+    "lowerSingularDisplayName": "microsoft.appsecurity app protect managed rule set manifest",
+    "lowerPluralDisplayName": "microsoft.appsecurity app protect managed rule set manifests",
+    "isPreview": false,
+    "description": "The managed rule set manifest resource definition.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appsecurity/appprotectmanagedrulesetmanifests.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.appsecurity/policies",
@@ -2946,6 +2999,17 @@
     ]
   },
   {
+    "resourceType": "microsoft.azurearcdata/mysqlserver",
+    "singularDisplayName": "MySql Server - Azure Arc",
+    "pluralDisplayName": "MySql Server - Azure Arc",
+    "lowerSingularDisplayName": "MySql Server - Azure Arc",
+    "lowerPluralDisplayName": "MySql Server - Azure Arc",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurearcdata/mysqlserver.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.azurearcdata/postgresinstances",
     "singularDisplayName": "PostgreSQL server – Azure Arc",
     "pluralDisplayName": "PostgreSQL servers – Azure Arc",
@@ -2960,6 +3024,17 @@
         "uri": "https://aka.ms/arcpostgresqlhyperscale"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.azurearcdata/postgressqlserver",
+    "singularDisplayName": "PostgresSql Server - Azure Arc",
+    "pluralDisplayName": "PostgresSql Server - Azure Arc",
+    "lowerSingularDisplayName": "PostgresSql Server - Azure Arc",
+    "lowerPluralDisplayName": "PostgresSql Server - Azure Arc",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurearcdata/postgressqlserver.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.azurearcdata/sqlmanagedinstances",
@@ -3072,7 +3147,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis address record",
     "lowerPluralDisplayName": "microsoft.azurecis address records",
     "isPreview": false,
-    "description": "AddressRecord Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/addressrecords.svg",
     "links": null
   },
@@ -3083,7 +3158,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis autopilot environment",
     "lowerPluralDisplayName": "microsoft.azurecis autopilot environments",
     "isPreview": false,
-    "description": "Environment Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/autopilotenvironments.svg",
     "links": null
   },
@@ -3094,7 +3169,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis autopilot machine function",
     "lowerPluralDisplayName": "microsoft.azurecis autopilot machine functions",
     "isPreview": false,
-    "description": "AutopilotMachineFunction Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/autopilotmachinefunctions.svg",
     "links": null
   },
@@ -3105,7 +3180,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis auto pilot software load balance virtual ip",
     "lowerPluralDisplayName": "microsoft.azurecis auto pilot software load balance virtual ips",
     "isPreview": false,
-    "description": "Autopilot software load balance VIP Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/autopilotsoftwareloadbalancevirtualips.svg",
     "links": null
   },
@@ -3116,7 +3191,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis canonical name record",
     "lowerPluralDisplayName": "microsoft.azurecis canonical name records",
     "isPreview": false,
-    "description": "CanonicalNameRecord Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/canonicalnamerecords.svg",
     "links": null
   },
@@ -3127,7 +3202,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis ds msallowlist",
     "lowerPluralDisplayName": "microsoft.azurecis ds msallowlists",
     "isPreview": false,
-    "description": "dsmsAllowlist Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/dsmsallowlists.svg",
     "links": null
   },
@@ -3138,7 +3213,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis dsms certificate",
     "lowerPluralDisplayName": "microsoft.azurecis dsms certificates",
     "isPreview": false,
-    "description": "dsmsCertificate Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/dsmscertificates.svg",
     "links": null
   },
@@ -3149,7 +3224,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis dsms root folder",
     "lowerPluralDisplayName": "microsoft.azurecis dsms root folders",
     "isPreview": false,
-    "description": "dsmsRootFolder Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/dsmsrootfolders.svg",
     "links": null
   },
@@ -3160,7 +3235,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis dsts application",
     "lowerPluralDisplayName": "microsoft.azurecis dsts applications",
     "isPreview": false,
-    "description": "dstsApplication Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/dstsapplications.svg",
     "links": null
   },
@@ -3171,7 +3246,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis dsts service account",
     "lowerPluralDisplayName": "microsoft.azurecis dsts service accounts",
     "isPreview": false,
-    "description": "dstsServiceAccount Resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/dstsserviceaccounts.svg",
     "links": null
   },
@@ -3182,7 +3257,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis dsts service client identity",
     "lowerPluralDisplayName": "microsoft.azurecis dsts service client identities",
     "isPreview": false,
-    "description": "dstsServiceClientIdentityResource Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/dstsserviceclientidentities.svg",
     "links": null
   },
@@ -3193,7 +3268,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis generic geneva action",
     "lowerPluralDisplayName": "microsoft.azurecis generic geneva actions",
     "isPreview": false,
-    "description": "genericGenevaActions Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/genericgenevaactions.svg",
     "links": null
   },
@@ -3216,7 +3291,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis pointer record",
     "lowerPluralDisplayName": "microsoft.azurecis pointer records",
     "isPreview": false,
-    "description": "Pointer record resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/pointerrecords.svg",
     "links": null
   },
@@ -3239,7 +3314,7 @@
     "lowerSingularDisplayName": "microsoft.azurecis push agent v2 account",
     "lowerPluralDisplayName": "microsoft.azurecis push agent v2 accounts",
     "isPreview": false,
-    "description": "PushAgentV2Account Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/pushagentv2accounts.svg",
     "links": null
   },
@@ -3250,8 +3325,19 @@
     "lowerSingularDisplayName": "microsoft.azurecis service record",
     "lowerPluralDisplayName": "microsoft.azurecis service records",
     "isPreview": false,
-    "description": "ServiceRecord Resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/servicerecords.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.azurecis/sharedconfigvalues",
+    "singularDisplayName": "Microsoft.AzureCis shared config value",
+    "pluralDisplayName": "Microsoft.AzureCis shared config values",
+    "lowerSingularDisplayName": "microsoft.azurecis shared config value",
+    "lowerPluralDisplayName": "microsoft.azurecis shared config values",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/sharedconfigvalues.svg",
     "links": null
   },
   {
@@ -3656,6 +3742,17 @@
     ]
   },
   {
+    "resourceType": "microsoft.azurestackhci/devicepools",
+    "singularDisplayName": "Microsoft.AzureStackHCI device pool",
+    "pluralDisplayName": "Microsoft.AzureStackHCI device pools",
+    "lowerSingularDisplayName": "microsoft.azurestackhci device pool",
+    "lowerPluralDisplayName": "microsoft.azurestackhci device pools",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/devicepools.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.azurestackhci/edgedevices",
     "singularDisplayName": "Microsoft.AzureStackHCI edge device",
     "pluralDisplayName": "Microsoft.AzureStackHCI edge devices",
@@ -3676,6 +3773,28 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/edgedevices/jobs.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.azurestackhci/edgemachines",
+    "singularDisplayName": "Microsoft.AzureStackHCI edge machine",
+    "pluralDisplayName": "Microsoft.AzureStackHCI edge machines",
+    "lowerSingularDisplayName": "microsoft.azurestackhci edge machine",
+    "lowerPluralDisplayName": "microsoft.azurestackhci edge machines",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/edgemachines.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.azurestackhci/edgemachines/jobs",
+    "singularDisplayName": "Microsoft.AzureStackHCI edge machines job",
+    "pluralDisplayName": "Microsoft.AzureStackHCI edge machines jobs",
+    "lowerSingularDisplayName": "microsoft.azurestackhci edge machines job",
+    "lowerPluralDisplayName": "microsoft.azurestackhci edge machines jobs",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/edgemachines/jobs.svg",
     "links": null
   },
   {
@@ -3944,7 +4063,7 @@
     "lowerSingularDisplayName": "microsoft.baremetal peering setting",
     "lowerPluralDisplayName": "microsoft.baremetal peering settings",
     "isPreview": false,
-    "description": "Model representing a Peering Setting object.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.baremetal/peeringsettings.svg",
     "links": null
   },
@@ -4510,6 +4629,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.billing/billingaccounts/migrations",
+    "singularDisplayName": "Microsoft.Billing billing accounts migration",
+    "pluralDisplayName": "Microsoft.Billing billing accounts migrations",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts migration",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts migrations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/migrations.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.billing/billingaccounts/paymentmethods",
     "singularDisplayName": "Microsoft.Billing billing accounts payment method",
     "pluralDisplayName": "Microsoft.Billing billing accounts payment methods",
@@ -5052,12 +5182,7 @@
     "isPreview": false,
     "description": "Azure Edge Actions is security and performance focused service, that enables customers to run short-lived and simple business logic code at the edge of Microsoft network, closer to users, apps and devices with the least possible latencies in a industry leading secure environment.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cdn/edgeactions.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.cdn/profiles",
@@ -5227,7 +5352,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.certify/testsuites.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.certify/validationjobs",
@@ -5238,7 +5364,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.certify/validationjobs.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.changeanalysis/profile",
@@ -5293,7 +5420,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.changesafety/validations.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.changesafety/validators",
@@ -5304,7 +5432,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.changesafety/validators.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.changesafety/validators/versions",
@@ -5315,7 +5444,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.changesafety/validators/versions.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.chaos/experiments",
@@ -5489,6 +5619,39 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.cleanroom/collaborations",
+    "singularDisplayName": "Microsoft.CleanRoom collaboration",
+    "pluralDisplayName": "Microsoft.CleanRoom collaborations",
+    "lowerSingularDisplayName": "microsoft.cleanroom collaboration",
+    "lowerPluralDisplayName": "microsoft.cleanroom collaborations",
+    "isPreview": false,
+    "description": "Defines the collaboration.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cleanroom/collaborations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.cleanroom/collaborations/contracts",
+    "singularDisplayName": "Microsoft.CleanRoom collaborations contract",
+    "pluralDisplayName": "Microsoft.CleanRoom collaborations contracts",
+    "lowerSingularDisplayName": "microsoft.cleanroom collaborations contract",
+    "lowerPluralDisplayName": "microsoft.cleanroom collaborations contracts",
+    "isPreview": false,
+    "description": "Defines the contract.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cleanroom/collaborations/contracts.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.cleanroom/consortiums",
+    "singularDisplayName": "Microsoft.CleanRoom consortium",
+    "pluralDisplayName": "Microsoft.CleanRoom consortiums",
+    "lowerSingularDisplayName": "microsoft.cleanroom consortium",
+    "lowerPluralDisplayName": "microsoft.cleanroom consortiums",
+    "isPreview": false,
+    "description": "Defines the consortium.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cleanroom/consortiums.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.cleanroom/microservices",
     "singularDisplayName": "Microsoft.CleanRoom microservice",
     "pluralDisplayName": "Microsoft.CleanRoom microservices",
@@ -5530,16 +5693,7 @@
     "isPreview": false,
     "description": "A health model augments metric and logs with critical business context of a workload, enabling the automated evaluation of quantified health states.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cloudhealth/healthmodels.svg",
-    "links": [
-      {
-        "title": "Build health models",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.cloudtest/accounts",
@@ -6187,7 +6341,7 @@
     "lowerSingularDisplayName": "guest assignment",
     "lowerPluralDisplayName": "guest assignments",
     "isPreview": false,
-    "description": "Guest Assignment",
+    "description": "A guest assignment links a virtual machine to a specific configuration defined by Azure Policy. Use guest assignments to enforce compliance and security policies on your virtual machines, such as ensuring that only certain users have administrative privileges, or that certain software is installed and updated. A guest assignment can also perform actions on your virtual machines, such as installing or removing software, or changing settings.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.compute/virtualmachines/providers/guestconfigurationassignments.svg",
     "links": null
   },
@@ -6265,12 +6419,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisorcost.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/advisoroperationalexcellence",
@@ -6281,12 +6430,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisoroperationalexcellence.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/advisorperformance",
@@ -6297,12 +6441,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisorperformance.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/advisorreliability",
@@ -6313,12 +6452,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisorreliability.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/advisorsecurity",
@@ -6329,12 +6463,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisorsecurity.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/all",
@@ -6345,12 +6474,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/all.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/backup",
@@ -6361,12 +6485,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/backup.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/computehubmain",
@@ -6399,12 +6518,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/linuxostype.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/microsoftdefenderfreetrialsubscription",
@@ -6415,12 +6529,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/microsoftdefenderfreetrialsubscription.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/microsoftdefenderstandardsubscription",
@@ -6431,12 +6540,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/microsoftdefenderstandardsubscription.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/outages",
@@ -6447,12 +6551,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/outages.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/powerstatedeallocated",
@@ -6463,12 +6562,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/powerstatedeallocated.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/powerstaterunning",
@@ -6479,12 +6573,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/powerstaterunning.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/powerstatestopped",
@@ -6495,12 +6584,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/powerstatestopped.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/provisioningstatefailedresources",
@@ -6511,12 +6595,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/provisioningstatefailedresources.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/provisioningstatesucceededresources",
@@ -6527,12 +6606,7 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/provisioningstatesucceededresources.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computehub/windowsostype",
@@ -6543,23 +6617,23 @@
     "isPreview": false,
     "description": "Create VMs that scale, optimize cost and performance, and support a mix of sizes, zones, and regions—all easily managed in one place.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/windowsostype.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.computeschedule/autoactions",
-    "singularDisplayName": "Microsoft.ComputeSchedule auto action",
-    "pluralDisplayName": "Microsoft.ComputeSchedule auto actions",
-    "lowerSingularDisplayName": "microsoft.computeschedule auto action",
-    "lowerPluralDisplayName": "microsoft.computeschedule auto actions",
+    "singularDisplayName": "Automatic Action",
+    "pluralDisplayName": "Automatic Actions",
+    "lowerSingularDisplayName": "automatic action",
+    "lowerPluralDisplayName": "automatic actions",
     "isPreview": false,
-    "description": "The auto action resource",
+    "description": "Automatic actions allow you to schedule a Start, Stop, or Hibernate on your virtual machines.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computeschedule/autoactions.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://go.microsoft.com/fwlink/?linkid=2275442"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.computeschedule/autoactions/occurrences",
@@ -6627,37 +6701,33 @@
   },
   {
     "resourceType": "microsoft.connectedcache/cachenodes",
-    "singularDisplayName": "Connected Cache for ISP (early preview)",
-    "pluralDisplayName": "Connected Cache for ISPs (early preview)",
-    "lowerSingularDisplayName": "Connected Cache for ISP (early preview)",
-    "lowerPluralDisplayName": "Microsoft Connected Cache for Internet Service Providers (early preview)",
-    "isPreview": true,
-    "description": "Software-only caching solution that delivers Microsoft static content within operator networks for ISP early preview customers.",
+    "singularDisplayName": "Connected Cache for ISP",
+    "pluralDisplayName": "Connected Cache for ISPs",
+    "lowerSingularDisplayName": "Connected Cache for ISP",
+    "lowerPluralDisplayName": "Microsoft Connected Cache for Internet Service Providers",
+    "description": "Software-only caching solution that delivers Microsoft static content within operator networks.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.connectedcache/cachenodes.svg",
     "links": [
       {
         "title": "Learn more",
         "uri": "https://learn.microsoft.com/windows/deployment/do/waas-microsoft-connected-cache"
       }
-    ],
-    "missingMetadata": true
+    ]
   },
   {
     "resourceType": "microsoft.connectedcache/enterprisecustomers",
-    "singularDisplayName": "Connected Cache for Enterprise & Education (early preview)",
-    "pluralDisplayName": "Connected Caches for Enterprise & Education (early preview)",
-    "lowerSingularDisplayName": "Connected Cache for Enterprise & Education (early preview)",
-    "lowerPluralDisplayName": "Microsoft Connected Cache Enterprise (early preview)",
-    "isPreview": true,
-    "description": "Software-only caching solution that delivers Microsoft static content within operator networks for Enterprise early preview customers.",
+    "singularDisplayName": "Connected Cache for Enterprise & Education",
+    "pluralDisplayName": "Connected Caches for Enterprise & Education",
+    "lowerSingularDisplayName": "Connected Cache for Enterprise & Education",
+    "lowerPluralDisplayName": "Microsoft Connected Cache Enterprise",
+    "description": "Software-only caching solution that delivers Microsoft static content within operator networks.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.connectedcache/enterprisecustomers.svg",
     "links": [
       {
         "title": "Learn more",
         "uri": "https://learn.microsoft.com/windows/deployment/do/waas-microsoft-connected-cache"
       }
-    ],
-    "missingMetadata": true
+    ]
   },
   {
     "resourceType": "microsoft.connectedcache/enterprisemcccustomers",
@@ -7340,6 +7410,22 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.dashboard/dashboards",
+    "singularDisplayName": "Azure Monitor Dashboard",
+    "pluralDisplayName": "Azure Monitor Dashboard",
+    "lowerSingularDisplayName": "Azure Monitor Dashboard",
+    "lowerPluralDisplayName": "Azure Monitor Dashboard",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.dashboard/dashboards.svg",
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://learn.microsoft.com/azure/managed-grafana/"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.dashboard/grafana",
     "singularDisplayName": "Azure Managed Grafana",
     "pluralDisplayName": "Azure Managed Grafana",
@@ -7385,8 +7471,8 @@
   },
   {
     "resourceType": "microsoft.databasefleetmanager/fleets/fleetspaces/databases",
-    "singularDisplayName": "Fleet Managed Database",
-    "pluralDisplayName": "Fleet Managed Databases",
+    "singularDisplayName": "Fleet managed database",
+    "pluralDisplayName": "Fleet managed databases",
     "lowerSingularDisplayName": "fleet managed database",
     "lowerPluralDisplayName": "fleet managed databases",
     "isPreview": false,
@@ -7414,16 +7500,7 @@
     "isPreview": false,
     "description": "Database watcher is a managed monitoring solution for database services in the Azure SQL family. Create a watcher to monitor your Azure SQL estate in depth and with low latency.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.databasewatcher/watchers.svg",
-    "links": [
-      {
-        "title": "Overview",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Get started",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.databox/jobs",
@@ -7511,8 +7588,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.datadog/agreements.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.datadog/monitors",
@@ -7539,8 +7615,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.datadog/subscriptionstatuses.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.datafactory/datafactories",
@@ -7807,6 +7882,39 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.datareplication/replicationvaults/privateendpointconnectionproxies",
+    "singularDisplayName": "Microsoft.DataReplication replication vaults private endpoint connection proxy",
+    "pluralDisplayName": "Microsoft.DataReplication replication vaults private endpoint connection proxies",
+    "lowerSingularDisplayName": "microsoft.datareplication replication vaults private endpoint connection proxy",
+    "lowerPluralDisplayName": "microsoft.datareplication replication vaults private endpoint connection proxies",
+    "isPreview": false,
+    "description": "Represents private endpoint connection proxy request.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.datareplication/replicationvaults/privateendpointconnectionproxies.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.datareplication/replicationvaults/privateendpointconnections",
+    "singularDisplayName": "Microsoft.DataReplication replication vaults private endpoint connection",
+    "pluralDisplayName": "Microsoft.DataReplication replication vaults private endpoint connections",
+    "lowerSingularDisplayName": "microsoft.datareplication replication vaults private endpoint connection",
+    "lowerPluralDisplayName": "microsoft.datareplication replication vaults private endpoint connections",
+    "isPreview": false,
+    "description": "Represents private endpoint connection.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.datareplication/replicationvaults/privateendpointconnections.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.datareplication/replicationvaults/privatelinkresources",
+    "singularDisplayName": "Microsoft.DataReplication replication vaults private link resource",
+    "pluralDisplayName": "Microsoft.DataReplication replication vaults private link resources",
+    "lowerSingularDisplayName": "microsoft.datareplication replication vaults private link resource",
+    "lowerPluralDisplayName": "microsoft.datareplication replication vaults private link resources",
+    "isPreview": false,
+    "description": "Represents private link resource.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.datareplication/replicationvaults/privatelinkresources.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.datareplication/replicationvaults/protecteditems",
     "singularDisplayName": "Microsoft.DataReplication replication vaults protected item",
     "pluralDisplayName": "Microsoft.DataReplication replication vaults protected items",
@@ -7934,10 +8042,10 @@
   },
   {
     "resourceType": "microsoft.dbforpostgresql/flexibleservers",
-    "singularDisplayName": "Azure Database for PostgreSQL - Flexible Server",
-    "pluralDisplayName": "Azure Database for PostgreSQL - Flexible Servers",
-    "lowerSingularDisplayName": "Azure Database for PostgreSQL - Flexible Server",
-    "lowerPluralDisplayName": "Azure Database for PostgreSQL - Flexible Servers",
+    "singularDisplayName": "Azure Database for PostgreSQL flexible server",
+    "pluralDisplayName": "Azure Database for PostgreSQL flexible servers",
+    "lowerSingularDisplayName": "Azure Database for PostgreSQL flexible server",
+    "lowerPluralDisplayName": "Azure Database for PostgreSQL flexible servers",
     "isPreview": false,
     "description": "Azure Database for PostgreSQL flexible server is a fully managed Azure Database service based on the PostgreSQL open source relational database, optimized for performance, security and cost efficiency.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.dbforpostgresql/flexibleservers.svg",
@@ -8350,6 +8458,28 @@
     ]
   },
   {
+    "resourceType": "microsoft.devhub/templates",
+    "singularDisplayName": "Microsoft.DevHub template",
+    "pluralDisplayName": "Microsoft.DevHub templates",
+    "lowerSingularDisplayName": "microsoft.devhub template",
+    "lowerPluralDisplayName": "microsoft.devhub templates",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.devhub/templates.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.devhub/templates/versions",
+    "singularDisplayName": "Microsoft.DevHub templates version",
+    "pluralDisplayName": "Microsoft.DevHub templates versions",
+    "lowerSingularDisplayName": "microsoft.devhub templates version",
+    "lowerPluralDisplayName": "microsoft.devhub templates versions",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.devhub/templates/versions.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.devhub/workflows",
     "singularDisplayName": "Microsoft.DevHub workflow",
     "pluralDisplayName": "Microsoft.DevHub workflows",
@@ -8438,7 +8568,7 @@
     "lowerSingularDisplayName": "microsoft.deviceregistry billing container",
     "lowerPluralDisplayName": "microsoft.deviceregistry billing containers",
     "isPreview": false,
-    "description": "billingContainer Model as Azure resource whose sole purpose is to keep track of billables resources under a subscription.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/billingcontainers.svg",
     "links": null
   },
@@ -8460,7 +8590,7 @@
     "lowerSingularDisplayName": "microsoft.deviceregistry discovered asset endpoint profile",
     "lowerPluralDisplayName": "microsoft.deviceregistry discovered asset endpoint profiles",
     "isPreview": false,
-    "description": "Discovered Asset Endpoint Profile definition.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/discoveredassetendpointprofiles.svg",
     "links": null
   },
@@ -8471,8 +8601,74 @@
     "lowerSingularDisplayName": "microsoft.deviceregistry discovered asset",
     "lowerPluralDisplayName": "microsoft.deviceregistry discovered assets",
     "isPreview": false,
-    "description": "Discovered Asset definition.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/discoveredassets.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.deviceregistry/namespaces",
+    "singularDisplayName": "Microsoft.DeviceRegistry namespace",
+    "pluralDisplayName": "Microsoft.DeviceRegistry namespaces",
+    "lowerSingularDisplayName": "microsoft.deviceregistry namespace",
+    "lowerPluralDisplayName": "microsoft.deviceregistry namespaces",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/namespaces.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.deviceregistry/namespaces/assetendpointprofiles",
+    "singularDisplayName": "Microsoft.DeviceRegistry namespaces asset endpoint profile",
+    "pluralDisplayName": "Microsoft.DeviceRegistry namespaces asset endpoint profiles",
+    "lowerSingularDisplayName": "microsoft.deviceregistry namespaces asset endpoint profile",
+    "lowerPluralDisplayName": "microsoft.deviceregistry namespaces asset endpoint profiles",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/namespaces/assetendpointprofiles.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.deviceregistry/namespaces/assets",
+    "singularDisplayName": "Microsoft.DeviceRegistry namespaces asset",
+    "pluralDisplayName": "Microsoft.DeviceRegistry namespaces assets",
+    "lowerSingularDisplayName": "microsoft.deviceregistry namespaces asset",
+    "lowerPluralDisplayName": "microsoft.deviceregistry namespaces assets",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/namespaces/assets.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.deviceregistry/namespaces/devices",
+    "singularDisplayName": "Microsoft.DeviceRegistry namespaces device",
+    "pluralDisplayName": "Microsoft.DeviceRegistry namespaces devices",
+    "lowerSingularDisplayName": "microsoft.deviceregistry namespaces device",
+    "lowerPluralDisplayName": "microsoft.deviceregistry namespaces devices",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/namespaces/devices.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.deviceregistry/namespaces/discoveredassetendpointprofiles",
+    "singularDisplayName": "Microsoft.DeviceRegistry namespaces discovered asset endpoint profile",
+    "pluralDisplayName": "Microsoft.DeviceRegistry namespaces discovered asset endpoint profiles",
+    "lowerSingularDisplayName": "microsoft.deviceregistry namespaces discovered asset endpoint profile",
+    "lowerPluralDisplayName": "microsoft.deviceregistry namespaces discovered asset endpoint profiles",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/namespaces/discoveredassetendpointprofiles.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.deviceregistry/namespaces/discoveredassets",
+    "singularDisplayName": "Microsoft.DeviceRegistry namespaces discovered asset",
+    "pluralDisplayName": "Microsoft.DeviceRegistry namespaces discovered assets",
+    "lowerSingularDisplayName": "microsoft.deviceregistry namespaces discovered asset",
+    "lowerPluralDisplayName": "microsoft.deviceregistry namespaces discovered assets",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/namespaces/discoveredassets.svg",
     "links": null
   },
   {
@@ -8495,7 +8691,8 @@
     "isPreview": false,
     "description": "Schema definition.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/schemaregistries/schemas.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.deviceregistry/schemaregistries/schemas/schemaversions",
@@ -8506,7 +8703,8 @@
     "isPreview": false,
     "description": "Schema version's definition.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceregistry/schemaregistries/schemas/schemaversions.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.devices/iothubs",
@@ -8577,12 +8775,7 @@
     "isPreview": false,
     "description": "Device Update Accounts allow you to manage the deployment of updates to your IoT Devices.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceupdate/updateaccounts.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.deviceupdate/updateaccounts/activedeployments",
@@ -8593,12 +8786,7 @@
     "isPreview": false,
     "description": "Device Update Active Deployments monitor deployment of updates to your devices.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceupdate/updateaccounts/activedeployments.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.deviceupdate/updateaccounts/agents",
@@ -8609,12 +8797,7 @@
     "isPreview": false,
     "description": "Device Update Agents manage deployment of updates to your devices.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceupdate/updateaccounts/agents.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.deviceupdate/updateaccounts/deployments",
@@ -8625,12 +8808,7 @@
     "isPreview": false,
     "description": "Device Update Deployments record deployment of updates to your devices.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceupdate/updateaccounts/deployments.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.deviceupdate/updateaccounts/deviceclasses",
@@ -8641,12 +8819,7 @@
     "isPreview": false,
     "description": "Device Update Device Classes identify the best possible update for your devices based on their properties.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceupdate/updateaccounts/deviceclasses.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.deviceupdate/updateaccounts/updates",
@@ -8657,12 +8830,7 @@
     "isPreview": false,
     "description": "Device Updates represent updates to be deployed to your devices.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceupdate/updateaccounts/updates.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.devops/pipelines",
@@ -8802,6 +8970,22 @@
     ]
   },
   {
+    "resourceType": "microsoft.documentdb/fleets",
+    "singularDisplayName": "Cosmos DB Fleet",
+    "pluralDisplayName": "Cosmos DB Fleets",
+    "lowerSingularDisplayName": "Cosmos DB Fleet",
+    "lowerPluralDisplayName": "Cosmos DB Fleets",
+    "isPreview": false,
+    "description": "Cosmos DB Fleet description goes here",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.documentdb/fleets.svg",
+    "links": [
+      {
+        "title": "Cosmos DB Fleet learn more link",
+        "uri": "https://aka.ms/cosmosfleet"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.documentdb/mongoclusters",
     "singularDisplayName": "Azure Cosmos DB for MongoDB (vCore)",
     "pluralDisplayName": "Azure Cosmos DB for MongoDB (vCore)",
@@ -8858,15 +9042,14 @@
   },
   {
     "resourceType": "microsoft.durabletask/namespaces",
-    "singularDisplayName": "Durable Task Scheduler",
-    "pluralDisplayName": "Durable Task Schedulers",
-    "lowerSingularDisplayName": "durable task managed backend",
-    "lowerPluralDisplayName": "durable task managed backends",
+    "singularDisplayName": "Microsoft.DurableTask namespace",
+    "pluralDisplayName": "Microsoft.DurableTask namespaces",
+    "lowerSingularDisplayName": "microsoft.durabletask namespace",
+    "lowerPluralDisplayName": "microsoft.durabletask namespaces",
     "isPreview": false,
-    "description": "A Durable Task Scheduler namespace resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.durabletask/namespaces.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.durabletask/namespaces/taskhubs",
@@ -8887,7 +9070,7 @@
     "lowerSingularDisplayName": "durable task managed backend",
     "lowerPluralDisplayName": "durable task managed backends",
     "isPreview": false,
-    "description": "A Durable Task Scheduler resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.durabletask/schedulers.svg",
     "links": null
   },
@@ -8898,7 +9081,7 @@
     "lowerSingularDisplayName": "task hub",
     "lowerPluralDisplayName": "task hubs",
     "isPreview": false,
-    "description": "A Task Hub resource belonging to the scheduler",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.durabletask/schedulers/taskhubs.svg",
     "links": null
   },
@@ -9030,6 +9213,22 @@
     "missingMetadata": true
   },
   {
+    "resourceType": "microsoft.edge/disconnectedoperations",
+    "singularDisplayName": "Azure Local - disconnected operations",
+    "pluralDisplayName": "Azure Local - disconnected operations",
+    "lowerSingularDisplayName": "Azure Local - disconnected operations",
+    "lowerPluralDisplayName": "Azure Local - disconnected operations",
+    "isPreview": false,
+    "description": "Create a virtual appliance to run Azure Local disconnected operations",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/disconnectedoperations.svg",
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://azure.com/hci"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.edge/siteawareresourcetypes",
     "singularDisplayName": "Microsoft.Edge site aware resource type",
     "pluralDisplayName": "Microsoft.Edge site aware resource types",
@@ -9109,17 +9308,17 @@
   },
   {
     "resourceType": "microsoft.edgeorder/bootstrapconfigurations",
-    "singularDisplayName": "Site Bootstrap Key",
-    "pluralDisplayName": "Site Bootstrap Keys",
-    "lowerSingularDisplayName": "site bootstrap key",
+    "singularDisplayName": "Site Key",
+    "pluralDisplayName": "Site Keys",
+    "lowerSingularDisplayName": "site key",
     "lowerPluralDisplayName": "keys",
     "isPreview": false,
-    "description": "You can generate a Site Bootstrap key to start provisioning your devices at your Site.",
+    "description": "You can generate a Site key to start provisioning your devices at your Site.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edgeorder/bootstrapconfigurations.svg",
     "links": [
       {
-        "title": "Learn More",
-        "uri": "https://aka.ms/adaptivecloud/ztp/lm-sitebootstrapkey"
+        "title": "Learn more",
+        "uri": "https://aka.ms/ztp/guide/gs-learn-more"
       }
     ]
   },
@@ -9152,7 +9351,12 @@
     "isPreview": false,
     "description": "Follow the secure, low-touch step by step procedure to set up one or thousands of devices.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edgeorder/virtual_orderitems.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/ztp/guide/gs-learn-more"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.edgezones/extendedzones",
@@ -9955,7 +10159,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.footprintmonitoring/profiles.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.footprintmonitoring/profiles/experiments",
@@ -9966,7 +10171,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.footprintmonitoring/profiles/experiments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.footprintmonitoring/profiles/measurementendpoints",
@@ -9977,7 +10183,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.footprintmonitoring/profiles/measurementendpoints.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.footprintmonitoring/profiles/measurementendpoints/conditions",
@@ -9988,7 +10195,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.footprintmonitoring/profiles/measurementendpoints/conditions.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.gallery/myareas/galleryitems",
@@ -10022,6 +10230,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.graph/azureadapplication.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.graph/azureadapplicationprototype",
+    "singularDisplayName": "Microsoft.Graph Azure ad application prototype",
+    "pluralDisplayName": "Microsoft.Graph Azure ad application prototype",
+    "lowerSingularDisplayName": "microsoft.graph azure ad application prototype",
+    "lowerPluralDisplayName": "microsoft.graph azure ad application prototype",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.graph/azureadapplicationprototype.svg",
     "links": null
   },
   {
@@ -10108,7 +10327,7 @@
     "pluralDisplayName": "Azure HDInsight on AKS cluster pools",
     "lowerSingularDisplayName": "Azure HDInsight on AKS cluster pool",
     "lowerPluralDisplayName": "Azure HDInsight on AKS cluster pools",
-    "isPreview": true,
+    "isPreview": false,
     "description": "Create an Azure HDInsight on AKS cluster pool to organize your HDInsight on AKS clusters. You can have multiple clusters in the same cluster pool.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hdinsight/clusterpools.svg",
     "links": [
@@ -10124,7 +10343,7 @@
     "pluralDisplayName": "Azure HDInsight on AKS clusters",
     "lowerSingularDisplayName": "Azure HDInsight on AKS cluster",
     "lowerPluralDisplayName": "Azure HDInsight on AKS clusters",
-    "isPreview": true,
+    "isPreview": false,
     "description": "Create an Azure HDInsight on AKS cluster to process massive amounts of data using modern and latest open-source frameworks such as Apache Flink, Trino, Apache Spark, and more.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hdinsight/clusterpools/clusters.svg",
     "links": [
@@ -10133,6 +10352,17 @@
         "uri": "https://go.microsoft.com/fwlink/?linkid=2241255"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.hdinsight/clusterpools/clusters/instanceviews",
+    "singularDisplayName": "Microsoft.HDInsight clusterpools clusters instance view",
+    "pluralDisplayName": "Microsoft.HDInsight clusterpools clusters instance views",
+    "lowerSingularDisplayName": "microsoft.hdinsight clusterpools clusters instance view",
+    "lowerPluralDisplayName": "microsoft.hdinsight clusterpools clusters instance views",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hdinsight/clusterpools/clusters/instanceviews.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.hdinsight/clusters",
@@ -10236,16 +10466,18 @@
     "isPreview": true,
     "description": "A health model augments metric and logs with critical business context of a workload, enabling the automated evaluation of quantified health states.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.healthmodel/healthmodels.svg",
-    "links": [
-      {
-        "title": "Build health models",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.healthplatform/accounts",
+    "singularDisplayName": "Microsoft.HealthPlatform account",
+    "pluralDisplayName": "Microsoft.HealthPlatform accounts",
+    "lowerSingularDisplayName": "microsoft.healthplatform account",
+    "lowerPluralDisplayName": "microsoft.healthplatform accounts",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.healthplatform/accounts.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.help/diagnostics",
@@ -10934,7 +11166,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridnetwork/proxypublishers/artifactstores.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hybridnetwork/proxypublishers/configurationgroupschemas",
@@ -11088,7 +11321,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridnetwork/servicemanagementcontainers.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hybridnetwork/servicemanagementcontainers/rolloutsequences",
@@ -11099,7 +11333,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridnetwork/servicemanagementcontainers/rolloutsequences.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hybridnetwork/servicemanagementcontainers/rollouttiers",
@@ -11110,7 +11345,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridnetwork/servicemanagementcontainers/rollouttiers.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications",
@@ -11121,7 +11357,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications/rollouts",
@@ -11132,7 +11369,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications/rollouts.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications/rollouts/statuses",
@@ -11143,7 +11381,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications/rollouts/statuses.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hybridnetwork/sitenetworkservices",
@@ -11240,7 +11479,7 @@
     "lowerSingularDisplayName": "microsoft.impact workload impacts insight",
     "lowerPluralDisplayName": "microsoft.impact workload impacts insights",
     "isPreview": false,
-    "description": "Insight resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.impact/workloadimpacts/insights.svg",
     "links": null
   },
@@ -11655,10 +11894,10 @@
   },
   {
     "resourceType": "microsoft.iotfirmwaredefense/workspaces",
-    "singularDisplayName": "Microsoft.IoTFirmwareDefense workspace",
-    "pluralDisplayName": "Microsoft.IoTFirmwareDefense workspaces",
-    "lowerSingularDisplayName": "microsoft.iotfirmwaredefense workspace",
-    "lowerPluralDisplayName": "microsoft.iotfirmwaredefense workspaces",
+    "singularDisplayName": "Firmware analysis workspace",
+    "pluralDisplayName": "Firmware analysis workspaces",
+    "lowerSingularDisplayName": "firmware analysis workspace",
+    "lowerPluralDisplayName": "firmware analysis workspaces",
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotfirmwaredefense/workspaces.svg",
@@ -11673,7 +11912,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotfirmwaredefense/workspaces/firmwares.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.iotfirmwaredefense/workspaces/firmwares/summaries",
@@ -11684,7 +11924,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotfirmwaredefense/workspaces/firmwares/summaries.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.iotoperations/instances",
@@ -11823,8 +12064,128 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/broker",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq broker",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq broker",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq broker",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq broker",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/broker.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/broker/authentication",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq broker authentication",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq broker authentication",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq broker authentication",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq broker authentication",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/broker/authentication.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/broker/authorization",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq broker authorization",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq broker authorization",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq broker authorization",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq broker authorization",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/broker/authorization.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/broker/listener",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq broker listener",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq broker listener",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq broker listener",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq broker listener",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/broker/listener.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/datalakeconnector",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq data lake connector",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq data lake connector",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq data lake connector",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq data lake connector",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/datalakeconnector.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/datalakeconnector/topicmap",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq data lake connector topic map",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq data lake connector topic map",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq data lake connector topic map",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq data lake connector topic map",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/datalakeconnector/topicmap.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/diagnosticservice",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq diagnostic service",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq diagnostic service",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq diagnostic service",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq diagnostic service",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/diagnosticservice.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/kafkaconnector",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq kafka connector",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq kafka connector",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq kafka connector",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq kafka connector",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/kafkaconnector.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/kafkaconnector/topicmap",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq kafka connector topic map",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq kafka connector topic map",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq kafka connector topic map",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq kafka connector topic map",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/kafkaconnector/topicmap.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/mqttbridgeconnector",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq mqtt bridge connector",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq mqtt bridge connector",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq mqtt bridge connector",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq mqtt bridge connector",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/mqttbridgeconnector.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.iotoperationsmq/mq/mqttbridgeconnector/topicmap",
+    "singularDisplayName": "Microsoft.IoTOperationsMQ mq mqtt bridge connector topic map",
+    "pluralDisplayName": "Microsoft.IoTOperationsMQ mq mqtt bridge connector topic map",
+    "lowerSingularDisplayName": "microsoft.iotoperationsmq mq mqtt bridge connector topic map",
+    "lowerPluralDisplayName": "microsoft.iotoperationsmq mq mqtt bridge connector topic map",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq/mqttbridgeconnector/topicmap.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.iotoperationsorchestrator/instances",
@@ -12258,7 +12619,7 @@
     "lowerSingularDisplayName": "microsoft.liftrpilot organization",
     "lowerPluralDisplayName": "microsoft.liftrpilot organizations",
     "isPreview": false,
-    "description": "Concrete tracked resource types can be created by aliasing this type using a specific property type.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.liftrpilot/organizations.svg",
     "links": null
   },
@@ -12337,6 +12698,17 @@
     "isPreview": false,
     "description": "Fully isolated and dedicated environment for Logic Apps. Please note that the deployment of ISE can take up to 4 hours to complete.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.logic/integrationserviceenvironments.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.logic/integrationserviceenvironments/health",
+    "singularDisplayName": "Microsoft.Logic integration service environments health",
+    "pluralDisplayName": "Microsoft.Logic integration service environments health",
+    "lowerSingularDisplayName": "microsoft.logic integration service environments health",
+    "lowerPluralDisplayName": "microsoft.logic integration service environments health",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.logic/integrationserviceenvironments/health.svg",
     "links": null
   },
   {
@@ -12576,6 +12948,17 @@
         "uri": "https://go.microsoft.com/fwlink/?linkid=2160306"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.maintenance/maintenanceconfigurationsbladeresource",
+    "singularDisplayName": "Maintenance configuration",
+    "pluralDisplayName": "Maintenance configuration",
+    "lowerSingularDisplayName": "Maintenance configuration",
+    "lowerPluralDisplayName": "Maintenance configuration",
+    "isPreview": true,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.maintenance/maintenanceconfigurationsbladeresource.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.maintenance/publicmaintenanceconfigurations",
@@ -12839,7 +13222,7 @@
     "lowerSingularDisplayName": "microsoft.managednetworkfabric network monitor",
     "lowerPluralDisplayName": "microsoft.managednetworkfabric network monitors",
     "isPreview": false,
-    "description": "The NetworkMonitor resource definition.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.managednetworkfabric/networkmonitors.svg",
     "links": null
   },
@@ -13011,10 +13394,10 @@
   },
   {
     "resourceType": "microsoft.manufacturingplatform/manufacturingdataservices",
-    "singularDisplayName": "Factory Operations Agent in Azure AI",
-    "pluralDisplayName": "Factory Operations Agent in Azure AI",
-    "lowerSingularDisplayName": "Factory Operations Agent in Azure AI",
-    "lowerPluralDisplayName": "Factory Operations Agent in Azure AI",
+    "singularDisplayName": "Factory Operations Agent in Azure AI Foundry",
+    "pluralDisplayName": "Factory Operations Agent in Azure AI Foundry",
+    "lowerSingularDisplayName": "Factory Operations Agent in Azure AI Foundry",
+    "lowerPluralDisplayName": "Factory Operations Agent in Azure AI Foundry",
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.manufacturingplatform/manufacturingdataservices.svg",
@@ -13122,8 +13505,84 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/accountfilters",
+    "singularDisplayName": "Microsoft.Media media services account filter",
+    "pluralDisplayName": "Microsoft.Media media services account filters",
+    "lowerSingularDisplayName": "microsoft.media media services account filter",
+    "lowerPluralDisplayName": "microsoft.media media services account filters",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/accountfilters.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/assets",
+    "singularDisplayName": "Microsoft.Media media services asset",
+    "pluralDisplayName": "Microsoft.Media media services assets",
+    "lowerSingularDisplayName": "microsoft.media media services asset",
+    "lowerPluralDisplayName": "microsoft.media media services assets",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/assets.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/assets/assetfilters",
+    "singularDisplayName": "Microsoft.Media media services assets asset filter",
+    "pluralDisplayName": "Microsoft.Media media services assets asset filters",
+    "lowerSingularDisplayName": "microsoft.media media services assets asset filter",
+    "lowerPluralDisplayName": "microsoft.media media services assets asset filters",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/assets/assetfilters.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/assets/tracks",
+    "singularDisplayName": "Microsoft.Media media services assets track",
+    "pluralDisplayName": "Microsoft.Media media services assets tracks",
+    "lowerSingularDisplayName": "microsoft.media media services assets track",
+    "lowerPluralDisplayName": "microsoft.media media services assets tracks",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/assets/tracks.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/assets/tracks/operationresults",
+    "singularDisplayName": "Microsoft.Media media services assets tracks operation result",
+    "pluralDisplayName": "Microsoft.Media media services assets tracks operation results",
+    "lowerSingularDisplayName": "microsoft.media media services assets tracks operation result",
+    "lowerPluralDisplayName": "microsoft.media media services assets tracks operation results",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/assets/tracks/operationresults.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/assets/tracks/operationstatuses",
+    "singularDisplayName": "Microsoft.Media media services assets tracks operation statuse",
+    "pluralDisplayName": "Microsoft.Media media services assets tracks operation statuses",
+    "lowerSingularDisplayName": "microsoft.media media services assets tracks operation statuse",
+    "lowerPluralDisplayName": "microsoft.media media services assets tracks operation statuses",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/assets/tracks/operationstatuses.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/contentkeypolicies",
+    "singularDisplayName": "Microsoft.Media media services content key policy",
+    "pluralDisplayName": "Microsoft.Media media services content key policies",
+    "lowerSingularDisplayName": "microsoft.media media services content key policy",
+    "lowerPluralDisplayName": "microsoft.media media services content key policies",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/contentkeypolicies.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.media/mediaservices/liveevents",
@@ -13134,8 +13593,40 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/liveevents.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/liveevents/liveoutputs",
+    "singularDisplayName": "Microsoft.Media mediaservices live events live output",
+    "pluralDisplayName": "Microsoft.Media mediaservices live events live outputs",
+    "lowerSingularDisplayName": "microsoft.media mediaservices live events live output",
+    "lowerPluralDisplayName": "microsoft.media mediaservices live events live outputs",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/liveevents/liveoutputs.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/privateendpointconnections",
+    "singularDisplayName": "Microsoft.Media mediaservices private endpoint connection",
+    "pluralDisplayName": "Microsoft.Media mediaservices private endpoint connections",
+    "lowerSingularDisplayName": "microsoft.media mediaservices private endpoint connection",
+    "lowerPluralDisplayName": "microsoft.media mediaservices private endpoint connections",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/privateendpointconnections.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/privatelinkresources",
+    "singularDisplayName": "Microsoft.Media mediaservices private link resource",
+    "pluralDisplayName": "Microsoft.Media mediaservices private link resources",
+    "lowerSingularDisplayName": "microsoft.media mediaservices private link resource",
+    "lowerPluralDisplayName": "microsoft.media mediaservices private link resources",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/privatelinkresources.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.media/mediaservices/streamingendpoints",
@@ -13146,8 +13637,51 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/streamingendpoints.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/streaminglocators",
+    "singularDisplayName": "Microsoft.Media media services streaming locator",
+    "pluralDisplayName": "Microsoft.Media media services streaming locators",
+    "lowerSingularDisplayName": "microsoft.media media services streaming locator",
+    "lowerPluralDisplayName": "microsoft.media media services streaming locators",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/streaminglocators.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/streamingpolicies",
+    "singularDisplayName": "Microsoft.Media media services streaming policy",
+    "pluralDisplayName": "Microsoft.Media media services streaming policies",
+    "lowerSingularDisplayName": "microsoft.media media services streaming policy",
+    "lowerPluralDisplayName": "microsoft.media media services streaming policies",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/streamingpolicies.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/transforms",
+    "singularDisplayName": "Microsoft.Media media services transform",
+    "pluralDisplayName": "Microsoft.Media media services transforms",
+    "lowerSingularDisplayName": "microsoft.media media services transform",
+    "lowerPluralDisplayName": "microsoft.media media services transforms",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/transforms.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.media/mediaservices/transforms/jobs",
+    "singularDisplayName": "Microsoft.Media media services transforms job",
+    "pluralDisplayName": "Microsoft.Media media services transforms jobs",
+    "lowerSingularDisplayName": "microsoft.media media services transforms job",
+    "lowerPluralDisplayName": "microsoft.media media services transforms jobs",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.media/mediaservices/transforms/jobs.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.mesh/worlds",
@@ -14132,7 +14666,7 @@
     "lowerSingularDisplayName": "microsoft.mission external connection",
     "lowerPluralDisplayName": "microsoft.mission external connections",
     "isPreview": false,
-    "description": "Describes an External Connection.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mission/externalconnections.svg",
     "links": null
   },
@@ -14143,7 +14677,7 @@
     "lowerSingularDisplayName": "microsoft.mission internal connection",
     "lowerPluralDisplayName": "microsoft.mission internal connections",
     "isPreview": false,
-    "description": "Describes an Internal Connection.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mission/internalconnections.svg",
     "links": null
   },
@@ -14666,7 +15200,8 @@
     "isPreview": false,
     "description": "Create a Modeling and Simulation Workbench for deploying a secure, collaborative engineering design environment on Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.modsimworkbench/workbenches/chambers",
@@ -14677,7 +15212,8 @@
     "isPreview": false,
     "description": "Create a chamber to set up secure workplace which is isolated from other chambers within the Modeling and Simulation Workbench.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches/chambers.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.modsimworkbench/workbenches/chambers/connectors",
@@ -14688,7 +15224,8 @@
     "isPreview": false,
     "description": "Create a chamber connector to connect from on-premises network to specific chamber.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches/chambers/connectors.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.modsimworkbench/workbenches/chambers/filerequests",
@@ -14699,7 +15236,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches/chambers/filerequests.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.modsimworkbench/workbenches/chambers/files",
@@ -14710,7 +15248,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches/chambers/files.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.modsimworkbench/workbenches/chambers/licenses",
@@ -14721,7 +15260,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches/chambers/licenses.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.modsimworkbench/workbenches/chambers/storages",
@@ -14732,7 +15272,8 @@
     "isPreview": false,
     "description": "Create a chamber storage to add a high performance file-storage which is private to this chamber.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches/chambers/storages.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.modsimworkbench/workbenches/chambers/workloads",
@@ -14743,7 +15284,8 @@
     "isPreview": false,
     "description": "Create a chamber VM to scale your engineering workload’s computing power.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches/chambers/workloads.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.modsimworkbench/workbenches/sharedstorages",
@@ -14754,7 +15296,8 @@
     "isPreview": false,
     "description": "Create a shared storage to collaborate across design teams and organizations.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.modsimworkbench/workbenches/sharedstorages.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.monitor/accounts",
@@ -15483,12 +16026,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/networkmanagers/ipampools.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.network/networkmanagers/networkgroups",
@@ -15586,28 +16124,18 @@
     "isPreview": false,
     "description": "Network Security Perimeter is a boundary around PaaS resources. Access between resources on the same network security perimeter is allowed by default.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/networksecurityperimeters.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.network/networksecurityperimeters/profiles",
-    "singularDisplayName": "Network Security Perimeter",
-    "pluralDisplayName": "Network Security Perimeters",
-    "lowerSingularDisplayName": "network security perimeter",
-    "lowerPluralDisplayName": "network security perimeters",
+    "singularDisplayName": "Network Security Perimeter Profile",
+    "pluralDisplayName": "Network Security Perimeter Profiles",
+    "lowerSingularDisplayName": "network security perimeter profile",
+    "lowerPluralDisplayName": "network security perimeter profiles",
     "isPreview": false,
     "description": "Network Security Perimeter is a boundary around PaaS resources. Access between resources on the same network security perimeter is allowed by default.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/networksecurityperimeters/profiles.svg",
-    "links": [
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.network/networkverifiers",
@@ -15656,10 +16184,10 @@
   },
   {
     "resourceType": "microsoft.network/p2svpngateways",
-    "singularDisplayName": "Microsoft.Network P2S VPN gateway",
-    "pluralDisplayName": "Microsoft.Network P2S VPN gateways",
-    "lowerSingularDisplayName": "microsoft.network p2s vpn gateway",
-    "lowerPluralDisplayName": "microsoft.network p2s vpn gateways",
+    "singularDisplayName": "VPN Gateway (Point to Site)",
+    "pluralDisplayName": "VPN Gateways",
+    "lowerSingularDisplayName": "vpn gateway",
+    "lowerPluralDisplayName": "vpn gateways",
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/p2svpngateways.svg",
@@ -15812,7 +16340,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/products/traffic-manager/"
+        "uri": "https://go.microsoft.com/fwlink/p/?linkid=847681"
       }
     ]
   },
@@ -15916,7 +16444,7 @@
   },
   {
     "resourceType": "microsoft.network/vpngateways",
-    "singularDisplayName": "VPN Gateway",
+    "singularDisplayName": "VPN Gateway (Site to Site)",
     "pluralDisplayName": "VPN Gateways",
     "lowerSingularDisplayName": "vpn gateway",
     "lowerPluralDisplayName": "vpn gateways",
@@ -16223,6 +16751,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.networkcloud/kubernetesclusters/agentpools.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.networkcloud/kubernetesclusters/features",
+    "singularDisplayName": "Kubernetes Cluster Feature (Operator Nexus)",
+    "pluralDisplayName": "Kubernetes Cluster Features (Operator Nexus)",
+    "lowerSingularDisplayName": "kubernetes cluster feature (operator nexus)",
+    "lowerPluralDisplayName": "kubernetes cluster features (operator nexus)",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.networkcloud/kubernetesclusters/features.svg",
     "links": null
   },
   {
@@ -17038,6 +17577,22 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.onlineexperimentation/workspaces",
+    "singularDisplayName": "Online Experimentation Workspace",
+    "pluralDisplayName": "Online Experimentation Workspaces",
+    "lowerSingularDisplayName": "online experimentation workspace",
+    "lowerPluralDisplayName": "online experimentation workspaces",
+    "isPreview": false,
+    "description": "An online experiment workspace resource.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.onlineexperimentation/workspaces.svg",
+    "links": [
+      {
+        "title": "Learn Online Experimentation",
+        "uri": "https://aka.ms/exp/public/docs"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.openenergyplatform/energyservices",
     "singularDisplayName": "Azure Data Manager for Energy",
     "pluralDisplayName": "Azure Data Manager for Energy",
@@ -17121,9 +17676,14 @@
     "lowerSingularDisplayName": "log analytics dedicated cluster",
     "lowerPluralDisplayName": "log analytics dedicated clusters",
     "isPreview": false,
-    "description": "",
+    "description": "Dedicated cluster in Azure Monitor enables advanced security and control capabilities including Customer-managed keys, Lockbox, Availability zones, Ingest from Azure Event Hubs, and cost optimization. Linking and unlinking workspaces from cluster has no interruption to ingestion and query operations.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.operationalinsights/clusters.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/LogsDCluster"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.operationalinsights/querypacks",
@@ -17802,7 +18362,7 @@
     "lowerSingularDisplayName": "microsoft.proposal proposal",
     "lowerPluralDisplayName": "microsoft.proposal proposals",
     "isPreview": false,
-    "description": "A ProposalProviderHub resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.proposal/proposals.svg",
     "links": null
   },
@@ -18561,6 +19121,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.saashub/cloudservices",
+    "singularDisplayName": "Microsoft.SaaSHub cloud service",
+    "pluralDisplayName": "Microsoft.SaaSHub cloud services",
+    "lowerSingularDisplayName": "microsoft.saashub cloud service",
+    "lowerPluralDisplayName": "microsoft.saashub cloud services",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.saashub/cloudservices.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.saashub/cloudservices/hidden",
     "singularDisplayName": "Microsoft SaaS",
     "pluralDisplayName": "Microsoft SaaS",
@@ -18724,6 +19295,17 @@
     "isPreview": false,
     "description": "Information retrieval at scale for generative AI (RAG) and classic search over user-owned content.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.search/searchservices.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.secretmanagementsampleprovider/forecasts",
+    "singularDisplayName": "Microsoft.SecretManagementSampleProvider forecast",
+    "pluralDisplayName": "Microsoft.SecretManagementSampleProvider forecasts",
+    "lowerSingularDisplayName": "microsoft.secretmanagementsampleprovider forecast",
+    "lowerPluralDisplayName": "microsoft.secretmanagementsampleprovider forecasts",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.secretmanagementsampleprovider/forecasts.svg",
     "links": null
   },
   {
@@ -20047,6 +20629,22 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.storagediscovery/storagediscoveryworkspaces",
+    "singularDisplayName": "Storage Discovery workspace",
+    "pluralDisplayName": "Storage Discovery workspaces",
+    "lowerSingularDisplayName": "storage discovery workspace",
+    "lowerPluralDisplayName": "storage discovery workspaces",
+    "isPreview": false,
+    "description": "Storage Discovery placeholder description",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.storagediscovery/storagediscoveryworkspaces.svg",
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://microsoft.com"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.storageinsights/storagecollectionrules",
     "singularDisplayName": "Microsoft.StorageInsights storage collection rule",
     "pluralDisplayName": "Microsoft.StorageInsights storage collection rules",
@@ -20527,12 +21125,12 @@
   },
   {
     "resourceType": "microsoft.sustainabilityservices/calculations",
-    "singularDisplayName": "Microsoft.SustainabilityServices calculation",
-    "pluralDisplayName": "Microsoft.SustainabilityServices calculations",
-    "lowerSingularDisplayName": "microsoft.sustainabilityservices calculation",
-    "lowerPluralDisplayName": "microsoft.sustainabilityservices calculations",
-    "isPreview": false,
-    "description": "",
+    "singularDisplayName": "Project Sustainability Calculator",
+    "pluralDisplayName": "Project Sustainability Calculator",
+    "lowerSingularDisplayName": "Project Sustainability Calculator",
+    "lowerPluralDisplayName": "Project Sustainability Calculator",
+    "isPreview": true,
+    "description": "Start assessing your organization’s environmental emissions footprint across scope 1, scope 2, and scope 3 by creating a Project Sustainability Calculator resource.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.sustainabilityservices/calculations.svg",
     "links": null
   },
@@ -20752,8 +21350,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/activations.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/campaigns",
@@ -20764,8 +21361,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/campaigns.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/campaigns/versions",
@@ -20776,8 +21372,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/campaigns/versions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/catalogs",
@@ -20788,8 +21383,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/catalogs.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/catalogs/versions",
@@ -20800,8 +21394,18 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/catalogs/versions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.toolchainorchestrator/diagnostics",
+    "singularDisplayName": "Microsoft.ToolchainOrchestrator diagnostic",
+    "pluralDisplayName": "Microsoft.ToolchainOrchestrator diagnostics",
+    "lowerSingularDisplayName": "microsoft.toolchainorchestrator diagnostic",
+    "lowerPluralDisplayName": "microsoft.toolchainorchestrator diagnostics",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/diagnostics.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/instances",
@@ -20812,8 +21416,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/instances.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/instances/versions",
@@ -20824,8 +21427,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/instances/versions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/solutions",
@@ -20836,8 +21438,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/solutions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/solutions/versions",
@@ -20848,8 +21449,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/solutions/versions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/targets",
@@ -20860,8 +21460,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/targets.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.toolchainorchestrator/targets/versions",
@@ -20872,8 +21471,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/targets/versions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.usagebilling/accounts",
@@ -21486,7 +22084,7 @@
     "lowerSingularDisplayName": "microsoft.workloads configuration validation result",
     "lowerPluralDisplayName": "microsoft.workloads configuration validation results",
     "isPreview": false,
-    "description": "Configuration validation results.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/configurationvalidationresults.svg",
     "links": null
   },
@@ -21554,6 +22152,50 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/insights.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.workloads/instancegroupmonitors",
+    "singularDisplayName": "Microsoft.Workloads instance group monitor",
+    "pluralDisplayName": "Microsoft.Workloads instance group monitors",
+    "lowerSingularDisplayName": "microsoft.workloads instance group monitor",
+    "lowerPluralDisplayName": "microsoft.workloads instance group monitors",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/instancegroupmonitors.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.workloads/instancehealthdefinitions",
+    "singularDisplayName": "Microsoft.Workloads instance health definition",
+    "pluralDisplayName": "Microsoft.Workloads instance health definitions",
+    "lowerSingularDisplayName": "microsoft.workloads instance health definition",
+    "lowerPluralDisplayName": "microsoft.workloads instance health definitions",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/instancehealthdefinitions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.workloads/instancehealthdefinitions/signaldefinitions",
+    "singularDisplayName": "Microsoft.Workloads instance health definitions signal definition",
+    "pluralDisplayName": "Microsoft.Workloads instance health definitions signal definitions",
+    "lowerSingularDisplayName": "microsoft.workloads instance health definitions signal definition",
+    "lowerPluralDisplayName": "microsoft.workloads instance health definitions signal definitions",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/instancehealthdefinitions/signaldefinitions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.workloads/instancemonitors",
+    "singularDisplayName": "Microsoft.Workloads instance monitor",
+    "pluralDisplayName": "Microsoft.Workloads instance monitors",
+    "lowerSingularDisplayName": "microsoft.workloads instance monitor",
+    "lowerPluralDisplayName": "microsoft.workloads instance monitors",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/instancemonitors.svg",
     "links": null
   },
   {
@@ -21700,7 +22342,7 @@
     "lowerSingularDisplayName": "microsoft.workloads virtual instance",
     "lowerPluralDisplayName": "microsoft.workloads virtual instances",
     "isPreview": false,
-    "description": "Defines the Virtual Instance (VI) resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/virtualinstances.svg",
     "links": null
   },
@@ -21711,31 +22353,36 @@
     "lowerSingularDisplayName": "microsoft.workloads virtual instances component",
     "lowerPluralDisplayName": "microsoft.workloads virtual instances components",
     "isPreview": false,
-    "description": "Defines the Workload Component resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/virtualinstances/components.svg",
     "links": null
   },
   {
     "resourceType": "microsoft.zerotrustsegmentation/segmentationmanagers",
-    "singularDisplayName": "Microsoft.ZeroTrustSegmentation segmentation manager",
-    "pluralDisplayName": "Microsoft.ZeroTrustSegmentation segmentation managers",
-    "lowerSingularDisplayName": "microsoft.zerotrustsegmentation segmentation manager",
-    "lowerPluralDisplayName": "microsoft.zerotrustsegmentation segmentation managers",
+    "singularDisplayName": "Segmentation Manager",
+    "pluralDisplayName": "Segmentation Managers",
+    "lowerSingularDisplayName": "segmentation manager",
+    "lowerPluralDisplayName": "segmentation managers",
     "isPreview": false,
-    "description": "",
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.zerotrustsegmentation/segmentationmanagers.svg",
     "links": null
   },
   {
     "resourceType": "mongodb.atlas/organizations",
-    "singularDisplayName": "MongoDB Atlas - An Azure Native ISV Service",
-    "pluralDisplayName": "MongoDB Atlas - An Azure Native ISV Service",
-    "lowerSingularDisplayName": "MongoDB Atlas - An Azure Native ISV Service",
-    "lowerPluralDisplayName": "MongoDB Atlas - An Azure Native ISV Service",
+    "singularDisplayName": "MongoDB Atlas Organization",
+    "pluralDisplayName": "MongoDB Atlas",
+    "lowerSingularDisplayName": "MongoDB Atlas Organization",
+    "lowerPluralDisplayName": "MongoDB Atlas Organization",
     "isPreview": false,
-    "description": "Concrete tracked resource types can be created by aliasing this type using a specific property type.",
+    "description": "MongoDB Atlas as an Azure Native ISV Service integrates the fully-managed document database, including native vector search capabilities, directly into the Azure ecosystem. Build and scale modern AI applications with a streamlined setup of an Atlas Organization, unified billing management, and seamless access to Azure services.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/mongodb.atlas/organizations.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more about MongoDB Atlas",
+        "uri": "https://www.mongodb.com/lp/cloud/atlas/try4-reg"
+      }
+    ]
   },
   {
     "resourceType": "neon.postgres/organizations",
@@ -21816,6 +22463,28 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/cloudvmclusters.svg",
+    "links": null
+  },
+  {
+    "resourceType": "oracle.database/exadbvmclusters",
+    "singularDisplayName": "Oracle Exascale VM Cluster",
+    "pluralDisplayName": "Oracle Exascale VM Clusters",
+    "lowerSingularDisplayName": "Oracle Exascale VM Cluster",
+    "lowerPluralDisplayName": "Oracle Exascale VM Clusters",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/exadbvmclusters.svg",
+    "links": null
+  },
+  {
+    "resourceType": "oracle.database/exascaledbstoragevaults",
+    "singularDisplayName": "Oracle Exascale DB Storage Vault",
+    "pluralDisplayName": "Oracle Exascale VM Clusters",
+    "lowerSingularDisplayName": "Oracle Exascale DB Storage Vault",
+    "lowerPluralDisplayName": "Oracle Exascale VM Clusters",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/exascaledbstoragevaults.svg",
     "links": null
   },
   {
@@ -21958,7 +22627,8 @@
         "title": "Learn more",
         "uri": "https://aka.ms/appconfig/splitdocs"
       }
-    ]
+    ],
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators",

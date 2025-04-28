@@ -5,17 +5,16 @@ on:
     paths:
       - 'src/powershell/**'
 jobs:
-    run_pester_tests:
-        name: Pester
-        runs-on: Windows-latest
-        steps:
-        - name: Install and cache PowerShell modules
-          uses: potatoqualitee/psmodulecache@v5.2
-          with:
-            modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
-            shell: pwsh
-        - uses: actions/checkout@v3
-        - name: Run Tests
+  run_pester_tests:
+    name: Pester
+    runs-on: Windows-latest
+    steps:
+      - name: Install and cache PowerShell modules
+        uses: potatoqualitee/psmodulecache@v6.2.1
+        with:
+          modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
           shell: pwsh
-          run: .build/start.ps1 -Task Test.PowerShell.All
-            
+      - uses: actions/checkout@v3
+      - name: Run Tests
+        shell: pwsh
+        run: .build/start.ps1 -Task Test.PowerShell.All
