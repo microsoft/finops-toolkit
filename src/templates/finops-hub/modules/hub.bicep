@@ -11,8 +11,18 @@ param hubName string
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
 
+@description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
+param tags object = {}
+
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
 // @description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" (same as location).')
 // param eventGridLocation string = ''
+
+//------------------------------------------------------------------------------
+// Storage settings
+//------------------------------------------------------------------------------
 
 @allowed([
   'Premium_LRS'
@@ -30,6 +40,10 @@ param remoteHubStorageUri string = ''
 @description('Optional. Storage account key for remote storage account.')
 @secure()
 param remoteHubStorageKey string = ''
+
+//------------------------------------------------------------------------------
+// Data Explorer settings
+//------------------------------------------------------------------------------
 
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
@@ -112,11 +126,9 @@ param dataExplorerCapacity int = 1
 // @description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
 // param dataExplorerTrustedExternalTenants string[] = []
 
-@description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
-param tags object = {}
-
-@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
-param tagsByResource object = {}
+//------------------------------------------------------------------------------
+// Hub configuration
+//------------------------------------------------------------------------------
 
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array = []
@@ -133,21 +145,44 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
+//------------------------------------------------------------------------------
+// Private endpoints support
+//------------------------------------------------------------------------------
+
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
-@description('The wildcard folder path for the GCP billing data stored in Google Cloud storage.')
-param googleCloudStoragePath string
+//------------------------------------------------------------------------------
+// Google Cloud support
+//------------------------------------------------------------------------------
+
+@description('Optional. The name of the Google Cloud storage bucket. Default = "" (do not use).')
+param googleCloudStorageBucket string = ''
+
+@description('Optional. The folder path to find data in the Google Cloud storage bucket. This path supports wildcards. Default = "" (do not use).')
+param googleCloudStoragePath string = ''
+
+@description('Optional. The access key ID used to connect to Google Cloud storage. Default = "" (do not use).')
+param googleCloudStorageKeyId string = ''
+
+@description('Optional. The access key used to connect to the Google Cloud storage bucket. Default = "" (do not use).')
+@secure()
+param googleCloudStorageKey string = ''
+
+//------------------------------------------------------------------------------
+// Telemetry
+//------------------------------------------------------------------------------
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
-//------------------------------------------------------------------------------
+
+//==============================================================================
 // Variables
-//------------------------------------------------------------------------------
+//==============================================================================
 
 // cSpell:ignore ftkver
 // Add cm-resource-parent to group resources in Cost Management
@@ -224,6 +259,8 @@ var telemetryString = join([
   empty(dataExplorerName) || dataExplorerCapacity == 1 ? '' : 'x${dataExplorerCapacity}'
   // P = private endpoints enabled
   enablePublicAccess ? '' : 'P'
+  // G = GCP enabled
+  empty(googleCloudStorageKey) ? '' : 'G'
 ], '')
 
 //==============================================================================
@@ -238,8 +275,8 @@ module appRegistration 'hub-app.bicep' = {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
   params: {
     hubName: hubName
-    publisher: 'FinOps hubs'
-    namespace: 'Microsoft.FinOpsToolkit.Hubs'
+    publisher: 'Microsoft FinOps hubs'
+    namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
     displayName: 'FinOps hub core'
     appVersion: finOpsToolkitVersion
@@ -351,24 +388,36 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerIngestionCapacity: safeDataExplorerIngestionCapacity
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
-    keyVaultName: empty(remoteHubStorageKey) ? '' : keyVault.outputs.name
+    // TODO: Move Key Vault creation to the hub-app module
+    keyVaultName: empty(remoteHubStorageKey) || empty(googleCloudStorageKey) ? '' : keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
     enablePublicAccess: enablePublicAccess
   }
 }
 
-module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStoragePath)) {
-  name: 'Microsoft.FinOpsToolkit.Hubs.GoogleCloud'
+//------------------------------------------------------------------------------
+// Optional apps
+//------------------------------------------------------------------------------
+
+module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStorageKey)) {
+  // NOTE: GCP support is a "contributed" app that should be a different publisher from all others for increased security
+  name: 'FinOpsToolkit.Contrib.GoogleCloud.Core'
   params: {
+    hubName: hubName
     dataFactoryName: dataFactory.name
     storageAccountName: storage.outputs.name
+    keyVaultName: keyVault.outputs.name
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
-    gcpBillingWildcardFolderPath: googleCloudStoragePath
+    googleCloudStorageBucket: googleCloudStorageBucket
+    googleCloudStoragePath: googleCloudStoragePath
+    googleCloudStorageKeyId: googleCloudStorageKeyId
+    googleCloudStorageKey: googleCloudStorageKey
     configDatasetName: dataFactoryResources.outputs.configDatasetName
     schemaContainerName: dataFactoryResources.outputs.schemaContainerName
     schemaFolderPath: dataFactoryResources.outputs.schemaFolderPath
+    ingestionContainerName: storage.outputs.ingestionContainer
     blobManagerIdentityName: storage.outputs.blobManagerIdentityName
     enablePublicAccess: enablePublicAccess
     scriptStorageAccountName: storage.outputs.scriptStorageAccountName
@@ -380,7 +429,8 @@ module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStoragePath)) {
 // Key Vault for storing secrets
 //------------------------------------------------------------------------------
 
-module keyVault 'keyVault.bicep' = if (!empty(remoteHubStorageKey)) {
+// TODO: Move Key Vault creation to the hub-app module so GCP support isn't checked here
+module keyVault 'keyVault.bicep' = if (!empty(remoteHubStorageKey) || !empty(googleCloudStorageKey)) {
   name: 'keyVault'
   params: {
     hubName: hubName
