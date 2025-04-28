@@ -412,6 +412,7 @@ module hubAgent 'hubAgent.bicep' = if (enableHubAgent) {
     enablePublicAccess: enablePublicAccess
     virtualNetworkId: safeVnetId
     privateEndpointSubnetId: safeFinopsHubSubnetId
+    dataExplorerSubnetId: safeDataExplorerSubnetId
   }
 }
 

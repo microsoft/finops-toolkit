@@ -22,6 +22,9 @@ param virtualNetworkId string
 @description('Required. Id of the subnet for private endpoints.')
 param privateEndpointSubnetId string
 
+@description('Required. Id of the subnet for private endpoints.')
+param dataExplorerSubnetId string
+
 @description('The location into which the resources should be deployed.')
 param location string 
 
@@ -118,7 +121,7 @@ module agentcognitiveservices 'agentCognitiveServices.bicep'  = {
     location: location
     enablePublicAccess: enablePublicAccess
     virtualNetworkId: virtualNetworkId
-    privateEndpointSubnetId: privateEndpointSubnetId
+    privateEndpointSubnetId: dataExplorerSubnetId
     aiServiceName: '${agentName}${uniqueSuffix}'
     aiServicesPleName: 'ple-${agentName}-${uniqueSuffix}-cog'
     aiServiceSkuName: cognitiveServicesSku
@@ -181,7 +184,7 @@ module agentworkspace 'agentWorkspace.bicep' = {
     //network related
     enablePublicAccess: enablePublicAccess
     virtualNetworkId: virtualNetworkId
-    privateEndpointSubnetId: privateEndpointSubnetId
+    privateEndpointSubnetId: dataExplorerSubnetId
 
     // dependent resources
     aiServicesId: agentcognitiveservices.outputs.aiServicesId
