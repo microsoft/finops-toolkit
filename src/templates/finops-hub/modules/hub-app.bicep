@@ -102,4 +102,4 @@ resource appTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableD
 output hubId string = hubResourceId
 
 @description('Resource ID of the deployed FinOps hub instance.')
-output appNamespace string = '${appNamespace}'
+output appNamespace string = appNamespace

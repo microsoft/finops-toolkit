@@ -235,8 +235,8 @@ module appRegistration 'hub-app.bicep' = {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
   params: {
     hubName: hubName
-    publisher: 'FinOps hubs'
-    namespace: 'Microsoft.FinOpsToolkit.Hubs'
+    publisher: 'Microsoft FinOps hubs'
+    namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
     displayName: 'FinOps hub core'
     appVersion: finOpsToolkitVersion
