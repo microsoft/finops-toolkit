@@ -98,9 +98,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
       isolationMode: 'AllowInternetOutBound'
     }
     systemDatastoresAuthMode: systemDatastoresAuthMode
-
-    // private link settings
-    sharedPrivateLinkResources: []
+    
   }
   kind: 'hub'
 

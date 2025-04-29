@@ -130,7 +130,7 @@ module agentcognitiveservices 'agentCognitiveServices.bicep'  = {
     location: location
     enablePublicAccess: enablePublicAccess
     virtualNetworkId: virtualNetworkId
-    privateEndpointSubnetId: dataExplorerSubnetId
+    privateEndpointSubnetId: dataExplorerSubnetId // Because we're running out of IPs on the private endpoint subnet - use the data explorer subnet for the cognitive services private endpoint
     aiServiceName: '${agentName}${uniqueSuffix}'
     aiServicesPleName: 'ple-${agentName}-${uniqueSuffix}-cog'
     aiServiceSkuName: cognitiveServicesSku
@@ -193,7 +193,7 @@ module agentworkspace 'agentWorkspace.bicep' = {
     //network related
     enablePublicAccess: enablePublicAccess
     virtualNetworkId: virtualNetworkId
-    privateEndpointSubnetId: dataExplorerSubnetId
+    privateEndpointSubnetId: dataExplorerSubnetId // We're running out of IPs on the private endpoint subnet - use the data explorer subnet for the cognitive services private endpoint
 
     // dependent resources
     aiServicesId: agentcognitiveservices.outputs.aiServicesId
