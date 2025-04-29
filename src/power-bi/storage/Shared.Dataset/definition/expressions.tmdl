@@ -515,3 +515,29 @@ expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"D
 
 	annotation PBI_ResultType = Exception
 
+expression PolicyDefinitions =
+		let
+		  query = "
+		    policyResources
+		    | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'
+		    | extend
+		      displayName = properties.displayName,
+		      policyType = properties.policyType,
+		      description = properties.description,
+		      version = properties.version,
+		      parameters = properties.parameters,
+		      policyDefinitions = properties.policyDefinitions,
+		      policyDefinitionGroups = properties.policyDefinitionGroups,
+		      versions = properties.versions,
+		      oldVersions = properties.oldVersions
+		  " & ftk_DemoFilter(),
+		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
+		in
+		  Source
+	lineageTag: eb782518-cee4-45da-9f32-e4cf54d345c9
+	queryGroup: 'Resource Graph'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

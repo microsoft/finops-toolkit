@@ -332,9 +332,12 @@ table Resources
 				      ['isHnsEnabled'] = properties.isHnsEnabled,
 				      ['isBlueShiftAccount'] = properties.isBlueShiftAccount
 				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				
+				  // Remove duplicate ids
+				  RemoveDuplicateIds = Table.Distinct(Source, {"id"})
 				in
-				  Source
+				  RemoveDuplicateIds
 
 	annotation PBI_NavigationStepName = Navigation
 

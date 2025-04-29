@@ -109,3 +109,29 @@ expression 'Default Granularity' = "Monthly" meta [IsParameterQuery=true, List={
 
 	annotation PBI_ResultType = Text
 
+expression PolicyDefinitions =
+		let
+		  query = "
+		    policyResources
+		    | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'
+		    | extend
+		      displayName = properties.displayName,
+		      policyType = properties.policyType,
+		      description = properties.description,
+		      version = properties.version,
+		      parameters = properties.parameters,
+		      policyDefinitions = properties.policyDefinitions,
+		      policyDefinitionGroups = properties.policyDefinitionGroups,
+		      versions = properties.versions,
+		      oldVersions = properties.oldVersions
+		  " & ftk_DemoFilter(),
+		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
+		in
+		  Source
+	lineageTag: b34adf6c-2d9c-4731-b2cf-c1b5e24b4748
+	queryGroup: 'Resource Graph'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

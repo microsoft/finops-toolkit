@@ -70,16 +70,6 @@ relationship c8a2b782-448d-e933-0cee-5a6387245222
 	fromColumn: PolicyStates.subscriptionId
 	toColumn: Subscriptions.subscriptionId
 
-relationship f911264e-d0a5-4e69-9664-3342aaea0c57
-	crossFilteringBehavior: bothDirections
-	fromColumn: PolicyStates.'properties.policyDefinitionId'
-	toColumn: PolicyDefinitions.id
-
-relationship 7b0b80a6-3f04-a143-b6c2-07f0b38e2d2a
-	crossFilteringBehavior: bothDirections
-	fromColumn: PolicyAssignments.'properties.policyDefinitionId'
-	toColumn: PolicyDefinitions.id
-
 relationship ff6ac972-2c35-c20d-b9d4-84c273cc9b5f
 	crossFilteringBehavior: bothDirections
 	toCardinality: many

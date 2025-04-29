@@ -43,9 +43,16 @@ _Released April 2025_
     - The **hub-storage** module creates containers in the hub storage account.
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
     - The **hub-vault** module adds secrets to the hub vault.
-
 - **Fixed**
   - Workaround subnets reordering and bicep limitation
+
+### [Power BI reports](power-bi/reports.md) v0.10
+
+- **Fixed**
+  - Fixed the duplicate resource ID error in the Resources query ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
+  - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
+  - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
+  - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
 
