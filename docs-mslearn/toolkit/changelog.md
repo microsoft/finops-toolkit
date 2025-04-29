@@ -34,7 +34,7 @@ The following section lists features and enhancements that are currently in deve
 
 _Released April 2025_
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) pending updates
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
 
 - **Added**
   - Added documentation for the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
@@ -43,9 +43,14 @@ _Released April 2025_
     - The **hub-storage** module creates containers in the hub storage account.
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
     - The **hub-vault** module adds secrets to the hub vault.
-
 - **Fixed**
   - Workaround subnets reordering and bicep limitation
+
+### [Power BI reports](power-bi/reports.md) v0.10
+
+- **Added**
+  - Added a note about SAS token usage may require configuration at the storage account (and not a container) level.
+  - Added additional documentation to cover errors with mitigation steps.
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
 
