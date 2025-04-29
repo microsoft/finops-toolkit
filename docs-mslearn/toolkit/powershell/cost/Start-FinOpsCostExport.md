@@ -3,7 +3,7 @@ title: Start-FinOpsCostExport command
 description: Initiate a Cost Management export run for the most recent period using the Start-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/29/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -60,23 +60,23 @@ The following examples demonstrate typical usage of this command.
 Start-FinopsCostExport -Name 'CostExport'
 ```
 
-Runs an export called 'CostExport' for the configured period.
+Runs an export called 'CostExport' for the configured period on the subscription configured in Get-AzContext.
 
 ### Export specific dates
 
 ```powershell
-Start-FinopsCostExport -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
+Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234' -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
 ```
 
-Runs an export called 'CostExport' for a specific date range.
+Runs an export called 'CostExport' for a specific date range on the 1234 billing account.
 
 ### Backfill export
 
 ```powershell
-Start-FinopsCostExport -Name 'CostExport' -Backfill 12
+Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234/billingProfiles/5678' -Name 'CostExport' -Backfill 12
 ```
 
-Runs an export called 'CostExport' for the previous 12 months.
+Runs an export called 'CostExport' for the previous 12 months on the 5678 billing profile.
 
 <br>
 
