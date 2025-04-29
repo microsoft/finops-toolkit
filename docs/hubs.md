@@ -70,10 +70,10 @@ Create a new or update an existing FinOps hub instance.
 
 <div class="ftk-instructions">
     <div class="ftk-step">
-        <button class="ftk-accordion">1️⃣&nbsp; Register EventGrid</button>
+        <button class="ftk-accordion">1️⃣&nbsp; Register resource providers</button>
         <div>
             <p>
-                Register the <b>Microsoft.EventGrid</b> resource provider for your subscription.
+                Register the <b>Microsoft.CostManagementExports</b> and <b>Microsoft.EventGrid</b> resource providers for your subscription.
             </p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2">Go to subscriptions</a>

@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 04/28/2025
+ms.date: 04/29/2025
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -43,9 +43,9 @@ Additional permissions will be covered as part of the tutorial.
 
 <br>
 
-## Enable EventGrid for the subscription
+## Enable required resource providers
 
-FinOps hubs uses EventGrid to know when data is added to your storage account. Before deploying the template, you need to register the **Microsoft.EventGrid** resource provider.
+FinOps hubs use Cost Management to export data and EventGrid to know when data is added to your storage account. Before deploying the template, you need to register the **Microsoft.CostManagementExports** and **Microsoft.EventGrid** resource providers.
 
 <!-- markdownlint-disable-next-line -->
 ### [Azure portal](#tab/azure-portal)
@@ -55,6 +55,7 @@ FinOps hubs uses EventGrid to know when data is added to your storage account. B
 3. In the left menu, select **Settings** > **Resource providers**.
 4. In the list of resource providers, find the row for **Microsoft.EventGrid**.
 5. If the **Status** column shows Not Registered, select the context menu to the right of the provider name (⋅⋅⋅) and then select **Register**.
+6. Repeat steps 4-5 for **Microsoft.CostManagementExports**.
 
 <!-- markdownlint-disable-next-line -->
 ### [PowerShell](#tab/powershell)
@@ -450,52 +451,6 @@ To preview reports without connecting to your data, download the [Power BI demo]
 If you experience a specific error, check the [list of common errors](../help/errors.md) for mitigation steps. If you are not experiencing a specific error code or run into any other issues, refer to the [Troubleshooting guide](../help/troubleshooting.md).
 
 If your issue is not resolved with the troubleshooting guide, see [Get support for FinOps toolkit issues](../help/support.md) for additional help.
-
-<br>
-
-## Next steps
-
-
-
-
-<br>
-
-## Get started with hubs
-
-After you deploy a hub instance, there are several ways for you to get started:
-
-- Customize the prebuilt Power BI reports.
-
-  Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](../power-bi/reports.md).
-
-- Create your own Power BI reports.
-
-  If you want to create your own reports or add cost data to an existing report, you can [copy queries from a prebuilt report](../power-bi/setup.md#copy-queries-from-a-toolkit-report). Or you can connect manually using the Azure Data Lake Storage Gen2 connector.
-
-- Connect to Microsoft Fabric for advanced queries.
-
-  If you use OneLake in Microsoft Fabric, you can create a shortcut to the `ingestion` container in your hubs storage account to run SQL or KQL queries directly against the data in hubs. [Learn more](../../fabric/create-fabric-workspace-finops.md#create-a-shortcut-to-storage).
-
-- Access the cost data from custom tools.
-
-  Data is stored in [Azure Data Explorer](/azure/data-explorer) and an [Azure Data Lake Storage Gen2](/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. Refer to the [data dictionary](../help/data-dictionary.md) for details about available columns.
-
-- Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
-
-  [Data Factory](/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Don't modify built-in pipelines or data in the **msexports** container. If you create custom pipelines, monitor new data in the **ingestion** container and use a consistent prefix to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
-
-   > [!IMPORTANT]
-   > Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](../roadmap.md). Get familiar the roadmap to avoid conflicts with future updates. Consider [contributing to the project](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md) to add support for new scenarios to avoid conflicts.
-
-- Generate custom alerts using Power Automate.
-
-  You have many options for generating custom alerts. [Power Automate](https://powerautomate.microsoft.com/connectors/details/shared_azureblob/azure-blob-storage) is a great option for people who are new to automation. You can also use [Data Factory](/azure/data-factory/introduction), [Functions](/azure/azure-functions/functions-overview), or any other service that supports custom code or direct access to data in Azure Data Lake Storage Gen2.
-
-No matter what you choose to do we recommend creating a new Bicep module to support updating your solution. You can reference `finops-hub/main.bicep` or `hub.bicep` directly to ensure you can apply new updates as they're released.
-
-If you need to change `hub.bicep`, be sure to track those changes and reapply them when upgrading to the latest release. We generally don't recommend modifying the template or modules directly to avoid conflicts with future updates. Instead, consider contributing those changes back to the open source project. [Learn more](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md).
-
-If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](../help/data-dictionary.md) for details about the available columns.
 
 <br>
 

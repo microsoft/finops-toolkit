@@ -3,7 +3,7 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/29/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -105,7 +105,7 @@ The FinOps toolkit includes five Power BI reports that are available in three se
 
 To create a new FinOps hub, follow these steps:
 
-1. Enable the EventGrid resource provider for your subscription.
+1. Enable the CostManagementExports and EventGrid resource providers for your subscription.
 2. Plan for public or private network routing with your network admins. [Learn more](private-networking.md).
 3. Optional: Set up Microsoft Fabric Real-Time Intelligence.
 4. Deploy the FinOps hub template.
@@ -131,13 +131,9 @@ After you deploy a hub instance, there are several ways for you to get started:
 
   If you want to create your own reports or add cost data to an existing report, you can [copy queries from a prebuilt report](../power-bi/setup.md#copy-queries-from-a-toolkit-report). Or you can connect manually using the Azure Data Lake Storage Gen2 connector.
 
-- Connect to Microsoft Fabric for advanced queries.
-
-  If you use OneLake in Microsoft Fabric, you can create a shortcut to the `ingestion` container in your hubs storage account to run SQL or KQL queries directly against the data in hubs. [Learn more](../../fabric/create-fabric-workspace-finops.md#create-a-shortcut-to-storage).
-
 - Access the cost data from custom tools.
 
-  Data is stored in [Azure Data Explorer](/azure/data-explorer) and an [Azure Data Lake Storage Gen2](/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. Refer to the [data dictionary](../help/data-dictionary.md) for details about available columns.
+  Data is stored in [Azure Data Explorer](/azure/data-explorer) or [Microsoft Fabric Real-Time Intelligence](/fabric/real-time-intelligence) and [Azure Data Lake Storage Gen2](/azure/storage/blobs/data-lake-storage-introduction). You can use any tool that supports one of these platforms. Refer to the [data dictionary](../help/data-dictionary.md) for details about available columns.
 
 - Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
