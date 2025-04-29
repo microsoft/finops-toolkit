@@ -49,7 +49,7 @@ _Released April 2025_
 ### [Power BI reports](power-bi/reports.md) v0.10
 
 - **Added**
-  - Added a note about SAS token usage may require configuration at the storage account (and not a container) level.
+  - Added a note about SAS token usage may require configuration at the storage account (and not a container) level ([#1418](https://github.com/microsoft/finops-toolkit/issues/1418#issuecomment-2834146702)).
   - Added additional documentation to cover errors with mitigation steps.
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
