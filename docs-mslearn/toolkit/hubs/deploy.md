@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/28/2025
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -104,13 +104,10 @@ Configuring Microsoft Fabric is a manual process and requires explicit steps bef
    4. Download and open the [finops-hub-fabric-setup-Ingestion.kql file](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-fabric-setup-Ingestion.kql) in a text editor.
    5. Copy the entire text from this file into the Fabric queryset editor.
    6. Press <kbd>Ctrl+H</kbd> to trigger the find and replace dialog, set the find text to `$$rawRetentionInDays$$` and replace it with `0` or desired number of days to keep data in **_raw** tables, then press <kbd>Ctrl+Alt+Enter</kbd> to replace all instances.
-   7. Starting at the top of the file, put your cursor on the first `.create-or-alter` statement, then select the **Run** command above the editor.
-   8. Wait for the script to complete and then run the next `.create-or-alter`, `.create-merge`, or `.alter` statement. Repeat for every statement.
-      - Consider collapsing all query blocks with <kbd>Ctrl+K, Ctrl+0</kbd> and running each of the commands and comment blocks to simplify the process.
-      - Ignore `//===` and `//---` comment blocks.
-      - If you receive an error on a comment block, place the cursor inside the command, and try to run it again.
-      - If you continue to receive errors, review the error to determine if one of the previous commands was missed.
-      - If needed, you can rerun any commands as long as they are run sequentially. Skipping commands may result in errors.
+   7. Press <kbd>Ctrl+Home</kbd> to bring the cursor to the beginning of the file and press <kbd>Shift+Enter</kbd> or select the **Run** command at the top of the page.
+   8. Wait for the script to complete and then review the **Result** column to confirm all commands completed successfully.
+      - If you see an error for a line that has **$$rawRetentionInDays$$**, repeat steps 2.6 and 2.7.
+      - If you experience a different error, please [create an issue in GitHub](https://aka.ms/ftk/ideas).
 3. Repeat step 2 for the **Hub** database using the [finops-hub-fabric-setup-Hub.kql file](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-fabric-setup-Hub.kql) script file.
 4. In the left pane, select **System overview**, then select the **Copy URI** link for the **Query URI** property in the details pane on the right.
    - Make note of the query URI. You will use it in the next step.
