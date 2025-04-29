@@ -51,11 +51,26 @@ For more information about FinOps principles, including tips from the experts, s
 
 ## Scopes
 
-FinOps scopes are crucial for setting the boundaries for which you apply your FinOps efforts, identifying which personas are involved, and what capabilities are in-focus. These scopes help ensure that your FinOps efforts are aligned with your organization's strategic goals and operational needs.
+FinOps scopes conceptually represent the boundaries for which you apply your FinOps efforts. Your scope indicates the usage, spend, and sustainability management area of responsibility your team covers. This area of responsibility may also identify which personas are involved and what capabilities apply. Your team's scope is generally defined by and aligned with your organization's strategic goals and operational needs.
 
-- **Scopes are more than a single type of infrastructure** – A FinOps scope can cover multiple types of infrastructure, and multiple scopes may exist within a single segment. Key performance indicators (KPIs) for measuring success or performance of the capabilities included can vary depending on the scope to which they are applied.
+The scope or area of responsibility of your FinOps efforts may cover multiple technologies and platforms. Examples of things that may be part of your scope include, but are not limited to:
 
-- **Scopes are driven by the business and technology strategy** – Organizations can define their scopes based on their business needs, allowing for custom selection of which personas, domains, and capabilities are involved.
+- Public, private, and hybrid clouds.
+- Data centers.
+- Cloud-based services offered by third-party providers (often referred to as "SaaS providers").
+- Professional services, like consulting and training.
+
+Your scope may also be a subset of these, if you focus solely on a single technology or even service. For instance, a team that only manages SQL databases may have a smaller area of responsibility than one that manages networking infrastructure for a global, multi-national company.
+
+Ultimately, scopes represent what your team is responsible for managing or supporting, which impacts:
+
+- What you need to know.
+- Standards and processes you may need to apply to establish consistent execution and governance.
+- Metrics and key performance indicators (KPIs) you need to measure success.
+- What level of adoption you should target and expect within your organization.
+- If and how you might automate tasks and processes to streamline your goals.
+
+Your scope is determined based on your organization's business and technology needs and strategy to facilitate efficient execution of your FinOps practice to achieve your FinOps goals.
 
 <br>
 

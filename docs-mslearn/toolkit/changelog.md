@@ -39,7 +39,7 @@ The following section lists features and enhancements that are currently in deve
 ### [Implementing FinOps guide](../implementing-finops-guide.md)
 
 - **Changed**
-  - Updated content regarding the domains, principles, capabilities, and scopes to reflect the FinOps Framework 2025 updates.
+  - Updated FinOps Framework domains, principles, capabilities, and scopes to reflect the 2025 updates.
 
 <br><a name="latest"></a>
 
