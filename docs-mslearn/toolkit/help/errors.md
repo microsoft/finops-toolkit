@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/28/2025
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -60,6 +60,18 @@ FinOps hubs 0.2 isn't operational. Upgrade to version 0.3 or later.
 
 <br>
 
+## Column 'id' in Table 'Resources' contains a duplicate value
+
+<sup>Severity: Critical</sup>
+
+If you experience the following error, it means that Azure Resource Graph is returning rows with the same logical value for the **id** column. This can happen when the resource ID values have inconsistent casing or when another column is expanded across rows.
+
+> _Column 'id' in Table 'Resources' contains a duplicate value '{resource-id}' and this is not allowed for columns on the one side of a many-to-one relationship or for columns that are used as the primary key of a table._
+
+**Mitigation**: Make sure you are on the [latest version](https://aka.ms/ftk/latest) of the report. Identify the cause of the duplicate values and update the query to work around the duplicate values. Please also [report this issue in GitHub](https://aka.ms/ftk/ideas) so it can be fixed in a future release. This may require additional detail or a meeting to troubleshoot the cause of the error.
+
+<br>
+
 ## ConflictError
 
 <sup>Severity: Critical</sup>
@@ -90,6 +102,20 @@ You can now retry the deployment.
 `ContractedCost` (based on negotiated discounts) is less than `EffectiveCost` (after commitment discounts) in the data from Cost Management. This should never happen unless the commitment discount provides less of a discount than your existing negotiated discounts. This will cause your savings calculations to not add up precisely.
 
 **Mitigation**: Confirm the `ContractedUnitPrice` in the cost data matches what's in the price data. If the contracted price is correct, file a support request with the Cost Management team to confirm the `x_EffectiveUnitPrice` and `EffectiveCost` are correct. If they are correct, consider returning the commitment discount.
+
+<br>
+
+## Cross-tenant access policy does not allow this user
+
+<sup>Severity: Major</sup>
+
+If you experience the following error, it means Microsoft Entra ID is configured to not allow users from other tenants to sign in to the current tenant.
+
+> _Message: AADSTS500213: The resource tenant's cross-tenant access policy does not allow this user to access this tenant._
+
+This error message is not related to the FinOps toolkit.
+
+**Mitigation**: Verify you are signed in to the correct account and that you signed in through the target directory. Contact the directory admin if you need further assistance.
 
 <br>
 
@@ -428,7 +454,7 @@ This error code is shown in the `x_SourceChanges` column when `ProviderName` is 
 
 <br>
 
-## Query '...' references other queries steps
+## Query '...' references other queries or steps
 
 <sup>Severity: Minor</sup>
 
@@ -442,13 +468,35 @@ This error has only been reported in storage reports. If you have long data refr
 
 ## ResourceAccessForbiddenException
 
+<sup>Severity: Major</sup>
+
 Power BI: An exception of the 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' type was thrown
 
 Indicates that the account loading data in Power BI doesn't have the [Storage Blob Data Reader role](/azure/role-based-access-control/built-in-roles#storage-blob-data-reader). Grant this role to the account loading data in Power BI.
 
 <br>
 
+## Response payload size is... and has exceeded the limit
+
+<sup>Severity: Major</sup>
+
+Azure Resource Graph queries in the Governance and Workload optimization Power BI reports may return an error similar to:
+
+> _OLE DB or ODBC error: [Expression.Error] Please provide below info when asking for support: timestamp = {timestamp}, correlationId = {guid}. Details: Response payload size is {number}, and has exceeded the limit of 16777216. Please consider querying less data at a time and make paginated call if needed._
+
+This error means that you have more resources than are supported in an unfiltered Resource Graph query. This happens because FinOps toolkit reports are designed to show resource-level details and are not aggregated. They are designed for small- and medium-sized environments and not designed to support organizations with millions of resources.
+
+**Mitigation**: If you experience this error, there are several options:
+
+- Remove columns that are not necessary for your needs.
+- Filter the query to return fewer resources based on what's most important for you (e.g., subscriptions, tags).
+- Disable the query so it doesn't block other queries from running.
+
+<br>
+
 ## RoleAssignmentUpdateNotPermitted
+
+<sup>Severity: Minor</sup>
 
 If you deleted FinOps Hubs and are attempting to redeploy it with the same values, including the Managed Identity name, you might encounter the following known issue:
 
@@ -457,7 +505,7 @@ If you deleted FinOps Hubs and are attempting to redeploy it with the same value
 "message": "Tenant ID, application ID, principal ID, and scope are not allowed to be updated."
 ```
 
-To fix that issue you have to remove the stale identity:
+**Mitigation**: To fix that issue you have to remove the stale identity:
 
 - Navigate to the storage account and select **Access control (IAM)** in the menu.
 - Select the **Role assignments** tab.
@@ -547,7 +595,9 @@ The export manifest in hub storage indicates the export was for an unsupported d
 
 <br>
 
-## The \<name> resource provider isn't registered in subscription \<guid>
+## The {name} resource provider isn't registered in subscription {guid}
+
+<sup>Severity: Minor</sup>
 
 Open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the resource provider row (for example, Microsoft.EventGrid), then select the **Register** command at the top of the page. Registration might take a few minutes.
 
