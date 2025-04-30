@@ -42,6 +42,7 @@ _Released April 2025_
     - The **hub-app** module tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
+    - The **hub-pipeline** module creates a pipeline in the hub Data Factory instance.
     - The **hub-vault** module adds secrets to the hub vault.
 
 - **Fixed**
