@@ -15,6 +15,7 @@
     "@fluentui/react-components": "^9.61.6",
     "@fluentui/react-icons": "^2.0.297",
     "axios": "^1.8.4",
+    "clear": "^0.1.0",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.22",
     "marked": "^15.0.8",
@@ -37,6 +38,6 @@
     "globals": "^15.15.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0"
+    "vite": "^6.3.3"
   }
 }

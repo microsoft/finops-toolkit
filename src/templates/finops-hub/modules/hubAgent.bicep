@@ -88,6 +88,7 @@ module agentContainerRegistry 'agentContainerRegistry.bicep' = {
     location: location
     containerRegistryName: '${agentName}${uniqueSuffix}'
     containerRegistryPleName: 'ple-${agentName}-${uniqueSuffix}-cr'
+    enablePublicAccess: enablePublicAccess
     privateEndpointSubnetId: privateEndpointSubnetId
     virtualNetworkId: virtualNetworkId
     tags: tags
