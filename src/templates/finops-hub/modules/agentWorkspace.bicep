@@ -153,6 +153,25 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
 
 }
 
+resource project 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' = {
+  name: '${aiHubName}-project'
+  kind: 'Project'
+  location: location
+  identity: {
+    type: 'systemAssigned'
+  }
+  sku: {
+    tier: 'Standard'
+    name: 'standard'
+  }
+  properties: {
+    description: '${aiHubFriendlyName} project'
+    friendlyName: '${aiHubFriendlyName} project'
+    hbiWorkspace: false
+    hubResourceId: aiHub.id
+  }
+}
+
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: privateEndpointName
   location: location
