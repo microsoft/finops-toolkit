@@ -57,15 +57,15 @@ To learn more, see [Onboarding workloads](./onboarding.md).
 
 <br>
 
-## Cloud policy and governance
+## Policy and governance
 
-Cloud policy and governance refer to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
+Policy and governance refer to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
 
 - Specific SKUs
 - Resource configurations
 - Other practices that might affect cost, usage, and carbon growth
 
-To learn more, see [Cloud policy and governance](./governance.md).
+To learn more, see [Policy and governance](./governance.md).
 
 <br>
 
