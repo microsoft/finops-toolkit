@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: flanakin
 ms.author: micflan
-ms.date: 04/07/2025
+ms.date: 04/29/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -34,10 +34,11 @@ The following section lists features and enhancements that are currently in deve
 
 _Released April 2025_
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) pending updates
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
 
 - **Added**
-  - Added documentation for the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
+  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
+  - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
   - Created a new bicep modules to support extensibility:
     - The **hub-app** module tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
@@ -64,7 +65,7 @@ _Released April 2025_
 
 
 - **Fixed**
-  - Update the 'id' property for the managedApi to a valid scope
+  - Update the `id` property for the managedApi to a valid scope.
     - This caused a deployment error because the path could not be deserialized.
 
 ### [Optimization engine](optimization-engine/overview.md) v0.10
@@ -79,6 +80,11 @@ _Released April 2025_
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+
+### [PowerShell module](powershell/powershell-commands.md) v0.10
+
+- **Added**
+  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
 
 <br>
 
