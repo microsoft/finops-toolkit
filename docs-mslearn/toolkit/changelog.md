@@ -48,7 +48,20 @@ _Released April 2025_
 - **Fixed**
   - Workaround subnets reordering and bicep limitation
 
+
+<br><a name="latest"></a>
+
+## v0.10
+
+_Released April 2025_
+
+### [Power BI reports](power-bi/reports.md) v0.10
+
+- **Fixed**
+  - Document the ADLS storage requirement.
+
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
+
 
 - **Fixed**
   - Update the 'id' property for the managedApi to a valid scope
