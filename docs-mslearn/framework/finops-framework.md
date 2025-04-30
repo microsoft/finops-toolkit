@@ -3,7 +3,7 @@ title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2025
+ms.date: 04/25/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -26,6 +26,7 @@ Microsoft's guidance is largely based on the FinOps Framework with a few enhance
 In the next few sections, we cover the basic concepts of the FinOps Framework:
 
 - The **principles** that should guide your FinOps efforts.
+- The **scopes** to which you apply FinOps concepts.
 - The **stakeholders** that should be involved.
 - The **lifecycle** that you iterate through.
 - The **capabilities** that you implement with stakeholders throughout the lifecycle.
@@ -45,6 +46,31 @@ Before digging into FinOps, it's important to understand the core principles tha
 - **Take advantage of the variable cost model of the cloud** – Make continuous small adjustments in cloud usage and optimization.
 
 For more information about FinOps principles, including tips from the experts, see [FinOps with Azure – Bringing FinOps to life through organizational and cultural alignment](https://azure.microsoft.com/resources/finops-with-azure-bringing-finops-to-life-through-organizational-and-cultural-alignment/).
+
+<br>
+
+## Scopes
+
+FinOps scopes conceptually represent the boundaries for which you apply your FinOps efforts. Your scope indicates the usage, spend, and sustainability management area of responsibility your team covers. This area of responsibility may also identify which personas are involved and what capabilities apply. Your team's scope is generally defined by and aligned with your organization's strategic goals and operational needs.
+
+The scope or area of responsibility of your FinOps efforts may cover multiple technologies and platforms. Examples of things that may be part of your scope include, but are not limited to:
+
+- Public, private, and hybrid clouds.
+- Data centers.
+- Cloud-based services offered by third-party providers (often referred to as "SaaS providers").
+- Professional services, like consulting and training.
+
+Your scope may also be a subset of these, if you focus solely on a single technology or even service. For instance, a team that only manages SQL databases may have a smaller area of responsibility than one that manages networking infrastructure for a global, multi-national company.
+
+Ultimately, scopes represent what your team is responsible for managing or supporting, which impacts:
+
+- What you need to know.
+- Standards and processes you may need to apply to establish consistent execution and governance.
+- Metrics and key performance indicators (KPIs) you need to measure success.
+- What level of adoption you should target and expect within your organization.
+- If and how you might automate tasks and processes to streamline your goals.
+
+Your scope is determined based on your organization's business and technology needs and strategy to facilitate efficient execution of your FinOps practice to achieve your FinOps goals.
 
 <br>
 
