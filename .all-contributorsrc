@@ -743,6 +743,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "robbdi",
+      "name": "Robb Dilallo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16977341?v=4",
+      "profile": "https://github.com/robbdi",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
