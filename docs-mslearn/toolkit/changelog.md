@@ -24,6 +24,16 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### Power BI reports pending updates
+
+- Create a new Pricing models page in the Rate optimization report (KQL only) to show coverage of different pricing options.
+  - This is an early preview that is included in 0.10 KQL reports, but hidden by default.
+  - The final release will include the same report in storage reports, however it may not be feature complete due to performance limitations.
+  - Pending changes before this gets released:
+    - Update the page name.
+    - Break "standard" (on-demand) usage into reservation eligible and savings plan eligible costs.
+    - Consider creating a new, calculated column with clearer values than x_PricingSubcategory.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
