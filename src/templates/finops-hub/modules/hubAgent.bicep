@@ -69,6 +69,7 @@ param connectionAuthMode string = 'ApiKey'
 // Variables
 var agentName = toLower('ai${hubName}')
 var agentIdentityUniqueName = 'sp${agentName}${uniqueSuffix}'
+var safeLocationName = toLower(replace(agentModelLocation, ' ', ''))
 
 // params for environment variables
 param ADX_CLUSTER_URL string
@@ -77,17 +78,17 @@ param ADX_DATABASE string
 param TAVILY_API_KEY string
 
 var PROJECT_CONNECTION_STRING = '' // d16d1fab-0997-46d3-b7d5-6bda819ca42f.workspace.westus3.api.azureml.ms;cab7feeb-759d-478c-ade6-9326de0651ff;ftk-sdp;aiftk-sdph24tipbpqcuhahub-project
-var AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED  = ''
-var AZURE_AI_SEARCH_SERVICE_ENDPOINT  = ''
-var AZURE_AI_SEARCH_ADMIN_KEY  = ''
-var AZURE_AI_SEARCH_INDEX_NAME  = ''
-var AZURE_AI_SEARCH_INDEX_KQL  = ''
-var AZURE_OPENAI_KEY  = ''
-var AZURE_OPENAI_ENDPOINT  = ''
+var AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED  = aoamodel
+var AZURE_AI_SEARCH_SERVICE_ENDPOINT  = agentSearchService.outputs.searchServiceEndpoint
+var AZURE_AI_SEARCH_ADMIN_KEY  = 'unset'
+var AZURE_AI_SEARCH_INDEX_NAME  = 'unset'
+var AZURE_AI_SEARCH_INDEX_KQL  = 'unset'
+var AZURE_OPENAI_KEY  = 'AZURE_OPENAI_KEY'
+var AZURE_OPENAI_ENDPOINT  = 'https://${safeLocationName}.api.cognitive.microsoft.com'
 var AZURE_OPENAI_EMBEDDING_DEPLOYMENT  = 'text-embedding-3-large'
 var AZURE_OPENAI_API_VERSION  = '2023-05-15'
-var AZURE_INFERENCE_ENDPOINT=''
-var AZURE_INFERENCE_KEY=''
+var AZURE_INFERENCE_ENDPOINT='https://${safeLocationName}.api.cognitive.microsoft.com/models'
+var AZURE_INFERENCE_KEY='AZURE_INFERENCE_KEY'
 var MODEL_NAME='DeepSeek-R1'
 
 // Dependent resources for the Azure Machine Learning workspace
@@ -270,6 +271,22 @@ module agentContainer 'agentContainerApp.bicep' = {
     maxReplicas: 3
     memorySize: '2'
     minReplicas: 1
+    ADX_CLUSTER_URL: ADX_CLUSTER_URL
+    ADX_DATABASE: ADX_DATABASE
+    PROJECT_CONNECTION_STRING: PROJECT_CONNECTION_STRING
+    AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED: AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED
+    AZURE_AI_SEARCH_SERVICE_ENDPOINT: AZURE_AI_SEARCH_SERVICE_ENDPOINT
+    AZURE_AI_SEARCH_ADMIN_KEY: AZURE_AI_SEARCH_ADMIN_KEY
+    AZURE_AI_SEARCH_INDEX_KQL: AZURE_AI_SEARCH_INDEX_KQL
+    AZURE_AI_SEARCH_INDEX_NAME: AZURE_AI_SEARCH_INDEX_NAME
+    AZURE_INFERENCE_ENDPOINT: AZURE_INFERENCE_ENDPOINT
+    AZURE_INFERENCE_KEY: AZURE_INFERENCE_KEY
+    AZURE_OPENAI_ENDPOINT: AZURE_OPENAI_ENDPOINT
+    AZURE_OPENAI_KEY: AZURE_OPENAI_KEY
+    TAVILY_API_KEY: TAVILY_API_KEY
+    AZURE_OPENAI_API_VERSION: AZURE_OPENAI_API_VERSION
+    AZURE_OPENAI_EMBEDDING_DEPLOYMENT: AZURE_OPENAI_EMBEDDING_DEPLOYMENT
+    MODEL_NAME: MODEL_NAME
   }
 }
 
@@ -284,92 +301,3 @@ module agentContainerDns 'agentContainerAppDns.bicep' = if (!enablePublicAccess)
     tagsByResource: tagsByResource
   }
 }
-
-/*
-// Container instance for the agent
-module agentContainerInstance 'agentContainerInstance.bicep' = {
-  name: 'agent-container-instance'
-  params: {
-    location: location
-    containerGroupName: '${agentName}${uniqueSuffix}-aci'
-    containerName: '${agentName}${uniqueSuffix}-aci'
-    image: 'mcr.microsoft.com/azuredocs/aci-helloworld'
-    ports: [
-      {
-        port: 8000
-        protocol: 'TCP'
-      }
-    ]
-    cpuCores: 1
-    memoryInGb: 2
-    containerSubnetId: containerSubnetId
-    enablePublicAccess: enablePublicAccess
-    environmentVariables: [
-      {
-        name: 'ADX_CLUSTER_URL'
-        value: ADX_CLUSTER_URL
-      }
-      {
-        name: 'ADX_DATABASE'
-        value: ADX_DATABASE
-      }
-      {
-        name: 'PROJECT_CONNECTION_STRING'
-        value: PROJECT_CONNECTION_STRING
-      }
-      {
-        name: 'AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED'
-        value: AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED
-      }
-      {
-        name: 'AZURE_AI_SEARCH_SERVICE_ENDPOINT'
-        value: AZURE_AI_SEARCH_SERVICE_ENDPOINT
-      }
-      {
-        name: 'AZURE_AI_SEARCH_ADMIN_KEY'
-        secureValue: AZURE_AI_SEARCH_ADMIN_KEY
-      }
-      {
-        name: 'AZURE_AI_SEARCH_INDEX_NAME'
-        value: AZURE_AI_SEARCH_INDEX_NAME
-      }
-      {
-        name: 'AZURE_AI_SEARCH_INDEX_KQL'
-        value: AZURE_AI_SEARCH_INDEX_KQL
-      }
-      {
-        name: 'AZURE_OPENAI_KEY'
-        secureValue: AZURE_OPENAI_KEY
-      }
-      {
-        name: 'AZURE_OPENAI_ENDPOINT'
-        value: AZURE_OPENAI_ENDPOINT
-      }
-      {
-        name: 'AZURE_OPENAI_EMBEDDING_DEPLOYMENT'
-        value: AZURE_OPENAI_EMBEDDING_DEPLOYMENT
-      }
-      {
-        name: 'AZURE_OPENAI_API_VERSION'
-        value: AZURE_OPENAI_API_VERSION
-      }
-      {
-        name: 'TAVILY_API_KEY'
-        secureValue: TAVILY_API_KEY
-      }
-      {
-        name: 'AZURE_INFERENCE_ENDPOINT'
-        value: AZURE_INFERENCE_ENDPOINT
-      }
-      {
-        name: 'AZURE_INFERENCE_KEY'
-        secureValue: AZURE_INFERENCE_KEY
-      }
-      {
-        name: 'MODEL_NAME'
-        value: MODEL_NAME
-      }
-    ]
-  }
-}
-*/

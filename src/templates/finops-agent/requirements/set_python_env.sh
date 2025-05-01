@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 PYTHON_ENV=$1
 apt update
 apt install libodbc2

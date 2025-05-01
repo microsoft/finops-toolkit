@@ -421,7 +421,7 @@ module hubAgent 'hubAgent.bicep' = if (enableHubAgent) {
     agentSubnetId: safeAgentSubnetId
     ADX_CLUSTER_URL: safeDataExplorerUri
     ADX_DATABASE: safeDataExplorerhubDb
-    TAVILY_API_KEY: 'TAVILY_API_KEY'
+    TAVILY_API_KEY: 'unset'
   }
 }
 

@@ -14,10 +14,10 @@ param containerSubnetId string
 param location string
 
 @description('Specifies the docker container image to deploy.')
-param containerImage string = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+param containerImage string
 
 @description('Specifies the container port.')
-param targetPort int = 80
+param targetPort int
 
 @description('Tags to add to the resources')
 param tags object
@@ -60,10 +60,29 @@ param minReplicas int
 @maxValue(25)
 param maxReplicas int
 
-param appId string = ''
-@secure()
-param appSecret string = ''
+param ADX_CLUSTER_URL string
+param ADX_DATABASE string
 
+@secure()
+param TAVILY_API_KEY string
+@secure()
+param AZURE_AI_SEARCH_ADMIN_KEY string
+@secure()
+param AZURE_OPENAI_KEY string
+@secure()
+param AZURE_INFERENCE_KEY string
+
+param PROJECT_CONNECTION_STRING string
+param AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED string
+param AZURE_AI_SEARCH_SERVICE_ENDPOINT string
+param AZURE_AI_SEARCH_INDEX_NAME string
+param AZURE_AI_SEARCH_INDEX_KQL string
+param AZURE_OPENAI_ENDPOINT string
+param AZURE_OPENAI_EMBEDDING_DEPLOYMENT string
+param AZURE_OPENAI_API_VERSION string
+param AZURE_INFERENCE_ENDPOINT string
+
+param MODEL_NAME  string
 
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: containerAppEnvName
@@ -86,7 +105,7 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2025-01-01' = {
   }
 }
 
-resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
+resource containerApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
   name: containerAppName
   tags: union(tags, tagsByResource[?'Microsoft.App/containerApps'] ?? {})
   location: location
@@ -107,6 +126,24 @@ resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
           }
         ]
       }
+      secrets: [
+        {
+          name: 'tavily-key'
+          value: TAVILY_API_KEY
+        }
+        { 
+          name : 'search-key'
+          value: AZURE_AI_SEARCH_ADMIN_KEY
+        }
+        { 
+          name : 'openai-key'
+          value: AZURE_OPENAI_KEY
+        }
+        { 
+          name : 'inference-key'
+          value: AZURE_INFERENCE_KEY
+        }
+      ]
     }
     template: {
       revisionSuffix: 'firstrevision'
@@ -118,6 +155,72 @@ resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
             cpu: json(cpuCore)
             memory: '${memorySize}Gi'
           }
+          env: [
+            {
+              name: 'ADX_CLUSTER_URL'
+              value: ADX_CLUSTER_URL
+            }
+            {
+              name: 'ADX_DATABASE'
+              value: ADX_DATABASE
+            }
+            {
+              name: 'PROJECT_CONNECTION_STRING'
+              value: PROJECT_CONNECTION_STRING
+            }
+            {
+              name: 'AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED'
+              value: AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED
+            }
+            {
+              name: 'AZURE_AI_SEARCH_SERVICE_ENDPOINT'
+              value: AZURE_AI_SEARCH_SERVICE_ENDPOINT
+            }
+            {
+              name: 'AZURE_AI_SEARCH_ADMIN_KEY'
+              secretRef: 'search-key'
+            }
+            {
+              name: 'AZURE_AI_SEARCH_INDEX_NAME'
+              value: AZURE_AI_SEARCH_INDEX_NAME
+            }
+            {
+              name: 'AZURE_AI_SEARCH_INDEX_KQL'
+              value: AZURE_AI_SEARCH_INDEX_KQL
+            }
+            {
+              name: 'AZURE_OPENAI_KEY'
+              secretRef: 'openai-key'
+            }
+            {
+              name: 'AZURE_OPENAI_ENDPOINT'
+              value: AZURE_OPENAI_ENDPOINT
+            }
+            {
+              name: 'AZURE_OPENAI_EMBEDDING_DEPLOYMENT'
+              value: AZURE_OPENAI_EMBEDDING_DEPLOYMENT
+            }
+            {
+              name: 'AZURE_OPENAI_API_VERSION'
+              value: AZURE_OPENAI_API_VERSION
+            }
+            {
+              name: 'AZURE_INFERENCE_ENDPOINT'
+              value: AZURE_INFERENCE_ENDPOINT
+            }
+            {
+              name: 'AZURE_INFERENCE_KEY'
+              secretRef: 'inference-key'
+            }
+            {
+              name: 'MODEL_NAME'
+              value: MODEL_NAME
+            }
+            {
+              name: 'TAVILY_API_KEY'
+              secretRef: 'tavily-key'
+            }
+          ]
         }
       ]
       scale: {
