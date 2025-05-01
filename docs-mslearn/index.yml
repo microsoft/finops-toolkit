@@ -52,7 +52,7 @@ conceptualContent:
   summary: The FinOps Framework is a comprehensive set of best practices and principles to help organizations drive greater business value from the cloud. # < 160 chars (Optional; Remove if not applicable.)
   items:
     # Card
-    - title: Understand cloud usage and cost
+    - title: Understand usage and cost
       links:
       - url: framework/understand/understand-cloud-usage-cost.md
         itemType: overview
@@ -91,7 +91,7 @@ conceptualContent:
         itemType: concept
         text: Unit economics
     # Card
-    - title: Optimize cloud usage and cost
+    - title: Optimize usage and cost
       links:
       - url: framework/optimize/optimize-cloud-usage-cost.md
         itemType: overview
@@ -125,7 +125,7 @@ conceptualContent:
         text: FinOps education and enablement
       - url: framework/manage/governance.md
         itemType: concept
-        text: Cloud policy and governance
+        text: Policy and governance
       - url: framework/manage/invoicing-chargeback.md
         itemType: concept
         text: Invoicing + chargeback
