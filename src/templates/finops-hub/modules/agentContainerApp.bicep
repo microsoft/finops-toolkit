@@ -60,6 +60,8 @@ param minReplicas int
 @maxValue(25)
 param maxReplicas int
 
+param revisionId int = dateTimeToEpoch(utcNow())
+
 param ADX_CLUSTER_URL string
 param ADX_DATABASE string
 
@@ -146,7 +148,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
       ]
     }
     template: {
-      revisionSuffix: 'firstrevision'
+      revisionSuffix: '${revisionId}'
       containers: [
         {
           name: containerAppName
