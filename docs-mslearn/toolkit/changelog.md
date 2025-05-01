@@ -45,24 +45,21 @@ _Released April 2025_
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
     - The **hub-database** module runs KQL scripts in the Data Explorer database.
     - The **hub-vault** module adds secrets to the hub vault.
-
 - **Fixed**
   - Workaround subnets reordering and bicep limitation
 
-
-<br><a name="latest"></a>
-
-## v0.10
-
-_Released April 2025_
-
 ### [Power BI reports](power-bi/reports.md) v0.10
 
+- **Changed**
+  - Updated documentation to clarify the ADLS storage requirement.
 - **Fixed**
-  - Document the ADLS storage requirement.
+  - Fixed the duplicate resource ID error in the Resources query ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
+  - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
+  - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
+  - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
+  - Updated Resource Graph queries to support handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
-
 
 - **Fixed**
   - Update the `id` property for the managedApi to a valid scope.
@@ -76,15 +73,15 @@ _Released April 2025_
   - Fixed issue with the `Recommend-AdvisorCostAugmentedToBlobStorage` runbook that was failing when Azure Advisor recommends virtual machine right-sizing for SKUs with large disk throughput capabilities ([#1526](https://github.com/microsoft/finops-toolkit/issues/1526)).
   - Fixed issue with deployment script that was using a retired and no longer needed Log Analytics workspace naming validation endpoint ([#1529](https://github.com/microsoft/finops-toolkit/issues/1529)).
 
-> [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
-> [!div class="nextstepaction"]
-> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
-
 ### [PowerShell module](powershell/powershell-commands.md) v0.10
 
 - **Added**
   - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
 
 <br>
 
