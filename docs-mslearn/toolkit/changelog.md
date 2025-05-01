@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: flanakin
 ms.author: micflan
-ms.date: 04/07/2025
+ms.date: 04/29/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -28,26 +28,59 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) pending updates
-
-- **Added**
-  - Added documentation for the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
-  - Created a new bicep modules to support extensibility:
-    - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
-
-**Fixed**
-  - Workaround subnets reordering and bicep limitation
-
-### [Optimization engine](optimization-engine/overview.md)
-
-- **Fixed**
-  - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
-
 <br><a name="latest"></a>
 
 ## v0.10
 
 _Released April 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.10
+
+- **Changed**
+  - Updated FinOps Framework domains, principles, capabilities, and scopes to reflect the 2025 updates.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
+
+- **Added**
+  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
+  - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
+  - Created a new bicep modules to support extensibility:
+    - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
+    - The **hub-storage** module creates containers in the hub storage account.
+    - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
+    - The **hub-database** module runs KQL scripts in the Data Explorer database.
+    - The **hub-vault** module adds secrets to the hub vault.
+  - Workaround subnets reordering and bicep limitation.
+
+### [Power BI reports](power-bi/reports.md) v0.10
+
+- **Changed**
+  - Updated documentation to clarify the ADLS storage requirement.
+- **Fixed**
+  - Fixed the duplicate resource ID error in the Resources query ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
+  - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
+  - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
+  - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
+  - Updated Resource Graph queries to support handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
+
+- **Fixed**
+  - Update the `id` property for the managedApi to a valid scope.
+    - This caused a deployment error because the path could not be deserialized.
+
+### [Optimization engine](optimization-engine/overview.md) v0.10
+
+- **Fixed**
+  - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
+  - Fixed issue with the Reservations Usage workbook that was listing multiple display names for the same reservation in case its name changed over the course of the lookback period ([#1455](https://github.com/microsoft/finops-toolkit/issues/1455)).
+  - Fixed issue with the `Recommend-AdvisorCostAugmentedToBlobStorage` runbook that was failing when Azure Advisor recommends virtual machine right-sizing for SKUs with large disk throughput capabilities ([#1526](https://github.com/microsoft/finops-toolkit/issues/1526)).
+  - Fixed issue with deployment script that was using a retired and no longer needed Log Analytics workspace naming validation endpoint ([#1529](https://github.com/microsoft/finops-toolkit/issues/1529)).
+
+### [PowerShell module](powershell/powershell-commands.md) v0.10
+
+- **Added**
+  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
