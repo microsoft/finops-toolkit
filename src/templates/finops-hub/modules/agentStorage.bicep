@@ -23,9 +23,6 @@ param storagePleFileName string
 @description('Resource ID of the subnet')
 param privateEndpointSubnetId string
 
-@description('Resource ID of the virtual network')
-param virtualNetworkId string
-
 @allowed([
   'Standard_LRS'
   'Standard_ZRS'

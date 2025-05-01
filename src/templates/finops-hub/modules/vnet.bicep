@@ -34,6 +34,10 @@ var nsgName = '${vNetName}-nsg'
 var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
+var containerSubnetName = 'container-subnet'
+var agentSubnetName = 'agent-subnet'
+var dataGatewaySubnetName = 'data-gateway-subnet'
+var clientSubnetName = 'client-subnet'
 
 var subnets = [
   {
@@ -76,6 +80,58 @@ var subnets = [
     name: dataExplorerSubnetName
     properties: {
       addressPrefix: cidrSubnet(virtualNetworkAddressPrefix, 27, 1)
+      networkSecurityGroup: {
+        id: nsg.id
+      }
+    }
+  }
+  {
+    name: containerSubnetName
+    properties: {
+      addressPrefix: cidrSubnet(virtualNetworkAddressPrefix, 27, 2)
+      networkSecurityGroup: {
+        id: nsg.id
+      }
+      delegations: [
+        {
+          name: 'Microsoft.App/environments'
+          properties: {
+            serviceName: 'Microsoft.App/environments'
+          }
+        }
+      ]
+    }
+  }
+  {
+    name: agentSubnetName
+    properties: {
+      addressPrefix: cidrSubnet(virtualNetworkAddressPrefix, 27, 3)
+      networkSecurityGroup: {
+        id: nsg.id
+      }
+    }
+  }
+  {
+    name: dataGatewaySubnetName
+    properties: {
+      addressPrefix: cidrSubnet(virtualNetworkAddressPrefix, 28, 8)
+      networkSecurityGroup: {
+        id: nsg.id
+      }
+      delegations: [
+        {
+          name: 'Microsoft.PowerPlatform/vnetaccesslinks'
+          properties: {
+            serviceName: 'Microsoft.PowerPlatform/vnetaccesslinks'
+          }
+        }
+      ]
+    }
+  }
+  {
+    name: clientSubnetName
+    properties: {
+      addressPrefix: cidrSubnet(virtualNetworkAddressPrefix, 28, 9)
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -194,6 +250,18 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
   resource dataExplorerSubnet 'subnets' existing = {
     name: dataExplorerSubnetName
   }
+  resource containerSubnet 'subnets' existing = {
+    name: containerSubnetName
+  }
+  resource agentSubnet 'subnets' existing = {
+    name: agentSubnetName
+  }
+  resource dataGatewaySubnet 'subnets' existing = {
+    name: dataGatewaySubnetName
+  }
+  resource clientSubnet 'subnets' existing = {
+    name: clientSubnetName
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -207,3 +275,7 @@ output vNetSubnets array = vNet.properties.subnets
 output finopsHubSubnetId string = vNet::finopsHubSubnet.id
 output scriptSubnetId string = vNet::scriptSubnet.id
 output dataExplorerSubnetId string = vNet::dataExplorerSubnet.id
+output containerSubnetId string = vNet::containerSubnet.id
+output agentSubnetId string = vNet::agentSubnet.id
+output dataGatewaySubnetId string = vNet::dataGatewaySubnet.id
+output clientSubnetId string = vNet::clientSubnet.id

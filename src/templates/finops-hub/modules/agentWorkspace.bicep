@@ -67,7 +67,7 @@ param systemDatastoresAuthMode string
   'AAD'
 ])
 param connectionAuthMode string
-
+var projectName = take('${aiHubName}-prj', 30)
 var privateEndpointName = '${aiHubName}-AIHub-PE'
 var targetSubResource = [
     'amlworkspace'
@@ -154,7 +154,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
 }
 
 resource project 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' = {
-  name: '${aiHubName}-project'
+  name: projectName
   kind: 'Project'
   location: location
   identity: {
@@ -260,3 +260,5 @@ resource dnsZoneGroupAiHub 'Microsoft.Network/privateEndpoints/privateDnsZoneGro
 output aiHubID string = aiHub.id
 output aiHubName string = aiHub.name
 output aiHubPrincipalId string = aiHub.identity.principalId
+
+output projectID string = project.id

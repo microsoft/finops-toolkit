@@ -13,6 +13,9 @@ param hubName string
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: Same as deployment.')
 param location string = resourceGroup().location
 
+@description('Optional. Azure location where all OpenAI Models should be created. See https://aka.ms/azureregions. Default: (resource group location).')
+param agentModelLocation string = resourceGroup().location
+
 // @description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" (same as location).')
 // param eventGridLocation string = ''
 
@@ -138,8 +141,8 @@ param enableHubAgent bool = false
 @description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
 
-@description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
-param virtualNetworkAddressPrefix string = '10.20.30.0/26'
+@description('Optional. Address space for the workload. A /24 is required for the workload. Default: "10.20.30.0/24".')
+param virtualNetworkAddressPrefix string = '10.20.30.0/24'
 
 
 //==============================================================================
@@ -151,6 +154,7 @@ module hub 'modules/hub.bicep' = {
   params: {
     hubName: hubName
     location: location
+    agentModelLocation: agentModelLocation
     // eventGridLocation: eventGridLocation
     storageSku: storageSku
     enableInfrastructureEncryption: enableInfrastructureEncryption

@@ -17,6 +17,9 @@ param searchServiceName string
 param searchServicePrincipalId string
 
 @description('Storage Name')
+param keyVaultName string
+
+@description('Storage Name')
 param storageName string
 
 var role = {
@@ -33,6 +36,10 @@ resource searchService 'Microsoft.Search/searchServices@2023-11-01' existing = {
 
 resource aiServices 'Microsoft.CognitiveServices/accounts@2023-05-01' existing = {
   name: aiServicesName
+}
+
+resource keyVault 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
+  name: keyVaultName
 }
 
 resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
@@ -102,3 +109,4 @@ resource aiHubReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022
     principalType: 'ServicePrincipal'
   }
 }
+

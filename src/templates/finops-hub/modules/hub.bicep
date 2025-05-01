@@ -11,6 +11,9 @@ param hubName string
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
 
+@description('Optional. Azure location where all OpenAI Models should be created. See https://aka.ms/azureregions. Default: (resource group location).')
+param agentModelLocation string = resourceGroup().location
+
 // @description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" (same as location).')
 // param eventGridLocation string = ''
 
@@ -140,7 +143,7 @@ param enableHubAgent bool = false
 param enablePublicAccess bool = true
 
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
-param virtualNetworkAddressPrefix string = '10.20.30.0/26'
+param virtualNetworkAddressPrefix string = '10.20.30.0/24'
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
@@ -174,12 +177,15 @@ var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clust
 var safeDataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
 var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
 var safeDataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
+var safeDataExplorerhubDb = !deployDataExplorer ? '' : dataExplorer.outputs.hubDbName
 var safeDataExplorerIngestionCapacity =  !deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity
 var safeDataExplorerPrincipalId =  !deployDataExplorer ? '' : dataExplorer.outputs.principalId
 var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
 var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
 var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
 var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
+var safeContainerSubnetId = enablePublicAccess ? '' : vnet.outputs.containerSubnetId
+var safeAgentSubnetId = enablePublicAccess ? '' : vnet.outputs.agentSubnetId
 
 // cSpell:ignore eventgrid
 // var eventGridName = 'finops-hub-eventgrid-${uniqueSuffix}'
@@ -401,18 +407,21 @@ module hubAgent 'hubAgent.bicep' = if (enableHubAgent) {
   name: 'hubAgent'
   dependsOn: [
     storage // needed for the DNS zones
-    // dataExplorer // probably needed
   ]
   params: {
     hubName: hubName
     uniqueSuffix: uniqueSuffix
     location: location
+    agentModelLocation: agentModelLocation
     tags: resourceTags
     tagsByResource: tagsByResource
     enablePublicAccess: enablePublicAccess
     virtualNetworkId: safeVnetId
-    privateEndpointSubnetId: safeFinopsHubSubnetId
-    dataExplorerSubnetId: safeDataExplorerSubnetId
+    containerSubnetId: safeContainerSubnetId
+    agentSubnetId: safeAgentSubnetId
+    ADX_CLUSTER_URL: safeDataExplorerUri
+    ADX_DATABASE: safeDataExplorerhubDb
+    TAVILY_API_KEY: 'TAVILY_API_KEY'
   }
 }
 

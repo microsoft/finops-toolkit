@@ -25,6 +25,9 @@ param privateEndpointSubnetId string
 @description('Resource ID of the virtual network')
 param virtualNetworkId string
 
+@description('Location of the virtual network')
+param virtualNetworkLocation string = location
+
 @allowed([
   'S0'
 ])
@@ -160,7 +163,7 @@ resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01
 
 resource aiServicesPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!enablePublicAccess) {
   name: aiServicesPleName
-  location: location
+  location: virtualNetworkLocation
   tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
     privateLinkServiceConnections: [
