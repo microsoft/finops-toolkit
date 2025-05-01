@@ -53,6 +53,7 @@ _Released April 2025_
   - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
   - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
   - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
+  - Updated Resource Graph queries to support handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
 
