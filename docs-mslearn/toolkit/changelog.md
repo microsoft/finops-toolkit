@@ -34,6 +34,11 @@ The following section lists features and enhancements that are currently in deve
 
 _Released April 2025_
 
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.10
+
+- **Changed**
+  - Updated FinOps Framework domains, principles, capabilities, and scopes to reflect the 2025 updates.
+
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
 
 - **Added**
