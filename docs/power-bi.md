@@ -131,7 +131,7 @@ Create a new or update an existing FinOps hub instance.
     <div class="ftk-step">
         <button class="ftk-accordion">3️⃣&nbsp; Download the reports</button>
         <div>
-            <p>Download KQL reports for FinOps hubs with Data Explorer or download storage reports to connect to data in a storage account (with or without FinOps hubs).<br></p>
+            <p>Use KQL reports for FinOps hubs with Data Explorer or Microsoft Fabric; otherwise, use storage reports.<br></p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip">Download for KQL</a>
                 <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip">Download for storage</a>
