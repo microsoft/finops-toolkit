@@ -615,9 +615,16 @@ table VirtualMachines
 				      ['powerState.displayStatus'] = powerState.displayStatus
 				    | mv-expand ['zones']
 				    " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				      #table(
+				        { "id", "name", "provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType", "osProfile.computerName", "osProfile.requireGuestProvisionSignal", "osProfile.allowExtensionOperations", "osProfile.adminUsername", "osProfile.secrets", "osProfile.linuxConfiguration", "osProfile.windowsConfiguration", "networkInterfaces", "networkInterfaces.properties", "networkInterfaces.id", "networkInterfaces.properties.deleteOption", "storageProfile.imageReference", "storageProfile.dataDisks", "storageProfile.osDisk", "storageProfile.imageReference.publisher", "storageProfile.imageReference.sku", "storageProfile.imageReference.version", "storageProfile.imageReference.exactVersion", "storageProfile.imageReference.offer", "storageProfile.dataDisks.name", "storageProfile.dataDisks.createOption", "storageProfile.dataDisks.deleteOption", "storageProfile.dataDisks.managedDisk", "storageProfile.dataDisks.caching", "storageProfile.dataDisks.toBeDetached", "storageProfile.dataDisks.writeAcceleratorEnabled", "storageProfile.dataDisks.lun", "storageProfile.dataDisks.managedDisk.id", "storageProfile.osDisk.name", "storageProfile.osDisk.createOption", "storageProfile.osDisk.osType", "storageProfile.osDisk.deleteOption", "storageProfile.osDisk.managedDisk", "storageProfile.osDisk.caching", "storageProfile.osDisk.managedDisk.id", "hardwareProfile.vmSize", "diagnosticsProfile.bootDiagnostics", "diagnosticsProfile.bootDiagnostics.enabled", "diagnosticsProfile.bootDiagnostics.storageUri", "instanceView", "powerState", "powerState.displayStatus" },
+				        {}
+				      )
+				    else Source
 				in
-				  Source
+				  NullHandling
 
 	annotation PBI_NavigationStepName = Navigation
 
