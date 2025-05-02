@@ -239,11 +239,17 @@ table ReservationRecommendations
 				    RawData = ftk_Storage("reservationrecommendations"),
 				
 				    _addMissing = (tbl, col, typ) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null, typ),
-				    _getJsonCost = (tbl, col) => Table.RemoveColumns(
+				    _getJsonCost = (tbl as table, col as text) as table => Table.RemoveColumns(
 				        Table.AddColumn(
 				            Table.RenameColumns(_addMissing(_addMissing(tbl, col, type any), col&"Json", type text), {{col, col&"Backup"}}),
 				            col,
-				            each try (Json.Document(Record.Field(_, col&"Json"))[value]) otherwise Record.Field(_, col&"Backup"),
+				            each if Record.Field(_, col&"Json") = null or Record.Field(_, col&"Json") = "" then
+				                if Value.Type(Record.Field(_, col&"Backup")) = type text and Text.Start(Record.Field(_, col&"Backup"), 1) = "{" then
+				                    try (Json.Document(Record.Field(_, col&"Backup"))[value]) otherwise Record.Field(_, col&"Backup")
+				                else
+				                    Record.Field(_, col&"Backup")
+				            else
+				                try (Json.Document(Record.Field(_, col&"Json"))[value]) otherwise Record.Field(_, col&"Backup"),
 				            type number
 				        ),
 				        {col&"Json", col&"Backup"},
@@ -285,6 +291,7 @@ table ReservationRecommendations
 				        {"InstanceFlexibilityRatio",       "x_CommitmentDiscountNormalizedRatio"},
 				        {"Location",                       "RegionName"},
 				        {"MeterId",                        "x_SkuMeterId"},
+				        {"MeterID",                        "x_SkuMeterId"},
 				        {"NetSavings",                     "x_CommitmentDiscountSavings"},
 				        {"NormalizedSize",                 "x_CommitmentDiscountNormalizedSize"},
 				        {"RecommendedQuantity",            "x_RecommendedQuantity"},
