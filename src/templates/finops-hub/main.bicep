@@ -138,6 +138,12 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable Hub FinOps Agent. Default: false.')
 param enableHubAgent bool = false
 
+@description('Specifies the Tenant Id of the Entra Id App Registration for the container app.')
+param hubAgentTenantId string
+
+@description('Specifies the Application Id of the Entra Id App Registration for the container app.')
+param hubAgentAppId string
+
 @description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
 
@@ -171,6 +177,8 @@ module hub 'modules/hub.bicep' = {
     remoteHubStorageUri: remoteHubStorageUri
     remoteHubStorageKey: remoteHubStorageKey
     enableHubAgent: enableHubAgent
+    hubAgentAppId: hubAgentAppId
+    hubAgentTenantId: hubAgentTenantId
     enablePublicAccess: enablePublicAccess
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
   }

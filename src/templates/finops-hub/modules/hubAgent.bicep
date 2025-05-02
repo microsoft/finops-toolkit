@@ -25,6 +25,12 @@ param agentSubnetId string
 @description('Required. Id of the subnet for private endpoints.')
 param containerSubnetId string
 
+@description('Specifies the Tenant Id of the Entra Id App Registration for the container app.')
+param hubAgentTenantId string
+
+@description('Specifies the Application Id of the Entra Id App Registration for the container app.')
+param hubAgentAppId string
+
 @description('The location into which the resources should be deployed.')
 param location string 
 
@@ -36,13 +42,13 @@ param cognitiveServicesSku string = 'S0'
 param aoamodel string = 'gpt-4o'
 param agentModelLocation string
 param aoaiformat string = 'OpenAI'
-param aoaisku string = 'Standard'
+param aoaisku string = 'GlobalStandard'
 param aoaiskuCapacity int = 30
 param aoaiversion string = '2024-11-20'
 
 param textEmbeddingModel string = 'text-embedding-3-large'
 param textEmbeddingFormat string = 'OpenAI'
-param textEmbeddingSku string = 'Standard'
+param textEmbeddingSku string = 'GlobalStandard'
 param textEmbeddingSkuCapacity int = 30
 param textEmbeddingVersion string = '1'
 
@@ -68,7 +74,6 @@ param connectionAuthMode string = 'ApiKey'
 
 // Variables
 var agentName = toLower('ai${hubName}')
-var agentIdentityUniqueName = 'sp${agentName}${uniqueSuffix}'
 var safeLocationName = toLower(replace(agentModelLocation, ' ', ''))
 
 // params for environment variables
@@ -83,14 +88,13 @@ var AZURE_AI_SEARCH_SERVICE_ENDPOINT  = agentSearchService.outputs.searchService
 var AZURE_AI_SEARCH_ADMIN_KEY  = 'unset'
 var AZURE_AI_SEARCH_INDEX_NAME  = 'unset'
 var AZURE_AI_SEARCH_INDEX_KQL  = 'unset'
-var AZURE_OPENAI_KEY  = 'AZURE_OPENAI_KEY'
 var AZURE_OPENAI_ENDPOINT  = 'https://${safeLocationName}.api.cognitive.microsoft.com'
-var AZURE_OPENAI_EMBEDDING_DEPLOYMENT  = 'text-embedding-3-large'
-var AZURE_OPENAI_API_VERSION  = '2023-05-15'
+var AZURE_OPENAI_EMBEDDING_DEPLOYMENT  = textEmbeddingModel
+var AZURE_OPENAI_API_VERSION  = aoaiversion //'2023-05-15'
 var AZURE_INFERENCE_ENDPOINT='https://${safeLocationName}.api.cognitive.microsoft.com/models'
-var AZURE_INFERENCE_KEY='AZURE_INFERENCE_KEY'
-var MODEL_NAME='DeepSeek-R1'
-
+var MODEL_NAME=deepSeekModel
+//var AZURE_OPENAI_KEY  = agentcognitiveservicesExisting.listKeys().key1
+//var AZURE_INFERENCE_KEY=agentcognitiveservicesExisting.listKeys().key1
 // Dependent resources for the Azure Machine Learning workspace
 
 module agentKeyvault 'keyvault.bicep' = {
@@ -226,7 +230,7 @@ module agentworkspace 'agentWorkspace.bicep' = {
     aiServicesId: agentcognitiveservices.outputs.aiServicesId
     aiServicesTarget: agentcognitiveservices.outputs.aiServicesEndpoint
     //applicationInsightsId: aiDependencies.outputs.applicationInsightsId
-    containerRegistryId: agentContainerRegistry.outputs.containerRegistryId
+    containerRegistryId: agentContainerRegistry.outputs.id
     keyVaultId: agentKeyvault.outputs.resourceId
     storageAccountId: agentStorage.outputs.storageId
     searchId: agentSearchService.outputs.searchServiceId
@@ -251,10 +255,18 @@ module agentroleassignments 'agentRoleAssignments.bicep' = {
     searchServiceName: agentSearchService.outputs.searchServiceName
     storageName: agentStorage.outputs.storageName
     keyVaultName: agentKeyvault.outputs.name
+    containerRegistryName: agentContainerRegistry.outputs.name
   }
 }
 
 // Container for the agent
+
+resource agentcognitiveservicesExisting 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
+  name: '${agentName}${uniqueSuffix}'
+  dependsOn: [
+    agentcognitiveservices
+  ]
+}
 module agentContainer 'agentContainerApp.bicep' = {
   name: 'agent-container'
   params: {
@@ -280,13 +292,15 @@ module agentContainer 'agentContainerApp.bicep' = {
     AZURE_AI_SEARCH_INDEX_KQL: AZURE_AI_SEARCH_INDEX_KQL
     AZURE_AI_SEARCH_INDEX_NAME: AZURE_AI_SEARCH_INDEX_NAME
     AZURE_INFERENCE_ENDPOINT: AZURE_INFERENCE_ENDPOINT
-    AZURE_INFERENCE_KEY: AZURE_INFERENCE_KEY
+    AZURE_INFERENCE_KEY: agentcognitiveservicesExisting.listKeys().key1
     AZURE_OPENAI_ENDPOINT: AZURE_OPENAI_ENDPOINT
-    AZURE_OPENAI_KEY: AZURE_OPENAI_KEY
+    AZURE_OPENAI_KEY: agentcognitiveservicesExisting.listKeys().key1
     TAVILY_API_KEY: TAVILY_API_KEY
     AZURE_OPENAI_API_VERSION: AZURE_OPENAI_API_VERSION
     AZURE_OPENAI_EMBEDDING_DEPLOYMENT: AZURE_OPENAI_EMBEDDING_DEPLOYMENT
     MODEL_NAME: MODEL_NAME
+    hubAgentAppId: hubAgentAppId
+    hubAgentTenantId: hubAgentTenantId
   }
 }
 

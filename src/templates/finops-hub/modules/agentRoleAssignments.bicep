@@ -13,6 +13,9 @@ param aiServicesPrincipalId string
 @description('Search Service Name')
 param searchServiceName string
 
+@description('AI Services Name')
+param containerRegistryName string
+
 @description('Search Service Id')
 param searchServicePrincipalId string
 
@@ -28,6 +31,7 @@ var role = {
   StorageBlobDataReader : '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
   StorageBlobDataContributor : 'ba92f5b4-2d11-453d-a403-e96b0029c9fe' 
   CognitiveServicesOpenAiContributor : 'a001fd3d-188f-4b5d-821b-7da978bf7442'
+  acrPull : '7f951dda-4ed3-4680-a7ca-43fe172d538d'
 }
 
 resource searchService 'Microsoft.Search/searchServices@2023-11-01' existing = {
@@ -40,6 +44,20 @@ resource aiServices 'Microsoft.CognitiveServices/accounts@2023-05-01' existing =
 
 resource keyVault 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: keyVaultName
+}
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2025-04-01' existing = {
+  name: containerRegistryName
+}
+
+resource acrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, 'acrPull')
+  scope: containerRegistry
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role.acrPull)
+    principalId: aiServicesPrincipalId
+    principalType: 'ServicePrincipal'
+  }
 }
 
 resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {

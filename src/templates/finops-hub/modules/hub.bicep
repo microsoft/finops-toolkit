@@ -139,6 +139,12 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable Hub FinOps Agent. Default: false.')
 param enableHubAgent bool = false
 
+@description('Specifies the Tenant Id of the Entra Id App Registration for the container app.')
+param hubAgentTenantId string
+
+@description('Specifies the Application Id of the Entra Id App Registration for the container app.')
+param hubAgentAppId string
+
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
@@ -422,6 +428,8 @@ module hubAgent 'hubAgent.bicep' = if (enableHubAgent) {
     ADX_CLUSTER_URL: safeDataExplorerUri
     ADX_DATABASE: safeDataExplorerhubDb
     TAVILY_API_KEY: 'unset'
+    hubAgentAppId: hubAgentAppId
+    hubAgentTenantId: hubAgentTenantId
   }
 }
 

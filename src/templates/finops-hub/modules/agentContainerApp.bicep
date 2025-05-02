@@ -19,6 +19,12 @@ param containerImage string
 @description('Specifies the container port.')
 param targetPort int
 
+@description('Specifies the Tenant Id of the Entra Id App Registration for the container app.')
+param hubAgentTenantId string
+
+@description('Specifies the Application Id of the Entra Id App Registration for the container app.')
+param hubAgentAppId string
+
 @description('Tags to add to the resources')
 param tags object
 
@@ -107,7 +113,7 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2025-01-01' = {
   }
 }
 
-resource containerApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2025-01-01' = {
   name: containerAppName
   tags: union(tags, tagsByResource[?'Microsoft.App/containerApps'] ?? {})
   location: location
@@ -117,6 +123,8 @@ resource containerApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
   properties: {
     managedEnvironmentId: containerAppEnv.id
     configuration: {
+      activeRevisionsMode: 'Single'
+      maxInactiveRevisions: 1
       ingress: {
         external: true
         targetPort: targetPort
@@ -230,6 +238,44 @@ resource containerApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
         maxReplicas: maxReplicas
       }
     }
+  }
+}
+
+resource containerAppAuthConfig 'Microsoft.App/containerApps/authConfigs@2025-01-01' = {
+  parent: containerApp
+  name: 'current'
+  properties: {
+    platform: {
+      enabled: true
+    }
+    globalValidation: {
+      unauthenticatedClientAction: 'RedirectToLoginPage'
+      redirectToProvider: 'azureactivedirectory'
+    }
+    identityProviders: {
+      azureActiveDirectory: {
+        registration: {
+          openIdIssuer: 'https://login.microsoftonline.com/${hubAgentTenantId}/v2.0'
+          clientId: hubAgentAppId
+        }
+        validation: {
+          allowedAudiences: []
+          defaultAuthorizationPolicy: {
+            allowedApplications: [
+              hubAgentAppId
+            ]
+          }
+        }
+        isAutoProvisioned: false
+      }
+    }
+    login: {
+      routes: {}
+      preserveUrlFragmentsForLogins: false
+      cookieExpiration: {}
+      nonce: {}
+    }
+    encryptionSettings: {}
   }
 }
 

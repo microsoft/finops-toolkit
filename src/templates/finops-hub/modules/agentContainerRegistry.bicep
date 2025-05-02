@@ -86,6 +86,7 @@ resource containerRegistryPrivateEndpoint 'Microsoft.Network/privateEndpoints@20
 resource acrPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: privateDnsZoneName
   location: 'global'
+  tags: union(tags, tagsByResource[?'Microsoft.KeyVault/privateDnsZones'] ?? {})
 }
 
 resource privateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
@@ -115,4 +116,5 @@ resource acrPrivateDnsZoneVnetLink 'Microsoft.Network/privateDnsZones/virtualNet
   }
 }
 
-output containerRegistryId string = containerRegistry.id
+output id string = containerRegistry.id
+output name string = containerRegistry.name

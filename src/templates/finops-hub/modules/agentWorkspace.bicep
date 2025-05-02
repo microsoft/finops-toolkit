@@ -157,6 +157,7 @@ resource project 'Microsoft.MachineLearningServices/workspaces@2024-07-01-previe
   name: projectName
   kind: 'Project'
   location: location
+  tags: union(tags, tagsByResource[?'Microsoft.MachineLearningServices/workspaces'] ?? {})
   identity: {
     type: 'systemAssigned'
   }
@@ -197,14 +198,14 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = if (!
 resource privateLinkApi 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.api.azureml.ms'
   location: 'global'
-  tags: {}
+  tags: union(tags, tagsByResource[?'Microsoft.KeyVault/privateDnsZones'] ?? {})
   properties: {}
 }
 
 resource privateLinkNotebooks 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: 'privatelink.notebooks.azure.net'
   location: 'global'
-  tags: {}
+  tags: union(tags, tagsByResource[?'Microsoft.KeyVault/privateDnsZones'] ?? {})
   properties: {}
 }
 

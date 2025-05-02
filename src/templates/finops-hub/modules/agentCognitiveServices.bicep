@@ -196,6 +196,7 @@ resource cognitiveServicesPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024
 resource openAiPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
   name: openAiPrivateDnsZoneName
   location: 'global'
+  tags: union(tags, tagsByResource[?'Microsoft.KeyVault/privateDnsZones'] ?? {})
 }
 
 resource cognitiveServicesVnetLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
