@@ -70,7 +70,7 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
         -method $method `
         -contentType $contentType `
         -resource $resource
-    
+
     $uri = "https://" + $workspaceId + ".ods.opinsights.azure.com" + $resource + "?api-version=2016-04-01"
     if ($AzureEnvironment -eq "AzureChinaCloud")
     {
@@ -97,7 +97,7 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
         $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
     }
     catch {
-        if ($_.Exception.Response.StatusCode.Value__ -eq 401) {            
+        if ($_.Exception.Response.StatusCode.Value__ -eq 401) {
             "REAUTHENTICATING"
 
             $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
@@ -108,19 +108,19 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
         }
     }
 
-    return $response.StatusCode    
+    return $response.StatusCode
 }
 #endregion Functions
 
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -136,25 +136,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$FiltersTable] WHERE IsEnabled = 1 AND (FilterEndDate IS NULL OR FilterEndDate > GETDATE())"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $filters = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($filters) | Out-Null            
+        $sqlAdapter.Fill($filters) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -162,8 +162,8 @@ if (-not($connectionSuccess))
     throw "Could not establish connection to SQL."
 }
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $datetime = (get-date).ToUniversalTime()
 $timestamp = $datetime.ToString("yyyy-MM-ddTHH:mm:00.000Z")
@@ -209,7 +209,7 @@ foreach ($filter in $filters)
 
     $instanceId = $null
     $instanceName = $null
-    $ObjectGuid = [System.Guid]::empty       
+    $ObjectGuid = [System.Guid]::empty
     if ([System.Guid]::TryParse($filter.InstanceId, [System.Management.Automation.PSReference]$ObjectGuid))
     {
         $instanceId = $filter.InstanceId
@@ -241,7 +241,7 @@ $logname = $lognamePrefix + $LogAnalyticsSuffix
 
 $res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($filtersJson)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
 If ($res -ge 200 -and $res -lt 300) {
-    Write-Output "Succesfully uploaded $($filterObjects.Count) $LogAnalyticsSuffix rows to Log Analytics"    
+    Write-Output "Succesfully uploaded $($filterObjects.Count) $LogAnalyticsSuffix rows to Log Analytics"
 }
 Else {
     Write-Warning "Failed to upload $($filterObjects.Count) $LogAnalyticsSuffix rows. Error code: $res"

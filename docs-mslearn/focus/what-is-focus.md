@@ -138,6 +138,7 @@ If you're interested in a more thorough walkthrough of all the FOCUS columns, ch
 - [Resource columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-resource-columns/4372954)
 - [Service columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-service-columns/4388703)
 - [SKU columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-skus/4398881)
+- [Purchase columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-purchases/4404283)
 
 New blog posts are released periodically, so watch the [FinOps blog](https://aka.ms/finops/blog) for updates every couple of weeks.
 

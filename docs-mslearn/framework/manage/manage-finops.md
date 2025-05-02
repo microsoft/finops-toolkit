@@ -3,11 +3,11 @@ title: Manage the FinOps practice
 description: Learn about the FinOps capabilities that help you establish your FinOps practice and drive organizational accountability.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -57,15 +57,15 @@ To learn more, see [Onboarding workloads](./onboarding.md).
 
 <br>
 
-## Cloud policy and governance
+## Policy and governance
 
-Cloud policy and governance refer to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
+Policy and governance refer to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
 
 - Specific SKUs
 - Resource configurations
 - Other practices that might affect cost, usage, and carbon growth
 
-To learn more, see [Cloud policy and governance](./governance.md).
+To learn more, see [Policy and governance](./governance.md).
 
 <br>
 
@@ -119,9 +119,9 @@ If you're looking for something specific, vote for an existing or create a new i
 
 Related FinOps capabilities:
 
-- [Understand cloud usage and cost](../understand/understand-cloud-usage-cost.md)
+- [Understand usage and cost](../understand/understand-cloud-usage-cost.md)
 - [Quantify business value](../quantify/quantify-business-value.md)
-- [Optimize cloud usage and cost](../optimize/optimize-cloud-usage-cost.md)
+- [Optimize usage and cost](../optimize/optimize-cloud-usage-cost.md)
 
 Related products:
 

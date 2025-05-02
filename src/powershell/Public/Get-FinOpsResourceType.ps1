@@ -29,7 +29,7 @@
 #>
 function Get-FinOpsResourceType()
 {
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $true)]
         [string]
         $ResourceType = "*",
@@ -37,13 +37,17 @@ function Get-FinOpsResourceType()
         [Nullable[bool]]
         $IsPreview = $null
     )
-    return Get-OpenDataResourceType `
-    | Where-Object {
-        $_.ResourceType -like $ResourceType `
-            -and ($null -eq $IsPreview -or $_.IsPreview -eq $IsPreview)
-    } `
-    | ForEach-Object {
-        $_.IsPreview = $_.IsPreview -eq $true
-        return $_
+
+    process
+    {
+        return Get-OpenDataResourceType `
+        | Where-Object {
+            $_.ResourceType -like $ResourceType `
+                -and ($null -eq $IsPreview -or $_.IsPreview -eq $IsPreview)
+        } `
+        | ForEach-Object {
+            $_.IsPreview = $_.IsPreview -eq $true
+            return $_
+        }
     }
 }
