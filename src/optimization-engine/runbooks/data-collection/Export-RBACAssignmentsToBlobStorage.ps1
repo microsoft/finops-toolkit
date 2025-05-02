@@ -32,7 +32,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -56,12 +56,12 @@ if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -69,7 +69,7 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -81,8 +81,8 @@ else
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
-    $cloudEnvironment = $externalCloudEnvironment   
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 $tenantId = (Get-AzContext).Tenant.Id
@@ -114,7 +114,7 @@ foreach ($subscription in $subscriptions) {
                 Scope             = $assignment.Scope
                 RoleDefinition    = $assignment.RoleDefinitionName
             }
-            $roleAssignments += $assignmentEntry            
+            $roleAssignments += $assignmentEntry
         }
         else
         {
@@ -130,10 +130,10 @@ foreach ($subscription in $subscriptions) {
                     Scope             = $assignment.Scope
                     RoleDefinition    = $assignment.RoleDefinitionName
                 }
-                $roleAssignments += $assignmentEntry                            
+                $roleAssignments += $assignmentEntry
             }
         }
-    }       
+    }
 }
 
 $fileDate = $datetime.ToString("yyyyMMdd")
@@ -158,12 +158,12 @@ $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'ff
 Remove-Item -Path $csvExportPath -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-"[$now] Removed $csvExportPath from local disk..."    
+"[$now] Removed $csvExportPath from local disk..."
 
 Remove-Item -Path $jsonExportPath -Force
-    
+
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-"[$now] Removed $jsonExportPath from local disk..."    
+"[$now] Removed $jsonExportPath from local disk..."
 
 $roleAssignments = @()
 
@@ -179,15 +179,15 @@ if (-not(get-item "$localPath\.graph\" -ErrorAction SilentlyContinue))
 Import-Module Microsoft.Graph.Identity.DirectoryManagement
 
 switch ($cloudEnvironment) {
-    "AzureUSGovernment" {  
+    "AzureUSGovernment" {
         $graphEnvironment = "USGov"
         break
     }
-    "AzureChinaCloud" {  
+    "AzureChinaCloud" {
         $graphEnvironment = "China"
         break
     }
-    "AzureGermanCloud" {  
+    "AzureGermanCloud" {
         $graphEnvironment = "Germany"
         break
     }
@@ -206,7 +206,7 @@ else
     "Logging in to Microsoft Graph with $authenticationOption..."
 
     switch ($authenticationOption) {
-        "UserAssignedManagedIdentity" { 
+        "UserAssignedManagedIdentity" {
             Connect-MgGraph -Identity -ClientId $uamiClientID -Environment $graphEnvironment -NoWelcome
             break
         }
@@ -234,7 +234,7 @@ foreach ($role in $roles)
             Scope             = $domainName
             RoleDefinition    = $role.DisplayName
         }
-        $roleAssignments += $assignmentEntry                            
+        $roleAssignments += $assignmentEntry
     }
 }
 
@@ -252,7 +252,7 @@ $rbacObjectsJson | Export-Csv -NoTypeInformation -Path $csvExportPath
 $csvBlobName = $csvExportPath
 $csvProperties = @{"ContentType" = "text/csv"};
 
-Set-AzStorageBlobContent -File $csvExportPath -Container $storageAccountSinkContainer -Properties $csvProperties -Blob $csvBlobName -Context $saCtx -Force    
+Set-AzStorageBlobContent -File $csvExportPath -Container $storageAccountSinkContainer -Properties $csvProperties -Blob $csvBlobName -Context $saCtx -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
 "[$now] Uploaded $csvBlobName to Blob Storage..."
@@ -260,9 +260,9 @@ $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'ff
 Remove-Item -Path $csvExportPath -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-"[$now] Removed $csvExportPath from local disk..."    
+"[$now] Removed $csvExportPath from local disk..."
 
 Remove-Item -Path $jsonExportPath -Force
-    
+
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-"[$now] Removed $jsonExportPath from local disk..."    
+"[$now] Removed $jsonExportPath from local disk..."
