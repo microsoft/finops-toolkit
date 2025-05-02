@@ -207,6 +207,8 @@ table ReservationRecommendations
 
 		annotation PBI_FormatHint = {"isCustom":true}
 
+		annotation UnderlyingDateTimeDataType = Date
+
 	column x_BreakEvenMonths
 		dataType: double
 		formatString: 0.0 mo
@@ -307,7 +309,7 @@ table ReservationRecommendations
 				                else Text.From([x_SkuTerm] / 12) & " years"
 				            ),
 				            "x_BreakEvenMonths",         each [x_EffectiveCostAfter] * [x_SkuTerm] / [x_EffectiveCostBefore], type number),
-				            "x_BreakEvenDate",           each Date.AddDays(DateTime.Date(DateTime.LocalNow()), 1 + Number.Round([x_BreakEvenMonths] * 30.437, 0)), type datetimezone),
+				            "x_BreakEvenDate",           each Date.AddDays(DateTime.Date(DateTime.LocalNow()), 1 + Number.Round([x_BreakEvenMonths] * 30.437, 0)), type date),
 				            "x_CommitmentDiscountSavingsDailyRate", each [x_CommitmentDiscountSavings] / ([x_SkuTerm] - [x_BreakEvenMonths]) / (365/12), type number),
 				        {"tmp_CommitmentDiscountScope", "LookBackPeriod", "SKU", "SkuName"}
 				    ),

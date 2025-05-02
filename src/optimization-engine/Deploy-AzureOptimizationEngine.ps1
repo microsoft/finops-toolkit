@@ -547,17 +547,7 @@ if ("N", "n" -contains $workspaceReuse)
     $laWorkspaceResourceGroup = $resourceGroupName
 
     $la = Get-AzOperationalInsightsWorkspace -ResourceGroupName $resourceGroupName -Name $laWorkspaceName -ErrorAction SilentlyContinue
-    if ($null -eq $la)
-    {
-        $laNameResult = Invoke-WebRequest -Uri "https://portal.loganalytics.io/api/workspaces/IsWorkspaceExists?name=$laWorkspaceName"
-        if ($laNameResult.Content -eq "true")
-        {
-            $nameAvailable = $false
-            Write-Host "The Log Analytics workspace $laWorkspaceName is already taken." -ForegroundColor Red
-        }
-    }
-    else
-    {
+    if ($null -ne $la) {
         Write-Host "(The Log Analytics Workspace was already deployed)" -ForegroundColor Green
     }
 }

@@ -1,9 +1,9 @@
 ---
 title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/29/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -28,16 +28,90 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### Optimization engine
+<br><a name="latest"></a>
+
+## v0.10
+
+_Released April 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.10
+
+- **Changed**
+  - Updated FinOps Framework domains, principles, capabilities, and scopes to reflect the 2025 updates.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
+
+- **Added**
+  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
+  - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
+  - Created a new bicep modules to support extensibility:
+    - The **hub-app** module tracks telemetry when an app is deployed.
+    - The **hub-storage** module creates containers in the hub storage account.
+    - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
+    - The **hub-database** module runs KQL scripts in the Data Explorer database.
+    - The **hub-vault** module adds secrets to the hub vault.
+- **Fixed**
+  - Workaround subnets reordering and bicep limitation
+
+### [Power BI reports](power-bi/reports.md) v0.10
+
+- **Changed**
+  - Updated documentation to clarify the ADLS storage requirement.
+- **Fixed**
+  - Fixed the duplicate resource ID error in the Resources query ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
+  - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
+  - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
+  - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
+  - Updated Resource Graph queries to support handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
 
 - **Fixed**
-  - Fixed issue with breaking storage account recommendations when resource tags are duplicated after tag inheritance  ([#1430](https://github.com/microsoft/finops-toolkit/issues/1430)).
+  - Update the `id` property for the managedApi to a valid scope.
+    - This caused a deployment error because the path could not be deserialized.
 
-<br><a name="latest"></a>
+### [Optimization engine](optimization-engine/overview.md) v0.10
+
+- **Fixed**
+  - Fixed issue with `Remediate-LongDeallocatedVMsFiltered` runbook that was skipping the remediation of eligible VMs due to `Az.Compute` module breaking changes ([#1456](https://github.com/microsoft/finops-toolkit/issues/1456)).
+  - Fixed issue with the Reservations Usage workbook that was listing multiple display names for the same reservation in case its name changed over the course of the lookback period ([#1455](https://github.com/microsoft/finops-toolkit/issues/1455)).
+  - Fixed issue with the `Recommend-AdvisorCostAugmentedToBlobStorage` runbook that was failing when Azure Advisor recommends virtual machine right-sizing for SKUs with large disk throughput capabilities ([#1526](https://github.com/microsoft/finops-toolkit/issues/1526)).
+  - Fixed issue with deployment script that was using a retired and no longer needed Log Analytics workspace naming validation endpoint ([#1529](https://github.com/microsoft/finops-toolkit/issues/1529)).
+
+### [PowerShell module](powershell/powershell-commands.md) v0.10
+
+- **Added**
+  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+
+<br>
+
+## v0.9 Update 1
+
+_Released April 7, 2025_
+
+This release is a minor patch to fix the FinOps hub deployment and the Power BI Rate optimization reports for storage. These files were updated in the existing 0.9 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep**, **PowerBI-storage.zip**, or **PowerBI-demo.zip** between April 4-7, 2025, please update to the latest version.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9 Update 1
+
+- **Fixed**
+  - Removed a reference to old columns that are no longer applicable.
+    - This may have caused new deployments to fail on April 4. Upgrades were not affected. 
+
+### [Power BI reports](power-bi/reports.md) v0.9 Update 1
+
+- **Fixed**
+  - Fixed the column type for the x_BreakEvenDate column in Power BI reports.
+
+<br>
 
 ## v0.9
 
-_Released March 2025_
+_Released April 4, 2025_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.9
 
@@ -54,13 +128,12 @@ _Released March 2025_
     - Set `ListCost` to `ContractedCost` when `ListCost` is 0 or empty and both unit prices match to avoid rounding errors when calculating cost.
     - Set `ListCost` to `ContractedCost` when `ListCost` and `ListUnitPrice` are both 0 or empty.
   - Documented the roles that will be assigned as part of the deployment in the [template details](./hubs/template.md).
-  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
 - **Changed**
   - Changed the deployment template to only deploy Key Vault when configured as a remote hub.
     - This will not remove existing Key Vault instances. Please delete them manually if not using this instance as a remote (secondary) hub.
   - Added a new Data ingestion > Data quality section into the Data Explorer dashboard with a summary of missing and incorrect costs.
 - **Fixed**
-  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
+  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330)).
   - Updated the deployment script to set the settings.json scopes property to an array ([#1237](https://github.com/microsoft/finops-toolkit/issues/1237)).
   - Fixed an issue where the Data Explorer cluster could not update when re-deployed ([#1350](https://github.com/microsoft/finops-toolkit/issues/1350)).
   - Removed spaces from the MCA reservation recommendations export column names ([#1317](https://github.com/microsoft/finops-toolkit/issues/1317)).
@@ -88,24 +161,28 @@ _Released March 2025_
   - Improved readability and performance of the Disks query.
 - **Fixed**
   - Fixed the "The import Storage URL matches no exports" error ([#1344](https://github.com/microsoft/finops-toolkit/issues/1344)).
-  - Added resource-specific tags to the stop all triggers deployment script ([#1330](https://github.com/microsoft/finops-toolkit/issues/1330))
-  - Updated all Resource Graph queries (except Disks) to address the 'properties...' column not found error ([#1357](https://github.com/microsoft/finops-toolkit/issues/1357)).
+  - Updated all Resource Graph queries to address the 'properties...' column not found error ([#1357](https://github.com/microsoft/finops-toolkit/issues/1357)).
 
 **[Rate optimization](power-bi/rate-optimization.md)**
 
 - **Added**
   - Added support for MCA reservation recommendation exports.
-  - Show break-even point calculation for reservation recommendations. ([[#406](https://github.com/microsoft/finops-toolkit/issues/406)]).
+  - Show break-even point calculation for reservation recommendations. ([#406](https://github.com/microsoft/finops-toolkit/issues/406)).
 - **Fixed**
   - Fixed core count double-counting on the Hybrid Benefit page.
   - Fixed savings to include negotiated discounts on the Total savings page.
 
-### [FinOps alerts](finops-alerts-overview.md) v0.9
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.9
 
 - **Added**
   - Overview documentation on how the FinOps alert tool works in the [FinOps alerts overview](./alerts/finops-alerts-overview.md).
   - Configuration steps in the [Configure FinOps alerts](./alerts/configure-finops-alerts.md).
   - FinOps alerts deployment template.
+
+### [Optimization engine](optimization-engine/overview.md) v0.9
+
+- **Fixed**
+  - Fixed issue with breaking storage account recommendations when resource tags are duplicated after tag inheritance ([#1430](https://github.com/microsoft/finops-toolkit/issues/1430)).
 
 ### [Open data](open-data.md) v0.9
 
@@ -114,10 +191,14 @@ _Released March 2025_
 - **Added**
   - Added the "1K/Day" unit of measure.
 
-**[Regions](open-data.md#Regions)**
+**[Regions](open-data.md#regions)**
 
 - **Added**
   - Added the "southcentralus2" region.
+- **Fixed**
+  - Changed a **Central Canada** reference to **Canada Central**.
+    - This may have caused issues or duplication when joined with other datasets.
+    - Please check your data for duplicate references to **Central Canada** and **Canada Central**.
 
 **[Resource types](open-data.md#resource-types)**
 
@@ -150,7 +231,6 @@ _Released March 2025_
     - microsoft.maintenance/maintenanceconfigurationsbladeresource
     - microsoft.networkcloud/kubernetesclusters/features
     - microsoft.onlineexperimentation/workspaces
-    - microsoft.saashub/cloudservices
     - microsoft.saashub/cloudservices
     - microsoft.secretmanagementsampleprovider/forecasts
     - microsoft.storagediscovery/storagediscoveryworkspaces
@@ -188,10 +268,6 @@ _Released March 2025_
 
 - **Added**
   - Added sample data for MCA reservation exports.
-- **Fixed**
-  - Changed a **Central Canada** reference to **Canada Central**.
-    - This may have caused issues or duplication when joined with other datasets.
-    - Please check your data for duplicate references to **Central Canada** and **Canada Central**.
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
@@ -1427,7 +1503,7 @@ _Released May 27, 2023_
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Changelog)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Toolkit/featureName/Changelog)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

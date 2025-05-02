@@ -1,9 +1,9 @@
 ---
 title: What is FOCUS?
 description: Learn about FOCUS, a cloud-agnostic billing data specification that helps optimize cost and usage across cloud, SaaS, and on-premises providers.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/02/2025
 ms.topic: overview
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -136,6 +136,9 @@ If you're interested in a more thorough walkthrough of all the FOCUS columns, ch
 - [Charge types and pricing models](https://techcommunity.microsoft.com/blog/FinOpsBlog/learning-focus-charge-types-and-pricing-models/4357997)
 - [Date columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-date-columns/4366382)
 - [Resource columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-resource-columns/4372954)
+- [Service columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-service-columns/4388703)
+- [SKU columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-skus/4398881)
+- [Purchase columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-purchases/4404283)
 
 New blog posts are released periodically, so watch the [FinOps blog](https://aka.ms/finops/blog) for updates every couple of weeks.
 
@@ -189,7 +192,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Guide.FOCUS/featureName/Overview)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Guide.FOCUS/featureName/Overview)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

@@ -1,9 +1,9 @@
 ---
 title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
-author: bandersmsft
-ms.author: banders
-ms.date: 02/18/2025
+author: flanakin
+ms.author: micflan
+ms.date: 04/29/2025
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -212,6 +212,19 @@ For more details and debugging steps, see [Validate your FinOps hub deployment](
 Unable to locate parquet files to ingest from the specified folder path.
 
 **Mitigation**: Confirm the folder path is the full path, including the **ingestion** container and not starting with or ending with a slash (**/**). Copy the path from the last successful **ingestion_ExecuteETL** pipeline run.
+
+<br>
+
+## InternalServiceError
+
+Microsoft Fabric Real-Time Intelligence may return an "InternalServiceError (520-UnknownError)" error code when ingesting data. The detailed error message may say:
+
+> _Kusto client failed to send a request to the service: 'Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host.'`_
+
+The exact reason for this error is unknown. If you experience it, please file a support request with Microsoft Fabric to investigate further.
+
+<!-- cSpell:ignore eventhouse -->
+**Mitigation**: As a workaround, change the minimum consumption for the Fabric eventhouse to **Medium (18 CUs)**, wait 30 minutes, and rerun the **ingestion_ExecuteETL** pipeline for that dataset and month. To learn more minimum consumption, see [Minimum consumption](/fabric/real-time-intelligence/manage-monitor-eventhouse#enable-minimum-consumption) in the eventhouse overview.
 
 <br>
 
@@ -646,7 +659,7 @@ If you're facing an error not listed above or need more help, file a [support re
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.8/bladeName/Toolkit/featureName/Help.DataDictionary)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Toolkit/featureName/Help.DataDictionary)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

@@ -20,9 +20,9 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 FinOps toolkit Power BI reports provide a great starting point for FinOps reporting. Customize and augment reports with your own data to facilitate organizational requirements.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in February 2025<span class="ftk-version">v0.8</span></h3>
+    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
     <p>
-        February introduced a new visual design for Power BI reports, new options to populate missing prices for storage reports, and a complete performance overhaul for KQL reports, plus many small fixes and improvements.
+        In March, Power BI reports added the reservation break-even point for recommendations, improved accuracy of Azure Hybrid Benefit data, and applied many small fixes and improvements across all reports.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -131,7 +131,7 @@ Create a new or update an existing FinOps hub instance.
     <div class="ftk-step">
         <button class="ftk-accordion">3️⃣&nbsp; Download the reports</button>
         <div>
-            <p>Download KQL reports for FinOps hubs with Data Explorer or download storage reports to connect to data in a storage account (with or without FinOps hubs).<br></p>
+            <p>Use KQL reports for FinOps hubs with Data Explorer or Microsoft Fabric; otherwise, use storage reports.<br></p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip">Download for KQL</a>
                 <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip">Download for storage</a>

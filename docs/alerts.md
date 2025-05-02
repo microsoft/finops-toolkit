@@ -19,36 +19,34 @@ Accelerate your cost optimization efforts with scheduled notifications that cont
 
 Designed with flexibility in mind, FinOps alerts run on a fully configurable schedule, continuously scanning your selected subscriptions for idle resources.
 
-<div id="whats-new" class="m-0 p-4" 
-style="background-color:#edf; border:solid 1px #609;">
-        <h3 class="m-0 mb-4">What's new in March 2025<span
-        class="ftk-version">v0.9</span></h3>
-        <p class="mt-2 mb-0">
-                March released FinOps alerts to boost cost optimization with automated notifications that monitor your cloud.
-        </p>
-         <p class="mt-2 mb-0 ftk-externallink"><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
+<div id="whats-new" class="ftk-new">
+    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
+    <p>
+        In March, FinOps alerts launched to boost cost optimization with automated notifications that monitor your cloud.
+    </p>
+    <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
 <a name="features"></a>
 
 ## Actionable insights for smarter cloud management
 
 <div class="ftk-gallery ftk-50">
-        <div class="ftk-tile">
-                <div>🔍 Monitor idle resources</div>
-                <div>Identify idle resources across your environment to uncover cost savings.</div>
-        </div>
-        <div class="ftk-tile">
-                <div>📧 Automated notifications</div>
-                <div>Get notified when idle resources are detected and take control of your environment.</div>
-        </div>
-        <div class="ftk-tile">
-                <div>🔔 Customize alerts</div>
-                <div>Tune alerts to reach key stakeholders, take new actions, and more!</div>
-        </div>
-        <div class="ftk-tile">
-                <div>📃 Review resource utilization</div>
-                <div>Track resource inventory and utilization of targeted services.<br>&nbsp;</div>
-        </div>
+    <div class="ftk-tile">
+        <div>🔍 Monitor idle resources</div>
+        <div>Identify idle resources across your environment to uncover cost savings.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>📧 Automated notifications</div>
+        <div>Get notified when idle resources are detected and take control of your environment.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🔔 Customize alerts</div>
+        <div>Tune alerts to reach key stakeholders, take new actions, and more!</div>
+    </div>
+    <div class="ftk-tile">
+        <div>📃 Review resource utilization</div>
+        <div>Track resource inventory and utilization of targeted services.</div>
+    </div>
 </div>
 <a name="deploy"></a>
 
@@ -60,7 +58,7 @@ FinOps alerts works best with the <strong>Owner</strong> role. For least privile
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-alerts-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-alerts-latest.ui.json">Deploy to Azure Gov</a>
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-alerts-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-alerts-latest.ui.json">Deploy to Azure China</a>
 
-<a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.8/bladeName/Alerts/featureName/Marketing.Deploy">💜 Give feedback</a>
+<a target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.9/bladeName/Alerts/featureName/Marketing.Deploy">💜 Give feedback</a>
 <a name="docs"></a>
 
 <br>
