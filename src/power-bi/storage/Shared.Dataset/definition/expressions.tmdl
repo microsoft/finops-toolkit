@@ -475,7 +475,7 @@ expression 'Experimental: Add Missing Prices' = false meta [IsParameterQuery=tru
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Logical
 
 /// Generates a KQL filter to be used in Resource Graph queries to filter out test data.
 expression ftk_DemoFilter =
@@ -504,7 +504,7 @@ expression 'Deprecated: Perform Extra Query Optimizations' = false meta [IsParam
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Logical
 
 /// Indicate whether you want the default granularity to be daily or monthly in this report. This only impacts visuals configured to use the x_ReportingDate column. Use ChargePeriodStart for daily and x_ChargeMonth for monthly to ignore this setting.
 expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
@@ -513,5 +513,38 @@ expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"D
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Text
+
+expression PolicyDefinitions =
+		let
+		  query = "
+		    policyResources
+		    | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'
+		    | extend
+		      displayName = properties.displayName,
+		      policyType = properties.policyType,
+		      description = properties.description,
+		      version = properties.version,
+		      parameters = properties.parameters,
+		      policyDefinitions = properties.policyDefinitions,
+		      policyDefinitionGroups = properties.policyDefinitionGroups,
+		      versions = properties.versions,
+		      oldVersions = properties.oldVersions
+		  " & ftk_DemoFilter(),
+		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+		  NullHandling =
+		    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+					#table(
+						{ "id", "name", "displayName", "policyType", "description", "version", "parameters", "policyDefinitions", "policyDefinitionGroups", "versions", "oldVersions" },
+						{}
+					)
+		    else Source
+		in
+		  NullHandling
+	lineageTag: eb782518-cee4-45da-9f32-e4cf54d345c9
+	queryGroup: 'Resource Graph'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 
