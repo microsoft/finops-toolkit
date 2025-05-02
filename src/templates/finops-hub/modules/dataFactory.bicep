@@ -822,7 +822,7 @@ resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-0
 // TODO: Create apps_PublishEvent pipeline { event, properties }
 
 module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
-  name: 'trigger_ExportManifestAdded'
+  name: 'Microsoft.FinOpsHubs.Core_ExportManifestAddedTrigger'
   dependsOn: [
     stopTriggers
   ]
@@ -830,7 +830,7 @@ module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
     dataFactoryName: dataFactory.name
     triggerName: exportManifestAddedTriggerName
 
-    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.CostManagement.ExportManifestAdded'
+    // TODO: Replace pipeline with event: 'Microsoft.CostManagement.Exports.ManifestAdded'
     pipelineName: pipeline_ExecuteExportsETL.name
     pipelineParameters: {
       folderPath: '@triggerBody().folderPath'
@@ -843,8 +843,8 @@ module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
   }
 }
 
-module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = {
-  name: 'trigger_IngestionManifestAdded'
+module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = if (deployDataExplorer) {
+  name: 'Microsoft.FinOpsHubs.Core_IngestionManifestAddedTrigger'
   dependsOn: [
     stopTriggers
   ]
@@ -852,7 +852,7 @@ module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = {
     dataFactoryName: dataFactory.name
     triggerName: ingestionManifestAddedTriggerName
 
-    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.Hubs.IngestionManifestAdded'
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.IngestionManifestAdded'
     pipelineName: pipeline_ExecuteIngestionETL.name
     pipelineParameters: {
       folderPath: '@triggerBody().folderPath'
@@ -865,7 +865,7 @@ module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = {
 }
 
 module trigger_SettingsUpdated 'hub-event-trigger.bicep' = {
-  name: 'trigger_SettingsUpdated'
+  name: 'Microsoft.FinOpsHubs.Core_SettingsUpdatedTrigger'
   dependsOn: [
     stopTriggers
   ]
@@ -873,7 +873,7 @@ module trigger_SettingsUpdated 'hub-event-trigger.bicep' = {
     dataFactoryName: dataFactory.name
     triggerName: updateConfigTriggerName
 
-    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.Hubs.SettingsUpdated'
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.SettingsUpdated'
     pipelineName: pipeline_ConfigureExports.name
     pipelineParameters: {}
     

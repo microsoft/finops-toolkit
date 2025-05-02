@@ -21,10 +21,10 @@
 
     .PARAMETER StartDate
     Optional. Day to start pulling the data for. If not set, the export will use the dates defined in the export configuration.
-    
+
     .PARAMETER EndDate
     Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration.
-    
+
     .PARAMETER Backfill
     Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0.
 
@@ -51,6 +51,7 @@
 #>
 function Start-FinOpsCostExport
 {
+    [OutputType([bool])]
     [cmdletBinding()]
     param
     (
@@ -61,15 +62,15 @@ function Start-FinOpsCostExport
         [Parameter()]
         [string]
         $Scope,
-        
+
         [Parameter()]
         [datetime]
         $StartDate,
-        
+
         [Parameter()]
         [datetime]
         $EndDate,
-        
+
         [Parameter()]
         [int]
         $Backfill,
@@ -80,7 +81,7 @@ function Start-FinOpsCostExport
     )
 
     $export = Get-FinOpsCostExport -Name $Name -Scope $Scope
-    
+
     if (-not $export)
     {
         Write-Error "Export $Name not found. Did you specify the correct scope?" -ErrorAction Stop
@@ -110,7 +111,7 @@ function Start-FinOpsCostExport
         $StartDate = $StartDate.AddMonths($Backfill * -1)
         Write-Verbose "Backfill $Backfill months = $($StartDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"')) to $($EndDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"'))"
     }
-    
+
     # Remove time + set end date
     if ($StartDate)
     {
@@ -128,7 +129,6 @@ function Start-FinOpsCostExport
 
     # Start measuring progress
     $progressActivity = "Running exports"
-    $startTime = [DateTime]::Now
     $months = (($EndDate.Year - $StartDate.Year) * 12) + $EndDate.Month - $StartDate.Month + 1
     if ($months -lt 1) { $months = 1 } # Assume at least 1 month to avoid errors
     $estimatedSecPerMonth = 6 # Estimated time to trigger a single month export accounting for throttling (10 per minute)
@@ -201,7 +201,7 @@ function Start-FinOpsCostExport
                 Write-Progress `
                     -Activity $progressActivity `
                     -Status "$percent% complete - Throttled by Cost Management. Waiting 60 seconds." `
-            
+
             }
             else
             {

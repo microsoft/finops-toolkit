@@ -147,6 +147,19 @@ Create a new or update an existing FinOps hub instance.
             </p>
         </div>
     </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">🙋‍♀️&nbsp; Help + support</button>
+        <div>
+            <p>
+                If you run into any issues, retrace your steps to ensure all steps were followed correctly and completely. Most issues are caused by missed or incomplete steps. If you are receiving an error, check for mitigation steps; otherwise, use the troubleshooting guide to identify and resolve common issues.
+            </p>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors">Review errors</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting">Start troubleshooting</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" target="_blank" href="https://aka.ms/ftk/discuss">Ask a question</a>
+            </p>
+        </div>
+    </div>
 </div>
 
 <br>
