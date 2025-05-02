@@ -132,6 +132,8 @@ Shared Access Signature (SAS) tokens allow you to connect to a storage account w
    9. Select **Apply and Close** in the ribbon.
       :::image type="content" source="./media/setup/sas-token.png" border="true" alt-text="Screenshot showing the SAS token dialog." lightbox="./media/setup/sas-token.png" :::
 
+If you get a **403 Forbidden** error, create a SAS token at the storage account level instead of the container level.
+
 <br>
 
 ## Copy queries from a toolkit report

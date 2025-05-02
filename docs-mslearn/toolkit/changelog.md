@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: flanakin
 ms.author: micflan
-ms.date: 04/29/2025
+ms.date: 05/02/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -55,6 +55,9 @@ _Released April 2025_
 
 ### [Power BI reports](power-bi/reports.md) v0.10
 
+- **Added**
+  - Added a note about SAS token usage may require configuration at the storage account (and not a container) level ([#1418](https://github.com/microsoft/finops-toolkit/issues/1418#issuecomment-2834146702)).
+  - Added additional documentation to cover errors with mitigation steps.
 - **Changed**
   - Updated documentation to clarify the ADLS storage requirement.
 - **Fixed**

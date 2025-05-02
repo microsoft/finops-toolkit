@@ -35,7 +35,7 @@
 #>
 function Get-FinOpsRegion()
 {
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $true)]
         [string]
         $ResourceLocation = "*",
@@ -51,29 +51,33 @@ function Get-FinOpsRegion()
         [switch]
         $IncludeResourceLocation
     )
-    return Get-OpenDataRegion `
-    | Where-Object {
-        $_.OriginalValue -like $ResourceLocation `
-            -and $_.RegionId -like $RegionId `
-            -and $_.RegionName -like $RegionName
-    } `
-    | ForEach-Object {
-        if ($IncludeResourceLocation)
-        {
-            $loc = $_.OriginalValue
-            $exclude = @()
-        }
-        else
-        {
-            $loc = $null
-            $exclude = @('ResourceLocation')
-        }
-        [PSCustomObject]@{
-            ResourceLocation = $loc
-            RegionId         = $_.RegionId
-            RegionName       = $_.RegionName
+
+    process
+    {
+        return Get-OpenDataRegion `
+        | Where-Object {
+            $_.OriginalValue -like $ResourceLocation `
+                -and $_.RegionId -like $RegionId `
+                -and $_.RegionName -like $RegionName
         } `
-        | Select-Object -ExcludeProperty $exclude
-    } `
-    | Select-Object -Property * -Unique
+        | ForEach-Object {
+            if ($IncludeResourceLocation)
+            {
+                $loc = $_.OriginalValue
+                $exclude = @()
+            }
+            else
+            {
+                $loc = $null
+                $exclude = @('ResourceLocation')
+            }
+            [PSCustomObject]@{
+                ResourceLocation = $loc
+                RegionId         = $_.RegionId
+                RegionName       = $_.RegionName
+            } `
+            | Select-Object -ExcludeProperty $exclude
+        } `
+        | Select-Object -Property * -Unique
+    }
 }

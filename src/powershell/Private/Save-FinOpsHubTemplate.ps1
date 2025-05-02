@@ -72,7 +72,7 @@ function Save-FinOpsHubTemplate
             Write-Information $LocalizedData.Hub_Deploy_02to021
             $Version = '0.3'
         }
-        
+
         # TODO: Remove 0.2+ redirect for Azure Gov/China when FOCUS exports are supported
         # Redirect 0.2.* to 0.1.1 for Azure Gov/China
         if ($azEnv -ne 'AzureCloud' -and $Version -ne '0.0' -and $Version.StartsWith('0.1') -eq $false -and $Version -ne 'latest')
@@ -97,7 +97,7 @@ function Save-FinOpsHubTemplate
         {
             Write-Verbose -Message ($script:LocalizedData.HubTemplate_Save_FoundAsset -f $asset.Name)
             $saveFilePath = Join-Path -Path $Destination -ChildPath $asset.Name
-            
+
             if (Test-Path -Path $saveFilePath)
             {
                 Remove-Item -Path $saveFilePath -Recurse -Force

@@ -42,7 +42,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-toolkit
 #>
-Param(
+param(
     [Parameter(Position = 0)][string]$Template = "finops-hub",
     [string]$ResourceGroup,
     [string]$Location = "westus",
@@ -155,7 +155,7 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
                         -Location $Location `
                     | Out-Null
                 }
-                
+
                 # Start deployment
                 Write-Verbose "Deploying $templateFile..."
                 $global:ftkDeployment = New-AzResourceGroupDeployment `
@@ -203,7 +203,7 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
         "tenant"
         {
             Write-Verbose 'Starting tenant deployment...'
-    
+
             $azContext = (Get-AzContext).Tenant
             Write-Host "  → [tenant] $(iff ([string]::IsNullOrWhitespace($azContext.Name)) $azContext.Id $azContext.Name)..."
             $Parameters.Keys | ForEach-Object { Write-Host "             $($_) = $($Parameters[$_])" }
