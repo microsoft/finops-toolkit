@@ -19,7 +19,7 @@ The Azure environment to connect to. Default is AzureCloud.
 https://aka.ms/AzureOptimizationEngine/suppressrecs
 #>
 param(
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $RecommendationId,
 
     [Parameter(Mandatory = $false)]
@@ -79,7 +79,7 @@ if (Test-Path -Path $databaseConnectionSettingsPath)
         foreach ($property in $dbSettings.PSObject.Properties)
         {
             $dbConnectionSettings[$property.Name] = $property.Value
-        }    
+        }
     }
 }
 
@@ -115,18 +115,18 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token | ConvertFrom-SecureString -AsPlainText
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$recommendationsTable] WHERE RecommendationId = '$RecommendationId'"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
@@ -134,7 +134,7 @@ do {
         Write-Host $Error[0] -ForegroundColor Yellow
         Write-Output "Waiting $($tries * 20) seconds..."
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -142,8 +142,8 @@ if (-not($connectionSuccess))
     throw "Could not establish connection to SQL."
 }
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 if (-not($controlRows.RecommendationId))
 {
@@ -179,7 +179,7 @@ elseif ("S", "s" -contains $suppOption)
 }
 else
 {
-    Write-Host "Cancelling.. No action will be taken." -ForegroundColor Green    
+    Write-Host "Cancelling.. No action will be taken." -ForegroundColor Green
     Exit
 }
 
@@ -230,16 +230,16 @@ Write-Host "Recommendation: $($controlRows.RecommendationDescription)" -Foregrou
 Write-Host "Suppression type: $suppressionType" -ForegroundColor Blue
 if ($suppressionType -in ("Dismiss", "Snooze"))
 {
-    Write-Host "Scope: $scope" -ForegroundColor Blue    
+    Write-Host "Scope: $scope" -ForegroundColor Blue
 }
 if ($suppressionType -eq "Snooze")
 {
-    Write-Host "Snooze days: $snoozeDays" -ForegroundColor Blue    
+    Write-Host "Snooze days: $snoozeDays" -ForegroundColor Blue
 }
 Write-Host "Author: $author" -ForegroundColor Blue
 Write-Host "Reason: $notes" -ForegroundColor Blue
 $continueInput = Read-Host "Do you want to continue (Y/N)?"
-if ("Y", "y" -contains $continueInput) 
+if ("Y", "y" -contains $continueInput)
 {
     if ($scope)
     {
@@ -247,7 +247,7 @@ if ("Y", "y" -contains $continueInput)
     }
     else
     {
-        $scope = "NULL"    
+        $scope = "NULL"
     }
 
     if ($snoozeDays -ge 14)
@@ -262,10 +262,10 @@ if ("Y", "y" -contains $continueInput)
     $sqlStatement = "INSERT INTO [$suppressionsTable] VALUES (NEWID(), '$($controlRows.RecommendationSubTypeId)', '$suppressionType', $scope, GETDATE(), $endDate, '$author', '$notes', 1)"
 
     $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString
-    $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+    $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
     $Conn2.AccessToken = $dbToken.Token | ConvertFrom-SecureString -AsPlainText
-    $Conn2.Open() 
-    
+    $Conn2.Open()
+
     $Cmd=new-object system.Data.SqlClient.SqlCommand
     $Cmd.Connection = $Conn2
     $Cmd.CommandText = $sqlStatement
@@ -279,8 +279,8 @@ if ("Y", "y" -contains $continueInput)
         Write-Output "Failed statement: $sqlStatement"
         throw
     }
-    
-    $Conn2.Close()                
+
+    $Conn2.Close()
 
     Write-Host "Suppression sucessfully added." -ForegroundColor Green
 }

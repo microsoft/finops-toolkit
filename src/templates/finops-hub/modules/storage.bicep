@@ -48,19 +48,19 @@ param enablePublicAccess bool
 
 // Generate globally unique storage account name: 3-24 chars; lowercase letters/numbers only
 var schemaFiles = {
-  // cSpell:ignore focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
-  'actualcost_c360-2025-04': loadTextContent('../schemas/actualcost_c360-2025-04.json')
-  'amortizedcost_c360-2025-04': loadTextContent('../schemas/amortizedcost_c360-2025-04.json')
-  'focuscost_1.0r2': loadTextContent('../schemas/focuscost_1.0r2.json')
-  'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
-  'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
-  'pricesheet_2023-05-01_ea': loadTextContent('../schemas/pricesheet_2023-05-01_ea.json')
-  'pricesheet_2023-05-01_mca': loadTextContent('../schemas/pricesheet_2023-05-01_mca.json')
-  'reservationdetails_2023-03-01': loadTextContent('../schemas/reservationdetails_2023-03-01.json')
-  'reservationrecommendations_2023-05-01_ea': loadTextContent('../schemas/reservationrecommendations_2023-05-01_ea.json')
-  'reservationrecommendations_2023-05-01_mca': loadTextContent('../schemas/reservationrecommendations_2023-05-01_mca.json')
-  'reservationtransactions_2023-05-01_ea': loadTextContent('../schemas/reservationtransactions_2023-05-01_ea.json')
-  'reservationtransactions_2023-05-01_mca': loadTextContent('../schemas/reservationtransactions_2023-05-01_mca.json')
+  // cSpell:ignore actualcost, amortizedcost, focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
+  'schemas/actualcost_c360-2025-04.json': loadTextContent('../schemas/actualcost_c360-2025-04.json')
+  'schemas/amortizedcost_c360-2025-04.json': loadTextContent('../schemas/amortizedcost_c360-2025-04.json')
+  'schemas/focuscost_1.0r2.json': loadTextContent('../schemas/focuscost_1.0r2.json')
+  'schemas/focuscost_1.0.json': loadTextContent('../schemas/focuscost_1.0.json')
+  'schemas/focuscost_1.0-preview(v1).json': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
+  'schemas/pricesheet_2023-05-01_ea.json': loadTextContent('../schemas/pricesheet_2023-05-01_ea.json')
+  'schemas/pricesheet_2023-05-01_mca.json': loadTextContent('../schemas/pricesheet_2023-05-01_mca.json')
+  'schemas/reservationdetails_2023-03-01.json': loadTextContent('../schemas/reservationdetails_2023-03-01.json')
+  'schemas/reservationrecommendations_2023-05-01_ea.json': loadTextContent('../schemas/reservationrecommendations_2023-05-01_ea.json')
+  'schemas/reservationrecommendations_2023-05-01_mca.json': loadTextContent('../schemas/reservationrecommendations_2023-05-01_mca.json')
+  'schemas/reservationtransactions_2023-05-01_ea.json': loadTextContent('../schemas/reservationtransactions_2023-05-01_ea.json')
+  'schemas/reservationtransactions_2023-05-01_mca.json': loadTextContent('../schemas/reservationtransactions_2023-05-01_mca.json')
 }
 
 // Roles needed to upload files
@@ -93,27 +93,46 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
   name: 'default'
 }
 
+// TODO: Move to core module
 module configContainer 'hub-storage.bicep' = {
-  name: 'configContainer'
+  name: 'Microsoft.FinOpsHubs.Core_SchemaFiles'
   params: {
-    storageAccountName: storageAccount.name
     container: 'config'
+    files: schemaFiles
+
+    // Hub context
+    storageAccountName: storageAccount.name
+    location: location
+    tags: tags
+    tagsByResource: tagsByResource
+    blobManagerIdentityName: identity.name
+    enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: scriptStorageAccount.name
+    scriptSubnetId: scriptSubnetId
   }
 }
 
+// TODO: Move to separate CM exports module
 module exportContainer 'hub-storage.bicep' = {
-  name: 'exportContainer'
+  name: 'Microsoft.CostManagement.Exports_ExportContainer'
   params: {
-    storageAccountName: storageAccount.name
     container: 'msexports'
+    
+    // Hub context
+    storageAccountName: storageAccount.name
+    enablePublicAccess: enablePublicAccess
   }
 }
 
+// TODO: Move to core module
 module ingestionContainer 'hub-storage.bicep' = {
-  name: 'ingestionContainer'
+  name: 'Microsoft.FinOpsHubs.Core_IngestionContainer'
   params: {
-    storageAccountName: storageAccount.name
     container: 'ingestion'
+    
+    // Hub context
+    storageAccountName: storageAccount.name
+    enablePublicAccess: enablePublicAccess
   }
 }
 
@@ -204,10 +223,6 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
       {
         name: 'containerName'
         value: 'config'
-      }
-      {
-        name: 'schemaFiles'
-        value: string(schemaFiles)
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')

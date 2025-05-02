@@ -266,9 +266,9 @@ module coreNetwork 'core-network.bicep' = {
 module appRegistration 'hub-app.bicep' = {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
   params: {
-    // TODO: hubName: hubName
-    publisher: 'FinOps hubs'
-    namespace: 'Microsoft.FinOpsToolkit.Hubs'
+    hubName: hubName
+    publisher: 'Microsoft FinOps hubs'
+    namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
     displayName: 'FinOps hub core'
     appVersion: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
