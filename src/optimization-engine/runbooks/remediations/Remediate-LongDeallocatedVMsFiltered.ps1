@@ -29,7 +29,7 @@ if ([string]::IsNullOrEmpty($sqldatabase))
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "remediationlogs"
 }
@@ -62,12 +62,12 @@ $recommendationsTable = "Recommendations"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -87,30 +87,30 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = @"
         SELECT InstanceId, Cloud, TenantGuid, COUNT(InstanceId)
-        FROM [dbo].[$recommendationsTable] 
+        FROM [dbo].[$recommendationsTable]
         WHERE RecommendationSubTypeId = '$recommendationId' AND FitScore >= $minFitScore AND GeneratedDate >= GETDATE()-(7*$minWeeksInARow)
         GROUP BY InstanceId, Cloud, TenantGuid
         HAVING COUNT(InstanceId) >= $minWeeksInARow
-"@    
+"@
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $deallocatedVMs = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($deallocatedVMs) | Out-Null            
+        $sqlAdapter.Fill($deallocatedVMs) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -120,8 +120,8 @@ if (-not($connectionSuccess))
 
 Write-Output "Found $($deallocatedVMs.Rows.Count) remediation opportunities."
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $logEntries = @()
 
@@ -163,7 +163,7 @@ foreach ($vm in $deallocatedVMs.Rows)
     $subscriptionId = $vm.InstanceId.Split("/")[2]
     $resourceGroup = $vm.InstanceId.Split("/")[4]
     $instanceName = $vm.InstanceId.Split("/")[8]
-    
+
     if ($isEligible)
     {
         $vmState = "Unknown"
@@ -180,54 +180,73 @@ foreach ($vm in $deallocatedVMs.Rows)
                 $ctx = Get-AzContext
             }
             $vmObj = Get-AzVM -ResourceGroupName $resourceGroup -VMName $instanceName -Status -ErrorAction SilentlyContinue
-            if ($vmObj.PowerState -eq 'VM deallocated')
+            if (($vmObj.Statuses | Where-Object { $_.Code -like "PowerState/*" }).Code -eq "PowerState/deallocated")
             {
                 $vmState = "Deallocated"
-                $osDiskId = $vmObj.StorageProfile.OsDisk.ManagedDisk.Id
-                $dataDiskIds = $vmObj.StorageProfile.DataDisks.ManagedDisk.Id
-                if ($osDiskId)
+                $vmObj = Get-AzVM -ResourceGroupName $resourceGroup -VMName $instanceName
+                if ($vmObj.StorageProfile.OsDisk.ManagedDisk.Id)
                 {
                     $hasManagedDisks = $true
-                    $disk = Get-AzDisk -ResourceGroupName $osDiskId.Split("/")[4] -DiskName $osDiskId.Split("/")[8]
-                    $osDiskSkuName = $disk.Sku.Name
-                    if (-not($Simulate) -and $disk.Sku.Name -ne 'Standard_LRS')
+                    $disks = @($vmObj.StorageProfile.OsDisk.ManagedDisk.Id)
+                    if ($vmObj.StorageProfile.DataDisks.ManagedDisk.Id)
                     {
-                        $disk.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('Standard_LRS')
-                        $disk | Update-AzDisk | Out-Null
+                        $disks = $disks + $vmObj.StorageProfile.DataDisks.ManagedDisk.Id
                     }
-                    else
+                    foreach ($disk in $disks)
                     {
-                        Write-Output "Skipping as OS disk is already HDD."                        
-                    }
-                    foreach ($dataDiskId in $dataDiskIds)
-                    {
-                        $disk = Get-AzDisk -ResourceGroupName $dataDiskId.Split("/")[4] -DiskName $dataDiskId.Split("/")[8]
-                        if ($dataDisksSkuNames -eq 'Unknown')
+                        $diskObj = Get-AzDisk -ResourceGroupName $disk.Split("/")[4] -DiskName $disk.Split("/")[8]
+                        if ($diskObj.OsType)
                         {
-                            $dataDisksSkuNames = $disk.Sku.Name
+                            $osDiskSkuName = $diskObj.Sku.Name
                         }
                         else
                         {
-                            if ($dataDisksSkuNames -notlike "*$($disk.Sku.Name)*")
+                            if ($dataDisksSkuNames -eq 'Unknown')
                             {
-                                $dataDisksSkuNames += ",$($disk.Sku.Name)"
+                                $dataDisksSkuNames = $diskObj.Sku.Name
+                            }
+                            else
+                            {
+                                if ($dataDisksSkuNames -notlike "*$($diskObj.Sku.Name)*")
+                                {
+                                    $dataDisksSkuNames += ",$($diskObj.Sku.Name)"
+                                }
                             }
                         }
-                        
-                        if (-not($Simulate) -and $disk.Sku.Name -ne 'Standard_LRS')
+                        if ($diskObj.Sku.Name -notin ('Standard_LRS','StandardSSD_ZRS'))
                         {
-                            $disk.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('Standard_LRS')
-                            $disk | Update-AzDisk | Out-Null
+                            if ($diskObj.Sku.Name -like "*_LRS" -and $diskObj.Sku.Name -notlike "*V2*")
+                            {
+                                Write-Output "Downgrading $($diskObj.Name) to Standard_LRS..."                            
+                                if (-not($Simulate))
+                                {
+                                    $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('Standard_LRS', 'Standard')
+                                    $diskObj | Update-AzDisk | Out-Null        
+                                }
+                            }
+                            elseif ($diskObj.Sku.Name -like "*_ZRS" -and $diskObj.Sku.Name -notlike "*V2*")
+                            {
+                                Write-Output "Downgrading $($diskObj.Name) to StandardSSD_ZRS..."                            
+                                if (-not($Simulate))
+                                {
+                                    $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('StandardSSD_ZRS', 'Standard')
+                                    $diskObj | Update-AzDisk | Out-Null        
+                                }
+                            }
+                            else
+                            {
+                                Write-Output "Skipping as $($diskObj.Name) disk is in an unsupported SKU ($($diskObj.Sku.Name))..."
+                            }
                         }
                         else
                         {
-                            Write-Output "Skipping as Data disk is already HDD."                        
-                        }                            
+                            Write-Output "Skipping as $($diskObj.Name) disk is already in the lowest SKU ($($diskObj.Sku.Name))."                        
+                        }
                     }
                 }
                 else
                 {
-                    Write-Output "Skipping as disks are not Managed Disks."    
+                    Write-Output "Skipping as disks are not Managed Disks."
                     $hasManagedDisks = $false
                 }
             }
@@ -235,19 +254,19 @@ foreach ($vm in $deallocatedVMs.Rows)
             {
                 if ($vmObj)
                 {
-                    Write-Output "Skipping as VM is not deallocated."    
+                    Write-Output "Skipping as VM is not deallocated."
                     $vmState = "Running"
                 }
                 else
                 {
-                    Write-Output "Skipping as VM was already removed."    
-                    $vmState = "Removed"                        
+                    Write-Output "Skipping as VM was already removed."
+                    $vmState = "Removed"
                 }
             }
         }
         else
         {
-            Write-Output "Could not apply remediation as VM is in another cloud/tenant."    
+            Write-Output "Could not apply remediation as VM is in another cloud/tenant."
         }
     }
 
@@ -271,10 +290,10 @@ foreach ($vm in $deallocatedVMs.Rows)
         LogDetails = $logDetails | ConvertTo-Json -Compress
         RecommendationSubTypeId = $recommendationId
     }
-    
+
     $logEntries += $logentry
 }
-    
+
 $today = $datetime.ToString("yyyyMMdd")
 $csvExportPath = "$today-longdeallocatedvmsfiltered.csv"
 

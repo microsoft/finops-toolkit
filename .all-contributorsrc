@@ -392,7 +392,8 @@
       "profile": "https://github.com/chris-bowman",
       "contributions": [
         "bug",
-        "review"
+        "review",
+        "code"
       ]
     },
     {
@@ -742,6 +743,15 @@
       "profile": "http://blog.eula.no",
       "contributions": [
         "doc"
+      ]
+    },
+    {
+      "login": "robbdi",
+      "name": "Robb Dilallo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16977341?v=4",
+      "profile": "https://github.com/robbdi",
+      "contributions": [
+        "code"
       ]
     }
   ],

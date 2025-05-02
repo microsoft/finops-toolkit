@@ -100,10 +100,10 @@ InModuleScope 'FinOpsToolkit' {
         It 'Should not create a directory if it exists' {
             # Arrange
             Mock -CommandName 'Test-Path' -MockWith { return $true }
-            
+
             # Act
             New-Directory -Path $path
-            
+
             # Assert
             Assert-MockCalled -CommandName 'Test-Path'
             Assert-MockCalled -CommandName 'New-Item' -Times 0
@@ -112,10 +112,10 @@ InModuleScope 'FinOpsToolkit' {
         It 'Should create a directory if it does not exist' {
             # Arrange
             Mock -CommandName 'Test-Path' -MockWith { return $false }
-            
+
             # Act
             New-Directory -Path $path
-            
+
             # Assert
             Assert-MockCalled -CommandName 'Test-Path'
             Assert-MockCalled -CommandName 'New-Item' -Times 1

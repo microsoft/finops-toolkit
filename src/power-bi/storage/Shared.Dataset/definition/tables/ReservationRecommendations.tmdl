@@ -207,6 +207,8 @@ table ReservationRecommendations
 
 		annotation PBI_FormatHint = {"isCustom":true}
 
+		annotation UnderlyingDateTimeDataType = Date
+
 	column x_BreakEvenMonths
 		dataType: double
 		formatString: 0.0 mo
