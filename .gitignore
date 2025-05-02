@@ -362,3 +362,7 @@ coverage.xml
 last-deployment-state.json
 database-connection-settings.json
 deployment-settings-*.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
