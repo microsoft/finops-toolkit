@@ -111,12 +111,12 @@
   },
   {
     "resourceType": "dell.storage/filesystems",
-    "singularDisplayName": "Dell APEX File Storage, An Azure Native Service",
-    "pluralDisplayName": "Dell APEX File Storage, An Azure Native Service",
-    "lowerSingularDisplayName": "Dell APEX File Storage, An Azure Native Service",
-    "lowerPluralDisplayName": "Dell APEX File Storage, An Azure Native Service",
+    "singularDisplayName": "Dell PowerScale",
+    "pluralDisplayName": "Dell PowerScale",
+    "lowerSingularDisplayName": "Dell PowerScale",
+    "lowerPluralDisplayName": "Dell PowerScale",
     "isPreview": false,
-    "description": "",
+    "description": "Sample Product Description",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/dell.storage/filesystems.svg",
     "links": [
       {
@@ -165,10 +165,10 @@
   },
   {
     "resourceType": "lambdatest.hyperexecute/organizations",
-    "singularDisplayName": "Azure Native LambdaTest Cloud Service",
-    "pluralDisplayName": "Azure Native LambdaTest Cloud Service",
-    "lowerSingularDisplayName": "Azure Native LambdaTest Cloud Service",
-    "lowerPluralDisplayName": "Azure Native LambdaTest Cloud Service",
+    "singularDisplayName": "Azure Native LambdaTest - HyperExecute Cloud Service",
+    "pluralDisplayName": "Azure Native LambdaTest - HyperExecute Cloud Service",
+    "lowerSingularDisplayName": "Azure Native LambdaTest - HyperExecute Cloud Service",
+    "lowerPluralDisplayName": "Azure Native LambdaTest - HyperExecute Cloud Service",
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/lambdatest.hyperexecute/organizations.svg",
@@ -908,6 +908,83 @@
         "uri": "https://learn.microsoft.com/azure/azure-app-configuration/overview"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.applicationmigration/discoveryhubs",
+    "singularDisplayName": "Microsoft.ApplicationMigration discovery hub",
+    "pluralDisplayName": "Microsoft.ApplicationMigration discovery hubs",
+    "lowerSingularDisplayName": "microsoft.applicationmigration discovery hub",
+    "lowerPluralDisplayName": "microsoft.applicationmigration discovery hubs",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.applicationmigration/discoveryhubs.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.applicationmigration/discoveryhubs/applications",
+    "singularDisplayName": "Microsoft.ApplicationMigration discovery hubs application",
+    "pluralDisplayName": "Microsoft.ApplicationMigration discovery hubs applications",
+    "lowerSingularDisplayName": "microsoft.applicationmigration discovery hubs application",
+    "lowerPluralDisplayName": "microsoft.applicationmigration discovery hubs applications",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.applicationmigration/discoveryhubs/applications.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.applicationmigration/discoveryhubs/applications/members",
+    "singularDisplayName": "Microsoft.ApplicationMigration discovery hubs applications member",
+    "pluralDisplayName": "Microsoft.ApplicationMigration discovery hubs applications members",
+    "lowerSingularDisplayName": "microsoft.applicationmigration discovery hubs applications member",
+    "lowerPluralDisplayName": "microsoft.applicationmigration discovery hubs applications members",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.applicationmigration/discoveryhubs/applications/members.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.applicationmigration/pgsqlsites",
+    "singularDisplayName": "Microsoft.ApplicationMigration pgsqlsite",
+    "pluralDisplayName": "Microsoft.ApplicationMigration pgsqlsites",
+    "lowerSingularDisplayName": "microsoft.applicationmigration pgsqlsite",
+    "lowerPluralDisplayName": "microsoft.applicationmigration pgsqlsites",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.applicationmigration/pgsqlsites.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.applicationmigration/pgsqlsites/agents",
+    "singularDisplayName": "Microsoft.ApplicationMigration pgsqlsites agent",
+    "pluralDisplayName": "Microsoft.ApplicationMigration pgsqlsites agents",
+    "lowerSingularDisplayName": "microsoft.applicationmigration pgsqlsites agent",
+    "lowerPluralDisplayName": "microsoft.applicationmigration pgsqlsites agents",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.applicationmigration/pgsqlsites/agents.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.applicationmigration/pgsqlsites/pgsqldatabases",
+    "singularDisplayName": "Microsoft.ApplicationMigration pgsqlsites pgsqldatabase",
+    "pluralDisplayName": "Microsoft.ApplicationMigration pgsqlsites pgsqldatabases",
+    "lowerSingularDisplayName": "microsoft.applicationmigration pgsqlsites pgsqldatabase",
+    "lowerPluralDisplayName": "microsoft.applicationmigration pgsqlsites pgsqldatabases",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.applicationmigration/pgsqlsites/pgsqldatabases.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.applicationmigration/pgsqlsites/pgsqlinstances",
+    "singularDisplayName": "Microsoft.ApplicationMigration pgsqlsites pgsqlinstance",
+    "pluralDisplayName": "Microsoft.ApplicationMigration pgsqlsites pgsqlinstances",
+    "lowerSingularDisplayName": "microsoft.applicationmigration pgsqlsites pgsqlinstance",
+    "lowerPluralDisplayName": "microsoft.applicationmigration pgsqlsites pgsqlinstances",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.applicationmigration/pgsqlsites/pgsqlinstances.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.appplatform/spring",
@@ -3185,6 +3262,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.azurecis/azcopies",
+    "singularDisplayName": "Microsoft.AzureCis az copy",
+    "pluralDisplayName": "Microsoft.AzureCis az copies",
+    "lowerSingularDisplayName": "microsoft.azurecis az copy",
+    "lowerPluralDisplayName": "microsoft.azurecis az copies",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurecis/azcopies.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.azurecis/canonicalnamerecords",
     "singularDisplayName": "Microsoft.AzureCis canonical name record",
     "pluralDisplayName": "Microsoft.AzureCis canonical name records",
@@ -4830,6 +4918,28 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.billingbenefits/credits",
+    "singularDisplayName": "Credit",
+    "pluralDisplayName": "Credits",
+    "lowerSingularDisplayName": "credit",
+    "lowerPluralDisplayName": "credit",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billingbenefits/credits.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billingbenefits/discounts",
+    "singularDisplayName": "Discount",
+    "pluralDisplayName": "Discounts",
+    "lowerSingularDisplayName": "discount",
+    "lowerPluralDisplayName": "discount",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billingbenefits/discounts.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.billingbenefits/incentiveschedules",
     "singularDisplayName": "Incentive Schedule",
     "pluralDisplayName": "Incentive Schedules",
@@ -4860,7 +4970,12 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billingbenefits/maccs.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn More",
+        "uri": "https://go.microsoft.com/fwlink/?linkid=2312807"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.billingbenefits/reservationorderaliases",
@@ -5104,14 +5219,19 @@
   },
   {
     "resourceType": "microsoft.cache/redisenterprise",
-    "singularDisplayName": "Redis Enterprise cluster",
-    "pluralDisplayName": "Redis Enterprise clusters",
-    "lowerSingularDisplayName": "Redis Enterprise cluster",
-    "lowerPluralDisplayName": "Redis Enterprise clusters",
-    "isPreview": false,
-    "description": "",
+    "singularDisplayName": "Azure Managed Redis",
+    "pluralDisplayName": "Azure Managed Redis",
+    "lowerSingularDisplayName": "Azure Managed Redis (Preview) cluster",
+    "lowerPluralDisplayName": "Azure Managed Redis (Preview) clusters",
+    "isPreview": true,
+    "description": "An in-memory data store that improves the performance and scalability of an application that uses backend data stores heavily. Azure Managed Redis brings a critical low-latency and high-throughput data storage solution to modern applications.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cache/redisenterprise.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://learn.microsoft.com/azure/azure-cache-for-redis/managed-redis/managed-redis-overview"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.cache/redisenterprise/databases",
@@ -5420,8 +5540,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.changesafety/validations.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.changesafety/validators",
@@ -5432,8 +5551,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.changesafety/validators.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.changesafety/validators/versions",
@@ -5444,8 +5562,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.changesafety/validators/versions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.chaos/experiments",
@@ -5770,7 +5887,12 @@
     "isPreview": false,
     "description": "Trusted Signing is a fully managed end-to-end service for signing. It manages all the keys and certificates through the Certification Authorities that are part of the Microsoft Trusted Root Program and meet WebTrust Certification and the latest industry compliance guidelines.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.codesigning/codesigningaccounts.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/trustedsigning"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.codespaces/plans",
@@ -6644,7 +6766,8 @@
     "isPreview": false,
     "description": "Concrete proxy resource types can be created by aliasing this type using a specific property type.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computeschedule/autoactions/occurrences.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.confidentialledger/ledgers",
@@ -7135,6 +7258,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.containerservice/managedclusters/microsoft.kubernetesconfiguration/namespaces.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.containerservice/managedclusters/namespaces",
+    "singularDisplayName": "Managed namespace",
+    "pluralDisplayName": "Managed namespaces",
+    "lowerSingularDisplayName": "managed namespace",
+    "lowerPluralDisplayName": "managed namespaces",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.containerservice/managedclusters/namespaces.svg",
     "links": null
   },
   {
@@ -10135,7 +10269,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://microsoft.com"
+        "uri": "https://go.microsoft.com/fwlink/?linkid=2310629"
       }
     ]
   },
@@ -10319,7 +10453,12 @@
     "isPreview": false,
     "description": "Azure Cloud HSM provides customer-managed, single tenant, highly available HSMs to store and manage your cryptographic keys.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hardwaresecuritymodules/cloudhsmclusters.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://learn.microsoft.com/azure/cloud-hsm/"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.hdinsight/clusterpools",
@@ -10335,7 +10474,8 @@
         "title": "Learn more about HDInsight on AKS cluster pool",
         "uri": "https://go.microsoft.com/fwlink/?linkid=2241255"
       }
-    ]
+    ],
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hdinsight/clusterpools/clusters",
@@ -10351,7 +10491,8 @@
         "title": "Learn more about HDInsight on AKS cluster",
         "uri": "https://go.microsoft.com/fwlink/?linkid=2241255"
       }
-    ]
+    ],
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hdinsight/clusterpools/clusters/instanceviews",
@@ -10362,7 +10503,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hdinsight/clusterpools/clusters/instanceviews.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.hdinsight/clusters",
@@ -12317,7 +12459,7 @@
     "lowerSingularDisplayName": "Kubernetes - Azure Arc",
     "lowerPluralDisplayName": "Kubernetes - Azure Arc",
     "isPreview": false,
-    "description": "",
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.kubernetes/connectedclusters.svg",
     "links": [
       {
@@ -12414,7 +12556,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.kubernetesconfiguration/fluxconfigurations/operations.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.kubernetesconfiguration/privatelinkscopes",
@@ -12614,10 +12757,10 @@
   },
   {
     "resourceType": "microsoft.liftrpilot/organizations",
-    "singularDisplayName": "Microsoft.LiftrPilot organization",
-    "pluralDisplayName": "Microsoft.LiftrPilot organizations",
-    "lowerSingularDisplayName": "microsoft.liftrpilot organization",
-    "lowerPluralDisplayName": "microsoft.liftrpilot organizations",
+    "singularDisplayName": "Azure Pilot",
+    "pluralDisplayName": "Pilot - An Azure Native ISV Service",
+    "lowerSingularDisplayName": "Azure Pilot",
+    "lowerPluralDisplayName": "Azure Pilot",
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.liftrpilot/organizations.svg",
@@ -12742,7 +12885,8 @@
     "isPreview": false,
     "description": "Integration with Logz.io enables our customers to send all the logs for non compute resources to Logz.io without having to configure event hubs or enable diagnostic settings. Creating the main account and providing SSO allows user to dynamically include/ exclude tags and SSO into their Logz.io account hassle free. ",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.logz/monitors.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.logz/monitors/accounts",
@@ -12753,7 +12897,8 @@
     "isPreview": false,
     "description": "A sub account is a child entity which can be created only under a main account resource. ",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.logz/monitors/accounts.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.m365/m365resources",
@@ -13778,7 +13923,7 @@
     "lowerSingularDisplayName": "microsoft.messagingconnectors connector",
     "lowerPluralDisplayName": "microsoft.messagingconnectors connectors",
     "isPreview": false,
-    "description": "A Connector resource Azure",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.messagingconnectors/connectors.svg",
     "links": null
   },
@@ -13937,6 +14082,39 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.migrate/assessmentprojects/assessments",
+    "singularDisplayName": "Microsoft.Migrate assessment projects assessment",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects assessments",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects assessment",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects assessments",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/assessments.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/assessments/assessedmachines",
+    "singularDisplayName": "Microsoft.Migrate assessment projects assessments assessed machine",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects assessments assessed machines",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects assessments assessed machine",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects assessments assessed machines",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/assessments/assessedmachines.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/assessments/summaries",
+    "singularDisplayName": "Microsoft.Migrate assessment projects assessments summary",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects assessments summaries",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects assessments summary",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects assessments summaries",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/assessments/summaries.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.migrate/assessmentprojects/avsassessmentoptions",
     "singularDisplayName": "Microsoft.Migrate assessment projects avs assessment option",
     "pluralDisplayName": "Microsoft.Migrate assessment projects avs assessment options",
@@ -13945,6 +14123,39 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/avsassessmentoptions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/avsassessments",
+    "singularDisplayName": "Microsoft.Migrate assessment projects avs assessment",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects avs assessments",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects avs assessment",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects avs assessments",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/avsassessments.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/avsassessments/avsassessedmachines",
+    "singularDisplayName": "Microsoft.Migrate assessment projects avs assessments avs assessed machine",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects avs assessments avs assessed machines",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects avs assessments avs assessed machine",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects avs assessments avs assessed machines",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/avsassessments/avsassessedmachines.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/avsassessments/summaries",
+    "singularDisplayName": "Microsoft.Migrate assessment projects avs assessments summary",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects avs assessments summaries",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects avs assessments summary",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects avs assessments summaries",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/avsassessments/summaries.svg",
     "links": null
   },
   {
@@ -14212,6 +14423,28 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.migrate/assessmentprojects/heterogeneousassessments",
+    "singularDisplayName": "Microsoft.Migrate assessment projects heterogeneous assessment",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects heterogeneous assessments",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects heterogeneous assessment",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects heterogeneous assessments",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/heterogeneousassessments.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/heterogeneousassessments/summaries",
+    "singularDisplayName": "Microsoft.Migrate assessment projects heterogeneous assessments summary",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects heterogeneous assessments summaries",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects heterogeneous assessments summary",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects heterogeneous assessments summaries",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/heterogeneousassessments/summaries.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.migrate/assessmentprojects/hypervcollectors",
     "singularDisplayName": "Microsoft.Migrate assessment projects hypervcollector",
     "pluralDisplayName": "Microsoft.Migrate assessment projects hypervcollectors",
@@ -14231,6 +14464,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/importcollectors.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/importsqlcollectors",
+    "singularDisplayName": "Microsoft.Migrate assessment projects import sql collector",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects import sql collectors",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects import sql collector",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects import sql collectors",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/importsqlcollectors.svg",
     "links": null
   },
   {
@@ -14300,6 +14544,61 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.migrate/assessmentprojects/sqlassessments",
+    "singularDisplayName": "Microsoft.Migrate assessment projects sql assessment",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects sql assessments",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects sql assessment",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects sql assessments",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/sqlassessments.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/sqlassessments/assessedsqldatabases",
+    "singularDisplayName": "Microsoft.Migrate assessment projects sql assessments assessed sql database",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects sql assessments assessed sql databases",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects sql assessments assessed sql database",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects sql assessments assessed sql databases",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/sqlassessments/assessedsqldatabases.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/sqlassessments/assessedsqlinstances",
+    "singularDisplayName": "Microsoft.Migrate assessment projects sql assessments assessed sql instance",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects sql assessments assessed sql instances",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects sql assessments assessed sql instance",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects sql assessments assessed sql instances",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/sqlassessments/assessedsqlinstances.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/sqlassessments/assessedsqlmachines",
+    "singularDisplayName": "Microsoft.Migrate assessment projects sql assessments assessed sql machine",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects sql assessments assessed sql machines",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects sql assessments assessed sql machine",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects sql assessments assessed sql machines",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/sqlassessments/assessedsqlmachines.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/sqlassessments/summaries",
+    "singularDisplayName": "Microsoft.Migrate assessment projects sql assessments summary",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects sql assessments summaries",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects sql assessments summary",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects sql assessments summaries",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/sqlassessments/summaries.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.migrate/assessmentprojects/sqlcollectors",
     "singularDisplayName": "Microsoft.Migrate assessment projects sqlcollector",
     "pluralDisplayName": "Microsoft.Migrate assessment projects sqlcollectors",
@@ -14333,6 +14632,50 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.migrate/assessmentprojects/webappassessments",
+    "singularDisplayName": "Microsoft.Migrate assessment projects web app assessment",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects web app assessments",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects web app assessment",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects web app assessments",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/webappassessments.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/webappassessments/assessedwebapps",
+    "singularDisplayName": "Microsoft.Migrate assessment projects web app assessments assessed web app",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects web app assessments assessed web apps",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects web app assessments assessed web app",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects web app assessments assessed web apps",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/webappassessments/assessedwebapps.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/webappassessments/summaries",
+    "singularDisplayName": "Microsoft.Migrate assessment projects web app assessments summary",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects web app assessments summaries",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects web app assessments summary",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects web app assessments summaries",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/webappassessments/summaries.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/webappassessments/webappserviceplans",
+    "singularDisplayName": "Microsoft.Migrate assessment projects web app assessments web app service plan",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects web app assessments web app service plans",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects web app assessments web app service plan",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects web app assessments web app service plans",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/webappassessments/webappserviceplans.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.migrate/assessmentprojects/webappcollectors",
     "singularDisplayName": "Microsoft.Migrate assessment projects web app collector",
     "pluralDisplayName": "Microsoft.Migrate assessment projects web app collectors",
@@ -14341,6 +14684,28 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/webappcollectors.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/webappcompoundassessments",
+    "singularDisplayName": "Microsoft.Migrate assessment projects web app compound assessment",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects web app compound assessments",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects web app compound assessment",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects web app compound assessments",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/webappcompoundassessments.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.migrate/assessmentprojects/webappcompoundassessments/summaries",
+    "singularDisplayName": "Microsoft.Migrate assessment projects web app compound assessments summary",
+    "pluralDisplayName": "Microsoft.Migrate assessment projects web app compound assessments summaries",
+    "lowerSingularDisplayName": "microsoft.migrate assessment projects web app compound assessments summary",
+    "lowerPluralDisplayName": "microsoft.migrate assessment projects web app compound assessments summaries",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/assessmentprojects/webappcompoundassessments/summaries.svg",
     "links": null
   },
   {
@@ -14539,7 +14904,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/movecollections.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.migrate/movecollections/moveresources",
@@ -14550,7 +14916,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.migrate/movecollections/moveresources.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.migrate/projects",
@@ -15397,6 +15764,17 @@
     "isPreview": false,
     "description": "Azure NetApp Files makes it easy to migrate and run complex, file-based applications with no code change. With support for multiple protocols and integrated data protection, storage management is simple, fast, and reliable.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.netapp/netappaccounts.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.netapp/netappaccounts/backuppolicies",
+    "singularDisplayName": "Backup Policy",
+    "pluralDisplayName": "Backup Policies",
+    "lowerSingularDisplayName": "backup policy",
+    "lowerPluralDisplayName": "backup policies",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.netapp/netappaccounts/backuppolicies.svg",
     "links": null
   },
   {
@@ -16934,7 +17312,7 @@
     "lowerSingularDisplayName": "microsoft.nexusidentity identity controller",
     "lowerPluralDisplayName": "microsoft.nexusidentity identity controllers",
     "isPreview": false,
-    "description": "IdentityController resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.nexusidentity/identitycontrollers.svg",
     "links": null
   },
@@ -16945,7 +17323,7 @@
     "lowerSingularDisplayName": "microsoft.nexusidentity identity set",
     "lowerPluralDisplayName": "microsoft.nexusidentity identity sets",
     "isPreview": false,
-    "description": "Identity Set resource definition",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.nexusidentity/identitysets.svg",
     "links": null
   },
@@ -17810,7 +18188,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.orbital/cloudaccessrouters.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.orbital/contactprofiles",
@@ -17888,7 +18267,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.orbital/sdwancontrollers.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.orbital/spacecrafts",
@@ -17921,7 +18301,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.orbital/terminals.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.partnermanagedconsumerrecurrence/recurrences",
@@ -18455,6 +18836,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.quantum/provideraccounts",
+    "singularDisplayName": "Microsoft.Quantum provider account",
+    "pluralDisplayName": "Microsoft.Quantum provider accounts",
+    "lowerSingularDisplayName": "microsoft.quantum provider account",
+    "lowerPluralDisplayName": "microsoft.quantum provider accounts",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.quantum/provideraccounts.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.quantum/workspaces",
     "singularDisplayName": "Quantum Workspace",
     "pluralDisplayName": "Quantum Workspaces",
@@ -18729,6 +19121,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.relationships/servicegroupmember.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.relationships/servicegrouprelationships",
+    "singularDisplayName": "Connected Resource",
+    "pluralDisplayName": "Connected Resources",
+    "lowerSingularDisplayName": "connected resource",
+    "lowerPluralDisplayName": "connected resources",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.relationships/servicegrouprelationships.svg",
     "links": null
   },
   {
@@ -19088,6 +19491,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.resources/virtualsubscriptionsforresourcepicker",
+    "singularDisplayName": "Subscription",
+    "pluralDisplayName": "Subscriptions",
+    "lowerSingularDisplayName": "subscription",
+    "lowerPluralDisplayName": "subscriptions",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.resources/virtualsubscriptionsforresourcepicker.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.saas/applications",
     "singularDisplayName": "Software as a Service (classic)",
     "pluralDisplayName": "Software as a Service (classic)",
@@ -19143,6 +19557,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.saashub/saasresources",
+    "singularDisplayName": "Microsoft.SaaSHub saas resource",
+    "pluralDisplayName": "Microsoft.SaaSHub saas resources",
+    "lowerSingularDisplayName": "microsoft.saashub saas resource",
+    "lowerPluralDisplayName": "microsoft.saashub saas resources",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.saashub/saasresources.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.salescopilot/conversationintelligencerecordingaccounts",
     "singularDisplayName": "Microsoft.SalesCopilot conversation intelligence recording account",
     "pluralDisplayName": "Microsoft.SalesCopilot conversation intelligence recording accounts",
@@ -19193,7 +19618,7 @@
     "lowerSingularDisplayName": "microsoft.scvmm availability set",
     "lowerPluralDisplayName": "microsoft.scvmm availability sets",
     "isPreview": false,
-    "description": "The AvailabilitySets resource definition.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.scvmm/availabilitysets.svg",
     "links": null
   },
@@ -19204,7 +19629,7 @@
     "lowerSingularDisplayName": "microsoft.scvmm cloud",
     "lowerPluralDisplayName": "microsoft.scvmm clouds",
     "isPreview": false,
-    "description": "The Clouds resource definition.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.scvmm/clouds.svg",
     "links": null
   },
@@ -19260,7 +19685,7 @@
     "lowerSingularDisplayName": "microsoft.scvmm virtual machine template",
     "lowerPluralDisplayName": "microsoft.scvmm virtual machine templates",
     "isPreview": false,
-    "description": "The VirtualMachineTemplates resource definition.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.scvmm/virtualmachinetemplates.svg",
     "links": null
   },
@@ -19271,7 +19696,7 @@
     "lowerSingularDisplayName": "microsoft.scvmm virtual network",
     "lowerPluralDisplayName": "microsoft.scvmm virtual networks",
     "isPreview": false,
-    "description": "The VirtualNetworks resource definition.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.scvmm/virtualnetworks.svg",
     "links": null
   },
@@ -19909,6 +20334,17 @@
     "isPreview": false,
     "description": "See and stop threats before they cause harm, with SIEM reinvented for a modern world. Microsoft Sentinel is your birds-eye view across the enterprise.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.securityinsightsarg/sentinel.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.sentinelplatformservices/sentinelplatformservices",
+    "singularDisplayName": "Microsoft.SentinelPlatformServices sentinel platform service",
+    "pluralDisplayName": "Microsoft.SentinelPlatformServices sentinel platform services",
+    "lowerSingularDisplayName": "microsoft.sentinelplatformservices sentinel platform service",
+    "lowerPluralDisplayName": "microsoft.sentinelplatformservices sentinel platform services",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.sentinelplatformservices/sentinelplatformservices.svg",
     "links": null
   },
   {
@@ -22375,12 +22811,12 @@
     "lowerSingularDisplayName": "MongoDB Atlas Organization",
     "lowerPluralDisplayName": "MongoDB Atlas Organization",
     "isPreview": false,
-    "description": "MongoDB Atlas as an Azure Native ISV Service integrates the fully-managed document database, including native vector search capabilities, directly into the Azure ecosystem. Build and scale modern AI applications with a streamlined setup of an Atlas Organization, unified billing management, and seamless access to Azure services.",
+    "description": "MongoDB Atlas integrates the fully-managed document database, including native vector search capabilities, directly into the Azure ecosystem. Build and scale modern AI applications with a streamlined setup of an Atlas Organization, unified billing management, and seamless access to Azure services.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/mongodb.atlas/organizations.svg",
     "links": [
       {
         "title": "Learn more about MongoDB Atlas",
-        "uri": "https://www.mongodb.com/lp/cloud/atlas/try4-reg"
+        "uri": "https://aka.ms/ANI/MongoDBAtlas/Docs"
       }
     ]
   },
@@ -22488,6 +22924,17 @@
     "links": null
   },
   {
+    "resourceType": "oracle.database/networkanchors",
+    "singularDisplayName": "Oracle.Database network anchor",
+    "pluralDisplayName": "Oracle.Database network anchors",
+    "lowerSingularDisplayName": "oracle.database network anchor",
+    "lowerPluralDisplayName": "oracle.database network anchors",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/networkanchors.svg",
+    "links": null
+  },
+  {
     "resourceType": "oracle.database/oraclesubscriptions",
     "singularDisplayName": "OracleSubscription",
     "pluralDisplayName": "OracleSubscriptions",
@@ -22496,6 +22943,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/oraclesubscriptions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "oracle.database/resourceanchors",
+    "singularDisplayName": "Oracle.Database resource anchor",
+    "pluralDisplayName": "Oracle.Database resource anchors",
+    "lowerSingularDisplayName": "oracle.database resource anchor",
+    "lowerPluralDisplayName": "oracle.database resource anchors",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/resourceanchors.svg",
     "links": null
   },
   {
