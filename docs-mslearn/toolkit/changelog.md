@@ -88,6 +88,16 @@ _Released April 2025_
 
 ### [Open data](open-data.md) v0.10
 
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "100000000 /Day" unit of measure.
+
+**[Regions](open-data.md#regions)**
+
+- **Added**
+  - Added the "ussgovarizona" region.
+
 **[Resource types](open-data.md#resource-types)**
 
 - **Added**
@@ -118,28 +128,6 @@ _Released April 2025_
     - microsoft.kubernetes/connectedclusters
     - microsoft.liftrpilot/organizations
     - mongodb.atlas/organizations
-
------------------------------------------------------------------------------------------------
-**[Pricing units](open-data.md#pricing-units)**
-
-- **Added**
-  - Added the "1K/Day" unit of measure.
-
-**[Regions](open-data.md#regions)**
-
-- **Added**
-  - Added the "southcentralus2" region.
-- **Fixed**
-  - Changed a **Central Canada** reference to **Canada Central**.
-    - This may have caused issues or duplication when joined with other datasets.
-    - Please check your data for duplicate references to **Central Canada** and **Canada Central**.
-
-**[Services](open-data.md#services)**
-
-- **Added**
-  - Mapped the "microsoft.cognitiveservices/commitmentplans" resource type to Azure AI Services service.
-  - Mapped the "microsoft.deviceregistry/billingcontainers" resource type to Azure IoT Hub service.
------------------------------------------------------------------------------------------------
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
