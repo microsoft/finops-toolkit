@@ -95,6 +95,28 @@ _Released April 2025_
 
 <br>
 
+## v0.10
+
+_Released April 2025_
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
+
+- **Fixed**
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Fix x_EffectiveUnitPrice when it's calculated and there is a rounding error compared to x_BilledUnitPrice or ContractedUnitPrice.
+    - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
+    - Set ListCost based on ContractedCost or ListUnitPrice when not specified.
+    - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
+    - Corrected x_EffectiveUnitPrice when it's calculated and has a rounding error.
+    - Add new x_SourceChanges checks for "MissingConsumedQuantity", "MissingPricingQuantity", and "XEffectiveUnitPriceRoundingError".
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+
+<br>
+
 ## v0.9 Update 1
 
 _Released April 7, 2025_
@@ -124,7 +146,7 @@ _Released April 4, 2025_
   - Added support for MCA reservation recommendation exports.
   - Added support for multiple reservation recommendation exports to support shared and single recommendations for all services and lookback periods.
   - Managed exports now create price, reservation detail, reservation transaction, and VM reservation recommendation exports.
-  - Address new data quality issues with ingested data:
+  - Address new data quality issues with data ingested into Data Explorer:
     - Change `BillingAccountId` to be lowercase in both the cost and price datasets.
     - Change `CommitmentDiscountId` to be lowercase in the cost dataset.
     - Handle `x_BillingProfileId` case-sensitivity for the cost/price join (without changing data).
