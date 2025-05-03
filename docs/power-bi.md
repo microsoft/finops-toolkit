@@ -123,7 +123,7 @@ Create a new or update an existing FinOps hub instance.
     <div class="ftk-step">
         <button class="ftk-accordion">3️⃣&nbsp; Download the reports</button>
         <div>
-            <p>Download KQL reports for FinOps hubs with Data Explorer or download storage reports to connect to data in a storage account (with or without FinOps hubs).<br></p>
+            <p>Use KQL reports for FinOps hubs with Data Explorer or Microsoft Fabric; otherwise, use storage reports.<br></p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip">Download for KQL</a>
                 <a class="btn mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip">Download for storage</a>
@@ -136,6 +136,19 @@ Create a new or update an existing FinOps hub instance.
             <p>Connect reports to your storage account or Data Explorer cluster and publish to the Power BI service to share with your stakeholders.<br></p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup">Connect to your data</a>
+            </p>
+        </div>
+    </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">🙋‍♀️&nbsp; Help + support</button>
+        <div>
+            <p>
+                If you run into any issues, retrace your steps to ensure all steps were followed correctly and completely. Most issues are caused by missed or incomplete steps. If you are receiving an error, check for mitigation steps; otherwise, use the troubleshooting guide to identify and resolve common issues.
+            </p>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors">Review errors</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting">Start troubleshooting</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" target="_blank" href="https://aka.ms/ftk/discuss">Ask a question</a>
             </p>
         </div>
     </div>

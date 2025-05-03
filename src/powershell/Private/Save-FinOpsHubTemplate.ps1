@@ -70,7 +70,7 @@ function Save-FinOpsHubTemplate
             Write-Information $LocalizedData.Hub_Deploy_02to021
             $Version = '0.3'
         }
-        
+ 
         # Get the version
         if ($Version.ToLower() -eq 'latest')
         {
@@ -86,7 +86,7 @@ function Save-FinOpsHubTemplate
         {
             Write-Verbose -Message ($script:LocalizedData.HubTemplate_Save_FoundAsset -f $asset.Name)
             $saveFilePath = Join-Path -Path $Destination -ChildPath $asset.Name
-            
+
             if (Test-Path -Path $saveFilePath)
             {
                 Remove-Item -Path $saveFilePath -Recurse -Force

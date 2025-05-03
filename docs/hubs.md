@@ -33,7 +33,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 <div class="ftk-gallery">
     <div class="ftk-tile">
         <div>📥 Ingest FinOps data</div>
-        <div>Automate data ingestion into Azure Data Explorer to facilitate big data analytics at scale.</div>
+        <div>Automate data ingestion into Azure Data Explorer or Microsoft Fabric to facilitate big data analytics at scale.</div>
     </div>
     <div class="ftk-tile">
         <div>📊 Standardized reporting</div>
@@ -70,10 +70,10 @@ Create a new or update an existing FinOps hub instance.
 
 <div class="ftk-instructions">
     <div class="ftk-step">
-        <button class="ftk-accordion">1️⃣&nbsp; Register EventGrid</button>
+        <button class="ftk-accordion">1️⃣&nbsp; Register resource providers</button>
         <div>
             <p>
-                Register the <b>Microsoft.EventGrid</b> resource provider for your subscription.
+                Register the <b>Microsoft.CostManagementExports</b> and <b>Microsoft.EventGrid</b> resource providers for your subscription.
             </p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2">Go to subscriptions</a>
@@ -119,7 +119,19 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">3️⃣&nbsp; Deploy the template</button>
+        <button class="ftk-accordion">3️⃣&nbsp; Optional: Configurate Microsoft Fabric</button>
+        <div>
+            <p>
+                If connecting FinOps hubs to Microsoft Fabric, you will need to set up Real-Time Intelligence (RTI) before deploying the template and configure access after deploying the template.
+            </p>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy#optional-set-up-microsoft-fabric">Configure RTI (before deployment)</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy#optional-configure-fabric-access">Grant access (after deployment)</a>
+            </p>
+        </div>
+    </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">4️⃣&nbsp; Deploy the template</button>
         <div>
             <p>
                 FinOps hubs works best with the <strong>Owner</strong> role. See template details for least-privilege roles.
@@ -133,7 +145,7 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">4️⃣&nbsp; Configure scopes to monitor</button>
+        <button class="ftk-accordion">5️⃣&nbsp; Configure scopes to monitor</button>
         <div>
             <p>
                 Configure exports manually or grant access to your hub to manage exports for you.
@@ -149,6 +161,19 @@ Create a new or update an existing FinOps hub instance.
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-dashboards">Set up ADX dashboard</a>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup#set-up-your-first-report">Set up Power BI</a>
+            </p>
+        </div>
+    </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">🙋‍♀️&nbsp; Help + support</button>
+        <div>
+            <p>
+                If you run into any issues, retrace your steps to ensure all steps were followed correctly and completely. Most issues are caused by missed or incomplete steps. If you are receiving an error, check for mitigation steps; otherwise, use the troubleshooting guide to identify and resolve common issues.
+            </p>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors">Review errors</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting">Start troubleshooting</a>
+                <a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" target="_blank" href="https://aka.ms/ftk/discuss">Ask a question</a>
             </p>
         </div>
     </div>

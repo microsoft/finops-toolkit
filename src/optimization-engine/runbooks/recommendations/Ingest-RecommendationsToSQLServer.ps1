@@ -44,12 +44,12 @@ if (-not($StorageBlobsPageSize -gt 0))
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -85,25 +85,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$SqlServerIngestControlTable] WHERE StorageContainerName = '$storageAccountSinkContainer' and SqlTableName = '$recommendationsTable'"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -116,12 +116,12 @@ if ($controlRows.Count -eq 0)
     throw "Could not find a control row for $storageAccountSinkContainer container and $recommendationsTable table."
 }
 
-$controlRow = $controlRows[0]    
+$controlRow = $controlRows[0]
 $lastProcessedLine = $controlRow.LastProcessedLine
 $lastProcessedDateTime = $controlRow.LastProcessedDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 Write-Output "Processing blobs modified after $lastProcessedDateTime (line $lastProcessedLine) and ingesting them into the Recommendations SQL table..."
 
@@ -159,7 +159,7 @@ foreach ($blob in $unprocessedBlobs) {
     }
     else
     {
-        $recCount = $jsonObject.Count    
+        $recCount = $jsonObject.Count
     }
 
     $linesProcessed = 0
@@ -175,9 +175,9 @@ foreach ($blob in $unprocessedBlobs) {
     {
         $jsonObjectArray = @()
         $jsonObjectArray += $jsonObject
-        $jsonObjectSplitted += , $jsonObjectArray   
+        $jsonObjectSplitted += , $jsonObjectArray
     }
-    
+
     for ($j = 0; $j -lt $jsonObjectSplitted.Count; $j++)
     {
         if ($jsonObjectSplitted[$j])
@@ -192,11 +192,11 @@ foreach ($blob in $unprocessedBlobs) {
                 for ($i = 0; $i -lt $jsonObjectSplitted[$j].Count; $i++)
                 {
                     $jsonObjectSplitted[$j][$i].RecommendationDescription = $jsonObjectSplitted[$j][$i].RecommendationDescription.Replace("'", "")
-                    $jsonObjectSplitted[$j][$i].RecommendationAction = $jsonObjectSplitted[$j][$i].RecommendationAction.Replace("'", "")            
+                    $jsonObjectSplitted[$j][$i].RecommendationAction = $jsonObjectSplitted[$j][$i].RecommendationAction.Replace("'", "")
                     if ($null -ne $jsonObjectSplitted[$j][$i].InstanceName)
                     {
                         $jsonObjectSplitted[$j][$i].InstanceName = $jsonObjectSplitted[$j][$i].InstanceName.Replace("'", "")
-                    }            
+                    }
                     $additionalInfoString = $jsonObjectSplitted[$j][$i].AdditionalInfo | ConvertTo-Json -Compress
                     $tagsString = $jsonObjectSplitted[$j][$i].Tags | ConvertTo-Json -Compress
                     $subscriptionGuid = "NULL"
@@ -230,10 +230,10 @@ foreach ($blob in $unprocessedBlobs) {
                 }
 
                 $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-                $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+                $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
                 $Conn2.AccessToken = $dbToken.Token
-                $Conn2.Open() 
-        
+                $Conn2.Open()
+
                 $Cmd=new-object system.Data.SqlClient.SqlCommand
                 $Cmd.Connection = $Conn2
                 $Cmd.CommandText = $sqlStatement
@@ -247,18 +247,18 @@ foreach ($blob in $unprocessedBlobs) {
                     Write-Output "Failed statement: $sqlStatement"
                     throw
                 }
-        
-                $Conn2.Close()                
-            
+
+                $Conn2.Close()
+
                 $linesProcessed += $currentObjectLines
                 Write-Output "Processed $linesProcessed lines..."
                 if ($j -eq ($jsonObjectSplitted.Count - 1)) {
-                    $lastProcessedLine = -1    
+                    $lastProcessedLine = -1
                 }
                 else {
-                    $lastProcessedLine = $linesProcessed - 1   
+                    $lastProcessedLine = $linesProcessed - 1
                 }
-            
+
                 $updatedLastProcessedLine = $lastProcessedLine
                 $updatedLastProcessedDateTime = $lastProcessedDateTime
                 if ($j -eq ($jsonObjectSplitted.Count - 1)) {
@@ -268,20 +268,20 @@ foreach ($blob in $unprocessedBlobs) {
                 Write-Output "Updating last processed time / line to $($updatedLastProcessedDateTime) / $updatedLastProcessedLine"
                 $sqlStatement = "UPDATE [$SqlServerIngestControlTable] SET LastProcessedLine = $updatedLastProcessedLine, LastProcessedDateTime = '$updatedLastProcessedDateTime' WHERE StorageContainerName = '$storageAccountSinkContainer'"
                 $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-                $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+                $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
                 $Conn.AccessToken = $dbToken.Token
-                $Conn.Open() 
+                $Conn.Open()
                 $Cmd=new-object system.Data.SqlClient.SqlCommand
                 $Cmd.Connection = $Conn
                 $Cmd.CommandText = $sqlStatement
-                $Cmd.CommandTimeout = $SqlTimeout 
+                $Cmd.CommandTimeout = $SqlTimeout
                 $Cmd.ExecuteReader()
                 $Conn.Close()
             }
             else
             {
-                $linesProcessed += $currentObjectLines  
-            }        
+                $linesProcessed += $currentObjectLines
+            }
         }
     }
 

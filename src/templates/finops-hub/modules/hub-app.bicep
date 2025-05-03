@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { getAppTags, getPublisherTags, HubAppConfig, HubAppFeature, HubCoreConfig, newAppConfig } from 'hub-types.bicep'
+
+
 //==============================================================================
 // Parameters
 //==============================================================================
 
-@description('Required. Name of the FinOps hub instance.')
-param hubName string
+// @description('Required. Name of the FinOps hub instance.')
+// param hubName string
 
 // @description('Required. Minimum version number supported by the FinOps hub app.')
 // param hubMinVersion string
@@ -29,6 +32,9 @@ param displayName string
 @description('Optional. Version number of the FinOps hub app.')
 param appVersion string = ''
 
+@description('Optional. Indicate which features the app requires. Allowed values: "Storage". Default: [] (none).')
+param features HubAppFeature[] = []
+
 @description('Optional. Custom string with additional metadata to log. Must an alphanumeric string without spaces or special characters except for underscores and dashes. Namespace + appName + telemetryString must be 50 characters or less - additional characters will be trimmed.')
 param telemetryString string = ''
 
@@ -36,29 +42,38 @@ param telemetryString string = ''
 param enableDefaultTelemetry bool = true
 
 //------------------------------------------------------------------------------
-// Variables
+// Temporary parameters that should be removed in the future
 //------------------------------------------------------------------------------
 
-var hubResourceId = '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${hubName}'
-// var publisherResourceId = '${hubResourceId}/publishers/${namespace}'
-// var appResourceId = '${publisherResourceId}/apps/${appName}'
+// TODO: Pull deployment config from the cloud
+@description('Required. FinOps hub coreConfig.')
+param coreConfig HubCoreConfig
 
-// var publisherUniqueId = uniqueString(publisherResourceId)
-// var appUniqueId = uniqueString(appResourceId)
 
-// cSpell:ignore hubapp
-var appNamespace = '${namespace}.${appName}'
-var telemetryId = 'ftk-hubapp-${appNamespace}${empty(telemetryString) ? '' : '_'}${telemetryString}'
+//==============================================================================
+// Variables
+//==============================================================================
 
-// cSpell:ignore ftkver
-// Add cm-resource-parent to group resources in Cost Management
-var finOpsToolkitVersion = loadTextContent('ftkver.txt')
-var tags = {
-  'cm-resource-parent': hubResourceId
-  'ftk-tool': 'FinOps hubs'
-  'ftk-version': finOpsToolkitVersion
-  'ftk-hubapp': appNamespace
-  'ftk-hubapp-version': appVersion
+var appConfig = newAppConfig(coreConfig, publisher, namespace, appName, displayName, appVersion)
+
+// Features
+var usesStorage = contains(features, 'Storage')
+
+// App telemetry
+var telemetryId = 'ftk-hubapp-${appConfig.app.name}${empty(telemetryString) ? '' : '_'}${telemetryString}'  // cSpell:ignore hubapp
+var telemetryProps = {
+  mode: 'Incremental'
+  template: {
+    '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+    contentVersion: '1.0.0.0'
+    metadata: {
+      _generator: {
+        name: 'FTK: ${publisher} - ${displayName} ${telemetryId}'
+        version: appVersion
+      }
+    }
+    resources: []
+  }
 }
 
 
@@ -77,29 +92,125 @@ var tags = {
 
 resource appTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: length(telemetryId) <= 64 ? telemetryId : substring(telemetryId, 0, 64)
-  tags: tags
+  tags: getAppTags(appConfig, 'Microsoft.Resources/deployments', true)
+  properties: telemetryProps
+}
+
+//------------------------------------------------------------------------------
+// TODO: Get hub details
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Storage account
+//------------------------------------------------------------------------------
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (usesStorage) {
+  name: appConfig.publisher.storage
+  location: coreConfig.hub.location
+  sku: {
+    name: coreConfig.storage.sku
+  }
+  kind: 'BlockBlobStorage'
+  tags: getPublisherTags(appConfig, 'Microsoft.Storage/storageAccounts')
+  properties: union(!coreConfig.storage.isInfrastructureEncrypted ? {} : {
+    encryption: {
+      keySource: 'Microsoft.Storage'
+      requireInfrastructureEncryption: coreConfig.storage.isInfrastructureEncrypted
+    }
+  }, {
+    supportsHttpsTrafficOnly: true
+    allowSharedKeyAccess: true
+    isHnsEnabled: true
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: coreConfig.network.isPrivate ? 'Deny' : 'Allow'
+    }
+  })
+}
+
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (coreConfig.network.isPrivate) {
+  name: 'privatelink.blob.${environment().suffixes.storage}'  // cSpell:ignore privatelink
+}
+
+resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (coreConfig.network.isPrivate) {
+  name: '${storageAccount.name}-blob-ep'
+  location: coreConfig.hub.location
+  tags: getPublisherTags(appConfig, 'Microsoft.Network/privateEndpoints')
   properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-      contentVersion: '1.0.0.0'
-      metadata: {
-        _generator: {
-          name: 'FTK: ${publisher} - ${displayName}'
-          version: appVersion
+    subnet: {
+      id: coreConfig.network.subnets.storage
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'blobLink'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: ['blob']
         }
       }
-      resources: []
+    ]
+  }
+
+  resource blobPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
+    name: 'storage-endpoint-zone'
+    properties: {
+      privateDnsZoneConfigs: [
+        {
+          name: blobPrivateDnsZone.name
+          properties: {
+            privateDnsZoneId: blobPrivateDnsZone.id
+          }
+        }
+      ]
     }
   }
 }
+
+resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (coreConfig.network.isPrivate) {
+  name: 'privatelink.dfs.${environment().suffixes.storage}'  // cSpell:ignore privatelink
+}
+
+resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (coreConfig.network.isPrivate) {
+  name: '${storageAccount.name}-dfs-ep'
+  location: coreConfig.hub.location
+  tags: getPublisherTags(appConfig, 'Microsoft.Network/privateEndpoints')
+  properties: {
+    subnet: {
+      id: coreConfig.network.subnets.storage
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'dfsLink'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: ['dfs']
+        }
+      }
+    ]
+  }
+
+  resource dfsPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
+    name: 'dfs-endpoint-zone'
+    properties: {
+      privateDnsZoneConfigs: [
+        {
+          name: dfsPrivateDnsZone.name
+          properties: {
+            privateDnsZoneId: dfsPrivateDnsZone.id
+          }
+        }
+      ]
+    }
+  }
+}
+
 
 //==============================================================================
 // Outputs
 //==============================================================================
 
-@description('Resource ID of the deployed FinOps hub instance.')
-output hubId string = hubResourceId
-
-@description('Resource ID of the deployed FinOps hub instance.')
-output appNamespace string = '${appNamespace}'
+@description('FinOps hub app configuration.')
+output config HubAppConfig = appConfig
