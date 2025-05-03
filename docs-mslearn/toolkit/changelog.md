@@ -100,6 +100,49 @@ _Released April 2025_
 - **Changed**
   - Updated the [Start-FinOpsCostExport](powershell/cost/Start-FinOpsCostExport.md) examples to include the `-Scope` parameter ([#1495](https://github.com/microsoft/finops-toolkit/issues/1495)).
 
+### [Open data](open-data.md) v0.10
+
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "100000000 /Day" unit of measure.
+
+**[Regions](open-data.md#regions)**
+
+- **Added**
+  - Added the "ussgovarizona" region.
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 7 Microsoft.ApplicationMigration resource types.
+  - Added 20 Microsoft.Migrate resource types.
+  - Added the following resource types:
+    - microsoft.azurecis/azcopies
+    - microsoft.billingbenefits/credits
+    - microsoft.billingbenefits/discounts
+    - microsoft.containerservice/managedclusters/namespaces
+    - microsoft.netapp/netappaccounts/backuppolicies
+    - microsoft.quantum/provideraccounts
+    - microsoft.relationships/servicegrouprelationships
+    - microsoft.resources/virtualsubscriptionsforresourcepicker
+    - microsoft.saashub/saasresources
+    - microsoft.sentinelplatformservices/sentinelplatformservices
+    - oracle.database/networkanchors
+    - oracle.database/resourceanchors
+  **Changed**
+  - Updated the following resource types:
+    - dell.storage/filesystems
+    - lambdatest.hyperexecute/organizations
+    - microsoft.billingbenefits/maccs
+    - microsoft.cache/redisenterprise
+    - microsoft.codesigning/codesigningaccounts
+    - microsoft.fileshares/fileshares
+    - microsoft.hardwaresecuritymodules/cloudhsmclusters
+    - microsoft.kubernetes/connectedclusters
+    - microsoft.liftrpilot/organizations
+    - mongodb.atlas/organizations
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
 > [!div class="nextstepaction"]
