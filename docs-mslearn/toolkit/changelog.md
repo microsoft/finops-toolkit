@@ -69,11 +69,15 @@ _Released April 2025_
 - **Changed**
   - Updated documentation to clarify the ADLS storage requirement.
 - **Fixed**
-  - Fixed the duplicate resource ID error in the Resources query ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
   - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
   - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
   - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
   - Updated Resource Graph queries to support handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
+  - Fixed reservation recommendation query for raw MCA exports ([#1530](https://github.com/microsoft/finops-toolkit/issues/1530)).
+  - Fixed a parsing issue with the HubScopes query ([#1521](https://github.com/microsoft/finops-toolkit/issues/1521)).
+  - Added a "Remove Duplicate Resource IDs" parameter to work around a bug in Azure Resource Graph ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
+    - This parameter is not recommended as it may return incorrect or incomplete data.
+    - If you receive this error, please file a support request against the Azure Resource Graph team to resolve the bug creating duplicate rows.
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
 

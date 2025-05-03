@@ -109,6 +109,15 @@ expression 'Default Granularity' = "Monthly" meta [IsParameterQuery=true, List={
 
 	annotation PBI_ResultType = Text
 
+/// Indicates whether we should remove duplicate resource IDs reported from Azure Resource Graph (ARG). This may lead to incorrect or incomplete data. Please file a support request with the ARG team to resolve the issue.
+expression 'Remove Duplicate Resource IDs' = false meta [IsParameterQuery=true, Type="Logical", IsParameterQueryRequired=true]
+	lineageTag: 21c1f5db-4c49-473c-b655-62830be5c8e6
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
+
 expression PolicyDefinitions =
 		let
 		  query = "
