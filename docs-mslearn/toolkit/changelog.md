@@ -42,8 +42,9 @@ _Released April 2025_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
 
 - **Added**
-  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
   - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
+  - Added support for Azure Gov and Azure China.
+  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
   - Created a new bicep modules to support extensibility:
     - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
@@ -51,6 +52,14 @@ _Released April 2025_
     - The **hub-database** module runs KQL scripts in the Data Explorer database.
     - The **hub-vault** module adds secrets to the hub vault.
   - Workaround subnets reordering and bicep limitation.
+- **Fixed**
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Fix x_EffectiveUnitPrice when it's calculated and there is a rounding error compared to x_BilledUnitPrice or ContractedUnitPrice.
+    - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
+    - Set ListCost based on ContractedCost or ListUnitPrice when not specified.
+    - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
+    - Corrected x_EffectiveUnitPrice when it's calculated and has a rounding error.
+    - Add new x_SourceChanges checks for "MissingConsumedQuantity", "MissingPricingQuantity", and "XEffectiveUnitPriceRoundingError".
 
 ### [Power BI reports](power-bi/reports.md) v0.10
 
@@ -86,28 +95,6 @@ _Released April 2025_
   - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
 - **Changed**
   - Updated the [Start-FinOpsCostExport](powershell/cost/Start-FinOpsCostExport.md) examples to include the `-Scope` parameter ([#1495](https://github.com/microsoft/finops-toolkit/issues/1495)).
-
-> [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
-> [!div class="nextstepaction"]
-> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
-
-<br>
-
-## v0.10
-
-_Released April 2025_
-
-### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
-
-- **Fixed**
-  - Address new data quality issues with data ingested into Data Explorer:
-    - Fix x_EffectiveUnitPrice when it's calculated and there is a rounding error compared to x_BilledUnitPrice or ContractedUnitPrice.
-    - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
-    - Set ListCost based on ContractedCost or ListUnitPrice when not specified.
-    - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
-    - Corrected x_EffectiveUnitPrice when it's calculated and has a rounding error.
-    - Add new x_SourceChanges checks for "MissingConsumedQuantity", "MissingPricingQuantity", and "XEffectiveUnitPriceRoundingError".
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)

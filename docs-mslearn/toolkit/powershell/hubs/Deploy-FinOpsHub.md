@@ -75,7 +75,7 @@ Deploy-FinOpsHub `
     -Version 0.1.1
 ```
 
-Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version 0.1.1 of the template. This version is required in order to deploy to Azure Gov or Azure China as of February 2024 since FOCUS exports aren't available from Cost Management in those environments. If the resource group doesn't exist, it gets created. If the hub already exists, it gets updated to version 0.1.1.
+Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version 0.1.1 of the template. This version is required for Microsoft Online Services Agreement (MOSA) subscriptions since FOCUS exports aren't available from Cost Management. If the resource group doesn't exist, it gets created. If the hub already exists, it gets updated to version 0.1.1.
 
 <br>
 

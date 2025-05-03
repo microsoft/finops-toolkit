@@ -83,7 +83,7 @@ Create a new or update an existing FinOps hub instance.
                     <div>Total spend</div>
                     <div>
                         <p>
-                            To monitor over $100,000 in spend, use <strong>FinOps hubs with Data Explorer</strong>. Storage reports will experience delays when loading data beyond $1-2 million.
+                            To monitor over $100,000 in spend, use <strong>FinOps hubs with Data Explorer</strong>. Storage reports may experience performance issues.
                         </p>
                     </div>
                 </div>
@@ -91,15 +91,7 @@ Create a new or update an existing FinOps hub instance.
                     <div>Multiple scopes</div>
                     <div>
                         <p>
-                            If you have multiple accounts, subscriptions, or tenants, use <strong>FinOps hubs</strong>. Centralize all your data and push data from secondary tenants for consolidated reporting.
-                        </p>
-                    </div>
-                </div>
-                <div class="ftk-tile">
-                    <div>Azure Gov or China</div>
-                    <div>
-                        <p>
-                            If you need to use Azure Gov or Azure China, use <strong>FinOps hubs 0.1.1</strong>. Newer releases leverage Cost Management features that are not available yet.
+                            If you have multiple accounts, subscriptions, or tenants, use <strong>FinOps hubs</strong>. Centralize data across accounts and teannts for consolidated reporting.
                         </p>
                     </div>
                 </div>
@@ -107,7 +99,7 @@ Create a new or update an existing FinOps hub instance.
                     <div>All other cases</div>
                     <div>
                         <p>
-                            For all other cases, use storage reports (with or without FinOps hubs). Export FOCUS cost to a storage account you already have or use FinOps hubs to manage exports for you.
+                            Use storage reports for other cases. Export FOCUS cost to a storage account you already have or use FinOps hubs to manage exports for you.
                         </p>
                     </div>
                 </div>
