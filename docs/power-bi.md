@@ -20,9 +20,9 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 FinOps toolkit Power BI reports provide a great starting point for FinOps reporting. Customize and augment reports with your own data to facilitate organizational requirements.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
+    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
     <p>
-        In March, Power BI reports added the reservation break-even point for recommendations, improved accuracy of Azure Hybrid Benefit data, and applied many small fixes and improvements across all reports.
+        In April, Power BI reports added support for Azure Gov and Azure China, and applied many small fixes and improvements across reports.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

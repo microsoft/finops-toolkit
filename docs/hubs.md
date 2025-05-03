@@ -20,9 +20,9 @@ Open, extensible, and scalable cost governance for the enterprise.
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
+    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
     <p>
-        In March, FinOps hubs saw a revamp of reservation recommendations, expansion of managed exports to cover all Cost Management datasets, and many small fixes and improvements.
+        In April, FinOps hubs added support for Microsoft Fabric, Azure Gov, and Azure China, and also introduced a series of data quality improvements on top of native cost details.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
