@@ -45,13 +45,12 @@ _Released April 2025_
   - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
   - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
   - Created a new bicep modules to support extensibility:
-    - The **hub-app** module tracks telemetry when an app is deployed.
+    - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
     - The **hub-database** module runs KQL scripts in the Data Explorer database.
     - The **hub-vault** module adds secrets to the hub vault.
-- **Fixed**
-  - Workaround subnets reordering and bicep limitation
+  - Workaround subnets reordering and bicep limitation.
 
 ### [Power BI reports](power-bi/reports.md) v0.10
 
