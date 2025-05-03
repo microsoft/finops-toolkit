@@ -86,6 +86,61 @@ _Released April 2025_
 - **Added**
   - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
 
+### [Open data](open-data.md) v0.10
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 7 Microsoft.ApplicationMigration resource types.
+  - Added 20 Microsoft.Migrate resource types.
+  - Added the following resource types:
+    - microsoft.azurecis/azcopies
+    - microsoft.billingbenefits/credits
+    - microsoft.billingbenefits/discounts
+    - microsoft.containerservice/managedclusters/namespaces
+    - microsoft.netapp/netappaccounts/backuppolicies
+    - microsoft.quantum/provideraccounts
+    - microsoft.relationships/servicegrouprelationships
+    - microsoft.resources/virtualsubscriptionsforresourcepicker
+    - microsoft.saashub/saasresources
+    - microsoft.sentinelplatformservices/sentinelplatformservices
+    - oracle.database/networkanchors
+    - oracle.database/resourceanchors
+  **Changed**
+  - Updated the following resource types:
+    - dell.storage/filesystems
+    - lambdatest.hyperexecute/organizations
+    - microsoft.billingbenefits/maccs
+    - microsoft.cache/redisenterprise
+    - microsoft.codesigning/codesigningaccounts
+    - microsoft.fileshares/fileshares
+    - microsoft.hardwaresecuritymodules/cloudhsmclusters
+    - microsoft.kubernetes/connectedclusters
+    - microsoft.liftrpilot/organizations
+    - mongodb.atlas/organizations
+
+-----------------------------------------------------------------------------------------------
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "1K/Day" unit of measure.
+
+**[Regions](open-data.md#regions)**
+
+- **Added**
+  - Added the "southcentralus2" region.
+- **Fixed**
+  - Changed a **Central Canada** reference to **Canada Central**.
+    - This may have caused issues or duplication when joined with other datasets.
+    - Please check your data for duplicate references to **Central Canada** and **Canada Central**.
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the "microsoft.cognitiveservices/commitmentplans" resource type to Azure AI Services service.
+  - Mapped the "microsoft.deviceregistry/billingcontainers" resource type to Azure IoT Hub service.
+-----------------------------------------------------------------------------------------------
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
 > [!div class="nextstepaction"]
