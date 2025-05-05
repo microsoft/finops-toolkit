@@ -30,6 +30,22 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
+## v0.11
+
+_Released June 2, 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+
+- **Added**
+  - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+
+<br>
+
 ## v0.10
 
 _Released May 4, 2025_
