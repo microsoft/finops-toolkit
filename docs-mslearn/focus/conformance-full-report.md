@@ -700,7 +700,7 @@ The rest of this document lists the FOCUS requirements grouped by attribute and 
 | SvN0   | Description | An offering that can be purchased from a provider (for example, cloud virtual machine, SaaS database, professional services from a systems integrator). | Supports |       |
 | SvN1   | MUST        | The ServiceName column MUST be present in the cost data.                                                                                                | Supports |       |
 | SvN2.1 | MUST        | \[ServiceName\] MUST be of type String...                                                                                                               | Supports |       |
-| SvN2.2 | MUST        | \[ServiceName\]... MUST NOT contain null values.                                                                                                        | Supports |       |
+| SvN2.2 | MUST        | \[ServiceName\]... MUST NOT contain null values.                                                                                                        | Partially supports | ServiceName may be empty for some purchases and adjustments. |
 
 ### SKU ID
 
