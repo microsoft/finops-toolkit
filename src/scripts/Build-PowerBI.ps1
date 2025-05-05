@@ -166,6 +166,9 @@ $reports | ForEach-Object {
         }
     }
     $modelJson.model.tables = $modelJson.model.tables | Where-Object { $metadata.Tables -contains $_.name -or $metadata.Tables -contains "[$reportType]$($_.name)" }
+    $modelJson.model.relationships `
+    | Where-Object { -not (($metadata.Tables -contains $_.fromTable -or $metadata.Tables -contains "[$reportType]$($_.fromTable)") -and ($metadata.Tables -contains $_.toTable -or $metadata.Tables -contains "[$reportType]$($_.toTable)")) } `
+    | ForEach-Object { Write-Verbose "  Removing relationship: $($_.fromTable) -> $($_.toTable)" }
     $modelJson.model.relationships = @($modelJson.model.relationships | Where-Object { ($metadata.Tables -contains $_.fromTable -or $metadata.Tables -contains "[$reportType]$($_.fromTable)") -and ($metadata.Tables -contains $_.toTable -or $metadata.Tables -contains "[$reportType]$($_.toTable)") })
     $modelJson.model.expressions = $modelJson.model.expressions | Where-Object { $metadata.Expressions -contains $_.name -or $metadata.Expressions -contains "[$reportType]$($_.name)" }
     $modelJson.model.annotations = $modelJson.model.annotations `
