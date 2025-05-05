@@ -267,7 +267,9 @@ elseif ($ZipPBI)
 
         # Remove docProps from Content_Types
         $contentTypes = [xml](Get-Content "$pbixDir/?Content_Types?.xml" -Raw)
-        $contentTypes.Types.RemoveChild(($contentTypes.Types.Override | Where-Object { $_.PartName -eq '/docProps/custom.xml' })) | Out-Null
+        $contentTypes.Types.Override | Where-Object {
+            $_.PartName -eq '/docProps/custom.xml' } | ForEach-Object { $contentTypes.Types.RemoveChild($_) | Out-Null
+        }
         $contentTypes.Save("$pbixDir/[Content_Types].xml") | Out-Null
 
         # Remove unneeded tables
