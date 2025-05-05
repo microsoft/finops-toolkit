@@ -836,7 +836,7 @@ Costs_transform_v1_0()
     )
     | extend ConsumedQuantity = case(
         isnotempty(ConsumedQuantity) and ConsumedQuantity != 0, ConsumedQuantity,
-        ChargeCategory == 'Usage', PricingQuantity / coalesce(x_PricingBlockSize, 1),
+        ChargeCategory == 'Usage', PricingQuantity / coalesce(x_PricingBlockSize, decimal(1)),
         ConsumedQuantity
     )
     //
