@@ -27,7 +27,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-powerbi
 #>
-Param(
+param(
     [Parameter(Position = 0)]
     [string]
     $Name = "*",
@@ -36,25 +36,33 @@ Param(
     $KQL,
 
     [switch]
-    $Storage,
-
-    [switch]
-    $Demo
+    $Storage
 )
 
 $srcDir = "$PSScriptRoot/../power-bi"
-$relDir = "$PSScriptRoot/../../release/pbit"
+$relDir = "$PSScriptRoot/../../release"
+$pbipDir = "$relDir/pbip"
+$pbitDir = "$relDir/pbit"
 
 $version = & "$PSScriptRoot/Get-Version"
 
+if (-not $KQL -and -not $Storage) { $KQL = $Storage = $true }
+
 # Cleanup
 Write-Verbose "Removing existing ZIP files..."
-Remove-Item "$relDir/../*.zip" -Force -ErrorAction SilentlyContinue
-Remove-Item "$relDir/*.pbit" -Force -ErrorAction SilentlyContinue
+if ($KQL)
+{ 
+    Remove-Item "$pbitDir/../PowerBI-kql.zip" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$pbitDir/*.kql.pbit" -Force -ErrorAction SilentlyContinue
+}
+if ($Storage)
+{ 
+    Remove-Item "$pbitDir/../PowerBI-storage.zip" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$pbitDir/*.storage.pbit" -Force -ErrorAction SilentlyContinue
+}
 
 # Select report types
 $types = @()
-if (-not $KQL -and -not $Storage) { $KQL = $Storage = $true }
 if ($KQL) { $types += "*$Name*.kql.pbip" } # cSpell:ignore PBIP
 if ($Storage) { $types += "*$Name*.storage.pbip" }
 
@@ -130,13 +138,13 @@ $reports | ForEach-Object {
         }
         WorkloadOptimization = @{
             Intro       = "The Workload optimization report provides insights into resource utilization and efficiency opportunities based on historical usage patterns. Use this report to determine if resources can be scaled down or even shutdown during off-peak hours to minimize wasteful usage and spending. Also consider cheaper alternatives when available and ensure all workloads have some direct or indirect link to business value to avoid unnecessary usage and costs that don't contribute to the mission."
-            Tables      = @("AdvisorRecommendations", "Costs", "Disks", "Prices", "PricingUnits", "Resources", "Subscriptions", "VirtualMachines")
+            Tables      = @("AdvisorRecommendations", "Costs", "Disks", "Prices", "PricingUnits", "Resources", "Subscriptions")
             Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DemoFilter", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
         }
     }[$reportName]
 
     # Create folder structure
-    $targetFile = "$relDir/$($inputFile.Name.Replace('.pbip', ''))"
+    $targetFile = "$pbitDir/$($inputFile.Name.Replace('.pbip', ''))"
     Remove-Item $targetFile -Recurse -Force -ErrorAction SilentlyContinue
     & "$PSScriptRoot/New-Directory.ps1" $targetFile
     & "$PSScriptRoot/New-Directory.ps1" "$targetFile/Report"
@@ -238,24 +246,10 @@ $reports | ForEach-Object {
     # Create PBIT file
     Compress-Archive -Path "$targetFile/*" -DestinationPath "$targetFile.pbit"
 
-    # If KQL, switch to import mode and package as demo
-    # $modelJson.model.tables = $modelJson.model.tables `
-    # | ForEach-Object {
-    #     $tbl = $_
-    #     if ($tbl.partitions[0].mode -eq 'directQuery')
-    #     {
-    #         $tbl.partitions[0].mode = 'import'
-    #     }
-    #     $tbl
-    # }
-    # Write-UTF16LE -File "$targetFile/DataModelSchema" -Content ($modelJson | ConvertTo-Json -Depth 100)
-    # Compress-Archive -Path "$targetFile/*" -DestinationPath "$($targetFile.Replace('kql', 'demo')).pbit"
-
     Remove-Item $targetFile -Recurse -Force
 }
 
 # Zip files
-Remove-Item "$relDir/../PowerBI-*.zip" -Recurse -Force -ErrorAction SilentlyContinue
 $genAllReports = $Name -eq '*'
-if ($KQL -and $genAllReports) { Compress-Archive -Path "$relDir/*.kql.pbit" -DestinationPath "$relDir/../PowerBI-kql.zip" }
-if ($Storage -and $genAllReports) { Compress-Archive -Path "$relDir/*.storage.pbit" -DestinationPath "$relDir/../PowerBI-storage.zip" }
+if ($KQL -and $genAllReports) { Compress-Archive -Path "$pbitDir/*.kql.pbit" -DestinationPath "$pbitDir/../PowerBI-kql.zip" }
+if ($Storage -and $genAllReports) { Compress-Archive -Path "$pbitDir/*.storage.pbit" -DestinationPath "$pbitDir/../PowerBI-storage.zip" }

@@ -266,7 +266,7 @@ module coreNetwork 'core-network.bicep' = {
 module appRegistration 'hub-app.bicep' = {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
   params: {
-    hubName: hubName
+    // hubName: hubName
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
