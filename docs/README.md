@@ -198,6 +198,9 @@ Whether you're looking for a little assistance or are interested in contributing
       <td align="center" valign="top" width="16.66%"><a href="http://blog.eula.no"><img src="https://avatars.githubusercontent.com/u/7443949?v=4?s=100" width="100px;" alt="Eskil Uhlving Larsen"/><br /><sub><b>Eskil Uhlving Larsen</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=picccard" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/robbdi"><img src="https://avatars.githubusercontent.com/u/16977341?v=4?s=100" width="100px;" alt="Robb Dilallo"/><br /><sub><b>Robb Dilallo</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=robbdi" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/timja"><img src="https://avatars.githubusercontent.com/u/21194782?v=4?s=100" width="100px;" alt="Tim Jacomb"/><br /><sub><b>Tim Jacomb</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=timja" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
