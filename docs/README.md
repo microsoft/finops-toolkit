@@ -17,9 +17,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
+    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
     <p>
-        March introduces a new FinOps alerts tool for getting notified about optimization opportunities, FinOps hubs expanded coverage of managed exports, Power BI added the reservation break-even point and performance improvements, and many additional small fixes and improvements across the board.
+        April introduces FinOps hubs support for Microsoft Fabric; support for Azure Gov and Azure China in FinOps hubs and Power BI reports; FinOps Framework 2025 updates; and, many additional small fixes, improvements, and documentation updates across the board.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

@@ -32,7 +32,7 @@ The following section lists features and enhancements that are currently in deve
 
 ## v0.10
 
-_Released April 2025_
+_Released May 4, 2025_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v0.10
 
