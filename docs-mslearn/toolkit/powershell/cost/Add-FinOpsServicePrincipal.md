@@ -16,7 +16,7 @@ ms.reviewer: brettwil
 
 The **Add-FinOpsServicePrincipal** command grants the specified service principal or managed identity access to an Enterprise Agreement billing account or department.  
 
-For more information about granting roles to service principals, see [Assign Enterprise Agreement roles to service principals](https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/assign-roles-azure-service-principals). For more information about the permissions associated with each role, see [Usage and costs access by role](https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/understand-ea-roles#usage-and-costs-access-by-role).
+For more information about granting roles to service principals, see [Assign Enterprise Agreement roles to service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals). For more information about the permissions associated with each role, see [Usage and costs access by role](/azure/cost-management-billing/manage/understand-ea-roles#usage-and-costs-access-by-role).
 
 <br>
 

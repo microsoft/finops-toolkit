@@ -97,7 +97,7 @@ _Released April 2025_
 ### [PowerShell module](powershell/powershell-commands.md) v0.10
 
 - **Added**
-  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
+  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/cost/Add-FinOpsServicePrincipal.md).
 - **Changed**
   - Updated the [Start-FinOpsCostExport](powershell/cost/Start-FinOpsCostExport.md) examples to include the `-Scope` parameter ([#1495](https://github.com/microsoft/finops-toolkit/issues/1495)).
 

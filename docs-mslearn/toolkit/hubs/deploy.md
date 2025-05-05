@@ -70,6 +70,8 @@ Initialize-FinOpsHubDeployment
 
 To learn more about this command, see [Initialize-FinOpsHubDeployment](../powershell/hubs/Initialize-FinOpsHubDeployment.md)
 
+---
+
 <br>
 
 ## Plan your network architecture
@@ -131,10 +133,10 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
    - If connecting to Microsoft Fabric, select the same region you use for Fabric capacity. You can find this in your workspace settings > **License info** > **License capacity**.
 4. Specify a hub name used for core resources and reporting purposes.
    - All resources have a common **cm-resource-parent** tag to group them together under the hub in Cost Management.
-5. Specify a unique Azure Data Explorer cluster name.
+5. Specify a unique Azure Data Explorer cluster name or the Microsoft Fabric eventhouse Query URI.
    - This will be used to query data and connect to reports, dashboards, and other tools.
-   - If deploying to Microsoft Fabric, use your Fabric eventhouse query URI.
-   - Data Explorer is optional, but recommended if monitoring more than $100,000 in total spend.
+   - If deploying to Microsoft Fabric, use your Fabric eventhouse query URI and leave the Data Explorer cluster name empty.
+   - Data Explorer and Fabric are optional, but recommended if monitoring more than $100,000 in total spend.
    - Warning: Power BI may experience timeouts and data refresh issues if relying on storage for more than $1 million in spend. If you experience issues, please redeploy with Data Explorer or Microsoft Fabric.
 6. Select the **Next** button at the bottom of the form.
 7. If desired, you can change the storage redundancy or Data Explorer SKU.
@@ -307,14 +309,15 @@ New-FinOpsCostExport `
     -Backfill 13 # or desired number of months
 ```
 
-For additional parameters, see [New-FinOpsCostExport](../powershell/hubs/New-FinOpsCostExport.md).
+For additional parameters, see [New-FinOpsCostExport](../powershell/cost/New-FinOpsCostExport.md).
 
-<!-- markdownlint-disable-next-line -->
-### [Managed exports](#tab/managed-exports)
+---
+
+### Managed exports
 
 Managed exports allow FinOps hubs to set up and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor. For detailed instructions, see [Configure managed exports](configure-scopes.md#configure-managed-exports).
 
----
+### Ingest from other data sources
 
 To ingest data from other data providers that support FOCUS, such as Amazon Web Services (AWS), Google Cloud Platform (GCP), Oracle Cloud Infrastructure (OCI), and Tencent:
 
@@ -332,8 +335,6 @@ To ingest data from other data providers that support FOCUS, such as Amazon Web 
 4. If there are any additional columns not covered in the current ingestion process, update the **Costs_raw** and **Costs_final_v1_0** tables, and **Costs_transform_v1_0**, **Costs_v1_0**, and **Costs** functions accordingly.
    - Submit a [feature request](https://aka.ms/ftk/ideas) to add new columns to the default ingestion code to ensure customizations do not block future upgrades.
 
----
-
 <br>
 
 ## Optional: Populate historical data
@@ -343,7 +344,7 @@ FinOps hubs does not automatically backfill data. To populate historical data, y
 For Microsoft Cost Management, this includes:
 
 <!-- markdownlint-disable-next-line -->
-### [Azure portal](#tab/azure-portal)<!-- markdownlint-disable-next-line -->
+### [Azure portal](#tab/azure-portal)
 
 1. From the Azure portal, open [Cost Management](https://aka.ms/costmgmt).
 2. Select the desired scope from the scope picker towards the top of the page.
@@ -372,7 +373,9 @@ Start-FinOpsCostExport `
     -Backfill 13 # or desired number of months
 ```
 
-For additional parameters, see [Start-FinOpsCostExport](../powershell/hubs/Start-FinOpsCostExport.md).
+For additional parameters, see [Start-FinOpsCostExport](../powershell/cost/Start-FinOpsCostExport.md).
+
+---
 
 <br>
 
@@ -388,6 +391,8 @@ If you chose to configure FinOps hubs with Data Explorer, but are still interest
 5. Set the name to `Ingestion` and type to **New shortcut database (follower)**, then select **Next**.
 6. Set the cluster URI to the FinOps hub cluster URI and database to `Ingestion`, then select **Create**.
 7. Repeat steps 4-6 for the `Hub` database.
+
+<br>
 
 ## Configure reports and dashboards
 
@@ -443,6 +448,8 @@ For more details, see [Configure Data Explorer dashboards](configure-dashboards.
 For more details, see [Set up Power BI reports](../power-bi/setup.md).
 
 To preview reports without connecting to your data, download the [Power BI demo](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip).
+
+---
 
 <br>
 
