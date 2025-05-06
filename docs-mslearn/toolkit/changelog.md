@@ -40,9 +40,9 @@ _Released June 2, 2025_
   - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
 
 > [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
 > [!div class="nextstepaction"]
-> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.10...v0.11)
 
 <br>
 
