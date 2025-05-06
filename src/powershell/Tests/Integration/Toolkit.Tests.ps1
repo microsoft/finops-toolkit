@@ -6,8 +6,8 @@
 Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
-        $plannedRelease = '0.10'
-        $expected = @('0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+        $plannedRelease = '0.11'
+        $expected = @('0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
 
         # Act
         $result = Get-FinOpsToolkitVersion
@@ -35,13 +35,15 @@ Describe 'Get-FinOpsToolkitVersion' {
                 $verStr | Should -BeIn (@($plannedRelease) + $expected) -Because "version '$verStr' should be added to the verification test"
 
                 # Templates
-                CheckFile "finops-alerts-v$verStr.zip"          '0.9' $null
-                CheckFile "finops-hub-dashboard.json"           '0.8' $null
-                CheckFile "finops-hub-v$verStr.zip"             $null $null
-                CheckFile "finops-workbooks-v$verStr.zip"       '0.6' $null
-                CheckFile "governance-workbook-v$verStr.zip"    '0.1' '0.5'
-                CheckFile "optimization-engine-v$verStr.zip"    '0.4' $null
-                CheckFile "optimization-workbook-v$verStr.zip"  $null '0.5'
+                CheckFile "finops-alerts-v$verStr.zip"            '0.9'  $null
+                CheckFile "finops-hub-dashboard.json"             '0.8'  $null
+                CheckFile "finops-hub-fabric-setup-Hub.kql"       '0.10' $null
+                CheckFile "finops-hub-fabric-setup-Ingestion.kql" '0.10' $null
+                CheckFile "finops-hub-v$verStr.zip"               $null  $null
+                CheckFile "finops-workbooks-v$verStr.zip"         '0.6'  $null
+                CheckFile "governance-workbook-v$verStr.zip"      '0.1'  '0.5'
+                CheckFile "optimization-engine-v$verStr.zip"      '0.4'  $null
+                CheckFile "optimization-workbook-v$verStr.zip"    $null  '0.5'
 
                 # Power BI
                 CheckFile "PowerBI-demo.zip"                    '0.7' $null
