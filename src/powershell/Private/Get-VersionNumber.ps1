@@ -4,5 +4,5 @@
 function Get-VersionNumber
 {
     param()
-    return '0.10'
+    return '0.11-dev'
 }
