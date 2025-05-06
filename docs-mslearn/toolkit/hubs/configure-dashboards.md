@@ -25,7 +25,7 @@ This walkthrough does not incur any cost; however, maintaining an active Data Ex
 - [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
 - Database viewer or greater access to the Data Explorer **Hub** and **Ingestion** databases. [Learn more](/kusto/management/manage-database-security-roles#database-level-security-roles).
-- Optional: Member or Contributor access to a Microsoft Fabric eventhouse with shortcuts to the FinOps hub **Hub** and **Ingestion** databases. [Learn more](deploy.md#optional-connect-to-microsoft-fabric).
+- Optional: Member or Contributor access to a Microsoft Fabric eventhouse with FinOps hub **Hub** and **Ingestion** databases. [Learn more](deploy.md#optional-set-up-microsoft-fabric).
 
 <br>
 
@@ -54,7 +54,7 @@ This walkthrough does not incur any cost; however, maintaining an active Data Ex
    4. Select the **Connect** button and then select the **Hub** database.
    5. Select **Apply** and then **Close**.
 
-Note that Data Explorer dashboards are only accessible to the person who creates them by default. Access to the data is controlled at the database level, so access to a dashboard does not grant access to the underlying data. Be sure to share access to the dashboard and the **Hub** and **Ingestion** databases in order for people to see the functional dashboard. For details, see [Share the dashboard](#share-the-dashbaord).
+Note that Data Explorer dashboards are only accessible to the person who creates them by default. Access to the data is controlled at the database level, so access to a dashboard does not grant access to the underlying data. Be sure to share access to the dashboard and the **Hub** and **Ingestion** databases in order for people to see the functional dashboard.
 
 <!-- markdownlint-disable-next-line -->
 ### [Fabric](#tab/fabric)
@@ -112,16 +112,7 @@ Dashboards query data in the **Ingestion** database using functions in the **Hub
 
 If using a Fabric real-time dashboard with the dashboard editor's identity, you can skip this step.
 
-### [Fabric](#tab/fabric)
-
-Microsoft Fabric manages access at a workspace level. To grant access at a database level, use KQL.
-
-1. Open the workspace in Microsoft Fabric.
-2. Select **Manage access** in the top-right corner of the page.
-3. Select **+ Add people or groups**.
-4. Specify the desired name or email address and select **Add**.
-
-### [Azure portal](#tab/azure-portal)
+### [Data Explorer](#tab/data-explorer)
 
 1. Open the Data Explorer cluster in the Azure portal.
 2. In the menu, select **Data** > **Databases**.
@@ -131,17 +122,24 @@ Microsoft Fabric manages access at a workspace level. To grant access at a datab
 6. Select the desired users, groups, and applications, then select the **Select** button.
 7. Repeat steps 3-6 for the **Ingestion** database.
 
-### [KQL](#tab/kql)
+### [Fabric](#tab/fabric)
 
-The following KQL can be run from the cluster's **Query** page in the Azure portal, from the [Data Explorer portal](https://dataexplorer.azure.com), or from a Microsoft Fabric queryset or PySpark notebook.
+Microsoft Fabric manages access at a workspace level. To grant access at a database level, use KQL.
+
+1. Open the workspace in Microsoft Fabric.
+2. Select **Manage access** in the top-right corner of the page.
+3. Select **+ Add people or groups**.
+4. Specify the desired name or email address and select **Add**.
+
+---
+
+In addition to configuring access in the respective portal, you can also configure access at a database level via KQL commands. The following KQL can be run from the cluster's **Query** page in the Azure portal, from the [Data Explorer portal](https://dataexplorer.azure.com), or from a Microsoft Fabric queryset or PySpark notebook.
 
 ```kusto
 .add database Hub viewers ('aaduser=<email>', 'aadGroup=<group-id>', 'aadapp=<app-id>;<tenant-id-or-domain>')
 
 .add database Ingestion viewers ('aaduser=<email>', 'aadGroup=<group-id>', 'aadapp=<app-id>;<tenant-id-or-domain>')
 ```
-
----
 
 For additional details, see [Database level security role](/kusto/management/manage-database-security-roles#database-level-security-roles).
 
@@ -162,7 +160,7 @@ You may also consider using [Azure workbooks](/azure/azure-monitor/visualize/wor
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.9/bladeName/Hubs/featureName/ConfigureScopes)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.10/bladeName/Hubs/featureName/ConfigureScopes)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
