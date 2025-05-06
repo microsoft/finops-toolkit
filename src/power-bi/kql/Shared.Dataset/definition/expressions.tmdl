@@ -142,3 +142,12 @@ expression PolicyDefinitions =
 
 	annotation PBI_ResultType = Table
 
+/// Indicates whether we should remove duplicate resource IDs reported from Azure Resource Graph (ARG). This may lead to incorrect or incomplete data. Please file a support request with the ARG team to resolve the issue.
+expression 'Remove Duplicate Resource IDs' = false meta [IsParameterQuery=true, List={false, true}, DefaultValue=false, Type="Logical", IsParameterQueryRequired=true]
+	lineageTag: 8874e3dd-ace8-4145-bc74-acb63aa36684
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
+
