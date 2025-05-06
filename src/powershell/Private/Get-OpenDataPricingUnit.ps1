@@ -63,7 +63,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Hourly Unit'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Units/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Hourly Units'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Units/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Hours'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Hours'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = '1 IOPS/Month'; AccountTypes = 'MCA'; PricingBlockSize = 1; DistinctUnits = 'IOPS/Month'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '1 IOPS/Month'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'IOPS/Month'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Key'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Keys'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 Key Use'; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Keys'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 MB'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'MB'; }
@@ -294,6 +294,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '10000000 Transactions'; AccountTypes = 'EA'; PricingBlockSize = 10000000; DistinctUnits = 'Transactions'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000 '; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '100000000 /Day'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units/Day'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000 /Month'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units/Month'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000 Events'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Events'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100000000 Operation Units'; AccountTypes = 'EA'; PricingBlockSize = 100000000; DistinctUnits = 'Units'; }
