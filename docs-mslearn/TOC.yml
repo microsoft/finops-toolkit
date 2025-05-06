@@ -132,6 +132,8 @@
       items:
         - name: Overview
           href: toolkit/hubs/finops-hubs-overview.md
+        - name: Create or upgrade hubs
+          href: toolkit/hubs/deploy.md
         - name: Configure private networking
           href: toolkit/hubs/private-networking.md
         - name: Configure scopes
@@ -220,6 +222,8 @@
           items:
             - name: Cost Management commands
               href: toolkit/powershell/cost/cost-management-commands.md
+            - name: Add-FinOpsServicePrincipal
+              href: toolkit/powershell/cost/add-finopsserviceprincipal.md
             - name: Get-FinOpsCostExport
               href: toolkit/powershell/cost/get-finopscostexport.md
             - name: New-FinOpsCostExport

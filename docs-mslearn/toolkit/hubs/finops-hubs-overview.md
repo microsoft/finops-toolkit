@@ -49,14 +49,23 @@ FinOps hubs streamline implementing the FinOps Framework. They're being designed
 
 ## Benefits
 
-FinOps hubs provide many benefits over using Cost Management exports.
+FinOps hubs provide many benefits over using Cost Management exports:
 
 - Report on cost and usage across multiple accounts and subscriptions in separate tenants.
-- Run advanced analytical queries and report on year over year cost trends in seconds.
-- Direct support for Microsoft Fabric via Real-Time Intelligence (RTI).
 - Report on negotiated and commitment discount savings for EA billing accounts and MCA billing profiles.
+- Run advanced analytical queries and report on year over year cost trends in seconds.
+- Ingest data into Microsoft Fabric Real-Time Intelligence (RTI) or Azure Data Explorer (ADX).
+- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../focus/what-is-focus.md).
+- Expanded support for more clouds, accounts, and scopes:
+  - Billing and subscription scopes
+  - Azure Government
+  - Azure China
+  - Microsoft Online Services Agreement (MOSA) subscriptions¹
 - Extensible via Data Factory, Data Explorer, Fabric, and Power BI capabilities to integrate business or other providers cost data.
 - Backwards compatibility as future dataset versions add new or change existing columns.
+- Convert exported data to parquet for faster data access.
+
+_¹ MOSA (or pay-as-you-go) subscriptions are only supported in FinOps hubs 0.1.1. FinOps hubs 0.2+ requires FOCUS cost data from Cost Management exports, which aren't supported for MOSA subscriptions. Contact support about transitioning to a Microsoft Customer Agreement account._
 
 <br>
 
@@ -182,7 +191,7 @@ For for information, see [Cost Management documentation](/azure/cost-management-
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.9/bladeName/Hubs/featureName/Overview)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.10/bladeName/Hubs/featureName/Overview)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

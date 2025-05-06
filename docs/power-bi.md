@@ -20,9 +20,9 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 FinOps toolkit Power BI reports provide a great starting point for FinOps reporting. Customize and augment reports with your own data to facilitate organizational requirements.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
+    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
     <p>
-        In March, Power BI reports added the reservation break-even point for recommendations, improved accuracy of Azure Hybrid Benefit data, and applied many small fixes and improvements across all reports.
+        In April, Power BI reports added support for Azure Gov and Azure China, and applied many small fixes and improvements across reports.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -83,7 +83,7 @@ Create a new or update an existing FinOps hub instance.
                     <div>Total spend</div>
                     <div>
                         <p>
-                            To monitor over $100,000 in spend, use <strong>FinOps hubs with Data Explorer</strong>. Storage reports will experience delays when loading data beyond $1-2 million.
+                            To monitor over $100,000 in spend, use <strong>FinOps hubs with Data Explorer</strong>. Storage reports may experience performance issues.
                         </p>
                     </div>
                 </div>
@@ -91,15 +91,7 @@ Create a new or update an existing FinOps hub instance.
                     <div>Multiple scopes</div>
                     <div>
                         <p>
-                            If you have multiple accounts, subscriptions, or tenants, use <strong>FinOps hubs</strong>. Centralize all your data and push data from secondary tenants for consolidated reporting.
-                        </p>
-                    </div>
-                </div>
-                <div class="ftk-tile">
-                    <div>Azure Gov or China</div>
-                    <div>
-                        <p>
-                            If you need to use Azure Gov or Azure China, use <strong>FinOps hubs 0.1.1</strong>. Newer releases leverage Cost Management features that are not available yet.
+                            If you have multiple accounts, subscriptions, or tenants, use <strong>FinOps hubs</strong>. Centralize data across accounts and teannts for consolidated reporting.
                         </p>
                     </div>
                 </div>
@@ -107,7 +99,7 @@ Create a new or update an existing FinOps hub instance.
                     <div>All other cases</div>
                     <div>
                         <p>
-                            For all other cases, use storage reports (with or without FinOps hubs). Export FOCUS cost to a storage account you already have or use FinOps hubs to manage exports for you.
+                            Use storage reports for other cases. Export FOCUS cost to a storage account you already have or use FinOps hubs to manage exports for you.
                         </p>
                     </div>
                 </div>
