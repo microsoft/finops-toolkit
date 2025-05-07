@@ -34,6 +34,12 @@ The following section lists features and enhancements that are currently in deve
 
 _Released June 2, 2025_
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.11
+
+- **Changed**
+  - Redesigned the [FinOps hubs upgrade guide](hubs/upgrade.md) to be easier to follow.
+  - Updated the [compatibility guide](hubs/compatibility.md) for 0.9-11.
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
 > [!div class="nextstepaction"]
