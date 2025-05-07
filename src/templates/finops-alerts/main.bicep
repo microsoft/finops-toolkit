@@ -32,9 +32,30 @@ param logicAppSubscriptionId string = ''
 @description('The name of the resource group.')
 param resourceGroupName string = ''
 
+@sys.description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
+param enableDefaultTelemetry bool = true
+
 //==============================================================================
 // Resources
 //==============================================================================
+
+resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
+  name: 'pid-00f120b5-2007-6120-0000-a7e122500000-${uniqueString(deployment().name, location)}'
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      metadata: {
+        _generator: {
+          name: 'FinOps toolkit'
+          version: loadTextContent('modules/ftkver.txt')  // cSpell:ignore ftkver
+        }
+      }
+      resources: []
+    }
+  }
+}
 
 module logicApp 'modules/logicApp.bicep' = {
   name: 'logicApp-${uniqueString(deployment().name,location,appName)}'
@@ -47,5 +68,3 @@ module logicApp 'modules/logicApp.bicep' = {
     recurrenceType: recurrenceType
   }
 }
-
-
