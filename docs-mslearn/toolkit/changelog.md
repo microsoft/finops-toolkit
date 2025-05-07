@@ -39,6 +39,13 @@ _Released June 2, 2025_
 - **Added**
   - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
 
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
+
+- **Added**
+  - Added telemetry to the FinOps alerts template to track usage and bugs.
+    - Telemetry is not personally identifiable and only used to improve the template.
+    - Disable telemetry by setting the **enableDefaultTelemetry** parameter to **false**.
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
 > [!div class="nextstepaction"]
