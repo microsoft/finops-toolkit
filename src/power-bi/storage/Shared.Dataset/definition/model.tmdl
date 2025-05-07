@@ -28,9 +28,9 @@ queryGroup 'Open data'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.141.1177.0 (25.03)+c500dc5720dc9271c2dcfef1230911a0da742ee3
+annotation PBIDesktopVersion = 2.143.403.0 (25.05)+98b007a6419223060d4fee8c6e55a7efc9090b04
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","Default Granularity","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","Costs","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","Prices","Experimental: Add Missing Prices","Deprecated: Perform Extra Query Optimizations","HubScopes","HubSettings","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","ReservationDetails","ReservationTransactions"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","Default Granularity","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","Costs","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","Prices","Experimental: Add Missing Prices","Deprecated: Perform Extra Query Optimizations","HubScopes","HubSettings","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","ReservationDetails","ReservationTransactions","Remove Duplicate Resource IDs"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -55,7 +55,6 @@ ref table PublicIPAddresses
 ref table AdvisorReservationRecommendations
 ref table NetworkSecurityGroups
 ref table PolicyAssignments
-ref table PolicyDefinitions
 ref table PolicyStates
 ref table SqlDatabases
 ref table 'Compliance calculation'

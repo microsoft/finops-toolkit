@@ -3,11 +3,11 @@ title: Manage the FinOps practice
 description: Learn about the FinOps capabilities that help you establish your FinOps practice and drive organizational accountability.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -57,15 +57,15 @@ To learn more, see [Onboarding workloads](./onboarding.md).
 
 <br>
 
-## Cloud policy and governance
+## Policy and governance
 
-Cloud policy and governance refer to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
+Policy and governance refer to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts. With this capability, you identify and implement policies to support organizational goals by promoting or limiting the use of:
 
 - Specific SKUs
 - Resource configurations
 - Other practices that might affect cost, usage, and carbon growth
 
-To learn more, see [Cloud policy and governance](./governance.md).
+To learn more, see [Policy and governance](./governance.md).
 
 <br>
 
@@ -106,7 +106,7 @@ To learn more, see [Intersecting frameworks](./intersecting-disciplines.md).
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Guide.Framework/featureName/Capabilities.Manage)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Guide.Framework/featureName/Capabilities.Manage)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
@@ -119,9 +119,9 @@ If you're looking for something specific, vote for an existing or create a new i
 
 Related FinOps capabilities:
 
-- [Understand cloud usage and cost](../understand/understand-cloud-usage-cost.md)
+- [Understand usage and cost](../understand/understand-cloud-usage-cost.md)
 - [Quantify business value](../quantify/quantify-business-value.md)
-- [Optimize cloud usage and cost](../optimize/optimize-cloud-usage-cost.md)
+- [Optimize usage and cost](../optimize/optimize-cloud-usage-cost.md)
 
 Related products:
 

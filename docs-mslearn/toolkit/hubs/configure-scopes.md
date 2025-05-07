@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/29/2025
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -71,7 +71,6 @@ For the most seamless experience, we recommend [allowing FinOps hubs to manage e
 If you can't grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
 
 1. Determine the scope for your data export.
-
    - We recommend exporting from either an **EA billing account** or **MCA billing profile** scope to access additional datasets, including price sheets and reservation recommendations.
    - Price sheet exports are required to populate missing prices and costs.
    - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
@@ -79,9 +78,7 @@ If you can't grant permissions for your scope, you can create Cost Management ex
       - Enterprise Agreement billing account: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
       - Microsoft Customer Agreement billing profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
       - Subscription: FocusCosts
-
-1. [Create a new FOCUS cost export](/azure/cost-management-billing/costs/tutorial-export-acm-data) using the following settings:
-
+2. [Create a new FOCUS cost export](/azure/cost-management-billing/costs/tutorial-export-acm-data) using the following settings:
    - **Type of data** = `Cost and usage details (FOCUS)`¹
    - **Dataset version** = `1.0` or `1.0r2`²
    - **Frequency** = `Daily export of month-to-date costs`³
@@ -96,8 +93,8 @@ If you can't grant permissions for your scope, you can create Cost Management ex
      - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
    - **File partitioning** = On
    - **Overwrite data** = Off⁴
-2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
-3. Create exports for any other data you would like to include in your reports.
+3. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
+4. Create exports for any other data you would like to include in your reports.
    - Supported datasets and versions:
      - Price sheet `2023-05-01`
        - Required to populate missing prices/costs and calculate savings when using Azure Data Explorer.
@@ -107,12 +104,12 @@ If you can't grant permissions for your scope, you can create Cost Management ex
      - Reservation transactions `2023-05-01`
    - Supported formats: Parquet (preferred) or CSV
    - Supported compression: Snappy (preferred), GZip, or uncompressed
-4. To initialize the dataset, run your exports.
+5. To initialize the dataset, run your exports.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how large your account is.
    - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
-5. Repeat steps 1-4 for each scope you want to monitor.
+6. Repeat steps 1-4 for each scope you want to monitor.
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
 
@@ -285,7 +282,7 @@ If it's the first time you're using the FinOps toolkit PowerShell module, refer 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.9/bladeName/Hubs/featureName/ConfigureScopes)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.10/bladeName/Hubs/featureName/ConfigureScopes)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

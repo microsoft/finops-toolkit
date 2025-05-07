@@ -27,6 +27,8 @@
 #>
 function Invoke-Rest
 {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSAvoidUsingEmptyCatchBlock", "", Justification="Used for logging only")]
+    [OutputType([System.Collections.Hashtable])]
     [CmdletBinding()]
     param
     (
@@ -34,15 +36,15 @@ function Invoke-Rest
         [ValidateSet("GET", "POST", "PUT", "PATCH", "DELETE")]
         [string]
         $Method,
-        
+
         [Parameter(Mandatory = $true, Position = 1)]
         [string]
         $Uri,
-        
+
         [Parameter()]
         [PSCustomObject]
         $Body,
-        
+
         [Parameter(Mandatory = $true)]
         [string]
         $CommandName,
@@ -93,7 +95,7 @@ function Invoke-Rest
     {
         $params.Body = $Body | ConvertTo-Json -Depth 100
     }
-    
+
     Write-Verbose "Invoking $Method $fullUri with request body $Body`n"
 
     try
@@ -131,5 +133,3 @@ function Invoke-Rest
         Content    = $content
     }
 }
-
-

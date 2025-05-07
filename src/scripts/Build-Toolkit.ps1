@@ -21,7 +21,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-toolkit
 #>
-Param(
+param(
     [Parameter(Position = 0)][string]$Template = "*",
     [switch]$Major,
     [switch]$Minor,
@@ -114,6 +114,40 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
         if (Test-Path "$destDir/$file")
         {
             Remove-Item "$destDir/$file" -Recurse -Force
+        }
+    }
+
+    # TODO: Create a way to define file consolidation via config (or maybe a custom build script in the folder)
+    if ($templateName -eq "finops-hubs")
+    {
+        @(
+            @{
+                Database = "Ingestion"
+                Scripts  = @(
+                    "OpenDataFunctions_resource_type_1.kql",
+                    "OpenDataFunctions_resource_type_2.kql",
+                    "OpenDataFunctions_resource_type_3.kql",
+                    "OpenDataFunctions_resource_type_4.kql",
+                    "OpenDataFunctions.kql",
+                    "Common.kql",
+                    "IngestionSetup.kql"
+                )
+            }
+            @{
+                Database = "Hub"
+                Scripts  = @(
+                    "Common.kql",
+                    "HubSetup.kql"
+                )
+            }
+        ) | ForEach-Object {
+            $combinedScript = ".execute database script with (ContinueOnErrors=true)`n<|`n//`n"
+            $_.Scripts | ForEach-Object {
+                $combinedScript += Get-Content "$srcDir/modules/scripts/$_" -Raw
+            }
+            $combinedScript = $combinedScript -replace '(\r?\n)(\r?\n)+', '$1//$1'
+            $combinedScript | Out-File $destDir/../finops-hub-fabric-setup-$($_.Database).kql -Encoding utf8 -Force
+            Write-Verbose "  Created finops-hub-fabric-setup-$($_.Database).kql"
         }
     }
 

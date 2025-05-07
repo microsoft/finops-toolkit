@@ -18,10 +18,10 @@
     Optional. Indicates whether to copy templates and open data files. Default = false.
 
     .PARAMETER OpenPBI
-    Optional. Indicates that Power BI projects should be opened as part of the packaging process. Default = false.
+    Optional. Indicates that Power BI storage projects should be opened so they can be manually saved as *.storage.pbix files. Default = false.
 
     .PARAMETER ZipPBI
-    Optional. Indicates that prepared PBIX files should be packaged into release files. Default = false.
+    Optional. Indicates that demo PBIX files should be packaged into PowerBI-demo.zip. Default = false.
 
     .PARAMETER Preview
     Optional. Indicates that the template(s) should be saved as a preview only. Does not package other files. Default = false.
@@ -39,7 +39,12 @@
     .EXAMPLE
     ./Package-Toolkit -CopyFiles -Build -OpenPBI
 
-    Builds the latest code, generates ZIP files for each template, and opens Power BI projects to be saved as PBIX files.
+    Builds the latest code, generates ZIP files for each template, and opens Power BI projects to be saved as demo PBIX files.
+
+    .EXAMPLE
+    ./Package-Toolkit -ZipPBI
+
+    Generates the PowerBI-demo.zip file. Must be run after -OpenPBI.
 #>
 param(
     [Parameter(Position = 0)][string]$Template = "*",
@@ -58,7 +63,7 @@ if ($Build)
 {
     Write-Verbose "Building $(if ($Template -eq "*") { "all templates" } else { "the $Template template" })..."
     & "$PSScriptRoot/Build-Toolkit" $Template
-    
+
     if (@("*", "pbi", "pbit") -contains $Template)
     {
         Write-Verbose "Building Power BI templates..."
@@ -124,7 +129,7 @@ function Copy-TemplateFiles()
                 # Create release directory
                 $targetDir = "$deployDir/$templateName/$suffix"
                 & "$PSScriptRoot/New-Directory" $targetDir
-                
+
                 # Copy files and directories
                 $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$srcPath/$($_.source)" "$targetDir/$($_.destination)" -Force }
                 $packageManifest.deployment.Directories | ForEach-Object {
@@ -189,10 +194,10 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
         # Copy open data files
         Copy-OpenDataFiles
         Write-Host "✅ $((@(Get-ChildItem "$relDir/*.csv") + @(Get-ChildItem "$relDir/*.json")).Count) open data files"
-    
+
         # Package sample data files together
         Copy-OpenDataFolders
-    
+
         # Copy PBIX files
         Write-Verbose "Copying PBIX files..."
         Copy-Item "$PSScriptRoot/../power-bi/cm-connector/*.pbix" "$relDir" -Force
@@ -214,10 +219,11 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
     }
 }
 
+# Open or zip Power BI storage reports to generate PowerBI-demo.zip
 $pbip = Get-ChildItem -Path "$PSScriptRoot/../power-bi/storage" -Include "*.pbip" -Recurse
 if (-not ($OpenPBI -or $ZipPBI))
 {
-    Write-Host "⚠️ $($pbip.Count) Power BI projects must be converted manually!"
+    Write-Host "⚠️ $($pbip.Count) Power BI projects must be manually saved as *.storage.pbix!"
     Write-Host '     To open them, run: ' -NoNewline
     Write-Host './Package-Toolkit -OpenPBI' -ForegroundColor Cyan
 }
@@ -231,7 +237,7 @@ elseif ($OpenPBI)
     # Open Power BI projects
     Write-Host "ℹ️ $($pbip.Count) Power BI projects must be saved as PBIX first... Opening..."
     $pbip | Invoke-Item
-    Write-Host '     Save as PBIX then run: ' -NoNewline
+    Write-Host '     Save as *.storage.pbix then run: ' -NoNewline
     Write-Host './Package-Toolkit -ZipPBI' -ForegroundColor Cyan
 }
 elseif ($ZipPBI)
@@ -241,12 +247,12 @@ elseif ($ZipPBI)
     # TODO: Confirm all files are ready
     if ($pbip.Count -ne $pbixFiles.Count)
     {
-        Write-Host "⚠️ Found $($pbip.Count) Power BI projects but $($pbixFiles.Count) PBIX files. Please confirm all projects are saved as PBIX files first."
+        Write-Host "⚠️ Found $($pbip.Count) Power BI projects but $($pbixFiles.Count) *.storage.pbix files. Please confirm all projects are saved as PBIX files first."
         return
     }
 
     # Clean PBIX files
-    Write-Verbose "Processing $($pbixFiles.Count) files..."
+    Write-Verbose "Processing $($pbixFiles.Count) *.storage.pbix files..."
     $pbixFiles | ForEach-Object {
         # Expand PBIX files for cleanup
         $pbix = $_
@@ -254,16 +260,18 @@ elseif ($ZipPBI)
         Write-Verbose "Expanding $pbixDir..."
         Remove-Item -Path $pbixDir -Recurse -Force -ErrorAction SilentlyContinue
         Expand-Archive -Path $pbix -DestinationPath $pbixDir
-        
+
         # Remove _rels, docProps
         Remove-Item -Path "$pbixDir/_rels" -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item -Path "$pbixDir/docProps" -Recurse -Force -ErrorAction SilentlyContinue
-        
+
         # Remove docProps from Content_Types
         $contentTypes = [xml](Get-Content "$pbixDir/?Content_Types?.xml" -Raw)
-        $contentTypes.Types.RemoveChild(($contentTypes.Types.Override | Where-Object { $_.PartName -eq '/docProps/custom.xml' })) | Out-Null
+        $contentTypes.Types.Override | Where-Object {
+            $_.PartName -eq '/docProps/custom.xml' } | ForEach-Object { $contentTypes.Types.RemoveChild($_) | Out-Null
+        }
         $contentTypes.Save("$pbixDir/[Content_Types].xml") | Out-Null
-        
+
         # Remove unneeded tables
         # $diagramLayout = Get-Content "$pbixDir/DiagramLayout" -Raw | ConvertFrom-Json -Depth 100
         # $diagramLayout.diagrams.nodes | Where-Object { $metadata.Tables -contains $_.nodeIndex }
@@ -273,18 +281,13 @@ elseif ($ZipPBI)
         # pbi-tools extract $pbix
         # TODO: Remove tables
         # pbi-tools compile $pbixDir $pbix
-        
+
         # Zip as PBIX for demo
         Write-Verbose "Saving demo $pbixDir.pbix..."
         Remove-Item -Path "$pbixDir.pbix" -Recurse -Force -ErrorAction SilentlyContinue
         Compress-Archive -Path $pbixDir -DestinationPath "$pbixDir.pbix"
     }
-
-    # Zip release files
-    # Compress-Archive -Path "$relDir/pbix/*.storage.pbit" -DestinationPath "$relDir/PowerBI-storage.zip"
-    # Compress-Archive -Path "$relDir/pbix/*.kql.pbix" -DestinationPath "$relDir/PowerBI-demo.zip"
-    # Compress-Archive -Path "$relDir/pbix/*.kql.pbit" -DestinationPath "$relDir/PowerBI-kql.zip"
-}    
+}
 
 Write-Host '...done!'
 Write-Host ''

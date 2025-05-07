@@ -35,13 +35,14 @@ param dataExplorerId string = ''
 @description('Optional. ID of the Azure Data Explorer cluster system assigned managed identity, if applicable.')
 param dataExplorerPrincipalId string = ''
 
-@description('Optional. URI of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+// cSpell:ignore eventhouse
+@description('Optional. URI of the Azure Data Explorer cluster or Microsoft Fabric eventhouse query endpoint to use for advanced analytics, if applicable.')
 param dataExplorerUri string = ''
 
 @description('Optional. Name of the Azure Data Explorer ingestion database. Default: "ingestion".')
 param dataExplorerIngestionDatabase string = 'Ingestion'
 
-@description('Optional. Azure Data Explorer ingestion capacity.  Increase for non-dev SKUs. Default: 1')
+@description('Optional. Azure Data Explorer ingestion capacity or Microsoft Fabric capacity units. Increase for non-dev/trial SKUs. Default: 1')
 param dataExplorerIngestionCapacity int = 1
 
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
@@ -68,6 +69,9 @@ var exportSchemaVersion = '2023-05-01'
 var reservationDetailsSchemaVersion = '2023-03-01'
 // cSpell:ignore ftkver
 var ftkVersion = loadTextContent('ftkver.txt')
+var ftkReleaseUri = endsWith(ftkVersion, '-dev')
+  ? 'https://github.com/microsoft/finops-toolkit/releases/latest/download'
+  : 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}'
 var exportApiVersion = '2023-07-01-preview'
 var hubDataExplorerName = 'hubDataExplorer'
 
@@ -87,6 +91,7 @@ func getExportBodyV2(exportContainerName string, datasetType string, schemaVersi
   */ : 'undefined'
 
 var deployDataExplorer = !empty(dataExplorerId)
+var useFabric = !deployDataExplorer && !empty(dataExplorerUri)
 
 var datasetPropsDefault = {
     location: {
@@ -465,7 +470,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
   }
 }
 
-resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (deployDataExplorer) {
+resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (deployDataExplorer || useFabric) {
   name: hubDataExplorerName
   parent: dataFactory
   dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
@@ -748,7 +753,7 @@ resource dataset_ingestion_files 'Microsoft.DataFactory/factories/datasets@2018-
   }
 }
 
-resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-01' = if (deployDataExplorer) {
+resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-01' = if (deployDataExplorer || useFabric) {
   name: hubDataExplorerName
   parent: dataFactory
   properties: {
@@ -819,7 +824,7 @@ resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-0
 // TODO: Create apps_PublishEvent pipeline { event, properties }
 
 module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
-  name: 'trigger_ExportManifestAdded'
+  name: 'Microsoft.FinOpsHubs.Core_ExportManifestAddedTrigger'
   dependsOn: [
     stopTriggers
   ]
@@ -840,8 +845,8 @@ module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
   }
 }
 
-module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = {
-  name: 'trigger_IngestionManifestAdded'
+module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = if (deployDataExplorer) {
+  name: 'Microsoft.FinOpsHubs.Core_IngestionManifestAddedTrigger'
   dependsOn: [
     stopTriggers
   ]
@@ -849,7 +854,7 @@ module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = {
     dataFactoryName: dataFactory.name
     triggerName: ingestionManifestAddedTriggerName
 
-    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.Hubs.IngestionManifestAdded'
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.IngestionManifestAdded'
     pipelineName: pipeline_ExecuteIngestionETL.name
     pipelineParameters: {
       folderPath: '@triggerBody().folderPath'
@@ -862,7 +867,7 @@ module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = {
 }
 
 module trigger_SettingsUpdated 'hub-event-trigger.bicep' = {
-  name: 'trigger_SettingsUpdated'
+  name: 'Microsoft.FinOpsHubs.Core_SettingsUpdatedTrigger'
   dependsOn: [
     stopTriggers
   ]
@@ -870,7 +875,7 @@ module trigger_SettingsUpdated 'hub-event-trigger.bicep' = {
     dataFactoryName: dataFactory.name
     triggerName: updateConfigTriggerName
 
-    // TODO: Replace pipeline with event: 'Microsoft.FinOpsToolkit.Hubs.SettingsUpdated'
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.SettingsUpdated'
     pipelineName: pipeline_ConfigureExports.name
     pipelineParameters: {}
     
@@ -956,7 +961,7 @@ resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-
 // config_InitializeHub pipeline
 //------------------------------------------------------------------------------
 @description('Initializes the hub instance based on the configuration settings.')
-resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer || useFabric) {
   name: '${safeConfigContainerName}_InitializeHub'
   parent: dataFactory
   properties: {
@@ -1170,7 +1175,10 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     userProperties: []
                     typeProperties: {
                       command: {
-                        value: '.alter-merge database ${dataExplorerIngestionDatabase} policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
+                        // Do not attempt to set the ingestion policy if using Fabric; use a simple query as a placeholder
+                        value: useFabric 
+                          ? '.show database ${dataExplorerIngestionDatabase} policy managed_identity'
+                          : '.alter-merge database ${dataExplorerIngestionDatabase} policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'
@@ -1239,7 +1247,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     userProperties: []
                     typeProperties: {
                       // cSpell:ignore externaldata
-                      command: '.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription: string, AccountTypes: string, x_PricingBlockSize: decimal, PricingUnit: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/PricingUnits.csv"] with (format="csv", ignoreFirstRecord=true) | project-away AccountTypes'
+                      command: '.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription: string, AccountTypes: string, x_PricingBlockSize: decimal, PricingUnit: string)[@"${ftkReleaseUri}/PricingUnits.csv"] with (format="csv", ignoreFirstRecord=true) | project-away AccountTypes'
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
@@ -1270,7 +1278,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     }
                     userProperties: []
                     typeProperties: {
-                      command: '.set-or-replace Regions <| externaldata(ResourceLocation: string, RegionId: string, RegionName: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/Regions.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      command: '.set-or-replace Regions <| externaldata(ResourceLocation: string, RegionId: string, RegionName: string)[@"${ftkReleaseUri}/Regions.csv"] with (format="csv", ignoreFirstRecord=true)'
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
@@ -1301,7 +1309,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     }
                     userProperties: []
                     typeProperties: {
-                      command: '.set-or-replace ResourceTypes <| externaldata(x_ResourceType: string, SingularDisplayName: string, PluralDisplayName: string, LowerSingularDisplayName: string, LowerPluralDisplayName: string, IsPreview: bool, Description: string, IconUri: string, Links: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/ResourceTypes.csv"] with (format="csv", ignoreFirstRecord=true) | project-away Links'
+                      command: '.set-or-replace ResourceTypes <| externaldata(x_ResourceType: string, SingularDisplayName: string, PluralDisplayName: string, LowerSingularDisplayName: string, LowerPluralDisplayName: string, IsPreview: bool, Description: string, IconUri: string, Links: string)[@"${ftkReleaseUri}/ResourceTypes.csv"] with (format="csv", ignoreFirstRecord=true) | project-away Links'
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
@@ -1332,7 +1340,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     }
                     userProperties: []
                     typeProperties: {
-                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@"https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@"${ftkReleaseUri}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
@@ -4350,7 +4358,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
 // Triggered by ingestion_ExecuteETL
 //------------------------------------------------------------------------------
 @description('Ingests parquet data into an Azure Data Explorer cluster.')
-resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer || useFabric) {
   name: '${safeIngestionContainerName}_ETL_dataExplorer'
   parent: dataFactory
   properties: {
@@ -4554,7 +4562,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     typeProperties: {
                       command: {
                         // cSpell:ignore abfss, toscalar
-                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("abfss://${ingestionContainerName}@${storageAccount.name}.dfs.${environment().suffixes.storage}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \';managed_identity=system") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"); print Success = assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")\')'
+                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("abfss://${ingestionContainerName}@${storageAccount.name}.dfs.${environment().suffixes.storage}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \';${useFabric ? 'impersonate' : 'managed_identity=system'}") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"); print Success = assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")\')'
                         type: 'Expression'
                       }
                       commandTimeout: '01:00:00'
@@ -4794,7 +4802,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
 // Triggered by ingestion_ManifestAdded trigger
 //------------------------------------------------------------------------------
 @description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits.')
-resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer || useFabric) {
   name: '${safeIngestionContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {

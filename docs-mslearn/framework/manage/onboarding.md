@@ -3,11 +3,11 @@ title: Onboarding workloads
 description: This article helps you understand the onboarding workloads capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 # customer intent: As a FinOps practitioner, I want to understand the onboarding workloads capability so that I can implement it in the Microsoft Cloud.
 ---
 
@@ -87,7 +87,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Guide.Framework/featureName/Capabilities.Manage.Onboarding)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Guide.Framework/featureName/Capabilities.Manage.Onboarding)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
@@ -101,6 +101,6 @@ If you're looking for something specific, vote for an existing or create a new i
 Related FinOps capabilities:
 
 - [Forecasting](../quantify/forecasting.md)
-- [Cloud policy and governance](./governance.md)
+- [Policy and governance](./governance.md)
 
 <br>

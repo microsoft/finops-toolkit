@@ -3,11 +3,11 @@ title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/25/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -26,6 +26,7 @@ Microsoft's guidance is largely based on the FinOps Framework with a few enhance
 In the next few sections, we cover the basic concepts of the FinOps Framework:
 
 - The **principles** that should guide your FinOps efforts.
+- The **scopes** to which you apply FinOps concepts.
 - The **stakeholders** that should be involved.
 - The **lifecycle** that you iterate through.
 - The **capabilities** that you implement with stakeholders throughout the lifecycle.
@@ -35,16 +36,41 @@ In the next few sections, we cover the basic concepts of the FinOps Framework:
 
 ## Principles
 
-Before digging into FinOps, it's important to understand the core principles that should guide your FinOps efforts. The FinOps community developed the principles by applying their collective experience, and helps you create a culture of shared accountability and transparency.
+Before digging into FinOps, it's important to understand the core principles that should guide your FinOps efforts. The FinOps community developed the principles by applying their collective experience to help you create a culture of shared accountability and transparency.
 
 - **Teams need to collaborate** – Build a common focus on cost efficiency, processes, and cost decisions across teams that might not typically work closely together.
-- **Decisions are driven by the business value of cloud** – Balance cost decisions with business benefits including quality, speed, and business capability.
-- **Everyone takes ownership for their cloud usage** – Decentralize decisions about cloud resource usage and optimization, and drive technical teams to consider cost as well as uptime and performance.
-- **FinOps data should be accessible and timely** – Provide clear usage and cost data quickly, to the right people, to enable prompt decisions and forecasting.
-- **A centralized team drives FinOps** – Centralize management of FinOps practices for consistency, automation, and rate negotiations.
+- **Business value drives technology decisions** – Balance cost decisions with business benefits including quality, speed, and business capability.
+- **Everyone takes ownership for their technology usage** – Decentralize decisions about cloud resource usage and optimization, and drive technical teams to consider cost as well as uptime and performance.
+- **FinOps data should be accessible, timely, and accurate** – Provide clear usage and cost data quickly, to the right people, to enable prompt decisions and forecasting.
+- **FinOps should be enabled centrally** – Centralize management of FinOps practices for consistency, automation, and rate negotiations.
 - **Take advantage of the variable cost model of the cloud** – Make continuous small adjustments in cloud usage and optimization.
 
 For more information about FinOps principles, including tips from the experts, see [FinOps with Azure – Bringing FinOps to life through organizational and cultural alignment](https://azure.microsoft.com/resources/finops-with-azure-bringing-finops-to-life-through-organizational-and-cultural-alignment/).
+
+<br>
+
+## Scopes
+
+FinOps scopes conceptually represent the boundaries for which you apply your FinOps efforts. Your scope indicates the usage, spend, and sustainability management area of responsibility your team covers. This area of responsibility may also identify which personas are involved and what capabilities apply. Your team's scope is generally defined by and aligned with your organization's strategic goals and operational needs.
+
+The scope or area of responsibility of your FinOps efforts may cover multiple technologies and platforms. Examples of things that may be part of your scope include, but are not limited to:
+
+- Public, private, and hybrid clouds.
+- Data centers.
+- Cloud-based services offered by third-party providers (often referred to as "SaaS providers").
+- Professional services, like consulting and training.
+
+Your scope may also be a subset of these, if you focus solely on a single technology or even service. For instance, a team that only manages SQL databases may have a smaller area of responsibility than one that manages networking infrastructure for a global, multi-national company.
+
+Ultimately, scopes represent what your team is responsible for managing or supporting, which impacts:
+
+- What you need to know.
+- Standards and processes you may need to apply to establish consistent execution and governance.
+- Metrics and key performance indicators (KPIs) you need to measure success.
+- What level of adoption you should target and expect within your organization.
+- If and how you might automate tasks and processes to streamline your goals.
+
+Your scope is determined based on your organization's business and technology needs and strategy to facilitate efficient execution of your FinOps practice to achieve your FinOps goals.
 
 <br>
 
@@ -90,7 +116,7 @@ The FinOps Framework defines a simple lifecycle with three phases:
 
 The FinOps Framework includes capabilities that cover everything you need to perform FinOps tasks and manage a FinOps practice. Capabilities are organized into a set of related domains based on the goals of the capabilities. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
 
-- Understand cloud usage and cost
+- Understand usage and cost
 
   - [Data ingestion](./understand/ingestion.md)
   - [Allocation](./understand/allocation.md)
@@ -105,7 +131,7 @@ The FinOps Framework includes capabilities that cover everything you need to per
   - [Benchmarking](./quantify/benchmarking.md)
   - [Unit economics](./quantify/unit-economics.md)
 
-- Optimize cloud usage and cost
+- Optimize usage and cost
 
   - [Architecting for the cloud](./optimize/architecting.md)
   - [Workload optimization](./optimize/workloads.md)
@@ -118,7 +144,7 @@ The FinOps Framework includes capabilities that cover everything you need to per
   - [FinOps education and enablement](./manage/education.md)
   - [FinOps practice operations](./manage/operations.md)
   - [Onboarding workloads](./manage/onboarding.md)
-  - [Cloud policy and governance](./manage/governance.md)
+  - [Policy and governance](./manage/governance.md)
   - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
   - [FinOps assessment](./manage/assessment.md)
   - [FinOps tools and services](./manage/tools-services.md)
@@ -151,7 +177,7 @@ FinOps Foundation offers many resources to help you learn and implement FinOps. 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Guide.Framework/featureName/Overview)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Guide.Framework/featureName/Overview)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

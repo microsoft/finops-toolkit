@@ -1,26 +1,26 @@
 ---
-title: Cloud policy and governance
-description: This article helps you understand the cloud policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+title: Policy and governance
+description: This article helps you understand the policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
-# customer intent: As a FinOps practitioner, I want to understand the cloud policy and governance capability so that I can implement it in the Microsoft Cloud.
+ms.reviewer: kedelaro
+# customer intent: As a FinOps practitioner, I want to understand the policy and governance capability so that I can implement it in the Microsoft Cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Cloud policy and governance
+# Policy and governance
 
-This article helps you understand the cloud policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Cloud policy and governance refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts.**
+**Policy and governance refers to the process of defining, implementing, and monitoring a framework of rules that guide an organization's FinOps efforts.**
 
 Define your governance goals and success metrics. Review and document how existing policies are updated to account for FinOps efforts. Review with all stakeholders to get buy-in and endorsement.
 
@@ -67,7 +67,7 @@ At this point, you have a basic set of policies in place that are being managed 
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Cloud policy and governance capability](https://www.finops.org/framework/capabilities/policy-governance/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Policy and governance capability](https://www.finops.org/framework/capabilities/policy-governance/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
@@ -80,7 +80,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Guide.Framework/featureName/Capabilities.Manage.Governance)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Guide.Framework/featureName/Capabilities.Manage.Governance)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
