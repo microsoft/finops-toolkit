@@ -34,6 +34,13 @@ The following section lists features and enhancements that are currently in deve
 
 _Released June 2, 2025_
 
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
+
+- **Added**
+  - Added telemetry to the FinOps alerts template to track usage and bugs.
+    - Telemetry is not personally identifiable and only used to improve the template.
+    - Disable telemetry by setting the **enableDefaultTelemetry** parameter to **false**.
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
 > [!div class="nextstepaction"]
