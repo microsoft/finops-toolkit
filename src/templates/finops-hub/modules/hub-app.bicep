@@ -8,8 +8,8 @@ import { getAppTags, getPublisherTags, HubAppConfig, HubAppFeature, HubCoreConfi
 // Parameters
 //==============================================================================
 
-@description('Required. Name of the FinOps hub instance.')
-param hubName string
+// @description('Required. Name of the FinOps hub instance.')
+// param hubName string
 
 // @description('Required. Minimum version number supported by the FinOps hub app.')
 // param hubMinVersion string

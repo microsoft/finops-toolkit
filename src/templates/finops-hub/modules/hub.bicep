@@ -441,13 +441,6 @@ module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStorageKey)) {
   // NOTE: GCP support is a "contributed" app that should be a different publisher from all others for increased security
   name: 'FinOpsToolkit.Contrib.GoogleCloud.Core'
   params: {
-    hubName: hubName
-    dataFactoryName: dataFactory.name
-    storageAccountName: storage.outputs.name
-    keyVaultName: keyVault.outputs.name
-    location: location
-    tags: resourceTags
-    tagsByResource: tagsByResource
     googleCloudStorageBucket: googleCloudStorageBucket
     googleCloudStoragePath: googleCloudStoragePath
     googleCloudStorageKeyId: googleCloudStorageKeyId
@@ -456,10 +449,14 @@ module gcpApp 'googleCloud.bicep' = if (!empty(googleCloudStorageKey)) {
     schemaContainerName: dataFactoryResources.outputs.schemaContainerName
     schemaFolderPath: dataFactoryResources.outputs.schemaFolderPath
     ingestionContainerName: storage.outputs.ingestionContainer
+    enableDefaultTelemetry: enableDefaultTelemetry
+
+    // TODO: Move this into config
+    dataFactoryName: dataFactory.name
     blobManagerIdentityName: storage.outputs.blobManagerIdentityName
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: storage.outputs.scriptStorageAccountName
-    scriptSubnetId: safeScriptSubnetId
+    keyVaultName: keyVault.outputs.name
+
+    coreConfig: coreConfig
   }
 }
 

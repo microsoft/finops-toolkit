@@ -1,30 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { HubCoreConfig } from 'hub-types.bicep'
+
+
 //==============================================================================
 // Parameters
 //==============================================================================
 
-@description('Required. Name of the Data Factory instance for this publisher.')
-param dataFactoryName string
-
-@description('Required. The name of the Azure storage account instance for this publisher.')
-param storageAccountName string
-
-@description('Required. The name of the Azure Key Vault instance for this publisher.')
-param keyVaultName string
-
-@description('Required. The name of the container where normalized data is ingested.')
-param ingestionContainerName string
-
-@description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
-param location string = resourceGroup().location
-
-@description('Optional. Tags to apply to all resources.')
-param tags object = {}
-
-@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
-param tagsByResource object = {}
+//------------------------------------------------------------------------------
+// Google Cloud parameters
+//------------------------------------------------------------------------------
 
 @description('Required. The name of the Google Cloud storage bucket.')
 param googleCloudStorageBucket string
@@ -39,6 +25,23 @@ param googleCloudStorageKeyId string
 @secure()
 param googleCloudStorageKey string
 
+@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
+param enableDefaultTelemetry bool = true
+
+//------------------------------------------------------------------------------
+// Temporary parameters that should be removed in the future
+//------------------------------------------------------------------------------
+
+// TODO: Pull deployment config from the cloud
+@description('Required. FinOps hub coreConfig.')
+param coreConfig HubCoreConfig
+
+@description('Required. Name of the Data Factory instance for this publisher.')
+param dataFactoryName string
+
+@description('Required. The name of the container where normalized data is ingested.')
+param ingestionContainerName string
+
 // TODO: Use a function to reference the schema file path via a reusable function
 @description('Required. The name of the config container dataset.')
 param configDatasetName string
@@ -52,14 +55,8 @@ param schemaFolderPath string
 @description('Required. The name of the managed identity to use for uploading files.')
 param blobManagerIdentityName string
 
-@description('Required. Indicates whether public access should be enabled.')
-param enablePublicAccess bool
-
-@description('Required. The name of the storage account used for deployment scripts.')
-param scriptStorageAccountName string
-
-@description('Required. Resource ID of the virtual network for running deployment scripts.')
-param scriptSubnetId string
+@description('Required. The name of the Azure Key Vault instance for this publisher.')
+param keyVaultName string
 
 
 //==============================================================================
@@ -91,12 +88,16 @@ module appRegistration 'hub-app.bicep' = {
   name: 'FinOpsToolkit.Contrib.GoogleCloud.Core_Register'
   params: {
     displayName: 'Google Cloud data ingestion'
-    hubName: hubName
     publisher: 'FinOps toolkit community for Google Cloud'
     namespace: 'FinOpsToolkit.Contrib.GoogleCloud'
     appName: 'Core'
     appVersion: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
+    features: [
+      'Storage'
+    ]
     enableDefaultTelemetry: enableDefaultTelemetry
+    
+    coreConfig: coreConfig
   }
 }
 
@@ -105,55 +106,26 @@ module appRegistration 'hub-app.bicep' = {
 // TODO: Move to the hub-storage module
 //------------------------------------------------------------------------------
 
-resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing =  if (!enablePublicAccess){
-  name: scriptStorageAccountName
-}
-
 resource blobManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: blobManagerIdentityName
 }
 
-resource uploadFiles 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
-  name: '${storageAccountName}_uploadFiles'
-  kind: 'AzurePowerShell'
-  // cSpell:ignore chinaeast
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${blobManagerIdentity.id}': {}
-    }
+module configContainer 'hub-storage.bicep' = {
+  name: 'FinOpsToolkit.Contrib.GoogleCloud.Core_SchemaFiles'
+  params: {
+    container: schemaContainerName
+    files: schemaFiles
+
+    // Hub context
+    storageAccountName: appRegistration.outputs.config.publisher.storage
+    blobManagerIdentityName: blobManagerIdentity.name
+    enablePublicAccess: !coreConfig.network.isPrivate
+    location: coreConfig.hub.location
+    scriptStorageAccountName: coreConfig.deployment.storage
+    scriptSubnetId: coreConfig.network.subnets.scripts
+    tags: coreConfig.hub.tags
+    tagsByResource: coreConfig.deployment.tagsByResource
   }
-  dependsOn: []
-  properties: union(enablePublicAccess ? {} : {
-    storageAccountSettings: {
-      storageAccountName: scriptStorageAccount.name
-    }
-    containerSettings: {
-      containerGroupName: '${scriptStorageAccount.name}cg'
-      subnetIds: [
-        {
-          id: scriptSubnetId
-        }
-      ]
-    }
-  }, {
-    azPowerShellVersion: '9.0'
-    retentionInterval: 'PT1H'
-    environmentVariables: [
-      {
-        name: 'containerName'
-        value: schemaContainerName
-      }
-      {
-        name: 'files'
-        value: string(schemaFiles)
-      }
-    ]
-    scriptContent: loadTextContent('./scripts/Upload-StorageFile.ps1')
-  })
 }
 
 //------------------------------------------------------------------------------
