@@ -39,6 +39,12 @@ _Released June 2, 2025_
 - **Added**
   - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.11
+
+- **Added**
+  - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
+  - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
+
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
 
 - **Added**
