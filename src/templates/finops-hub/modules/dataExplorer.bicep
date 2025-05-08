@@ -88,8 +88,8 @@ param clusterSku string = 'Dev(No SLA)_Standard_E2a_v4'
 param clusterCapacity int = 1
 
 // TODO: Figure out why this is breaking upgrades
-// @description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
-// param clusterTrustedExternalTenants string[] = []
+@description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
+param clusterTrustedExternalTenants string[] = []
 
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
 param forceUpdateTag string = utcNow()
@@ -108,6 +108,8 @@ param tagsByResource object = {}
 
 @description('Required. Name of the Data Factory instance.')
 param dataFactoryName string
+
+param dataFactoryManagedIdentityName string
 
 @description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
 param rawRetentionInDays int = 0
@@ -212,6 +214,10 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
 }
 
+resource dataFactoryManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+  name: dataFactoryManagedIdentityName
+}
+
 resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
   name: 'privatelink.blob.${environment().suffixes.storage}'
 }
@@ -232,6 +238,12 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 // Cluster + databases
 //------------------------------------------------------------------------------
 
+resource kustoClusterUserAssignedManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${clusterName}_uamiv3'
+  location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+}
+
 //  Kusto cluster
 resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   name: clusterName
@@ -242,25 +254,28 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     tier: startsWith(clusterSku, 'Dev(No SLA)_') ? 'Basic' : 'Standard'
     capacity: startsWith(clusterSku, 'Dev(No SLA)_') ? 1 : (clusterCapacity == 1 ? 2 : clusterCapacity)
   }
-  identity: {
-    type: 'SystemAssigned'
+  identity: { 
+    type: 'UserAssigned'
+    userAssignedIdentities:{
+      '${kustoClusterUserAssignedManagedIdentity.id}': {}
+    }
   }
   properties: {
     enableStreamingIngest: true
     enableAutoStop: false
     publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
     // TODO: Figure out why this is breaking upgrades
-    // trustedExternalTenants: [for tenantId in clusterTrustedExternalTenants: {
-    //     value: tenantId
-    // }]
+    trustedExternalTenants: [for tenantId in clusterTrustedExternalTenants: {
+        value: tenantId
+    }]
   }
 
   resource adfClusterAdmin 'principalAssignments' = {
     name: 'adf-mi-cluster-admin'
     properties: {
       principalType: 'App'
-      principalId: dataFactory.identity.principalId
-      tenantId: dataFactory.identity.tenantId
+      principalId: dataFactoryManagedIdentity.properties.principalId // dataFactory.identity.principalId
+      tenantId: dataFactoryManagedIdentity.properties.tenantId // dataFactory.identity.tenantId
       role: 'AllDatabasesAdmin'
     }
   }
@@ -344,19 +359,20 @@ module hub_SetupScript 'hub-database.bicep' = {
   }
 }
     
-// Authorize Kusto Cluster to read storage
+//  Authorize Kusto Cluster to read storage
 resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(cluster.name, subscription().id, 'Storage Blob Data Contributor')
+  name: guid(storage.id, 'Storage Blob Data Contributor', kustoClusterUserAssignedManagedIdentity.id)
   scope: storage
   properties: {
     description: 'Give "Storage Blob Data Contributor" to the cluster'
-    principalId: cluster.identity.principalId
+    principalId: kustoClusterUserAssignedManagedIdentity.properties.principalId // cluster.identity.principalId
     // Required in case principal not ready when deploying the assignment
     principalType: 'ServicePrincipal'
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
       'ba92f5b4-2d11-453d-a403-e96b0029c9fe'  // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage
     )
+    delegatedManagedIdentityResourceId: kustoClusterUserAssignedManagedIdentity.id
   }
 }
 
@@ -445,7 +461,7 @@ resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/pri
 output clusterId string = cluster.id
 
 @description('The ID of the cluster system assigned managed identity.')
-output principalId string = cluster.identity.principalId
+output principalId string = kustoClusterUserAssignedManagedIdentity.properties.principalId // cluster.identity.principalId
 
 @description('The name of the cluster.')
 output clusterName string = cluster.name

@@ -4,6 +4,8 @@
 # Init outputs
 $DeploymentScriptOutputs = @{}
 
+Set-AzContext -Subscription $env:DataFactorySubscriptionId
+
 #
 $adfParams = @{
     ResourceGroupName = $env:DataFactoryResourceGroup

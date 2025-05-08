@@ -11,6 +11,8 @@ param hubName string
 @description('Required. Name of the Data Factory instance.')
 param dataFactoryName string
 
+param dataFactoryManagedIdentityName string
+
 @description('Required. The name of the Azure Key Vault instance.')
 param keyVaultName string
 
@@ -151,6 +153,10 @@ var storageRbacRoles = [
 // Get data factory instance
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
+}
+
+resource dataFactoryManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+  name: dataFactoryManagedIdentityName
 }
 
 // Get storage account instance
@@ -312,7 +318,7 @@ module approveDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bice
 
 // Create managed identity to start/stop triggers
 resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${dataFactory.name}_triggerManager'
+  name: '${dataFactory.name}_triggerManagerv2'
   location: location
   tags: union(tags, tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
 }
@@ -324,17 +330,19 @@ resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: triggerManagerIdentity.properties.principalId
     principalType: 'ServicePrincipal'
+    delegatedManagedIdentityResourceId: triggerManagerIdentity.id
   }
 }]
 
 // Grant ADF identity access to manage data in storage
 resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
-  name: guid(storageAccount.id, role, dataFactory.id)
+  name: guid(storageAccount.id, role, dataFactoryManagedIdentity.id)
   scope: storageAccount
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: dataFactory.identity.principalId
+    principalId: dataFactoryManagedIdentity.properties.principalId // dataFactory.identity.principalId
     principalType: 'ServicePrincipal'
+    delegatedManagedIdentityResourceId: dataFactoryManagedIdentity.id
   }
 }]
 
@@ -366,7 +374,7 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
     environmentVariables: [
       {
         name: 'DataFactorySubscriptionId'
-        value: subscription().id
+        value: subscription().subscriptionId
       }
       {
         name: 'DataFactoryResourceGroup'
@@ -407,7 +415,7 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     environmentVariables: [
       {
         name: 'DataFactorySubscriptionId'
-        value: subscription().id
+        value: subscription().subscriptionId
       }
       {
         name: 'DataFactoryResourceGroup'
@@ -429,8 +437,18 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 // Linked services
 //------------------------------------------------------------------------------
 
-// cSpell:ignore linkedservices
-// TODO: Move to the hub-app module
+// Create the credentials
+resource dataFactoryCredential 'Microsoft.DataFactory/factories/credentials@2018-06-01' = {
+  parent: dataFactory
+  name: dataFactoryManagedIdentity.name
+  properties: {
+    type: 'ManagedIdentity'
+    typeProperties: {
+      resourceId: dataFactoryManagedIdentity.id
+    }
+  }
+}
+
 resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: keyVault.name
   parent: dataFactory
@@ -440,6 +458,10 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
     parameters: {}
     type: 'AzureKeyVault'
     typeProperties: {
+      credential: {
+        type: 'CredentialReference'
+        referenceName: dataFactoryCredential.name
+      }
       baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
     connectVia: enablePublicAccess ? null : {
@@ -459,6 +481,12 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     parameters: {}
     type: 'AzureBlobFS'
     typeProperties: {
+      credential: {
+        type: 'CredentialReference'
+        referenceName: dataFactoryCredential.name
+      }
+      //serviceEndpoint: storageAccount.properties.primaryEndpoints.blob
+      //accountKind: storageAccount.kind
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
     }
     connectVia: enablePublicAccess ? null : {
@@ -481,10 +509,12 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
       }
     }
     typeProperties: {
+      credential: {
+        type: 'CredentialReference'
+        referenceName: dataFactoryCredential.name
+      }
       endpoint: dataExplorerUri
       database: '@{linkedService().database}'
-      tenant: dataFactory.identity.tenantId
-      servicePrincipalId: dataFactory.identity.principalId
     }
     connectVia: enablePublicAccess ? null : {
       referenceName: managedIntegrationRuntime.name
@@ -4560,7 +4590,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     typeProperties: {
                       command: {
                         // cSpell:ignore abfss, toscalar
-                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("abfss://${ingestionContainerName}@${storageAccount.name}.dfs.${environment().suffixes.storage}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \';${useFabric ? 'impersonate' : 'managed_identity=system'}") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"); print Success = assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")\')'
+                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("abfss://${ingestionContainerName}@${storageAccount.name}.dfs.${environment().suffixes.storage}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \';${useFabric ? 'impersonate' : 'managed_identity=${dataExplorerPrincipalId}'}") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"); print Success = assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")\')'
                         type: 'Expression'
                       }
                       commandTimeout: '01:00:00'
@@ -5083,7 +5113,7 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     environmentVariables: [
       {
         name: 'DataFactorySubscriptionId'
-        value: subscription().id
+        value: subscription().subscriptionId
       }
       {
         name: 'DataFactoryResourceGroup'

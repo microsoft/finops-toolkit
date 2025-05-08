@@ -142,7 +142,7 @@ module ingestionContainer 'hub-storage.bicep' = {
 
 // Create managed identity to upload files
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${storageAccountName}_blobManager'
+  name: '${storageAccountName}_blobManagerv2'
   tags: union(tags, tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
   location: location
 }
@@ -155,6 +155,7 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: identity.properties.principalId
     principalType: 'ServicePrincipal'
+    delegatedManagedIdentityResourceId: identity.id
   }
 }]
 

@@ -8,6 +8,8 @@ Param(
 # Init outputs
 $DeploymentScriptOutputs = @{}
 
+Set-AzContext -Subscription $env:DataFactorySubscriptionId
+
 if (-not $Stop)
 {
     Start-Sleep -Seconds 10
