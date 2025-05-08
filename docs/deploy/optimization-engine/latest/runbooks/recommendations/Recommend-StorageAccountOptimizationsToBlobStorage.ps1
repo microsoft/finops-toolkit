@@ -5,20 +5,20 @@ function ConvertTo-Hashtable {
         [Parameter(ValueFromPipeline)]
         $InputObject
     )
- 
+
     process {
         if ($null -eq $InputObject) {
             return $null
         }
- 
+
         if ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string]) {
             $collection = @(
                 foreach ($object in $InputObject) {
                     ConvertTo-Hashtable -InputObject $object
                 }
-            ) 
+            )
             Write-Output -NoEnumerate $collection
-        } elseif ($InputObject -is [psobject]) { 
+        } elseif ($InputObject -is [psobject]) {
             $hash = @{}
             foreach ($property in $InputObject.PSObject.Properties) {
                 $hash[$property.Name] = ConvertTo-Hashtable -InputObject $property.Value
@@ -58,7 +58,7 @@ $workspaceTenantId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyti
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
 }
@@ -101,12 +101,12 @@ $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -124,25 +124,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE CollectedType IN ('ARGResourceContainers','AzureConsumption')"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -155,8 +155,8 @@ $consumptionTableName = $lognamePrefix + ($controlRows | Where-Object { $_.Colle
 
 Write-Output "Will run query against tables $subscriptionsTableName and $consumptionTableName"
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $recommendationSearchTimeSpan = $growthLookbackDays + $consumptionOffsetDaysStart
 
@@ -182,12 +182,12 @@ let stime = endofday(etime-interval);
 let lastday_stime = endofday(etime-1d);
 let lastday_stime_subs = endofday(etime_subs-1d);
 let costThreshold = $dailyCostThreshold;
-let growthPercentageThreshold = $growthPercentageThreshold; 
+let growthPercentageThreshold = $growthPercentageThreshold;
 let StorageAccountsWithLastTags = $consumptionTableName
 | where todatetime(Date_s) between (lastday_stime..etime)
 | where MeterCategory_s == 'Storage' and ConsumedService_s == 'Microsoft.Storage' and MeterName_s endswith 'Data Stored' and ChargeType_s == 'Usage'
 | extend ResourceId = tolower(ResourceId)
-| distinct ResourceId, Tags_s;
+| summarize arg_max(todatetime(Date_s), Tags_s) by ResourceId;
 $consumptionTableName
 | where todatetime(Date_s) between (stime..etime)
 | where MeterCategory_s == 'Storage' and ConsumedService_s == 'Microsoft.Storage' and MeterName_s endswith 'Data Stored' and ChargeType_s == 'Usage'
@@ -195,15 +195,17 @@ $consumptionTableName
 | make-series CostSum=sum(todouble(CostInBillingCurrency_s)) default=0.0 on todatetime(Date_s) from stime to etime step 1d by ResourceId, ResourceGroup, SubscriptionId
 | extend InitialDailyCost = todouble(CostSum[0]), CurrentDailyCost = todouble(CostSum[array_length(CostSum)-1])
 | extend GrowthPercentage = round((CurrentDailyCost-InitialDailyCost)/InitialDailyCost*100)
-| where InitialDailyCost > 0 and CurrentDailyCost > costThreshold and GrowthPercentage > growthPercentageThreshold 
+| where InitialDailyCost > 0 and CurrentDailyCost > costThreshold and GrowthPercentage > growthPercentageThreshold
 | project ResourceId, InitialDailyCost, CurrentDailyCost, GrowthPercentage, ResourceGroup, SubscriptionId
 | join kind=leftouter (StorageAccountsWithLastTags) on ResourceId
-| join kind=leftouter ( 
+| join kind=leftouter (
     $subscriptionsTableName
     | where TimeGenerated > lastday_stime_subs
-    | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-    | project SubscriptionId=SubscriptionGuid_g, SubscriptionName = ContainerName_s 
+    | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+    | project SubscriptionId=SubscriptionGuid_g, SubscriptionName = ContainerName_s
 ) on SubscriptionId
+| extend Tags_s = iif(Tags_s !startswith "{", strcat('{', Tags_s, '}'), Tags_s)
+| extend Tags_s = parse_json(tolower(Tags_s))
 "@
 
 try
@@ -211,12 +213,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     throw "Execution aborted"
 }
@@ -235,10 +237,10 @@ foreach ($result in $results)
 {
     $queryInstanceId = $result.ResourceId
     $queryText = @"
-    $consumptionTableName 
+    $consumptionTableName
     | where MeterCategory_s == 'Storage' and ConsumedService_s == 'Microsoft.Storage' and MeterName_s endswith 'Data Stored' and ChargeType_s == 'Usage'
     | extend ResourceId = tolower(ResourceId)
-    | where ResourceId =~ '$queryInstanceId' 
+    | where ResourceId =~ '$queryInstanceId'
     | summarize DailyCosts = sum(todouble(CostInBillingCurrency_s)) by bin(todatetime(Date_s), 1d)
     | render timechart
 "@
@@ -267,7 +269,7 @@ foreach ($result in $results)
     $additionalInfoDictionary["savingsAmount"] = $costsAmount * 0.25 # estimated 25% savings
 
     $fitScore = 4 # savings are estimated with a significant error margin
-    
+
     $fitScore = [Math]::max(0.0, $fitScore)
 
     $tags = @{}
@@ -279,7 +281,7 @@ foreach ($result in $results)
             $result.Tags_s = '{' + $result.Tags_s + '}'
         }
         $tags = ConvertFrom-Json $result.Tags_s | ConvertTo-Hashtable
-    }            
+    }
 
     $recommendation = New-Object PSObject -Property @{
         Timestamp                   = $timestamp
@@ -304,7 +306,7 @@ foreach ($result in $results)
         DetailsURL                  = $detailsURL
     }
 
-    $recommendations += $recommendation        
+    $recommendations += $recommendation
 }
 
 # Export the recommendations as JSON to blob storage

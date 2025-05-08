@@ -314,20 +314,68 @@ table SqlDatabases
 
 		annotation SummarizationSetBy = Automatic
 
+	column sku
+		dataType: string
+		lineageTag: 52f51c91-4d10-4e18-bfc8-17b89180f1a3
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column properties
+		dataType: string
+		lineageTag: 7b1ec500-24c1-4b63-b630-d6b6a81cd83e
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
 	partition SqlDatabases = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query(
-				    "resources
+				  query = "
+				    resources
 				    | where type == 'microsoft.sql/servers/databases'
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded sku" = Table.ExpandRecordColumn(Source, "sku", {"name", "tier", "capacity", "family"}, {"sku.name", "sku.tier", "sku.capacity", "sku.family"}),
-				  #"Expanded properties" = Table.ExpandRecordColumn(#"Expanded sku", "properties", {"status", "requestedBackupStorageRedundancy", "currentBackupStorageRedundancy", "requestedServiceObjectiveName", "currentServiceObjectiveName", "maintenanceConfigurationId", "defaultSecondaryLocation", "isInfraEncryptionEnabled", "earliestRestoreDate", "zoneRedundant", "availabilityZone", "catalogCollation", "creationDate", "collation", "licenseType", "maxSizeBytes", "isLedgerOn", "databaseId", "currentSku", "readScale", "maxLogSizeBytes"}, {"properties.status", "properties.requestedBackupStorageRedundancy", "properties.currentBackupStorageRedundancy", "properties.requestedServiceObjectiveName", "properties.currentServiceObjectiveName", "properties.maintenanceConfigurationId", "properties.defaultSecondaryLocation", "properties.isInfraEncryptionEnabled", "properties.earliestRestoreDate", "properties.zoneRedundant", "properties.availabilityZone", "properties.catalogCollation", "properties.creationDate", "properties.collation", "properties.licenseType", "properties.maxSizeBytes", "properties.isLedgerOn", "properties.databaseId", "properties.currentSku", "properties.readScale", "properties.maxLogSizeBytes"}),
-				  #"Changed Type" = Table.TransformColumnTypes(#"Expanded properties",{{"properties.creationDate", type datetimezone}})
+				    | extend
+				      ['sku.name'] = sku.name,
+				      ['sku.tier'] = sku.tier,
+				      ['sku.capacity'] = sku.capacity,
+				      ['sku.family'] = sku.family,
+				      ['properties.status'] = properties.status,
+				      ['properties.requestedBackupStorageRedundancy'] = properties.requestedBackupStorageRedundancy,
+				      ['properties.currentBackupStorageRedundancy'] = properties.currentBackupStorageRedundancy,
+				      ['properties.requestedServiceObjectiveName'] = properties.requestedServiceObjectiveName,
+				      ['properties.currentServiceObjectiveName'] = properties.currentServiceObjectiveName,
+				      ['properties.maintenanceConfigurationId'] = properties.maintenanceConfigurationId,
+				      ['properties.defaultSecondaryLocation'] = properties.defaultSecondaryLocation,
+				      ['properties.isInfraEncryptionEnabled'] = properties.isInfraEncryptionEnabled,
+				      ['properties.earliestRestoreDate'] = properties.earliestRestoreDate,
+				      ['properties.zoneRedundant'] = properties.zoneRedundant,
+				      ['properties.availabilityZone'] = properties.availabilityZone,
+				      ['properties.catalogCollation'] = properties.catalogCollation,
+				      ['properties.creationDate'] = properties.creationDate,
+				      ['properties.collation'] = properties.collation,
+				      ['properties.licenseType'] = properties.licenseType,
+				      ['properties.maxSizeBytes'] = properties.maxSizeBytes,
+				      ['properties.isLedgerOn'] = properties.isLedgerOn,
+				      ['properties.databaseId'] = properties.databaseId,
+				      ['properties.currentSku'] = properties.currentSku,
+				      ['properties.readScale'] = properties.readScale,
+				      ['properties.maxLogSizeBytes'] = properties.maxLogSizeBytes
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				      #table(
+				        { "id", "name", "sku.name", "sku.tier", "sku.capacity", "sku.family", "properties.status", "properties.requestedBackupStorageRedundancy", "properties.currentBackupStorageRedundancy", "properties.requestedServiceObjectiveName", "properties.currentServiceObjectiveName", "properties.maintenanceConfigurationId", "properties.defaultSecondaryLocation", "properties.isInfraEncryptionEnabled", "properties.earliestRestoreDate", "properties.zoneRedundant", "properties.availabilityZone", "properties.catalogCollation", "properties.creationDate", "properties.collation", "properties.licenseType", "properties.maxSizeBytes", "properties.isLedgerOn", "properties.databaseId", "properties.currentSku", "properties.readScale", "properties.maxLogSizeBytes" },
+				        {}
+				      )
+				    else Source,
+				  Types = Table.TransformColumnTypes(NullHandling, {{"properties.creationDate", type datetimezone}})
 				in
-				  #"Changed Type"
+				  Types
 
 	annotation PBI_NavigationStepName = Navigation
 

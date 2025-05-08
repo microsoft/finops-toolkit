@@ -409,37 +409,222 @@ table VirtualMachines
 
 		annotation SummarizationSetBy = Automatic
 
+	column properties
+		dataType: string
+		lineageTag: e6dfb866-56e9-41d3-92be-51ca63dce8de
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column networkProfile
+		dataType: string
+		lineageTag: e44b9015-72d2-4fca-8c66-d453745ceda2
+		summarizeBy: none
+		sourceColumn: networkProfile
+
+		annotation SummarizationSetBy = Automatic
+
+	column osProfile
+		dataType: string
+		lineageTag: 3f7a330b-35c4-4a46-a437-bd7830c91821
+		summarizeBy: none
+		sourceColumn: osProfile
+
+		annotation SummarizationSetBy = Automatic
+
+	column storageProfile
+		dataType: string
+		lineageTag: fdffb001-8cd4-4545-a5e3-5a7625f01df0
+		summarizeBy: none
+		sourceColumn: storageProfile
+
+		annotation SummarizationSetBy = Automatic
+
+	column hardwareProfile
+		dataType: string
+		lineageTag: 998c7342-d833-46f0-87d0-671da7ad19b1
+		summarizeBy: none
+		sourceColumn: hardwareProfile
+
+		annotation SummarizationSetBy = Automatic
+
+	column diagnosticsProfile
+		dataType: string
+		lineageTag: 236da049-94eb-4611-8d87-2e621ae2d291
+		summarizeBy: none
+		sourceColumn: diagnosticsProfile
+
+		annotation SummarizationSetBy = Automatic
+
+	column extended
+		dataType: string
+		lineageTag: 91e1d8db-9b66-40af-8e05-bafa4708198b
+		summarizeBy: none
+		sourceColumn: extended
+
+		annotation SummarizationSetBy = Automatic
+
+	column networkInterfaces
+		dataType: string
+		lineageTag: bd9607d7-e154-4bf7-a5c8-bb9864896f17
+		summarizeBy: none
+		sourceColumn: networkInterfaces
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'networkInterfaces.properties'
+		dataType: string
+		lineageTag: c5159fb4-3eec-4b67-8bf5-07181160e398
+		summarizeBy: none
+		sourceColumn: networkInterfaces.properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.imageReference'
+		dataType: string
+		lineageTag: d0dbf571-2490-4b7f-8995-22c0036dfa67
+		summarizeBy: none
+		sourceColumn: storageProfile.imageReference
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks'
+		dataType: string
+		lineageTag: 83e2e073-2bf8-496e-bc2c-a3553f8c5384
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.osDisk'
+		dataType: string
+		lineageTag: d4af0653-26d8-4e20-8305-31be6cb05548
+		summarizeBy: none
+		sourceColumn: storageProfile.osDisk
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.managedDisk'
+		dataType: string
+		lineageTag: 66cd5719-8338-4102-b1b6-0caa9bb55fa5
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.managedDisk
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.osDisk.managedDisk'
+		dataType: string
+		lineageTag: 9961ea28-ed3c-4097-b061-ca148131d6ad
+		summarizeBy: none
+		sourceColumn: storageProfile.osDisk.managedDisk
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'diagnosticsProfile.bootDiagnostics'
+		dataType: string
+		lineageTag: 6f3662b6-91e3-4645-858c-ecdca8b1ef3d
+		summarizeBy: none
+		sourceColumn: diagnosticsProfile.bootDiagnostics
+
+		annotation SummarizationSetBy = Automatic
+
+	column instanceView
+		dataType: string
+		lineageTag: ec49c96b-adf9-4b6a-b5ed-a4605ea55702
+		summarizeBy: none
+		sourceColumn: instanceView
+
+		annotation SummarizationSetBy = Automatic
+
+	column powerState
+		dataType: string
+		lineageTag: 9111acad-c60b-40b3-8e7f-37cdfc80c85e
+		summarizeBy: none
+		sourceColumn: powerState
+
+		annotation SummarizationSetBy = Automatic
+
 	partition VirtualMachines = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query(
-				    "Resources
+				  query = "
+				    Resources
 				    | where type =~ 'Microsoft.Compute/virtualMachines'
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType"}, {"provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType"}),
-				  #"Expanded osProfile" = Table.ExpandRecordColumn(#"Expanded properties", "osProfile", {"computerName", "requireGuestProvisionSignal", "allowExtensionOperations", "adminUsername", "secrets", "linuxConfiguration", "windowsConfiguration"}, {"osProfile.computerName", "osProfile.requireGuestProvisionSignal", "osProfile.allowExtensionOperations", "osProfile.adminUsername", "osProfile.secrets", "osProfile.linuxConfiguration", "osProfile.windowsConfiguration"}),
-				  #"Expanded networkProfile" = Table.ExpandRecordColumn(#"Expanded osProfile", "networkProfile", {"networkInterfaces"}, {"networkInterfaces"}),
-				  #"Expanded networkInterfaces" = Table.ExpandListColumn(#"Expanded networkProfile", "networkInterfaces"),
-				  #"Expanded networkInterfaces 1" = Table.ExpandRecordColumn(#"Expanded networkInterfaces", "networkInterfaces", {"properties", "id"}, {"networkInterfaces.properties", "networkInterfaces.id"}),
-				  #"Expanded networkInterfaces.properties" = Table.ExpandRecordColumn(#"Expanded networkInterfaces 1", "networkInterfaces.properties", {"deleteOption"}, {"networkInterfaces.properties.deleteOption"}),
-				  #"Expanded storageProfile" = Table.ExpandRecordColumn(#"Expanded networkInterfaces.properties", "storageProfile", {"imageReference", "dataDisks", "osDisk"}, {"storageProfile.imageReference", "storageProfile.dataDisks", "storageProfile.osDisk"}),
-				  #"Expanded storageProfile.imageReference" = Table.ExpandRecordColumn(#"Expanded storageProfile", "storageProfile.imageReference", {"publisher", "sku", "version", "exactVersion", "offer"}, {"storageProfile.imageReference.publisher", "storageProfile.imageReference.sku", "storageProfile.imageReference.version", "storageProfile.imageReference.exactVersion", "storageProfile.imageReference.offer"}),
-				  #"Expanded storageProfile.dataDisks" = Table.ExpandListColumn(#"Expanded storageProfile.imageReference", "storageProfile.dataDisks"),
-				  #"Expanded storageProfile.dataDisks 1" = Table.ExpandRecordColumn(#"Expanded storageProfile.dataDisks", "storageProfile.dataDisks", {"name", "createOption", "deleteOption", "managedDisk", "caching", "toBeDetached", "writeAcceleratorEnabled", "lun"}, {"storageProfile.dataDisks.name", "storageProfile.dataDisks.createOption", "storageProfile.dataDisks.deleteOption", "storageProfile.dataDisks.managedDisk", "storageProfile.dataDisks.caching", "storageProfile.dataDisks.toBeDetached", "storageProfile.dataDisks.writeAcceleratorEnabled", "storageProfile.dataDisks.lun"}),
-				  #"Expanded storageProfile.dataDisks.managedDisk" = Table.ExpandRecordColumn(#"Expanded storageProfile.dataDisks 1", "storageProfile.dataDisks.managedDisk", {"id"}, {"storageProfile.dataDisks.managedDisk.id"}),
-				  #"Expanded storageProfile.osDisk" = Table.ExpandRecordColumn(#"Expanded storageProfile.dataDisks.managedDisk", "storageProfile.osDisk", {"name", "createOption", "osType", "deleteOption", "managedDisk", "caching"}, {"storageProfile.osDisk.name", "storageProfile.osDisk.createOption", "storageProfile.osDisk.osType", "storageProfile.osDisk.deleteOption", "storageProfile.osDisk.managedDisk", "storageProfile.osDisk.caching"}),
-				  #"Expanded storageProfile.osDisk.managedDisk" = Table.ExpandRecordColumn(#"Expanded storageProfile.osDisk", "storageProfile.osDisk.managedDisk", {"id"}, {"storageProfile.osDisk.managedDisk.id"}),
-				  #"Expanded hardwareProfile" = Table.ExpandRecordColumn(#"Expanded storageProfile.osDisk.managedDisk", "hardwareProfile", {"vmSize"}, {"hardwareProfile.vmSize"}),
-				  #"Expanded diagnosticsProfile" = Table.ExpandRecordColumn(#"Expanded hardwareProfile", "diagnosticsProfile", {"bootDiagnostics"}, {"diagnosticsProfile.bootDiagnostics"}),
-				  #"Expanded diagnosticsProfile.bootDiagnostics" = Table.ExpandRecordColumn(#"Expanded diagnosticsProfile", "diagnosticsProfile.bootDiagnostics", {"enabled", "storageUri"}, {"diagnosticsProfile.bootDiagnostics.enabled", "diagnosticsProfile.bootDiagnostics.storageUri"}),
-				  #"Expanded extended" = Table.ExpandRecordColumn(#"Expanded diagnosticsProfile.bootDiagnostics", "extended", {"instanceView"}, {"instanceView"}),
-				  #"Expanded instanceView" = Table.ExpandRecordColumn(#"Expanded extended", "instanceView", {"powerState"}, {"powerState"}),
-				  #"Expanded powerState" = Table.ExpandRecordColumn(#"Expanded instanceView", "powerState", {"displayStatus"}, {"powerState.displayStatus"}),
-				  #"Expanded zones" = Table.ExpandListColumn(#"Expanded powerState", "zones")
+				    | extend
+				      provisioningState = properties.provisioningState,
+				      timeCreated = properties.timeCreated,
+				      networkProfile = properties.networkProfile,
+				      osProfile = properties.osProfile,
+				      storageProfile = properties.storageProfile,
+				      hardwareProfile = properties.hardwareProfile,
+				      vmId = properties.vmId,
+				      diagnosticsProfile = properties.diagnosticsProfile,
+				      extended = properties.extended,
+				      licenseType = properties.licenseType
+				    | extend
+				      ['osProfile.computerName'] = osProfile.computerName,
+				      ['osProfile.requireGuestProvisionSignal'] = osProfile.requireGuestProvisionSignal,
+				      ['osProfile.allowExtensionOperations'] = osProfile.allowExtensionOperations,
+				      ['osProfile.adminUsername'] = osProfile.adminUsername,
+				      ['osProfile.secrets'] = osProfile.secrets,
+				      ['osProfile.linuxConfiguration'] = osProfile.linuxConfiguration,
+				      ['osProfile.windowsConfiguration'] = osProfile.windowsConfiguration,
+				      networkInterfaces = networkProfile.networkInterfaces
+				    | mv-expand ['networkInterfaces']
+				    | extend
+				      ['networkInterfaces.properties'] = networkInterfaces.properties,
+				      ['networkInterfaces.id'] = networkInterfaces.id,
+				      ['networkInterfaces.properties.deleteOption'] = networkInterfaces.properties.deleteOption,
+				      ['storageProfile.imageReference'] = storageProfile.imageReference,
+				      ['storageProfile.dataDisks'] = storageProfile.dataDisks,
+				      ['storageProfile.osDisk'] = storageProfile.osDisk,
+				      ['storageProfile.imageReference.publisher'] = storageProfile.imageReference.publisher,
+				      ['storageProfile.imageReference.sku'] = storageProfile.imageReference.sku,
+				      ['storageProfile.imageReference.version'] = storageProfile.imageReference.version,
+				      ['storageProfile.imageReference.exactVersion'] = storageProfile.imageReference.exactVersion,
+				      ['storageProfile.imageReference.offer'] = storageProfile.imageReference.offer
+				    | mv-expand ['storageProfile.dataDisks']
+				    | extend
+				      ['storageProfile.dataDisks.name'] = storageProfile.dataDisks.name,
+				      ['storageProfile.dataDisks.createOption'] = storageProfile.dataDisks.createOption,
+				      ['storageProfile.dataDisks.deleteOption'] = storageProfile.dataDisks.deleteOption,
+				      ['storageProfile.dataDisks.managedDisk'] = storageProfile.dataDisks.managedDisk,
+				      ['storageProfile.dataDisks.caching'] = storageProfile.dataDisks.caching,
+				      ['storageProfile.dataDisks.toBeDetached'] = storageProfile.dataDisks.toBeDetached,
+				      ['storageProfile.dataDisks.writeAcceleratorEnabled'] = storageProfile.dataDisks.writeAcceleratorEnabled,
+				      ['storageProfile.dataDisks.lun'] = storageProfile.dataDisks.lun,
+				      ['storageProfile.dataDisks.managedDisk.id'] = storageProfile.dataDisks.managedDisk.id,
+				      ['storageProfile.osDisk.name'] = storageProfile.osDisk.name,
+				      ['storageProfile.osDisk.createOption'] = storageProfile.osDisk.createOption,
+				      ['storageProfile.osDisk.osType'] = storageProfile.osDisk.osType,
+				      ['storageProfile.osDisk.deleteOption'] = storageProfile.osDisk.deleteOption,
+				      ['storageProfile.osDisk.managedDisk'] = storageProfile.osDisk.managedDisk,
+				      ['storageProfile.osDisk.caching'] = storageProfile.osDisk.caching,
+				      ['storageProfile.osDisk.managedDisk.id'] = storageProfile.osDisk.managedDisk.id,
+				      ['hardwareProfile.vmSize'] = hardwareProfile.vmSize,
+				      ['diagnosticsProfile.bootDiagnostics'] = diagnosticsProfile.bootDiagnostics,
+				      ['diagnosticsProfile.bootDiagnostics.enabled'] = diagnosticsProfile.bootDiagnostics.enabled,
+				      ['diagnosticsProfile.bootDiagnostics.storageUri'] = diagnosticsProfile.bootDiagnostics.storageUri
+				    | extend
+				      instanceView = extended.instanceView,
+				      powerState = extended.instanceView.powerState
+				    | extend
+				      ['powerState.displayStatus'] = powerState.displayStatus
+				    | mv-expand ['zones']
+				    " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				      #table(
+				        { "id", "name", "provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType", "osProfile.computerName", "osProfile.requireGuestProvisionSignal", "osProfile.allowExtensionOperations", "osProfile.adminUsername", "osProfile.secrets", "osProfile.linuxConfiguration", "osProfile.windowsConfiguration", "networkInterfaces", "networkInterfaces.properties", "networkInterfaces.id", "networkInterfaces.properties.deleteOption", "storageProfile.imageReference", "storageProfile.dataDisks", "storageProfile.osDisk", "storageProfile.imageReference.publisher", "storageProfile.imageReference.sku", "storageProfile.imageReference.version", "storageProfile.imageReference.exactVersion", "storageProfile.imageReference.offer", "storageProfile.dataDisks.name", "storageProfile.dataDisks.createOption", "storageProfile.dataDisks.deleteOption", "storageProfile.dataDisks.managedDisk", "storageProfile.dataDisks.caching", "storageProfile.dataDisks.toBeDetached", "storageProfile.dataDisks.writeAcceleratorEnabled", "storageProfile.dataDisks.lun", "storageProfile.dataDisks.managedDisk.id", "storageProfile.osDisk.name", "storageProfile.osDisk.createOption", "storageProfile.osDisk.osType", "storageProfile.osDisk.deleteOption", "storageProfile.osDisk.managedDisk", "storageProfile.osDisk.caching", "storageProfile.osDisk.managedDisk.id", "hardwareProfile.vmSize", "diagnosticsProfile.bootDiagnostics", "diagnosticsProfile.bootDiagnostics.enabled", "diagnosticsProfile.bootDiagnostics.storageUri", "instanceView", "powerState", "powerState.displayStatus" },
+				        {}
+				      )
+				    else Source
 				in
-				  #"Expanded zones"
+				  NullHandling
 
 	annotation PBI_NavigationStepName = Navigation
 

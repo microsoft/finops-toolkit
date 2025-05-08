@@ -337,21 +337,80 @@ table PolicyAssignments
 
 		annotation SummarizationSetBy = Automatic
 
+	column properties
+		dataType: string
+		lineageTag: 49ce1144-59d6-4c26-90ab-e17dc2fa4b82
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: c197f4e1-41f0-4234-a747-841344c1f798
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.metadata'
+		dataType: string
+		lineageTag: c6b18c20-e706-4150-bf51-30f3366b6559
+		summarizeBy: none
+		sourceColumn: properties.metadata
+
+		annotation SummarizationSetBy = Automatic
+
 	partition PolicyAssignments = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query(
-				    "policyResources
+				  query = "
+				    policyResources
 				    | where type =~'Microsoft.Authorization/PolicyAssignments'
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"policyDefinitionId", "effectiveDefinitionVersion", "latestDefinitionVersion", "nonComplianceMessages", "definitionVersion", "resourceSelectors", "enforcementMode", "assignmentType", "description", "displayName", "parameters", "notScopes", "overrides", "metadata", "scope"}, {"properties.policyDefinitionId", "properties.effectiveDefinitionVersion", "properties.latestDefinitionVersion", "properties.nonComplianceMessages", "properties.definitionVersion", "properties.resourceSelectors", "properties.enforcementMode", "properties.assignmentType", "properties.description", "properties.displayName", "properties.parameters", "properties.notScopes", "properties.overrides", "properties.metadata", "properties.scope"}),
-				  #"Expanded properties.metadata" = Table.ExpandRecordColumn(#"Expanded properties", "properties.metadata", {"createdOn", "createdBy", "assignedBy", "parameterScopes", "updatedOn", "updatedBy", "category", "managedByResourceId", "securityCenter", "excludedOutOfTheBoxStandards"}, {"properties.metadata.createdOn", "properties.metadata.createdBy", "properties.metadata.assignedBy", "properties.metadata.parameterScopes", "properties.metadata.updatedOn", "properties.metadata.updatedBy", "properties.metadata.category", "properties.metadata.managedByResourceId", "properties.metadata.securityCenter", "properties.metadata.excludedOutOfTheBoxStandards"}),
-				  #"Expanded identity" = Table.ExpandRecordColumn(#"Expanded properties.metadata", "identity", {"userAssignedIdentities", "principalId", "tenantId", "type"}, {"identity.userAssignedIdentities", "identity.principalId", "identity.tenantId", "identity.type"}),
-				  #"Expanded properties.notScopes" = Table.ExpandListColumn(#"Expanded identity", "properties.notScopes")
+				    | extend
+				      ['properties.policyDefinitionId'] = properties.policyDefinitionId,
+				      ['properties.effectiveDefinitionVersion'] = properties.effectiveDefinitionVersion,
+				      ['properties.latestDefinitionVersion'] = properties.latestDefinitionVersion,
+				      ['properties.nonComplianceMessages'] = properties.nonComplianceMessages,
+				      ['properties.definitionVersion'] = properties.definitionVersion,
+				      ['properties.resourceSelectors'] = properties.resourceSelectors,
+				      ['properties.enforcementMode'] = properties.enforcementMode,
+				      ['properties.assignmentType'] = properties.assignmentType,
+				      ['properties.description'] = properties.description,
+				      ['properties.displayName'] = properties.displayName,
+				      ['properties.parameters'] = properties.parameters,
+				      ['properties.notScopes'] = properties.notScopes,
+				      ['properties.overrides'] = properties.overrides,
+				      ['properties.metadata'] = properties.metadata,
+				      ['properties.scope'] = properties.scope,
+				      ['properties.metadata.createdOn'] = properties.metadata.createdOn,
+				      ['properties.metadata.createdBy'] = properties.metadata.createdBy,
+				      ['properties.metadata.assignedBy'] = properties.metadata.assignedBy,
+				      ['properties.metadata.parameterScopes'] = properties.metadata.parameterScopes,
+				      ['properties.metadata.updatedOn'] = properties.metadata.updatedOn,
+				      ['properties.metadata.updatedBy'] = properties.metadata.updatedBy,
+				      ['properties.metadata.category'] = properties.metadata.category,
+				      ['properties.metadata.managedByResourceId'] = properties.metadata.managedByResourceId,
+				      ['properties.metadata.securityCenter'] = properties.metadata.securityCenter,
+				      ['properties.metadata.excludedOutOfTheBoxStandards'] = properties.metadata.excludedOutOfTheBoxStandards,
+				      ['identity.userAssignedIdentities'] = identity.userAssignedIdentities,
+				      ['identity.principalId'] = identity.principalId,
+				      ['identity.tenantId'] = identity.tenantId,
+				      ['identity.type'] = identity.type
+				    | mv-expand ['properties.notScopes']
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.policyDefinitionId", "properties.effectiveDefinitionVersion", "properties.latestDefinitionVersion", "properties.nonComplianceMessages", "properties.definitionVersion", "properties.resourceSelectors", "properties.enforcementMode", "properties.assignmentType", "properties.description", "properties.displayName", "properties.parameters", "properties.notScopes", "properties.overrides", "properties.metadata", "properties.scope", "properties.metadata.createdOn", "properties.metadata.createdBy", "properties.metadata.assignedBy", "properties.metadata.parameterScopes", "properties.metadata.updatedOn", "properties.metadata.updatedBy", "properties.metadata.category", "properties.metadata.managedByResourceId", "properties.metadata.securityCenter", "properties.metadata.excludedOutOfTheBoxStandards", "identity.userAssignedIdentities", "identity.principalId", "identity.tenantId", "identity.type", "properties.notScopes" },
+								{}
+							)
+				    else Source
 				in
-				  #"Expanded properties.notScopes"
+				  NullHandling
 
 	annotation PBI_NavigationStepName = Navigation
 

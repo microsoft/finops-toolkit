@@ -9,13 +9,13 @@ InModuleScope 'FinOpsToolkit' {
             function Get-AzResourceGroup {}
             function New-AzResourceGroup {}
             function New-AzResourceGroupDeployment {}
-            
+
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $hubName = 'ftk-test-Deploy-FinOpsHub'
-            
+
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $rgName = 'ftk-test'
-            
+
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $location = 'eastus'
         }
@@ -29,7 +29,7 @@ InModuleScope 'FinOpsToolkit' {
 
                 # Act
                 Deploy-FinOpsHub -WhatIf -Name $hubName -ResourceGroupName $rgName -Location $location
-            
+
                 # Assert
                 Assert-MockCalled -CommandName 'Initialize-FinOpsHubDeployment' -Times 1 -ParameterFilter { $WhatIf -eq $true }
                 @('CreateResourceGroup', 'CreateTempDirectory', 'DownloadTemplate', 'DeployFinOpsHub') | ForEach-Object {

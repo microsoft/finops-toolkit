@@ -345,24 +345,109 @@ table NetworkInterfaces
 
 		annotation SummarizationSetBy = Automatic
 
+	column properties
+		dataType: string
+		lineageTag: 49dc4b9c-259a-456b-acf0-90105d789c00
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.networkSecurityGroup'
+		dataType: string
+		lineageTag: d8fdde05-77b3-458f-930f-7a70790d889d
+		summarizeBy: none
+		sourceColumn: properties.networkSecurityGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations'
+		dataType: string
+		lineageTag: 2802adc4-809b-4610-ab8b-538298983258
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.virtualMachine'
+		dataType: string
+		lineageTag: f49a5008-662e-4c89-bf6e-deff893045ec
+		summarizeBy: none
+		sourceColumn: properties.virtualMachine
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties'
+		dataType: string
+		lineageTag: f0c5d156-6fc2-4b32-a55d-2255a2b9945f
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties.publicIPAddress'
+		dataType: string
+		lineageTag: 773f8dc4-0e6f-42da-afba-bcfbdbee8d88
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties.publicIPAddress
+
+		annotation SummarizationSetBy = Automatic
+
 	partition NetworkInterfaces = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("
+				  query = "
 				    Resources
 				    | where type =~ 'microsoft.network/networkinterfaces'
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "resourceGuid", "enableAcceleratedNetworking", "disableTcpStateTracking", "vnetEncryptionSupported", "networkSecurityGroup", "ipConfigurations", "enableIPForwarding", "tapConfigurations", "hostedWorkloads", "allowPort25Out", "auxiliaryMode", "dnsSettings", "auxiliarySku", "macAddress", "nicType", "primary", "virtualMachine"}, {"properties.provisioningState", "properties.resourceGuid", "properties.enableAcceleratedNetworking", "properties.disableTcpStateTracking", "properties.vnetEncryptionSupported", "properties.networkSecurityGroup", "properties.ipConfigurations", "properties.enableIPForwarding", "properties.tapConfigurations", "properties.hostedWorkloads", "properties.allowPort25Out", "properties.auxiliaryMode", "properties.dnsSettings", "properties.auxiliarySku", "properties.macAddress", "properties.nicType", "properties.primary", "properties.virtualMachine"}),
-				  #"Expanded properties.virtualMachine" = Table.ExpandRecordColumn(#"Expanded properties", "properties.virtualMachine", {"id"}, {"properties.virtualMachine.id"}),
-				  #"Expanded properties.ipConfigurations" = Table.ExpandListColumn(#"Expanded properties.virtualMachine", "properties.ipConfigurations"),
-				  #"Expanded properties.ipConfigurations 1" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations", "properties.ipConfigurations", {"type", "name", "properties", "id", "etag"}, {"properties.ipConfigurations.type", "properties.ipConfigurations.name", "properties.ipConfigurations.properties", "properties.ipConfigurations.id", "properties.ipConfigurations.etag"}),
-				  #"Expanded properties.ipConfigurations.properties" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations 1", "properties.ipConfigurations.properties", {"provisioningState", "privateIPAddressVersion", "privateIPAllocationMethod", "subnet", "privateIPAddress", "primary", "publicIPAddress"}, {"properties.ipConfigurations.properties.provisioningState", "properties.ipConfigurations.properties.privateIPAddressVersion", "properties.ipConfigurations.properties.privateIPAllocationMethod", "properties.ipConfigurations.properties.subnet", "properties.ipConfigurations.properties.privateIPAddress", "properties.ipConfigurations.properties.primary", "properties.ipConfigurations.properties.publicIPAddress"}),
-				  #"Expanded properties.ipConfigurations.properties.publicIPAddress" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations.properties", "properties.ipConfigurations.properties.publicIPAddress", {"id"}, {"properties.ipConfigurations.properties.publicIPAddress.id"}),
-				  #"Expanded properties.networkSecurityGroup" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations.properties.publicIPAddress", "properties.networkSecurityGroup", {"id"}, {"properties.networkSecurityGroup.id"})
+				    | extend
+				      ['properties.provisioningState'] = properties.provisioningState,
+				      ['properties.resourceGuid'] = properties.resourceGuid,
+				      ['properties.enableAcceleratedNetworking'] = properties.enableAcceleratedNetworking,
+				      ['properties.disableTcpStateTracking'] = properties.disableTcpStateTracking,
+				      ['properties.vnetEncryptionSupported'] = properties.vnetEncryptionSupported,
+				      ['properties.networkSecurityGroup'] = properties.networkSecurityGroup,
+				      ['properties.ipConfigurations'] = properties.ipConfigurations,
+				      ['properties.enableIPForwarding'] = properties.enableIPForwarding,
+				      ['properties.tapConfigurations'] = properties.tapConfigurations,
+				      ['properties.hostedWorkloads'] = properties.hostedWorkloads,
+				      ['properties.allowPort25Out'] = properties.allowPort25Out,
+				      ['properties.auxiliaryMode'] = properties.auxiliaryMode,
+				      ['properties.dnsSettings'] = properties.dnsSettings,
+				      ['properties.auxiliarySku'] = properties.auxiliarySku,
+				      ['properties.macAddress'] = properties.macAddress,
+				      ['properties.nicType'] = properties.nicType,
+				      ['properties.primary'] = properties.primary,
+				      ['properties.virtualMachine'] = properties.virtualMachine,
+				      ['properties.virtualMachine.id'] = properties.virtualMachine.id
+				    | mv-expand ['properties.ipConfigurations']
+				    | extend
+				      ['properties.ipConfigurations.type'] = properties.ipConfigurations.type,
+				      ['properties.ipConfigurations.name'] = properties.ipConfigurations.name,
+				      ['properties.ipConfigurations.properties'] = properties.ipConfigurations.properties,
+				      ['properties.ipConfigurations.id'] = properties.ipConfigurations.id,
+				      ['properties.ipConfigurations.etag'] = properties.ipConfigurations.etag,
+				      ['properties.ipConfigurations.properties.provisioningState'] = properties.ipConfigurations.properties.provisioningState,
+				      ['properties.ipConfigurations.properties.privateIPAddressVersion'] = properties.ipConfigurations.properties.privateIPAddressVersion,
+				      ['properties.ipConfigurations.properties.privateIPAllocationMethod'] = properties.ipConfigurations.properties.privateIPAllocationMethod,
+				      ['properties.ipConfigurations.properties.subnet'] = properties.ipConfigurations.properties.subnet,
+				      ['properties.ipConfigurations.properties.privateIPAddress'] = properties.ipConfigurations.properties.privateIPAddress,
+				      ['properties.ipConfigurations.properties.primary'] = properties.ipConfigurations.properties.primary,
+				      ['properties.ipConfigurations.properties.publicIPAddress'] = properties.ipConfigurations.properties.publicIPAddress,
+				      ['properties.ipConfigurations.properties.publicIPAddress.id'] = properties.ipConfigurations.properties.publicIPAddress.id,
+				      ['properties.networkSecurityGroup.id'] = properties.networkSecurityGroup.id
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.provisioningState", "properties.resourceGuid", "properties.enableAcceleratedNetworking", "properties.disableTcpStateTracking", "properties.vnetEncryptionSupported", "properties.networkSecurityGroup", "properties.ipConfigurations", "properties.enableIPForwarding", "properties.tapConfigurations", "properties.hostedWorkloads", "properties.allowPort25Out", "properties.auxiliaryMode", "properties.dnsSettings", "properties.auxiliarySku", "properties.macAddress", "properties.nicType", "properties.primary", "properties.virtualMachine", "properties.virtualMachine.id", "properties.ipConfigurations.type", "properties.ipConfigurations.name", "properties.ipConfigurations.properties", "properties.ipConfigurations.id", "properties.ipConfigurations.etag", "properties.ipConfigurations.properties.provisioningState", "properties.ipConfigurations.properties.privateIPAddressVersion", "properties.ipConfigurations.properties.privateIPAllocationMethod", "properties.ipConfigurations.properties.subnet", "properties.ipConfigurations.properties.privateIPAddress", "properties.ipConfigurations.properties.primary", "properties.ipConfigurations.properties.publicIPAddress", "properties.ipConfigurations.properties.publicIPAddress.id", "properties.networkSecurityGroup.id" },
+								{}
+							)
+				    else Source
 				in
-				  #"Expanded properties.networkSecurityGroup"
+				  NullHandling
 
 	annotation PBI_NavigationStepName = Navigation
 

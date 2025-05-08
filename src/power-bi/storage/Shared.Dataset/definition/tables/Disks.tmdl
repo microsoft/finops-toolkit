@@ -1,281 +1,132 @@
 table Disks
-	lineageTag: ca0025b1-6be2-4a29-af32-30ef5f20fe5f
-
-	column id
-		dataType: string
-		lineageTag: deeae826-f875-4504-8131-757498d8759a
-		summarizeBy: none
-		sourceColumn: id
-
-		annotation SummarizationSetBy = Automatic
-
-	column name
-		dataType: string
-		lineageTag: a5fefea2-4fe5-484f-aed7-3d13f6323531
-		summarizeBy: none
-		sourceColumn: name
-
-		annotation SummarizationSetBy = Automatic
-
-	column type
-		dataType: string
-		lineageTag: a311742d-a3f5-4432-b707-8dcd17c7d279
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: 956716b4-925c-4fd7-966e-a3e3d8a8a4ce
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: 4c524547-d15c-4cfd-a1b6-eed57b7f75a1
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: e2c9aac1-398d-407d-b62f-43596f401420
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: d2ec8b97-974d-4273-ab54-a99d67396140
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
+	lineageTag: 0008230d-7a07-40e4-ba7f-cef258f5ac62
 
 	column subscriptionId
 		dataType: string
-		lineageTag: bddb0cc5-51dd-4fd2-9bcf-16f5e4f9f18a
+		lineageTag: 7622c7b1-5d51-4063-97f3-75e8098198d4
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
 		annotation SummarizationSetBy = Automatic
 
+	column name
+		dataType: string
+		lineageTag: d7dc5a6b-6850-421c-90be-26ef85476a28
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 70f65b8a-76e4-4f5f-8b89-28b315f2366a
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: bae1fb2b-ef36-4a5c-b266-7ee626ecafc1
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
 	column managedBy
 		dataType: string
-		lineageTag: c25abab2-269e-4428-9632-f00ff63cf033
+		lineageTag: cf9f6e5f-aa49-49d0-a6c0-5a86337daaaf
 		summarizeBy: none
 		sourceColumn: managedBy
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'sku.name'
+	column osType
 		dataType: string
-		lineageTag: f1132ac0-604d-47d1-9b06-74db3b2d443c
+		lineageTag: 2813c211-256f-4d18-8bed-13509d542b05
 		summarizeBy: none
-		sourceColumn: sku.name
+		sourceColumn: osType
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'sku.tier'
+	column skuName
 		dataType: string
-		lineageTag: e9b4cfc4-81eb-4d94-bc14-ff38f90cbd8b
+		lineageTag: b7e73136-b3db-4353-9c6d-b589f11dcd80
 		summarizeBy: none
-		sourceColumn: sku.tier
+		sourceColumn: skuName
 
 		annotation SummarizationSetBy = Automatic
 
-	column plan
+	column skuTier
 		dataType: string
-		lineageTag: a48ec8c3-8134-47be-83e4-42c24554add2
+		lineageTag: 56d25952-5baa-43b1-995b-1e4b2de85c12
 		summarizeBy: none
-		sourceColumn: plan
+		sourceColumn: skuTier
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'properties.provisioningState'
-		dataType: string
-		lineageTag: e0422dd9-490b-46ea-bba7-58623656ad8d
-		summarizeBy: none
-		sourceColumn: properties.provisioningState
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.publicNetworkAccess'
-		dataType: string
-		lineageTag: e66bb3fa-7deb-49fc-9be6-130494ad2e20
-		summarizeBy: none
-		sourceColumn: properties.publicNetworkAccess
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.encryption'
-		dataType: string
-		lineageTag: 4b8960fb-6583-473c-bd60-9575871b4e94
-		summarizeBy: none
-		sourceColumn: properties.encryption
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.networkAccessPolicy'
-		dataType: string
-		lineageTag: 5c055ec0-604c-49f1-99fa-d87cff2131d4
-		summarizeBy: none
-		sourceColumn: properties.networkAccessPolicy
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.timeCreated'
-		dataType: string
-		lineageTag: cf636967-ce8c-4922-a10a-a8ce6349380c
-		summarizeBy: none
-		sourceColumn: properties.timeCreated
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.diskSizeGB'
+	column diskSizeGB
 		dataType: double
-		lineageTag: 12ec3d0b-32dc-41a7-9b06-8adc11f4ead9
+		formatString: 0
+		lineageTag: 3d096969-5e1d-4c86-b27b-4a5052afaade
 		summarizeBy: sum
-		sourceColumn: properties.diskSizeGB
+		sourceColumn: diskSizeGB
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	column diskMBpsReadWrite
+		dataType: double
+		lineageTag: 553574b1-e3d9-4770-8f7f-c05d6a1763e3
+		summarizeBy: sum
+		sourceColumn: diskMBpsReadWrite
 
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column 'properties.hyperVGeneration'
-		dataType: string
-		lineageTag: 846d8ace-16fa-4fc8-83b0-d77ff75b9e60
-		summarizeBy: none
-		sourceColumn: properties.hyperVGeneration
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.diskSizeBytes'
+	column diskIOPSReadWrite
 		dataType: double
-		lineageTag: 69588c16-e1f7-4423-a050-147e83823716
+		lineageTag: d614472f-ffe3-45dd-ba19-50ddd2e628e6
 		summarizeBy: sum
-		sourceColumn: properties.diskSizeBytes
+		sourceColumn: diskIOPSReadWrite
 
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column 'properties.creationData.createOption'
+	column diskState
 		dataType: string
-		lineageTag: 967b33c4-a659-4e78-a76b-63edba801366
+		lineageTag: 0c4f4703-181e-4f33-8b15-f16a72d2278c
 		summarizeBy: none
-		sourceColumn: properties.creationData.createOption
+		sourceColumn: diskState
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'properties.creationData.imageReference.id'
-		dataType: string
-		lineageTag: 819ebb4b-c380-49d6-9b18-59d807d2ea91
+	column timeCreated
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f329e820-03af-4e98-849d-e94e9de82d56
 		summarizeBy: none
-		sourceColumn: properties.creationData.imageReference.id
+		sourceColumn: timeCreated
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'properties.osType'
-		dataType: string
-		lineageTag: 666c7b76-3df6-4cfb-b908-f81d7ffecdf8
+	column LastOwnershipUpdateTime
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: 48d08bc6-f897-48a9-9447-788df9150f94
 		summarizeBy: none
-		sourceColumn: properties.osType
+		sourceColumn: LastOwnershipUpdateTime
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'properties.LastOwnershipUpdateTime'
-		dataType: string
-		lineageTag: fcef111b-7b03-4329-a762-37ed1fbdf4ff
-		summarizeBy: none
-		sourceColumn: properties.LastOwnershipUpdateTime
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.diskState'
-		dataType: string
-		lineageTag: 515cbaa6-df64-484c-aef0-0e3804620405
-		summarizeBy: none
-		sourceColumn: properties.diskState
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.uniqueId'
-		dataType: string
-		lineageTag: 3ac2b374-3003-48ff-8fa4-f7d98991ac05
-		summarizeBy: none
-		sourceColumn: properties.uniqueId
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'properties.diskMBpsReadWrite'
-		dataType: double
-		lineageTag: 2f95f7e9-da97-4689-87e0-84b3903aff7d
-		summarizeBy: sum
-		sourceColumn: properties.diskMBpsReadWrite
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	column 'properties.diskIOPSReadWrite'
-		dataType: double
-		lineageTag: 490d018d-7a97-4546-ac90-157d803c424f
-		summarizeBy: sum
-		sourceColumn: properties.diskIOPSReadWrite
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	column 'properties.tier'
-		dataType: string
-		lineageTag: 9cdaeebc-4e7e-4795-9026-53f5cdc4a43e
-		summarizeBy: none
-		sourceColumn: properties.tier
-
-		annotation SummarizationSetBy = Automatic
-
-	column tags
-		dataType: string
-		lineageTag: 72b832d7-5eb6-4a58-9b2b-d135d659d231
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 032ff0cb-1cc0-48b6-a95d-d835578f742f
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 96b63e5f-b360-4135-b384-cf4a4f0c0e88
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: dc3f509c-ea2b-4c19-9085-2c6167e21d62
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
 
 	column diskType
 		dataType: string
-		lineageTag: efab8b0e-646d-4b4a-93c6-8196f1379fec
+		lineageTag: cb5aa8fb-6998-4746-b91a-c4241254bf26
 		summarizeBy: none
 		sourceColumn: diskType
 
@@ -283,55 +134,89 @@ table Disks
 
 	column parentVM
 		dataType: string
-		lineageTag: 8abc188f-2c52-4db8-967f-5447de969f33
+		lineageTag: c3703ad8-91fb-4863-867e-c77389dd7d35
 		summarizeBy: none
 		sourceColumn: parentVM
 
 		annotation SummarizationSetBy = Automatic
 
-	column apiVersion
+	column Redundancy
 		dataType: string
-		lineageTag: 9119af66-9eac-4189-a9ef-4e638296163a
+		lineageTag: 757f9390-cb96-46cb-8cad-ef02b08ba1ae
 		summarizeBy: none
-		sourceColumn: apiVersion
+		sourceColumn: Redundancy
 
 		annotation SummarizationSetBy = Automatic
 
-	column systemData
+	column id
 		dataType: string
-		lineageTag: 23170a02-4cd5-4a36-94e6-7def321f9cf4
+		lineageTag: aced1051-4fe8-4335-8f7d-b1bd4987f29c
 		summarizeBy: none
-		sourceColumn: systemData
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: 20d3ce4e-e586-49c6-a1c2-ce16d524d12a
+		summarizeBy: none
+		sourceColumn: resourceGroup
 
 		annotation SummarizationSetBy = Automatic
 
 	partition Disks = m
 		mode: import
 		queryGroup: 'Resource Graph'
-		source = ```
+		source =
 				let
-				  Source = AzureResourceGraph.Query("
-				    
-				    
+				  query = "
 				    resources
 				    | where type =~ 'microsoft.compute/disks'
 				    | extend id = tolower(id)
-				
-				
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "publicNetworkAccess", "encryption", "networkAccessPolicy", "timeCreated", "diskSizeGB", "hyperVGeneration", "diskSizeBytes", "creationData", "osType", "LastOwnershipUpdateTime", "diskState", "uniqueId", "diskMBpsReadWrite", "diskIOPSReadWrite", "tier"}, {"properties.provisioningState", "properties.publicNetworkAccess", "properties.encryption", "properties.networkAccessPolicy", "properties.timeCreated", "properties.diskSizeGB", "properties.hyperVGeneration", "properties.diskSizeBytes", "properties.creationData", "properties.osType", "properties.LastOwnershipUpdateTime", "properties.diskState", "properties.uniqueId", "properties.diskMBpsReadWrite", "properties.diskIOPSReadWrite", "properties.tier"}),
-				  #"Expanded sku" = Table.ExpandRecordColumn(#"Expanded properties", "sku", {"name", "tier"}, {"sku.name", "sku.tier"}),
-				  #"Expanded properties.creationData" = Table.ExpandRecordColumn(#"Expanded sku", "properties.creationData", {"createOption", "imageReference"}, {"properties.creationData.createOption", "properties.creationData.imageReference"}),
-				  #"Expanded properties.creationData.imageReference" = Table.ExpandRecordColumn(#"Expanded properties.creationData", "properties.creationData.imageReference", {"id"}, {"properties.creationData.imageReference.id"}),
-				  #"Expanded zones" = Table.ExpandListColumn(#"Expanded properties.creationData.imageReference", "zones"),
-				  #"Inserted conditional column" = Table.AddColumn(#"Expanded zones", "diskType", each if [properties.osType] = null then "Data Disk" else "OS Disk"),
-				  #"Changed column type" = Table.TransformColumnTypes(#"Inserted conditional column", {{"properties.diskSizeGB", type number}, {"properties.diskSizeBytes", type number}, {"properties.diskMBpsReadWrite", type number}, {"properties.diskIOPSReadWrite", type number}}),
-				  #"Duplicated column" = Table.DuplicateColumn(#"Changed column type", "managedBy", "managedBy - Copy"),
-				  #"Extracted text after delimiter" = Table.TransformColumns(#"Duplicated column", {{"managedBy - Copy", each Text.AfterDelimiter(Text.From(_), "/", {0, RelativePosition.FromEnd}), type text}}),
-				  #"Renamed columns" = Table.RenameColumns(#"Extracted text after delimiter", {{"managedBy - Copy", "parentVM"}})
+				    | extend skuName = sku.name
+				    | extend skuTier = sku.tier
+				    | extend timeCreated = properties.timeCreated
+				    | extend diskSizeGB = properties.diskSizeGB
+				    | extend diskState = properties.diskState
+				    | extend LastOwnershipUpdateTime = properties.LastOwnershipUpdateTime
+				    | extend diskMBpsReadWrite = properties.diskMBpsReadWrite
+				    | extend diskIOPSReadWrite = properties.diskIOPSReadWrite
+				    | extend osType = properties.osType
+				    | extend diskType = iff(isnull(osType), 'Data disk', 'OS disk')
+				    | parse kind=regex skuName with '_' Redundancy
+				    | parse kind=regex managedBy with 'virtualMachines/' parentVM
+				    | project
+				      subscriptionId,
+				      resourceGroup,
+				      id,
+				      name,
+				      tenantId,
+				      location,
+				      managedBy,
+				      osType,
+				      skuName,
+				      skuTier,
+				      diskSizeGB,
+				      diskMBpsReadWrite,
+				      diskIOPSReadWrite,
+				      diskState,
+				      timeCreated,
+				      LastOwnershipUpdateTime,
+				      Redundancy,
+				      parentVM,
+				      diskType
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "subscriptionId", "resourceGroup", "tenantId", "location", "managedBy", "osType", "skuName", "skuTier", "diskSizeGB", "diskMBpsReadWrite", "diskIOPSReadWrite", "diskState", "timeCreated", "LastOwnershipUpdateTime", "Redundancy", "parentVM", "diskType" },
+								{}
+							)
+				    else Source,
+				  Types = Table.TransformColumnTypes(NullHandling,{{"diskSizeGB", type number}, {"diskMBpsReadWrite", type number}, {"diskIOPSReadWrite", type number}, {"timeCreated", type datetimezone}, {"LastOwnershipUpdateTime", type datetimezone}})
 				in
-				  #"Renamed columns"
-				```
+				  Types
 
 	annotation PBI_NavigationStepName = Navigation
 

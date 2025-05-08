@@ -196,21 +196,39 @@ table ReservationRecommendations
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column RecommendedQuantityNormlized
-		dataType: string
-		lineageTag: b5b5042f-35e1-449d-93ff-2303c281ab5a
+	column x_BreakEvenDate
+		dataType: dateTime
+		formatString: Mmm d, yyyy
+		lineageTag: 84494ff0-ef51-4636-8d9b-7bbc7f681633
 		summarizeBy: none
-		sourceColumn: RecommendedQuantityNormlized
+		sourceColumn: x_BreakEvenDate
 
 		annotation SummarizationSetBy = Automatic
 
-	column TotaCostWithReservedInstances
-		dataType: string
-		lineageTag: bef2059d-6f01-4caa-aa95-42248227957c
-		summarizeBy: none
-		sourceColumn: TotaCostWithReservedInstances
+		annotation PBI_FormatHint = {"isCustom":true}
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column x_BreakEvenMonths
+		dataType: double
+		formatString: 0.0 mo
+		lineageTag: 4e18a526-f90e-4e01-ae84-44c2f3628b11
+		summarizeBy: sum
+		sourceColumn: x_BreakEvenMonths
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_CommitmentDiscountSavingsDailyRate
+		dataType: double
+		lineageTag: 5a1a0a4f-f2fa-4934-bb07-a3079b2bb314
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavingsDailyRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	partition ReservationRecommendations = m
 		mode: import
@@ -221,12 +239,34 @@ table ReservationRecommendations
 				    RawData = ftk_Storage("reservationrecommendations"),
 				
 				    _addMissing = (tbl, col, typ) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null, typ),
-				    FixTypes = Table.TransformColumnTypes(
+				    _getJsonCost = (tbl as table, col as text) as table => Table.RemoveColumns(
+				        Table.AddColumn(
+				            Table.RenameColumns(_addMissing(_addMissing(tbl, col, type any), col&"Json", type text), {{col, col&"Backup"}}),
+				            col,
+				            each if Record.Field(_, col&"Json") = null or Record.Field(_, col&"Json") = "" then
+				                if Value.Type(Record.Field(_, col&"Backup")) = type text and Text.Start(Record.Field(_, col&"Backup"), 1) = "{" then
+				                    try (Json.Document(Record.Field(_, col&"Backup"))[value]) otherwise Record.Field(_, col&"Backup")
+				                else
+				                    Record.Field(_, col&"Backup")
+				            else
+				                try (Json.Document(Record.Field(_, col&"Json"))[value]) otherwise Record.Field(_, col&"Backup"),
+				            type number
+				        ),
+				        {col&"Json", col&"Backup"},
+				        MissingField.Ignore
+				    ),
+				    Fixes = Table.TransformColumnTypes(
 				        Table.ReplaceValue(Table.ReplaceValue(
 				            // Create missing columns
-				            _addMissing(_addMissing(RawData,
+				            _addMissing(_addMissing(_addMissing(_addMissing(
+				                _getJsonCost(_getJsonCost(_getJsonCost(RawData,
+				                    "CostWithNoReservedInstances"),
+				                    "NetSavings"),
+				                    "TotalCostWithReservedInstances"),
 				                "RecommendedQuantityNormalized", type number),
 				                "TotalCostWithReservedInstances", type number),
+				                "SKU",     type text),
+				                "SkuName", type text),
 				            // Normalize frequency
 				            each [LookBackPeriod], each Text.Replace(Text.Replace([LookBackPeriod], "Last", ""), "Days", " Days"), Replacer.ReplaceValue, {"LookBackPeriod"}),
 				            // Fix inconsistent Microsoft term values
@@ -244,20 +284,19 @@ table ReservationRecommendations
 				        }
 				    ),
 				
-				    Rename = Table.RenameColumns(FixTypes, {
+				    Rename = Table.RenameColumns(Fixes, {
 				        {"CostWithNoReservedInstances",    "x_EffectiveCostBefore"},
 				        {"FirstUsageDate",                 "x_LookbackPeriodStart"},
 				        {"InstanceFlexibilityGroup",       "x_CommitmentDiscountNormalizedGroup"},
 				        {"InstanceFlexibilityRatio",       "x_CommitmentDiscountNormalizedRatio"},
 				        {"Location",                       "RegionName"},
-				        {"LookBackPeriod",                 "x_LookbackPeriodLabel"},
 				        {"MeterId",                        "x_SkuMeterId"},
+				        {"MeterID",                        "x_SkuMeterId"},
 				        {"NetSavings",                     "x_CommitmentDiscountSavings"},
 				        {"NormalizedSize",                 "x_CommitmentDiscountNormalizedSize"},
 				        {"RecommendedQuantity",            "x_RecommendedQuantity"},
 				        {"RecommendedQuantityNormalized",  "x_RecommendedQuantityNormalized"},
 				        {"ResourceType",                   "x_CommitmentDiscountResourceType"},
-				        {"SKU",                            "x_SkuSize"},
 				        {"Scope",                          "tmp_CommitmentDiscountScope"},
 				        {"SkuProperties",                  "x_SkuDetails"},
 				        {"Term",                           "x_SkuTerm"},
@@ -265,7 +304,9 @@ table ReservationRecommendations
 				    }, MissingField.Ignore),
 				
 				    Add = Table.RemoveColumns(
-				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
+				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
+				            "x_LookbackPeriodLabel",     each [LookBackPeriod] & (if Text.Contains([LookBackPeriod], "Days") then "" else " Days")),
+				            "x_SkuSize",                 each if [SKU] <> null then [SKU] else [SkuName]),
 				            "x_CommitmentDiscountKey",   each [x_CommitmentDiscountNormalizedSize] & [x_SkuMeterId]),
 				            "x_CommitmentDiscountScope", each if [tmp_CommitmentDiscountScope] = "Single" then "Subscription" else [tmp_CommitmentDiscountScope]),
 				            "x_SkuTermLabel",
@@ -274,7 +315,10 @@ table ReservationRecommendations
 				                else if [x_SkuTerm] = 12 then "1 year"
 				                else Text.From([x_SkuTerm] / 12) & " years"
 				            ),
-				        {"tmp_CommitmentDiscountScope"}
+				            "x_BreakEvenMonths",         each [x_EffectiveCostAfter] * [x_SkuTerm] / [x_EffectiveCostBefore], type number),
+				            "x_BreakEvenDate",           each Date.AddDays(DateTime.Date(DateTime.LocalNow()), 1 + Number.Round([x_BreakEvenMonths] * 30.437, 0)), type date),
+				            "x_CommitmentDiscountSavingsDailyRate", each [x_CommitmentDiscountSavings] / ([x_SkuTerm] - [x_BreakEvenMonths]) / (365/12), type number),
+				        {"tmp_CommitmentDiscountScope", "LookBackPeriod", "SKU", "SkuName"}
 				    ),
 				        
 				    // Sort columns alphabetically

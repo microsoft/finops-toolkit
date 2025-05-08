@@ -10,6 +10,7 @@ permissions:
   contents: write
   pull-requests: write
   statuses: write
+  id-token: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,6 +23,8 @@ jobs:
         ref: ${{ github.event.pull_request.head.ref }}
     - name: Set environment variable "commit-message"
       run: echo "commit-message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+    - name: Set environment variable "build_url"
+      run: echo "build_url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
     - name: Set environment variable "commit-author"
       run: echo "commit-author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
     - name: Set environment variable "is-auto-commit"
@@ -40,6 +43,18 @@ jobs:
           git push
         }
     - name: Test Open Data
+      id: test
       shell: pwsh
       run: |
         src/scripts/Build-OpenData.ps1 -Test
+    - uses: actions/github-script@v7
+      if: failure()
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '⚠️ Open Data CI task failed: ${{ env.build_url }}'
+          })

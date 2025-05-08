@@ -8,9 +8,6 @@
     .PARAMETER TenantId
     The Azure Active Directory tenant which contains the identity.
 
-    .PARAMETER BillingScope
-    Specifies whether to grant permissions at an enrollment or department level.
-
     .PARAMETER BillingAccountId
     The billing account ID (enrollment number) to grant permissions against.
 
@@ -18,14 +15,14 @@
     The department ID to grant permissions against.
 
     .EXAMPLE
-    Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Enrollment -BillingAccountId 12345
-    
-    Grants EA Reader permissions to the specified service principal or managed identity
-    
+    Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345
+
+    Grants Enterprise Administrator (read only) permissions to the specified service principal or managed identity
+
     .EXAMPLE
-    Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Department -BillingAccountId 12345 -DepartmentId 67890
-    
-    Grants department reader permissions to the specified service principal or managed identity
+    Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345 -DepartmentId 67890
+
+    Grants Department Administrator (read only) permissions to the specified service principal or managed identity
 #>
 function Add-FinOpsServicePrincipal
 {
@@ -42,6 +39,7 @@ function Add-FinOpsServicePrincipal
         [string]$DepartmentId
     )
 
+    $apiVersion = "2019-10-01-preview" # TODO: Update to latest version
     $azContext = Get-AzContext
 
     if (![string]::IsNullOrEmpty($DepartmentId) -and ![string]::IsNullOrEmpty($BillingAccountId))
@@ -69,7 +67,7 @@ function Add-FinOpsServicePrincipal
             }
 
             $roleDefinitionId = "/providers/Microsoft.Billing/billingAccounts/{0}/billingRoleDefinitions/24f8edb6-1668-4659-b5e2-40bb5f3a7d7e" -f $BillingAccountId
-            $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/billingRoleAssignments/{2}?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, (New-Guid).Guid
+            $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/billingRoleAssignments/{2}?api-version={3}" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, (New-Guid).Guid, $apiVersion
             $body = '{"properties": { "PrincipalId": "{0}", "PrincipalTenantId": "{1}", "roleDefinitionId": "{2}" } }'
             $body = $body.Replace("{0}", $ObjectId)
             $body = $body.Replace("{1}", $TenantId)
@@ -91,7 +89,7 @@ function Add-FinOpsServicePrincipal
             }
 
             $roleDefinitionId = "/providers/Microsoft.Billing/billingAccounts/{0}/departments/{1}/billingRoleDefinitions/db609904-a47f-4794-9be8-9bd86fbffd8a" -f $BillingAccountId, $DepartmentId
-            $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/departments/{2}/billingRoleAssignments/{3}?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, $DepartmentId, (New-Guid).Guid
+            $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/departments/{2}/billingRoleAssignments/{3}?api-version={4}" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, $DepartmentId, (New-Guid).Guid, $apiVersion
             $body = '{"properties": { "PrincipalId": "{0}", "PrincipalTenantId": "{1}", "roleDefinitionId": "{2}" } }'
             $body = $body.Replace("{0}", $ObjectId)
             $body = $body.Replace("{1}", $TenantId)

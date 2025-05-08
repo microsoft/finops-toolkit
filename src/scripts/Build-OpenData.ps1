@@ -10,7 +10,7 @@
 
     .PARAMETER Json
     Indicates that JSON files should be generated. Only applies to resource types. Default = false, if -PowerShell is not specified.
-    
+
     .PARAMETER Csv
     Indicates that CSV files should be generated from JSON files. Only applies to resource types. Default = false, if -PowerShell is not specified.
 
@@ -46,7 +46,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-opendata
 #>
-Param(
+param(
     [Parameter(Position = 0)]
     [string]
     $Name = "*",
@@ -139,7 +139,7 @@ function Write-KqlSplitFunction($Function, $Rows, $Columns)
     Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')"
     Write-Output "$Function(id: string) {"
     Write-Output "    dynamic({"
-    
+
     $firstRow = $true
     $Rows | ForEach-Object {
         $row = $_
@@ -158,7 +158,7 @@ function Write-KqlSplitFunction($Function, $Rows, $Columns)
         Write-Output "        $(if (-not $firstRow) { ',' })$($props[0]): { $(($props | Select-Object -Skip 1) -join ', ') }"
         $firstRow = $false
     }
-    
+
     Write-Output "    })[tolower(id)]"
     Write-Output "}"
 }
@@ -310,8 +310,8 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
                 if ($localInternalIconPath.EndsWith('.svg'))
                 {
                     if (Get-Item $localInternalIconPath)
-                    { 
-                        $internalIcon = Get-Content $localInternalIconPath -Raw 
+                    {
+                        $internalIcon = Get-Content $localInternalIconPath -Raw
                     }
                     else
                     {
@@ -341,6 +341,10 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
 
                 # Remove unnecessary properties/tags and switch opacity to fill-opacity (ffimg bug)
                 $icon = ($icon.Replace(" opacity=", " fill-opacity=") -replace ' xmlns:svg=', ' xmlns=' -replace " (focusable|role|xmlns:[^=]+)='[^']+'", "") -replace "<title>[^<]*</title>", ""
+                if ($icon -notmatch ' xmlns=')
+                {
+                    $icon = $icon -replace '<svg ', '<svg xmlns=''http://www.w3.org/2000/svg'' '
+                }
 
                 # Replace clip paths that change often
                 $icon = $icon -replace ' clip-path=''url\(#([^\)]+)', " clip-path='url(#$resourceType"
@@ -381,8 +385,10 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
             logOverrides $override.originalPlural        $override.plural        $asset.pluralDisplayName        'plural display name'
             logOverrides $override.originalLowerSingular $override.lowerSingular $asset.lowerSingularDisplayName 'lower singular display name'
             logOverrides $override.originalLowerPlural   $override.lowerPlural   $asset.lowerPluralDisplayName   'lower plural display name'
-            
-            [array]$links = $asset.links | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
+
+            [array]$links = $asset.links `
+            | Where-Object { @('https://aka.ms/portalfx/designpatterns', 'https://aka.ms/portalfx/browse') -notcontains $_.uri } `
+            | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
             $typeInfo = [PSCustomObject]@{
                 resourceType             = $resourceType
                 singularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
@@ -467,19 +473,19 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
     }
     Write-Host "Adding $($missingTypes.Count) missing resource types..."
     $resourceTypes += $missingTypes
-    
+
     # Sort resource types
     $resourceTypes = $resourceTypes | Sort-Object -Property resourceType
 
     # Save files
-    $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8    
+    $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8
 }
 
 if ($Csv)
 {
     # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
     function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
-    
+
     Get-Content "$srcDir/ResourceTypes.json" -Raw | ConvertFrom-Json -Depth 5 `
     | ForEach-Object {
         return [ordered]@{
@@ -507,7 +513,7 @@ if ($PowerShell)
         $file = $_
         $dataType = $file.BaseName
         $command = "Get-OpenData$($dataType.TrimEnd('s'))"
-    
+
         Write-Verbose "Generating $command from $dataType.csv..."
         Write-Command -Command $command -File $file      | Out-File "$psDir/Private/$command.ps1"          -Encoding ascii -Append:$false
         Write-Test -DataType $dataType -Command $command | Out-File "$psDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
@@ -538,7 +544,7 @@ if ($Hubs)
         'ResourceType',
         'SingularDisplayName'
     )
-    
+
     # Loop thru all datasets
     Get-ChildItem "$srcDir/*.csv" `
     | Where-Object { $_.Name -like "$Name.csv" -and $filesToUse -contains $_.BaseName }
@@ -546,12 +552,12 @@ if ($Hubs)
         $file = $_
         $dataType = $file.BaseName
         $function = ($dataType -creplace '([a-z])([A-Z])', '$1_$2').ToLower().TrimEnd('s')
-    
+
         Write-Verbose "Reading $dataType.csv..."
         $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') } `
         | Where-Object { $ColumnsToKeep -contains $_ }
         $rows = Import-Csv $File
-        
+
         # Split the array into groups
         $parts = @()
         for ($i = 0; $i -lt $rows.Count; $i += $rowsPerFile)
@@ -594,8 +600,8 @@ if ($Hubs)
     {
         if (
             $line -notmatch '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' `
-            -and $line -notmatch '^\+\s*$' `
-            -and $line -notmatch '^\-\s*$' `
+                -and $line -notmatch '^\+\s*$' `
+                -and $line -notmatch '^\-\s*$' `
         )
         {
             $hasFunctionalChanges = $true

@@ -112,6 +112,34 @@ table Costs
 			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
 		lineageTag: ac79fd49-6124-47a6-8538-0d4cc28df316
 
+	measure x_SkuCoreCountMeasure = ```
+			
+			SUMX(
+			    SUMMARIZE(
+			        Costs,
+			        Costs[ResourceId], 
+			        "DistinctCoreCount", MAX(Costs[x_SkuCoreCount])
+			    ),
+			    [DistinctCoreCount]
+			)
+			```
+		formatString: 0
+		lineageTag: 1711f914-63b0-4377-b235-10898e6fc4ab
+
+	measure x_SkuLicenseQuantityMeasure = ```
+			
+			SUMX(
+			    SUMMARIZE(
+			        Costs,
+			        Costs[ResourceId], 
+			        "DistinctCoreCount", MAX(Costs[x_SkuLicenseQuantity])
+			    ),
+			    [DistinctCoreCount]
+			)
+			```
+		formatString: 0
+		lineageTag: 902eb4c9-763a-4b55-952d-5f8321aebbe2
+
 	column ResourceId
 		dataType: string
 		lineageTag: 62265a48-5fe0-4b5c-8440-16f5b641adc8
@@ -482,7 +510,7 @@ table Costs
 		dataType: double
 		formatString: 0.000
 		lineageTag: 75e78962-cbcf-4ac8-b524-cd42347cc8a7
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_PartnerCreditRate
 
 		annotation SummarizationSetBy = Automatic
@@ -677,7 +705,7 @@ table Costs
 		dataType: int64
 		formatString: 0
 		lineageTag: 88eda475-e159-4b0b-a443-c6f8bfa23b72
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_SkuTerm
 
 		changedProperty = DataType
@@ -1175,54 +1203,6 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
-	column CommitmentDiscountNameUnique
-		dataType: string
-		lineageTag: fab2c83c-a0da-40d2-aeaf-3f147d997db8
-		summarizeBy: none
-		sourceColumn: CommitmentDiscountNameUnique
-
-		annotation SummarizationSetBy = Automatic
-
-	column ResourceNameUnique
-		dataType: string
-		lineageTag: 2f597d4c-4e4c-46ff-bf5c-451758ac5988
-		summarizeBy: none
-		sourceColumn: ResourceNameUnique
-
-		annotation SummarizationSetBy = Automatic
-
-	column SubAccountNameUnique
-		dataType: string
-		lineageTag: 075b0376-91cf-4627-8408-7231aa14294c
-		summarizeBy: none
-		sourceColumn: SubAccountNameUnique
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_FreeReason
-		dataType: string
-		lineageTag: ae4d18e7-7ce7-453a-b5ae-6f33d44459fa
-		summarizeBy: none
-		sourceColumn: x_FreeReason
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_ResourceGroupNameUnique
-		dataType: string
-		lineageTag: 8998d466-48f5-4f38-befa-ff5058fb71ff
-		summarizeBy: none
-		sourceColumn: x_ResourceGroupNameUnique
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_SourceChanges
-		dataType: string
-		lineageTag: a4435a0f-a472-4469-be00-bd732eedae86
-		summarizeBy: none
-		sourceColumn: x_SourceChanges
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_ChargeMonth
 		dataType: dateTime
 		formatString: Mmm yyyy
@@ -1355,7 +1335,7 @@ table Costs
 		dataType: double
 		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: 72920dc6-4141-449d-be83-28d5a282f9fc
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_TotalDiscountPercent
 
 		changedProperty = DataType
@@ -1622,7 +1602,7 @@ table Costs
 				        Table.ReplaceErrorValues(Table.AddColumn(FTK, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
 				        "tmp_Tags",
 				        PromotedTags,
-				        List.Transform(PromotedTags, each "tag_" & _)
+				        List.Transform(PromotedTags, each "tag_" & Text.Replace(_, " ", ""))
 				    ),
 				
 				    // AHB columns
@@ -1644,9 +1624,7 @@ table Costs
 				            "x_SkuLicenseQuantity",
 				                each if [x_SkuCoreCount] = null then 0
 				                else if [x_SkuCoreCount] <= 8 then 8
-				                else if [x_SkuCoreCount] <= 16 then 16
-				                else if [x_SkuCoreCount] = 20 then 24
-				                else if [x_SkuCoreCount] > 20 then [x_SkuCoreCount]
+				                else if [x_SkuCoreCount] > 8 then [x_SkuCoreCount]
 				                else 0,
 				                type number
 				            ),

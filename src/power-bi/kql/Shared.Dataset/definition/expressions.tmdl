@@ -18,34 +18,6 @@ expression '▶️  START HERE' = ```
 				        else if (ClusterUrlSegmentCount = 1 or ClusterUrlSegmentCount = 3) then {"✔️ Specified", "Will use cluster: " & ClusterUrl & "."}
 				        else {"✖️ Invalid", "Unable to validate to the specified cluster: " & ClusterUrl & "."},
 				
-				    // Storage
-				    StorageUrl = #"Storage URL",
-				    StorageUrlSegments = if StorageUrl <> null then Text.Split(StorageUrl, "/") else {},
-				    StorageUrlSegmentCount = List.Count(StorageUrlSegments),
-				    StorageCheck = 
-				        if StorageUrl = "" or StorageUrl = null then {"✖ Invalid", "Storage URL not specified."}
-				        else if Text.StartsWith(StorageUrl, "https://") = false then {"✖ Invalid", "Storage URL must be a valid HTTPS path."} 
-				        else if (StorageUrlSegmentCount = 4 and Text.Lower(StorageUrlSegments{3}) = "ingestion") or (StorageUrlSegmentCount = 7 and Text.Lower(StorageUrlSegments{5}) = "Files" and Text.Lower(StorageUrlSegments{6}) = "ingestion") then (
-				            {"✔️ Specified", "Will use FinOps hub storage: " & Text.Split(StorageUrl, "."){0} & "."}
-				            // TODO: Consider validating the hub version
-				            // let
-				            //     // Looks like hubs; try to get hub version
-				            //     Settings = try Json.Document(AzureStorage.DataLake(StorageUrl & (if StorageUrlSegmentCount = 3 then "/config" else "/../config")){[Name="settings.json"]}[Content], 1252) otherwise null,
-				            //     HubVersion = if Settings <> null then try Settings[version] otherwise null else null,
-				            //     Output = 
-				            //         if HubVersion = null then (
-				            //             if StorageUrlSegmentCount = 4                                                      and Text.Lower(StorageUrlSegments{3}) = "ingestion" then {"❓️ Unconfirmed", "Unable to confirm FinOps hub version from storage: " & Text.Split(StorageUrl, "."){0} & "."}
-				            //             else if StorageUrlSegmentCount = 7 and Text.Lower(StorageUrlSegments{5}) = "Files" and Text.Lower(StorageUrlSegments{6}) = "ingestion" then {"❓️ Unconfirmed", "Unable to confirm FinOps hub version from OneLake: " & Text.Split(StorageUrl, "."){0} & "."}
-				            //             else {"✖️ Invalid", "Configured storage account does not have FinOps hubs deployed."}
-				            //         )
-				            //         else {"✔️ Specified", "Will use FinOps hub v" & HubVersion & " storage: " & Text.Split(StorageUrl, "."){0} & "."}
-				            // in
-				            //     Output
-				        )
-				        else if (try AzureStorage.DataLake(StorageUrl) otherwise null) <> null then {"✔️ Specified", "Will use exports in storage account: " & Text.Split(StorageUrl, "."){0} & "."}
-				        // TODO: Read export manifests from the storage account to validate data is available
-				        else {"✖️ Invalid", "Unable to validate the specified storage account: " & Text.Split(StorageUrl, "."){0} & "."},
-				
 				    // Incremental refresh
 				    DateEnd = null,
 				    DateStart = null,
@@ -77,19 +49,7 @@ expression '▶️  START HERE' = ```
 		                [ Instructions = "        ➖ Open Deployments > `hub` > Outputs", Value = "", Status = "", Message = "" ],
 		                [ Instructions = "        ➖ Copy the 'clusterUri' value", Value = "", Status = "", Message = "" ],
 		                [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-		                [ Instructions = "② Set the storage URL on the left", Value = StorageUrl, Status = StorageCheck{0}, Message = StorageCheck{1} ],
-				        [ Instructions = "        If using FinOps hubs:", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ➖ Go to your hub resource group", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ➖ Open Deployments > `hub` > Outputs", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ➖ Copy the 'HubUrlForPowerBI' value", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        If using exports:", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ➖ Go to your storage account", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ➖ Open Endpoints", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ➖ Copy the 'Data Lake Storage' value", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ➖ Optionally add a container or file path", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "③ Optional: Set the desired date range", Value = DateValue, Status = DateCheck{0}, Message = DateCheck{1} ],
+		                [ Instructions = "② Optional: Set the desired date range", Value = DateValue, Status = DateCheck{0}, Message = DateCheck{1} ],
 				        [ Instructions = "        ", Value = "", Status = "", Message = "" ]
 				    })
 				in
@@ -113,15 +73,15 @@ expression 'Number of Months' = 13 meta [IsParameterQuery=true, Type="Number", I
 
 /// Generates a KQL filter to be used in Resource Graph queries to filter out test data.
 expression ftk_DemoFilter =
-				() =>
-		        if List.Contains(
-		            {
-		                "demohubupzaljui2bxfm",
-		                "hubdssjcx4ai7tjs",
-		                "kustohubbngtbihvy5t4a"
-		            }, Text.SplitAny(#"Storage URL", "/."){2})
-		        then "| where subscriptionId in ('51f73f67-1f29-4120-863e-dd315f743fc1', '586f1d47-9dd9-43d5-b196-6e28f8405ff8', '64e355d7-997c-491d-b0c1-8414dccfcf42', '736af2bf-9fcb-4145-a19b-5b30b2b8949d', '73c0021f-a37d-433f-8baa-7450cb54eea6', '9ec51cfd-5ca7-4d76-8101-dd0a4abc5674', 'ed570627-0265-4620-bb42-bae06bcfa914')"
-		        else ""
+		() =>
+		    if List.Contains(
+		        {
+		            "demohubupzaljui2bxfm",
+		            "hubdssjcx4ai7tjs",
+		            "kustohubbngtbihvy5t4a"
+		        }, Text.SplitAny(#"Storage URL", "/."){2})
+		    then "| where subscriptionId in ('51f73f67-1f29-4120-863e-dd315f743fc1', '586f1d47-9dd9-43d5-b196-6e28f8405ff8', '64e355d7-997c-491d-b0c1-8414dccfcf42', '736af2bf-9fcb-4145-a19b-5b30b2b8949d', '73c0021f-a37d-433f-8baa-7450cb54eea6', '9ec51cfd-5ca7-4d76-8101-dd0a4abc5674', 'ed570627-0265-4620-bb42-bae06bcfa914')"
+		    else ""
 	lineageTag: 4d4c22f9-d4dc-4c2e-9730-dbc47fa53b05
 	queryGroup: Functions
 
@@ -148,4 +108,46 @@ expression 'Default Granularity' = "Monthly" meta [IsParameterQuery=true, List={
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Text
+
+expression PolicyDefinitions =
+		let
+		  query = "
+		    policyResources
+		    | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'
+		    | extend
+		      displayName = properties.displayName,
+		      policyType = properties.policyType,
+		      description = properties.description,
+		      version = properties.version,
+		      parameters = properties.parameters,
+		      policyDefinitions = properties.policyDefinitions,
+		      policyDefinitionGroups = properties.policyDefinitionGroups,
+		      versions = properties.versions,
+		      oldVersions = properties.oldVersions
+		  " & ftk_DemoFilter(),
+		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+		  NullHandling =
+		    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+					#table(
+						{ "id", "name", "displayName", "policyType", "description", "version", "parameters", "policyDefinitions", "policyDefinitionGroups", "versions", "oldVersions" },
+						{}
+					)
+		    else Source
+		in
+		  NullHandling
+	lineageTag: b34adf6c-2d9c-4731-b2cf-c1b5e24b4748
+	queryGroup: 'Resource Graph'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+/// Indicates whether we should remove duplicate resource IDs reported from Azure Resource Graph (ARG). This may lead to incorrect or incomplete data. Please file a support request with the ARG team to resolve the issue.
+expression 'Remove Duplicate Resource IDs' = false meta [IsParameterQuery=true, List={false, true}, DefaultValue=false, Type="Logical", IsParameterQueryRequired=true]
+	lineageTag: 8874e3dd-ace8-4145-bc74-acb63aa36684
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
 

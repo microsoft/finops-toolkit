@@ -133,9 +133,10 @@ table AdvisorReservationRecommendations
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.lookbackPeriod'
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 82a3a6d5-01c1-4db7-be17-572b62ceb699
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.lookbackPeriod
 
 		annotation SummarizationSetBy = Automatic
@@ -385,32 +386,98 @@ table AdvisorReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
+	column properties
+		dataType: string
+		lineageTag: 0d32e76f-c900-4a15-b9ed-03b50dc581a8
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.shortDescription'
+		dataType: string
+		lineageTag: 5ed5ac30-eac0-4e94-8539-9092867e2a8e
+		summarizeBy: none
+		sourceColumn: properties.shortDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceMetadata'
+		dataType: string
+		lineageTag: 42f6c299-bcec-47a5-ad78-cb16c57a372f
+		summarizeBy: none
+		sourceColumn: properties.resourceMetadata
+
+		annotation SummarizationSetBy = Automatic
+
 	partition AdvisorReservationRecommendations = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("
+				  query = "
 				    advisorresources
 				    | where type == 'microsoft.advisor/recommendations'
 				    | where properties['category'] == 'Cost'
 				    | where properties['shortDescription']['solution'] == 'Consider virtual machine reserved instance to save over your on-demand costs'
-				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = true]),
-				  #"Expanded properties 1" = Table.ExpandRecordColumn(Source, "properties", {"recommendationTypeId", "extendedProperties", "resourceMetadata", "shortDescription", "suppressionIds", "impactedField", "impactedValue", "lastUpdated", "metadata", "category", "impact"}, {"properties.recommendationTypeId", "properties.extendedProperties", "properties.resourceMetadata", "properties.shortDescription", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.metadata", "properties.category", "properties.impact"}),
-				  #"Expanded properties.shortDescription 1" = Table.ExpandRecordColumn(#"Expanded properties 1", "properties.shortDescription", {"solution", "problem"}, {"properties.shortDescription.solution", "properties.shortDescription.problem"}),
-				  #"Expanded properties.extendedProperties" = Table.ExpandRecordColumn(#"Expanded properties.shortDescription 1", "properties.extendedProperties", {"reservedResourceType", "annualSavingsAmount", "targetResourceCount", "savingsCurrency", "lookbackPeriod", "savingsAmount", "displaySKU", "displayQty", "location", "region", "vmSize", "subId", "scope", "term", "sku", "qty"}, {"properties.extendedProperties.reservedResourceType", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.targetResourceCount", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.displaySKU", "properties.extendedProperties.displayQty", "properties.extendedProperties.location", "properties.extendedProperties.region", "properties.extendedProperties.vmSize", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.qty"}),
-				  #"Expanded properties.resourceMetadata" = Table.ExpandRecordColumn(#"Expanded properties.extendedProperties", "properties.resourceMetadata", {"resourceId", "singular", "plural", "action", "source"}, {"properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source"}),
-				  #"Changed column type 2" = Table.TransformColumnTypes(#"Expanded properties.resourceMetadata", {{"properties.extendedProperties.annualSavingsAmount", type number}}, "en-US"),
-				  #"Replaced errors" = Table.ReplaceErrorValues(#"Changed column type 2", {{"properties.extendedProperties.annualSavingsAmount", null}}),
-				  #"Changed column type 1" = Table.TransformColumnTypes(#"Replaced errors", {{"properties.extendedProperties.savingsAmount", type number}}, "en-US"),
-				  #"Replaced errors 1" = Table.ReplaceErrorValues(#"Changed column type 1", {{"properties.extendedProperties.savingsAmount", null}}),
-				  #"Replaced value" = Table.ReplaceValue(#"Replaced errors 1", null, 0, Replacer.ReplaceValue, {"properties.extendedProperties.savingsAmount"}),
-				  #"Replaced value 1" = Table.ReplaceValue(#"Replaced value", null, 0, Replacer.ReplaceValue, {"properties.extendedProperties.annualSavingsAmount"}),
-				  #"Changed column type" = Table.TransformColumnTypes(#"Replaced value 1", {{"properties.lastUpdated", type datetimezone}}),
-				  #"Added custom" = Table.TransformColumnTypes(Table.AddColumn(#"Changed column type", "recommendedActions", each [properties.extendedProperties.displaySKU] & " virtual machines in " & [properties.extendedProperties.location]), {{"recommendedActions", type text}}),
-				  #"Changed column type 3" = Table.TransformColumnTypes(#"Added custom", {{"properties.extendedProperties.targetResourceCount", Int64.Type}, {"properties.extendedProperties.displayQty", Int64.Type}, {"properties.extendedProperties.qty", Int64.Type}})
+				    | extend
+				      ['properties.recommendationTypeId'] = properties.recommendationTypeId,
+				      ['properties.shortDescription'] = properties.shortDescription,
+				      ['properties.resourceMetadata'] = properties.resourceMetadata,
+				      ['properties.suppressionIds'] = properties.suppressionIds,
+				      ['properties.impactedField'] = properties.impactedField,
+				      ['properties.impactedValue'] = properties.impactedValue,
+				      ['properties.lastUpdated'] = todatetime(properties.lastUpdated),
+				      ['properties.category'] = properties.category,
+				      ['properties.metadata'] = properties.metadata,
+				      ['properties.impact'] = properties.impact,
+				      ['properties.shortDescription.problem'] = properties.shortDescription.problem,
+				      ['properties.shortDescription.solution'] = properties.shortDescription.solution,
+				      ['properties.extendedProperties.reservedResourceType'] = properties.extendedProperties.reservedResourceType,
+				      ['properties.extendedProperties.annualSavingsAmount'] = properties.extendedProperties.annualSavingsAmount,
+				      ['properties.extendedProperties.targetResourceCount'] = toint(properties.extendedProperties.targetResourceCount),
+				      ['properties.extendedProperties.savingsCurrency'] = properties.extendedProperties.savingsCurrency,
+				      ['properties.extendedProperties.lookbackPeriod'] = properties.extendedProperties.lookbackPeriod,
+				      ['properties.extendedProperties.savingsAmount'] = properties.extendedProperties.savingsAmount,
+				      ['properties.extendedProperties.displaySKU'] = properties.extendedProperties.displaySKU,
+				      ['properties.extendedProperties.displayQty'] = toint(properties.extendedProperties.displayQty),
+				      ['properties.extendedProperties.location'] = properties.extendedProperties.location,
+				      ['properties.extendedProperties.region'] = properties.extendedProperties.region,
+				      ['properties.extendedProperties.vmSize'] = properties.extendedProperties.vmSize,
+				      ['properties.extendedProperties.subId'] = properties.extendedProperties.subId,
+				      ['properties.extendedProperties.scope'] = properties.extendedProperties.scope,
+				      ['properties.extendedProperties.term'] = properties.extendedProperties.term,
+				      ['properties.extendedProperties.sku'] = properties.extendedProperties.sku,
+				      ['properties.extendedProperties.qty'] = toint(properties.extendedProperties.qty),
+				      ['properties.resourceMetadata.resourceId'] = tolower(properties.resourceMetadata.resourceId),
+				      ['properties.resourceMetadata.singular'] = properties.resourceMetadata.singular,
+				      ['properties.resourceMetadata.plural'] = properties.resourceMetadata.plural,
+				      ['properties.resourceMetadata.action'] = properties.resourceMetadata.action,
+				      ['properties.resourceMetadata.source'] = properties.resourceMetadata.source,
+				      recommendedActions = strcat(properties.extendedProperties.displaySKU, ' virtual machines in ', properties.extendedProperties.location),
+				      SortOrder = case(properties.impact == 'High', 1, properties.impact == 'Medium', 2, properties.impact == 'Low', 3, 9)
+				    | order by SortOrder asc
+				    | project-away SortOrder
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.recommendationTypeId", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact", "properties.shortDescription.problem", "properties.shortDescription.solution", "properties.extendedProperties.reservedResourceType", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.targetResourceCount", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.displaySKU", "properties.extendedProperties.displayQty", "properties.extendedProperties.location", "properties.extendedProperties.region", "properties.extendedProperties.vmSize", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.qty", "properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source", "recommendedActions" },
+								{}
+							)
+				    else Source,
+				  Types = Table.TransformColumnTypes(NullHandling, {
+				    {"properties.extendedProperties.annualSavingsAmount",        type number},
+				    {"properties.extendedProperties.savingsAmount",              type number},
+				    {"properties.extendedProperties.qty",                        Int64.Type},
+				    {"properties.extendedProperties.displayQty",                 Int64.Type},
+				    {"properties.extendedProperties.lookbackPeriod",             Int64.Type},
+				    {"properties.extendedProperties.targetResourceCount",        Int64.Type},
+				    {"properties.lastUpdated",                                   type datetimezone}
+				  })
 				in
-				  #"Changed column type 3"
+				  Types
 
 	annotation PBI_NavigationStepName = Navigation
 
