@@ -52,13 +52,20 @@ type HubDeploymentConfig = {
 
 @description('FinOps hub storage settings to be used when creating storage accounts.')
 @metadata({
-  name: 'Name of the storage account for this publisher.'
   sku: 'Storage account SKU. Allowed values: "Premium_LRS", "Premium_ZRS".'
   isInfrastructureEncrypted: 'Indicates whether infrastructure encryption is enabled for the storage account.'
 })
 type HubStorageConfig = {
   sku: string
   isInfrastructureEncrypted: bool
+}
+
+@description('FinOps hub KeyVault settings to be used when creating vaults.')
+@metadata({
+  sku: 'KeyVault SKU. Allowed values: "standard", "premium".'
+})
+type HubVaultConfig = {
+  sku: string
 }
 
 @description('FinOps hub network settings.')
@@ -74,6 +81,8 @@ type HubStorageConfig = {
     table: 'Resource ID and name for the table storage DNS zone.'
   }
   subnets: {
+    dataFactory: 'Resource ID of the subnet for Data Factory instances.'
+    keyVault: 'Resource ID of the subnet for Key Vault instances.'
     scripts: 'Resource ID of the subnet for deployment script storage.'
     storage: 'Resource ID of the subnet for storage accounts.'
   }
@@ -90,6 +99,8 @@ type HubNetworkConfig = {
     table: IdNameObject
   }
   subnets: {
+    dataFactory: string
+    keyVault: string
     scripts: string
     storage: string
   }
@@ -101,12 +112,14 @@ type HubNetworkConfig = {
   hub: 'FinOps hub instance details'
   deployment: 'FinOps hub deployment details'
   storage: 'FinOps hub storage details'
+  keyVault: 'FinOps hub KeyVault details'
   network: 'FinOps hub network details'
 })
 type HubCoreConfig = {
   hub: HubInstanceConfig
   deployment: HubDeploymentConfig
   storage: HubStorageConfig
+  keyVault: HubVaultConfig
   network: HubNetworkConfig
 }
 
@@ -127,6 +140,8 @@ type HubCoreConfig = {
     name: 'Fully-qualified namespace of the FinOps hub app publisher.'
     displayName: 'Display name of the FinOps hub app publisher.'
     tags: 'Tags to apply to all FinOps hub resources for this FinOps hub app publisher.'
+    dataFactory: 'Name of the Data Factory instance for this publisher.'
+    keyVault: 'Name of the KeyVault instance for this publisher.'
     storage: 'Name of the storage account for this publisher.'
     subnetId: 'Resource ID of the private endpoint subnet for the storage account.'
   }
@@ -143,6 +158,7 @@ type HubAppConfig = {
   hub: HubInstanceConfig
   deployment: HubDeploymentConfig
   storage: HubStorageConfig
+  keyVault: HubVaultConfig
   network: HubNetworkConfig
   publisher: {
     // id: string
@@ -150,6 +166,8 @@ type HubAppConfig = {
     displayName: string
     suffix: string
     tags: object
+    dataFactory: string
+    keyVault: string
     storage: string
   }
   app: {
@@ -164,7 +182,7 @@ type HubAppConfig = {
 
 @export()
 @description('FinOps hub app features.')
-type HubAppFeature = 'Storage'
+type HubAppFeature = 'DataFactory' | 'KeyVault' | 'Storage'
 
 
 //==============================================================================
@@ -209,6 +227,7 @@ func newHubCoreConfigInternal(
   tags object,
   tagsByResource object,
   storageSku string,
+  keyVaultSku string,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   networkName string,
@@ -236,9 +255,11 @@ func newHubCoreConfigInternal(
     }
   )
   storage: {
-    // name: ''
     sku: storageSku
     isInfrastructureEncrypted: enableInfrastructureEncryption
+  }
+  keyVault: {
+    sku: keyVaultSku
   }
   network: enablePublicAccess ? {
     isPrivate: false
@@ -252,6 +273,8 @@ func newHubCoreConfigInternal(
       table: { id: '', name: '' }
     }
     subnets: {
+      dataFactory: ''
+      keyVault: ''
       scripts: ''
       storage: ''
     }
@@ -267,6 +290,8 @@ func newHubCoreConfigInternal(
       table: dnsZoneIdName('table')
     }
     subnets: {
+      dataFactory: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')
+      keyVault: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')
       scripts: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')
       storage: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')
     }
@@ -281,6 +306,7 @@ func newHubCoreConfig(
   tags object,
   tagsByResource object,
   storageSku string,
+  keyVaultSku string,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   networkAddressPrefix string,
@@ -293,9 +319,10 @@ func newHubCoreConfig(
   tags,
   tagsByResource,
   storageSku,
+  keyVaultSku,
   enableInfrastructureEncryption,
   enablePublicAccess,
-  '${safeName(name)}-vnet-${location}',    // networkName
+  '${safeName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
   networkAddressPrefix
 )
 
@@ -322,6 +349,13 @@ func newAppInternalConfig(
     displayName: publisher
     suffix: publisherSuffix
     tags: union(coreConfig.hub.tags, publisherTags)
+
+    // Globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
+    dataFactory: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-engine', 63 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
+
+    // Globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
+    keyVault: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-vault', 24 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
+
     storage: '${take(coreConfig.hub.safeName, 24 - length(publisherSuffix))}${publisherSuffix}'
   }
   app: {
