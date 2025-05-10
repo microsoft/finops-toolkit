@@ -762,6 +762,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "l3hMichaelPeterson",
+      "name": "l3hMichaelPeterson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/202707120?v=4",
+      "profile": "https://github.com/l3hMichaelPeterson",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
