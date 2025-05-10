@@ -1,0 +1,50 @@
+---
+pagetitle: FinOps Open Cost and Usage Specification
+...
+
+<img src="images/focus_logo.png" alt="FOCUS Logo" class="focus_logo" />
+<h1 class="title">FinOps Open Cost and Usage Specification</h1>
+
+!INCLUDE "version.md",0
+
+!INCLUDE "license.md",0
+
+## Abstract
+
+FOCUS is an open-source specification for billing data. It defines a common schema for billing data, aligns terminology with the FinOps Framework and defines a minimum set of requirements for billing data. The specification provides clear guideline for billing data generators to produce FinOps-serviceable data. The specification enables FinOps practitioners to perform common FinOps capabilities such as chargeback, cost allocation, budgeting and forecasting etc. using a generic set of instructions, regardless of the origin of the FOCUS compatible dataset.
+
+<div style="page-break-after: always"></div>
+
+!INCLUDE "contributors.md",0
+
+<div style="page-break-after: always"></div>
+
+## Table of Contents
+
+!TOC
+
+<div style="page-break-after: always"></div>
+
+!INCLUDE "overview.md",1
+
+<div style="page-break-after: always"></div>
+
+!INCLUDE "columns/columns.mdpp",1
+
+!INCLUDE "attributes/attributes.mdpp",1
+
+<div style="page-break-after: always"></div>
+
+!INCLUDE "metadata/metadata.mdpp",1
+
+<div style="page-break-after: always"></div>
+
+!INCLUDE "use_case_library.md",1
+
+<div style="page-break-after: always"></div>
+
+!INCLUDE "glossary.md",1
+
+<div style="page-break-after: always"></div>
+
+!INCLUDE "appendix/appendix.mdpp",1

@@ -1,0 +1,6 @@
+@import "base.css";
+
+body {
+    background: url('../images/draft_bg.png');
+    background-size: 600px 600px;
+}

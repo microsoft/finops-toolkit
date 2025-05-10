@@ -1,0 +1,8 @@
+# Metadata
+
+The FOCUS specification defines a metadata structure to be supplied by data providers to facilitate practitioners' use of FOCUS data. This metadata includes general information about the data generator and the schema of the [*FOCUS dataset*](#glossary:FOCUS-dataset).
+
+FOCUS Metadata SHOULD be provided in a format that is accessible programmatically, such as a file, website, API, or table. Providers SHOULD provide documentation on their implementation of the FOCUS metadata.
+
+!INCLUDE "data_generator/data_generator.mdpp",1
+!INCLUDE "schema/schema.mdpp",1

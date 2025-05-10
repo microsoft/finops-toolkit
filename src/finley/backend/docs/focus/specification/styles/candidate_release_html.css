@@ -1,0 +1,6 @@
+@import "base_html.css";
+
+body {
+    background: url('../images/candidate_release_bg.png');
+    background-size: 600px 200px;
+}

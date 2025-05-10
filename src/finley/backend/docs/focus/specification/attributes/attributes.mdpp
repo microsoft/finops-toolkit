@@ -1,0 +1,16 @@
+# Attributes
+
+Attributes are requirements that apply across a [*FOCUS dataset*](#glossary:FOCUS-dataset) instead of an individual column level. Requirements on data content can include naming
+conventions, data types, formatting standardizations, etc. Attributes may introduce high-level requirements
+for data granularity, recency, frequency, etc. Requirements defined in attributes are necessary for servicing
+[FinOps capabilities][FODOFC] accurately using a standard set of instructions regardless of the origin of the data.
+
+!INCLUDE "column_naming_and_ordering.md",1
+!INCLUDE "currency_code_format.md",1
+!INCLUDE "datetime_format.md",1
+!INCLUDE "discount_handling.md",1
+!INCLUDE "key_value_format.md",1
+!INCLUDE "null_handling.md",1
+!INCLUDE "numeric_format.md",1
+!INCLUDE "string_handling.md",1
+!INCLUDE "unit_format.md",1

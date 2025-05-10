@@ -1,0 +1,115 @@
+html {
+  font-size: 100%;
+  overflow-y: scroll;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  color: #444;
+  font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 0;
+  margin: 1in;
+  max-width: 100%;
+}
+
+table {
+  margin-bottom: 2em;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+table th {
+  padding: .2em 1em;
+  background-color: #eee;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+}
+
+table td {
+  padding: .2em 1em;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  vertical-align: top;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #111;
+  line-height: 125%;
+  margin-top: 2em;
+  font-weight: normal;
+}
+
+h4,
+h5,
+h6 {
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 2.0em;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 1.7em;
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+h4 {
+  font-size: 1.3em;
+}
+
+h5 {
+  font-size: 1.1em;
+}
+
+h6 {
+  font-size: 0.9em;
+}
+
+.title {
+  color: #344868;
+  font-size: 3em;
+  text-align: center;
+  font-weight: bold;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+}
+
+.focus_logo {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 500px;
+}
+
+ul.toc {
+  list-style: none;
+  /* Remove default bullets */
+}
+
+ul.toc.tocdepth1 li.toc.item a {
+  color: black;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+ul.toc.tocdepth2 li.toc.item a {
+  color: black;
+  font-size: 14px;
+  text-decoration: none;
+}

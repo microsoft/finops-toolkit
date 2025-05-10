@@ -1,0 +1,24 @@
+# Metadata Examples
+
+The following sections contain examples of metadata provided by a hypothetical FOCUS data provider called ACME to supply the required reference between the [*FOCUS dataset*](#glossary:FOCUS-dataset) and the schema metadata.  Provider implementations will vary on how the metadata is disseminated; however, the provider's chosen metadata delivery approach should be able to support the structure represented in this example.
+
+In this example, the provider supports delivery of FOCUS data via file export to a data storage system. It uses JSON as the format for providing the metadata. The provider delivers data every 12 hours into a path structure described below:
+
+| Type of data        | Path              |
+|:--------------------|:------------------|
+| Export location     | `/FOCUS`          |
+| Metadata location   | `/FOCUS/metadata` |
+| Cost data location  | `/FOCUS/data`     |
+
+Here are some metadata examples for various scenarios:
+
+!INCLUDE "data_generator_example.md",1
+!INCLUDE "schema_metadata_example.md",1
+!INCLUDE "schema_metadata_reference_example.md",1
+!INCLUDE "adding_new_columns_example.md",1
+!INCLUDE "removing_columns_example.md",1
+!INCLUDE "changing_column_metadata_example.md",1
+!INCLUDE "correcting_schema_errors_example.md",1
+!INCLUDE "focus_version_changed_example.md",1
+!INCLUDE "focus_version_changed_with_provider_version_used_example.md",1
+!INCLUDE "provider_version_changed_example.md",1

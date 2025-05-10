@@ -1,0 +1,37 @@
+# Schema
+
+The schema metadata object and its contents provides information about the structure of the data provided.
+
+## Requirements
+
+### Reference to FOCUS Data
+
+FOCUS data artifacts, whether they are data files, data streams, or data tables, MUST provide a clear reference to the schema of the data. This reference MUST be retrievable without inspection of the contents of the FOCUS data within the data artifact. For some delivery mechanisms such as database tables, the provider may rely on the schema functionality of the providing system.
+
+It is recommended that the schema reference be provided as an external reference rather than included in full as metadata accompanying the data artifact. This allows for easier understanding of when changes to the schema of the [*FOCUS datasets*](#glossary:FOCUS-dataset) occurs.
+
+### Schema Metadata Creation
+
+Should the provider change the structure of the supplied FOCUS data artifact, a new schema metadata object MUST be supplied.
+These scenarios include, but are not limited to:
+
+* [Adding a new column](#addingnewcolumns)
+* [Removing a column](#removingcolumns)
+* [Changing column metadata](#changingcolumnmetadata)
+* [FOCUS Version has changed](#focusversionchanged)
+* [Provider Version has changed](#schemametadatatofocusdatareference)
+* [Correcting schema metadata errors](#providermetadataerrorcorrection)
+
+### Schema Metadata Updates
+
+Should there be an error where the schema metadata object does not match the schema of the FOCUS data artifact, the provider MUST update the schema metadata object to match the schema of the FOCUS data artifact. This is to ensure that the schema metadata object is always accurate.
+
+## Schema Example
+
+For an example of the FOCUS schema metadata please refer to: [Schema Metadata Example](#schemametadata)
+
+!INCLUDE "schemaid.md",1
+!INCLUDE "creationdate.md",1
+!INCLUDE "focusversion.md",1
+!INCLUDE "providerversion.md",1
+!INCLUDE "column_definition/column_definition.mdpp",1

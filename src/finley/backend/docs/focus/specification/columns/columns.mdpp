@@ -1,0 +1,56 @@
+# Columns
+
+The FOCUS specification defines a group of columns that provide qualitative values (such as dates, resource, and provider information) categorized as "dimensions" and quantitative values (numeric values) categorized as "metrics" that can be used for performing various [FinOps capabilities][FODOFC]. Metrics are commonly used for aggregations (sum, multiplication, averaging etc.) and statistical operations within the dataset. Dimensions are commonly used to categorize, filter, and reveal details in your data when combined with metrics. The Columns are presented in Alphabetical order.
+
+!INCLUDE "availabilityzone.md",1
+!INCLUDE "billedcost.md",1
+!INCLUDE "billingaccountid.md",1
+!INCLUDE "billingaccountname.md",1
+!INCLUDE "billingcurrency.md",1
+!INCLUDE "billingperiodend.md",1
+!INCLUDE "billingperiodstart.md",1
+!INCLUDE "capacityreservationid.md",1
+!INCLUDE "capacityreservationstatus.md",1
+!INCLUDE "chargecategory.md",1
+!INCLUDE "chargeclass.md",1
+!INCLUDE "chargedescription.md",1
+!INCLUDE "chargefrequency.md",1
+!INCLUDE "chargeperiodend.md",1
+!INCLUDE "chargeperiodstart.md",1
+!INCLUDE "commitmentdiscountcategory.md",1
+!INCLUDE "commitmentdiscountid.md",1
+!INCLUDE "commitmentdiscountname.md",1
+!INCLUDE "commitmentdiscountquantity.md",1
+!INCLUDE "commitmentdiscountstatus.md",1
+!INCLUDE "commitmentdiscounttype.md",1
+!INCLUDE "commitmentdiscountunit.md",1
+!INCLUDE "consumedquantity.md",1
+!INCLUDE "consumedunit.md",1
+!INCLUDE "contractedcost.md",1
+!INCLUDE "contractedunitprice.md",1
+!INCLUDE "effectivecost.md",1
+!INCLUDE "invoiceissuer.md",1
+!INCLUDE "listcost.md",1
+!INCLUDE "listunitprice.md",1
+!INCLUDE "pricingcategory.md",1
+!INCLUDE "pricingquantity.md",1
+!INCLUDE "pricingunit.md",1
+!INCLUDE "provider.md",1
+!INCLUDE "publisher.md",1
+!INCLUDE "regionid.md",1
+!INCLUDE "regionname.md",1
+!INCLUDE "resourceid.md",1
+!INCLUDE "resourcename.md",1
+!INCLUDE "resourcetype.md",1
+!INCLUDE "servicecategory.md",1
+!INCLUDE "servicename.md",1
+!INCLUDE "servicesubcategory.md",1
+!INCLUDE "skuid.md",1
+!INCLUDE "skumeter.md",1
+!INCLUDE "skupricedetails.md",1
+!INCLUDE "skupriceid.md",1
+!INCLUDE "subaccountid.md",1
+!INCLUDE "subaccountname.md",1
+!INCLUDE "tags.md",1
+
+[FODOFC]: https://www.finops.org/framework/capabilities/
