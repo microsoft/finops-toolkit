@@ -762,6 +762,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "bradlovas",
+      "name": "bradlovas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48303312?v=4",
+      "profile": "https://github.com/bradlovas",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
