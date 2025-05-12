@@ -39,27 +39,11 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
-	column kind
-		dataType: string
-		lineageTag: 852f944d-1ad0-41d1-b7ff-27067fbd139c
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
 	column location
 		dataType: string
 		lineageTag: 94a3783c-937e-4fad-a7bd-7dc286027241
 		summarizeBy: none
 		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: 73b1bce2-6271-4b4b-9e6d-cd4a436895f4
-		summarizeBy: none
-		sourceColumn: resourceGroup
 
 		annotation SummarizationSetBy = Automatic
 
@@ -71,126 +55,6 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
-	column managedBy
-		dataType: string
-		lineageTag: 0081f183-8d26-465c-b369-e7105fccd756
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column apiVersion
-		dataType: string
-		lineageTag: 6e5f6b80-275a-486c-bdc3-4fac66e87c30
-		summarizeBy: none
-		sourceColumn: apiVersion
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: ee37b5f1-cccc-4b3f-8758-7048bd5d5551
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: f6984089-dadd-4130-8938-2cdf46c336c5
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: b65ddf58-4cdd-4f37-b609-fc2ec2a122b4
-		summarizeBy: none
-		sourceColumn: properties
-
-		annotation SummarizationSetBy = Automatic
-
-	column tags
-		dataType: string
-		lineageTag: bc1b8500-5fab-41eb-881f-023ba399d127
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 217a004e-39b4-4a44-b9c2-241a987ad52d
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: fc395591-c9e0-4ebb-ad67-d594f25d7fe5
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 8d99e9ce-0c0f-4305-85fd-9033ee74e9d4
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column systemData
-		dataType: string
-		lineageTag: d8f9d64c-c667-471d-8a79-92f2534b4f53
-		summarizeBy: none
-		sourceColumn: systemData
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'sku.name'
-		dataType: string
-		lineageTag: bce5634b-8d56-421b-b2d3-d2640a06ef03
-		summarizeBy: none
-		sourceColumn: sku.name
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'sku.tier'
-		dataType: string
-		lineageTag: 7a5aaa15-d3cc-4cc0-a85d-98b579de9f8a
-		summarizeBy: none
-		sourceColumn: sku.tier
-
-		annotation SummarizationSetBy = Automatic
-
-	column provisioningState
-		dataType: string
-		lineageTag: aab2664c-fd89-4512-b192-73aba073ea37
-		summarizeBy: none
-		sourceColumn: provisioningState
-
-		annotation SummarizationSetBy = Automatic
-
-	column privateEndpointConnections
-		dataType: string
-		lineageTag: 56757e5e-3d52-4509-8884-738727f7e4d0
-		summarizeBy: none
-		sourceColumn: privateEndpointConnections
-
-		annotation SummarizationSetBy = Automatic
-
-	column encryption
-		dataType: string
-		lineageTag: 6f5a9002-f577-41e9-92a8-d5d8762e768f
-		summarizeBy: none
-		sourceColumn: encryption
-
-		annotation SummarizationSetBy = Automatic
-
 	column creationTime
 		dataType: string
 		lineageTag: 3313d128-8b39-4fe1-ba22-8e9f6dc24f42
@@ -199,107 +63,19 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
-	column supportsHttpsTrafficOnly
+	column timeModified
 		dataType: string
-		lineageTag: aff0e227-40a8-4254-bf69-235454fb2246
+		lineageTag: f9a30d28-b76c-4f48-b909-ae980bbfbc27
 		summarizeBy: none
-		sourceColumn: supportsHttpsTrafficOnly
+		sourceColumn: timeModified
 
 		annotation SummarizationSetBy = Automatic
 
-	column allowBlobPublicAccess
+	column resourceGroup
 		dataType: string
-		lineageTag: 72a73632-c511-4f95-9f7a-6044c67ee8b7
+		lineageTag: bf7f9a12-8b99-43f1-bb81-7df06117afb8
 		summarizeBy: none
-		sourceColumn: allowBlobPublicAccess
-
-		annotation SummarizationSetBy = Automatic
-
-	column minimumTlsVersion
-		dataType: string
-		lineageTag: 7a6bd149-bfbc-4b97-98ae-23ef9809bd7e
-		summarizeBy: none
-		sourceColumn: minimumTlsVersion
-
-		annotation SummarizationSetBy = Automatic
-
-	column primaryEndpoints
-		dataType: string
-		lineageTag: 617f81bd-8b71-4f93-8aca-e4e4120ff157
-		summarizeBy: none
-		sourceColumn: primaryEndpoints
-
-		annotation SummarizationSetBy = Automatic
-
-	column keyCreationTime
-		dataType: string
-		lineageTag: 83860c45-4dd0-4ad1-a05f-7c723ab513ec
-		summarizeBy: none
-		sourceColumn: keyCreationTime
-
-		annotation SummarizationSetBy = Automatic
-
-	column primaryLocation
-		dataType: string
-		lineageTag: 27da2fa6-bdaa-4471-9490-162f42f1350c
-		summarizeBy: none
-		sourceColumn: primaryLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column statusOfPrimary
-		dataType: string
-		lineageTag: 56018bf2-44b9-4a87-ac9c-69419b698230
-		summarizeBy: none
-		sourceColumn: statusOfPrimary
-
-		annotation SummarizationSetBy = Automatic
-
-	column networkAcls
-		dataType: string
-		lineageTag: 2285ffe3-71b6-465a-8216-ac800e837942
-		summarizeBy: none
-		sourceColumn: networkAcls
-
-		annotation SummarizationSetBy = Automatic
-
-	column allowCrossTenantReplication
-		dataType: string
-		lineageTag: 4299aa1c-3551-42e4-9292-5fd842520112
-		summarizeBy: none
-		sourceColumn: allowCrossTenantReplication
-
-		annotation SummarizationSetBy = Automatic
-
-	column allowSharedKeyAccess
-		dataType: string
-		lineageTag: 9dc68c17-1947-47fe-8f6f-2de74bb42c77
-		summarizeBy: none
-		sourceColumn: allowSharedKeyAccess
-
-		annotation SummarizationSetBy = Automatic
-
-	column accessTier
-		dataType: string
-		lineageTag: 06d2741c-b149-4275-8cfc-a72a0e851031
-		summarizeBy: none
-		sourceColumn: accessTier
-
-		annotation SummarizationSetBy = Automatic
-
-	column isHnsEnabled
-		dataType: string
-		lineageTag: 49d8ca68-cb73-4168-b519-d5cfc447c7ee
-		summarizeBy: none
-		sourceColumn: isHnsEnabled
-
-		annotation SummarizationSetBy = Automatic
-
-	column isBlueShiftAccount
-		dataType: string
-		lineageTag: 1e8632f6-f86c-4c28-bfe4-c1888a4f6421
-		summarizeBy: none
-		sourceColumn: isBlueShiftAccount
+		sourceColumn: resourceGroup
 
 		annotation SummarizationSetBy = Automatic
 
@@ -312,25 +88,9 @@ table Resources
 				    resources
 				    | extend
 				      id = tolower(id),
-				      ['sku.name'] = sku.name,
-				      ['sku.tier'] = sku.tier,
-				      ['provisioningState'] = properties.provisioningState,
-				      ['privateEndpointConnections'] = properties.privateEndpointConnections,
-				      ['encryption'] = properties.encryption,
 				      ['creationTime'] = properties.creationTime,
-				      ['supportsHttpsTrafficOnly'] = properties.supportsHttpsTrafficOnly,
-				      ['allowBlobPublicAccess'] = properties.allowBlobPublicAccess,
-				      ['minimumTlsVersion'] = properties.minimumTlsVersion,
-				      ['primaryEndpoints'] = properties.primaryEndpoints,
-				      ['keyCreationTime'] = properties.keyCreationTime,
-				      ['primaryLocation'] = properties.primaryLocation,
-				      ['statusOfPrimary'] = properties.statusOfPrimary,
-				      ['networkAcls'] = properties.networkAcls,
-				      ['allowCrossTenantReplication'] = properties.allowCrossTenantReplication,
-				      ['allowSharedKeyAccess'] = properties.allowSharedKeyAccess,
-				      ['accessTier'] = properties.accessTier,
-				      ['isHnsEnabled'] = properties.isHnsEnabled,
-				      ['isBlueShiftAccount'] = properties.isBlueShiftAccount
+				      ['timeModified'] = properties.timeModified
+				    | project id, name, type, tenantId, location, subscriptionId, resourceGroup, creationTime, timeModified
 				  " & ftk_DemoFilter(),
 				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
 				  NullHandling =
@@ -346,7 +106,7 @@ table Resources
 				  // If you experience a "duplicate IDs" error for the Resources table, please file a support request against Azure Resource Graph.
 				  RemoveDuplicates = if #"Remove Duplicate Resource IDs" then Table.Distinct(NullHandling, {"id"}) else NullHandling
 				in
-				  RemoveDuplicates
+				    RemoveDuplicates
 
 	annotation PBI_NavigationStepName = Navigation
 

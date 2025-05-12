@@ -17,11 +17,6 @@ relationship 52d8acfd-e4eb-fdfe-9d4f-9eae3f716ab4
 	fromColumn: NetworkInterfaces.'properties.ipConfigurations.properties.publicIPAddress.id'
 	toColumn: PublicIPAddresses.id
 
-relationship bee35174-8d46-db97-50df-02670026ee71
-	crossFilteringBehavior: bothDirections
-	fromColumn: AdvisorReservationRecommendations.subscriptionId
-	toColumn: Subscriptions.subscriptionId
-
 relationship c8a2b782-448d-e933-0cee-5a6387245222
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.subscriptionId
@@ -92,5 +87,9 @@ relationship 7938f383-ec64-86d6-dce0-ea5ae181eacc
 	crossFilteringBehavior: bothDirections
 	fromCardinality: one
 	fromColumn: Disks.id
+	toColumn: Resources.id
+
+relationship 2423822b-0029-3fbf-67c8-65c9cadc81d5
+	fromColumn: NetworkSecurityGroups.id
 	toColumn: Resources.id
 
