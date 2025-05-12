@@ -44,6 +44,8 @@ _Released June 2, 2025_
 - **Added**
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
+- **Changed**
+  - Merged vnet and core-network. modules into infrastructure.bicep (no functional changes).
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
 
