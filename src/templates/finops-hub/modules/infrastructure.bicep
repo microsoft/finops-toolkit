@@ -29,7 +29,7 @@ var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
 
-var subnets = [
+var subnets = !coreConfig.network.isPrivate ? [] : [
   {
     name: finopsHubSubnetName
     properties: {
@@ -86,7 +86,7 @@ var subnets = [
 // Network
 //------------------------------------------------------------------------------
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (coreConfig.network.isPrivate) {
   name: nsgName
   location: coreConfig.hub.location
   tags: getHubTags(coreConfig, 'Microsoft.Storage/networkSecurityGroups')
@@ -174,7 +174,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   }
 }
 
-resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
+resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (coreConfig.network.isPrivate) {
   name: vNetName
   location: coreConfig.hub.location
   tags: getHubTags(coreConfig, 'Microsoft.Storage/virtualNetworks')
@@ -357,19 +357,19 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (co
 output config HubCoreConfig = coreConfig
 
 @description('Resource ID of the virtual network.')
-output vNetId string = vNet.id
+output vNetId string = !coreConfig.network.isPrivate ? '' : vNet.id
 
 @description('Virtual network address prefixes.')
-output vNetAddressSpace array = vNet.properties.addressSpace.addressPrefixes
+output vNetAddressSpace array = !coreConfig.network.isPrivate ? [] : vNet.properties.addressSpace.addressPrefixes
 
 @description('Virtual network subnets.')
-output vNetSubnets array = vNet.properties.subnets
+output vNetSubnets array = !coreConfig.network.isPrivate ? [] : vNet.properties.subnets
 
 @description('Resource ID of the FinOps hub network subnet.')
-output finopsHubSubnetId string = vNet::finopsHubSubnet.id
+output finopsHubSubnetId string = !coreConfig.network.isPrivate ? '' : vNet::finopsHubSubnet.id
 
 @description('Resource ID of the script storage account network subnet.')
-output scriptSubnetId string = vNet::scriptSubnet.id
+output scriptSubnetId string = !coreConfig.network.isPrivate ? '' : vNet::scriptSubnet.id
 
 @description('Resource ID of the Data Explorer network subnet.')
-output dataExplorerSubnetId string = vNet::dataExplorerSubnet.id
+output dataExplorerSubnetId string = !coreConfig.network.isPrivate ? '' : vNet::dataExplorerSubnet.id
