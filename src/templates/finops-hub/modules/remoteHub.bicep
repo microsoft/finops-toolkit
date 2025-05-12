@@ -52,7 +52,6 @@ module appRegistration 'hub-app.bicep' = {
       'KeyVault'
       'Storage'
     ]
-    enableDefaultTelemetry: enableDefaultTelemetry
 
     coreConfig: coreConfig
   }
