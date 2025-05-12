@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -8,7 +9,6 @@ import { agentEmojis } from "../constants/agents";
 import "katex/dist/katex.min.css";
 import rehypeKatex from "rehype-katex";
 import './ftk-markdown.css';
-import { Copy20Regular } from "@fluentui/react-icons";
 
 
 interface ChatBubbleProps {
@@ -52,6 +52,7 @@ function tryRenderJsonTable(jsonString: string): JSX.Element | null {
                 </table>
             </div>
         );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
         return null;
     }
@@ -95,6 +96,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
                                     {props.children}
                                 </a>
                             ),
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
                             img: ({ node, ...props }) => (
                                 <img
                                     {...props}
@@ -154,6 +156,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
                                         </div>
                                       );
                                     }
+                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                   } catch (e) {
                                     // fall back to normal code block
                                   }

@@ -35,6 +35,13 @@ const promptSuggestions = [
 
 export default function ChatWindow() {
   const [input, setInput] = useState("");
+  const sessionIdRef = useRef(
+    localStorage.getItem("sessionId") || crypto.randomUUID()
+  );
+  useEffect(() => {
+    localStorage.setItem("sessionId", sessionIdRef.current);
+  }, []);
+  
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -62,8 +69,13 @@ export default function ChatWindow() {
 
     setIsTyping(true);
     const encodedPrompt = encodeURIComponent(input);
-    const eventSource = new EventSource(`http://127.0.0.1:8000/api/ask-stream?prompt=${encodedPrompt}`);
-
+    // const eventSource = new EventSource(
+    //     `https://finley-backend-app.politecoast-c75ba34e.eastus2.azurecontainerapps.io/api/ask-stream?prompt=${encodedPrompt}&session_id=${sessionIdRef.current}`
+    //   );
+    const eventSource = new EventSource(
+        `http://127.0.0.1:8000/api/ask-stream?prompt=${encodedPrompt}&sessionId=${sessionIdRef.current}`
+      );      
+            
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
 

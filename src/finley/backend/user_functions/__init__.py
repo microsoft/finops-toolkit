@@ -1,13 +1,13 @@
 # user_functions/__init__.py
 
 from typing import Set, Callable
-# from .resource_graph import query_resource_graph
 from user_functions.vector_search import run_vector_search
-# from finley.backend.user_functions.search_kql_docs_old import search_kql_docs_hybrid
 from user_functions.search_kql_docs import search_kql_docs_vector_only
+from user_functions.query_adx_strict import query_adx_database
+# from user_functions.query_adx_strict_cag_1 import query_adx_database
 from user_functions.search_web_docs import search_web_docs
 from user_functions.finley_functions import (
-    query_adx_database,
+    # query_adx_database,
     run_vector_search2,
     
     # query_resource_graph,

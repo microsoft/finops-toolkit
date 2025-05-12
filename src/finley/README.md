@@ -111,18 +111,17 @@ graph TD
 
 | Agent Name         | Role & Capabilities                                                                 |
 |--------------------|--------------------------------------------------------------------------------------|
-| **Finley**         | Team lead and planner. Delegates tasks based on user intent and summarizes results. |
-| **ADXQueryAgent**  | Specialist in Azure Data Explorer (KQL) queries for cost & usage analytics. Uses vector search for kusto language knowledge grounding        |
+| **Finley**         | Your FinOps Expert. Calls the right tools based on user intent and summarizes results. |
 
 ---
 
 ## 🔄 How It Works
 
 1. 🧑 User submits a question (e.g. "What are the top 5 cost consumers over 6 months?")
-2. 🧠 **Finley** interprets the intent and delegates the task to the appropriate expert agent.
+2. 🧠 **Finley** interprets the intent and chooses the right tool for the job.
 3. ⚙️ That agent runs a real-time query using:
-   - Azure Data Explorer (ADX)
-   - AI Search Tool
+   - Azure Data Explorer (ADX) Query Tool
+   - AI/Web Search Tool
 4. 📄 The agent returns results as structured JSON.
 5. 📊 The system generates:
    - A readable Markdown table
@@ -155,7 +154,7 @@ Top 5 cost consumers by resource for the last 6 months have been identified.
 - Azure AI Agent SDK
 - Azure Identity
 - Azure Data Explorer (ADX)
-- AI Search
+- AI Search/Web Search (Bing, 3rd parties)
 - React Vite UI
 
 ## Prerequisites
@@ -171,8 +170,8 @@ Top 5 cost consumers by resource for the last 6 months have been identified.
 1. Clone the repository
 2. Create a virtual environment:
    ```bash
-   python -m venv venve2e
-   source venve2e/bin/activate  # On Windows: venvmultiagentaifoundry\Scripts\activate
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: venvmultiagentaifoundry\Scripts\activate
    ```
 3. Install dependencies:
    ```bash
@@ -209,11 +208,11 @@ Create a file named `.env` in the project root with:
    ```bash
    pip install -r requirements.txt
 3. **Run the Backend**
-   uvicorn main:app --host 127.0.0.1 --port 8000
-   ```
-4. **Log into azure using az login**
+   ```bash
+   uvicorn finley_singleagent:app --host 127.0.0.1 --port 8000
+5. **Log into azure using az login**
 
-3. **Run the Solution**
+6. **Run the Solution**
     First install all necessary packages by running npm install inside the frontend folder
     ```bash
     npm install 
