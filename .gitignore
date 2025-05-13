@@ -366,3 +366,7 @@ deployment-settings-*.json
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# copilot files
+*.prompt.md
+copilot-instructions.md
