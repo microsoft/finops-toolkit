@@ -43597,7 +43597,7 @@ cultureInfo en-US
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Effective Savings Rate": {
+			          "ESR": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -43617,7 +43617,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "ESR": {
+			          "Effective Savings Rate": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
