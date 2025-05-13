@@ -374,6 +374,8 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
     enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: coreConfig.deployment.storage
+    scriptSubnetId: coreConfig.network.subnets.scripts
 
     // TODO: Move to remoteHub.bicep
     keyVaultName: empty(remoteHubStorageKey) ? '' : appRegistration.outputs.config.publisher.keyVault
