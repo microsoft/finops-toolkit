@@ -178,7 +178,8 @@ var coreConfig = newHubCoreConfig(
   keyVaultSku,
   enableInfrastructureEncryption,
   enablePublicAccess,
-  virtualNetworkAddressPrefix
+  virtualNetworkAddressPrefix,
+  enableDefaultTelemetry
 )
 
 // Do not reference these deployments directly or indirectly to avoid a DeploymentNotFound error
@@ -247,6 +248,29 @@ var telemetryString = join([
 //==============================================================================
 
 //------------------------------------------------------------------------------
+// Telemetry
+//------------------------------------------------------------------------------
+
+resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
+  name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  tags: getHubTags(coreConfig, 'Microsoft.Resources/deployments')
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      metadata: {
+        _generator: {
+          name: 'FinOps toolkit'
+          version: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
+        }
+      }
+      resources: []
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 // Base resources needed for hub apps
 //------------------------------------------------------------------------------
 
@@ -266,9 +290,8 @@ module coreNetwork 'core-network.bicep' = {
 
 // TODO: Move into core.bicep
 module appRegistration 'hub-app.bicep' = {
-  name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  name: 'Microsoft.FinOpsHubs.Core_Register'
   params: {
-    // hubName: hubName
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
@@ -279,7 +302,6 @@ module appRegistration 'hub-app.bicep' = {
       'Storage'
     ]
     telemetryString: telemetryString
-    enableDefaultTelemetry: enableDefaultTelemetry
 
     coreConfig: coreConfig
   }

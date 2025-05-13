@@ -38,6 +38,8 @@ _Released June 2, 2025_
 
 - **Added**
   - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
+- **Changed**
+  - Moved telemetry setting into internal config settings object.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.11
 

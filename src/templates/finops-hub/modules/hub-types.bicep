@@ -44,10 +44,12 @@ type HubInstanceConfig = {
 @metadata({
   tagsByResource: 'Tags to apply to resources based on their resource type.'
   storage: 'Name of the storage account used for deployment scripts.'
+  isTelemetryEnabled: 'Indicates whether telemetry should be enabled for deployments.'
 })
 type HubDeploymentConfig = {
   tagsByResource: object
   storage: string
+  isTelemetryEnabled: bool
 }
 
 @description('FinOps hub storage settings to be used when creating storage accounts.')
@@ -232,6 +234,7 @@ func newHubCoreConfigInternal(
   enablePublicAccess bool,
   networkName string,
   networkAddressPrefix string,
+  isTelemetryEnabled bool,
 ) HubCoreConfig => {
   hub: {
     id: id
@@ -247,7 +250,10 @@ func newHubCoreConfigInternal(
     version: finOpsToolkitVersion
   }
   deployment: union(
-    { tagsByResource: tagsByResource },
+    {
+      tagsByResource: tagsByResource
+      isTelemetryEnabled: isTelemetryEnabled ?? true
+    },
     enablePublicAccess ? {
       storage: ''
     } : {
@@ -310,6 +316,7 @@ func newHubCoreConfig(
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   networkAddressPrefix string,
+  isTelemetryEnabled bool,
 ) HubCoreConfig => newHubCoreConfigInternal(
   '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${name}',  // id
   name,
@@ -323,7 +330,8 @@ func newHubCoreConfig(
   enableInfrastructureEncryption,
   enablePublicAccess,
   '${safeName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
-  networkAddressPrefix
+  networkAddressPrefix,
+  isTelemetryEnabled ?? true
 )
 
 //------------------------------------------------------------------------------
@@ -356,6 +364,7 @@ func newAppInternalConfig(
     // Globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
     keyVault: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-vault', 24 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
 
+    // Globally unique storage account name: 3-24 chars; lowercase letters/numbers only
     storage: '${take(coreConfig.hub.safeName, 24 - length(publisherSuffix))}${publisherSuffix}'
   }
   app: {
