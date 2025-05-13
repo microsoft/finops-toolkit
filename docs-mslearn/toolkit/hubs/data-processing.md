@@ -55,7 +55,7 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
    4. After ingestion, the **ingestion_ETL_dataExplorer** pipeline performs some cleanup, including purging data in the final table that is past the data retention period.
       - As of 0.7, Data Explorer applies data retention in raw tables while data retention in final tables is applied by the ingestion pipeline. If data ingestion stops, historical data isn't purged.
       - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage.
-7. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
+6. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
    - Data in Data Explorer can be read from the **Hub** database.
      - Use the `{dataset}()` function to use the latest schema.
        - This function is useful for quick exploration, but may introduce breaking changes as the FinOps hub instance is updated.
