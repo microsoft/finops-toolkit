@@ -46,8 +46,8 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
 4. The **msexports_ETL_ingestion** pipeline transforms the data to parquet format and moves it to the **ingestion** container using a scalable file structure. [Learn more](#about-the-ingestion-container).
 5. (Optional) If using Azure Data Explorer:
    1. The **ingestion_ExecuteETL** pipeline queues the Data Explorer ingestion pipeline when **manifest.json** files are added to the **ingestion** container.
+      - If the Data Explorer cluster is stopped, it will be started. Starting a stopped cluster may take 15 minutes or longer.
       - If ingesting custom datasets outside of Cost Management exports, create an empty **manifest.json** file in the target ingestion folder after all other files are ready (don't add this file when files are still uploading). The **manifest.json** file isn't parsed and can be empty. The sole purpose is to indicate that all files for this ingestion job are added.
-      - The pipeline verifies the operational status of the Data Explorer Instance and starts the instance if it is not already running. **This process may take up to 15 minutes**.
    2. The **ingestion_ETL_dataExplorer** pipeline ingests data into the `{dataset}_raw` table in the Data Explorer.
       - The dataset name is the first folder in the **ingestion** container.
       - All raw tables are in the **Ingestion** database in Data Explorer.
