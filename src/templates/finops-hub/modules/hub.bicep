@@ -264,6 +264,9 @@ module infrastructure 'infrastructure.bicep' = {
 // TODO: Move into core.bicep
 module appRegistration 'hub-app.bicep' = {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  dependsOn: [
+    infrastructure
+  ]
   params: {
     // hubName: hubName
     publisher: 'Microsoft FinOps hubs'
