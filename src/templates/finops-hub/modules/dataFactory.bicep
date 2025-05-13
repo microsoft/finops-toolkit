@@ -4950,7 +4950,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           }
         }
       }
-     { // For Each Old File
+      { // For Each Old File
         name: 'For Each Old File'
         description: 'Loop thru each of the existing files.'
         type: 'ForEach'
