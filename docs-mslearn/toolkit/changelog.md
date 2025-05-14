@@ -46,6 +46,10 @@ _Released June 2, 2025_
 - **Added**
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
+  - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+- **Fixed**
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
 
@@ -89,7 +93,6 @@ _Released May 4, 2025_
     - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
     - Set ListCost based on ContractedCost or ListUnitPrice when not specified.
     - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
-    - Corrected x_EffectiveUnitPrice when it's calculated and has a rounding error.
     - Add new x_SourceChanges checks for "MissingConsumedQuantity", "MissingPricingQuantity", and "XEffectiveUnitPriceRoundingError".
 
 ### [Power BI reports](power-bi/reports.md) v0.10
