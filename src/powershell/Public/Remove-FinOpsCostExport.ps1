@@ -33,6 +33,7 @@
 
 function Remove-FinOpsCostExport
 {
+    [OutputType([bool])]
     [CmdletBinding(SupportsShouldProcess)]
     param
     (
@@ -92,7 +93,7 @@ function Remove-FinOpsCostExport
             Write-Warning ($script:localizedData.CostExport_Common_NotFoundFormat -f $Name, $Scope)
             return $true
         }
-        
+
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteExport'))
         {
             $response = Invoke-Rest -Method "DELETE" -Uri "$($export.Id)?api-version=$ApiVersion" -CommandName "Remove-FinOpsCostExport"

@@ -211,9 +211,16 @@ table PublicIPAddresses
 				      ['properties.ipConfiguration'] = properties.ipConfiguration,
 				      ['properties.ipTags'] = properties.ipTags
 				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.provisioningState", "properties.resourceGuid", "properties.idleTimeoutInMinutes", "properties.publicIPAllocationMethod", "properties.publicIPAddressVersion", "properties.ipAddress", "properties.ipConfiguration", "properties.ipTags" },
+								{}
+							)
+				    else Source
 				in
-				  Source
+				  NullHandling
 
 	annotation PBI_NavigationStepName = Navigation
 

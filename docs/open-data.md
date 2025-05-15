@@ -20,9 +20,9 @@ Leverage open data to normalize and enhance your FinOps reporting.
 FinOps toolkit open data is used to transform Cost Management actual and amortized data into FOCUS. Use the same mappings to clean your FinOps datasets.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
+    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
     <p>
-        In March, open data introduced 1 new pricing unit, 1 new and 1 updated region mapping, 69 new and 19 updated resource types, 2 new service mappings, and 3 new dataset examples for MCA reservation datasets.
+        In April, open data introduced 1 new pricing unit, 1 new region mapping, and 39 new and 10 updated resource types.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

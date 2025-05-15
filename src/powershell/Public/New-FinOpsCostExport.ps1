@@ -20,7 +20,7 @@
 
     .PARAMETER Dataset
     Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions". Default = "FocusCost".
-    
+
     .PARAMETER DatasetVersion
     Optional. Schema version of the dataset to export. Default = "1.0" (applies to FocusCost only).
 
@@ -128,6 +128,7 @@
 
 function New-FinOpsCostExport
 {
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSReviewUnusedParameter", "", Justification="False positive rule")]
     [CmdletBinding(DefaultParameterSetName = "Scheduled")]
     param
     (
@@ -225,223 +226,226 @@ function New-FinOpsCostExport
         $ApiVersion = '2023-07-01-preview'
     )
 
-    function getProperties()
+    process
     {
-        # Set default dates based on schedule type
-        $start = $StartDate
-        $end = $EndDate
-        if (-not $start)
+        function getProperties()
         {
+            # Set default dates based on schedule type
+            $start = $StartDate
+            $end = $EndDate
+            if (-not $start)
+            {
+                if ($OneTime)
+                {
+                    $start = $(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddMonths(-1)
+                }
+                else
+                {
+                    $start = $(Get-Date).AddDays(1)
+                }
+            }
+            if (-not $end)
+            {
+                if ($OneTime)
+                {
+                    $end = $start.AddDays($start.Day - 1).AddMonths(1).AddMilliseconds(-1)
+                }
+                else
+                {
+                    $end = $start.AddYears(5)
+                }
+            }
+
+            $timePeriod = @{
+                from = $start.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                to   = $end.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+            }
+
+            # Default storage path to scope ID
+            if ([System.String]::IsNullOrEmpty($StoragePath))
+            {
+                $StoragePath = $Scope
+            }
+
+            $props = @{
+                properties = @{
+                    definition    = @{
+                        type      = $Dataset
+                        timeframe = "Custom"
+                        dataSet   = @{
+                            configuration = @{}
+                        }
+                    }
+                    schedule      = @{ status = "Inactive" }
+                    format        = "Csv"
+                    deliveryInfo  = @{
+                        destination = @{
+                            resourceId     = $StorageAccountId
+                            container      = $StorageContainer.ToLower()
+                            rootFolderPath = $StoragePath.Trim('/')
+                            # TODO: Add storageAccount + sasToken
+                        }
+                    }
+                    partitionData = (-not $DoNotPartition)
+                }
+            }
+
+            # Set granularity based on dataset type
+            if (-not @('PriceSheet', 'ReservationRecommendations', 'ReservationTransactions') -contains $Dataset)
+            {
+                $props.properties.definition.dataSet = $props.properties.definition.dataSet | Add-Member -Name granularity -Value 'Daily' -MemberType NoteProperty -Force -PassThru
+            }
+
+            # Enable managed identity
+            if ($SystemAssignedIdentity -or $Location)
+            {
+                if (-not $Location)
+                {
+                    $Location = 'global'
+                }
+                $props | Add-Member -Name identity -Value @{ type = "SystemAssigned" } -MemberType NoteProperty -Force
+                $props | Add-Member -Name location -Value $Location -MemberType NoteProperty -Force
+            }
+
+            # Add scheduling-specific settings
             if ($OneTime)
             {
-                $start = $(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddMonths(-1) 
+                $props.properties.definition = $props.properties.definition | Add-Member -Name timePeriod -Value $timePeriod -MemberType NoteProperty -Force -PassThru
             }
             else
             {
-                $start = $(Get-Date).AddDays(1) 
+                $props.properties.definition.timeframe = "$(if ($Monthly) { 'TheLastMonth' } elseif ($Dataset -eq "PriceSheet") { 'TheCurrentMonth' } else { 'MonthToDate' })"
+                $props.properties.schedule = @{
+                    status           = "Active"
+                    recurrence       = "$(if ($Monthly) { 'Monthly' } elseif ($Dataset -eq "PriceSheet") { 'Daily' } else { 'Daily' })"
+                    recurrencePeriod = $timePeriod
+                }
             }
-        }
-        if (-not $end)
-        {
-            if ($OneTime)
+
+            # Add version-specific settings
+            if ($ApiVersion -eq '2023-07-01-preview' -or $ApiVersion.Substring(0, 4) -ge 2024)
             {
-                $end = $start.AddDays($start.Day - 1).AddMonths(1).AddMilliseconds(-1)
-            }
-            else
-            {
-                $end = $start.AddYears(5)
-            }
-        }
-
-        $timePeriod = @{
-            from = $start.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
-            to   = $end.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
-        }
-
-        # Default storage path to scope ID
-        if ([System.String]::IsNullOrEmpty($StoragePath))
-        {
-            $StoragePath = $Scope
-        }
-
-        $props = @{
-            properties = @{
-                definition    = @{
-                    type      = $Dataset
-                    timeframe = "Custom"
-                    dataSet   = @{
-                        configuration = @{}
+                # Default dataset versions -- as of July 3, 2024
+                if (-not $DatasetVersion)
+                {
+                    if ($Dataset -eq "FocusCost")
+                    {
+                        $DatasetVersion = "1.0"
+                    }
+                    elseif ($Dataset -eq "ActualCost" -or $Dataset -eq "AmortizedCost")
+                    {
+                        $DatasetVersion = "2021-10-01"
+                    }
+                    elseif ($Dataset -eq "PriceSheet")
+                    {
+                        $DatasetVersion = "2023-05-01"
+                    }
+                    elseif ($Dataset -eq "ReservationDetails")
+                    {
+                        $DatasetVersion = "2023-03-01"
+                    }
+                    elseif ($Dataset -eq "ReservationTransactions")
+                    {
+                        $DatasetVersion = "2023-05-01"
+                    }
+                    elseif ($Dataset -eq "ReservationRecommendations")
+                    {
+                        $DatasetVersion = "2023-05-01"
                     }
                 }
-                schedule      = @{ status = "Inactive" }
-                format        = "Csv"
-                deliveryInfo  = @{
-                    destination = @{
-                        resourceId     = $StorageAccountId
-                        container      = $StorageContainer.ToLower()
-                        rootFolderPath = $StoragePath.Trim('/')
-                        # TODO: Add storageAccount + sasToken
-                    }
+
+                # Add 2023-07-01-preview settings
+                $props | Add-Member -Name name -Value $Name -MemberType NoteProperty -Force
+                $props.properties = $props.properties | Add-Member -Name exportDescription -Value $Description -MemberType NoteProperty -Force -PassThru
+                $props.properties = $props.properties | Add-Member -Name dataOverwriteBehavior -Value "$(if ($DoNotOverwrite) { "CreateNewReport" } else { "OverwritePreviousReport" })" -MemberType NoteProperty -Force -PassThru
+                $props.properties = $props.properties | Add-Member -Name compressionMode -Value "None" -MemberType NoteProperty -Force -PassThru
+                $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name dataVersion -Value $DatasetVersion -MemberType NoteProperty -Force -PassThru
+                $props.properties.deliveryInfo.destination.type = "AzureBlob"
+
+                # Add reservation recommendation filters
+                if ($Dataset -eq 'ReservationRecommendations')
+                {
+                    $DatasetFilters = @(
+                        @{ name = 'reservationScope'; value = ($DatasetFilters | Where-Object { $_.name -eq 'reservationScope' }).value ?? $CommitmentDiscountScope }
+                        @{ name = 'resourceType'; value = ($DatasetFilters | Where-Object { $_.name -eq 'resourceType' }).value ?? $CommitmentDiscountResourceType }
+                        @{ name = 'lookBackPeriod'; value = ($DatasetFilters | Where-Object { $_.name -eq 'lookBackPeriod' }).value ?? "Last$($CommitmentDiscountLookback)Days" }
+                    )
                 }
-                partitionData = (-not $DoNotPartition)
-            }
-        }
-        
-        # Set granularity based on dataset type
-        if (-not @('PriceSheet', 'ReservationRecommendations', 'ReservationTransactions') -contains $Dataset)
-        {
-            $props.properties.definition.dataSet = $props.properties.definition.dataSet | Add-Member -Name granularity -Value 'Daily' -MemberType NoteProperty -Force -PassThru
-        }
 
-        # Enable managed identity
-        if ($SystemAssignedIdentity -or $Location)
-        {
-            if (-not $Location)
+                # Add dataset filters
+                if ($DatasetFilters.Count -gt 0)
+                {
+                    $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name filters -Value $DatasetFilters -MemberType NoteProperty -Force -PassThru
+                }
+            }
+            elseif ($Dataset -ne 'ActualCost' -and $Dataset -ne 'AmortizedCost')
             {
-                $Location = 'global'
+                $props.properties.definition.type = 'ActualCost'
             }
-            $props | Add-Member -Name identity -Value @{ type = "SystemAssigned" } -MemberType NoteProperty -Force
-            $props | Add-Member -Name location -Value $Location -MemberType NoteProperty -Force
+
+            return $props
         }
 
-        # Add scheduling-specific settings
-        if ($OneTime)
+        # Command details for Invoke-Rest calls
+        $commandDetails = @{
+            CommandName      = "New-FinOpsCostExport"
+            ParameterSetName = $PsCmdlet.ParameterSetName
+        }
+
+        $context = Get-AzContext
+        if (-not $context)
         {
-            $props.properties.definition = $props.properties.definition | Add-Member -Name timePeriod -Value $timePeriod -MemberType NoteProperty -Force -PassThru
+            throw $script:localizedData.Common_ContextNotFound
+        }
+
+        # Register the Microsoft.CostManagementExports RP
+        if ((Get-AzResourceProvider -ProviderNamespace Microsoft.CostManagementExports).RegistrationState -ne 'Registered')
+        {
+            Write-Verbose "Microsoft.CostManagementExports provider is not registered. Registering provider."
+            Register-AzResourceProvider -ProviderNamespace 'Microsoft.CostManagementExports'
         }
         else
         {
-            $props.properties.definition.timeframe = "$(if ($Monthly) { 'TheLastMonth' } elseif ($Dataset -eq "PriceSheet") { 'TheCurrentMonth' } else { 'MonthToDate' })"
-            $props.properties.schedule = @{
-                status           = "Active"
-                recurrence       = "$(if ($Monthly) { 'Monthly' } elseif ($Dataset -eq "PriceSheet") { 'Daily' } else { 'Daily' })"
-                recurrencePeriod = $timePeriod
-            }
+            Write-Verbose "Provider Microsoft.CostManagementExports is registered"
         }
-        
-        # Add version-specific settings
-        if ($ApiVersion -eq '2023-07-01-preview' -or $ApiVersion.Substring(0, 4) -ge 2024)
+
+        $properties = getProperties
+
+        # Check if exists and get etag
+        $uri = "$Scope/providers/Microsoft.CostManagement/exports/$Name`?api-version=$ApiVersion"
+        Write-Verbose "Checking if export $Name exists with path $uri"
+        $export = Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion
+        if ($export)
         {
-            # Default dataset versions -- as of July 3, 2024
-            if (-not $DatasetVersion)
-            {
-                if ($Dataset -eq "FocusCost")
-                {
-                    $DatasetVersion = "1.0"
-                }
-                elseif ($Dataset -eq "ActualCost" -or $Dataset -eq "AmortizedCost")
-                {
-                    $DatasetVersion = "2021-10-01"
-                }
-                elseif ($Dataset -eq "PriceSheet")
-                {
-                    $DatasetVersion = "2023-05-01"
-                }
-                elseif ($Dataset -eq "ReservationDetails")
-                {
-                    $DatasetVersion = "2023-03-01"
-                }
-                elseif ($Dataset -eq "ReservationTransactions")
-                {
-                    $DatasetVersion = "2023-05-01"
-                }
-                elseif ($Dataset -eq "ReservationRecommendations")
-                {
-                    $DatasetVersion = "2023-05-01"
-                }
-            }
-            
-            # Add 2023-07-01-preview settings
-            $props | Add-Member -Name name -Value $Name -MemberType NoteProperty -Force
-            $props.properties = $props.properties | Add-Member -Name exportDescription -Value $Description -MemberType NoteProperty -Force -PassThru
-            $props.properties = $props.properties | Add-Member -Name dataOverwriteBehavior -Value "$(if ($DoNotOverwrite) { "CreateNewReport" } else { "OverwritePreviousReport" })" -MemberType NoteProperty -Force -PassThru
-            $props.properties = $props.properties | Add-Member -Name compressionMode -Value "None" -MemberType NoteProperty -Force -PassThru
-            $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name dataVersion -Value $DatasetVersion -MemberType NoteProperty -Force -PassThru
-            $props.properties.deliveryInfo.destination.type = "AzureBlob"
-
-            # Add reservation recommendation filters
-            if ($Dataset -eq 'ReservationRecommendations')
-            {
-                $DatasetFilters = @(
-                    @{ name = 'reservationScope'; value = ($DatasetFilters | Where-Object { $_.name -eq 'reservationScope' }).value ?? $CommitmentDiscountScope }
-                    @{ name = 'resourceType'; value = ($DatasetFilters | Where-Object { $_.name -eq 'resourceType' }).value ?? $CommitmentDiscountResourceType }
-                    @{ name = 'lookBackPeriod'; value = ($DatasetFilters | Where-Object { $_.name -eq 'lookBackPeriod' }).value ?? "Last$($CommitmentDiscountLookback)Days" }
-                )
-            }
-            
-            # Add dataset filters
-            if ($DatasetFilters.Count -gt 0)
-            {
-                $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name filters -Value $DatasetFilters -MemberType NoteProperty -Force -PassThru
-            }
+            Write-Verbose "Export with name $name already exists in scope $scope. Updating export."
+            $etag = $export.etag
+            Write-Verbose "Adding etag to the request for modify request"
+            $properties = $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force -PassThru
         }
-        elseif ($Dataset -ne 'ActualCost' -and $Dataset -ne 'AmortizedCost')
+        else
         {
-            $props.properties.definition.type = 'ActualCost'
+            # Create the export using the JSON properties below.
+            Write-Verbose "Creating a new export from $startdateString to $enddateString : $uri"
         }
 
-        return $props
-    }
+        # Create/update export
+        $createResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
+        if ($createResponse.Failure)
+        {
+            Write-Error "Unable to create export $Name in scope $Scope. Error: $($createResponse.Content.error.message) ($($createResponse.Content.error.code))" -ErrorAction Stop
+            return
+        }
 
-    # Command details for Invoke-Rest calls
-    $commandDetails = @{
-        CommandName      = "New-FinOpsCostExport" 
-        ParameterSetName = $PsCmdlet.ParameterSetName
-    }
+        # Run now if requested
+        if ($Backfill -gt 0 -and $OneTime -eq $false)
+        {
+            Start-FinOpsCostExport -Name $Name -Scope $Scope -Backfill $Backfill
+        }
+        elseif ($Execute -eq $true -or $OneTime -eq $true)
+        {
+            Start-FinOpsCostExport -Name $Name -Scope $Scope
+        }
 
-    $context = Get-AzContext
-    if (-not $context)
-    {
-        throw $script:localizedData.Common_ContextNotFound
+        return (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion)
     }
-    
-    # Register the Microsoft.CostManagementExports RP
-    if ((Get-AzResourceProvider -ProviderNamespace Microsoft.CostManagementExports).RegistrationState -ne 'Registered')
-    {
-        Write-Verbose "Microsoft.CostManagementExports provider is not registered. Registering provider."
-        Register-AzResourceProvider -ProviderNamespace 'Microsoft.CostManagementExports'
-    }
-    else
-    {
-        Write-Verbose "Provider Microsoft.CostManagementExports is registered"
-    }
-
-    $properties = getProperties
-    
-    # Check if exists and get etag
-    $uri = "$Scope/providers/Microsoft.CostManagement/exports/$Name`?api-version=$ApiVersion"
-    Write-Verbose "Checking if export $Name exists with path $uri"
-    $export = Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion
-    if ($export)
-    {
-        Write-Verbose "Export with name $name already exists in scope $scope. Updating export."
-        $etag = $export.etag
-        Write-Verbose "Adding etag to the request for modify request"
-        $properties = $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force -PassThru
-    }
-    else
-    {
-        # Create the export using the JSON properties below.
-        Write-Verbose "Creating a new export from $startdateString to $enddateString : $uri"
-    }
-
-    # Create/update export
-    $createResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
-    if ($createResponse.Failure)
-    {
-        Write-Error "Unable to create export $Name in scope $Scope. Error: $($createResponse.Content.error.message) ($($createResponse.Content.error.code))" -ErrorAction Stop
-        return
-    }
-
-    # Run now if requested
-    if ($Backfill -gt 0 -and $OneTime -eq $false)
-    {
-        Start-FinOpsCostExport -Name $Name -Scope $Scope -Backfill $Backfill
-    }
-    elseif ($Execute -eq $true -or $OneTime -eq $true)
-    {
-        Start-FinOpsCostExport -Name $Name -Scope $Scope
-    }
-
-    return (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion)
 }

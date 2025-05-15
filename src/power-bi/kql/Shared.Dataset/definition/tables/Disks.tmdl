@@ -205,9 +205,16 @@ table Disks
 				      diskType
 				  " & ftk_DemoFilter(),
 				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
-				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"diskSizeGB", type number}, {"diskMBpsReadWrite", type number}, {"diskIOPSReadWrite", type number}, {"timeCreated", type datetimezone}, {"LastOwnershipUpdateTime", type datetimezone}})
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "subscriptionId", "resourceGroup", "tenantId", "location", "managedBy", "osType", "skuName", "skuTier", "diskSizeGB", "diskMBpsReadWrite", "diskIOPSReadWrite", "diskState", "timeCreated", "LastOwnershipUpdateTime", "Redundancy", "parentVM", "diskType" },
+								{}
+							)
+				    else Source,
+				  Types = Table.TransformColumnTypes(NullHandling,{{"diskSizeGB", type number}, {"diskMBpsReadWrite", type number}, {"diskIOPSReadWrite", type number}, {"timeCreated", type datetimezone}, {"LastOwnershipUpdateTime", type datetimezone}})
 				in
-				    #"Changed Type"
+				  Types
 
 	annotation PBI_NavigationStepName = Navigation
 

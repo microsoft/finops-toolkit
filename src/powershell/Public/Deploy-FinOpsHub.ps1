@@ -33,7 +33,7 @@
 
     .PARAMETER RemoteHubStorageUri
     Optional. Storage account to push data to for ingestion into a remote hub.
-    
+
     .PARAMETER RemoteHubStorageKey
     Optional. Storage account key to use when pushing data to a remote hub.
 
@@ -42,13 +42,13 @@
 
     .PARAMETER DataExplorerSku
     Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".
-    
+
     .PARAMETER DataExplorerCapacity
     Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1 for dev/test SKUs, 2 for standard SKUs.
-    
+
     .PARAMETER Tags
     Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.
-    
+
     .PARAMETER TagsByResource
     Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.
 
@@ -81,7 +81,7 @@
     .EXAMPLE
     Deploy-FinOpsHub -Name MyHub -ResourceGroupName MyExistingResourceGroup -Location westus -Version 0.1.1
 
-    Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version 0.1.1 of the template. This version is required in order to deploy to Azure Gov or Azure China as of February 2024 since FOCUS exports are not available from Cost Management in those environments. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to version 0.1.1.
+    Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version 0.1.1 of the template. This version is required for Microsoft Online Services Agreement (MOSA) subscriptions since FOCUS exports aren't available from Cost Management. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to version 0.1.1.
 
     .LINK
     https://aka.ms/ftk/Deploy-FinOpsHub
@@ -120,15 +120,15 @@ function Deploy-FinOpsHub
         [Parameter()]
         [switch]
         $EnableInfrastructureEncryption,
-        
+
         [Parameter()]
         [string]
         $RemoteHubStorageUri,
-        
+
         [Parameter()]
         [string]
         $RemoteHubStorageKey,
-        
+
         [Parameter()]
         [string]
         $DataExplorerName,
@@ -142,21 +142,21 @@ function Deploy-FinOpsHub
         [ValidateRange(1, 1000)]
         [int]
         $DataExplorerCapacity = 1,
-        
+
         [Parameter()]
         [ValidateRange(0, 9999)]
         [int]
         $DataExplorerRawRetentionInDays = 0,
-        
+
         [Parameter()]
         [ValidateRange(0, 999)]
         [int]
         $DataExplorerFinalRetentionInMonths = 13,
-        
+
         [Parameter()]
         [switch]
         $DisablePublicAccess,
-        
+
         [Parameter()]
         [string]
         $VirtualNetworkAddressPrefix = '10.20.30.0/26',
@@ -202,13 +202,13 @@ function Deploy-FinOpsHub
                     storageSku = $StorageSku
                 }
             }
-            
+
             if ($Version -eq 'latest' -or [version]$Version -ge '0.4')
             {
                 $parameterSplat.TemplateParameterObject.Add('remoteHubStorageUri', $RemoteHubStorageUri)
                 $parameterSplat.TemplateParameterObject.Add('remoteHubStorageKey', $RemoteHubStorageKey)
             }
-            
+
             if ($Version -eq 'latest' -or [version]$Version -ge '0.7')
             {
                 $parameterSplat.TemplateParameterObject.Add('enableInfrastructureEncryption', $EnableInfrastructureEncryption.IsPresent)

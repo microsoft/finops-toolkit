@@ -6,38 +6,6 @@ relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
 	fromColumn: StorageErrors.Scope
 	toColumn: HubScopes.Scope
 
-relationship 825aa0af-00ee-1186-a33b-6f4fa0067d40
-	crossFilteringBehavior: bothDirections
-	fromColumn: Resources.subscriptionId
-	toColumn: Subscriptions.subscriptionId
-
-relationship 52ab9bad-3b48-18fa-4f79-7737ba7d2ffa
-	crossFilteringBehavior: bothDirections
-	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
-	toColumn: Resources.id
-
-relationship 568a17db-5207-5401-71ea-a593da6df3e2
-	crossFilteringBehavior: bothDirections
-	fromColumn: VirtualMachines.id
-	toColumn: Resources.id
-
-relationship a313a385-5db3-6a9e-10fb-7cf139d19495
-	crossFilteringBehavior: bothDirections
-	fromColumn: NetworkSecurityGroups.id
-	toColumn: Resources.id
-
-relationship 5965b9fa-242d-9e13-5d8f-c50b05c3e4fb
-	crossFilteringBehavior: bothDirections
-	fromCardinality: one
-	fromColumn: Resources.id
-	toColumn: SqlDatabases.id
-
-relationship 08186977-78ba-21f7-a248-b57ef953aedd
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: Resources.location
-	toColumn: Regions.RegionId
-
 relationship 6d712dbc-9af3-fda3-1038-e362f5e56ab5
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
@@ -55,11 +23,6 @@ relationship f2289f99-f546-f6c2-3c36-724c25d99e09
 	fromColumn: Disks.managedBy
 	toColumn: VirtualMachines.id
 
-relationship 26e1c802-749f-5e32-3d1c-82aba5427b7e
-	crossFilteringBehavior: bothDirections
-	fromColumn: Resources.type
-	toColumn: ResourceTypes.ResourceType
-
 relationship bee35174-8d46-db97-50df-02670026ee71
 	crossFilteringBehavior: bothDirections
 	fromColumn: AdvisorReservationRecommendations.subscriptionId
@@ -69,16 +32,6 @@ relationship c8a2b782-448d-e933-0cee-5a6387245222
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.subscriptionId
 	toColumn: Subscriptions.subscriptionId
-
-relationship f911264e-d0a5-4e69-9664-3342aaea0c57
-	crossFilteringBehavior: bothDirections
-	fromColumn: PolicyStates.'properties.policyDefinitionId'
-	toColumn: PolicyDefinitions.id
-
-relationship 7b0b80a6-3f04-a143-b6c2-07f0b38e2d2a
-	crossFilteringBehavior: bothDirections
-	fromColumn: PolicyAssignments.'properties.policyDefinitionId'
-	toColumn: PolicyDefinitions.id
 
 relationship ff6ac972-2c35-c20d-b9d4-84c273cc9b5f
 	crossFilteringBehavior: bothDirections
@@ -103,7 +56,46 @@ relationship c0c15128-2725-100f-2945-f99368d742f6
 	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
 	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
 
-relationship e0505491-3bd3-169a-45cc-988f783a8946
+relationship AutoDetected_6d0302eb-0dd7-4338-92fc-68ccfb034432
+	fromColumn: Resources.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship c95bfc5f-74e3-d4f1-f6cd-7442ea725dfb
+	crossFilteringBehavior: bothDirections
+	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
+	toColumn: Resources.id
+
+relationship 4c9a9bf4-0a6e-9cc1-040e-7737f42a0d6b
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: SqlDatabases.id
+	toColumn: Resources.id
+
+relationship c3ee5e52-5e46-870a-4294-f906c46e69ef
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Resources.location
+	toColumn: Regions.RegionId
+
+relationship 96d33d14-fece-b2b5-70df-eb9400212ee3
+	fromColumn: Resources.type
+	toColumn: ResourceTypes.ResourceType
+
+relationship b038094a-c235-632e-037f-349f3db30316
+	fromColumn: VirtualMachines.id
+	toColumn: Resources.id
+
+relationship 9dcef2fa-ca93-7ccd-a42d-c544337c09b5
 	fromColumn: Costs.ResourceId
-	toColumn: Disks.id
+	toColumn: Resources.id
+
+relationship 9c2b79ff-e96a-9fe1-1faa-29adacd4f13e
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Disks.id
+	toColumn: Resources.id
+
+relationship 4ee90fb7-c63f-2de1-0745-44302c95785b
+	fromColumn: NetworkSecurityGroups.id
+	toColumn: Resources.id
 

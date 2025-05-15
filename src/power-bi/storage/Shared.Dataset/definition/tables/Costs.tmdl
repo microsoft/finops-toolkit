@@ -510,7 +510,7 @@ table Costs
 		dataType: double
 		formatString: 0.000
 		lineageTag: 75e78962-cbcf-4ac8-b524-cd42347cc8a7
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_PartnerCreditRate
 
 		annotation SummarizationSetBy = Automatic
@@ -705,7 +705,7 @@ table Costs
 		dataType: int64
 		formatString: 0
 		lineageTag: 88eda475-e159-4b0b-a443-c6f8bfa23b72
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_SkuTerm
 
 		changedProperty = DataType
@@ -1335,7 +1335,7 @@ table Costs
 		dataType: double
 		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: 72920dc6-4141-449d-be83-28d5a282f9fc
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_TotalDiscountPercent
 
 		changedProperty = DataType

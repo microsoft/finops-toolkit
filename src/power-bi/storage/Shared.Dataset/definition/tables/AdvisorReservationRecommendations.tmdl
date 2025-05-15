@@ -460,7 +460,14 @@ table AdvisorReservationRecommendations
 				    | project-away SortOrder
 				  " & ftk_DemoFilter(),
 				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
-				  Types = Table.TransformColumnTypes(Source, {
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.recommendationTypeId", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact", "properties.shortDescription.problem", "properties.shortDescription.solution", "properties.extendedProperties.reservedResourceType", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.targetResourceCount", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.displaySKU", "properties.extendedProperties.displayQty", "properties.extendedProperties.location", "properties.extendedProperties.region", "properties.extendedProperties.vmSize", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.qty", "properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source", "recommendedActions" },
+								{}
+							)
+				    else Source,
+				  Types = Table.TransformColumnTypes(NullHandling, {
 				    {"properties.extendedProperties.annualSavingsAmount",        type number},
 				    {"properties.extendedProperties.savingsAmount",              type number},
 				    {"properties.extendedProperties.qty",                        Int64.Type},

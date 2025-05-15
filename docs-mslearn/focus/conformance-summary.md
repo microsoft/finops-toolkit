@@ -35,6 +35,9 @@ The remaining conformance gaps are summarized in the following sections. For det
 | `ChargeDescription` is null for savings plan unused charges and charges that aren't directly associated with a product SKU.                                                                                             | Replace with computed alternative as desired. | ChargeDescription<br>CD3                                               |
 | `PublisherName` is null for reservation usage, reservation purchases, and savings plan unused charges.                                                                                                                  | Replace null with "Microsoft".                | PublisherName<br>PbN2.2                                                |
 | `AvailabilityZone` isn't available in cost datasets and the column isn't included in the dataset.                                                                                                                       | Join with resource details.                   | AvailabilityZone<br>AZ1                                                |
+| `ServiceName` is empty for EA Marketplace purchases.                                                                                                                                                                    | Replace with `PublisherName` value.           | ServiceName<br>SvN2.2                                                  |
+| `ServiceName` is empty for MCA reservation and savings plan purchases.                                                                                                                                                  | Replace with `x_SkuMeterSubcategory` value.   | ServiceName<br>SvN2.2                                                  |
+| `ServiceName` is empty for MCA rounding adjustment, MACC shortfall, and Azure credit records.                                                                                                                           | Replace with `x_SkuMeterSubcategory` value.   | ServiceName<br>SvN2.2                                                  |
 
 <br>
 
@@ -72,7 +75,7 @@ The remaining conformance gaps are summarized in the following sections. For det
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Guide.FOCUS/featureName/Conformance.Summary)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Guide.FOCUS/featureName/Conformance.Summary)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

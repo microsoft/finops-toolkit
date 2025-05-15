@@ -7,40 +7,40 @@ Describe 'Start-FinOpsCostExport' {
     BeforeAll {
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
         $exportName = 'ftk-test-Start-FinOpsCostExport'
-        
+
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
         $scope = "/subscriptions/$([Guid]::NewGuid())"
-        
+
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
         $mockExport = @{
             id   = "$scope/providers/Microsoft.CostManagement/exports/$exportName"
             name = $exportName
         }
     }
-    
+
     It 'Should fail if export does not exist' {
         # Arrange
         Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { $null }
         Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { $null }
         $params = @{
             Name  = $exportName
-            Scope = $scope 
+            Scope = $scope
         }
-        
+
         # Act
         { Start-FinOpsCostExport @params } | Should -Throw
-        
+
         # Assert
         Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -Times 1
     }
-    
+
     It 'Should call /run with default dates' {
         # Arrange
         Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { $mockExport }
         Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { @{ Success = $true } }
         $params = @{
             Name  = $exportName
-            Scope = $scope 
+            Scope = $scope
         }
 
         # Act
@@ -58,7 +58,7 @@ Describe 'Start-FinOpsCostExport' {
         Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { @{ Success = $true } }
         $params = @{
             Name      = $exportName
-            Scope     = $scope 
+            Scope     = $scope
             StartDate = Get-Date -Month 1 -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC
         }
 
@@ -77,7 +77,7 @@ Describe 'Start-FinOpsCostExport' {
         Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { @{ Success = $true } }
         $params = @{
             Name      = $exportName
-            Scope     = $scope 
+            Scope     = $scope
             StartDate = (Get-Date)
             EndDate   = (Get-Date).AddDays(1)
         }
@@ -98,7 +98,7 @@ Describe 'Start-FinOpsCostExport' {
         $startOfMonth = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC)
         $params = @{
             Name     = $exportName
-            Scope    = $scope 
+            Scope    = $scope
             Backfill = 3
         }
 
@@ -108,7 +108,7 @@ Describe 'Start-FinOpsCostExport' {
         # Assert
         foreach ($i in 1..($params.Backfill))
         {
-            Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter { 
+            Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                 $startDate = $startOfMonth.AddMonths($i * -1).ToUniversalTime().Date
                 $body.timePeriod.from -eq $startDate.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") `
                     -and $body.timePeriod.to -eq $startDate.AddMonths(1).AddMilliseconds(-1).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -133,7 +133,7 @@ Describe 'Start-FinOpsCostExport' {
         Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Write-Progress' -Times 4
         $success | Should -Be $true
     }
-    
+
     It 'Should not report status when exporting 1 month' {
         # Arrange
         Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { $mockExport }

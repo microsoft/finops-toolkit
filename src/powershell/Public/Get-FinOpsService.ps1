@@ -22,7 +22,7 @@
 
     .PARAMETER ServiceCategory
     Optional. The service subcategory to find services for. Default = null (all).
-    
+
     .PARAMETER Servicemodel
     Optional. The service model the service aligns to. Expected values: IaaS, PaaS, SaaS. Default = null (all).
 
@@ -50,7 +50,7 @@
 #>
 function Get-FinOpsService()
 {
-    Param(
+    param(
         [Parameter(Position = 0)]
         [Alias("ResourceProvider", "RP")]
         [string]
@@ -74,10 +74,10 @@ function Get-FinOpsService()
 
         [string]
         $ServiceSubcategory = "*",
-        
+
         [string]
         $ServiceModel = "*",
-        
+
         [string]
         $Environment = "*",
 

@@ -96,47 +96,75 @@ if (-not $Silent) {
 }
 
 # Fetch latest changes from remote
-git fetch --all
+if ($Silent)
+{
+    git fetch --all --quiet
+}
+else
+{
+    git fetch --all
+}
 
 # Check to see if a remote branch exists
 $branchExists = git branch --remotes --list origin/$Branch
 if ($branchExists.Length -eq 0) {
     Write-Host '  ' -NoNewline
-    Write-Error "Remote branch not found: $Branch"
+    if ($Silent)
+    {
+        Write-Host "branch not found..." -NoNewline
+    }
+    else
+    {
+        Write-Error "Remote branch not found: $Branch"
+    }
     exit 1
 }
 
 function Merge-BranchAtoB($source, $target) {
     # Start on target branch
     if ((git rev-parse --abbrev-ref HEAD) -ne $target) {
-        if (-not $Silent) {
+        if ($Silent) {
+            git checkout $target --quiet *> $null
+        } else {
             Write-Host "  Switching to $target branch..."
             git checkout $target --quiet
-        } else {
-            git checkout $target --quiet *> $null
         }
     }
 
     # Validate the branch is clean
     $gitStatus = git status
     if (($gitStatus | Select-String 'Changes not staged for commit:') -or ($gitStatus | Select-String 'Changes to be committed:')) {
-        Write-Host '  ' -NoNewline
-        Write-Error 'Your branch has uncommitted changes. Please commit or stash changes and try again.'
+        if ($Silent)
+        {
+            Write-Host 'uncommitted changes...' -NoNewline
+        }
+        else
+        {
+            Write-Host '  ' -NoNewline
+            Write-Error 'Your branch has uncommitted changes. Please commit or stash changes and try again.'
+        }
         exit 1
     }
     if (($gitStatus | Select-String "Your branch is ahead of 'origin/$target' by") -or ($gitStatus | Select-String "Your branch and 'origin/$target' have diverged")) {
-        Write-Host '  ' -NoNewline
-        Write-Error 'Your branch has unpushed local commits. Please push or move to another branch and try again.'
+        if ($Silent)
+        {
+            Write-Host 'unpushed local commits...' -NoNewline
+        }
+        else
+        {
+            Write-Host '  ' -NoNewline
+            Write-Error 'Your branch has unpushed local commits. Please push or move to another branch and try again.'
+        }
         exit 1
     }
 
     # Pull latest changes
     if ($gitStatus | Select-String "Your branch is behind 'origin/$target' by") {
-        if (-not $Silent) {
+        if ($Silent) {
+            git pull --quiet *> $null
+        } else {
             Write-Host '  Pulling latest changes...'
             git pull --quiet
-        } else {
-            git pull --quiet *> $null
         }
     } else {
         if (-not $Silent) {
@@ -144,18 +172,22 @@ function Merge-BranchAtoB($source, $target) {
         }
     }
 
-    if (-not $Silent) {
+    if ($Silent) {
+        git merge $source --no-commit --quiet *> $null
+    } else {
         Write-Host "  Merging $source into $target..."
         Write-Host '-----------------------------'
         git merge $source --no-commit
         Write-Host '-----------------------------'
-    } else {
-        git merge $source --no-commit --quiet *> $null
     }
 
     # Check for conflicts
     if ((git diff --name-only).Length -gt 0) {
-        if (-not $Silent) {
+        if ($Silent) {
+            Write-Host "resolve conflicts..." -NoNewline
+            git merge --abort
+            exit 2
+        } else {
             # If TortoiseGit switch is set, open the conflict resolution tool
             if ($TortoiseGit) {
                 Push-Location
@@ -179,31 +211,24 @@ function Merge-BranchAtoB($source, $target) {
             } else {
                 Write-Host '  ' -NoNewline
                 Write-Warning "Please resolve conflicts, then run: git commit; git push origin $target"
-				if ($Silent) {
-					git merge --abort
-				}
+                if ($Silent) {
+                    git merge --abort
+                }
                 exit 2
             }
-        } else {
-            Write-Host '  ' -NoNewline
-            Write-Error "Branch $Branch has merge conflicts."
-            if ($Silent) {
-				git merge --abort
-            }
-            exit 2
         }
     }
 
     # Check status
     $gitStatus = git status
     if (($gitStatus | Select-String 'All conflicts fixed but you are still merging.') -or ($gitStatus | Select-String "Your branch is ahead of 'origin/$target' by")) {
-        if (-not $Silent) {
+        if ($Silent) {
+            git commit --no-edit --quiet *> $null
+            git push origin $target --quiet *> $null
+        } else {
             Write-Host '  Pushing merge to remote...'
             git commit --no-edit
             git push origin $target
-        } else {
-            git commit --no-edit --quiet *> $null
-            git push origin $target --quiet *> $null
         }
     } elseif ($gitStatus | Select-String "Your branch is up to date with 'origin/$target'.") {
         if (-not $Silent) {
@@ -211,9 +236,14 @@ function Merge-BranchAtoB($source, $target) {
         }
     } else {
         # TODO: Identify and resolve conflicts
-        Write-Host '  ' -NoNewline
-        Write-Error 'Merge state not supported. Please check for conflicts.'
-        if (-not $Silent) {
+        if ($Silent)
+        {
+            Write-Host 'unsupported merge state...' -NoNewline
+        }
+        else
+        {
+            Write-Host '  ' -NoNewline
+            Write-Error 'Merge state not supported. Please check for conflicts.'
             Write-Host "  If there are conflicts, resolve and run: git commit; git push origin $target"
             Write-Host '  To cancel the merge, run: git merge --abort'
         }

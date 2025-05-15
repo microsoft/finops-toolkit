@@ -371,7 +371,14 @@ table PolicyStates
 				      ['properties.stateDetails'] = properties.stateDetails
 				  " & ftk_DemoFilter(),
 				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
-				  Types = Table.TransformColumns(Source, {{"properties.policyAssignmentScope", each Text.AfterDelimiter(_, "/", {0, RelativePosition.FromEnd}), type text}}, null, MissingField.Ignore)
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.policyAssignmentParameters", "properties.policyDefinitionAction", "properties.policyAssignmentScope", "properties.policyAssignmentName", "properties.policyDefinitionName", "properties.policyDefinitionReferenceId", "properties.policyDefinitionId", "properties.managementGroupIds", "properties.policyAssignmentId", "properties.policySetDefinitionName", "properties.complianceState", "properties.policySetDefinitionId", "properties.subscriptionId", "properties.resourceType", "properties.stateWeight", "properties.resourceGroup", "properties.resourceId", "properties.timestamp", "properties.isDeleted", "properties.resourceLocation", "properties.policySetDefinitionCategory", "properties.policyDefinitionGroupNames", "properties.complianceReasonCode", "properties.stateDetails" },
+								{}
+							)
+				    else Source,
+				  Types = Table.TransformColumns(NullHandling, {{"properties.policyAssignmentScope", each Text.AfterDelimiter(_, "/", {0, RelativePosition.FromEnd}), type text}}, null, MissingField.Ignore)
 				in
 				  Types
 
