@@ -1,0 +1,19 @@
+{
+    "scriptVersion": "2.0",
+    "repositoryUrls": {
+        "mainScript": "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/src/wacoa/tools/CostRecommendations.ps1",
+        "prerequisitesScript": "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/src/wacoa/tools/CostRecommendations-Prerequisites.ps1",
+        "versionFile": "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/version.txt",
+        "resourcesZip": "https://github.com/microsoft/finops-toolkit/raw/refs/heads/features/wacoascripts/src/wacoa/content/azure-resources.zip"
+    },
+    "paths": {
+        "tempDir": "Temp",
+        "resourcesDir": "Temp/azure-resources",
+        "cacheFile": "ScopeCache.txt"
+    },
+    "defaultSettings": {
+        "parallelThrottleLimit": 5,
+        "excelTableStyle": "Light19",
+        "logLevel": "INFO"
+    }
+}
