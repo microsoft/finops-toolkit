@@ -19,7 +19,7 @@ import { HomePage } from '../pages/HomePage';
 function App() {
   return (
     <FluentUIProvider>
-      <Router>
+    <Router basename={window.location.hostname === 'localhost' ? '/' : '/finops-toolkit'}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/bicep-registry" element={<BicepRegistryModulesPage />} />
