@@ -1,0 +1,37 @@
+// Query: Pivoted effective cost by month and region, including totals. Useful for regional cost analysis and benchmarking.
+// Query ID: 0dcf2c54-7f1d-45e9-a53b-d598a24493a4
+// Description: Pivoted effective cost by month and region, including totals. Useful for regional cost analysis and benchmarking.
+
+// Used Variables: `CostsByMonth`
+
+// --- Variable Definitions ---
+let CostsByMonth = Costs
+    | summarize EffectiveCost = sum(EffectiveCost),
+                RegionName = take_any(RegionName)
+      by ChargePeriodStart, RegionName;
+// --- End Variable Definitions ---
+
+let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
+let data = (
+    CostsByMonth
+    | summarize 
+        EffectiveCost  = sum(EffectiveCost),
+        RegionName     = take_any(RegionName)
+        by
+        ChargePeriodStart,
+        RegionName
+    | as per
+    | union (
+        per
+        | summarize 
+            EffectiveCost  = sum(EffectiveCost),
+            RegionName     = take_any(RegionName)
+            by
+            RegionName
+    )
+    | order by ChargePeriodStart asc
+    | extend EffectiveCost = todouble(round(EffectiveCost, 2))
+    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))
+);
+data | evaluate pivot(ChargePeriod, sum(EffectiveCost), RegionName)
+| order by Total desc

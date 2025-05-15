@@ -1,0 +1,15 @@
+// Query: Distributes costs by charge categories for each month, grouping minor categories as "others".
+// Query ID: d7a9ff96-da17-4826-9fb5-b23f4c7b938d
+// Description: Distributes costs by charge categories for each month, grouping minor categories as "others".
+// Used Variables: `CostsByMonth`, `maxGroupCount`
+
+let costs = CostsByMonth;
+let all = costs | where isnotempty(ChargeCategory) | summarize sum(EffectiveCost) by ChargeCategory;
+let count = toscalar(all | order by sum_EffectiveCost desc | count);
+let topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;
+let otherId = '(others)';
+costs
+| extend inTopX = ChargeCategory in (topX)
+| extend ChargeCategory = iff(inTopX, ChargeCategory, strcat('(', (count - maxGroupCount), ' others)'))
+| summarize EffectiveCost = sum(EffectiveCost) by ChargePeriodStart = startofmonth(ChargePeriodStart), ChargeCategory
+| order by ChargePeriodStart asc

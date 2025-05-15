@@ -1,0 +1,8 @@
+// Query: Summarizes billed and effective costs by month for timechart visualization.
+// Query ID: bc24e050-f2b9-4b4a-a08d-69fc4a4bb95e
+// Description: Summarizes billed and effective costs by month for timechart visualization.
+// Used Variables: `CostsByMonth`
+
+CostsByMonth
+| summarize BilledCost = round(sum(BilledCost), 2), EffectiveCost = round(sum(EffectiveCost), 2) by BillingPeriodStart = startofmonth(BillingPeriodStart)
+| render timechart

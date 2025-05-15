@@ -1,0 +1,18 @@
+// Query: Shows daily budget pacing, grouping minor categories as "others".
+// Query ID: ebe41e27-e9f9-478e-ab90-fd1f87906766
+// Description: Shows daily budget pacing, grouping minor categories as "others".
+// Used Variables: `CostsByDay`, `maxGroupCount`
+
+let costs = CostsByDay;
+let all = costs | where isnotempty(ServiceCategory) | summarize sum(EffectiveCost) by ServiceCategory;
+let count = toscalar(all | order by sum_EffectiveCost desc | count);
+let topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;
+let otherId = '(others)';
+costs
+| extend inTopX = ServiceCategory in (topX)
+| extend ServiceCategory = iff(inTopX, ServiceCategory, strcat('(', (count - maxGroupCount), ' others)'))
+| summarize
+    Budget = sum(Budget),
+    Actual = sum(EffectiveCost)
+    by UsageDate, ServiceCategory
+| order by UsageDate asc

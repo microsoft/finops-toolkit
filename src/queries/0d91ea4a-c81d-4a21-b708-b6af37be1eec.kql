@@ -1,0 +1,15 @@
+// Query: Shows cost trends over time, including percent change from previous month.
+// Query ID: 0d91ea4a-c81d-4a21-b708-b6af37be1eec
+// Description: Shows cost trends over time, including percent change from previous month.
+// Used Variables: `CostsByMonth`
+
+// --- Variable Definitions ---
+let CostsByMonth = Costs
+    | summarize BilledCost = sum(BilledCost),
+                EffectiveCost = sum(EffectiveCost)
+      by BillingPeriodStart = startofmonth(BillingPeriodStart);
+// --- End Variable Definitions ---
+
+CostsByMonth
+| summarize BilledCost = sum(BilledCost), EffectiveCost = sum(EffectiveCost) by BillingPeriodStart = startofmonth(BillingPeriodStart)
+| order by BillingPeriodStart asc

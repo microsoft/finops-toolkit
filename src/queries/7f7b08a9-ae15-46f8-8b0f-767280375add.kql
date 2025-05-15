@@ -1,0 +1,8 @@
+// Query: Calculates chargeback allocation by distributing costs to business units or cost centers.
+// Query ID: 7f7b08a9-ae15-46f8-8b0f-767280375add
+// Description: Calculates chargeback allocation by distributing costs to business units or cost centers.
+// Used Variables: `CostsByMonth`
+
+CostsByMonth
+| summarize ChargebackAmount = sum(EffectiveCost) by BusinessUnit, ChargePeriodStart = startofmonth(ChargePeriodStart)
+| order by ChargePeriodStart asc

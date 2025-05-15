@@ -1,0 +1,20 @@
+// Query: Cost breakdown by region for each month, grouping minor regions as "others". Useful for visualizing top regions and aggregating the rest.
+// Query ID: d5224d06-c8e7-4dd9-afec-595b39712f5a
+// Description: Cost breakdown by region for each month, grouping minor regions as "others". Useful for visualizing top regions and aggregating the rest.
+// Used Variables: `CostsByMonth`, `maxGroupCount`
+
+let costs = CostsByMonth;
+let all = costs | where isnotempty(RegionName) | summarize sum(EffectiveCost) by RegionName;
+let count = toscalar(all | order by sum_EffectiveCost desc | count);
+let topX = all | order by sum_EffectiveCost desc | limit iff(count - maxGroupCount > 1, maxGroupCount, count);
+let otherId = '(others)';
+costs
+| extend inTopX = RegionName in (topX)
+| extend RegionName = iff(inTopX, RegionName, strcat('(', count - maxGroupCount, ' others)'))
+| summarize 
+    EffectiveCost = round(sum(EffectiveCost), 2)
+    by
+    ChargePeriodStart = startofmonth(ChargePeriodStart),
+    RegionName
+| project ChargePeriodStart, EffectiveCost, Region = RegionName
+| order by EffectiveCost desc

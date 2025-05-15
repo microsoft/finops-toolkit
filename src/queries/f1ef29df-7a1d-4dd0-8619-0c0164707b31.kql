@@ -1,0 +1,8 @@
+// Query: Calculates governance policy metrics by day.
+// Query ID: f1ef29df-7a1d-4dd0-8619-0c0164707b31
+// Description: Calculates governance policy metrics by day.
+// Used Variables: `CostsByDay`
+
+CostsByDay
+| summarize PolicyCompliancePercent = 100.0 * sum(CompliantCost) / sum(EffectiveCost) by UsageDate
+| order by UsageDate asc

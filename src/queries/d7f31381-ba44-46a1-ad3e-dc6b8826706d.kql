@@ -1,0 +1,8 @@
+// Query: Calculates FinOps maturity metrics by day.
+// Query ID: d7f31381-ba44-46a1-ad3e-dc6b8826706d
+// Description: Calculates FinOps maturity metrics by day.
+// Used Variables: `CostsByDay`
+
+CostsByDay
+| summarize MaturityScore = avg(MaturityScore) by UsageDate
+| order by UsageDate asc

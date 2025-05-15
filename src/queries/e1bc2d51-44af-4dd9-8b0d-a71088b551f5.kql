@@ -1,0 +1,8 @@
+// Query: Shows SaaS usage patterns by month.
+// Query ID: e1bc2d51-44af-4dd9-8b0d-a71088b551f5
+// Description: Shows SaaS usage patterns by month.
+// Used Variables: `CostsByMonth`
+
+CostsByMonth
+| summarize SaaSUsage = sum(SaaSUsage) by BillingPeriodStart = startofmonth(BillingPeriodStart)
+| order by BillingPeriodStart asc

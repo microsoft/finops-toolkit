@@ -1,0 +1,12 @@
+// Query: Calculates savings from commitment discounts by comparing effective and contracted costs.
+// Query ID: 5bbb5369-ac95-45fc-853c-a6a2ce6a9e7b
+// Description: Calculates savings from commitment discounts by comparing effective and contracted costs.
+// Used Variables: `CostsByMonth`
+
+CostsByMonth
+| summarize
+    CommitmentDiscountSavings = sum(ContractedCost - EffectiveCost),
+    EffectiveCost = sum(EffectiveCost)
+    by BillingPeriodStart = startofmonth(BillingPeriodStart)
+| project BillingPeriodStart, CommitmentDiscountSavings, EffectiveCost
+| order by BillingPeriodStart asc

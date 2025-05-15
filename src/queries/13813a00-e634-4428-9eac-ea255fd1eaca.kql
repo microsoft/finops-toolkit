@@ -1,0 +1,15 @@
+// Query: Shows data completeness by dimension, grouping minor categories as "others".
+// Query ID: 13813a00-e634-4428-9eac-ea255fd1eaca
+// Description: Shows data completeness by dimension, grouping minor categories as "others".
+// Used Variables: `CostsByDay`, `maxGroupCount`
+
+let costs = CostsByDay;
+let all = costs | where isnotempty(Dimension) | summarize sum(EffectiveCost) by Dimension;
+let count = toscalar(all | order by sum_EffectiveCost desc | count);
+let topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;
+let otherId = '(others)';
+costs
+| extend inTopX = Dimension in (topX)
+| extend Dimension = iff(inTopX, Dimension, strcat('(', (count - maxGroupCount), ' others)'))
+| summarize CompletenessPercent = 100.0 * sum(CompleteCost) / sum(EffectiveCost) by UsageDate, Dimension
+| order by UsageDate asc

@@ -1,0 +1,12 @@
+// Query: CostsByMonth
+// Query ID: 4ce0f587-2d45-436c-8f79-102c6b382439
+// Description: Aggregates cost data by month.
+// Used Variable: CostsByMonth
+
+// --- Variable Definitions ---
+let CostsByMonth = Costs()
+    | summarize TotalCost = sum(Cost), BilledCost = sum(BilledCost) by Month = format_datetime(UsageDate, 'yyyy-MM');
+// --- End Variable Definitions ---
+
+CostsByMonth
+// Add further summarization or projection as needed

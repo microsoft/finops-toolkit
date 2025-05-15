@@ -1,0 +1,17 @@
+// Query: Counts subscriptions, resource groups, resources, and services for last month.
+// Query ID: f2cecbb0-13f8-4642-afa4-bbcc0558f777
+// Description: Counts subscriptions, resource groups, resources, and services for last month.
+// Used Variables: `CostsLastMonth`
+
+let data = materialize(
+    CostsLastMonth
+    | summarize
+        Subscriptions = dcount(SubAccountId),
+        ResourceGroups = dcount(strcat(SubAccountId, x_ResourceGroupName)),
+        Resources = dcount(ResourceId),
+        Services = dcount(ServiceName)
+    | project json = todynamic(strcat('[{ "Type":"Subscriptions", "Count":', Subscriptions, ' }, { "Type":"Resource groups", "Count":', ResourceGroups, ' }, { "Type":"Resources", "Count":', Resources, ' }, { "Type":"Services", "Count":', Services, ' }]'))
+    | mv-expand json
+    | project Label = tostring(json.Type), Count = tolong(json.Count)
+);
+data

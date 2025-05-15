@@ -1,0 +1,40 @@
+// Query: Pivoted effective cost by month and sub-account, including totals. Useful for business value metrics and unit economics.
+// Query ID: 90502e9a-2d0d-4ae4-8d9d-cc21f9b72d5d
+// Description: Pivoted effective cost by month and sub-account, including totals. Useful for business value metrics and unit economics.
+// Used Variables: `CostsByMonth`
+
+let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
+let data = (
+    CostsByMonth
+    | summarize 
+        BilledCost     = sum(BilledCost),
+        EffectiveCost  = sum(EffectiveCost),
+        ContractedCost = sum(ContractedCost),
+        ListCost       = sum(ListCost),
+        SubAccountName = take_any(SubAccountName)
+        by
+        ChargePeriodStart,
+        SubAccountId
+    | as per
+    | union (
+        per
+        | summarize 
+            BilledCost     = sum(BilledCost),
+            EffectiveCost  = sum(EffectiveCost),
+            ContractedCost = sum(ContractedCost),
+            ListCost       = sum(ListCost),
+            SubAccountName = take_any(SubAccountName)
+            by
+            SubAccountId
+    )
+    | order by ChargePeriodStart asc
+    | extend BilledCost                = todouble(round(BilledCost, 2))
+    | extend EffectiveCost             = todouble(round(EffectiveCost, 2))
+    | extend ContractedCost            = todouble(round(ContractedCost, 2))
+    | extend ListCost                  = todouble(round(ListCost, 2))
+    | extend CommitmentDiscountSavings = todouble(round(ContractedCost - EffectiveCost, 2))
+    | extend NegotiatedDiscountSavings = todouble(round(ListCost - ContractedCost, 2))
+    | extend ChargePeriod = iff(isempty(ChargePeriodStart), strcat('Total'), strcat(format_datetime(ChargePeriodStart, 'yyyy-MM - '), monthname[monthofyear(ChargePeriodStart)]))
+);
+data | evaluate pivot(ChargePeriod, sum(EffectiveCost), SubAccountName)
+| order by Total desc

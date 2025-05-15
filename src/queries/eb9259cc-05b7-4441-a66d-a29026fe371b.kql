@@ -1,0 +1,7 @@
+// Query: Lists available time ranges for reporting.
+// Query ID: eb9259cc-05b7-4441-a66d-a29026fe371b
+// Description: Lists available time ranges for reporting.
+// Used Variables: `numberOfMonths`
+
+range Month from 1 to numberOfMonths step 1
+| project AvailableMonth = Month

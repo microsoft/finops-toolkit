@@ -1,0 +1,8 @@
+// Query: Monitors tag compliance by month.
+// Query ID: e17346d1-0227-4aa4-8765-f9b4bf43bed5
+// Description: Monitors tag compliance by month.
+// Used Variables: `CostsByMonth`
+
+CostsByMonth
+| summarize TagCompliancePercent = 100.0 * sum(TaggedCost) / sum(EffectiveCost) by ChargePeriodStart = startofmonth(ChargePeriodStart)
+| order by ChargePeriodStart asc

@@ -1,0 +1,8 @@
+// Query: Monitors resource naming compliance by day.
+// Query ID: 84ecad69-79ac-45b9-a8af-60be28dcc748
+// Description: Monitors resource naming compliance by day.
+// Used Variables: `CostsByDay`
+
+CostsByDay
+| summarize NamingCompliancePercent = 100.0 * sum(NamingCompliantCost) / sum(EffectiveCost) by UsageDate
+| order by UsageDate asc

@@ -1,0 +1,7 @@
+// Query: Retrieves hub settings and configuration.
+// Query ID: 8de47213-8327-44da-9d1b-8ba5de74c44a
+// Description: Retrieves hub settings and configuration.
+// Used Variables: None
+
+HubSettings
+| project SettingName, SettingValue

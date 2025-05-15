@@ -1,0 +1,24 @@
+// Query: Cost breakdown by resource group for each month, grouping minor groups as "others". Useful for visualizing top resource groups and aggregating the rest.
+// Query ID: 61b26784-6a73-4e80-85b2-9c5cfbd2dd06
+// Description: Cost breakdown by resource group for each month, grouping minor groups as "others". Useful for visualizing top resource groups and aggregating the rest.
+// Used Variables: `CostsByMonth`, `maxGroupCount`
+
+let costs = CostsByMonth | extend x_ResourceGroupId = strcat(SubAccountId, '/resourcegroups/', x_ResourceGroupName);
+let all = costs | where isnotempty(x_ResourceGroupId) | summarize sum(EffectiveCost) by x_ResourceGroupId;
+let count = toscalar(all | order by sum_EffectiveCost desc | count);
+let topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;
+let otherId = '(others)';
+costs
+| extend inTopX = x_ResourceGroupId in (topX)
+| extend x_ResourceGroupId = iff(inTopX, x_ResourceGroupId, otherId)
+| extend x_ResourceGroupName = iff(inTopX, x_ResourceGroupName, strcat('(', (count - maxGroupCount), ' others)'))
+| summarize 
+    EffectiveCost = round(sum(EffectiveCost), 2),
+    SubAccountName = take_any(SubAccountName),
+    x_ResourceGroupName = take_any(x_ResourceGroupName)
+    by
+    ChargePeriodStart,
+    x_ResourceGroupId
+| project ChargePeriodStart, EffectiveCost, RG = iff(x_ResourceGroupId == otherId, x_ResourceGroupName, strcat(x_ResourceGroupName, ' (', SubAccountName, ')'))
+| order by EffectiveCost desc
+| render columnchart

@@ -1,0 +1,7 @@
+// Query: Provides data model diagnostics for the hub.
+// Query ID: 56fd8707-bbb3-4f7e-8e37-8dd90ada3baa
+// Description: Provides data model diagnostics for the hub.
+// Used Variables: None
+
+HubDiagnostics
+| summarize Count = count() by TableName, Status

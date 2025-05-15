@@ -1,0 +1,14 @@
+// Query: CostsLastMonth
+// Query ID: cb1f5404-c0b1-42fd-99fb-3cff7b08daaa
+// Description: Aggregates cost data for the last closed month.
+// Used Variable: CostsLastMonth
+
+// --- Variable Definitions ---
+let lastMonth = startofmonth(ago(30d));
+let CostsLastMonth = Costs()
+    | where UsageDate >= lastMonth and UsageDate < startofmonth(now())
+    | summarize TotalCost = sum(Cost), BilledCost = sum(BilledCost) by ...;
+// --- End Variable Definitions ---
+
+CostsLastMonth
+// Add further summarization or projection as needed

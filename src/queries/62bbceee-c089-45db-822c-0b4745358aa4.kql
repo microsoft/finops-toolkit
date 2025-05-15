@@ -1,0 +1,8 @@
+// Query: Identifies license optimization opportunities by month.
+// Query ID: 62bbceee-c089-45db-822c-0b4745358aa4
+// Description: Identifies license optimization opportunities by month.
+// Used Variables: `CostsByMonth`
+
+CostsByMonth
+| summarize LicenseOptimizationOpportunity = sum(LicenseOptimizationOpportunity) by BillingPeriodStart = startofmonth(BillingPeriodStart)
+| order by BillingPeriodStart asc

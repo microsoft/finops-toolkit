@@ -1,0 +1,13 @@
+// Query: Calculates commitment discount coverage as a percentage of total cost.
+// Query ID: 13cad52d-91e7-4ab4-aad5-4aae21c1019a
+// Description: Calculates commitment discount coverage as a percentage of total cost.
+// Used Variables: `CostsByMonth`
+
+CostsByMonth
+| summarize
+    TotalCost = sum(EffectiveCost),
+    CoveredCost = sum(CommitmentDiscountCoveredCost)
+    by BillingPeriodStart = startofmonth(BillingPeriodStart)
+| extend CoveragePercent = 100.0 * CoveredCost / TotalCost
+| project BillingPeriodStart, CoveragePercent
+| order by BillingPeriodStart asc

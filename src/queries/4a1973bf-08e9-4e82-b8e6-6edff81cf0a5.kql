@@ -1,0 +1,13 @@
+// Query: CostsByDayAHB
+// Query ID: 4a1973bf-08e9-4e82-b8e6-6edff81cf0a5
+// Description: Aggregates cost data by day for AHB (Azure Hybrid Benefit) resources.
+// Used Variable: CostsByDayAHB
+
+// --- Variable Definitions ---
+let CostsByDayAHB = Costs()
+    | where IsAHB == true
+    | summarize TotalCost = sum(Cost), BilledCost = sum(BilledCost) by UsageDate;
+// --- End Variable Definitions ---
+
+CostsByDayAHB
+// Add further summarization or projection as needed

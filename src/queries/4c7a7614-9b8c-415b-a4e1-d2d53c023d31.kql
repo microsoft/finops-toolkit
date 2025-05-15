@@ -1,0 +1,18 @@
+// Query: Tracks service category budget by month, grouping minor categories as "others".
+// Query ID: 4c7a7614-9b8c-415b-a4e1-d2d53c023d31
+// Description: Tracks service category budget by month, grouping minor categories as "others".
+// Used Variables: `CostsByMonth`, `maxGroupCount`
+
+let costs = CostsByMonth;
+let all = costs | where isnotempty(ServiceCategory) | summarize sum(EffectiveCost) by ServiceCategory;
+let count = toscalar(all | order by sum_EffectiveCost desc | count);
+let topX = all | order by sum_EffectiveCost desc | limit maxGroupCount;
+let otherId = '(others)';
+costs
+| extend inTopX = ServiceCategory in (topX)
+| extend ServiceCategory = iff(inTopX, ServiceCategory, strcat('(', (count - maxGroupCount), ' others)'))
+| summarize
+    Budget = sum(Budget),
+    Actual = sum(EffectiveCost)
+    by BillingPeriodStart = startofmonth(BillingPeriodStart), ServiceCategory
+| order by BillingPeriodStart asc

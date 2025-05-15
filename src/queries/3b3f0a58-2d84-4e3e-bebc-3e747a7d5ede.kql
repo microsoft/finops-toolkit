@@ -1,0 +1,8 @@
+// Query: Checks resource metadata consistency by month.
+// Query ID: 3b3f0a58-2d84-4e3e-bebc-3e747a7d5ede
+// Description: Checks resource metadata consistency by month.
+// Used Variables: `CostsByMonth`
+
+CostsByMonth
+| summarize MetadataConsistencyPercent = 100.0 * sum(ConsistentCost) / sum(EffectiveCost) by ChargePeriodStart = startofmonth(ChargePeriodStart)
+| order by ChargePeriodStart asc
