@@ -20,7 +20,7 @@ These base queries are used extensively in the FinOps Toolkit.  Ensure you inclu
 This section summarizes the main queries used in the FinOps Toolkit.  Ensure you include the base queries in your KQL.
 
 
-For more details, see the [FinOps Toolkit Power BI Cost Summary documentation](https://github.com/basicmachines-co/finops-toolkit/blob/main/docs-mslearn/toolkit/power-bi/cost-summary.md).
+For more details, see the [FinOps Toolkit Power BI Cost Summary documentation](https://github.com/microsoft/finops-toolkit/blob/main/docs-mslearn/toolkit/power-bi/cost-summary.md).
 
 | Query | Query ID | Description | Used Variables |
 |-------|----------|-------------|---------------|
