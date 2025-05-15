@@ -306,125 +306,78 @@ Function CostRecommendations {
 
 
     # Function to process KQL files (Original version)
-    function Process-KQLFiles {
-        param (
-            [string]$BasePath,
-            [string]$SubscriptionIds,
-            [string]$ResourceGroupName
-        )
-        $kqlFiles = Get-ChildItem -Path $BasePath -Recurse -Filter *.kql -ErrorAction Stop
-        Write-Log -Message "Found $($kqlFiles.Count) recommendation files." -Level "INFO"
-        Write-Host "`nFound $($kqlFiles.Count) recommendation files." -ForegroundColor Cyan
+function Process-KQLFiles {
+    param (
+        [string]$BasePath,
+        [string]$SubscriptionIds,
+        [string]$ResourceGroupName
+    )
+    $kqlFiles = Get-ChildItem -Path $BasePath -Recurse -Filter *.kql -ErrorAction Stop
+    Write-Log -Message "Found $($kqlFiles.Count) recommendation files." -Level "INFO"
+    Write-Host "`nFound $($kqlFiles.Count) recommendation files." -ForegroundColor Cyan
 
-        $allResources = @()
-        $queryErrors = @()
+    $allResources = @()
+    $queryErrors = @()
 
-        # Build subscription filter outside parallel block
-        $subscriptionFilter = $null
-        if ($subscriptionIds) {
-            $subscriptionList = $subscriptionIds -split ',' | ForEach-Object { "'$($_.Trim())'" }
-            $subscriptionFilter = $subscriptionList -join ","
+    # Build subscription filter
+    $subscriptionFilter = $null
+    if ($SubscriptionIds) {
+        $subscriptionList = $SubscriptionIds -split ',' | ForEach-Object { "'$($_.Trim())'" }
+        $subscriptionFilter = $subscriptionList -join ","
+    }
+
+    foreach ($file in $kqlFiles) {
+        try {
+            $query = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
+
+            if ($subscriptionFilter -and $ResourceGroupName) {
+                $query = "$query | where SubAccountId in ($subscriptionFilter) and x_ResourceGroupName == '$ResourceGroupName'"
+            }
+            elseif ($subscriptionFilter) {
+                $query = "$query | where SubAccountId in ($subscriptionFilter)"
+            }
+
+            Write-Log -Message "Executing query for $($file.Name)..." -Level "DEBUG"
+            $result = Search-AzGraph -Query $query -First 1000 -ErrorAction Stop
+            $fileResources = @($result)
+
+            while ($result -ne $null -and $result.SkipToken) {
+                Write-Log -Message "Fetching next page for $($file.Name)..." -Level "DEBUG"
+                $result = Search-AzGraph -Query $query -SkipToken $result.SkipToken -First 1000 -ErrorAction Stop
+                $fileResources += $result
+            }
+
+            Write-Log -Message "Completed query for $($file.Name), found $($fileResources.Count) resources." -Level "DEBUG"
+            $allResources += $fileResources
         }
-
-        # Original used ForEach-Object -Parallel
-        $kqlFiles | ForEach-Object -Parallel {
-            $file = $_
-            $subscriptionFilter = $using:subscriptionFilter
-            $resourceGroupName = $using:ResourceGroupName
-            $logFile = $using:logFile # Capture log file path for parallel logging
-
-            # Create a local function for logging within the parallel block
-            function Write-ParallelLog {
-                param (
-                    [string]$Message,
-                    [string]$Level = "INFO"
-                )
-                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message" # Add Thread ID for clarity
-                $logFile = $using:logFile # Access variable from parent scope
-                Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
+        catch {
+            $errorMessage = "Query failed for file '$($file.FullName)': $($_.Exception.Message)"
+            Write-Log -Message $errorMessage -Level "ERROR"
+            $queryErrors += [PSCustomObject]@{
+                IsError = $true
+                Error = $errorMessage
+                Query = $query
+                File = $file.FullName
             }
-
-            try {
-                $query = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
-
-                # Dynamically append filters to the query based on scope (Original logic)
-                # Note: Original script used x_ResourceGroupName, ARG typically uses 'resourceGroup' for filtering
-                if ($subscriptionFilter -and $resourceGroupName) {
-                    # This filter might not work as intended if x_ResourceGroupName isn't projected in the base query
-                    $query = "$query | where SubAccountId in ($subscriptionFilter) and x_ResourceGroupName == '$resourceGroupName'"
-                }
-                elseif ($subscriptionFilter) {
-                     # This filter might not work as intended if SubAccountId isn't projected in the base query
-                    $query = "$query | where SubAccountId in ($subscriptionFilter)"
-                }
-                # Note: If neither SubAccountId nor x_ResourceGroupName are projected by the KQL, these filters will fail.
-
-                # Execute the query using Azure Resource Graph with pagination (Original logic)
-                try {
-                    Write-ParallelLog -Message "Executing query for $($file.Name)..." -Level "DEBUG" # Added logging
-                    $result = Search-AzGraph -Query $query -First 1000 -ErrorAction Stop
-                    $fileResources = @($result) # Ensure it's always an array
-                    # Handle pagination if SkipToken exists
-                    while ($result -ne $null -and $result.SkipToken) {
-                        Write-ParallelLog -Message "Fetching next page for $($file.Name)..." -Level "DEBUG" # Added logging
-                        $result = Search-AzGraph -Query $query -SkipToken $result.SkipToken -First 1000 -ErrorAction Stop
-                        $fileResources += $result
-                    }
-                    Write-ParallelLog -Message "Completed query for $($file.Name), found $($fileResources.Count) resources." -Level "DEBUG" # Added logging
-                    return $fileResources # Return results for this file
-                }
-                catch {
-                    $errorMessage = "Query failed for file '$($file.FullName)': $($_.Exception.Message)"
-                    Write-ParallelLog -Message $errorMessage -Level "ERROR"
-                    # Return an error object identifiable later
-                    return [PSCustomObject]@{
-                        IsError = $true
-                        Error = $errorMessage
-                        Query = $query # Include the query that failed
-                        File = $file.FullName
-                    }
-                }
-            }
-            catch {
-                $errorMessage = "An error occurred while processing file '$($file.FullName)': $_"
-                Write-ParallelLog -Message $errorMessage -Level "ERROR"
-                # Return an error object identifiable later
-                return [PSCustomObject]@{
-                    IsError = $true
-                    Error = $errorMessage
-                    File = $file.FullName
-                }
-            }
-        } -ThrottleLimit 5 -AsJob | Receive-Job -Wait -AutoRemoveJob | ForEach-Object {
-            # Process results from the parallel jobs
-            if ($_ -is [PSCustomObject] -and $_.PSObject.Properties['IsError']) {
-                 # It's one of our custom error objects
-                 $queryErrors += $_ # Add the error object to the list
-            }
-            elseif ($_ -ne $null) {
-                # It's result data (could be single object or array)
-                # Ensure it's treated as an array before adding
-                $allResources += @($_)
-            }
-        }
-
-        # Log query errors outside of the parallel block
-        foreach ($error in $queryErrors) {
-            Write-Log -Message "Error processing $($error.File): $($error.Error)" -Level "ERROR"
-            if ($error.Query) {
-                Write-Log -Message "Failed Query: $($error.Query)" -Level "DEBUG" # Log query at DEBUG level
-            }
-        }
-
-        Write-Log -Message "Found $($allResources.Count) recommendations in the environment." -Level "INFO"
-        Write-Host "Found $($allResources.Count) recommendations in the environment." -ForegroundColor Cyan
-
-        return @{
-            AllResources = $allResources
-            QueryErrors  = $queryErrors # Return the collection of error objects
         }
     }
+
+    foreach ($error in $queryErrors) {
+        Write-Log -Message "Error processing $($error.File): $($error.Error)" -Level "ERROR"
+        if ($error.Query) {
+            Write-Log -Message "Failed Query: $($error.Query)" -Level "DEBUG"
+        }
+    }
+
+    Write-Log -Message "Found $($allResources.Count) recommendations in the environment." -Level "INFO"
+    Write-Host "Found $($allResources.Count) recommendations in the environment." -ForegroundColor Cyan
+
+    return @{
+        AllResources = $allResources
+        QueryErrors  = $queryErrors
+    }
+}
+
 
 
     # Function to get Assessment file path (Original version)
