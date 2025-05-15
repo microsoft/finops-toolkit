@@ -10,7 +10,8 @@ import FluentUIProvider from '../components/FluentUIProvider'; // Use your Fluen
 import PowerBIReportsPage from './PowerBIReportsPage';
 import CostOptimizationWorkbookPage from './CostOptimizationWorkbookPage';
 // import MainLayout from '../components/MainLayout/MainLayout';
-import {HomePage} from '../pages/HomePage';
+import { HomePage } from '../pages/HomePage';
+
 /**
  * The main component of the application.
  * Renders the routes for different pages.
@@ -31,11 +32,11 @@ function App() {
           <Route path="/workbooks" element={<FinOpsWorkbooksPage />} />
           <Route path="/workbooks/governance" element={<GovernanceWorkbookPage />} />
           <Route path="/workbooks/optimization" element={<CostOptimizationWorkbookPage />} />
-        {/* </Route> */}
+          {/* </Route> */}
         </Routes>
       </Router>
     </FluentUIProvider>
   );
-};
+}
 
 export default App;

@@ -4,7 +4,7 @@ import { HomePage } from '../HomePage';
 
 jest.mock('../../components/SideBar/SideBar', () => () => <div data-testid="sidebar" />);
 jest.mock('../../components/TopMenuBar/TopMenuBar', () => () => <div data-testid="top-menu-bar" />);
-jest.mock('../../components/Showcase/Showcase', () => () => <div data-testid="showcase">Kick start your FinOps efforts</div>);
+jest.mock('../../components/HomeBanner/HomeBanner', () => () => <div data-testid="homeBanner">Kick start your FinOps efforts</div>);
 
 describe('App Routing', () => {
   it('should render SamplePage for the root path', () => {
@@ -13,13 +13,13 @@ describe('App Routing', () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByTestId('top-menu-bar')).toBeInTheDocument();
     expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     expect(screen.getByTestId('main-content')).toBeInTheDocument();
-    expect(screen.getByTestId('showcase')).toBeInTheDocument();
+    expect(screen.getByTestId('homeBanner')).toBeInTheDocument();
   });
 
   it('should render SamplePage for the /tools path', () => {
@@ -28,12 +28,12 @@ describe('App Routing', () => {
         <Routes>
           <Route path="/tools" element={<HomePage />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByTestId('top-menu-bar')).toBeInTheDocument();
     expect(screen.getByTestId('sidebar')).toBeInTheDocument();
     expect(screen.getByTestId('main-content')).toBeInTheDocument();
-    expect(screen.getByTestId('showcase')).toBeInTheDocument();
+    expect(screen.getByTestId('homeBanner')).toBeInTheDocument();
   });
 });

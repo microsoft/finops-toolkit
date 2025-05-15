@@ -1,0 +1,28 @@
+.ftk-homeBanner-container {
+  background: url('HomeBannerBackground.png');
+  background-size: contain;
+  background-repeat: round;
+  height: 375px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .ftk-homeBanner-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    color: var(--colorNeutralForegroundStaticInverted);
+    max-width: 600px;
+    align-items: center;
+
+    span {
+      text-align: center;
+    }
+
+    .ftk-homeBanner-actions {
+      display: flex;
+      gap: 20px;
+    }
+  }
+}
