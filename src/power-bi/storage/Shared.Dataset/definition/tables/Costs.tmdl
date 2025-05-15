@@ -140,6 +140,21 @@ table Costs
 		formatString: 0
 		lineageTag: 902eb4c9-763a-4b55-952d-5f8321aebbe2
 
+	measure _PreviousMonthCost =
+			
+			CALCULATE(
+			    SUM('Costs'[BilledCost]),
+			    DATEADD(DateTable[Date], -1, MONTH)
+			)
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 70c4faf5-e760-42fb-ad13-c24379001e90
+
+	measure _DeltaCost =
+			
+			SUM(Costs[BilledCost]) - [_PreviousMonthCost]
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: b5c2424e-33ae-4738-848e-a7d47d379beb
+
 	column ResourceId
 		dataType: string
 		lineageTag: 62265a48-5fe0-4b5c-8440-16f5b641adc8
@@ -158,7 +173,7 @@ table Costs
 
 	column BilledCost
 		dataType: double
-		formatString: #,0.00
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
 		lineageTag: ac661802-c9ae-4729-bb8e-1c9847298728
 		summarizeBy: sum
 		sourceColumn: BilledCost
@@ -510,7 +525,7 @@ table Costs
 		dataType: double
 		formatString: 0.000
 		lineageTag: 75e78962-cbcf-4ac8-b524-cd42347cc8a7
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_PartnerCreditRate
 
 		annotation SummarizationSetBy = Automatic
@@ -705,7 +720,7 @@ table Costs
 		dataType: int64
 		formatString: 0
 		lineageTag: 88eda475-e159-4b0b-a443-c6f8bfa23b72
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_SkuTerm
 
 		changedProperty = DataType
@@ -1383,7 +1398,7 @@ table Costs
 		dataType: double
 		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: 72920dc6-4141-449d-be83-28d5a282f9fc
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_TotalDiscountPercent
 
 		changedProperty = DataType

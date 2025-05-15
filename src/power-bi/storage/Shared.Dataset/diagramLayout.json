@@ -4,8 +4,8 @@
     {
       "ordinal": 0,
       "scrollPosition": {
-        "x": 10,
-        "y": 796.80222898848717
+        "x": 0,
+        "y": 1130
       },
       "nodes": [
         {
@@ -370,6 +370,31 @@
             "width": 234
           },
           "zIndex": 27
+        },
+        {
+          "location": {
+            "x": 399.1676723860171,
+            "y": 1931.1728162227662
+          },
+          "nodeIndex": "DateTable",
+          "nodeLineageTag": "4c92604b-a466-4204-b992-ef63b63578b7",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 397.45338667173144,
+            "y": 2152.6013876513375
+          },
+          "nodeIndex": "DeltaCostRanges",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "All tables",

@@ -1,0 +1,88 @@
+table DeltaCostRanges
+	lineageTag: 94fbd87d-d1db-4797-954f-eb6470dc666a
+
+	measure _FilteredDeltaCost = ```
+			
+			VAR SelectedRange = SELECTEDVALUE(DeltaCostRanges[DeltaRange])
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        SelectedRange = "Below -10,000", 
+			            IF(
+			                [_DeltaCost] <= -10000, 
+			                1, 
+			                0
+			            ),
+			        SelectedRange = "-10,000 to -5,000", 
+			            IF(
+			                [_DeltaCost] > -10000 && [_DeltaCost] <= -5000, 
+			                1, 
+			                0
+			            ),
+			        SelectedRange = "-5,000 to 0", 
+			            IF(
+			                [_DeltaCost] > -5000 && [_DeltaCost] <= 0, 
+			                1, 
+			                0
+			            ),
+			        SelectedRange = "0 to 5,000", 
+			            IF(
+			                [_DeltaCost] > 0 && [_DeltaCost] <= 5000, 
+			                1, 
+			                0
+			            ),
+			        SelectedRange = "5,000 to 10,000", 
+			            IF(
+			                [_DeltaCost] > 5000 && [_DeltaCost] <= 10000, 
+			                1, 
+			                0
+			            ),
+			        SelectedRange = "Above 10,000", 
+			            IF(
+			                [_DeltaCost] > 10000, 
+			                1, 
+			                0
+			            ),
+			        1
+			    )
+			```
+		formatString: 0
+		lineageTag: 89034aa4-d9bb-450a-a6ae-92e30b6c94b9
+
+	column DeltaRange
+		lineageTag: f41ba0ef-9862-4ec5-bf6a-aef0820b30f1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [DeltaRange]
+		sortByColumn: SortOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column SortOrder
+		formatString: 0
+		lineageTag: 91252433-7f76-427d-86d7-4380136257dd
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [SortOrder]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DeltaCostRanges = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "DeltaRange", STRING,
+				    "SortOrder", INTEGER,
+				    {
+				        {"Below -10,000", 1},
+				        {"-10,000 to -5,000", 2},
+				        {"-5,000 to 0", 3},
+				        {"0 to 5,000", 4},
+				        {"5,000 to 10,000", 5},
+				        {"Above 10,000", 6}
+				    }
+				)
+
+	annotation PBI_Id = 5f118010566a4c3887c3bb117582388c
+

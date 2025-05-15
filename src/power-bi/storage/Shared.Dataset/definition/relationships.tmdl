@@ -109,3 +109,7 @@ relationship ccc483e5-27eb-8e62-2ffb-f7a7d609297d
 	fromColumn: Costs.ResourceId
 	toColumn: Disks.id
 
+relationship e7bf5004-671b-173d-910e-739501f201fc
+	fromColumn: Costs.x_ReportingDate
+	toColumn: DateTable.Date
+

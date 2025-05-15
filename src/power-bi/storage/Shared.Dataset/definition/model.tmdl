@@ -28,7 +28,7 @@ queryGroup 'Open data'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.141.1177.0 (25.03)+c500dc5720dc9271c2dcfef1230911a0da742ee3
+annotation PBIDesktopVersion = 2.142.928.0 (25.04)+de52df9f0bb74ad93a80d89c52d63fe6d07e0e1b
 
 annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","Default Granularity","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","Costs","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","Prices","Experimental: Add Missing Prices","Deprecated: Perform Extra Query Optimizations","HubScopes","HubSettings","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","ReservationDetails","ReservationTransactions"]
 
@@ -62,6 +62,8 @@ ref table 'Compliance calculation'
 ref table PricingUnits
 ref table ReservationRecommendations
 ref table Disks
+ref table DateTable
+ref table DeltaCostRanges
 
 ref cultureInfo en-US
 
