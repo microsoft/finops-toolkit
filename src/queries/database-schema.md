@@ -148,11 +148,6 @@ The following KQL functions are available in the Hub database for querying and r
 
 ---
 
-## Power BI Integration
-
-Power BI reports connect to the Hub database and use the managed dataset functions and tables for analytics. Some tables are derived or virtual, such as compliance calculations and error summaries.
-
----
 
 ## Open Data Tables
 
@@ -180,9 +175,58 @@ The FinOps Hub database schema is designed to be extensible and compatible with 
 
 ### CostsPlus Query
 
-
 The `CostsPlus` query is an extensible, normalized view over the `Costs` managed dataset, providing enriched, FinOps-ready cost and usage data. It is implemented in [`src/queries/costsplus.kql`](costsplus.kql) and is the recommended entry point for analytics, reporting, and automation.
-`
+
+---
+
+
+## Time Range Filters
+
+Add these `let` statements to your KQL script under the `CostsPlus` query to filter the dataset by time range.
+
+### CostsThisMonth
+**Description:** Filter to current month.
+
+```kusto
+let CostsThisMonth = CostsPlus
+  | where startofmonth(BillingPeriodStart) == startofmonth(now());
+```
+
+
+### CostsLastMonth
+**Description:** Filter to previous month.
+
+```kusto
+let CostsLastMonth = CostsPlus
+  | where startofmonth(BillingPeriodStart) == startofmonth(startofmonth(now()) - 1d);
+```
+
+### CostsByMonth
+**Description:** Summarize by month.
+
+```kusto
+let CostsByMonth = CostsPlus
+  | where startofmonth(ChargePeriodStart) >= startofmonth(now(), -numberOfMonths)
+  | extend ChargePeriodStart = startofmonth(ChargePeriodStart)
+  | extend BillingPeriodStart = startofmonth(BillingPeriodStart);
+```
+
+### CostsByDay
+**Description:** Summarize by day.
+
+```kusto
+let CostsByDay = CostsPlus
+  | where ChargePeriodStart >= ago(numberOfDays * 1d) - 1d and ChargePeriodStart < ago(1d)
+  | extend ChargePeriodStart = startofday(ChargePeriodStart);
+```
+
+### CostsByDayAHB
+**Description:** Azure Hybrid Benefit details.
+
+```kusto
+let CostsByDayAHB = CostsPlus;
+```
+
 ### Combined Output Schema
 
 The following table lists all columns output by the `CostsPlus` query, including both the base `Costs` table and all enrichment columns, sorted alphabetically. The `Source` column indicates whether a field is from the FOCUS standard, toolkit enrichment, or cloud-specific/custom. The `Example` column provides a sample value for complex or ambiguous fields.
