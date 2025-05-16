@@ -1,8 +1,0 @@
-// Query: Forecasts budget for future months.
-// Query ID: 1d273b55-d2ea-427c-8a5f-01f6c240e98a
-// Description: Forecasts budget for future months.
-// Used Variables: `CostsByMonth`
-
-CostsByMonth
-| summarize Forecast = sum(BudgetForecast) by BillingPeriodStart = startofmonth(BillingPeriodStart)
-| order by BillingPeriodStart asc

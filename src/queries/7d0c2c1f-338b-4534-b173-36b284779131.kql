@@ -1,8 +1,0 @@
-// Query: Analyzes SaaS spending by month.
-// Query ID: 7d0c2c1f-338b-4534-b173-36b284779131
-// Description: Analyzes SaaS spending by month.
-// Used Variables: `CostsByMonth`
-
-CostsByMonth
-| summarize SaaSCost = sum(SaaSCost) by BillingPeriodStart = startofmonth(BillingPeriodStart)
-| order by BillingPeriodStart asc

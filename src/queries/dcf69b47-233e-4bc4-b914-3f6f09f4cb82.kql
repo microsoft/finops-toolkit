@@ -1,8 +1,0 @@
-// Query: Identifies missing tags by day.
-// Query ID: dcf69b47-233e-4bc4-b914-3f6f09f4cb82
-// Description: Identifies missing tags by day.
-// Used Variables: `CostsByDay`
-
-CostsByDay
-| summarize MissingTagCount = sum(MissingTagCount) by UsageDate
-| order by UsageDate asc

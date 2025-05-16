@@ -1,8 +1,0 @@
-// Query: Tracks data quality trends by day.
-// Query ID: cb34f22b-9370-460c-9658-3e73d220bbc7
-// Description: Tracks data quality trends by day.
-// Used Variables: `CostsByDay`
-
-CostsByDay
-| summarize DataQualityScore = avg(DataQualityScore) by UsageDate
-| order by UsageDate asc

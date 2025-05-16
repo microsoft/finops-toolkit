@@ -1,8 +1,0 @@
-// Query: Compares budget vs. actual spending by month.
-// Query ID: c7be613e-deb4-4779-ad75-4445e8d5e01f
-// Description: Compares budget vs. actual spending by month.
-// Used Variables: `CostsByMonth`
-
-CostsByMonth
-| summarize Budget = sum(Budget), Actual = sum(EffectiveCost) by BillingPeriodStart = startofmonth(BillingPeriodStart)
-| order by BillingPeriodStart asc

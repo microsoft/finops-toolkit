@@ -1,8 +1,0 @@
-// Query: Summarizes software license utilization by month.
-// Query ID: 35a3a2b3-4ab0-4449-96f7-c78db789089e
-// Description: Summarizes software license utilization by month.
-// Used Variables: `CostsByMonth`
-
-CostsByMonth
-| summarize LicenseUtilization = sum(LicenseUtilization) by BillingPeriodStart = startofmonth(BillingPeriodStart)
-| order by BillingPeriodStart asc

@@ -1,8 +1,0 @@
-// Query: Shows total commitment discount purchases by month.
-// Query ID: 98c9b9b5-bebf-41f8-8319-5fa2523f9dd0
-// Description: Shows total commitment discount purchases by month.
-// Used Variables: `CostsByMonth`
-
-CostsByMonth
-| summarize CommitmentDiscountPurchases = sum(CommitmentDiscountPurchase) by BillingPeriodStart = startofmonth(BillingPeriodStart)
-| order by BillingPeriodStart asc
