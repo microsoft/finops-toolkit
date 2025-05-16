@@ -104,6 +104,5 @@ let CostsPlus = Costs_v1_0
 )
 | project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent;
 
-;
-
+//
 CostsPlus
