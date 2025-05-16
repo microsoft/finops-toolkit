@@ -1,9 +1,6 @@
-// Query: CostsPlus (Base Query)
-// Description: The main cost dataset/query. Includes all fields from Costs_v1_0 plus additional cost-related calculations.
-// Source: query-library.md
-let numberOfMonths = 3
+let numberOfMonths = 3;
 
-let CostsPlus = Costs_v1_0
+Costs_v1_0
 //
 // Apply summarization settings
 | where ChargePeriodStart >= monthsago(numberOfMonths)
@@ -102,7 +99,5 @@ let CostsPlus = Costs_v1_0
     ),
     'Unknown'
 )
-| project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent;
-
 //
-CostsPlus
+| project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent
