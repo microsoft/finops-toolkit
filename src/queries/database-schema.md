@@ -231,13 +231,11 @@ let CostsByDayAHB = CostsPlus;
 
 The following table lists all columns output by the `CostsPlus` query, including both the base `Costs` table and all enrichment columns, sorted alphabetically. The `Source` column indicates whether a field is from the FOCUS standard, toolkit enrichment, or cloud-specific/custom. The `Example` column provides a sample value for complex or ambiguous fields.
 
-| Dataset Name| Column | Type | Source | Example | Description |
+| Dataset Name| Column Name | Type | Source | Example | Description |
 |--------------|--------|------|--------|---------|-------------|
 | CostsPlus    | AccountName | string | FOCUS | "Contoso-Prod-Sub" | Account name (cloud provider account/subscription) |
 | CostsPlus    | AccountOwnerId | string | FOCUS | "user@contoso.com" | Account owner ID |
 | CostsPlus    | AccountType | string | FOCUS | "Subscription" | Account type (e.g., Subscription, Billing Account) |
-| CostsPlus    | BillingAccountId | string | FOCUS | "123456" | Billing account ID |
-| CostsPlus    | BillingAccountName | string | FOCUS | "Contoso Billing" | Billing account name |
 | CostsPlus    | BillingCurrency | string | FOCUS | "USD" | Billing currency code |
 | CostsPlus    | BillingPeriodEnd | datetime | FOCUS | 2025-05-01 | End of the billing period |
 | CostsPlus    | BillingPeriodStart | datetime | FOCUS | 2025-04-01 | Start of the billing period |
@@ -271,7 +269,6 @@ The following table lists all columns output by the `CostsPlus` query, including
 | CostsPlus    | DepartmentId | string | FOCUS | "DPT-001" | Department ID |
 | CostsPlus    | DepartmentName | string | FOCUS | "Engineering" | Department name |
 | CostsPlus    | EffectiveCost | real | FOCUS | 800.00 | Effective cost after all discounts |
-| CostsPlus    | InvoiceId | string | FOCUS | "INV-202504" | Invoice ID |
 | CostsPlus    | InvoiceSection | string | FOCUS | "SectionA" | Invoice section |
 | CostsPlus    | InvoiceSectionId | string | FOCUS | "SEC-001" | Invoice section ID |
 | CostsPlus    | IsForecast | bool | Toolkit | false | True if row is a forecasted cost |
@@ -293,14 +290,11 @@ The following table lists all columns output by the `CostsPlus` query, including
 | CostsPlus    | ProductOrderName | string | FOCUS | "VM Order" | Product order name |
 | CostsPlus    | ProviderName | string | FOCUS | "Microsoft" | Cloud provider name (e.g., Microsoft, AWS, GCP, OCI) |
 | CostsPlus    | PublisherId | string | Toolkit | "pub-001" | Publisher ID (cloud-specific, may not be present for all providers) |
-| CostsPlus    | PublisherName | string | Toolkit | "Microsoft" | Publisher name (cloud-specific, may not be present for all providers) |
 | CostsPlus    | PublisherType | string | Toolkit | "FirstParty" | Publisher type (cloud-specific, may not be present for all providers) |
-| CostsPlus    | ResourceGroupName | string | FOCUS | "rg-prod" | Resource group name |
 | CostsPlus    | ResourceId | string | FOCUS | "/subscriptions/..." | Resource ID |
 | CostsPlus    | ResourceLocation | string | Toolkit | "eastus" | Resource location/region (may be cloud-specific) |
 | CostsPlus    | ResourceName | string | FOCUS | "vm-prod-01" | Resource name |
 | CostsPlus    | ResourceNameUnique | string | Toolkit | "vm-prod-01 (Microsoft.Compute/virtualMachines)" | Unique resource name (with type) |
-| CostsPlus    | ResourceType | string | FOCUS | "Microsoft.Compute/virtualMachines" | Resource type |
 | CostsPlus    | ServiceFamily | string | FOCUS | "Compute" | Service family (e.g., Compute, Storage) |
 | CostsPlus    | ServiceName | string | FOCUS | "Virtual Machines" | Service name |
 | CostsPlus    | ServiceTier | string | FOCUS | "Standard" | Service tier/level |
@@ -308,3 +302,64 @@ The following table lists all columns output by the `CostsPlus` query, including
 | CostsPlus    | SubAccountId | string | FOCUS | "sub-001" | Subaccount ID |
 | CostsPlus    | SubAccountName | string | FOCUS | "Contoso Subaccount" | Subaccount name |
 | CostsPlus    | SubAccountNameUnique | string | Toolkit | "Contoso Subaccount (sub-001)" | Unique subaccount name (with ID) |
+| CostsPlus    | x_AmortizationCategory | string | Toolkit | "Amortized Charge" | Amortization category for the charge (e.g., Principal, Amortized Charge) |
+| CostsPlus    | x_CapacityReservationId | string | Toolkit | "cr-1234" | Capacity reservation ID (cloud-specific) |
+| CostsPlus    | x_ChargeMonth | datetime | Toolkit | 2025-04-01 | Start of the charge month |
+| CostsPlus    | x_CommitmentDiscountKey | string | Toolkit | "IaaS12345" | Unique key for commitment discount utilization |
+| CostsPlus    | x_ConsumedCoreHours | real | Toolkit | 720 | Consumed core hours (if applicable) |
+| CostsPlus    | x_FreeReason | string | Toolkit | "Trial" | Reason why cost is zero (e.g., Trial, Preview, Low Usage, No Usage) |
+| CostsPlus    | x_ResourceGroupNameUnique | string | Toolkit | "rg-prod (Contoso Subaccount)" | Unique resource group name (with subaccount) |
+| CostsPlus    | x_ResourceParentId | string | Toolkit | "/subscriptions/..." | Parent resource ID (if available) |
+| CostsPlus    | x_ResourceParentName | string | Toolkit | "contoso-parent" | Parent resource name (if available) |
+| CostsPlus    | BilledCost | real | FOCUS | 800.00 | A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring). |
+| CostsPlus    | BillingAccountType | string | FOCUS | "MCA" | Provider label for the kind of entity the BillingAccountId represents. |
+| CostsPlus    | ChargeClass | string | FOCUS | "Regular" | Correction/regular charge indicator. |
+| CostsPlus    | ChargeDescription | string | FOCUS | "Compute usage for VM" | Description of the charge. |
+| CostsPlus    | ChargeFrequency | string | FOCUS | "Monthly" | How often a charge occurs. |
+| CostsPlus    | ConsumedUnit | string | FOCUS | "Hours" | Unit for ConsumedQuantity. |
+| CostsPlus    | InvoiceIssuerName | string | FOCUS | "Microsoft" | Name of the entity responsible for invoicing. |
+| CostsPlus    | PricingUnit | string | FOCUS | "Hours" | Unit for PricingQuantity. |
+| CostsPlus    | RegionId | string | FOCUS | "eastus" | Region identifier. |
+| CostsPlus    | RegionName | string | FOCUS | "East US" | Region name. |
+| CostsPlus    | ServiceCategory | string | FOCUS | "Compute" | High-level service category. |
+| CostsPlus    | SkuId | string | FOCUS | "D2_v3" | SKU identifier. |
+| CostsPlus    | SkuPriceId | string | FOCUS | "D2_v3-123" | SKU price identifier. |
+| CostsPlus    | SubAccountType | string | FOCUS | "Subscription" | Type of subaccount. |
+| CostsPlus    | Tags | json | FOCUS | {"env":"prod"} | Tags as a JSON object. |
+| CostsPlus    | x_AccountId | string | FOCUS | "acc-001" | Unique identifier for the identity responsible for billing for the subscription. |
+| CostsPlus    | x_AccountName | string | FOCUS | "Contoso Account" | Name of the identity responsible for billing for this subscription. |
+| CostsPlus    | x_AccountOwnerId | string | FOCUS | "owner@contoso.com" | Email address of the identity responsible for billing for this subscription. |
+| CostsPlus    | x_BilledCostInUsd | real | FOCUS | 800.00 | BilledCost in USD. |
+| CostsPlus    | x_BilledUnitPrice | real | FOCUS | 1.11 | Unit price for a single Pricing Unit of the associated SKU that was charged per unit. |
+| CostsPlus    | x_BillingAccountId | string | FOCUS | "123456" | Unique identifier for the Microsoft billing account. Same as BillingAccountId for EA. |
+| CostsPlus    | x_BillingAccountName | string | FOCUS | "Contoso Billing" | Name of the Microsoft billing account. Same as BillingAccountName for EA. |
+| CostsPlus    | x_BillingExchangeRate | real | FOCUS | 1.0 | Exchange rate to multiply by when converting from the pricing currency to the billing currency. |
+| CostsPlus    | x_BillingExchangeRateDate | datetime | FOCUS | 2025-04-01 | Date the exchange rate was determined. |
+| CostsPlus    | x_BillingProfileId | string | FOCUS | "bp-001" | Unique identifier for the Microsoft billing profile. Same as BillingAccountId for MCA. |
+| CostsPlus    | x_BillingProfileName | string | FOCUS | "Contoso Billing Profile" | Name of the Microsoft billing profile. Same as BillingAccountName for MCA. |
+| CostsPlus    | x_ContractedCostInUsd | real | FOCUS | 900.00 | ContractedCost in USD. |
+| CostsPlus    | x_CostAllocationRuleName | string | FOCUS | "SharedInfra" | Name of the Microsoft Cost Management cost allocation rule that generated this charge. |
+| CostsPlus    | x_CostCenter | string | FOCUS | "CC-123" | Custom value defined by a billing admin for internal chargeback. |
+| CostsPlus    | x_CustomerId | string | FOCUS | "cust-001" | Unique identifier for the Cloud Solution Provider (CSP) customer tenant. |
+| CostsPlus    | x_CustomerName | string | FOCUS | "Contoso CSP Customer" | Display name for the Cloud Solution Provider (CSP) customer tenant. |
+| CostsPlus    | x_EffectiveCostInUsd | real | FOCUS | 800.00 | EffectiveCost in USD. |
+| CostsPlus    | x_EffectiveUnitPrice | real | FOCUS | 1.00 | Unit price for a single Pricing Unit of the associated SKU after all discounts. |
+| CostsPlus    | x_InvoiceId | string | FOCUS | "INV-202504" | Unique identifier for the invoice this charge was billed on. |
+| CostsPlus    | x_InvoiceIssuerId | string | FOCUS | "issuer-001" | Unique identifier for the Cloud Solution Provider (CSP) partner. |
+| CostsPlus    | x_InvoiceSectionId | string | FOCUS | "SEC-001" | Unique identifier for the MCA invoice section or EA department. |
+| CostsPlus    | x_InvoiceSectionName | string | FOCUS | "SectionA" | Display name for the MCA invoice section or EA department. |
+| CostsPlus    | x_ResourceParentType | string | Toolkit | "Microsoft.Resources/resourceGroups" | Parent resource type (if available) |
+| CostsPlus    | x_SkuCoreCount | int | Toolkit | 8 | Number of cores for the SKU (if applicable) |
+| CostsPlus    | x_SkuImageType | string | Toolkit | "Windows Server BYOL" | Image type for the SKU (if applicable) |
+| CostsPlus    | x_SkuLicenseQuantity | int | Toolkit | 16 | License quantity for the SKU (if applicable) |
+| CostsPlus    | x_SkuLicenseStatus | string | Toolkit | "Enabled" | License status for the SKU (if applicable) |
+| CostsPlus    | x_SkuLicenseType | string | Toolkit | "Windows Server" | License type for the SKU (if applicable) |
+| CostsPlus    | x_SkuLicenseUnit | string | Toolkit | "Cores" | License unit for the SKU (if applicable) |
+| CostsPlus    | x_SkuLicenseUnusedQuantity | int | Toolkit | 0 | Unused license quantity for the SKU (if applicable) |
+| CostsPlus    | x_SkuTermLabel | string | Toolkit | "12 months" | Term label for the SKU (if applicable) |
+| CostsPlus    | x_SkuType | string | Toolkit | "IaaS" | Service type for the SKU (if applicable) |
+| CostsPlus    | x_SkuUsageType | string | Toolkit | "Consumption" | Usage type for the SKU (if applicable) |
+| CostsPlus    | x_ToolkitTool | string | Toolkit | "finops-toolkit" | Toolkit tool used for enrichment |
+| CostsPlus    | x_ToolkitVersion | string | Toolkit | "1.0.0" | Toolkit version used for enrichment |
+| CostsPlus    | x_TotalDiscountPercent | real | Toolkit | 0.30 | Total percent discount (all discounts combined) |
+| CostsPlus    | x_TotalSavings | real | Toolkit | 200.00 | Total savings (all discounts combined) |
