@@ -100,5 +100,7 @@ Costs_v1_0
     'Unknown'
 )
 //
-| project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent;
-CostsPlus
+| project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent
+
+// If you want to use CostsPlus, continue directly:
+// CostsPlus | summarize ...
