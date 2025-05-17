@@ -16,7 +16,7 @@
 //   Use this query to analyze miscellaneous Azure purchases that are not usage-based and not covered by Reserved Instances or Savings Plans.
 //   Example: Marketplace SaaS, third-party, or other direct purchases.
 // ============================================================================
-let N = 10
+let N = 10;
 let numberOfMonths = 1;
 Costs_v1_0
 | where ChargePeriodStart >= monthsago(numberOfMonths) and tolower(tostring(ChargeCategory)) != 'usage' and isempty(CommitmentDiscountType) and toreal(BilledCost) > 0
