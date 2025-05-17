@@ -1,0 +1,40 @@
+// Price Benchmarking by Service
+// Returns list price, contracted price, effective price, negotiated savings (%), commitment savings (%), and total savings (%) by service for the last month.
+// Parameters: numberOfMonths (default: 1)
+// Author: FinOps Toolkit Team
+// Last Tested: 2025-05-17
+//
+let numberOfMonths = 1;
+let start = startofmonth(ago(numberOfMonths * 30d));
+let end = now();
+Costs_v1_0
+| where ChargePeriodStart between (start .. end)
+| extend 
+    x_CommitmentDiscountSavings = iif(ContractedCost == 0.0, 0.0, todouble(ContractedCost - EffectiveCost)),
+    x_NegotiatedDiscountSavings = iif(ListCost == 0.0, 0.0, todouble(ListCost - ContractedCost)),
+    x_TotalSavings = iif(ListCost == 0.0, 0.0, todouble(ListCost - EffectiveCost)),
+    x_CommitmentDiscountPercent = iif(ContractedCost == 0.0, 0.0, todouble(ContractedCost - EffectiveCost) * 100.0 / todouble(ContractedCost)),
+    x_NegotiatedDiscountPercent = iif(ListCost == 0.0, 0.0, todouble(ListCost - ContractedCost) * 100.0 / todouble(ListCost)),
+    x_TotalDiscountPercent = iif(ListCost == 0.0, 0.0, todouble(ListCost - EffectiveCost) * 100.0 / todouble(ListCost))
+| summarize 
+    ListCost = sum(ListCost), 
+    ContractedCost = sum(ContractedCost), 
+    EffectiveCost = sum(EffectiveCost),
+    CommitmentSavings = sum(x_CommitmentDiscountSavings), 
+    NegotiatedSavings = sum(x_NegotiatedDiscountSavings), 
+    TotalSavings = sum(x_TotalSavings),
+    CommitmentSavingsPct = avg(x_CommitmentDiscountPercent), 
+    NegotiatedSavingsPct = avg(x_NegotiatedDiscountPercent), 
+    TotalSavingsPct = avg(x_TotalDiscountPercent)
+    by ServiceName
+| project 
+    ServiceName, 
+    ListCost = round(todouble(ListCost), 0), 
+    ContractedCost = round(todouble(ContractedCost), 0), 
+    EffectiveCost = round(todouble(EffectiveCost), 0), 
+    NegotiatedSavings = round(todouble(NegotiatedSavings), 0), 
+    CommitmentSavings = round(todouble(CommitmentSavings), 0), 
+    TotalSavings = round(todouble(TotalSavings), 0), 
+    NegotiatedSavingsPct = round(todouble(NegotiatedSavingsPct), 0), 
+    CommitmentSavingsPct = round(todouble(CommitmentSavingsPct), 0), 
+    TotalSavingsPct = round(todouble(TotalSavingsPct), 0)

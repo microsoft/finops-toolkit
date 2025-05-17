@@ -364,3 +364,4 @@ deployment-settings-*.json
 # Copilot Customizations
 .github/copilot-instructions.md
 .github/prompts/
+.vscode/mcp.json

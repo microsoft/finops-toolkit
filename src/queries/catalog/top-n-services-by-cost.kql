@@ -1,0 +1,12 @@
+// Top N Services by Cost
+// Returns the top N services by total effective cost for the last month (default N=10).
+// Parameters: N (default: 10), numberOfMonths (default: 1)
+// Author: FinOps Toolkit Team
+// Last Tested: 2025-05-17
+//
+let N = 10;
+let numberOfMonths = 1;
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| summarize TotalEffectiveCost = sum(EffectiveCost) by ServiceName
+| top N by TotalEffectiveCost desc

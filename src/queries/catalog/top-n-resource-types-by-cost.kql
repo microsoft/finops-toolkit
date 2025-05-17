@@ -1,0 +1,12 @@
+// Top N Resource Types by Cost (Last Month)
+// Returns the top N resource types by count and total effective cost for the last N months (default: 1).
+// Parameters: N (default: 10), numberOfMonths (default: 1)
+// Author: FinOps Toolkit Team
+// Last Tested: 2025-05-17
+//
+let N = 10;
+let numberOfMonths = 1;
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| summarize ResourceCount = count(), TotalEffectiveCost = sum(EffectiveCost) by ResourceType
+| top N by TotalEffectiveCost desc

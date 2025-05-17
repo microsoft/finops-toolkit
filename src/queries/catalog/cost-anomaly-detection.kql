@@ -1,0 +1,17 @@
+// Cost Anomaly Detection (Last 12 Months)
+// Detects cost spikes and drops using time series decomposition and anomaly detection.
+// Parameters: numberOfMonths (default: 12), interval (default: 1d)
+// Author: FinOps Toolkit Team
+// Last Tested: 2025-05-17
+//
+let numberOfMonths = 12;
+let start = startofmonth(ago(numberOfMonths * 30d));
+let end = now();
+let interval = 1d;
+Costs_v1_0
+| where ChargePeriodStart between (start .. end)
+| summarize DailyCost = sum(EffectiveCost) by bin(ChargePeriodStart, interval)
+| make-series CostSeries = sum(DailyCost) on ChargePeriodStart from start to end step interval
+| extend anomalies = series_decompose_anomalies(CostSeries)
+| project ChargePeriodStart, CostSeries, anomalies
+| render timechart

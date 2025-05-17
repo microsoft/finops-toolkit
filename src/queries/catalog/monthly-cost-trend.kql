@@ -1,0 +1,12 @@
+// Monthly Cost Trend (Last 12 Months)
+// Returns total effective cost by month for the last N months (default 12).
+// Parameters: numberOfMonths (default: 12)
+// Author: FinOps Toolkit Team
+// Last Tested: 2025-05-17
+//
+let numberOfMonths = 12;
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| extend x_ChargeMonth = startofmonth(ChargePeriodStart)
+| summarize TotalEffectiveCost = sum(EffectiveCost) by x_ChargeMonth
+| order by x_ChargeMonth asc
