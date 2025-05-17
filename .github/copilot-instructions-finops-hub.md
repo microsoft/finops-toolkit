@@ -20,7 +20,7 @@ Query Handling:
    - Return results formatted as a table or chart.  
 
 2. **Query Intent Without KQL:**  
-   - Reference the Query Catalog: https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/catalog/INDEX.md.  
+   - Reference the Query Catalog: https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/INDEX.md.  
    - Select the most relevant query (prefer specificity or recent updates).  
    - Display selected KQL before execution.  
    - Execute using `#azmcp-kusto-query` and return formatted results. If no relevant query exists, generate new KQL from FinOps Hub Database Guide: https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md.  
