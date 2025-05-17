@@ -1,4 +1,19 @@
-// Price Benchmarking by Service
+// ============================================================================
+// Query: Last N Month Price Benchmarking by Service
+// Description:
+//   Returns list price, contracted price, effective price, negotiated savings (amount and percent), commitment savings (amount and percent), and total savings (amount and percent) by service for the last N months (default: 1).
+//   Useful for benchmarking Azure service pricing and identifying savings opportunities.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   numberOfMonths: Number of months to look back (default: 1)
+// Output:
+//   Each row represents a service with cost and savings metrics for the period.
+// Usage:
+//   Use this query to compare negotiated, commitment, and total savings by service for cost optimization and reporting.
+// Last Tested: 2025-05-17
+// =========================================================================
+
+// Last N Month Price Benchmarking by Service
 // Returns list price, contracted price, effective price, negotiated savings (%), commitment savings (%), and total savings (%) by service for the last month.
 // Parameters: numberOfMonths (default: 1)
 // Author: FinOps Toolkit Team

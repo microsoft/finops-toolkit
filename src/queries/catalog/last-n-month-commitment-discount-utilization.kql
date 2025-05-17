@@ -1,0 +1,28 @@
+// ============================================================================
+// Query: Commitment Discount Utilization (Last N Months)
+// Description:
+//   Returns total consumed core hours by commitment discount type for the last N months (default: 1).
+//   Shows the share of total core hours for each discount type, including On Demand.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   numberOfMonths: Number of months to look back (default: 1)
+// Output:
+//   Each row represents a commitment discount type with total consumed core hours and percent of total.
+// Usage:
+//   Use this query to analyze utilization of reserved instances, savings plans, and on-demand usage for optimization.
+// Last Tested: 2025-05-17
+// ============================================================================
+
+// Last N Month Commitment Discount Utilization
+let numberOfMonths = 1;
+let base = Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))
+| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''));
+let total = base | summarize Total=todecimal(sum(x_ConsumedCoreHours));
+base
+| summarize TotalConsumedCoreHours = todecimal(sum(x_ConsumedCoreHours)) by CommitmentDiscountType
+| extend CommitmentDiscountType = iff(isempty(CommitmentDiscountType), 'On Demand', CommitmentDiscountType)
+| extend PercentOfTotal = 100.0 * TotalConsumedCoreHours / toscalar(total)
+| project CommitmentDiscountType, TotalConsumedCoreHours=todouble(TotalConsumedCoreHours), PercentOfTotal=todouble(PercentOfTotal)
+| order by PercentOfTotal desc

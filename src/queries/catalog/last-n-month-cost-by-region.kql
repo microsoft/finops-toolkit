@@ -1,0 +1,20 @@
+// ============================================================================
+// Query: Cost by Region (Last N Months)
+// Description:
+//   Returns total effective cost by region for the last N months (default: 1).
+//   Useful for regional cost breakdowns and optimization.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   numberOfMonths: Number of months to look back (default: 1)
+// Output:
+//   Each row represents a region with its total effective cost for the period.
+// Usage:
+//   Use this query to analyze and optimize regional Azure spend.
+// Last Tested: 2025-05-17
+// =========================================================================
+
+let numberOfMonths = 1;
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| summarize TotalEffectiveCost = sum(EffectiveCost) by RegionName
+| order by TotalEffectiveCost desc

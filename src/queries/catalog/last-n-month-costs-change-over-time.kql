@@ -1,0 +1,25 @@
+// ============================================================================
+// Query: Monthly Cost Change Percentage (Last N Months)
+// Description:
+//   Returns the month-over-month percent change for billed and effective cost over the last N months (default: 13).
+//   Useful for identifying cost spikes, drops, and trends in Azure spend.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   numberOfMonths: Number of months to look back (default: 13)
+// Output:
+//   Each row represents a month with percent change in billed and effective cost from the previous month.
+// Usage:
+//   Use this query to monitor cost volatility, trend direction, and to quickly spot anomalous changes in monthly Azure costs.
+// Last Tested: 2025-05-17
+// =========================================================================
+
+let numberOfMonths = 13;
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| summarize BilledCost = sum(BilledCost), EffectiveCost = sum(EffectiveCost) by BillingPeriodStart = startofmonth(ChargePeriodStart)
+| order by BillingPeriodStart asc
+| extend PreviousBilledCost = prev(BilledCost)
+| extend PreviousEffectiveCost = prev(EffectiveCost)
+| project BillingPeriodStart,
+    BilledCostChangePct = iff(isempty(PreviousBilledCost), 0.0, toreal((BilledCost - PreviousBilledCost) * 100.0 / PreviousBilledCost)),
+    EffectiveCostChangePct = iff(isempty(PreviousEffectiveCost), 0.0, toreal((EffectiveCost - PreviousEffectiveCost) * 100.0 / PreviousEffectiveCost))

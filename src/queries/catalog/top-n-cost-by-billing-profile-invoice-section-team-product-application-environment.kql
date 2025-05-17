@@ -1,3 +1,18 @@
+// ============================================================================
+// Query: Top N Cost by Billing Profile, Invoice Section, Team, Product, Application, Environment
+// Description:
+//   Returns the top N costs using the full financial hierarchy: Billing Profile → Invoice Section → Team → Product → Application → Environment.
+//   Includes percent of total cost for context.
+// Author: FinOps Toolkit
+// Parameters:
+//   N: Number of top results to return (default: 5)
+//   numberOfMonths: Number of months to look back (default: 1)
+// Output:
+//   Each row represents a unique combination in the financial hierarchy with total cost and percent of total.
+// Usage:
+//   Use this query for detailed cost allocation and reporting across financial and business dimensions.
+// Last Tested: 2025-05-17
+// ============================================================================
 // Top N cost by Billing Profile, Invoice Section, Team, Product, Application
 // Reports costs using the full financial hierarchy: Billing Profile → Invoice Section → Team → Product → Application
 let N = 5; // Set to desired number of top results

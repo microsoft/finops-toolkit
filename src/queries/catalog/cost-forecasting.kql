@@ -15,4 +15,4 @@ Costs_v1_0
 | make-series CostSeries = sum(DailyCost) on ChargePeriodStart from start to end step interval
 | extend forecast = series_decompose_forecast(CostSeries, forecastPeriods)
 | project ChargePeriodStart, CostSeries, forecast
-| render timechart
+// | render timechart
