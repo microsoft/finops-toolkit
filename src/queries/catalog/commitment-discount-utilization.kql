@@ -1,0 +1,13 @@
+// Commitment Discount Utilization
+let numberOfMonths = 1;
+let base = Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))
+| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''));
+let total = base | summarize Total=todecimal(sum(x_ConsumedCoreHours));
+base
+| summarize TotalConsumedCoreHours = todecimal(sum(x_ConsumedCoreHours)) by CommitmentDiscountType
+| extend CommitmentDiscountType = iff(isempty(CommitmentDiscountType), 'On Demand', CommitmentDiscountType)
+| extend PercentOfTotal = 100.0 * TotalConsumedCoreHours / toscalar(total)
+| project CommitmentDiscountType, TotalConsumedCoreHours=todouble(TotalConsumedCoreHours), PercentOfTotal=todouble(PercentOfTotal)
+| order by PercentOfTotal desc

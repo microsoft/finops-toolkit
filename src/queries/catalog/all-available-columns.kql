@@ -1,5 +1,5 @@
-let numberOfMonths = 3;
-let CostsPlus =
+// All available columns query
+let numberOfMonths = 1;  // Number of months to look back.  Set numberOfMonths = 3 for a quarterly report
 Costs_v1_0
 //
 // Apply summarization settings
@@ -17,7 +17,7 @@ Costs_v1_0
 | extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)
 | extend x_SkuImageType = tostring(x_SkuDetails.ImageType)
 | extend x_SkuType      = tostring(x_SkuDetails.ServiceType)
-| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''))
+| extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), toreal(x_SkuCoreCount * ConsumedQuantity), real(null))
 | extend x_SkuLicenseStatus = case(
     ChargeCategory != 'Usage', '',
     (x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and x_SkuMeterSubcategory contains 'Windows') or tmp_SQLAHB == 'false', 'Not Enabled',
@@ -43,13 +43,13 @@ Costs_v1_0
 //
 | extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
 | extend x_CommitmentDiscountUtilizationPotential = case(
-    ChargeCategory == 'Purchase', decimal(0),
-    ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
-    CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
-    CommitmentDiscountCategory == 'Spend', EffectiveCost,
-    decimal(0)
+    ChargeCategory == 'Purchase', real(0),
+    ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), toreal(EffectiveCost),
+    CommitmentDiscountCategory == 'Usage', toreal(ConsumedQuantity),
+    CommitmentDiscountCategory == 'Spend', toreal(EffectiveCost),
+    real(0)
 )
-| extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, decimal(0))
+| extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))
 | extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
 //
 // CSP partners
@@ -62,12 +62,12 @@ Costs_v1_0
     isnotempty(CommitmentDiscountCategory), 'Amortized Charge',
     ''
 )
-| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      decimal(0), ContractedCost - EffectiveCost)
-| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            decimal(0), ListCost - ContractedCost)
-| extend x_TotalSavings              = iff(ListCost == 0,            decimal(0), ListCost - EffectiveCost)
-| extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0, decimal(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)
-| extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)
-| extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,       decimal(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)
+| extend x_CommitmentDiscountSavings = iff(ContractedCost == 0,      real(0), toreal(ContractedCost - EffectiveCost))
+| extend x_NegotiatedDiscountSavings = iff(ListCost == 0,            real(0), toreal(ListCost - ContractedCost))
+| extend x_TotalSavings              = iff(ListCost == 0,            real(0), toreal(ListCost - EffectiveCost))
+| extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0, real(0), toreal((ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice))
+| extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,       real(0), toreal((ListUnitPrice - ContractedUnitPrice) / ListUnitPrice))
+| extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,       real(0), toreal((ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice))
 //
 // Toolkit
 | extend x_ToolkitTool = tostring(Tags['ftk-tool'])
@@ -101,6 +101,3 @@ Costs_v1_0
 )
 //
 | project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent
-
-// If you want to use CostsPlus, continue directly:
-// CostsPlus | summarize ...

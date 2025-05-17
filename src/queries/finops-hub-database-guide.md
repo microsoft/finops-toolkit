@@ -1,41 +1,40 @@
-
 # FinOps Hubs Database Schema
-
-_Last updated: May 16, 2025_
 
 This document provides a comprehensive overview of how to query and analyze data in the FinOps Hubs database, including schema details for all major tables and functions.
 
 ---
 
-
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-- [Overview](#overview)
-- [Query Best Practices](#query-best-practices)
-- [Key Enrichment Columns](#key-enrichment-columns)
-- [Core Table: Costs_v1_0](#core-table-costs_v1_0)
-  - [Example Query: Quarterly Cost by Resource Group](#example-query-quarterly-cost-by-resource-group)
-  - [Example Query: Top 5 Resource Groups by Effective Cost (Last Month)](#example-query-top-5-resource-groups-by-effective-cost-last-month)
-  - [Example Query: Commitment Discount Utilization Pie Chart](#example-query-commitment-discount-utilization-pie-chart)
-  - [Example Query: All available columns](#example-query-all-available-columns)
-  - [Column Definitions](#column-definitions)
-- [Additional Functions](#additional-functions)
-  - [CommitmentDiscountUsage()](#commitmentdiscountusage)
-  - [Prices()](#prices)
-  - [Recommendations()](#recommendations)
-  - [Transactions()](#transactions)
-- [Schema Reference](#schema-reference)
-  - [CommitmentDiscountUsage()](#commitmentdiscountusage)
-  - [Prices()](#prices)
-  - [Recommendations()](#recommendations)
-  - [Transactions()](#transactions)
-- [Glossary](#glossary)
-- [Change Log](#change-log)
-- [References](#references)
+- [FinOps Hubs Database Schema](#finops-hubs-database-schema)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Key Benefits](#key-benefits)
+    - [What's Included](#whats-included)
+    - [Prerequisites](#prerequisites)
+  - [Overview](#overview)
+  - [Query Best Practices](#query-best-practices)
+  - [Key Enrichment Columns](#key-enrichment-columns)
+  - [Example Queries](#example-queries)
+  - [Example Query: Financial Hierarchy Reporting](#example-query-financial-hierarchy-reporting)
+    - [Example Query: Cost by Billing Profile, Invoice Section, Team, Product, Application](#example-query-cost-by-billing-profile-invoice-section-team-product-application)
+  - [Example Query: Reservation Recommendation Breakdown](#example-query-reservation-recommendation-breakdown)
+    - [Example Query: Quarterly Cost by Resource Group](#example-query-quarterly-cost-by-resource-group)
+    - [Example Query: Top 5 Resource Groups by Effective Cost (Last Month)](#example-query-top-5-resource-groups-by-effective-cost-last-month)
+    - [Example Query: Commitment Discount Utilization Pie Chart](#example-query-commitment-discount-utilization-pie-chart)
+    - [Example Query: All available columns](#example-query-all-available-columns)
+      - [Column Definitions](#column-definitions)
+  - [Additional Tables](#additional-tables)
+  - [Schema Reference](#schema-reference)
+    - [CommitmentDiscountUsage()](#commitmentdiscountusage)
+    - [Prices()](#prices)
+    - [Recommendations()](#recommendations)
+    - [Transactions()](#transactions)
+  - [Glossary](#glossary)
+  - [Change Log](#change-log)
+  - [References](#references)
 
 ---
-
 
 ## Getting Started
 
@@ -56,6 +55,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 ### What's Included
 
 The FinOps hub template includes:
+
 - **Azure Data Explorer (Kusto):** Scalable datastore for advanced analytics (optional, but recommended for >$100K spend).
 - **Microsoft Fabric Real-Time Intelligence (RTI):** Alternative analytics platform.
 - **Storage Account (Data Lake Storage Gen2):** Staging area for data ingestion.
@@ -71,6 +71,7 @@ Once deployed, you can query data directly using KQL, visualize data using Data 
 - Familiarity with Kusto Query Language (KQL).
 
 You can run queries in:
+
 - Azure Data Explorer Web UI
 - Azure Monitor Workbooks
 - Azure Synapse Studio
@@ -106,15 +107,94 @@ Columns prefixed with `x_` are toolkit enrichments. Some of the most useful are:
 |---------------------|--------------------------------------------------|
 | x_ChargeMonth       | Normalized month for charge period               |
 | x_ConsumedCoreHours | Total core hours consumed (for VMs)              |
-| x_CommitmentDiscountSavings | Savings from commitment discounts        |
-| x_TotalSavings      | Total savings (negotiated + commitment)          |
+| x_CommitmentDiscountSavings | Realized savings from commitment discounts (actual savings applied to your bill) |
+| x_TotalSavings      | Realized total savings (negotiated + commitment, as actually applied)          |
 | x_ResourceGroupName | Resource group name (parsed from ResourceId)     |
 
 ---
 
-## Core Table: Costs_v1_0
+## Example Queries
 
-The `Costs_v1_0` table is the primary source for cost and usage data. It includes both raw and enriched columns.
+## Example Query: Financial Hierarchy Reporting
+
+### Example Query: Cost by Billing Profile, Invoice Section, Team, Product, Application
+
+This example demonstrates how to report costs using the full financial hierarchy: **Billing Profile → Invoice Section → Team → Product → Application**. The last three levels are derived from resource tags. This query uses the `Costs_v1_0` table and the recommended enrichment columns.
+
+```kusto
+let numberOfMonths = 1; // Set to desired reporting period
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| extend Team = tostring(Tags['team']), Product = tostring(Tags['product']), Application = tostring(Tags['application'])
+| summarize TotalCost = sum(EffectiveCost)
+    by x_BillingProfileName, x_InvoiceSectionName, Team, Product, Application
+| join kind=leftouter (
+    Costs_v1_0
+    | where ChargePeriodStart >= monthsago(numberOfMonths)
+    | summarize GrandTotal = sum(EffectiveCost)
+)
+on 1 == 1
+| extend PercentOfTotal = 100.0 * TotalCost / GrandTotal
+| project x_BillingProfileName, x_InvoiceSectionName, Team, Product, Application, TotalCost, PercentOfTotal
+| order by TotalCost desc
+```
+
+**Column mapping:**
+
+- **Billing Profile:** `x_BillingProfileName` or `x_BillingProfileId`
+- **Invoice Section:** `x_InvoiceSectionName` or `x_InvoiceSectionId`
+- **Team:** `Tags['team']`
+- **Product:** `Tags['product']`
+- **Application:** `Tags['application']`
+
+> **Note:** Ensure all resources are consistently tagged. Missing tags will appear as blank values.
+
+---
+
+## Example Query: Reservation Recommendation Breakdown
+
+Shows how to analyze reservation recommendations for cost savings including break-even points.
+
+```kusto
+Recommendations_v1_0
+| where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'
+| extend RegionId = tostring(x_RecommendationDetails.RegionId)
+| extend RegionName = tostring(x_RecommendationDetails.RegionName)
+| extend x_CommitmentDiscountSavings = x_EffectiveCostBefore - x_EffectiveCostAfter
+| extend x_CommitmentDiscountScope = tostring(x_RecommendationDetails.CommitmentDiscountScope)
+| extend x_CommitmentDiscountNormalizedSize  = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedSize)
+| extend x_SkuTerm = toint(x_RecommendationDetails.SkuTerm)
+| extend x_SkuMeterId = tostring(x_RecommendationDetails.SkuMeterId)
+| summarize arg_max(x_RecommendationDate, *) by  x_CommitmentDiscountNormalizedSize, x_SkuMeterId, x_SkuTerm, RegionId,tostring(x_RecommendationDetails.CommitmentDiscountNormalizedGroup)
+| extend x_BreakEvenMonths = x_EffectiveCostAfter * x_SkuTerm / x_EffectiveCostBefore
+| extend x_BreakEvenDate = startofday(now()) + 1d + toint(x_BreakEvenMonths * 30.437) * 1d
+| project
+    RegionId,
+    RegionName = iff(isempty(RegionName), RegionId, RegionName),
+    x_BreakEvenDate,
+    x_BreakEvenMonths,
+    x_CommitmentDiscountKey             = strcat(x_CommitmentDiscountNormalizedSize, x_SkuMeterId),
+    x_CommitmentDiscountNormalizedGroup = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedGroup),
+    x_CommitmentDiscountNormalizedRatio = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedRatio),
+    x_CommitmentDiscountNormalizedSize,
+    x_CommitmentDiscountPercent         = 1.0 * x_CommitmentDiscountSavings / x_EffectiveCostBefore * 100,
+    x_CommitmentDiscountResourceType = tostring(x_RecommendationDetails.CommitmentDiscountResourceType),
+    x_CommitmentDiscountSavings,
+    x_CommitmentDiscountSavingsDailyRate = x_CommitmentDiscountSavings / (x_SkuTerm - x_BreakEvenMonths) / (365/12),
+    x_CommitmentDiscountScope = case(
+        x_CommitmentDiscountScope == 'Single', 'Subscription',
+        x_CommitmentDiscountScope
+    ),
+    x_EffectiveCostAfter,
+    x_EffectiveCostBefore,
+    x_LookbackPeriodLabel = replace_regex(tostring(x_RecommendationDetails.LookbackPeriodDuration), 'P([0-9]+)D', @'\1 days'),
+    x_RecommendationDate,
+    x_RecommendedQuantity           = todecimal(x_RecommendationDetails.RecommendedQuantity),
+    x_RecommendedQuantityNormalized = todecimal(x_RecommendationDetails.RecommendedQuantityNormalized),
+    x_SkuMeterId,
+    x_SkuTerm,
+    x_SkuTermLabel = case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
+```
 
 ### Example Query: Quarterly Cost by Resource Group
 
@@ -266,7 +346,6 @@ Costs_v1_0
 | project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent
 ```
 
-
 #### Column Definitions
 
 The following table lists the columns produced in the `All available columns` query.
@@ -407,9 +486,9 @@ The following table lists the columns produced in the `All available columns` qu
 | x_CommitmentDiscountUtilizationAmount         | decimal     | Actual utilization amount for commitment discount. |
 | x_SkuTermLabel                                | string      | Human-readable label for SKU term. |
 | x_AmortizationCategory                        | string      | Amortization category (e.g., Principal, Amortized Charge). |
-| x_CommitmentDiscountSavings                   | decimal     | Savings from commitment discounts. |
-| x_NegotiatedDiscountSavings                   | decimal     | Savings from negotiated discounts. |
-| x_TotalSavings                                | decimal     | Total savings (negotiated + commitment). |
+| x_CommitmentDiscountSavings                   | decimal     | Realized savings from commitment discounts (actual savings applied to your bill). |
+| x_NegotiatedDiscountSavings                   | decimal     | Realized savings from negotiated discounts (actual savings applied to your bill). |
+| x_TotalSavings                                | decimal     | Realized total savings (negotiated + commitment, as actually applied). |
 | x_CommitmentDiscountPercent                   | decimal     | Percent savings from commitment discount. |
 | x_NegotiatedDiscountPercent                   | decimal     | Percent savings from negotiated discount. |
 | x_TotalDiscountPercent                        | decimal     | Total percent savings. |
@@ -423,6 +502,10 @@ The following table lists the columns produced in the `All available columns` qu
 | x_ResourceGroupNameUnique                     | string      | Unique name for the resource group. |
 | SubAccountNameUnique                          | string      | Unique name for the sub-account. |
 | x_FreeReason                                  | string      | Reason why the cost is zero. |
+
+> **Note:**
+> The savings columns (`x_CommitmentDiscountSavings`, `x_NegotiatedDiscountSavings`, `x_TotalSavings`) represent realized savings—these are the actual discounts and savings that have been applied to your costs, not just potential or theoretical savings.
+
 ---
 
 ## Additional Tables
@@ -594,6 +677,7 @@ Below are the column definitions for the main analytic tables in the FinOps Hubs
 | x_SourceVersion              | string      | Version of the data source. |
 | x_SubscriptionId             | string      | Subscription identifier. |
 | x_TransactionType            | string      | Type of transaction (e.g., Purchase, Refund). |
+
 ## Glossary
 
 | Term                        | Definition |
@@ -629,4 +713,3 @@ Below are the column definitions for the main analytic tables in the FinOps Hubs
 - [FinOps Open Cost and Usage Specification (FOCUS)](https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/focus/what-is-focus)
 - [Schema optimization best practices (Azure Data Explorer)](https://learn.microsoft.com/en-us/azure/data-explorer/schema-best-practice)
 - [Kusto Query Language Documentation](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/)
-
