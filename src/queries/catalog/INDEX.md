@@ -4,13 +4,29 @@
 
 - [FinOps Hub Query Catalog](#finops-hub-query-catalog)
   - [Table of Contents](#table-of-contents)
+  - [Adding Queries to the Catalog](#adding-queries-to-the-catalog)
   - [Catalog of Queries](#catalog-of-queries)
 
 ---
 
-> **Note:** Refer to the [FinOps Hub Database Schema](../finops-hub-database-guide.md) documentation for table and column definitions.
+> **Note:** Refer to the [FinOps Hub Database Documentation](../finops-hub-database-guide.md) for table and column definitions.
 
 ---
+
+## Adding Queries to the Catalog
+
+When adding queries to the catalog, always follow these steps:
+
+1. **Check Query Catalog first** to see if an equivalent already exists.
+2. Only if an existing query cannot be repurposed should you consider adding a new query to the catalog.
+3. Make sure you read the [FinOps Hub Database Documentation](../finops-hub-database-guide.md) for the latest information.
+4. Prefer `top N` style queries to limit the number of rows returned.
+5. Parameterize all inputs - `top N`, `last N`, etc.
+6. **Test Your Queries**
+7. Save the query as a .kql file to this folder with appropriate documentation.
+8. All output variable names should comply with the [FinOps Hub database schema](../../src/queries/finops-hub-database-guide.md) to ensure downstream compatibility. New variable names should be avoided unless absolutely necessary.
+9. If the query works, save it as a `.kql` file in the catalog with a descriptive name and hyperlink it to the `.kql` file.
+10. Add an entry for the new query to INDEX.md with its name, description, and parameters.
 
 ## Catalog of Queries
 
