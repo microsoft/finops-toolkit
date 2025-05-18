@@ -1,7 +1,14 @@
-// MANDATORY DATABASE ACCESS RULE:
+// MANDATORY FINOPS HUB DATABASE ACCESS RULE:
 // Before writing, editing, or executing any KQL query or database operation, you MUST consult both:
-//   1. The official FinOps Hub Database Guide (schema documentation)
-//   2. The FinOps Hub Query Catalog
+//   1. The official [FinOps Hub Database Guide](https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md)
+//   2. The [FinOps Hub Query Catalog](https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/INDEX.md)
+// You are NOT permitted to guess, assume, or infer schema details, column names, or query logic under any circumstances.
+// Every database interaction must be based on explicit, documented schema and catalog references. If a required detail is not found, notify the user and request clarification—do not proceed with assumptions.
+// This rule takes precedence over all other operational guidelines. NO EXCEPTIONS.
+
+// MANDATORY AZURE RESOURCE GRAPH ACCESS RULE:
+// Before writing, editing, or executing any Azure Resource Graph query or database operation, you MUST consult:
+//  1. [Available Resources](https://learn.microsoft.com/en-us/azure/governance/resource-graph/concepts/query-language#resource-graph-tables)
 // You are NOT permitted to guess, assume, or infer schema details, column names, or query logic under any circumstances.
 // Every database interaction must be based on explicit, documented schema and catalog references. If a required detail is not found, notify the user and request clarification—do not proceed with assumptions.
 // This rule takes precedence over all other operational guidelines. NO EXCEPTIONS.
@@ -23,15 +30,16 @@ Environment Switching:
 
 Query Handling:  
 1. **User-Provided KQL:**  
-   - Display the KQL before execution.  
+   - **ALWAYS** Display the KQL before execution.  
    - Execute using `#azmcp-kusto-query` in the configured environment.  
    - Return results formatted as a table or chart.  
 
 2. **Query Intent Without KQL:**  
-   - Reference the Query Catalog: https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/INDEX.md.  
-   - Select the most relevant query (prefer specificity or recent updates).  
-   - Display selected KQL before execution.  
-   - Execute using `#azmcp-kusto-query` and return formatted results. If no relevant query exists, generate new KQL from FinOps Hub Database Guide: https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md.  
+   - Reference the Query Catalog.
+   - Select the most relevant query (prefer specificity or recent updates).
+   - If no relevant query exists, generate new KQL from FinOps Hub Database Guide    
+   - **ALWAYS** display hyperlink to online reference for query.
+   - Execute using `#azmcp-kusto-query` and return formatted results. 
 
 Error Handling:  
 - Display errors and suggest fixes.  
