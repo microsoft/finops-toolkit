@@ -140,6 +140,8 @@
           href: toolkit/hubs/configure-scopes.md
         - name: Configure dashboards
           href: toolkit/hubs/configure-dashboards.md
+        - name: Configure AI agents
+          href: toolkit/hubs/configure-ai.md
         - name: Deployment template
           href: toolkit/hubs/template.md
         - name: Data model
