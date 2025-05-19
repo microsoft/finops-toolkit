@@ -1,0 +1,155 @@
+name: 'ARM Template Validation'
+
+on:
+  pull_request:
+    paths:
+      - 'src/templates/**'
+      - 'src/bicep-registry/**'
+      - '.github/workflows/arm-template-validation.yml'
+
+jobs:
+  validate_templates:
+    name: Validate ARM Templates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Az PowerShell module
+        shell: pwsh
+        run: |
+          Install-Module -Name Az -Force -AllowClobber -Scope CurrentUser
+          Install-Module -Name PSRule.Rules.Azure -Force -Scope CurrentUser
+
+      - name: Setup Azure CLI
+        uses: azure/setup-azure-cli@v1
+
+      - name: Setup Bicep
+        uses: anthony-c-martin/setup-bicep@v0.5
+        
+      - name: Build templates
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}
+          ./src/scripts/Build-Toolkit
+
+      - name: Download ARM-TTK
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}
+          $armTtkPath = "./arm-ttk"
+          New-Item -Path $armTtkPath -ItemType Directory -Force
+          Invoke-WebRequest -Uri "https://github.com/Azure/arm-ttk/archive/refs/heads/master.zip" -OutFile "./arm-ttk.zip"
+          Expand-Archive -Path "./arm-ttk.zip" -DestinationPath $armTtkPath -Force
+          Import-Module "$armTtkPath/arm-ttk-master/arm-ttk/arm-ttk.psd1" -Force
+
+      - name: Validate templates with PSRule
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}
+          
+          # Get all ARM JSON templates
+          $templates = Get-ChildItem -Path "release" -Filter "*.json" -Recurse
+          
+          foreach ($template in $templates) {
+            Write-Host "Validating template: $($template.FullName)"
+            
+            # Run PSRule validation
+            $results = $template.FullName | Invoke-PSRule -Module PSRule.Rules.Azure -WarningAction SilentlyContinue
+            
+            # Check for failures
+            $failures = $results | Where-Object { $_.Outcome -eq 'Fail' }
+            if ($failures) {
+              Write-Host "::error::PSRule validation failed for $($template.Name):"
+              $failures | Format-Table -Property RuleName, TargetName, Message -AutoSize | Out-String | Write-Host
+              exit 1
+            }
+          }
+          
+          Write-Host "All templates validated successfully with PSRule!"
+
+      - name: Validate templates with ARM-TTK
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}
+          
+          # Get all ARM JSON templates
+          $templates = Get-ChildItem -Path "release" -Filter "*.json" -Recurse
+          
+          $hasErrors = $false
+          
+          foreach ($template in $templates) {
+            Write-Host "Validating template with ARM-TTK: $($template.FullName)"
+            
+            # Run ARM-TTK validation
+            $testResults = Test-AzTemplate -TemplatePath $template.FullName
+            
+            # Check for failures
+            $failures = $testResults | Where-Object { -not $_.Passed }
+            if ($failures) {
+              $hasErrors = $true
+              Write-Host "::error::ARM-TTK validation failed for $($template.Name):"
+              $failures | Format-Table -Property Name, Group, Errors -AutoSize | Out-String | Write-Host
+            }
+          }
+          
+          if ($hasErrors) {
+            exit 1
+          }
+          
+          Write-Host "All templates validated successfully with ARM-TTK!"
+      
+      - name: Validate templates with az CLI
+        shell: pwsh
+        run: |
+          cd ${{ github.workspace }}
+          
+          # Get all ARM JSON templates
+          $templates = Get-ChildItem -Path "release" -Filter "*.json" -Recurse
+          
+          $hasErrors = $false
+          
+          foreach ($template in $templates) {
+            Write-Host "Validating template with az CLI: $($template.FullName)"
+            
+            # Skip files that are not ARM templates (like UI definitions)
+            if ($template.Name -like "*.ui.json") {
+              Write-Host "Skipping UI definition file: $($template.Name)"
+              continue
+            }
+            
+            # Determine deployment scope based on template content
+            $templateContent = Get-Content -Path $template.FullName -Raw | ConvertFrom-Json
+            $deploymentScope = if ($templateContent.resources -and $templateContent.resources[0].type -eq "Microsoft.Resources/deployments") {
+              # This is likely a subscription level template
+              "subscription"
+            } else {
+              # Default to resource group level
+              "resourcegroup"
+            }
+            
+            # Run appropriate az validate command based on scope
+            try {
+              if ($deploymentScope -eq "subscription") {
+                Write-Host "Running subscription-level validation"
+                az deployment sub validate --location eastus --template-file $template.FullName --no-prompt
+              } else {
+                Write-Host "Running resource-group level validation"
+                az deployment group validate --resource-group "validation-rg" --template-file $template.FullName --no-prompt
+              }
+              
+              if ($LASTEXITCODE -ne 0) {
+                $hasErrors = $true
+                Write-Host "::error::Azure CLI validation failed for $($template.Name)"
+              }
+            } catch {
+              $hasErrors = $true
+              Write-Host "::error::Exception during Azure CLI validation for $($template.Name): $_"
+            }
+          }
+          
+          if ($hasErrors) {
+            exit 1
+          }
+          
+          Write-Host "All templates validated successfully with az CLI!"
