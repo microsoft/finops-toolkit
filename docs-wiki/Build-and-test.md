@@ -205,7 +205,27 @@ The validation workflow is triggered automatically when a PR includes changes to
 
 ### Running validation locally
 
-To run ARM template validation locally before submitting a PR:
+To run ARM template validation locally before submitting a PR, use the `Test-ArmTemplate` script:
+
+```powershell
+cd "<repo-root>"
+src/scripts/Test-ArmTemplate
+```
+
+This script will:
+1. Validate all ARM templates in the release directory
+2. Run checks with PSRule.Rules.Azure
+3. Run validation with ARM-TTK
+4. Validate templates with Azure CLI
+
+You can also validate a specific template:
+
+```powershell
+cd "<repo-root>"
+src/scripts/Test-ArmTemplate -TemplatePath "release/finops-hub/azuredeploy.json"
+```
+
+Alternatively, you can run individual validation steps manually:
 
 1. **Build the templates**:
 
