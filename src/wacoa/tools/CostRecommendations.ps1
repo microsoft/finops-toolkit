@@ -30,7 +30,11 @@ function Update-Scripts {
     
     try {
         # Get the current script path
-        $mainScriptPath = $MyInvocation.MyCommand.Path
+        $mainScriptPath = $PSCommandPath 
+        if (-not $mainScriptPath) { 
+            Write-Host "FATAL: Could not determine the script's own path using \$PSCommandPath. Update cannot proceed." -ForegroundColor Red
+            return $false # Indicate failure
+        }
         $mainScriptDir = Split-Path -Parent $mainScriptPath
         $prerequisitesScriptPath = Join-Path $mainScriptDir "CostRecommendations-Prerequisites.ps1"
         
@@ -58,14 +62,14 @@ function Update-Scripts {
         $restart = Read-Host "Do you want to restart the script with the new version? (Yes/No or Y/N)"
         if ($restart -eq "yes" -or $restart -eq "y") {
             Write-Host "Restarting script..." -ForegroundColor Cyan
-            & $mainScriptPath
+            & $mainScriptPath # This will use the newly downloaded script
             exit
         }
         
         return $true
     }
     catch {
-        Write-Host "Error updating scripts: $_" -ForegroundColor Red
+        Write-Host "Error updating scripts: $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
 }
@@ -117,7 +121,7 @@ function Load-Settings {
 function Process-KQLFiles {
     param (
         [string]$BasePath,
-        [object]$ScopeObject # Pass the entire scope object
+        [object]$ScopeObject
     )
 
     $kqlFiles = Get-ChildItem -Path $BasePath -Recurse -Filter *.kql -ErrorAction Stop
@@ -238,7 +242,7 @@ function Process-KQLFiles {
 # Function to process CustomCost folder YAML files without ARG validation
 function Process-CustomCostRecommendations {
     param (
-        [string]$BasePath # Path to the root folder containing CustomCost
+        [string]$BasePath 
     )
 
     # Define possible CustomCost folder paths
@@ -280,9 +284,8 @@ function Process-CustomCostRecommendations {
 
             # Convert YAML to PowerShell object(s)
             try {
-                 # Original script assumed single object per file
                  $yamlObject = $yamlContent | ConvertFrom-Yaml
-                 $customCostData += $yamlObject # Add the single object
+                 $customCostData += $yamlObject
                  Write-Log -Message "Successfully processed CustomCost file: $($file.Name)" -Level "INFO"
             }
             catch {
@@ -301,13 +304,13 @@ function Process-CustomCostRecommendations {
 # Function to process YAML files and append them to the Excel file
 function Manual-Validations {
     param (
-        [string]$BasePath, # Path to the folder containing YAML files
-        [string]$ExcelFilePath, # Path to the Excel file
-        [object]$ScopeObject # Pass the entire scope object
+        [string]$BasePath, 
+        [string]$ExcelFilePath, 
+        [object]$ScopeObject 
     )
 
     try {
-        # Get CustomCost recommendations first (no validation needed)
+
         $customCostRecommendations = Process-CustomCostRecommendations -BasePath $BasePath
         Write-Log -Message "Found $($customCostRecommendations.Count) CustomCost recommendations." -Level "INFO"
 
@@ -527,12 +530,32 @@ function Start-CostRecommendations {
         # Check if prerequisites script exists
         $prerequisitesScriptPath = Join-Path $PSScriptRoot "CostRecommendations-Prerequisites.ps1"
         if (-not (Test-Path -Path $prerequisitesScriptPath)) {
-            Write-Host "Prerequisites script not found. Downloading..." -ForegroundColor Yellow
-            Update-Scripts -MainScriptUrl $script:settings.repositoryUrls.mainScript -PrerequisitesScriptUrl $script:settings.repositoryUrls.prerequisitesScript -Force
+            Write-Host "Prerequisites script not found. Attempting to download..." -ForegroundColor Yellow 
+            if (-not (Update-Scripts -MainScriptUrl $script:settings.repositoryUrls.mainScript -PrerequisitesScriptUrl $script:settings.repositoryUrls.prerequisitesScript -Force)) {
+                Write-Host "ERROR: Failed to download or update prerequisite scripts. The script cannot continue." -ForegroundColor Red
+                return 
+            }
+
+            if (-not (Test-Path -Path $prerequisitesScriptPath)) {
+                Write-Host "ERROR: Prerequisites script '$prerequisitesScriptPath' still not found after download attempt. The script cannot continue." -ForegroundColor Red
+                return # Exit Start-CostRecommendations
+            }
+            Write-Host "Prerequisites script downloaded successfully." -ForegroundColor Green
+
         }
-        
-        # Import prerequisites script
-        . $prerequisitesScriptPath
+
+        try {
+            Write-Host "Loading prerequisites script: $prerequisitesScriptPath" -ForegroundColor Cyan
+            . $prerequisitesScriptPath
+            Write-Host "Prerequisites script loaded successfully." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "FATAL ERROR: Failed to load the prerequisites script '$prerequisitesScriptPath'." -ForegroundColor Red
+            Write-Host "Error details: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "The script cannot continue without its prerequisites." -ForegroundColor Red
+            throw "Prerequisites loading failed." 
+        }
+
         
         # Start Log Message with Version
         Write-Log -Message "Starting script execution (Version $($script:settings.scriptVersion))." -Level "INFO"
@@ -651,11 +674,20 @@ function Start-CostRecommendations {
         Write-Host "Log file: $script:logFile" -ForegroundColor Green
     }
     catch {
-        Write-Log -Message "An error occurred: $_" -Level "ERROR"
+        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+            Write-Log -Message "An error occurred: $_" -Level "ERROR"
+        } else {
+            Write-Host "CRITICAL ERROR (logging unavailable): $($_.Exception.Message)" -ForegroundColor Red
+        }
         Write-Host "An error occurred: $($_.Exception.Message)" -ForegroundColor Red
     }
     finally {
-        Write-Log -Message "Script execution finished run." -Level "INFO"
+        # Similar check for Write-Log in finally block
+        if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
+            Write-Log -Message "Script execution finished run." -Level "INFO"
+        } else {
+            Write-Host "Script execution finished run (logging unavailable)." -ForegroundColor Yellow
+        }
     }
 }
 
