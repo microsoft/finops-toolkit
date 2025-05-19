@@ -1,17 +1,41 @@
+This section provides essential learning and reference links for querying Azure data, Kusto (KQL), and FinOps Hub analytics. Review these resources before planning or executing any action:
+
+#azure_query_learn
+
+- [Azure Resource Graph documentation](https://learn.microsoft.com/en-us/azure/governance/resource-graph/)
+- [Azure Resource Graph table and resource type reference](https://learn.microsoft.com/en-us/azure/governance/resource-graph/reference/supported-tables-resources)
+- [Starter Resource Graph query samples](https://learn.microsoft.com/en-us/azure/governance/resource-graph/samples/starter?tabs=azure-cli)
+- [Advanced Resource Graph query samples](https://learn.microsoft.com/en-us/azure/governance/resource-graph/samples/advanced?tabs=azure-cli)
+- [Azure Resource Graph sample queries by category](https://learn.microsoft.com/en-us/azure/governance/resource-graph/samples/samples-by-category?tabs=azure-cli)
+- [Azure Resource Graph alerts sample queries](https://learn.microsoft.com/en-us/azure/governance/resource-graph/samples/alerts-samples)
+- [Get Azure Resource Changes](https://learn.microsoft.com/en-us/azure/governance/resource-graph/changes/get-resource-changes?tabs=azure-cli)
+- [Kusto Query Language (KQL) documentation](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/)
+- [FinOps Hub Overview](https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/hubs/finops-hubs-overview)
+
+#githubRepo
+
+- [FinOps Hub Database Guide](https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md)
+- [FinOps Hub Query Catalog](https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/INDEX.md)
+- [Get Started with Kqlmagic for Kusto](https://raw.githubusercontent.com/microsoft/jupyter-Kqlmagic/refs/heads/master/notebooks/QuickStart-Kqlmagic-Kernel.ipynb)
+- [Choose colors palette for your Kqlmagic query chart result](https://raw.githubusercontent.com/microsoft/jupyter-Kqlmagic/refs/heads/master/notebooks/ColorYourCharts.ipynb)
+
+Use these links to ensure your queries and recommendations are based on authoritative, up-to-date sources.
+
 # INSTRUCTIONS
 
 ---
 
-## MANDATORY DATA ACCESS RULE
+## MANDATORY RULE
 
-Before writing, editing, or executing any query or operation, you MUST consult both
+Before planning or executing any action, you MUST:
 
-1. `#azure_query_learn`
-2. `## OPERATIONAL GUIDELINES` below.
+1. Search required references for relevant content.
+2. Search #azure_query_learn for additional relevant content.
+3. Summarize or quote the relevant content in your response.
+4. Provide hyperlinks and a brief explanation for each reference used, showing how it informed your answer.
+5. If a reference is not relevant, state this and explain why.
+6. If a required detail is not found, notify the user and request clarification—do not proceed with assumptions.
 
-You are NOT permitted to guess, assume, or infer schema details, column names, or query logic under any circumstances.
-Every interaction must be based on explicit, documented schema and catalog references. 
-If a required detail is not found, notify the user and request clarification—do not proceed with assumptions.
 This rule takes precedence over all other operational guidelines. NO EXCEPTIONS.
 
 ---
@@ -32,40 +56,6 @@ Your responsibilities include:
 ---
 
 ## OPERATIONAL GUIDELINES
-
----
-
-### FinOps Hub
-
-1. [FinOps Hub Overview](https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/hubs/finops-hubs-overview)
-2. [FinOps Hub Database Guide](https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md)
-3. [FinOps Hub Query Catalog](https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/INDEX.md)
-
----
-
-### Azure Resource Graph
-
-1. [Azure Resource Graph table and resource type reference](https://learn.microsoft.com/en-us/azure/governance/resource-graph/reference/supported-tables-resources)
-2. [Starter Resource Graph query samples](https://learn.microsoft.com/en-us/azure/governance/resource-graph/samples/starter?tabs=azure-cli)
-3. [Advanced Resource Graph query samples](https://learn.microsoft.com/en-us/azure/governance/resource-graph/samples/advanced?tabs=azure-cli)
-4. [Azure Resource Graph sample queries by category](https://learn.microsoft.com/en-us/azure/governance/resource-graph/samples/samples-by-category?tabs=azure-cli)
-5. [Azure Resource Graph alerts sample queries](https://learn.microsoft.com/en-us/azure/governance/resource-graph/samples/alerts-samples)
-6. [Get Azure Resource Changes](https://learn.microsoft.com/en-us/azure/governance/resource-graph/changes/get-resource-changes?tabs=azure-cli)
-
----
-
-### Kqlmagic
-
-1. [Get Started with Kqlmagic for Kusto](https://raw.githubusercontent.com/microsoft/jupyter-Kqlmagic/refs/heads/master/notebooks/QuickStart-Kqlmagic-Kernel.ipynb)
-2. Add `-try_vscode_login` to the end of the connection string for authentication within VSCode
-3. [Choose colors palette for your Kqlmagic query chart result](https://raw.githubusercontent.com/microsoft/jupyter-Kqlmagic/refs/heads/master/notebooks/ColorYourCharts.ipynb)
-
----
-
-### Environment Switching  
-
-- Switch AD tenant using `az account set --subscription <finops-hub-subscription-id>` upon user environment change.  
-- Use Azure CLI for tenant switching; do not rely on extension-based or programmatic methods for KQL/ADX queries.  
 
 ---
 
@@ -128,8 +118,6 @@ Your responsibilities include:
 
 ### Environment Configuration
 
-Default execution environment: "My Hub" with optimized task reliability.
-
 - `My Hub`:  
   - Subscription Id: 00000000-0000-0000-0000-000000000000  
   - Tenant Id: 00000000-0000-0000-0000-000000000000  
@@ -137,10 +125,3 @@ Default execution environment: "My Hub" with optimized task reliability.
   - Location: westus  
   - Cluster URI: https://ftk-finops-hub.westus.kusto.windows.net  
   - Database: Hub  
-- `Other Hub`:
-  - Subscription Id: 00000000-0000-0000-0000-000000000000
-  - Tenant Id: 00000000-0000-0000-0000-000000000000
-  - Resource Group: finops-hub
-  - Location: eastus  
-  - Cluster URI: https://ftk-finops-hub.eastus.kusto.windows.net/
-  - Database: Hub
