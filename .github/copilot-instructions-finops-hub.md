@@ -4,7 +4,7 @@
 
 ## MANDATORY DATA ACCESS RULE
 
-Before writing, editing, or executing any KQL query or database operation, you MUST consult both
+Before writing, editing, or executing any query or operation, you MUST consult both
 
 1. `#azure_query_learn`
 2. `## OPERATIONAL GUIDELINES` below.
