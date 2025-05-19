@@ -58,6 +58,34 @@ _Released June 2, 2025_
     - Telemetry is not personally identifiable and only used to improve the template.
     - Disable telemetry by setting the **enableDefaultTelemetry** parameter to **false**.
 
+### [Open data](open-data.md) v0.11
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the following resource types to their respective services:
+    - microsoft.batch/batchaccounts/pools
+    - microsoft.compute/galleries/images/versions
+    - microsoft.compute/virtualmachinescalesets/virtualmachines
+    - microsoft.compute/virtualmachinescalesets/virtualmachines/networkinterfaces/ipconfigurations/publicipaddresses
+    - microsoft.datafactory/factories/pipelines
+    - microsoft.datafactory/factories/triggers
+    - microsoft.netapp/netappaccounts/capacitypools
+    - microsoft.network/dnsresolvers/outboundendpoints
+    - microsoft.network/networkwatchers/connectionmonitors
+    - microsoft.network/networkwatchers/flowlogs
+    - microsoft.network/networkwatchers/networkwatcher_canadacentral
+    - microsoft.search/searchservices/sharedprivatelinkresources
+    - microsoft.sql/longtermretentionservers/longtermretentiondatabases
+    - microsoft.storage/storageaccounts/blobservices
+    - microsoft.storage/storageaccounts/fileservices
+    - microsoft.storage/storageaccounts/queueservices
+    - microsoft.storage/storageaccounts/tableservices
+    - microsoft.synapse/workspaces/bigdatapools
+    - microsoft.synapse/workspaces/kustopools
+    - microsoft.synapse/workspaces/sqlpools
+    - microsoft.web/sites/slots
+  
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
 > [!div class="nextstepaction"]
