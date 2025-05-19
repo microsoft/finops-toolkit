@@ -1,11 +1,11 @@
 # GitHub Copilot Instructions for FinOps Hub
 
-This document provides instructions for using GitHub Copilot to query and analyze data in FinOps Hub using the Azure MCP Server.
+This document provides instructions for using GitHub Copilot Agent Mode in VS Code to query and analyze data in FinOps Hub using the Azure MCP server.
 
 ## 🔍 Overview
 
-When working with FinOps Hub, GitHub Copilot can help you:
-- Generate KQL (Kusto Query Language) queries for cost analysis
+GitHub Copilot in Agent Mode can help you:
+- Generate KQL (Kusto Query Language) queries for FinOps Hub data analysis
 - Identify cost optimization opportunities
 - Assist with anomaly detection and forecasting
 - Format and analyze query results
@@ -19,15 +19,32 @@ Always rely on these official sources when working with FinOps Hub data:
 - [Azure Cost Management Documentation](https://docs.microsoft.com/azure/cost-management-billing/)
 - [FinOps Hub Documentation](https://aka.ms/finops/hubs/docs)
 - [Azure Data Explorer Documentation](https://docs.microsoft.com/azure/data-explorer/)
+- [GitHub Copilot Agent Mode Documentation](https://docs.github.com/en/copilot/github-copilot-chat/using-github-copilot-chat-in-your-ide)
+
+## 🤖 Using Copilot Agent Mode
+
+To use GitHub Copilot Agent Mode with FinOps Hub:
+
+1. **Open GitHub Copilot Chat** in VS Code (Ctrl+Shift+I / Cmd+Shift+I)
+2. **Activate Agent Mode** by typing "@AzureMCP" to direct your query to the Azure MCP server
+3. **Specify FinOps Hub analysis** in your prompt, such as:
+   - "@AzureMCP Generate a KQL query to analyze my last month's costs by service"
+   - "@AzureMCP Find resource groups with the highest costs this quarter"
+   - "@AzureMCP Help me detect cost anomalies in the last 30 days"
 
 ## 📌 Required Context for Queries
 
-When generating KQL queries, always include:
+When asking Copilot to generate KQL queries, always include:
 
 1. **Target Data Source**: Specify which FinOps Hub database (`Hub` or `Ingestion`) and table/function to query.
 2. **Time Range**: Define the time period for the analysis (last 30 days, current month, etc.).
 3. **Aggregation Level**: Determine the level of detail (subscription, resource group, resource).
 4. **Filtering Criteria**: Include any necessary filters (services, regions, tags).
+
+Example query request:
+```
+@AzureMCP Generate a KQL query to analyze Virtual Machine costs by resource group for the last 30 days from the Hub database using the Costs() function.
+```
 
 ## 🛠 Mandatory Procedures
 
@@ -84,22 +101,6 @@ When generating KQL queries, always include:
    | project ["Resource Name"] = ResourceName, ["Resource Group"] = ResourceGroup, ["Monthly Cost"] = MonthlyCost
    ```
 
-## 🔧 Azure MCP Server Configuration
-
-To use GitHub Copilot with the Azure MCP Server for FinOps Hub:
-
-1. **Configure the MCP Server connection in VS Code**:
-   - Open VS Code Settings
-   - Navigate to Extensions > GitHub Copilot > Chat > MCP Servers
-   - Add a new MCP Server with:
-     - Name: "Azure MCP Server"
-     - URL: Endpoint URL for your Azure MCP server
-
-2. **Use the agent mode in VS Code**:
-   - Access Copilot in VS Code (Ctrl+Shift+I / Cmd+Shift+I)
-   - Type "@AzureMCP" to activate the Azure MCP Server agent
-   - Specify that you want to work with FinOps Hub data
-
 ## 🚫 Common Pitfalls to Avoid
 
 1. **Avoid cross-database queries** as they may not be supported or optimized.
@@ -119,8 +120,14 @@ All queries should be tested for:
 
 ## 💡 Example Query Flow
 
+Example prompt:
+```
+@AzureMCP Generate a KQL query that shows monthly cost by resource group for the current month
+```
+
+Example result:
 ```kql
-// Get monthly cost by resource group
+// Get monthly cost by resource group for the current month
 Costs()
 | where TimeGenerated >= startofmonth(now())
 | where TimeGenerated < endofmonth(now())
@@ -128,4 +135,27 @@ Costs()
 | order by TotalCost desc
 | extend FormattedCost = strcat('$', format_number(TotalCost, 2))
 | project ["Resource Group"] = ResourceGroup, ["Total Cost"] = FormattedCost
+```
+
+## 🔄 Iterative Query Development
+
+When working with Copilot Agent Mode, you can refine queries iteratively:
+
+1. Start with a basic query request
+2. Review the generated query
+3. Ask for modifications or improvements
+4. Apply the query to your FinOps Hub data
+5. Share results with Copilot for further analysis
+
+Example iterative flow:
+```
+You: @AzureMCP Show me the top 5 most expensive resource groups
+
+Copilot: Here's a query to find the top 5 most expensive resource groups...
+[query displayed]
+
+You: @AzureMCP Modify that query to show costs by month for the last quarter
+
+Copilot: I've updated the query to show monthly costs for the last quarter...
+[updated query displayed]
 ```
