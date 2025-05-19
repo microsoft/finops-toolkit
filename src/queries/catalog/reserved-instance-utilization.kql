@@ -1,0 +1,97 @@
+// Reserved Instance Utilization Query
+// 
+// Description: This query analyzes Reserved Instance utilization across subscriptions.
+// 
+// Parameters:
+//   - TimeRange: The time period to analyze (default: last 30 days)
+//   - SubscriptionFilter: Optional filter for specific subscriptions
+//
+// Output:
+//   - Reserved instance ID or name
+//   - Type of reservation
+//   - Utilization percentage
+//   - Potential waste from underutilization
+//   - Expiration date and status
+//
+// References:
+//   - https://docs.microsoft.com/azure/cost-management-billing/reservations/
+//   - https://docs.microsoft.com/azure/data-explorer/kusto/query/
+
+// Set parameters with default values
+let _timeRange = 30d;
+let _startDate = startofday(ago(_timeRange));
+let _endDate = startofday(now());
+
+// Main query for RI utilization
+Costs()
+| where TimeGenerated >= _startDate
+| where TimeGenerated < _endDate
+// Filter for committed usage entries
+| where CommitmentDiscountCategory == "Usage"
+// Extract reservation details
+| extend 
+    ReservationId = tostring(AdditionalInfo.ReservationId),
+    ReservationName = tostring(AdditionalInfo.ReservationName),
+    ReservationType = tostring(AdditionalInfo.ReservationType)
+| where isnotempty(ReservationId)
+// Calculate utilized and eligible amount
+| summarize 
+    TotalCommittedQuantity = sum(CommittedQuantity),
+    TotalUsedQuantity = sum(UsedQuantity)
+    by ReservationId, ReservationName, ReservationType, Currency
+// Calculate utilization percentage and waste
+| extend 
+    UtilizationPercentage = iff(TotalCommittedQuantity > 0, TotalUsedQuantity / TotalCommittedQuantity * 100, 0),
+    UnusedQuantity = TotalCommittedQuantity - TotalUsedQuantity
+// Get pricing information to calculate waste cost
+| join kind=leftouter (
+    Prices()
+    | where TimeGenerated >= _startDate
+    | where PriceType == "Retail"
+    | project ReservationType = MeterName, RetailPrice = UnitPrice
+) on ReservationType
+// Calculate potential waste
+| extend PotentialWaste = UnusedQuantity * RetailPrice
+// Format for display
+| extend
+    UtilizationPercentageFormatted = strcat(format_number(UtilizationPercentage, 2), '%'),
+    PotentialWasteFormatted = strcat('$', format_number(PotentialWaste, 2))
+// Add utilization rating
+| extend UtilizationRating = case(
+    UtilizationPercentage >= 95, "Excellent ✅",
+    UtilizationPercentage >= 80, "Good ✓",
+    UtilizationPercentage >= 60, "Fair ⚠️",
+    "Poor ❌"
+)
+// Get reservation expiration details
+| join kind=leftouter (
+    Resources()
+    | where TimeGenerated >= _startDate
+    | where ResourceType == "Microsoft.Capacity/reservationOrders/reservations"
+    | extend 
+        ReservationId = tostring(Properties.reservationId),
+        ExpiryDate = todatetime(Properties.expiryDate),
+        Status = tostring(Properties.provisioningState)
+    | project ReservationId, ExpiryDate, Status
+) on ReservationId
+// Format dates
+| extend ExpiryDateFormatted = format_datetime(ExpiryDate, 'yyyy-MM-dd')
+// Calculate days until expiration
+| extend DaysToExpiry = iff(ExpiryDate > now(), datetime_diff('day', ExpiryDate, now()), 0)
+// Add expiration warning
+| extend ExpiryWarning = case(
+    DaysToExpiry <= 0, "Expired ❌",
+    DaysToExpiry <= 30, strcat("Expiring soon (", DaysToExpiry, " days) ⚠️"),
+    strcat(DaysToExpiry, " days left")
+)
+// Project final columns
+| project 
+    ["Reservation"] = iff(isempty(ReservationName), ReservationId, ReservationName),
+    ["Type"] = ReservationType,
+    ["Utilization %"] = UtilizationPercentageFormatted,
+    ["Rating"] = UtilizationRating,
+    ["Potential Waste"] = PotentialWasteFormatted,
+    ["Expiry Date"] = ExpiryDateFormatted,
+    ["Expiry Status"] = ExpiryWarning
+// Sort by utilization (lowest first to highlight problems)
+| order by UtilizationPercentage asc

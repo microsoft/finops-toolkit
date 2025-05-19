@@ -1,0 +1,78 @@
+// Cost by Resource Group Query
+// 
+// Description: This query analyzes costs aggregated by resource group over the specified time period.
+// 
+// Parameters:
+//   - TimeRange: The time period to analyze (default: last 30 days)
+//   - SubscriptionFilter: Optional filter for specific subscriptions
+//
+// Output:
+//   - Resource group name
+//   - Total cost
+//   - Cost trend compared to previous period
+//   - Percentage of total cost
+//
+// References:
+//   - https://docs.microsoft.com/azure/data-explorer/kusto/query/
+//   - https://docs.microsoft.com/azure/cost-management-billing/
+
+// Set parameters with default values
+let _timeRange = 30d;
+let _startDate = startofday(ago(_timeRange));
+let _endDate = startofday(now());
+let _previousStartDate = startofday(ago(2*_timeRange));
+let _previousEndDate = _startDate;
+
+// Main query
+Costs()
+// Filter by time range
+| where TimeGenerated >= _startDate
+| where TimeGenerated < _endDate
+// Basic filtering and validation
+| where isnotempty(ResourceGroup)
+| where Cost > 0
+// Aggregate by resource group
+| summarize CurrentCost = sum(Cost) by ResourceGroup
+// Get previous period data for comparison
+| join kind=leftouter (
+    Costs()
+    | where TimeGenerated >= _previousStartDate
+    | where TimeGenerated < _previousEndDate
+    | where isnotempty(ResourceGroup)
+    | where Cost > 0
+    | summarize PreviousCost = sum(Cost) by ResourceGroup
+) on ResourceGroup
+// Calculate total cost for percentage
+| join kind=inner (
+    Costs()
+    | where TimeGenerated >= _startDate
+    | where TimeGenerated < _endDate
+    | where Cost > 0
+    | summarize TotalCost = sum(Cost)
+) on $left._dummy = $right._dummy
+// Handle missing previous cost
+| extend PreviousCost = iff(isnull(PreviousCost), 0.0, PreviousCost)
+// Calculate metrics
+| extend 
+    CostDifference = CurrentCost - PreviousCost,
+    CostPercentChange = iff(PreviousCost > 0, (CurrentCost - PreviousCost) / PreviousCost * 100, 0),
+    PercentOfTotal = CurrentCost / TotalCost * 100
+// Format for display
+| extend 
+    CurrentCostFormatted = strcat('$', format_number(CurrentCost, 2)),
+    PreviousCostFormatted = strcat('$', format_number(PreviousCost, 2)),
+    CostDifferenceFormatted = strcat('$', format_number(CostDifference, 2)),
+    CostPercentChangeFormatted = strcat(format_number(CostPercentChange, 2), '%'),
+    PercentOfTotalFormatted = strcat(format_number(PercentOfTotal, 2), '%')
+// Add trend indicator
+| extend Trend = iff(CostPercentChange > 0, '🔼', iff(CostPercentChange < 0, '🔽', '◼️'))
+// Project final columns
+| project 
+    ["Resource Group"] = ResourceGroup,
+    ["Current Cost"] = CurrentCostFormatted,
+    ["Previous Cost"] = PreviousCostFormatted,
+    ["Cost Change"] = CostDifferenceFormatted,
+    ["Change %"] = strcat(Trend, ' ', CostPercentChangeFormatted),
+    ["% of Total"] = PercentOfTotalFormatted
+// Sort by highest cost first
+| order by CurrentCost desc

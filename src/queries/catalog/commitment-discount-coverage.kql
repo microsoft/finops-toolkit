@@ -1,0 +1,87 @@
+// Commitment Discount Coverage Query
+// 
+// Description: This query analyzes the coverage of commitment discounts (RIs and Savings Plans) across eligible resources.
+// 
+// Parameters:
+//   - TimeRange: The time period to analyze (default: last 30 days)
+//   - SubscriptionFilter: Optional filter for specific subscriptions
+//
+// Output:
+//   - Resource type
+//   - Total cost
+//   - On-demand cost
+//   - Commitment-covered cost
+//   - Coverage percentage
+//   - Optimization opportunity
+//
+// References:
+//   - https://docs.microsoft.com/azure/cost-management-billing/reservations/
+//   - https://docs.microsoft.com/azure/data-explorer/kusto/query/
+
+// Set parameters with default values
+let _timeRange = 30d;
+let _startDate = startofday(ago(_timeRange));
+let _endDate = startofday(now());
+
+// Main query
+Costs()
+// Filter by time range
+| where TimeGenerated >= _startDate
+| where TimeGenerated < _endDate
+// Basic filtering and validation
+| where isnotempty(ResourceType)
+| where Cost > 0
+// Extract commitment discount eligibility
+| extend
+    CommitmentDiscountSpendEligible = toboolean(AdditionalInfo.x_CommitmentDiscountSpendEligibility),
+    CommitmentDiscountUsageEligible = toboolean(AdditionalInfo.x_CommitmentDiscountUsageEligibility),
+    CommitmentDiscountCategory = tostring(AdditionalInfo.CommitmentDiscountCategory),
+    PricingCategory = tostring(AdditionalInfo.PricingCategory)
+// Aggregate costs by resource type and pricing category
+| summarize
+    TotalCost = sum(Cost),
+    OnDemandCost = sumif(Cost, PricingCategory == 'Standard'),
+    SpotCost = sumif(Cost, PricingCategory == 'Dynamic'),
+    CommittedCost = sumif(Cost, PricingCategory == 'Committed'),
+    CommittedSpendCost = sumif(Cost, CommitmentDiscountCategory == 'Spend'),
+    CommittedUsageCost = sumif(Cost, CommitmentDiscountCategory == 'Usage')
+    by ResourceType, Currency, CommitmentDiscountSpendEligible, CommitmentDiscountUsageEligible
+// Filter for eligible resources only
+| where CommitmentDiscountSpendEligible == true or CommitmentDiscountUsageEligible == true
+// Calculate coverage metrics
+| extend
+    OnDemandPercent = OnDemandCost / TotalCost * 100,
+    CoveragePercent = CommittedCost / TotalCost * 100,
+    OptimizableAmount = OnDemandCost * 0.8, // Assume 20% discount minimum for commitments
+    EligibilityType = case(
+        CommitmentDiscountSpendEligible and CommitmentDiscountUsageEligible, "Spend & Usage",
+        CommitmentDiscountSpendEligible, "Spend Only",
+        CommitmentDiscountUsageEligible, "Usage Only",
+        "Not Eligible"
+    )
+// Format for display
+| extend
+    TotalCostFormatted = strcat('$', format_number(TotalCost, 2)),
+    OnDemandCostFormatted = strcat('$', format_number(OnDemandCost, 2)),
+    CommittedCostFormatted = strcat('$', format_number(CommittedCost, 2)),
+    CoveragePercentFormatted = strcat(format_number(CoveragePercent, 2), '%'),
+    OptimizableAmountFormatted = strcat('$', format_number(OptimizableAmount, 2))
+// Add coverage rating
+| extend CoverageRating = case(
+    CoveragePercent >= 80, "Excellent ✅",
+    CoveragePercent >= 60, "Good ✓",
+    CoveragePercent >= 30, "Fair ⚠️",
+    "Poor ❌"
+)
+// Project final columns
+| project
+    ["Resource Type"] = ResourceType,
+    ["Eligibility"] = EligibilityType,
+    ["Total Cost"] = TotalCostFormatted,
+    ["On-Demand Cost"] = OnDemandCostFormatted,
+    ["Committed Cost"] = CommittedCostFormatted,
+    ["Coverage %"] = CoveragePercentFormatted,
+    ["Rating"] = CoverageRating,
+    ["Optimization Opportunity"] = OptimizableAmountFormatted
+// Sort by optimization opportunity (highest first)
+| order by OptimizableAmount desc

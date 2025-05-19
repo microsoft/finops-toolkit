@@ -1,0 +1,128 @@
+// Monthly Cost Forecast Query
+// 
+// Description: This query forecasts monthly costs based on historical data and current trends.
+// 
+// Parameters:
+//   - HistoryMonths: Number of months of history to use (default: 6)
+//   - ForecastMonths: Number of months to forecast (default: 3)
+//
+// Output:
+//   - Month
+//   - Actual or forecasted cost
+//   - Month-over-month change
+//   - Confidence interval (for forecasts)
+//   - Indication of actual vs forecast
+//
+// References:
+//   - https://docs.microsoft.com/azure/data-explorer/kusto/query/
+//   - https://docs.microsoft.com/azure/cost-management-billing/
+
+// Set parameters with default values
+let _historyMonths = 6;
+let _forecastMonths = 3;
+let _startDate = startofmonth(ago(_historyMonths * 32d)); // Use 32d to ensure we get enough months
+let _endDate = endofmonth(now());
+let _lastCompleteMonth = startofmonth(ago(1d)); // Last complete month
+
+// Get historical monthly costs
+let historicalCosts = 
+Costs()
+| where TimeGenerated >= _startDate
+| where TimeGenerated < _endDate
+| summarize 
+    MonthlyCost = sum(Cost) 
+    by Month = startofmonth(TimeGenerated), 
+       Currency
+| where Month < _lastCompleteMonth // Only include complete months for historical data
+| order by Month asc;
+
+// Get current month-to-date costs
+let currentMonthCosts = 
+Costs()
+| where TimeGenerated >= startofmonth(now())
+| where TimeGenerated < endofday(now())
+| summarize 
+    CurrentMonthToDateCost = sum(Cost),
+    DaysInCurrentMonth = dcount(startofday(TimeGenerated))
+    by Currency;
+
+// Calculate days in current month
+let daysInMonth = 
+Costs()
+| where TimeGenerated >= startofmonth(now())
+| where TimeGenerated < endofmonth(now())
+| summarize 
+    MaxDay = max(dayofmonth(TimeGenerated)),
+    TotalDaysInMonth = dayofmonth(endofmonth(now()))
+| project TotalDaysInMonth = max_of(MaxDay, TotalDaysInMonth);
+
+// Linear regression for forecasting
+let linearRegressionForecast = 
+historicalCosts
+| serialize
+| extend MonthNumber = row_number()
+| project Month, MonthNumber, MonthlyCost, Currency
+// Get linear regression model
+| summarize 
+    Slope=avg(MonthNumber*MonthlyCost) - avg(MonthNumber)*avg(MonthlyCost),
+    Intercept=avg(MonthlyCost) - avg(MonthNumber)*(avg(MonthNumber*MonthlyCost) - avg(MonthNumber)*avg(MonthlyCost)) / (avg(square(MonthNumber)) - square(avg(MonthNumber))),
+    RSquare=pow(sumif(MonthNumber, isnotnull(MonthlyCost))*sumif(MonthlyCost, isnotnull(MonthlyCost)) - sumif(MonthNumber*MonthlyCost, isnotnull(MonthlyCost)), 2) / ((sumif(MonthNumber, isnotnull(MonthlyCost))*sumif(MonthlyCost, isnotnull(MonthlyCost))) * (sumif(square(MonthNumber), isnotnull(MonthlyCost)) - sumif(square(MonthNumber), isnotnull(MonthlyCost)))),
+    MonthCount=count(),
+    LastMonth=max(MonthNumber),
+    LastMonthDate=max(Month)
+    by Currency
+// Calculate confidence intervals
+| extend 
+    StandardError = sqrt((1 - RSquare) / (MonthCount - 2)),
+    ConfidenceInterval95 = 1.96 * StandardError;
+
+// Generate forecast for future months
+let forecastData = 
+linearRegressionForecast
+| mv-expand 
+    ForecastMonthNumber = range(LastMonth + 1, LastMonth + _forecastMonths, 1) 
+    to typeof(int)
+| extend 
+    ForecastedCost = Intercept + Slope * ForecastMonthNumber,
+    LowerBound = ForecastedCost * (1 - ConfidenceInterval95),
+    UpperBound = ForecastedCost * (1 + ConfidenceInterval95),
+    ForecastMonth = datetime_add('month', ForecastMonthNumber - LastMonth, LastMonthDate)
+| project 
+    Month = ForecastMonth, 
+    MonthlyCost = ForecastedCost,
+    LowerBound,
+    UpperBound,
+    Currency,
+    Type = "Forecast";
+
+// Combine historical and forecast data
+let combinedData = 
+historicalCosts
+| extend Type = "Actual", LowerBound = MonthlyCost, UpperBound = MonthlyCost
+| union forecastData;
+
+// Calculate month-over-month changes
+combinedData
+| order by Month asc
+| extend PreviousCost = prev(MonthlyCost)
+| extend 
+    MonthOverMonthChange = iff(isnotempty(PreviousCost) and PreviousCost > 0, (MonthlyCost - PreviousCost) / PreviousCost * 100, 0),
+    ConfidenceRange = iff(Type == "Forecast", strcat('±', format_number(ConfidenceInterval95 * 100, 0), '%'), "")
+// Format for display
+| extend 
+    MonthFormatted = format_datetime(Month, 'yyyy-MM'),
+    MonthlyCostFormatted = strcat('$', format_number(MonthlyCost, 2)),
+    ChangeFormatted = strcat(format_number(MonthOverMonthChange, 2), '%'),
+    RangeFormatted = iff(Type == "Forecast", 
+                        strcat('$', format_number(LowerBound, 2), ' - $', format_number(UpperBound, 2)),
+                        "")
+// Add trend indicator for month-over-month change
+| extend Trend = iff(MonthOverMonthChange > 0, '🔼', iff(MonthOverMonthChange < 0, '🔽', '◼️'))
+// Project final columns
+| project 
+    ["Month"] = MonthFormatted,
+    ["Type"] = Type,
+    ["Cost"] = MonthlyCostFormatted,
+    ["Change"] = strcat(Trend, ' ', ChangeFormatted),
+    ["Confidence Range"] = RangeFormatted
+| order by Month asc

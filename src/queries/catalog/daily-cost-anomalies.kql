@@ -1,0 +1,89 @@
+// Daily Cost Anomalies Query
+// 
+// Description: This query detects anomalies in daily costs using standard deviation analysis.
+// 
+// Parameters:
+//   - LookbackDays: Number of days to analyze (default: 30 days)
+//   - ThresholdMultiplier: Standard deviation multiplier for anomaly detection (default: 2)
+//
+// Output:
+//   - Date of anomaly
+//   - Service name
+//   - Actual cost
+//   - Expected cost range
+//   - Percentage deviation
+//   - Anomaly severity
+//
+// References:
+//   - https://docs.microsoft.com/azure/data-explorer/kusto/query/
+//   - https://docs.microsoft.com/azure/azure-monitor/alerts/alerts-metric-logs
+
+// Set parameters with default values
+let _lookbackDays = 30;
+let _thresholdMultiplier = 2;
+let _startDate = startofday(ago(_lookbackDays * 1d));
+let _endDate = startofday(now());
+
+// Calculate daily costs for each service
+let dailyCosts = 
+Costs()
+| where TimeGenerated >= _startDate
+| where TimeGenerated < _endDate
+| where isnotempty(ServiceName)
+| summarize DailyCost = sum(Cost) by Date = bin(TimeGenerated, 1d), ServiceName;
+
+// Calculate statistics for each service (mean and standard deviation)
+let serviceStats = 
+dailyCosts
+| summarize 
+    AvgDailyCost = avg(DailyCost),
+    StdDevDailyCost = stdev(DailyCost),
+    MinDailyCost = min(DailyCost),
+    MaxDailyCost = max(DailyCost),
+    DaysWithData = dcount(Date)
+    by ServiceName
+// Only include services with enough data points for meaningful analysis
+| where DaysWithData >= 7;
+
+// Identify anomalies based on standard deviation
+dailyCosts
+| join kind=inner serviceStats on ServiceName
+// Calculate upper and lower thresholds based on standard deviation
+| extend 
+    UpperThreshold = AvgDailyCost + (_thresholdMultiplier * StdDevDailyCost),
+    LowerThreshold = max_of(0, AvgDailyCost - (_thresholdMultiplier * StdDevDailyCost))
+// Determine if the daily cost is anomalous (outside thresholds)
+| extend 
+    IsAnomaly = DailyCost > UpperThreshold or DailyCost < LowerThreshold,
+    DeviationFromAvg = (DailyCost - AvgDailyCost) / AvgDailyCost * 100
+// Only show anomalies
+| where IsAnomaly
+// Calculate magnitude of anomaly
+| extend 
+    AnomalyType = iff(DailyCost > AvgDailyCost, "Increase", "Decrease"),
+    DeviationRatio = abs(DailyCost - AvgDailyCost) / StdDevDailyCost
+// Determine severity based on deviation ratio
+| extend Severity = case(
+    DeviationRatio >= 3, "Critical ⚠️",
+    DeviationRatio >= 2.5, "High 🔴",
+    DeviationRatio >= 2, "Medium 🟠",
+    "Low 🟡"
+)
+// Format for display
+| extend 
+    DateFormatted = format_datetime(Date, 'yyyy-MM-dd'),
+    DailyCostFormatted = strcat('$', format_number(DailyCost, 2)),
+    AvgDailyCostFormatted = strcat('$', format_number(AvgDailyCost, 2)),
+    DeviationFormatted = strcat(format_number(DeviationFromAvg, 2), '%'),
+    ExpectedRangeFormatted = strcat('$', format_number(LowerThreshold, 2), ' - $', format_number(UpperThreshold, 2))
+// Project final columns
+| project 
+    ["Date"] = DateFormatted,
+    ["Service"] = ServiceName,
+    ["Actual Cost"] = DailyCostFormatted,
+    ["Expected Range"] = ExpectedRangeFormatted,
+    ["Deviation %"] = DeviationFormatted,
+    ["Type"] = AnomalyType,
+    ["Severity"] = Severity
+// Sort by date (newest first) and severity
+| sort by Date desc, DeviationRatio desc
