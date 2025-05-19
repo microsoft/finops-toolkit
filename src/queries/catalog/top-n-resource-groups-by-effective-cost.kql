@@ -1,0 +1,24 @@
+// ============================================================================
+// Query: Top N Resource Groups by Effective Cost (Last Month)
+// Description:
+//   Returns the top N resource groups by total effective cost for the last month.
+//   Useful for identifying cost concentration and major spenders at the resource group level.
+// Author: FinOps Toolkit
+// Parameters:
+//   N: Number of top resource groups to return (default: 5)
+//   numberOfMonths: Number of months to look back (default: 1)
+// Output:
+//   Each row represents a resource group with its total effective cost for the period.
+// Usage:
+//   Use this query to focus optimization and reporting on the highest-cost resource groups.
+// Last Tested: 2025-05-17
+// ============================================================================
+
+// Top N Resource Groups by Effective Cost (Last Month)
+let N = 5;
+let numberOfMonths = 1;
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| extend x_ResourceGroupName = tostring(split(ResourceId, '/')[4])
+| summarize TotalEffectiveCost = sum(EffectiveCost) by x_ResourceGroupName
+| top N by TotalEffectiveCost desc

@@ -1,0 +1,24 @@
+// ============================================================================
+// Other Transactions Query
+//
+// Description:
+//   Returns all non-usage, non-commitment (non-RI/SP) purchase transactions from the FinOps Hub Costs_v1_0 table.
+//   This query is optimized to only include columns that are populated for these transaction types.
+//
+// Parameters:
+//   numberOfMonths: Number of months to look back (default: 1)
+//
+// Output:
+//   Each row represents a single cost record for a non-commitment purchase, with key financial and allocation metadata.
+//   Columns: ChargePeriodStart, ChargeCategory, BilledCost, BillingCurrency, SubAccountName, x_InvoiceSectionName, PricingCategory, PricingQuantity, PricingUnit, ProviderName, PublisherName
+//
+// Usage:
+//   Use this query to analyze miscellaneous Azure purchases that are not usage-based and not covered by Reserved Instances or Savings Plans.
+//   Example: Marketplace SaaS, third-party, or other direct purchases.
+// ============================================================================
+let N = 10;
+let numberOfMonths = 1;
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths) and tolower(tostring(ChargeCategory)) != 'usage' and isempty(CommitmentDiscountType) and toreal(BilledCost) > 0
+| top N by toreal(BilledCost)
+| project ChargePeriodStart, ChargeCategory, BilledCost, BillingCurrency, SubAccountName, x_InvoiceSectionName, PricingCategory, PricingQuantity, PricingUnit, ProviderName, PublisherName

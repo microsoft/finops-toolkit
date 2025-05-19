@@ -1,0 +1,21 @@
+// ============================================================================
+// Query: Last N Month Cost Trend
+// Description:
+//   Returns total billed and effective cost by month for the last N months (default: 12).
+//   Useful for visualizing both billed and effective cost trends over time.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   numberOfMonths: Number of months to look back (default: 12)
+// Output:
+//   Each row represents a month with its total billed and effective cost.
+// Usage:
+//   Use this query to monitor monthly cost trends, compare billed vs. effective cost, and support budgeting/forecasting.
+// Last Tested: 2025-05-17
+// =========================================================================
+
+let numberOfMonths = 12;
+Costs_v1_0
+| where ChargePeriodStart >= monthsago(numberOfMonths)
+| extend x_ChargeMonth = startofmonth(ChargePeriodStart)
+| summarize TotalBilledCost = sum(BilledCost), TotalEffectiveCost = sum(EffectiveCost) by x_ChargeMonth
+| order by x_ChargeMonth asc
