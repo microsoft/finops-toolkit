@@ -25,7 +25,7 @@ jobs:
           Install-Module -Name PSRule.Rules.Azure -Force -Scope CurrentUser
 
       - name: Setup Azure CLI
-        uses: azure/setup-azure-cli@v1
+        uses: azure/setup-azure-cli@v3
 
       - name: Setup Bicep
         uses: anthony-c-martin/setup-bicep@v0.5
