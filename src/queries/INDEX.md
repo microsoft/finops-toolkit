@@ -8,7 +8,7 @@ This catalog contains KQL (Kusto Query Language) queries for various FinOps Hub 
 2. Open the query file of interest
 3. Copy the query and adapt it to your specific needs
 4. Execute the query against your FinOps Hub using the Azure Data Explorer web UI or a compatible client
-5. For use with GitHub Copilot, see [Copilot Instructions](./copilot-instructions.md)
+5. For GitHub Copilot users, custom instructions are available in [copilot-instructions.md](./copilot-instructions.md)
 
 > **Note**: All queries are designed to work with the standard FinOps Hub data model. If you've customized your FinOps Hub deployment, you may need to adjust the queries accordingly.
 
