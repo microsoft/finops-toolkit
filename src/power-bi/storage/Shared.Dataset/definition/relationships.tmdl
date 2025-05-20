@@ -51,11 +51,6 @@ relationship 2d0a2bef-ef33-9e59-b9b6-714b0796ce66
 	fromColumn: Disks.managedBy
 	toColumn: VirtualMachines.id
 
-relationship 2ad9b8bc-59fb-e94c-a36f-1fa66aaa02a8
-	crossFilteringBehavior: bothDirections
-	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
-	toColumn: Resources.id
-
 relationship afee555d-1ede-a014-e6ba-9e35673a6629
 	crossFilteringBehavior: bothDirections
 	fromCardinality: one
@@ -91,5 +86,10 @@ relationship 7938f383-ec64-86d6-dce0-ea5ae181eacc
 
 relationship 2423822b-0029-3fbf-67c8-65c9cadc81d5
 	fromColumn: NetworkSecurityGroups.id
+	toColumn: Resources.id
+
+relationship 2ad9b8bc-59fb-e94c-a36f-1fa66aaa02a8
+	crossFilteringBehavior: bothDirections
+	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
 	toColumn: Resources.id
 

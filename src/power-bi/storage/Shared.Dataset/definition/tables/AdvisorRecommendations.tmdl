@@ -17,6 +17,15 @@ table AdvisorRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
+	column SortOrder
+		dataType: double
+		formatString: 0
+		lineageTag: 4d8ca85e-f35a-4e71-866b-188c3de4f284
+		summarizeBy: sum
+		sourceColumn: SortOrder
+
+		annotation SummarizationSetBy = Automatic
+
 	column 'properties.recommendationTypeId'
 		dataType: string
 		lineageTag: b5215814-f868-4a8c-8c85-719e04a93cdd
@@ -309,15 +318,6 @@ table AdvisorRecommendations
 		sortByColumn: SortOrder
 
 		changedProperty = SortByColumn
-
-		annotation SummarizationSetBy = Automatic
-
-	column SortOrder
-		dataType: double
-		formatString: 0
-		lineageTag: 4d8ca85e-f35a-4e71-866b-188c3de4f284
-		summarizeBy: sum
-		sourceColumn: SortOrder
 
 		annotation SummarizationSetBy = Automatic
 
