@@ -66,6 +66,107 @@ To learn more about the Azure MCP server, see [Azure MCP on GitHub](https://gith
 
 <br>
 
+## Query FinOps hubs with AI
+
+After you install the Azure MCP server and configure your AI client, use the following sample steps to connect and query your FinOps hub instance. These steps are based on GitHub Copilot Agent mode with the [AI instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hubs-copilot-instructions.md). They may work differently in other clients.
+
+### Connect to your hub
+
+If you're using GitHub Copilot, start by opening Chat in Agent mode:
+
+- [Open Agent mode in VS Code](vscode://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai)
+- [Open Agent mode in VS Code Insiders](vscode-insiders://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai)
+
+The AI instructions for FinOps hubs are preconfigured for FinOps tasks and already know how to find and connect to your FinOps hub instance. To start, ask to connect to your FinOps hub instance:
+
+[`Connect to my hub`](vscode-insiders://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai&query=Connect+to+my+hub)
+
+```plaintext
+/ftk-hubs-connect
+```
+
+Copilot should automatically connect to your FinOps hub instance. If you have multiple, you should see a list of them. You can ask to connect to them by resource group, hub name, cluster name, cluster short URI (cluster name and location), or the full cluster URI.
+
+When connecting to your hub, you may get prompted to use your credentials. Select **Continue**.
+
+The rest of the steps will use the FinOps capabilities to demonstrate an example of the type of questions you can ask.
+
+### Data ingestion: Get last refresh time
+
+Your queries are only as complete as your data. Start by checking when the data was last loaded into your FinOps hub instance. This should be part of the first connection step. You can also ask directly:
+
+```plaintext
+When was my data last refreshed?
+```
+
+Cost Management exports typically run every 24 hours. If using [managed exports](configure-scopes.md#configure-managed-exports), you can configure the schedule to run more frequently. If data is not up-to-date, check Cost Management exports.
+
+### Allocation: Cost by resource group
+
+The most common way to allocate costs in Azure is by resource group. To identify the resource groups with the most cost, ask:
+
+```plaintext
+What are the top resource groups by cost?
+```
+
+You can also ask about subscriptions (SubAccountName in FOCUS), invoice sections, or even tag.
+
+### Reporting + analytics: Biggest changes in cost trends
+
+The last two examples were fairly straightforward. Let's try something a little more complex by asking it to analyze trends over time. Copilot will do some research first to devise a plan. And given the complexity, Copilot may also ask you to review and approve a KQL query that it will execute to perform the analysis.
+
+```plaintext
+Analyze cloud service spending trends over the past 3 months. Show the top 5 services with the highest increase and top 5 with the highest decrease in cost, including percentage changes.
+```
+
+If asked to approve the query, you can tell Copilot to tweak or execute the query based on your needs.
+
+Given the complexity of this one, you may want to ask for the query so you can run it yourself. You can always run the same queries from the [Data Explorer portal](https://dataexplorer.azure.com). Or ask Copilot to give you a link to run the query:
+
+```plaintext
+Give me a link to run this query myself.
+```
+
+### Anomaly management: Identify anomalies
+
+Now let's look for anomalies:
+
+```plaintext
+Are there any unusual spikes in cost over the last 3 months?
+```
+
+You should get a summary of what was found, whether there were anomalies or not. This is another place where you may want to ask for a link to the query to see the details for yourself. You can also ask for the query or even have it explain the query.
+
+```plaintext
+Show me the query with comments on each line to explain what the line does.
+```
+
+This should use the built-in Data Explorer anomaly detection functionality. Ask Copilot to explain anything you don't understand. This can be a great opportunity to learn KQL. Tell Copilot to change the query or tweak it yourself to suit your needs.
+
+In my case, it added empty lines between each commented line. To run this, you will need to select all the text in the Data Explorer query editor and select **Run**.
+
+### Forecasting: Project end of month costs
+
+Anomaly detection is about predicting what the cost of a day would be based on a forecast. So if Copilot can help you analyze historical forecasts with built-in Data Explorer capabilities, then you can also project out future costs:
+
+```plaintext
+Show me the cost for last month, this month, and the forecasted cost by the end of the month for the subscriptions that have the highest cost this month.
+```
+
+### Rate optimization: Quantifying savings
+
+Next, let's look at savings. Let's look for savings from both negotiated discounts and commitment discounts, and quantify Effective Savings Rate (ESR) to give us an idea of how we're doing with our rate optimization efforts:
+
+```plaintext
+What was my cost last month, how much did I save on commitment discounts, and how much did I save with my negotiated discounts? Show my total savings and effective savings rate.
+```
+
+### Explore your data
+
+These are just a few examples of the types of requests you can get answers to today. Ask your own questions and test how AI can help you. Just remember that AI is limited to what it's taught and the data it has available. If you find a scenario that is not covered or could be improved, please share the prompt, what response you received, and how you would like to see it improved as a [FinOps toolkit change request](https://aka.ms/ftk/ideas).
+
+<br>
+
 ## Give feedback
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.

@@ -1,0 +1,70 @@
+// ============================================================================
+// Query: Savings summary
+// Description:
+//   Summary of negotiated discount, commitment discount, and total savings with Effective Savings Rate (ESR).
+//   Useful for calculating savings and understanding the impact of discounts from rate optimization efforts on costs.
+// Author: FinOps toolkit
+// Parameters:
+//   numberOfMonths: Number of months to look back (default: 1)
+// Output:
+//   Reports cost, negotiated discount savings, commitment discount savings, total savings, and Effective Savings Rate.
+// Usage:
+//   Use this query to quantify negotiated discount savings, commitment discount savings, total savings, or Effective Savings Rate.
+// Last Tested: 2025-05-20
+// =========================================================================
+
+let numberOfMonths = 12;
+Costs_v1_0
+| where ChargePeriodStart >= startofmonth(now(), -numberOfMonths)
+| summarize EffectiveCost = sum(EffectiveCost) by x_ChargeMonth
+| order by x_ChargeMonth asc
+
+
+
+// ============================================================================
+// All Available Cost Columns Query
+//
+// Description:
+//   This query returns a fully enriched, analytics-ready view of all cost and usage records
+//   from the FinOps Hub Costs_v1_0 table. It includes all standard cost columns, toolkit
+//   enrichment columns (prefixed with x_), hybrid benefit and commitment discount logic,
+//   savings calculations, and resource metadata. This is the canonical base query for
+//   Power BI, dashboards, and custom analytics.
+//
+// Parameters:
+//   numberOfMonths: Number of months to look back (default: 1)
+//
+// Key Features:
+//   - Applies summarization window (lookback period)
+//   - Adds reporting and charge month columns
+//   - Enriches with VM, SKU, and hybrid benefit details
+//   - Calculates license status, type, and quantity for VMs
+//   - Computes commitment discount utilization and savings
+//   - Adds toolkit metadata (tool, version, resource parent, etc.)
+//   - Adds unique name helpers for reporting
+//   - Explains zero cost records
+//   - Projects away temp columns for a clean output
+//
+// Output:
+//   Each row represents a single cost record with all enrichment and analytics columns needed
+//   for FinOps reporting, allocation, and optimization.
+//
+// For full schema and column definitions, see:
+//   https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md#column-definitions
+// ============================================================================
+
+let numberOfMonths = 1;
+Costs_v1_0
+| where ChargePeriodStart >= startofmonth(now(), -numberOfMonths) and (numberOfMonths == 0 or ChargePeriodStart < startofmonth(now()))
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))  // x_AmortizationCategory != 'Principal'
+| extend x_NegotiatedDiscountSavings = iff(ListCost       < ContractedCost, decimal(0), ListCost - ContractedCost)
+| extend x_CommitmentDiscountSavings = iff(ContractedCost < EffectiveCost,  decimal(0), ContractedCost - EffectiveCost)
+| extend x_TotalSavings              = iff(ListCost       < EffectiveCost,  decimal(0), ListCost - EffectiveCost)
+| summarize
+    ListCost = sum(ListCost),
+    EffectiveCost = sum(EffectiveCost),
+    x_NegotiatedDiscountSavings = sum(x_NegotiatedDiscountSavings),
+    x_CommitmentDiscountSavings = sum(x_CommitmentDiscountSavings),
+    x_TotalSavings = sum(x_TotalSavings)
+    by BillingCurrency
+| extend x_EffectiveSavingsRate = iff(ListCost == 0, 0, x_TotalSavings / ListCost) * 100
