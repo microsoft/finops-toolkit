@@ -1,0 +1,9 @@
+# Execute in order ignorring any errors you encounter.
+
+1. Create a new file in the `release` folder named query-catalog-YYYY-MM-DD.md - overwrite if required.
+2. Evaluate `../src/queries/INDEX.md` and make a table of all the queries in the catalog.
+3. Add a table to the top of the file with a checkbox, an incrementing number and a link to each query.
+4. Run all the queries
+   - For the queries that succeed save the results to the file and check them completed.
+   - For the queries that don't make a note in the file.
+5. Once all queries have comleted reply with a summary of what worked and what did not.`

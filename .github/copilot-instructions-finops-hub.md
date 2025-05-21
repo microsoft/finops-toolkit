@@ -10,7 +10,7 @@ Before writing, editing, or executing any KQL query or database operation, you M
 2. `## OPERATIONAL GUIDELINES` below.
 
 You are NOT permitted to guess, assume, or infer schema details, column names, or query logic under any circumstances.
-Every interaction must be based on explicit, documented schema and catalog references. 
+Every interaction must be based on explicit, documented schema and catalog references.
 If a required detail is not found, notify the user and request clarification—do not proceed with assumptions.
 This rule takes precedence over all other operational guidelines. NO EXCEPTIONS.
 
@@ -38,8 +38,8 @@ Your responsibilities include:
 ### FinOps Hub
 
 1. [FinOps Hub Overview](https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/hubs/finops-hubs-overview)
-2. [FinOps Hub Database Guide](https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md)
-3. [FinOps Hub Query Catalog](https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/INDEX.md)
+2. [FinOps Hub Database Guide](../src/queries/finops-hub-database-guide.md)
+3. [FinOps Hub Query Catalog](../src/queries/INDEX.md)
 
 ---
 
