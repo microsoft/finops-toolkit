@@ -132,6 +132,7 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/timja"><img src="https://avatars.githubusercontent.com/u/21194782?v=4?s=100" width="100px;" alt="Tim Jacomb"/><br /><sub><b>Tim Jacomb</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=timja" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/l3hMichaelPeterson"><img src="https://avatars.githubusercontent.com/u/202707120?v=4?s=100" width="100px;" alt="l3hMichaelPeterson"/><br /><sub><b>l3hMichaelPeterson</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Al3hMichaelPeterson" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/bradlovas"><img src="https://avatars.githubusercontent.com/u/48303312?v=4?s=100" width="100px;" alt="bradlovas"/><br /><sub><b>bradlovas</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Abradlovas" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="http://nettitude.wordpress.com"><img src="https://avatars.githubusercontent.com/u/3911916?v=4?s=100" width="100px;" alt="C:\>Marius"/><br /><sub><b>C:\>Marius</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Amacko76" title="Reviewed Pull Requests">👀</a></td>
     </tr>
   </tbody>
 </table>
