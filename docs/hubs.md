@@ -32,28 +32,28 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>📥 Ingest FinOps data</div>
-        <div>Automate data ingestion into Azure Data Explorer or Microsoft Fabric to facilitate big data analytics at scale.</div>
-    </div>
-    <div class="ftk-tile">
         <div>📊 Standardized reporting</div>
-        <div>Flexible reports in Power BI and Data Explorer using the FinOps Open Cost and Usage Specification.</div>
+        <div>Flexible reports in Fabric, Power BI, and Data Explorer using the FinOps Open Cost and Usage Specification.</div>
     </div>
     <div class="ftk-tile">
-        <div>🏗️ Extensible platform</div>
-        <div>Bring your own data, build a custom allocation model, trigger custom alerts, and more.</div>
+        <div>🤖 AI-powered experiences</div>
+        <div>Accelerate FinOps efforts with AI-powered tools that understand FinOps and seamlessly connect to your data.</div>
     </div>
     <div class="ftk-tile">
         <div>☁️ Consolidate accounts</div>
         <div>Centralize FinOps data across multiple subscriptions, accounts, and clouds.</div>
     </div>
     <div class="ftk-tile">
-        <div>🛡️ Secure processing</div>
-        <div>Secure financial and organizational data on a private, isolated network you control and govern.</div>
-    </div>
-    <div class="ftk-tile">
         <div>🪛 Data preparation</div>
         <div>FinOps hubs tunes data to fill gaps and improve overall data quality and completeness.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🏗️ Extensible platform</div>
+        <div>Bring your own data, build a custom allocation model, trigger custom alerts, and more.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🛡️ Secure processing</div>
+        <div>Secure financial and organizational data on a private, isolated network you control and govern.</div>
     </div>
 </div>
 
@@ -179,7 +179,9 @@ Create a new or update an existing FinOps hub instance.
     </div>
 </div>
 
-<br><a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
+<br>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy">Deployment tutorial</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
 <a name="docs"></a>
 
 ## Learn more from documentation
