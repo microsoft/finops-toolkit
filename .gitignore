@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Github Copilot
+.github/copilot-instructions.md
+.github/prompts/*.prompt.md
+
 # User-specific files
 *.rsuser
 *.suo
