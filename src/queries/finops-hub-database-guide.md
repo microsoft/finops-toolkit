@@ -18,15 +18,14 @@ This document provides a comprehensive overview of how to query and analyze data
   - [Example Queries](#example-queries)
   - [Example Query: Financial Hierarchy Reporting](#example-query-financial-hierarchy-reporting)
     - [Example Query: Cost by Billing Profile, Invoice Section, Team, Product, Application](#example-query-cost-by-billing-profile-invoice-section-team-product-application)
-  - [Example Query: Reservation Recommendation Breakdown](#example-query-all-available-recommendation-columns)
+  - [Example Query: Reservation Recommendation Breakdown](#example-query-reservation-recommendation-breakdown)
     - [Example Query: Quarterly Cost by Resource Group](#example-query-quarterly-cost-by-resource-group)
     - [Example Query: Top 5 Resource Groups by Effective Cost (Last Month)](#example-query-top-5-resource-groups-by-effective-cost-last-month)
     - [Example Query: Commitment Discount Utilization Pie Chart](#example-query-commitment-discount-utilization-pie-chart)
-    - [Example Query: All available columns](#example-query-all-available-cost-columns)
+    - [Example Query: All available columns](#example-query-all-available-columns)
       - [Column Definitions](#column-definitions)
   - [Additional Tables](#additional-tables)
   - [Schema Reference](#schema-reference)
-    - [CommitmentDiscountUsage()](#commitmentdiscountusage)
     - [Prices()](#prices)
     - [Recommendations()](#recommendations)
     - [Transactions()](#transactions)
@@ -514,7 +513,6 @@ The FinOps Hubs database includes several tables which are accessed via these fu
 
 | Table/Function Name        | Description                                                        |
 |----------------------------|--------------------------------------------------------------------|
-| CommitmentDiscountUsage()  | Tracks the usage of commitments (Reserved Instances, Savings Plans, etc.) over time. |
 | Prices()                   | Price list for Azure services.                                     |
 | Recommendations()          | Provides recommendations for cost optimization via Reserved Instance Purchases. |
 | Transactions()             | Tracks all transactions related to Reserved Instances, including purchases, refunds, and adjustments. |
@@ -525,39 +523,6 @@ The FinOps Hubs database includes several tables which are accessed via these fu
 > All columns prefixed with `x_` are toolkit enrichment columns, providing additional context for FinOps analysis.
 
 Below are the column definitions for the main analytic tables in the FinOps Hubs database. These definitions are based on Microsoft Learn, FinOps best practices, and common cloud cost management terminology.
-
-### CommitmentDiscountUsage()
-
-| Column Name                              | Data Type   | Description |
-|------------------------------------------|-------------|-------------|
-| ChargePeriodEnd                          | datetime    | End date of the billing or charge period. |
-| ChargePeriodStart                        | datetime    | Start date of the billing or charge period. |
-| CommitmentDiscountCategory               | string      | Type of commitment discount (e.g., Reserved Instance, Savings Plan). |
-| CommitmentDiscountId                     | string      | Unique identifier for the commitment discount. |
-| CommitmentDiscountType                   | string      | The specific type of discount (e.g., RI, SP). |
-| ConsumedQuantity                         | decimal     | Amount of resource usage covered by the discount. |
-| ProviderName                             | string      | Name of the cloud provider (e.g., Microsoft). |
-| ResourceId                               | string      | Unique identifier for the resource. |
-| ResourceName                             | string      | Name of the resource. |
-| ResourceType                             | string      | Type of resource (e.g., Virtual Machine, SQL Database). |
-| ServiceCategory                          | string      | High-level service category (e.g., Compute, Storage). |
-| ServiceName                              | string      | Name of the Azure service (e.g., Virtual Machines). |
-| SubAccountId                             | string      | Identifier for the sub-account or subscription. |
-| x_CommitmentDiscountCommittedCount       | decimal     | Number of units committed in the discount. |
-| x_CommitmentDiscountCommittedAmount      | decimal     | Total monetary value committed. |
-| x_CommitmentDiscountNormalizedGroup      | string      | Normalized group for commitment (e.g., VM family/series). |
-| x_CommitmentDiscountNormalizedRatio      | decimal     | Ratio for normalizing usage across SKUs. |
-| x_CommitmentDiscountQuantity             | decimal     | Quantity of commitment discount applied. |
-| x_IngestionTime                          | datetime    | Timestamp when the record was ingested. |
-| x_ResourceGroupName                      | string      | Name of the resource group. |
-| x_ResourceType                           | string      | Enriched resource type. |
-| x_ServiceModel                           | string      | Service model (e.g., IaaS, PaaS). |
-| x_SkuOrderId                             | string      | Order ID for the SKU. |
-| x_SkuSize                                | string      | Size of the SKU (e.g., Standard_D2s_v3). |
-| x_SourceName                             | string      | Name of the data source. |
-| x_SourceProvider                         | string      | Provider of the data source. |
-| x_SourceType                             | string      | Type of data source. |
-| x_SourceVersion                          | string      | Version of the data source. |
 
 ### Prices()
 
