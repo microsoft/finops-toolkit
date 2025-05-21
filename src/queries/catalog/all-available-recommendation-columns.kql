@@ -13,29 +13,29 @@ Recommendations_v1_0
 | extend x_BreakEvenMonths = x_EffectiveCostAfter * x_SkuTerm / x_EffectiveCostBefore
 | extend x_BreakEvenDate = startofday(now()) + 1d + toint(x_BreakEvenMonths * 30.437) * 1d
 | project
-    RegionId,
-    RegionName = iff(isempty(RegionName), RegionId, RegionName),
-    x_BreakEvenDate,
+    RegionId = tostring(RegionId),
+    RegionName = tostring(iff(isempty(RegionName), RegionId, RegionName)),
+    x_BreakEvenDate = tostring(x_BreakEvenDate),
     x_BreakEvenMonths = toreal(x_BreakEvenMonths),
-    x_CommitmentDiscountKey             = strcat(x_CommitmentDiscountNormalizedSize, x_SkuMeterId),
+    x_CommitmentDiscountKey = tostring(strcat(x_CommitmentDiscountNormalizedSize, x_SkuMeterId)),
     x_CommitmentDiscountNormalizedGroup = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedGroup),
     x_CommitmentDiscountNormalizedRatio = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedRatio),
-    x_CommitmentDiscountNormalizedSize,
-    x_CommitmentDiscountPercent         = toreal(1.0 * x_CommitmentDiscountSavings / x_EffectiveCostBefore * 100),
+    x_CommitmentDiscountNormalizedSize = tostring(x_CommitmentDiscountNormalizedSize),
+    x_CommitmentDiscountPercent = toreal(1.0 * x_CommitmentDiscountSavings / x_EffectiveCostBefore * 100),
     x_CommitmentDiscountResourceType = tostring(x_RecommendationDetails.CommitmentDiscountResourceType),
     x_CommitmentDiscountSavings = toreal(x_CommitmentDiscountSavings),
-    x_CommitmentDiscountSavingsDailyRate = toreal(x_CommitmentDiscountSavings / (x_SkuTerm - x_BreakEvenMonths) / (365/12)),
-    x_CommitmentDiscountScope = case(
+    x_CommitmentDiscountSavingsDailyRate = toreal(x_CommitmentDiscountSavings / (x_SkuTerm - x_BreakEvenMonths) / (365.0/12.0)),
+    x_CommitmentDiscountScope = tostring(case(
         x_CommitmentDiscountScope == 'Single', 'Subscription',
         x_CommitmentDiscountScope
-    ),
+    )),
     x_EffectiveCostAfter = toreal(x_EffectiveCostAfter),
     x_EffectiveCostBefore = toreal(x_EffectiveCostBefore),
-    x_LookbackPeriodLabel = replace_regex(tostring(x_RecommendationDetails.LookbackPeriodDuration), 'P([0-9]+)D', @'\1 days'),
-    x_RecommendationDate,
-    x_RecommendedQuantity           = toreal(x_RecommendationDetails.RecommendedQuantity),
+    x_LookbackPeriodLabel = tostring(replace_regex(tostring(x_RecommendationDetails.LookbackPeriodDuration), 'P([0-9]+)D', @'\1 days')),
+    x_RecommendationDate = tostring(x_RecommendationDate),
+    x_RecommendedQuantity = toreal(x_RecommendationDetails.RecommendedQuantity),
     x_RecommendedQuantityNormalized = toreal(x_RecommendationDetails.RecommendedQuantityNormalized),
-    x_SkuMeterId,
-    x_SkuTerm,
-    x_SkuTermLabel = case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
+    x_SkuMeterId = tostring(x_SkuMeterId),
+    x_SkuTerm = toreal(x_SkuTerm),
+    x_SkuTermLabel = tostring(case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(toreal(x_SkuTerm) / 12.0, ' year', iff(x_SkuTerm != 12, 's', ''))))
 | top 10 by x_CommitmentDiscountSavings
