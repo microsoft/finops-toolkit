@@ -108,14 +108,14 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how large your account is.
-   - If you want to backfill data, open the export details and select the **Export selected dates** command to export multiple months at once or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range with either the `-Backfill` parameter or specific start and end dates.
+   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range with either the `-Backfill` parameter or specific start and end dates.
 6. Repeat steps 1-4 for each scope you want to monitor.
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
 
 _² The only difference in FOCUS 1.0r2 compared to 1.0 is the inclusion of seconds in date columns. If seconds are not required for the system you are ingested data into, there is no need to change existing 1.0 exports to leverage 1.0r2._
 
-_³ Configuring a daily export starts in the current month. If you want to backfill historical data, you can either create a one-time export and set the start/end dates to the desired date range, use the **Export selected dates** command from the export details page to export multiple months at once (see [Azure Cost Management exports documentation](/azure/cost-management-billing/costs/tutorial-export-acm-data)), or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) with the `-Backfill` parameter.
+_³ Configuring a daily export starts in the current month._
 
 _⁴ While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you don't plan to use that report, enable overwriting._
 
@@ -202,9 +202,9 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    }
    ```
 
-   #### Option 2: Using Azure Cost Management exports
+   #### Option 2: Using Cost Management exports
 
-   You can backfill multiple months of data directly using the Azure Cost Management UI. Learn more about exports in the [Azure Cost Management exports documentation](/azure/cost-management-billing/costs/tutorial-export-acm-data).
+   You can backfill multiple months of data directly using the Cost Management UI. Learn more about exports in the [Cost Management exports documentation](/azure/cost-management-billing/costs/tutorial-export-acm-data).
 
    1. Open the Azure portal and navigate to **Cost Management** > **Exports**.
    2. Select the managed export created by your FinOps hub.
@@ -214,7 +214,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
 
    #### Option 3: Using Start-FinOpsCostExport PowerShell command
 
-   The most efficient approach for backfilling large date ranges is to use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md). For information about working with Azure Cost Management via PowerShell, see [Azure Cost Management cmdlets](/powershell/module/az.costmanagement/).
+   The most efficient approach for backfilling large date ranges is to use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md). For information about working with Cost Management via PowerShell, see [Cost Management cmdlets](/powershell/module/az.costmanagement/).
 
    ```powershell
    # Backfill the previous 12 months for a specific export
