@@ -173,7 +173,7 @@ function Start-FinOpsCostExport
                 $lastDay = $EndDate
             }
             
-            # Fix for Issue 1: Ensure end date is not in the future
+            # Ensure end date is not in the future
             $today = (Get-Date).ToUniversalTime().Date
             if ($lastDay -ge $today)
             {
