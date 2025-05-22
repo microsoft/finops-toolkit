@@ -251,18 +251,20 @@ table Costs
 
 	column ChargePeriodEnd
 		dataType: dateTime
-		formatString: General Date
-		sourceProviderType: datetimeoffset
+		formatString: Long Date
+		sourceProviderType: date
 		lineageTag: 0d353195-2c13-4b43-ab97-8f691c508997
 		summarizeBy: none
 		sourceColumn: ChargePeriodEnd
 
 		annotation SummarizationSetBy = Automatic
 
+		annotation UnderlyingDateTimeDataType = Date
+
 	column ChargePeriodStart
 		dataType: dateTime
-		formatString: Mmm d, yyyy
-		sourceProviderType: datetimeoffset
+		formatString: Long Date
+		sourceProviderType: date
 		lineageTag: 015b4c1a-f072-4c68-8f1b-d5e10c54b97e
 		summarizeBy: none
 		sourceColumn: ChargePeriodStart
@@ -270,6 +272,8 @@ table Costs
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isCustom":true}
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	column CommitmentDiscountCategory
 		dataType: string
@@ -1838,9 +1842,10 @@ table Costs
 				    ", [MaxRows=null, MaxSize=null, NoTruncate=null, AdditionalSetStatements=null]),
 				
 				    // Sort columns alphabetically
-				    Output = Table.ReorderColumns(Source, List.Sort(Table.ColumnNames(Source)))
+				    Output = Table.ReorderColumns(Source, List.Sort(Table.ColumnNames(Source))),
+				    #"Changed Type" = Table.TransformColumnTypes(Output,{{"ChargePeriodEnd", type date}, {"ChargePeriodStart", type date}})
 				in
-				    Output
+				    #"Changed Type"
 
 	annotation PBI_NavigationStepName = Navigation
 
