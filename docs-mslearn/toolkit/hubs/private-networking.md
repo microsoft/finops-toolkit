@@ -129,7 +129,7 @@ To access FinOps hub data from an existing virtual network, configure **A** reco
 | **Optional** | <data_explorer_name>.<azure_location>.kusto.windows.net             | CNAME to the Data Explorer A record |
 
 > [!IMPORTANT]
-> When using private endpoints in conjunction with a Power BI data gateway, make sure to use the fully qualified domain name (FQDN) of the Azure Data Explorer cluster (like `clustername.region.kusto.windows.net`) rather than the abbreviated version (like `clustername`). This ensures proper name resolution for the private endpoint functions as expected.
+> When using private endpoints in conjunction with a Power BI data gateway, make sure to use the fully qualified domain name (FQDN) of the Azure Data Explorer cluster (like `clustername.region.kusto.windows.net`) rather than the abbreviated version (like `clustername.region`). This ensures proper name resolution for the private endpoint functions as expected.
 
 <br>
 
