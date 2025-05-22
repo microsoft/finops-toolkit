@@ -365,3 +365,11 @@ deployment-settings-*.json
 .github/copilot-instructions.md
 .github/prompts/
 .vscode/mcp.json
+
+# Python virtual environments
+venv/
+.env/
+.venv/
+ENV/
+env/
+
