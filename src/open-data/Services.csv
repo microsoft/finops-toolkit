@@ -4,6 +4,7 @@ ConsumedService,ResourceType,ServiceName,ServiceCategory,ServiceSubcategory,Publ
 api center,microsoft.apicenter/service,API Center,Integration,API Management,Microsoft,Cloud Provider,Cloud,PaaS
 api management,microsoft.apimanagement/gateways,API Management,Integration,API Management,Microsoft,Cloud Provider,Cloud,PaaS
 api management,microsoft.apimanagement/service,API Management,Integration,API Management,Microsoft,Cloud Provider,Cloud,PaaS
+azure app service,microsoft.web/sites,Azure App Service,Web,Application Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 appservices,microsoft.security/pricings,Azure App Service,Web,Application Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 australiacentral,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 australiaeast,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
@@ -22,6 +23,7 @@ eastasia,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databas
 eastus,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 eastus2,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 francecentral,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
+functions,microsoft.web/sites,Functions,Compute,Serverless Compute,Microsoft,Cloud Provider,Cloud,PaaS
 github,github/enterpriseaccount,GitHub Enterprise Cloud,Developer Tools,Developer Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 github.enterprise,github.enterprise/accounts,GitHub Enterprise Cloud,Developer Tools,Developer Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 japaneast,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
