@@ -291,7 +291,7 @@ Prices_transform_v1_0()
     //
     // Calculate commitment discount elgibility
     // TODO: Would a join be faster?
-    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance', 'Eligible', 'Not Eligible')
+    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType == 'Consumption', 'Eligible', 'Not Eligible')
     | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
     //
     // Add PricingUnit and x_PricingBlockSize
