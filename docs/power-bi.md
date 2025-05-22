@@ -197,3 +197,19 @@ Create a new or update an existing FinOps hub instance.
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20Power%20BI%20reports%3F/cvaQuestion/How%20valuable%20are%20FinOps%20toolkit%20Power%20BI%20reports%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/PowerBI/featureName/Marketing.Docs">💜 Give feedback</a>
 
 <br>
+
+## Data Model Update: ChargePeriodStart Column for KQL based reports
+
+- **Column:** `ChargePeriodStart`
+- **Old Data Type:** `datetimezone`
+- **New Data Type:** `date`
+- **Reason for Change:**
+  - To ensure correct grouping and aggregation by day in Power BI and downstream analytics tools.
+  - This change eliminates issues with multiple rows per day caused by time and timezone components.
+
+**Note:**
+
+- All queries, visuals, and documentation should now treat `ChargePeriodStart` as a `date` type.
+- If you previously used DAX or Power Query workarounds to normalize this column, you can now use it directly for daily grouping.
+
+<br>
