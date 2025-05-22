@@ -45,8 +45,12 @@ If you want to make modifications to the Cost optimization workbook or use other
 
 First, confirm you have the following least-privileged roles to deploy and use the workbook.
 
-- [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) - allows you to import, save, and deploy the workbook.
+- **Contributor** or a role with `Microsoft.Resources/deployments/validate/action` permission is required to deploy ARM templates.
+- [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) - allows you to save the workbook after deployment.
 - [Reader](/azure/role-based-access-control/built-in-roles#reader) allows you to view all the workbook tabs without saving.
+
+> [!NOTE]
+> If you only have Reader access, you cannot deploy using the ARM template buttons below. Instead, you can download the workbook files directly from the [FinOps toolkit GitHub repository](https://github.com/microsoft/finops-toolkit/tree/main/src/workbooks) and import them manually through Azure Monitor Workbooks.
 
 Deploy the FinOps workbooks template with one of the following options:
 

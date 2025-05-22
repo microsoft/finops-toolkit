@@ -67,7 +67,12 @@ FinOps workbooks are Azure workbooks that provide a series of tools to help engi
 
 ## Deploy FinOps workbooks
 
-FinOps workbooks require the <strong>Workbook Contributor</strong> role to deploy and <strong>Reader</strong> to view all tabs.
+To deploy FinOps workbooks using ARM templates, you need:
+- **Contributor** role or a role with `Microsoft.Resources/deployments/validate/action` permission
+- **Workbook Contributor** role to save workbooks after deployment
+- **Reader** role to view all workbook tabs
+
+> If you only have Reader access, you can download the workbook files from the [GitHub repository](https://github.com/microsoft/finops-toolkit/tree/main/src/workbooks) and import them directly into Azure Monitor Workbooks.
 
 <br>
 <a class="btn btn-primary mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json">Deploy to Azure</a>
