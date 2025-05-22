@@ -1840,12 +1840,12 @@ table Costs
 				
 				
 				    ", [MaxRows=null, MaxSize=null, NoTruncate=null, AdditionalSetStatements=null]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"ChargePeriodEnd", type date}, {"ChargePeriodStart", type date}}),
 				
 				    // Sort columns alphabetically
-				    Output = Table.ReorderColumns(Source, List.Sort(Table.ColumnNames(Source))),
-				    #"Changed Type" = Table.TransformColumnTypes(Output,{{"ChargePeriodEnd", type date}, {"ChargePeriodStart", type date}})
+				    Output = Table.ReorderColumns(#"Changed Type", List.Sort(Table.ColumnNames(#"Changed Type")))
 				in
-				    #"Changed Type"
+				    Output
 
 	annotation PBI_NavigationStepName = Navigation
 
