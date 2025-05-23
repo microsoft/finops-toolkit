@@ -26,7 +26,7 @@
           items:
             - name: Understand
               items:
-                - name: Understand cloud usage and cost
+                - name: Understand usage and cost
                   href: framework/understand/understand-cloud-usage-cost.md
                 - name: Data ingestion
                   href: framework/understand/ingestion.md
@@ -56,7 +56,7 @@
                   href: framework/quantify/unit-economics.md
             - name: Optimize
               items:
-                - name: Optimize cloud usage and cost
+                - name: Optimize usage and cost
                   href: framework/optimize/optimize-cloud-usage-cost.md
                 - name: Architecting for cloud
                   href: framework/optimize/architecting.md
@@ -76,7 +76,7 @@
                   href: framework/manage/operations.md
                 - name: Education + enablement
                   href: framework/manage/education.md
-                - name: Cloud policy + governance
+                - name: Policy + governance
                   href: framework/manage/governance.md
                 - name: Invoicing + chargeback
                   href: framework/manage/invoicing-chargeback.md
@@ -132,6 +132,8 @@
       items:
         - name: Overview
           href: toolkit/hubs/finops-hubs-overview.md
+        - name: Create or upgrade hubs
+          href: toolkit/hubs/deploy.md
         - name: Configure private networking
           href: toolkit/hubs/private-networking.md
         - name: Configure scopes
@@ -220,6 +222,8 @@
           items:
             - name: Cost Management commands
               href: toolkit/powershell/cost/cost-management-commands.md
+            - name: Add-FinOpsServicePrincipal
+              href: toolkit/powershell/cost/add-finopsserviceprincipal.md
             - name: Get-FinOpsCostExport
               href: toolkit/powershell/cost/get-finopscostexport.md
             - name: New-FinOpsCostExport

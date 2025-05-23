@@ -268,7 +268,7 @@ expression ftk_Storage = ```
 					)
 				else if data = "reservationrecommendations" then
 					#table(
-						{ "CostWithNoReservedInstances", "FirstUsageDate", "InstanceFlexibilityGroup", "InstanceFlexibilityRatio", "Location", "LookBackPeriod", "MeterId", "NetSavings", "NormalizedSize", "RecommendedQuantity", "RecommendedQuantityNormlized", "ResourceType", "SKU", "Scope", "SkuProperties", "Term", "TotaCostWithReservedInstances" },
+						{ "CostWithNoReservedInstances", "FirstUsageDate", "InstanceFlexibilityGroup", "InstanceFlexibilityRatio", "Location", "LookBackPeriod", "MeterId", "NetSavings", "NormalizedSize", "RecommendedQuantity", "RecommendedQuantityNormlized", "ResourceType", "SKU", "Scope", "SkuProperties", "Term", "TotalCostWithReservedInstances" },
 						{} // {{ null, null, null, null, null, null, null, null, null, null, null, _dataNotFound(), null, null, null, null }}
 					)
 				else
@@ -286,7 +286,7 @@ expression ftk_Storage = ```
 					Table.RenameColumns(
 						Table.RemoveColumns(
 							Table.AddColumn(state, "Temp" & columns{1}, each if Record.Field(_, columns{0}) <> null then Record.Field(_, columns{0}) else Record.Field(_, columns{1})),
-							columns
+							{columns{0}}
 						),
 						{{"Temp" & columns{1}, columns{1}}}
 					)
@@ -475,7 +475,7 @@ expression 'Experimental: Add Missing Prices' = false meta [IsParameterQuery=tru
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Logical
 
 /// Generates a KQL filter to be used in Resource Graph queries to filter out test data.
 expression ftk_DemoFilter =
@@ -504,7 +504,7 @@ expression 'Deprecated: Perform Extra Query Optimizations' = false meta [IsParam
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Logical
 
 /// Indicate whether you want the default granularity to be daily or monthly in this report. This only impacts visuals configured to use the x_ReportingDate column. Use ChargePeriodStart for daily and x_ChargeMonth for monthly to ignore this setting.
 expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
@@ -513,5 +513,47 @@ expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"D
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Text
+
+expression PolicyDefinitions =
+		let
+		  query = "
+		    policyResources
+		    | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'
+		    | extend
+		      displayName = properties.displayName,
+		      policyType = properties.policyType,
+		      description = properties.description,
+		      version = properties.version,
+		      parameters = properties.parameters,
+		      policyDefinitions = properties.policyDefinitions,
+		      policyDefinitionGroups = properties.policyDefinitionGroups,
+		      versions = properties.versions,
+		      oldVersions = properties.oldVersions
+		  " & ftk_DemoFilter(),
+		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+		  NullHandling =
+		    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+					#table(
+						{ "id", "name", "displayName", "policyType", "description", "version", "parameters", "policyDefinitions", "policyDefinitionGroups", "versions", "oldVersions" },
+						{}
+					)
+		    else Source
+		in
+		  NullHandling
+	lineageTag: eb782518-cee4-45da-9f32-e4cf54d345c9
+	queryGroup: 'Resource Graph'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+/// Indicates whether we should remove duplicate resource IDs reported from Azure Resource Graph (ARG). This may lead to incorrect or incomplete data. Please file a support request with the ARG team to resolve the issue.
+expression 'Remove Duplicate Resource IDs' = false meta [IsParameterQuery=true, List={false, true}, DefaultValue=false, Type="Logical", IsParameterQueryRequired=true]
+	lineageTag: 8874e3dd-ace8-4145-bc74-acb63aa36684
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
 

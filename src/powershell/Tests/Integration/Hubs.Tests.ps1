@@ -111,7 +111,7 @@ Describe 'Hubs' {
         Context 'Deploy and upgrade' -Skip {
             It 'Should deploy FinOps hubs <_>' -ForEach $versions {
                 $ver = $_
-            
+
                 # Act
                 Monitor "FinOps hubs $ver" -Indent '   ' {
                     Monitor "Deploying..." {

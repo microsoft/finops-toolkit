@@ -157,7 +157,7 @@ function Set-RepoContent($repo, [string]$branchPrefix, [string]$sourceDir)
     {
         New-RepoBranch $repo $branchPrefix
     }
-    
+
     # Copy files
     Write-Host '  Copying release files...'
     if (Test-Path $repo.path)
@@ -206,9 +206,9 @@ if ($Template -eq "docs")
 {
     $docsDir = "$rootDir/docs-mslearn"
     $templateName = "finops-docs"
-    
+
     Write-Host "Publishing documentation updates..."
-    
+
     # Find target repo
     $repo = Find-Repo $repoConfig.pc ""
     if (-not $repo)
@@ -229,7 +229,7 @@ else
         $templateDir = $_
         $templateName = $templateDir.Name
         $repo = $null # Placeholder for later
-    
+
         # Ignore AOE
         # TODO: Remove the optimization-engine exclusion once we determine how we are going to publish it to other repos
         if ($templateName -eq "optimization-engine")

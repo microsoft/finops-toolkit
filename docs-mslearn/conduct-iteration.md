@@ -3,11 +3,11 @@ title: Tutorial - Conduct an iteration
 description: This tutorial helps you learn how to take an iterative approach to FinOps adoption.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 04/04/2025
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-learning-resources
-ms.reviewer: micflan
+ms.reviewer: kedelaro
 # customer intent: As a finops practitioner, I want to adopt FinOps in my organization so that we can create a plan to adopt.
 ---
 
@@ -71,7 +71,7 @@ Use the following information as a guide to select the right FinOps capabilities
     3. Rate optimization
     4. Licensing and SaaS
     5. Cloud sustainability
-    6. Cloud policy and governance
+    6. Policy and governance
 7. If your team has a solid understanding of the basics and needs to map cloud investments back to business value, consider:
     1. Unit economics
     2. Allocation
@@ -130,7 +130,7 @@ After you close out on the iteration, remember that this tutorial can help guide
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Guide.General/featureName/ConductAnIteration)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Guide.General/featureName/ConductAnIteration)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

@@ -16,12 +16,12 @@
 
     .EXAMPLE
     Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345
-    
+
     Grants Enterprise Administrator (read only) permissions to the specified service principal or managed identity
-    
+
     .EXAMPLE
     Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingAccountId 12345 -DepartmentId 67890
-    
+
     Grants Department Administrator (read only) permissions to the specified service principal or managed identity
 #>
 function Add-FinOpsServicePrincipal

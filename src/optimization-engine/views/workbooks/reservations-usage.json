@@ -50,7 +50,7 @@
               "multiSelect": true,
               "quote": "'",
               "delimiter": ",",
-              "query": "AzureOptimizationReservationsUsageV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ProvisioningState_s in ('Succeeded','Expiring')\r\n| distinct ResourceType\r\n| order by ResourceType asc",
+              "query": "AzureOptimizationReservationsUsageV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ProvisioningState_s in ('Succeeded','Expiring') and todatetime(ExpiryDate_s) > now()\r\n| distinct ResourceType\r\n| order by ResourceType asc",
               "typeSettings": {
                 "additionalResourceOptions": [
                   "value::all"
@@ -76,7 +76,7 @@
               "multiSelect": true,
               "quote": "'",
               "delimiter": ",",
-              "query": "AzureOptimizationReservationsUsageV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ProvisioningState_s in ('Succeeded','Expiring') and ResourceType in ({ResourceType:value})\r\n| distinct ReservationId_g, DisplayName_s\r\n| order by DisplayName_s asc",
+              "query": "AzureOptimizationReservationsUsageV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ProvisioningState_s in ('Succeeded','Expiring') and ResourceType in ({ResourceType:value}) and todatetime(ExpiryDate_s) > now()\r\n| summarize arg_max(TimeGenerated, DisplayName_s) by ReservationId_g\r\n| project-away TimeGenerated\r\n| order by DisplayName_s asc",
               "typeSettings": {
                 "additionalResourceOptions": [
                   "value::all"

@@ -80,7 +80,7 @@ if ($update -or $Version)
     # Update version in NPM
     Write-Verbose "Updating NPM version..."
     $null = npm --no-git-tag-version version $update
-    
+
     # Update label, if needed
     if ($Label)
     {
@@ -88,7 +88,7 @@ if ($update -or $Version)
         Write-Verbose "Using label '$newLabel'."
         $null = npm --no-git-tag-version --preid $newLabel version preminor
     }
-}    
+}
 
 $ver = & "$PSScriptRoot/Get-Version"
 

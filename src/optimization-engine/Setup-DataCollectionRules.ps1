@@ -25,13 +25,13 @@ The tags to apply to the resources created.
 https://aka.ms/AzureOptimizationEngine/customize
 #>
 param(
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [String] $AzureEnvironment = "AzureCloud",
 
-    [Parameter(Mandatory = $true)] 
+    [Parameter(Mandatory = $true)]
     [String] $DestinationWorkspaceResourceId,
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [int] $IntervalSeconds = 60,
 
     [Parameter(Mandatory = $false)]
@@ -56,7 +56,7 @@ else {
 $lastDeploymentStatePath = ".\last-deployment-state.json"
 $deploymentOptions = @{}
 
-$perfCounters = Get-Content -Path ".\perfcounters.json" | ConvertFrom-Json 
+$perfCounters = Get-Content -Path ".\perfcounters.json" | ConvertFrom-Json
 
 if ((Test-Path -Path $lastDeploymentStatePath))
 {
@@ -68,7 +68,7 @@ if ((Test-Path -Path $lastDeploymentStatePath))
         foreach ($property in $depOptions.PSObject.Properties)
         {
             $deploymentOptions[$property.Name] = $property.Value
-        }    
+        }
     }
 }
 
@@ -82,7 +82,7 @@ if ($subscriptions.Count -gt 1) {
     {
         if (-not($deploymentOptions["SubscriptionId"]))
         {
-            Write-Output "[$i] $($subscriptions[$i].Name)"    
+            Write-Output "[$i] $($subscriptions[$i].Name)"
         }
         else
         {
@@ -99,11 +99,11 @@ if ($subscriptions.Count -gt 1) {
         while ($selectedSubscription -lt 0 -or $selectedSubscription -gt $lastSubscriptionIndex) {
             Write-Output "---"
             $selectedSubscription = [int] (Read-Host "Please, select the target subscription for this deployment [0..$lastSubscriptionIndex]")
-        }    
+        }
     }
     if ($selectedSubscription -eq -1)
     {
-        throw "The selected subscription does not exist. Check if you are logged in with the right Microsoft Entra ID user."        
+        throw "The selected subscription does not exist. Check if you are logged in with the right Microsoft Entra ID user."
     }
 }
 else
@@ -145,7 +145,7 @@ if (-not($deploymentOptions["NamePrefix"]))
         {
             $namePrefix = "EmptyNamePrefix"
         }
-    } 
+    }
     while ($namePrefix.Length -gt 21)
 }
 else {
@@ -155,7 +155,7 @@ else {
     }
     else
     {
-        $namePrefix = $deploymentOptions["NamePrefix"]            
+        $namePrefix = $deploymentOptions["NamePrefix"]
     }
 }
 
@@ -184,7 +184,7 @@ if ([string]::IsNullOrEmpty($namePrefix) -or $namePrefix -eq "EmptyNamePrefix") 
     $linuxDcrName = Read-Host "Enter the Linux DCR name"
 }
 else {
-    $windowsDcrName = $windowsDcrNameTemplate -f $namePrefix            
+    $windowsDcrName = $windowsDcrNameTemplate -f $namePrefix
     $linuxDcrName = $linuxDcrNameTemplate -f $namePrefix
 }
 
@@ -193,9 +193,9 @@ if (-not($deploymentOptions["TargetLocation"]))
     if (-not($rg.Location)) {
         Write-Host "Getting Azure locations..." -ForegroundColor Green
         $locations = Get-AzLocation | Where-Object { $_.Providers -contains "Microsoft.Insights" } | Sort-Object -Property Location
-        
+
         for ($i = 0; $i -lt $locations.Count; $i++) {
-            Write-Output "[$i] $($locations[$i].location)"    
+            Write-Output "[$i] $($locations[$i].location)"
         }
         $selectedLocation = -1
         $lastLocationIndex = $locations.Count - 1
@@ -203,16 +203,16 @@ if (-not($deploymentOptions["TargetLocation"]))
             Write-Output "---"
             $selectedLocation = [int] (Read-Host "Please, select the target location for this deployment [0..$lastLocationIndex]")
         }
-        
-        $targetLocation = $locations[$selectedLocation].location    
+
+        $targetLocation = $locations[$selectedLocation].location
     }
     else {
-        $targetLocation = $rg.Location    
+        $targetLocation = $rg.Location
     }
 }
 else
 {
-    $targetLocation = $deploymentOptions["TargetLocation"]    
+    $targetLocation = $deploymentOptions["TargetLocation"]
 }
 
 $windowsPerfCounters = @()

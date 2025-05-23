@@ -249,9 +249,16 @@ table ManagementGroups
 				      ['properties.details.managementGroupAncestorsChain.displayName'] = properties.details.managementGroupAncestorsChain.displayName,
 				      ['properties.details.managementGroupAncestorsChain.name'] = properties.details.managementGroupAncestorsChain.name
 				    " & (if ftk_DemoFilter() = "" then "" else "| where name startswith 'Trey'"),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.displayName", "properties.details", "properties.details.managementGroupAncestorsChain", "properties.details.updatedTime", "properties.details.updatedBy", "properties.details.version", "properties.details.parent", "properties.details.parent.displayName", "properties.details.parent.name", "properties.details.parent.id", "properties.details.managementGroupAncestorsChain.displayName", "properties.details.managementGroupAncestorsChain.name" },
+								{}
+							)
+				    else Source
 				in
-				  Source
+				  NullHandling
 
 	annotation PBI_NavigationStepName = Navigation
 

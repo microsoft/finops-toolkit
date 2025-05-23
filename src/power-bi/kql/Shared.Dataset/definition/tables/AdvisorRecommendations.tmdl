@@ -17,78 +17,6 @@ table AdvisorRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: cfcd06c0-8643-4070-a8d7-99b52aec15dc
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: 1c1af2b8-219f-43e0-8592-5d29cf9643b5
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: dcc211d0-e8f4-40b8-a6d6-de6e9a40fc68
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: f3836cb3-377c-4207-963b-bb1530e31c58
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: d7eeaa34-78c9-4ee9-8196-28155e05bab5
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: eff05517-d757-40ef-84ad-a9c2285bd926
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: 10ab154c-3f52-439e-8698-ee38e7b592fe
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 107904ab-daf2-43d6-a764-fe491b840dc4
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: 0ce894ab-6bb5-4135-85cc-7cd57c1ae987
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.recommendationTypeId'
 		dataType: string
 		lineageTag: b5215814-f868-4a8c-8c85-719e04a93cdd
@@ -405,52 +333,12 @@ table AdvisorRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column tags
-		dataType: string
-		lineageTag: 45dddaff-88d5-4b1f-95b5-9b5267308a26
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 5d0af29e-7135-432f-895f-94e3cb470aac
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 1462e1f4-bbb1-4ae1-9f0c-50f39881a2d6
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 866ddc18-dc53-4171-97bb-fb0cbc8cc19d
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
 	column SortOrder
 		dataType: double
 		formatString: 0
 		lineageTag: 4d8ca85e-f35a-4e71-866b-188c3de4f284
 		summarizeBy: sum
 		sourceColumn: SortOrder
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: 127ca951-d584-45ca-90c4-7e21f35e1dcd
-		summarizeBy: none
-		sourceColumn: properties
 
 		annotation SummarizationSetBy = Automatic
 
@@ -467,6 +355,118 @@ table AdvisorRecommendations
 		lineageTag: d1efb6c5-bd4f-40af-a43e-69e7576a48a1
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 6813f654-5807-4a26-b6bf-e31b3977973b
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 36908dc0-7497-4120-97a2-e6a4b4bfb9f2
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: 739bec08-ec0a-499e-9918-fd0f1964ee4a
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 0175f893-f6cc-4204-bba9-cf95a23fce9c
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: 2d586d61-76f4-4b13-8a85-ee65c0b58ba5
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: eb535a29-a6bf-47f4-86b9-9e6fa7355300
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 8236cdb5-25a3-4129-be24-09a6c7c4a8d1
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 210e2ef6-f18e-47a4-a91f-e9cd57aab99f
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: 0d1b5da0-fc60-422f-b3ce-dea583eed0b2
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column properties
+		dataType: string
+		lineageTag: 9dd67b79-1ce0-45b0-89b6-9d30aec09db3
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: d1007741-8139-4599-80dc-8d1ab3dd4026
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: 6ca4aa2c-1c77-4e55-9bd2-c65007a92631
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 49a9a75a-1589-4e24-a622-31603e416086
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: 65908216-087d-4693-88b1-bcafb39cf8c8
+		summarizeBy: none
+		sourceColumn: extendedLocation
 
 		annotation SummarizationSetBy = Automatic
 
@@ -526,14 +526,21 @@ table AdvisorRecommendations
 				
 				
 				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = true]),
-				  Types = Table.TransformColumnTypes(Source, {
-				    {"properties.extendedProperties.annualSavingsAmount", type number},
-				    {"properties.extendedProperties.savingsAmount",       type number},
-				    {"SortOrder",                                         type number},
-				    {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
-				    {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
-				    {"properties.lastUpdated",                                   type datetimezone}
-				  }, "en-US")
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.recommendationTypeId", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact", "properties.shortDescription.problem", "properties.shortDescription.solution", "properties.extendedProperties.ObservationPeriodStartDate", "properties.extendedProperties.ObservationPeriodEndDate", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.HasRecommendation", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.IsInReplication", "properties.extendedProperties.Recommended_DTU", "properties.extendedProperties.Recommended_SKU", "properties.extendedProperties.ResourceGroup", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.DatabaseSize", "properties.extendedProperties.DatabaseName", "properties.extendedProperties.ServerName", "properties.extendedProperties.Region", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.commitment", "properties.extendedProperties.currentSku", "properties.extendedProperties.targetSku", "properties.extendedProperties.recommendationMessage", "properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source", "SortOrder" },
+								{}
+							)
+				    else Source,
+				  Types = Table.TransformColumnTypes(NullHandling, {
+				      {"properties.extendedProperties.annualSavingsAmount", type number},
+				      {"properties.extendedProperties.savingsAmount",       type number},
+				      {"SortOrder",                                         type number},
+				      {"properties.extendedProperties.ObservationPeriodStartDate", type datetimezone},
+				      {"properties.extendedProperties.ObservationPeriodEndDate",   type datetimezone},
+				      {"properties.lastUpdated",                                   type datetimezone}
+				    }, "en-US")
 				in
 				  Types
 				```

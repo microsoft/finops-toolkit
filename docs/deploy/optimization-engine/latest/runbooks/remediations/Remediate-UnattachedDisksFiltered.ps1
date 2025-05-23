@@ -189,14 +189,34 @@ foreach ($disk in $unattachedDisks.Rows)
                 $currentSku = $diskObj.Sku.Name
                 if ($remediationAction -eq "Downsize")
                 {
-                    if (-not($Simulate) -and $diskObj.Sku.Name -ne 'Standard_LRS')
+                    if ($diskObj.Sku.Name -notin ('Standard_LRS','StandardSSD_ZRS'))
                     {
-                        $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('Standard_LRS')
-                        $diskObj | Update-AzDisk | Out-Null
+                        if ($diskObj.Sku.Name -like "*_LRS" -and $diskObj.Sku.Name -notlike "*V2*")
+                        {
+                            Write-Output "Downgrading $($diskObj.Name) to Standard_LRS..."                            
+                            if (-not($Simulate))
+                            {
+                                $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('Standard_LRS', 'Standard')
+                                $diskObj | Update-AzDisk | Out-Null        
+                            }
+                        }
+                        elseif ($diskObj.Sku.Name -like "*_ZRS" -and $diskObj.Sku.Name -notlike "*V2*")
+                        {
+                            Write-Output "Downgrading $($diskObj.Name) to StandardSSD_ZRS..."                            
+                            if (-not($Simulate))
+                            {
+                                $diskObj.Sku = [Microsoft.Azure.Management.Compute.Models.DiskSku]::new('StandardSSD_ZRS', 'Standard')
+                                $diskObj | Update-AzDisk | Out-Null        
+                            }
+                        }
+                        else
+                        {
+                            Write-Output "Skipping as $($diskObj.Name) disk is in an unsupported SKU ($($diskObj.Sku.Name))..."
+                        }
                     }
                     else
                     {
-                        Write-Output "Skipping as disk is already HDD."
+                        Write-Output "Skipping as $($diskObj.Name) disk is already in the lowest SKU ($($diskObj.Sku.Name))."                        
                     }
                 }
                 elseif ($remediationAction -eq "Delete")

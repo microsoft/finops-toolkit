@@ -3,8 +3,8 @@
 This script deploys the Azure Optimization Engine.
 
 .DESCRIPTION
-This script deploys the Azure Optimization Engine to an Azure subscription. The script will guide you through the deployment process, allowing you to choose the subscription, 
-resource group, and other deployment settings. The script will also check the availability of the chosen resource names and provide you with the option to reuse an existing 
+This script deploys the Azure Optimization Engine to an Azure subscription. The script will guide you through the deployment process, allowing you to choose the subscription,
+resource group, and other deployment settings. The script will also check the availability of the chosen resource names and provide you with the option to reuse an existing
 Log Analytics Workspace or create a new one.
 
 .PARAMETER TemplateUri
@@ -87,33 +87,43 @@ param (
     [bool] $EnableDefaultTelemetry = $true
 )
 
-function ConvertTo-Hashtable {
+function ConvertTo-Hashtable
+{
     [CmdletBinding()]
     [OutputType('hashtable')]
     param (
         [Parameter(ValueFromPipeline)]
         $InputObject
     )
- 
-    process {
-        if ($null -eq $InputObject) {
+
+    process
+    {
+        if ($null -eq $InputObject)
+        {
             return $null
         }
- 
-        if ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string]) {
+
+        if ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string])
+        {
             $collection = @(
-                foreach ($object in $InputObject) {
+                foreach ($object in $InputObject)
+                {
                     ConvertTo-Hashtable -InputObject $object
                 }
-            ) 
+            )
             Write-Output -NoEnumerate $collection
-        } elseif ($InputObject -is [psobject]) { 
+        }
+        elseif ($InputObject -is [psobject])
+        {
             $hash = @{}
-            foreach ($property in $InputObject.PSObject.Properties) {
+            foreach ($property in $InputObject.PSObject.Properties)
+            {
                 $hash[$property.Name] = ConvertTo-Hashtable -InputObject $property.Value
             }
             $hash
-        } else {
+        }
+        else
+        {
             $InputObject
         }
     }
@@ -128,7 +138,7 @@ $deploymentOptions = @{}
 $silentDeploy = $false
 
 # Check if silent deployment settings file exists
-if(-not([string]::IsNullOrEmpty($SilentDeploymentSettingsPath)) -and (Test-Path -Path $SilentDeploymentSettingsPath))
+if (-not([string]::IsNullOrEmpty($SilentDeploymentSettingsPath)) -and (Test-Path -Path $SilentDeploymentSettingsPath))
 {
     $silentDeploy = $true
     # Get the deployment details from the silent deployment settings file
@@ -148,7 +158,8 @@ if(-not([string]::IsNullOrEmpty($SilentDeploymentSettingsPath)) -and (Test-Path 
     {
         throw "NamePrefix is required for silent deployment. Set to 'EmptyNamePrefix' to use own naming convention and specify the needed resource names."
     }
-    if ($deploymentOptions["NamePrefix"].Length -gt 21) {
+    if ($deploymentOptions["NamePrefix"].Length -gt 21)
+    {
         throw "Name prefix length is larger than the 21 characters limit ($($deploymentOptions["NamePrefix"]))"
     }
     if ($deploymentOptions["NamePrefix"] -eq "EmptyNamePrefix")
@@ -235,41 +246,49 @@ if ((Test-Path -Path $lastDeploymentStatePath) -and !$silentDeploy)
         foreach ($property in $depOptions.PSObject.Properties)
         {
             $deploymentOptions[$property.Name] = $property.Value
-        }    
+        }
     }
 }
 
 $GitHubOriginalUri = "https://microsoft.github.io/finops-toolkit/deploy/optimization-engine/latest/azuredeploy.bicep"
 
-if ([string]::IsNullOrEmpty($TemplateUri)) {
+if ([string]::IsNullOrEmpty($TemplateUri))
+{
     $TemplateUri = $GitHubOriginalUri
 }
 
 $isTemplateAvailable = $false
 
-try {
+try
+{
     Invoke-WebRequest -Uri $TemplateUri | Out-Null
     $isTemplateAvailable = $true
 }
-catch {
+catch
+{
     Write-Host "The template URL ($TemplateUri) is not available. Please, put it in a publicly accessible HTTPS location." -ForegroundColor Red
 }
 
-if (!$isTemplateAvailable) {
+if (!$isTemplateAvailable)
+{
     throw "Terminating due to template unavailability."
 }
 
-if (-not((Test-Path -Path "./azuredeploy.bicep") -and (Test-Path -Path "./azuredeploy-nested.bicep"))) {
+if (-not((Test-Path -Path "./azuredeploy.bicep") -and (Test-Path -Path "./azuredeploy-nested.bicep")))
+{
     throw "Terminating due to template unavailability. Please, change directory to where azuredeploy.bicep and azuredeploy-nested.bicep are located."
 }
 
 $ctx = Get-AzContext
-if (-not($ctx)) {
+if (-not($ctx))
+{
     Connect-AzAccount -Environment $AzureEnvironment
     $ctx = Get-AzContext
 }
-else {
-    if ($ctx.Environment.Name -ne $AzureEnvironment) {
+else
+{
+    if ($ctx.Environment.Name -ne $AzureEnvironment)
+    {
         Disconnect-AzAccount -ContextName $ctx.Name
         Connect-AzAccount -Environment $AzureEnvironment
         $ctx = Get-AzContext
@@ -287,17 +306,17 @@ elseif ($SqlAdminPrincipalType -eq "User")
     if (-not([string]::IsNullOrEmpty($user.UserPrincipalName)) -and -not([string]::IsNullOrEmpty($user.Id)))
     {
         $userPrincipalName = $user.UserPrincipalName
-        $userObjectId = $user.Id    
+        $userObjectId = $user.Id
     }
     else
     {
         throw "Could not get the signed-in user details."
-    }            
+    }
 }
 else
 {
     throw "You must provide the SQL Admin principal name and object Id for non-User principal types."
-}            
+}
 
 $cloudDetails = Get-AzEnvironment -Name $AzureEnvironment
 
@@ -308,14 +327,15 @@ $cloudDetails = Get-AzEnvironment -Name $AzureEnvironment
 Write-Host "Getting Azure subscriptions..." -ForegroundColor Yellow
 $subscriptions = Get-AzSubscription | Where-Object { $_.State -eq "Enabled" -and $_.SubscriptionPolicies.QuotaId -notlike "AAD*" }
 
-if ($subscriptions.Count -gt 1) {
+if ($subscriptions.Count -gt 1)
+{
 
     $selectedSubscription = -1
     for ($i = 0; $i -lt $subscriptions.Count; $i++)
     {
         if (-not($deploymentOptions["SubscriptionId"]))
         {
-            Write-Output "[$i] $($subscriptions[$i].Name)"    
+            Write-Output "[$i] $($subscriptions[$i].Name)"
         }
         else
         {
@@ -329,14 +349,15 @@ if ($subscriptions.Count -gt 1) {
     if (-not($deploymentOptions["SubscriptionId"]))
     {
         $lastSubscriptionIndex = $subscriptions.Count - 1
-        while ($selectedSubscription -lt 0 -or $selectedSubscription -gt $lastSubscriptionIndex) {
+        while ($selectedSubscription -lt 0 -or $selectedSubscription -gt $lastSubscriptionIndex)
+        {
             Write-Output "---"
             $selectedSubscription = [int] (Read-Host "Please, select the target subscription for this deployment [0..$lastSubscriptionIndex]")
-        }    
+        }
     }
     if ($selectedSubscription -eq -1)
     {
-        throw "The selected subscription does not exist. Check if you are logged in with the right Microsoft Entra ID user."        
+        throw "The selected subscription does not exist. Check if you are logged in with the right Microsoft Entra ID user."
     }
 }
 else
@@ -351,7 +372,8 @@ else
     }
 }
 
-if ($subscriptions.Count -eq 0) {
+if ($subscriptions.Count -eq 0)
+{
     throw "No subscriptions found. Check if you are logged in with the right Microsoft Entra ID account."
 }
 
@@ -362,19 +384,21 @@ if (-not($deploymentOptions["SubscriptionId"]))
     $deploymentOptions["SubscriptionId"] = $subscriptionId
 }
 
-if ($ctx.Subscription.Id -ne $subscriptionId) {
+if ($ctx.Subscription.Id -ne $subscriptionId)
+{
     $ctx = Select-AzSubscription -SubscriptionId $subscriptionId
 }
 
 #endregion
 
 #region Resource naming options
-if($silentDeploy)
+if ($silentDeploy)
 {
     $workspaceReuse = $deploymentOptions["WorkspaceReuse"]
 }
-else { 
-    $workspaceReuse = $null 
+else
+{
+    $workspaceReuse = $null
 }
 
 $deploymentNameTemplate = "{0}" + (Get-Date).ToString("yyMMddHHmmss")
@@ -394,24 +418,26 @@ if (-not($deploymentOptions["NamePrefix"]))
         {
             $namePrefix = "EmptyNamePrefix"
         }
-    } 
+    }
     while ($namePrefix.Length -gt 21)
     $deploymentOptions["NamePrefix"] = $namePrefix
 }
-else {
+else
+{
     if ($deploymentOptions["NamePrefix"] -eq "EmptyNamePrefix")
     {
         $namePrefix = $null
     }
     else
     {
-        $namePrefix = $deploymentOptions["NamePrefix"]            
+        $namePrefix = $deploymentOptions["NamePrefix"]
     }
 }
 
 if (-not($deploymentOptions["WorkspaceReuse"]))
 {
-    if ($null -eq $workspaceReuse) {
+    if ($null -eq $workspaceReuse)
+    {
         $workspaceReuse = Read-Host "Are you going to reuse an existing Log Analytics workspace (Y/N)?"
     }
     $deploymentOptions["WorkspaceReuse"] = $workspaceReuse
@@ -423,27 +449,32 @@ else
 
 if (-not($deploymentOptions["ResourceGroupName"]))
 {
-    if ([string]::IsNullOrEmpty($namePrefix) -or $namePrefix -eq "EmptyNamePrefix") {
+    if ([string]::IsNullOrEmpty($namePrefix) -or $namePrefix -eq "EmptyNamePrefix")
+    {
         $resourceGroupName = Read-Host "Please, enter the new or existing Resource Group for this deployment"
         $deploymentName = $deploymentNameTemplate -f $resourceGroupName
         $storageAccountName = Read-Host "Enter the Storage Account name"
         $automationAccountName = Read-Host "Automation Account name"
         $sqlServerName = Read-Host "Azure SQL Server name"
         $sqlDatabaseName = Read-Host "Azure SQL Database name"
-        if ("N", "n" -contains $workspaceReuse) {
+        if ("N", "n" -contains $workspaceReuse)
+        {
             $laWorkspaceName = Read-Host "Log Analytics Workspace"
         }
     }
-    else {
+    else
+    {
         $deploymentName = $deploymentNameTemplate -f $namePrefix
         $resourceGroupName = $resourceGroupNameTemplate -f $namePrefix
         $storageAccountName = $storageAccountNameTemplate -f $namePrefix
         $automationAccountName = $automationAccountNameTemplate -f $namePrefix
-        $sqlServerName = $sqlServerNameTemplate -f $namePrefix            
-        if ("Y", "y" -contains $workspaceReuse -and $silentDeploy) {
+        $sqlServerName = $sqlServerNameTemplate -f $namePrefix
+        if ("Y", "y" -contains $workspaceReuse -and $silentDeploy)
+        {
             $laWorkspaceName = $deploymentOptions["WorkspaceName"]
         }
-        else {
+        else
+        {
             $laWorkspaceName = $laWorkspaceNameTemplate -f $namePrefix
         }
         $sqlDatabaseName = "azureoptimization"
@@ -459,28 +490,31 @@ if (-not($deploymentOptions["ResourceGroupName"]))
 else
 {
     # With a silent deploy, overrule any custom resource naming if a NamePrefix is provided
-    if($silentDeploy -and ![string]::IsNullOrEmpty($namePrefix) -and $namePrefix -ne "EmptyNamePrefix")
+    if ($silentDeploy -and ![string]::IsNullOrEmpty($namePrefix) -and $namePrefix -ne "EmptyNamePrefix")
     {
         $deploymentName = $deploymentNameTemplate -f $namePrefix
         $resourceGroupName = $resourceGroupNameTemplate -f $namePrefix
         $storageAccountName = $storageAccountNameTemplate -f $namePrefix
         $automationAccountName = $automationAccountNameTemplate -f $namePrefix
         $sqlServerName = $sqlServerNameTemplate -f $namePrefix
-        if ("Y", "y" -contains $workspaceReuse) {
+        if ("Y", "y" -contains $workspaceReuse)
+        {
             $laWorkspaceName = $deploymentOptions["WorkspaceName"]
         }
-        else {
+        else
+        {
             $laWorkspaceName = $laWorkspaceNameTemplate -f $namePrefix
         }
         $sqlDatabaseName = "azureoptimization"
     }
-    else {
+    else
+    {
         $resourceGroupName = $deploymentOptions["ResourceGroupName"]
         $storageAccountName = $deploymentOptions["StorageAccountName"]
         $automationAccountName = $deploymentOptions["AutomationAccountName"]
         $sqlServerName = $deploymentOptions["SqlServerName"]
-        $sqlDatabaseName = $deploymentOptions["SqlDatabaseName"]        
-        $laWorkspaceName = $deploymentOptions["WorkspaceName"]        
+        $sqlDatabaseName = $deploymentOptions["SqlDatabaseName"]
+        $laWorkspaceName = $deploymentOptions["WorkspaceName"]
         $deploymentName = $deploymentNameTemplate -f $resourceGroupName
     }
 }
@@ -491,50 +525,50 @@ Write-Host "Checking name prefix availability..." -ForegroundColor Green
 
 Write-Host "...for the Storage Account..." -ForegroundColor Green
 $sa = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName -ErrorAction SilentlyContinue
-if ($null -eq $sa) {
+if ($null -eq $sa)
+{
     $saNameResult = Get-AzStorageAccountNameAvailability -Name $storageAccountName
-    if (-not($saNameResult.NameAvailable)) {
+    if (-not($saNameResult.NameAvailable))
+    {
         $nameAvailable = $false
         Write-Host "$($saNameResult.Message)" -ForegroundColor Red
-    }    
+    }
 }
-else {
+else
+{
     Write-Host "(The Storage Account was already deployed)" -ForegroundColor Green
 }
 
-if ("N", "n" -contains $workspaceReuse) {
+if ("N", "n" -contains $workspaceReuse)
+{
     Write-Host "...for the Log Analytics workspace..." -ForegroundColor Green
 
     $logAnalyticsReuse = $false
     $laWorkspaceResourceGroup = $resourceGroupName
 
     $la = Get-AzOperationalInsightsWorkspace -ResourceGroupName $resourceGroupName -Name $laWorkspaceName -ErrorAction SilentlyContinue
-    if ($null -eq $la) {
-        $laNameResult = Invoke-WebRequest -Uri "https://portal.loganalytics.io/api/workspaces/IsWorkspaceExists?name=$laWorkspaceName"
-        if ($laNameResult.Content -eq "true") {
-            $nameAvailable = $false
-            Write-Host "The Log Analytics workspace $laWorkspaceName is already taken." -ForegroundColor Red
-        }
-    }
-    else {
+    if ($null -ne $la) {
         Write-Host "(The Log Analytics Workspace was already deployed)" -ForegroundColor Green
     }
 }
-else {
+else
+{
     $logAnalyticsReuse = $true
 }
 
 Write-Host "...for the Azure SQL Server..." -ForegroundColor Green
 $sqlServerAlreadyExists = $false
 $sql = Get-AzSqlServer -ResourceGroupName $resourceGroupName -Name $sqlServerName -ErrorAction SilentlyContinue
-if ($null -eq $sql -and -not($sqlServerName -like "*.database.*") -and -not($IgnoreNamingAvailabilityErrors)) {
+if ($null -eq $sql -and -not($sqlServerName -like "*.database.*") -and -not($IgnoreNamingAvailabilityErrors))
+{
 
     $SqlServerNameAvailabilityUriPath = "/subscriptions/$subscriptionId/providers/Microsoft.Sql/checkNameAvailability?api-version=2014-04-01"
     $body = "{`"name`": `"$sqlServerName`", `"type`": `"Microsoft.Sql/servers`"}"
     # TODO: Switch to custom Invoke-Rest command to leverage telemetry tracking
     $sqlNameResult = (Invoke-AzRestMethod -Path $SqlServerNameAvailabilityUriPath -Method POST -Payload $body).Content | ConvertFrom-Json
-    
-    if (-not($sqlNameResult.available)) {
+
+    if (-not($sqlNameResult.available))
+    {
         $nameAvailable = $false
         Write-Host "$($sqlNameResult.message) ($sqlServerName)" -ForegroundColor Red
     }
@@ -556,53 +590,59 @@ Write-Host "Chosen resource names are available for all services" -ForegroundCol
 #region Additional resource options (LA reused, region, SQL user)
 if (-not($deploymentOptions["WorkspaceResourceGroupName"]))
 {
-    if ("Y", "y" -contains $workspaceReuse) {
+    if ("Y", "y" -contains $workspaceReuse)
+    {
         $laWorkspaceName = Read-Host "Please, enter the name of the Log Analytics workspace to be reused"
         $laWorkspaceResourceGroup = Read-Host "Please, enter the name of the resource group containing Log Analytics $laWorkspaceName"
         $la = Get-AzOperationalInsightsWorkspace -ResourceGroupName $laWorkspaceResourceGroup -Name $laWorkspaceName -ErrorAction SilentlyContinue
-        if (-not($la)) {
+        if (-not($la))
+        {
             throw "Could not find $laWorkspaceName in resource group $laWorkspaceResourceGroup for the chosen subscription. Aborting."
-        }        
+        }
         $deploymentOptions["WorkspaceName"] = $laWorkspaceName
         $deploymentOptions["WorkspaceResourceGroupName"] = $laWorkspaceResourceGroup
-    }    
+    }
 }
 else
 {
     $laWorkspaceResourceGroup = $deploymentOptions["WorkspaceResourceGroupName"]
 }
 
-$rg = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue 
+$rg = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
 
 if (-not($deploymentOptions["TargetLocation"]))
 {
-    if (-not($rg.Location)) {
+    if (-not($rg.Location))
+    {
         Write-Host "Getting Azure locations..." -ForegroundColor Green
         $locations = Get-AzLocation | Where-Object { $_.Providers -contains "Microsoft.Automation" -and $_.Providers -contains "Microsoft.Sql" `
-                                                        -and $_.Providers -contains "Microsoft.OperationalInsights" `
-                                                        -and $_.Providers -contains "Microsoft.Storage"} | Sort-Object -Property Location
-        
-        for ($i = 0; $i -lt $locations.Count; $i++) {
-            Write-Output "[$i] $($locations[$i].location)"    
+                -and $_.Providers -contains "Microsoft.OperationalInsights" `
+                -and $_.Providers -contains "Microsoft.Storage" } | Sort-Object -Property Location
+
+        for ($i = 0; $i -lt $locations.Count; $i++)
+        {
+            Write-Output "[$i] $($locations[$i].location)"
         }
         $selectedLocation = -1
         $lastLocationIndex = $locations.Count - 1
-        while ($selectedLocation -lt 0 -or $selectedLocation -gt $lastLocationIndex) {
+        while ($selectedLocation -lt 0 -or $selectedLocation -gt $lastLocationIndex)
+        {
             Write-Output "---"
             $selectedLocation = [int] (Read-Host "Please, select the target location for this deployment [0..$lastLocationIndex]")
         }
-        
-        $targetLocation = $locations[$selectedLocation].location    
+
+        $targetLocation = $locations[$selectedLocation].location
     }
-    else {
-        $targetLocation = $rg.Location    
+    else
+    {
+        $targetLocation = $rg.Location
     }
-    
+
     $deploymentOptions["TargetLocation"] = $targetLocation
 }
 else
 {
-    $targetLocation = $deploymentOptions["TargetLocation"]    
+    $targetLocation = $deploymentOptions["TargetLocation"]
 }
 #endregion
 
@@ -617,20 +657,20 @@ else
 
     if ($null -ne $rg)
     {
-        if ($upgrading -and $null -ne $sa) 
+        if ($upgrading -and $null -ne $sa)
         {
             $containers = Get-AzStorageContainer -Context $sa.Context
         }
         else
         {
-            $upgrading = $false    
+            $upgrading = $false
             Write-Host "Did not find the $storageAccountName Storage Account." -ForegroundColor Yellow
         }
-    
+
         if ($upgrading -and $null -ne $sql)
         {
             $databases = Get-AzSqlDatabase -ServerName $sql.ServerName -ResourceGroupName $resourceGroupName
-            if (-not($databases | Where-Object { $_.DatabaseName -eq $sqlDatabaseName}))
+            if (-not($databases | Where-Object { $_.DatabaseName -eq $sqlDatabaseName }))
             {
                 $upgrading = $false
                 Write-Host "Did not find the $sqlDatabaseName database." -ForegroundColor Yellow
@@ -640,11 +680,11 @@ else
         {
             if (-not($IgnoreNamingAvailabilityErrors))
             {
-                $upgrading = $false    
-                Write-Host "Did not find the $sqlServerName SQL Server." -ForegroundColor Yellow    
+                $upgrading = $false
+                Write-Host "Did not find the $sqlServerName SQL Server." -ForegroundColor Yellow
             }
         }
-    
+
         $auto = Get-AzAutomationAccount -ResourceGroupName $resourceGroupName -Name $automationAccountName -ErrorAction SilentlyContinue
         if ($null -ne $auto)
         {
@@ -652,20 +692,20 @@ else
                 -AutomationAccountName $auto.AutomationAccountName | Where-Object { $_.Name.StartsWith('Export') }
             if ($runbooks.Count -lt 3)
             {
-                $upgrading = $false    
+                $upgrading = $false
                 Write-Host "Did not find existing runbooks in the $automationAccountName Automation Account." -ForegroundColor Yellow
             }
         }
         else
         {
-            $upgrading = $false    
+            $upgrading = $false
             Write-Host "Did not find the $automationAccountName Automation Account." -ForegroundColor Yellow
         }
     }
     else
     {
-        $upgrading = $false    
-    }        
+        $upgrading = $false
+    }
 }
 #endregion
 
@@ -684,14 +724,16 @@ else
 {
     $continueInput = Read-Host "$deploymentMessage $($subscriptions[$selectedSubscription].Name). Continue (Y/N)?"
 }
-if ("Y", "y" -contains $continueInput) {
+if ("Y", "y" -contains $continueInput)
+{
 
     $deploymentOptions | ConvertTo-Json | Out-File -FilePath $lastDeploymentStatePath -Force
     #region Computing schedules base time
     $baseTime = (Get-Date).ToUniversalTime().ToString("u")
     $upgradingSchedules = $false
     $schedules = Get-AzAutomationSchedule -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -ErrorAction SilentlyContinue
-    if ($schedules.Count -gt 0) {
+    if ($schedules.Count -gt 0)
+    {
         $upgradingSchedules = $true
         $originalBaseTime = ($schedules | Where-Object { $_.Name.EndsWith("Weekly") } | Sort-Object -Property StartTime | Select-Object -First 1).StartTime.AddHours(-1.25).DateTime
         $now = (Get-Date).ToUniversalTime()
@@ -700,7 +742,8 @@ if ("Y", "y" -contains $continueInput) {
         $baseTime = $now.AddHours(-1.25).AddDays($nextWeekDays - $diff.TotalDays).ToString("u")
         Write-Host "Existing schedules found. Keeping original base time: $baseTime." -ForegroundColor Green
     }
-    else {
+    else
+    {
         Write-Host "Automation schedules base time automatically set to $baseTime." -ForegroundColor Green
     }
     #endregion
@@ -709,23 +752,28 @@ if ("Y", "y" -contains $continueInput) {
     {
         #region Template-based deployment
         $jobSchedules = Get-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -ErrorAction SilentlyContinue
-        if ($jobSchedules.Count -gt 0) {
+        if ($jobSchedules.Count -gt 0)
+        {
             Write-Host "Unregistering previous runbook schedules associations from $automationAccountName..." -ForegroundColor Green
-            foreach ($jobSchedule in $jobSchedules) {
-                if ($jobSchedule.ScheduleName.StartsWith("AzureOptimization")) {
+            foreach ($jobSchedule in $jobSchedules)
+            {
+                if ($jobSchedule.ScheduleName.StartsWith("AzureOptimization"))
+                {
                     Unregister-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName `
                         -JobScheduleId $jobSchedule.JobScheduleId -Force
                 }
-            }    
+            }
         }
-    
+
         Write-Host "Deploying Azure Optimization Engine resources..." -ForegroundColor Green
         $deploymentTries = 0
         $maxDeploymentTries = 2
         $deploymentSucceeded = $false
-        do {
+        do
+        {
             $deploymentTries++
-            try {
+            try
+            {
                 $deployment = New-AzDeployment -TemplateFile ".\azuredeploy.bicep" -templateLocation $TemplateUri.Replace("azuredeploy.bicep", "") -Location $targetLocation -rgName $resourceGroupName -Name $deploymentName `
                     -projectLocation $targetlocation -logAnalyticsReuse $logAnalyticsReuse -baseTime $baseTime `
                     -logAnalyticsWorkspaceName $laWorkspaceName -logAnalyticsWorkspaceRG $laWorkspaceResourceGroup `
@@ -735,21 +783,23 @@ if ("Y", "y" -contains $continueInput) {
                     -resourceTags $ResourceTags -enableDefaultTelemetry $EnableDefaultTelemetry -WarningAction SilentlyContinue
                 $deploymentSucceeded = $true
             }
-            catch {
-                if ($deploymentTries -ge $maxDeploymentTries) {
+            catch
+            {
+                if ($deploymentTries -ge $maxDeploymentTries)
+                {
                     Write-Host "Failed deployment. Stop trying." -ForegroundColor Yellow
                     throw $_
                 }
                 Write-Host "Failed deployment. Trying once more..." -ForegroundColor Yellow
-            }            
+            }
         } while (-not($deploymentSucceeded) -and $deploymentTries -lt $maxDeploymentTries)
-        
+
         if ($deployment.ProvisioningState -eq "Failed" -or $null -eq $deployment.Outputs)
         {
             throw "Deployment failed. Check the Azure subscription Activity Logs for more details."
         }
 
-        $spnId = $deployment.Outputs['automationPrincipalId'].Value 
+        $spnId = $deployment.Outputs['automationPrincipalId'].Value
         #endregion
     }
     else
@@ -776,13 +826,14 @@ if ("Y", "y" -contains $continueInput) {
         $runbookDeploymentTemplateJson = $topTemplateJson
         for ($i = 0; $i -lt $allRunbooks.Count; $i++)
         {
-            try {
+            try
+            {
                 Invoke-WebRequest -Uri ($runbookBaseUri + $allRunbooks[$i].name) | Out-Null
                 $runbookName = [System.IO.Path]::GetFilenameWithoutExtension($allRunbooks[$i].name)
                 $runbookJson = "{ `"name`": `"$automationAccountName/$runbookName`", `"type`": `"Microsoft.Automation/automationAccounts/runbooks`", " + `
-                "`"apiVersion`": `"2018-06-30`", `"location`": `"$targetLocation`", `"tags`": $($ResourceTags | ConvertTo-Json), `"properties`": { " + `
-                "`"runbookType`": `"PowerShell`", `"logProgress`": false, `"logVerbose`": false, " + `
-                "`"publishContentLink`": { `"uri`": `"$runbookBaseUri$($allRunbooks[$i].name)`", `"version`": `"$($allRunbooks[$i].version)`" } } }"
+                    "`"apiVersion`": `"2018-06-30`", `"location`": `"$targetLocation`", `"tags`": $($ResourceTags | ConvertTo-Json), `"properties`": { " + `
+                    "`"runbookType`": `"PowerShell`", `"logProgress`": false, `"logVerbose`": false, " + `
+                    "`"publishContentLink`": { `"uri`": `"$runbookBaseUri$($allRunbooks[$i].name)`", `"version`": `"$($allRunbooks[$i].version)`" } } }"
                 $runbookDeploymentTemplateJson += $runbookJson
                 if ($i -lt $allRunbooks.Count - 1)
                 {
@@ -790,7 +841,8 @@ if ("Y", "y" -contains $continueInput) {
                 }
                 Write-Host "$($allRunbooks[$i].name) imported."
             }
-            catch {
+            catch
+            {
                 Write-Host "$($allRunbooks[$i].name) not imported (not found)." -ForegroundColor Yellow
             }
         }
@@ -841,16 +893,17 @@ if ("Y", "y" -contains $continueInput) {
         {
             $remediateHybridWorkerOption = ($allScheduledRunbooks | Where-Object { $_.RunbookName.StartsWith("Remediate") })[0].HybridWorker
         }
-        
-        $hybridWorkerOption = "None"
-        if ($exportHybridWorkerOption -or $ingestHybridWorkerOption -or $recommendHybridWorkerOption -or $remediateHybridWorkerOption) {
-            $hybridWorkerOption = "Export: $exportHybridWorkerOption; Ingest: $ingestHybridWorkerOption; Recommend: $recommendHybridWorkerOption; Remediate: $remediateHybridWorkerOption"
-        }      
-        Write-Host "Current Hybrid Worker option: $hybridWorkerOption" -ForegroundColor Green            
 
-        $dataIngestRunbookName = [System.IO.Path]::GetFileNameWithoutExtension(($upgradeManifest.baseIngest | Where-Object { $_.source -eq "dataCollection"}).runbook.name)
+        $hybridWorkerOption = "None"
+        if ($exportHybridWorkerOption -or $ingestHybridWorkerOption -or $recommendHybridWorkerOption -or $remediateHybridWorkerOption)
+        {
+            $hybridWorkerOption = "Export: $exportHybridWorkerOption; Ingest: $ingestHybridWorkerOption; Recommend: $recommendHybridWorkerOption; Remediate: $remediateHybridWorkerOption"
+        }
+        Write-Host "Current Hybrid Worker option: $hybridWorkerOption" -ForegroundColor Green
+
+        $dataIngestRunbookName = [System.IO.Path]::GetFileNameWithoutExtension(($upgradeManifest.baseIngest | Where-Object { $_.source -eq "dataCollection" }).runbook.name)
         $dataExportsToMultiSchedule = $upgradeManifest.dataCollection | Where-Object { $_.exportSchedules.Count -gt 0 }
-        $recommendationsProcessingRunbooks = $upgradeManifest.baseIngest | Where-Object { $_.source -eq "recommendations" -or $_.source -eq "maintenance"}
+        $recommendationsProcessingRunbooks = $upgradeManifest.baseIngest | Where-Object { $_.source -eq "recommendations" -or $_.source -eq "maintenance" }
 
         foreach ($schedule in $allSchedules)
         {
@@ -903,24 +956,29 @@ if ("Y", "y" -contains $continueInput) {
                 $runbookType = $runbookName.Split("-")[0]
                 switch ($runbookType)
                 {
-                    "Export" {
+                    "Export"
+                    {
                         $hybridWorkerName = $exportHybridWorkerOption
                     }
-                    "Recommend" {
+                    "Recommend"
+                    {
                         $hybridWorkerName = $recommendHybridWorkerOption
                     }
-                    "Ingest" {
+                    "Ingest"
+                    {
                         $hybridWorkerName = $ingestHybridWorkerOption
                     }
-                    "Remediate" {
+                    "Remediate"
+                    {
                         $hybridWorkerName = $remediateHybridWorkerOption
                     }
-                    Default {
+                    default
+                    {
                         $hybridWorkerName = $null
                     }
                 }
 
-                if (-not($scheduledRunbooks | Where-Object { $_.RunbookName -eq $runbookName}))
+                if (-not($scheduledRunbooks | Where-Object { $_.RunbookName -eq $runbookName }))
                 {
                     if ($hybridWorkerName)
                     {
@@ -930,7 +988,7 @@ if ("Y", "y" -contains $continueInput) {
                     else
                     {
                         Register-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName `
-                            -RunbookName $runbookName -ScheduleName $schedule.name | Out-Null                        
+                            -RunbookName $runbookName -ScheduleName $schedule.name | Out-Null
                     }
                     Write-Host "Added $($schedule.name) schedule to $hybridWorkerName $runbookName runbook"
                 }
@@ -945,30 +1003,35 @@ if ("Y", "y" -contains $continueInput) {
                     $runbookType = $runbookName.Split("-")[0]
                     switch ($runbookType)
                     {
-                        "Export" {
+                        "Export"
+                        {
                             $hybridWorkerName = $exportHybridWorkerOption
                         }
-                        "Recommend" {
+                        "Recommend"
+                        {
                             $hybridWorkerName = $recommendHybridWorkerOption
                         }
-                        "Ingest" {
+                        "Ingest"
+                        {
                             $hybridWorkerName = $ingestHybridWorkerOption
                         }
-                        "Remediate" {
+                        "Remediate"
+                        {
                             $hybridWorkerName = $remediateHybridWorkerOption
                         }
-                        Default {
+                        default
+                        {
                             $hybridWorkerName = $null
                         }
                     }
-                    
-                    if (-not($scheduledRunbooks | Where-Object { $_.RunbookName -eq $runbookName -and $_.ScheduleName -eq $schedule.name}))
-                    {   
+
+                    if (-not($scheduledRunbooks | Where-Object { $_.RunbookName -eq $runbookName -and $_.ScheduleName -eq $schedule.name }))
+                    {
                         $params = @{}
                         $exportSchedule.parameters.PSObject.Properties | ForEach-Object {
                             $params[$_.Name] = $_.Value
-                        }                                
-    
+                        }
+
                         if ($hybridWorkerName)
                         {
                             Register-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName `
@@ -977,10 +1040,10 @@ if ("Y", "y" -contains $continueInput) {
                         else
                         {
                             Register-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName `
-                                -RunbookName $runbookName -ScheduleName $schedule.name -Parameters $params | Out-Null                        
+                                -RunbookName $runbookName -ScheduleName $schedule.name -Parameters $params | Out-Null
                         }
                         Write-Host "Added $($schedule.name) schedule to $hybridWorkerName $runbookName runbook."
-                    }    
+                    }
                 }
             }
 
@@ -988,10 +1051,10 @@ if ("Y", "y" -contains $continueInput) {
             foreach ($dataIngest in $dataIngestToSchedule)
             {
                 $hybridWorkerName = $ingestHybridWorkerOption
-    
-                if (-not($scheduledRunbooks | Where-Object { $_.RunbookName -eq $dataIngestRunbookName}))
+
+                if (-not($scheduledRunbooks | Where-Object { $_.RunbookName -eq $dataIngestRunbookName }))
                 {
-                    $params = @{"StorageSinkContainer"=$dataIngest.container}
+                    $params = @{"StorageSinkContainer" = $dataIngest.container }
 
                     if ($hybridWorkerName)
                     {
@@ -1001,7 +1064,7 @@ if ("Y", "y" -contains $continueInput) {
                     else
                     {
                         Register-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName `
-                            -RunbookName $dataIngestRunbookName -ScheduleName $schedule.name -Parameters $params | Out-Null                        
+                            -RunbookName $dataIngestRunbookName -ScheduleName $schedule.name -Parameters $params | Out-Null
                     }
                     Write-Host "Added $($schedule.name) schedule to $hybridWorkerName $dataIngestRunbookName runbook."
                 }
@@ -1011,8 +1074,8 @@ if ("Y", "y" -contains $continueInput) {
             {
                 $runbookName = [System.IO.Path]::GetFileNameWithoutExtension($recommendationsProcessingRunbook.runbook.name)
                 $hybridWorkerName = $ingestHybridWorkerOption
-    
-                if ($recommendationsProcessingRunbook.schedule -eq $schedule.name -and -not($scheduledRunbooks | Where-Object { $_.RunbookName -eq $runbookName}))
+
+                if ($recommendationsProcessingRunbook.schedule -eq $schedule.name -and -not($scheduledRunbooks | Where-Object { $_.RunbookName -eq $runbookName }))
                 {
                     if ($hybridWorkerName)
                     {
@@ -1022,7 +1085,7 @@ if ("Y", "y" -contains $continueInput) {
                     else
                     {
                         Register-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName `
-                            -RunbookName $runbookName -ScheduleName $schedule.name | Out-Null                        
+                            -RunbookName $runbookName -ScheduleName $schedule.name | Out-Null
                     }
                     Write-Host "Added $($schedule.name) schedule to $hybridWorkerName $runbookName runbook."
                 }
@@ -1061,15 +1124,18 @@ if ("Y", "y" -contains $continueInput) {
     }
 
     #region Schedules reset
-    if ($upgradingSchedules) {
+    if ($upgradingSchedules)
+    {
         $schedules = Get-AzAutomationSchedule -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName
         $dailySchedules = $schedules | Where-Object { $_.Frequency -eq "Day" -or $_.Frequency -eq "Hour" }
         Write-Host "Fixing daily schedules after upgrade..." -ForegroundColor Green
-        foreach ($schedule in $dailySchedules) {
+        foreach ($schedule in $dailySchedules)
+        {
             $now = (Get-Date).ToUniversalTime()
             $newStartTime = [System.DateTimeOffset]::Parse($now.ToString("yyyy-MM-ddT00:00:00Z"))
             $newStartTime = $newStartTime.AddHours($schedule.StartTime.Hour).AddMinutes($schedule.StartTime.Minute)
-            if ($newStartTime.AddMinutes(-5) -lt $now) {
+            if ($newStartTime.AddMinutes(-5) -lt $now)
+            {
                 $newStartTime = $newStartTime.AddDays(1)
             }
             $expiryTime = $schedule.ExpiryTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
@@ -1090,13 +1156,14 @@ if ("Y", "y" -contains $continueInput) {
         }
     }
     #endregion
-    
+
     #region Deployment date Automation variable
     Write-Host "Checking Azure Automation variable referring to the initial Azure Optimization Engine deployment date..." -ForegroundColor Green
     $deploymentDateVariableName = "AzureOptimization_DeploymentDate"
     $deploymentDateVariable = Get-AzAutomationVariable -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Name $deploymentDateVariableName -ErrorAction SilentlyContinue
-    
-    if ($null -eq $deploymentDateVariable) {
+
+    if ($null -eq $deploymentDateVariable)
+    {
         $deploymentDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
         Write-Host "Setting initial deployment date ($deploymentDate)..." -ForegroundColor Green
         New-AzAutomationVariable -Name $deploymentDateVariableName -Description "The date of the initial engine deployment" `
@@ -1125,34 +1192,34 @@ if ("Y", "y" -contains $continueInput) {
         Write-Host "Granting Storage Blob Data Contributor role to the Automation Account identity..." -ForegroundColor Green
         New-AzRoleAssignment -ObjectId $spnId -RoleDefinitionId $storageBlobContributorRoleId -Scope $sa.Id | Out-Null
     }
-    
+
     #region Open SQL Server firewall rule
     if (-not($sqlServerName -like "*.database.*"))
     {
-        $myPublicIp = (Invoke-WebRequest -uri "https://ifconfig.me/ip").Content.Trim()
+        $myPublicIp = (Invoke-WebRequest -Uri "https://ifconfig.me/ip").Content.Trim()
         if (-not($myPublicIp -like "*.*.*.*"))
         {
-            $myPublicIp = (Invoke-WebRequest -uri "https://ipv4.icanhazip.com").Content.Trim()
+            $myPublicIp = (Invoke-WebRequest -Uri "https://ipv4.icanhazip.com").Content.Trim()
             if (-not($myPublicIp -like "*.*.*.*"))
             {
-                $myPublicIp = (Invoke-WebRequest -uri "https://ipinfo.io/ip").Content.Trim()
+                $myPublicIp = (Invoke-WebRequest -Uri "https://ipinfo.io/ip").Content.Trim()
             }
         }
 
         Write-Host "Opening SQL Server firewall temporarily to your public IP ($myPublicIp)..." -ForegroundColor Green
-        $tempFirewallRuleName = "InitialDeployment"            
+        $tempFirewallRuleName = "InitialDeployment"
         New-AzSqlServerFirewallRule -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -FirewallRuleName $tempFirewallRuleName -StartIpAddress $myPublicIp -EndIpAddress $myPublicIp -ErrorAction Continue | Out-Null
     }
     #endregion
-    
+
     #region SQL Database model deployment
     Write-Host "Deploying SQL Database model..." -ForegroundColor Green
-    
+
     if (-not($sqlServerName -like "*.database.*"))
     {
         $sqlServerEndpoint = "$sqlServerName$($cloudDetails.SqlDatabaseDnsSuffix)"
     }
-    else 
+    else
     {
         $sqlServerEndpoint = $sqlServerName
     }
@@ -1160,115 +1227,117 @@ if ("Y", "y" -contains $continueInput) {
     $SqlTimeout = 60
     $tries = 0
     $connectionSuccess = $false
-    do {
+    do
+    {
         $tries++
-        try {
-            
+        try
+        {
+
             $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
             $dbToken = (Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
 
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
-    
+            $Conn.Open()
+
             $createTableQuery = Get-Content -Path "./model/loganalyticsingestcontrol-table.sql"
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $createTableQuery
             $Cmd.ExecuteReader()
             $Conn.Close()
-    
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
-    
+            $Conn.Open()
+
             $initTableQuery = Get-Content -Path "./model/loganalyticsingestcontrol-initialize.sql"
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $initTableQuery
             $Cmd.ExecuteReader()
             $Conn.Close()
-    
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
-    
+            $Conn.Open()
+
             $upgradeTableQuery = Get-Content -Path "./model/loganalyticsingestcontrol-upgrade.sql"
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $upgradeTableQuery
             $Cmd.ExecuteReader()
             $Conn.Close()
-    
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
-    
+            $Conn.Open()
+
             $createTableQuery = Get-Content -Path "./model/sqlserveringestcontrol-table.sql"
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $createTableQuery
             $Cmd.ExecuteReader()
             $Conn.Close()
 
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
-    
+            $Conn.Open()
+
             $initTableQuery = Get-Content -Path "./model/sqlserveringestcontrol-initialize.sql"
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $initTableQuery
             $Cmd.ExecuteReader()
             $Conn.Close()
 
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
-    
+            $Conn.Open()
+
             $createTableQuery = Get-Content -Path "./model/recommendations-table.sql"
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $createTableQuery
             $Cmd.ExecuteReader()
             $Conn.Close()
 
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
-    
+            $Conn.Open()
+
             $createTableQuery = Get-Content -Path "./model/recommendations-sp.sql"
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $createTableQuery
             $Cmd.ExecuteReader()
             $Conn.Close()
 
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
-    
+            $Conn.Open()
+
             $createTableQuery = Get-Content -Path "./model/filters-table.sql"
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $createTableQuery
             $Cmd.ExecuteReader()
             $Conn.Close()
 
-            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+            $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlServerEndpoint,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;")
             $Conn.AccessToken = $dbToken
-            $Conn.Open() 
+            $Conn.Open()
 
             $createUserQuery = (Get-Content -Path "./model/automation-user.sql").Replace("<automation-account-name>", $automationAccountName)
-            $Cmd = new-object system.Data.SqlClient.SqlCommand
+            $Cmd = New-Object system.Data.SqlClient.SqlCommand
             $Cmd.Connection = $Conn
             $Cmd.CommandTimeout = $SqlTimeout
             $Cmd.CommandText = $createUserQuery
@@ -1277,29 +1346,31 @@ if ("Y", "y" -contains $continueInput) {
 
             $connectionSuccess = $true
         }
-        catch {
+        catch
+        {
             Write-Host "Failed to contact SQL at try $tries." -ForegroundColor Yellow
             Write-Host $Error[0] -ForegroundColor Yellow
             Start-Sleep -Seconds ($tries * 20)
-        }    
+        }
     } while (-not($connectionSuccess) -and $tries -lt 3)
-    
-    if (-not($connectionSuccess)) {
+
+    if (-not($connectionSuccess))
+    {
         if (-not($sqlServerName -like "*.database.*"))
         {
             Write-Host "Deleting temporary SQL Server firewall rule..." -ForegroundColor Green
             Remove-AzSqlServerFirewallRule -FirewallRuleName $tempFirewallRuleName -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -ErrorAction Continue | Out-Null
-        }    
+        }
         throw "Could not establish connection to SQL."
     }
     #endregion
-    
+
     #region Close SQL Server firewall rule
     if (-not($sqlServerName -like "*.database.*"))
     {
         Write-Host "Deleting temporary SQL Server firewall rule..." -ForegroundColor Green
         Remove-AzSqlServerFirewallRule -FirewallRuleName $tempFirewallRuleName -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -ErrorAction Continue | Out-Null
-    }    
+    }
     #endregion
 
     #region Workbooks deployment
@@ -1311,7 +1382,8 @@ if ("Y", "y" -contains $continueInput) {
     {
         $deployWorkbooks = $deploymentOptions["DeployWorkbooks"]
     }
-    if ("Y", "y" -contains $deployWorkbooks) {
+    if ("Y", "y" -contains $deployWorkbooks)
+    {
         $deploymentOptions["DeployWorkbooks"] = "Y"
         $deploymentOptions | ConvertTo-Json | Out-File -FilePath $lastDeploymentStatePath -Force
         Write-Host "Publishing workbooks..." -ForegroundColor Green
@@ -1321,12 +1393,14 @@ if ("Y", "y" -contains $continueInput) {
         {
             $workbookFileName = [System.IO.Path]::GetFileNameWithoutExtension($workbook.Name)
             Write-Host "Deploying $workbookFileName workbook..."
-            try {
+            try
+            {
                 New-AzResourceGroupDeployment -TemplateFile $workbook.FullName -ResourceGroupName $resourceGroupName -Name ($deploymentNameTemplate -f $workbookFileName) `
-                    -workbookSourceId $la.ResourceId -resourceTags $ResourceTags -WarningAction SilentlyContinue | Out-Null        
+                    -workbookSourceId $la.ResourceId -resourceTags $ResourceTags -WarningAction SilentlyContinue | Out-Null
             }
-            catch {
-                Write-Host "Failed to deploy the workbook. If you are upgrading AOE, please remove first the $workbookFileName workbook from the $laWorkspaceName Log Analytics workspace and then re-deploy." -ForegroundColor Yellow            
+            catch
+            {
+                Write-Host "Failed to deploy the workbook. If you are upgrading AOE, please remove first the $workbookFileName workbook from the $laWorkspaceName Log Analytics workspace and then re-deploy." -ForegroundColor Yellow
             }
         }
     }
@@ -1360,40 +1434,45 @@ if ("Y", "y" -contains $continueInput) {
 
             #workaround for https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/888
             $localPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
-            if (-not(get-item "$localPath\.graph\" -ErrorAction SilentlyContinue))
+            if (-not(Get-Item "$localPath\.graph\" -ErrorAction SilentlyContinue))
             {
                 New-Item -Type Directory "$localPath\.graph"
             }
-            
-            switch ($cloudEnvironment) {
-                "AzureUSGovernment" {  
+
+            switch ($cloudEnvironment)
+            {
+                "AzureUSGovernment"
+                {
                     $graphEnvironment = "USGov"
                     break
                 }
-                "AzureChinaCloud" {  
+                "AzureChinaCloud"
+                {
                     $graphEnvironment = "China"
                     break
                 }
-                "AzureGermanCloud" {  
+                "AzureGermanCloud"
+                {
                     $graphEnvironment = "Germany"
                     break
                 }
-                Default {
+                default
+                {
                     $graphEnvironment = "Global"
                 }
             }
-            
-            Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory","Directory.Read.All" -UseDeviceAuthentication -Environment $graphEnvironment -NoWelcome
-            
-            $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id,Members,DisplayName,RoleTemplateId `
-                | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
+
+            Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory", "Directory.Read.All" -UseDeviceAuthentication -Environment $graphEnvironment -NoWelcome
+
+            $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id, Members, DisplayName, RoleTemplateId `
+            | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
             $globalReaders = $globalReaderRole.Members.Id
             if (-not($globalReaders -contains $spnId))
             {
-                New-MgDirectoryRoleMemberByRef -DirectoryRoleId $globalReaderRole.Id -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$spnId"}
+                New-MgDirectoryRoleMemberByRef -DirectoryRoleId $globalReaderRole.Id -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$spnId" }
                 Start-Sleep -Seconds 5
-                $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id,Members,DisplayName,RoleTemplateId `
-                    | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
+                $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id, Members, DisplayName, RoleTemplateId `
+                | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
                 $globalReaders = $globalReaderRole.Members.Id
                 if ($globalReaders -contains $spnId)
                 {
@@ -1406,8 +1485,8 @@ if ("Y", "y" -contains $continueInput) {
             }
             else
             {
-                Write-Host "Role was already granted before." -ForegroundColor Green            
-            }        
+                Write-Host "Role was already granted before." -ForegroundColor Green
+            }
         }
         catch
         {
@@ -1426,39 +1505,41 @@ if ("Y", "y" -contains $continueInput) {
     if (-not($deploymentOptions["DeployBenefitsUsageDependencies"]))
     {
         $benefitsUsageDependenciesOption = Read-Host "Do you also want to deploy the dependencies for the Azure Benefits usage workbooks (EA/MCA customers only + agreement administrator role required)? (Y/N)"
-    } 
-    else 
+    }
+    else
     {
         $benefitsUsageDependenciesOption = $deploymentOptions["DeployBenefitsUsageDependencies"]
     }
-    if ("Y", "y" -contains $benefitsUsageDependenciesOption) 
+    if ("Y", "y" -contains $benefitsUsageDependenciesOption)
     {
-        $deploymentOptions["DeployBenefitsUsageDependencies"] = $benefitsUsageDependenciesOption        
+        $deploymentOptions["DeployBenefitsUsageDependencies"] = $benefitsUsageDependenciesOption
         $automationAccount = Get-AzAutomationAccount -ResourceGroupName $ResourceGroupName -Name $AutomationAccountName
         $principalId = $automationAccount.Identity.PrincipalId
         $tenantId = $automationAccount.Identity.TenantId
 
         $mcaBillingAccountIdRegex = "([A-Za-z0-9]+(-[A-Za-z0-9]+)+):([A-Za-z0-9]+(-[A-Za-z0-9]+)+)_[0-9]{4}-[0-9]{2}-[0-9]{2}"
         $mcaBillingProfileIdRegex = "([A-Za-z0-9]+(-[A-Za-z0-9]+)+)"
-        
+
         if (-not($deploymentOptions["CustomerType"]))
-        {   
+        {
             $customerType = Read-Host "Are you an Enterprise Agreement (EA) or Microsoft Customer Agreement (MCA) customer? Please, type EA or MCA"
-            $deploymentOptions["CustomerType"] = $customerType        
+            $deploymentOptions["CustomerType"] = $customerType
         }
-        else 
+        else
         {
             $customerType = $deploymentOptions["CustomerType"]
         }
-        
-        switch ($customerType) {
-            "EA" {  
+
+        switch ($customerType)
+        {
+            "EA"
+            {
                 if (-not($deploymentOptions["BillingAccountId"]))
                 {
                     $billingAccountId = Read-Host "Please, enter your Enterprise Agreement Billing Account ID (e.g. 12345678)"
                     $deploymentOptions["BillingAccountId"] = $billingAccountId
                 }
-                else 
+                else
                 {
                     $billingAccountId = $deploymentOptions["BillingAccountId"]
                 }
@@ -1484,7 +1565,7 @@ if ("Y", "y" -contains $continueInput) {
                     $uri = "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/$billingAccountId/billingRoleAssignments/$($billingRoleAssignmentName)?api-version=2019-10-01-preview"
                     $body = "{`"properties`": {`"principalId`":`"$principalId`",`"principalTenantId`":`"$tenantId`",`"roleDefinitionId`":`"/providers/Microsoft.Billing/billingAccounts/$billingAccountId/billingRoleDefinitions/24f8edb6-1668-4659-b5e2-40bb5f3a7d7e`"}}"
                     $roleAssignmentResponse = Invoke-AzRestMethod -Method PUT -Uri $uri -Payload $body
-                    if (-not($roleAssignmentResponse.StatusCode -in (200,201,202)))
+                    if (-not($roleAssignmentResponse.StatusCode -in (200, 201, 202)))
                     {
                         throw "The Enterprise Enrollment Reader role could not be granted. Status Code: $($roleAssignmentResponse.StatusCode); Response: $($roleAssignmentResponse.Content)"
                     }
@@ -1495,13 +1576,14 @@ if ("Y", "y" -contains $continueInput) {
                 }
                 break
             }
-            "MCA" {
+            "MCA"
+            {
                 if (-not($deploymentOptions["BillingAccountId"]))
                 {
                     $billingAccountId = Read-Host "Please, enter your Microsoft Customer Agreement Billing Account ID (e.g. <guid>:<guid>_YYYY-MM-DD)"
                     $deploymentOptions["BillingAccountId"] = $billingAccountId
                 }
-                else 
+                else
                 {
                     $billingAccountId = $deploymentOptions["BillingAccountId"]
                 }
@@ -1514,7 +1596,7 @@ if ("Y", "y" -contains $continueInput) {
                     $billingProfileId = Read-Host "Please, enter your Billing Profile ID (e.g. ABCD-DEF-GHI-JKL)"
                     $deploymentOptions["BillingProfileId"] = $billingProfileId
                 }
-                else 
+                else
                 {
                     $billingProfileId = $deploymentOptions["BillingProfileId"]
                 }
@@ -1535,10 +1617,10 @@ if ("Y", "y" -contains $continueInput) {
                     $uri = "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/$billingAccountId/billingProfiles/$billingProfileId/createBillingRoleAssignment?api-version=2020-12-15-privatepreview"
                     $body = "{`"principalId`":`"$principalId`",`"principalTenantId`":`"$tenantId`",`"roleDefinitionId`":`"/providers/Microsoft.Billing/billingAccounts/$billingAccountId/billingProfiles/$billingProfileId/billingRoleDefinitions/40000000-aaaa-bbbb-cccc-100000000002`"}"
                     $roleAssignmentResponse = Invoke-AzRestMethod -Method POST -Uri $uri -Payload $body
-                    if (-not($roleAssignmentResponse.StatusCode -in (200,201,202)))
+                    if (-not($roleAssignmentResponse.StatusCode -in (200, 201, 202)))
                     {
                         throw "The Billing Profile Reader role could not be granted. Status Code: $($roleAssignmentResponse.StatusCode); Response: $($roleAssignmentResponse.Content)"
-                    }    
+                    }
                 }
                 else
                 {
@@ -1546,11 +1628,12 @@ if ("Y", "y" -contains $continueInput) {
                 }
                 break
             }
-            Default {
+            default
+            {
                 throw "Only EA and MCA customers are supported at this time."
             }
         }
-        
+
         Write-Output "Setting up the Billing Account ID variable..."
         $billingAccountIdVarName = "AzureOptimization_BillingAccountID"
         $billingAccountIdVar = Get-AzAutomationVariable -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Name $billingAccountIdVarName -ErrorAction SilentlyContinue
@@ -1562,7 +1645,7 @@ if ("Y", "y" -contains $continueInput) {
         {
             Set-AzAutomationVariable -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Name $billingAccountIdVarName -Value $billingAccountId -Encrypted $false | Out-Null
         }
-        
+
         if ($billingProfileId)
         {
             Write-Output "Setting up the Billing Profile ID variable..."
@@ -1575,15 +1658,15 @@ if ("Y", "y" -contains $continueInput) {
             else
             {
                 Set-AzAutomationVariable -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Name $billingProfileIdVarName -Value $billingProfileId -Encrypted $false | Out-Null
-            }    
-        }    
+            }
+        }
 
         if (-not $deploymentOptions["CurrencyCode"])
         {
             $currencyCode = Read-Host "Please, enter your consumption currency code (e.g. EUR, USD, etc.)"
             $deploymentOptions["CurrencyCode"] = $currencyCode
         }
-        else 
+        else
         {
             $currencyCode = $deploymentOptions["CurrencyCode"]
         }
@@ -1601,11 +1684,12 @@ if ("Y", "y" -contains $continueInput) {
         {
             Set-AzAutomationVariable -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName -Name $currencyCodeVarName -Value $currencyCode -Encrypted $false | Out-Null
         }
-    }    
+    }
     #endregion
 
     Write-Host "Deployment fully completed!" -ForegroundColor Green
 }
-else {
+else
+{
     Write-Host "Deployment cancelled." -ForegroundColor Red
 }

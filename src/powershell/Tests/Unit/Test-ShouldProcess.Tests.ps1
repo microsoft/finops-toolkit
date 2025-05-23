@@ -17,7 +17,7 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         It 'Should not call script block when WhatIf is specified' {
-            # Arrange        
+            # Arrange
             # Act
             $actual = testShouldProcessCheck -WhatIf
 
@@ -26,7 +26,7 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         It 'Should call script block when WhatIf is not specified' {
-            # Arrange        
+            # Arrange
             # Act
             $actual = testShouldProcessCheck
 

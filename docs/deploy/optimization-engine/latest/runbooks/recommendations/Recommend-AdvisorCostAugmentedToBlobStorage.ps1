@@ -648,8 +648,8 @@ foreach ($result in $results) {
                 $fitScore -= 1
                 $additionalInfoDictionary["SupportsIOPS"] = "unknown:needs$($result.MaxPIOPS)"
             }
-            $targetUncachedDiskMiBps = [double]([int]($targetSku.Capabilities | Where-Object { $_.Name -eq 'UncachedDiskBytesPerSecond' }).Value) / 1024 / 1024
-            if ($targetUncachedDiskMiBps -gt 0) {
+            $targetUncachedDiskMiBps = [double]([long]($targetSku.Capabilities | Where-Object { $_.Name -eq 'UncachedDiskBytesPerSecond' }).Value) / 1024 / 1024
+            if ($targetUncachedDiskMiBps -gt 0) { 
                 if (-not([string]::isNullOrEmpty($result.MaxPMiBps))) {
                     if ([double]$result.MaxPMiBps -ge $targetUncachedDiskMiBps) {
                         $fitScore -= 1

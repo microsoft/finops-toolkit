@@ -382,7 +382,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             uri: '${environment().resourceManager}//providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
             method: 'POST'
             body: {
-              query: '@{variables(\'resourcesTable\')} | where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId | union ( Resources | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) | extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id) | project PublicIpId | join (  resources | where type =~ \'Microsoft.Network/publicIPAddresses\' | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location  ) on PublicIpId | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId) |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
+              query: '@{variables(\'resourcesTable\')} | where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId | union ( @{variables(\'resourcesTable\')} | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) | extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id) | project PublicIpId | join (  @{variables(\'resourcesTable\')} | where type =~ \'Microsoft.Network/publicIPAddresses\' | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location  ) on PublicIpId | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId) |  join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionId, subscriptionName = name) on subscriptionId'
               scope: 'Tenant'
             }
             authentication: {
@@ -3543,7 +3543,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
             body: {
               To: '@variables(\'SendAlertTo\')'
               Subject: '@variables(\'SetEmailSubject\')'
-              Body: '<p class="editor-paragraph">@{variables(\'EmailNotice\')}</p><p class="editor-paragraph">@{variables(\'AppGatewayHTML\')}<br>@{variables(\'IdleDiskHTML\')}<br>@{variables(\'IPAddressHTML\')}<br>@{variables(\'LoadBalancerHTML\')}<br>@{variables(\'DiskSnapshotHTML\')}<br>@{variables(\'StoppedVMHTML\')}</p><br><h1 class="editor-heading-h1"><b><strong class="editor-text-bold">📧 </strong></b><b><strong class="editor-text-bold" style="font-size: 20px;">About FinOps alerts</strong></b></h1><p class="editor-paragraph">FinOps alerts keep you informed about cost optimization opportunities within in your cloud environment. They are fully configurable and can be tailored to run on your desired schedule, ensuring that you receive timely notifications on the scenarios most important to your organization. FinOps alerts are part of the FinOps toolkit, an open-source collection of FinOps solutions that help you manage and optimize your cost, usage, and carbon.</p><h1 class="editor-heading-h1"><b><strong class="editor-text-bold" style="font-size: 20px;">Provide feedback</strong></b></h1><p class="editor-paragraph"><a href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.9/bladeName/Alerts/featureName/Email" class="editor-link"><u><span class="editor-text-underline">Give feedback</span></u></a><br><a href="https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20alerts%22%20sort%3Areactions-%2B1-desc" class="editor-link"><u><span class="editor-text-underline">Vote on or suggest ideas</span></u></a></p><br>'
+              Body: '<p class="editor-paragraph">@{variables(\'EmailNotice\')}</p><p class="editor-paragraph">@{variables(\'AppGatewayHTML\')}<br>@{variables(\'IdleDiskHTML\')}<br>@{variables(\'IPAddressHTML\')}<br>@{variables(\'LoadBalancerHTML\')}<br>@{variables(\'DiskSnapshotHTML\')}<br>@{variables(\'StoppedVMHTML\')}</p><br><h1 class="editor-heading-h1"><b><strong class="editor-text-bold">📧 </strong></b><b><strong class="editor-text-bold" style="font-size: 20px;">About FinOps alerts</strong></b></h1><p class="editor-paragraph">FinOps alerts keep you informed about cost optimization opportunities within in your cloud environment. They are fully configurable and can be tailored to run on your desired schedule, ensuring that you receive timely notifications on the scenarios most important to your organization. FinOps alerts are part of the FinOps toolkit, an open-source collection of FinOps solutions that help you manage and optimize your cost, usage, and carbon.</p><h1 class="editor-heading-h1"><b><strong class="editor-text-bold" style="font-size: 20px;">Provide feedback</strong></b></h1><p class="editor-paragraph"><a href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK0.10/bladeName/Alerts/featureName/Email" class="editor-link"><u><span class="editor-text-underline">Give feedback</span></u></a><br><a href="https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20alerts%22%20sort%3Areactions-%2B1-desc" class="editor-link"><u><span class="editor-text-underline">Vote on or suggest ideas</span></u></a></p><br>'
             }
             path: '/v2/Mail'
           }
@@ -3729,7 +3729,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
               {
                 name: 'resourcesTable'
                 type: 'string'
-                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in ("\', replace(replace(string(variables(\'IncludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \'")\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in ("\', replace(replace(string(variables(\'ExcludedSubscriptions\')), \'[\', \'\'), \']\', \'\'), \'")\'))}'
+                value: 'resources@{if(equals(length(variables(\'IncludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId in (\', replace(replace(replace(string(variables(\'IncludedSubscriptions\')), \'\n\', \'\'), \'[\', \'\'), \']\', \'\'), \')\'))}@{if(equals(length(variables(\'ExcludedSubscriptions\')), 0), \'\', concat(\'| where subscriptionId !in (\', replace(replace(replace(string(variables(\'ExcludedSubscriptions\')), \'\n\', \'\'), \'[\', \'\'), \']\', \'\'), \')\'))}'
               }
             ]
           }
@@ -4183,7 +4183,7 @@ resource finopsAlerts 'Microsoft.Logic/workflows@2019-05-01' = {
           office365: {
             connectionId: apiConnection.id
             connectionName: connectionName
-            id: resourceId('Microsoft.Web/locations/managedApis', location, 'office365')
+            id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'office365')
           }
         }
       }
@@ -4201,7 +4201,7 @@ resource apiConnection 'Microsoft.Web/connections@2016-06-01' = {
   location: location
   properties: {
     api: {
-      id: resourceId('Microsoft.Web/locations/managedApis', location, 'office365')
+      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'office365')
     }
     displayName:displayName
   }

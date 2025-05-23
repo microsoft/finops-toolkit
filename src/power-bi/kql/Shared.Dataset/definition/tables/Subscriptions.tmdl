@@ -157,7 +157,14 @@ table Subscriptions
 				      ['properties.managementGroupAncestorsChain'] = properties.managementGroupAncestorsChain,
 				      ['properties.state'] = properties.state 
 				    " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false])
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				      #table(
+				        { "id", "name", "subscriptionId", "tenantId", "properties.managementGroupAncestorsChain", "properties.state" },
+				        {}
+				      )
+				    else Source
 				in
 				  Source
 				```

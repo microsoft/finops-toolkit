@@ -62,7 +62,7 @@ function Remove-FinOpsHubScope
         $exports = Get-FinOpsCostExport -Scope $Id | Where-Object { $hubStorageId -contains $_.StorageAccountId }
 
         # Delete the exports
-        foreach ($export in $exports) 
+        foreach ($export in $exports)
         {
             if ($PSCmdlet.ShouldProcess("$($export.Name) export", "Delete"))
             {
@@ -72,7 +72,7 @@ function Remove-FinOpsHubScope
             }
 
             # Delete the data if requested
-            if ($RemoveData) 
+            if ($RemoveData)
             {
                 $exportStorageName = $export.StorageAccountId.Split("/")[-1]
                 $resourceGroup = (Get-AzResource -ResourceType "Microsoft.Storage/storageAccounts" -Name $exportStorageName).ResourceGroupName
