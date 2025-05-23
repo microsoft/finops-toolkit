@@ -65,7 +65,7 @@ function Invoke-Rest
         Method      = $Method
         Uri         = $arm.Trim('/') + '/' + $Uri.Trim('/')
         Headers     = @{
-            Authorization             = "****** -AsSecureString | ConvertFrom-SecureString -AsPlainText)"
+            Authorization             = "****** -AsSecureString | ConvertFrom-SecureString -AsPlainText))"
             ClientType                = "FinOpsToolkit.PowerShell.$CommandName@$ver"
             "Content-Type"            = 'application/json'
             "x-ms-command-name"       = "FinOpsToolkit.PowerShell.$CommandName@$ver"
