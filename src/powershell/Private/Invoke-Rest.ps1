@@ -1,11 +1,4 @@
 # Copyright (c) Microsoft Corporation.
-
-    # Temporarily suppress warnings for Get-AzAccessToken
-     = 
-     = "SilentlyContinue"
-     = (Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
-     = 
-
 # Licensed under the MIT License.
 
 <#
@@ -66,6 +59,11 @@ function Invoke-Rest
 
     $ver = 'unknown'
     try { $ver = Get-VersionNumber } catch {}
+    # Temporarily suppress warnings for Get-AzAccessToken 
+    $prevWarningPreference = $WarningPreference 
+    $WarningPreference = "SilentlyContinue" 
+    $token = (Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText 
+    $WarningPreference = $prevWarningPreference
 
     $arm = (Get-AzContext).Environment.ResourceManagerUrl
     $params = @{
