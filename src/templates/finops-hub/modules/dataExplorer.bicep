@@ -311,8 +311,8 @@ module ingestion_CommonScripts 'hub-database.bicep' = {
   }
 }
 
-module ingestion_SetupScript 'hub-database.bicep' = {
-  name: 'ingestion_SetupScript'
+module ingestion_SetupScript_1_Settings 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript_1_Settings'
   dependsOn: [
     ingestion_CommonScripts
   ]
@@ -320,7 +320,103 @@ module ingestion_SetupScript 'hub-database.bicep' = {
     clusterName: cluster.name
     databaseName: cluster::ingestionDb.name
     scripts: {
-      setupScript: replace(loadTextContent('scripts/IngestionSetup.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+      setupScript1: replace(loadTextContent('scripts/IngestionSetup_1_Settings.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module ingestion_SetupScript_2_OpenData 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript_2_OpenData'
+  dependsOn: [
+    ingestion_SetupScript_1_Settings
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
+      setupScript2: replace(loadTextContent('scripts/IngestionSetup_2_OpenData.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module ingestion_SetupScript_3_Prices 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript_3_Prices'
+  dependsOn: [
+    ingestion_SetupScript_2_OpenData
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
+      setupScript3: replace(loadTextContent('scripts/IngestionSetup_3_Prices.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module ingestion_SetupScript_4_CostUsage 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript_4_CostUsage'
+  dependsOn: [
+    ingestion_SetupScript_3_Prices
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
+      setupScript4: replace(loadTextContent('scripts/IngestionSetup_4_CostUsage.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module ingestion_SetupScript_5_CommitmentDiscountUsage 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript_5_CommitmentDiscountUsage'
+  dependsOn: [
+    ingestion_SetupScript_4_CostUsage
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
+      setupScript5: replace(loadTextContent('scripts/IngestionSetup_5_CommitmentDiscountUsage.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module ingestion_SetupScript_6_Recommendations 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript_6_Recommendations'
+  dependsOn: [
+    ingestion_SetupScript_5_CommitmentDiscountUsage
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
+      setupScript6: replace(loadTextContent('scripts/IngestionSetup_6_Recommendations.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module ingestion_SetupScript_7_Transactions 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript_7_Transactions'
+  dependsOn: [
+    ingestion_SetupScript_6_Recommendations
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::ingestionDb.name
+    scripts: {
+      setupScript7: replace(loadTextContent('scripts/IngestionSetup_7_Transactions.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
@@ -330,7 +426,7 @@ module ingestion_SetupScript 'hub-database.bicep' = {
 module hub_SetupScript 'hub-database.bicep' = {
   name: 'hub_SetupScript'
   dependsOn: [
-    ingestion_SetupScript
+    ingestion_SetupScript_7_Transactions
   ]
   params: {
     clusterName: cluster.name

@@ -1,0 +1,344 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+//===| Prices |=========================================================================================================
+// NOTE: Must be before cost details.
+//
+// Supported versions:
+// - MS EA 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-ea
+// - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
+//======================================================================================================================
+
+// Prices_raw table
+.create-merge table Prices_raw (
+    BasePrice:          decimal,  // Azure EA + MCA
+    BillingAccountId:   string,   // Azure MCA
+    BillingAccountName: string,   // Azure MCA
+    BillingCurrency:    string,   // Azure MCA
+    BillingProfileId:   string,   // Azure MCA
+    BillingProfileName: string,   // Azure MCA
+    Currency:           string,   // Azure MCA
+    CurrencyCode:       string,   // Azure EA
+    EffectiveEndDate:   datetime, // Azure MCA
+    EffectiveStartDate: datetime, // Azure EA + MCA
+    EnrollmentNumber:   string,   // Azure EA
+    IncludedQuantity:   decimal,  // Azure EA
+    MarketPrice:        decimal,  // Azure EA + MCA
+    MeterCategory:      string,   // Azure EA + MCA
+    MeterId:            string,   // Azure MCA
+    MeterID:            string,   // Azure EA
+    MeterName:          string,   // Azure EA + MCA
+    MeterRegion:        string,   // Azure EA + MCA
+    MeterSubCategory:   string,   // Azure EA + MCA
+    MeterType:          string,   // Azure EA + MCA
+    OfferID:            string,   // Azure EA
+    PartNumber:         string,   // Azure EA
+    PriceType:          string,   // Azure EA + MCA
+    Product:            string,   // Azure EA + MCA
+    ProductId:          string,   // Azure MCA
+    ProductID:          string,   // Azure EA
+    ServiceFamily:      string,   // Azure EA + MCA
+    SkuId:              string,   // Azure MCA
+    SkuID:              string,   // Azure EA
+    Term:               string,   // Azure EA + MCA
+    TierMinimumUnits:   decimal,  // Azure MCA
+    UnitOfMeasure:      string,   // Azure EA + MCA
+    UnitPrice:          decimal,  // Azure EA + MCA
+    x_SourceName:       string,   // Hubs add-on
+    x_SourceProvider:   string,   // Hubs add-on
+    x_SourceType:       string,   // Hubs add-on
+    x_SourceVersion:    string    // Hubs add-on
+)
+
+// Prices_raw ingestion mapping
+.create-or-alter table Prices_raw ingestion parquet mapping "Prices_raw_mapping"
+```
+[
+    { "Column": "BasePrice",          "Properties": { "Field": "BasePrice" } },
+    { "Column": "BillingAccountId",   "Properties": { "Field": "BillingAccountId" } },
+    { "Column": "BillingAccountName", "Properties": { "Field": "BillingAccountName" } },
+    { "Column": "BillingCurrency",    "Properties": { "Field": "BillingCurrency" } },
+    { "Column": "BillingProfileId",   "Properties": { "Field": "BillingProfileId" } },
+    { "Column": "BillingProfileName", "Properties": { "Field": "BillingProfileName" } },
+    { "Column": "Currency",           "Properties": { "Field": "Currency" } },
+    { "Column": "CurrencyCode",       "Properties": { "Field": "CurrencyCode" } },
+    { "Column": "EffectiveEndDate",   "Properties": { "Field": "EffectiveEndDate" } },
+    { "Column": "EffectiveStartDate", "Properties": { "Field": "EffectiveStartDate" } },
+    { "Column": "EnrollmentNumber",   "Properties": { "Field": "EnrollmentNumber" } },
+    { "Column": "IncludedQuantity",   "Properties": { "Field": "IncludedQuantity" } },
+    { "Column": "MarketPrice",        "Properties": { "Field": "MarketPrice" } },
+    { "Column": "MeterCategory",      "Properties": { "Field": "MeterCategory" } },
+    { "Column": "MeterId",            "Properties": { "Field": "MeterId" } },
+    { "Column": "MeterID",            "Properties": { "Field": "MeterID" } },
+    { "Column": "MeterName",          "Properties": { "Field": "MeterName" } },
+    { "Column": "MeterRegion",        "Properties": { "Field": "MeterRegion" } },
+    { "Column": "MeterSubCategory",   "Properties": { "Field": "MeterSubCategory" } },
+    { "Column": "MeterType",          "Properties": { "Field": "MeterType" } },
+    { "Column": "OfferID",            "Properties": { "Field": "OfferID" } },
+    { "Column": "PartNumber",         "Properties": { "Field": "PartNumber" } },
+    { "Column": "PriceType",          "Properties": { "Field": "PriceType" } },
+    { "Column": "Product",            "Properties": { "Field": "Product" } },
+    { "Column": "ProductId",          "Properties": { "Field": "ProductId" } },
+    { "Column": "ProductID",          "Properties": { "Field": "ProductID" } },
+    { "Column": "ServiceFamily",      "Properties": { "Field": "ServiceFamily" } },
+    { "Column": "SkuId",              "Properties": { "Field": "SkuId" } },
+    { "Column": "SkuID",              "Properties": { "Field": "SkuID" } },
+    { "Column": "Term",               "Properties": { "Field": "Term" } },
+    { "Column": "TierMinimumUnits",   "Properties": { "Field": "TierMinimumUnits" } },
+    { "Column": "UnitOfMeasure",      "Properties": { "Field": "UnitOfMeasure" } },
+    { "Column": "UnitPrice",          "Properties": { "Field": "UnitPrice" } },
+    { "Column": "x_SourceName",       "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",   "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",       "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",    "Properties": { "Field": "x_SourceVersion" } }
+]
+```
+
+// Prices_raw retention policy
+.alter-merge table Prices_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Prices_transform_v1_0 function
+.create-or-alter function
+with (docstring='Transforms Prices_raw into FOCUS 1.0.', folder='Prices')
+Prices_transform_v1_0()
+{
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
+    let isoMonths = (duration: string) {
+        let number = toint(replace_regex(duration, @'[PMY]', ''));
+        toint(case(
+            duration == '', toint(''),
+            duration endswith "Y", number * 12,
+            duration endswith "M", number,
+            -1
+        ))
+    };
+    let prices = materialize(
+        Prices_raw
+        | extend x_SkuId = coalesce(SkuId, SkuID)
+        | extend x_SkuMeterId = coalesce(MeterId, MeterID)
+        | extend x_SkuProductId = coalesce(ProductId, ProductID)
+        | extend x_SkuTerm = isoMonths(Term)
+        | project-rename
+            x_BaseUnitPrice = BasePrice,
+            x_EffectivePeriodEnd = EffectiveEndDate,
+            x_EffectivePeriodStart = EffectiveStartDate,
+            x_PricingUnitDescription = UnitOfMeasure,
+            x_SkuIncludedQuantity = IncludedQuantity,
+            x_SkuMeterCategory = MeterCategory,
+            x_SkuMeterName = MeterName,
+            x_SkuMeterSubcategory = MeterSubCategory,
+            x_SkuMeterType = MeterType,
+            x_SkuOfferId = OfferID,
+            x_SkuPartNumber = PartNumber,
+            x_SkuPriceType = PriceType,
+            x_SkuRegion = MeterRegion,
+            x_SkuServiceFamily = ServiceFamily,
+            x_SkuTier = TierMinimumUnits
+        | extend ContractedUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', UnitPrice, todecimal(''))  // UnitPrice for savings plan is not the on-demand unit price
+        | extend ListUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', MarketPrice, todecimal(''))  // MarketPrice for savings plan is not the list price
+        | extend ChargeCategory = case(
+            x_SkuPriceType == 'Consumption', 'Usage',
+            x_SkuPriceType == 'ReservedInstance', 'Purchase',
+            x_SkuPriceType == 'SavingsPlan', 'Usage',  // Savings plan prices are for committed usage, not the purchase
+            ''
+        )
+        | extend SkuPriceIdv2 = strcat(case(x_SkuPriceType == 'Consumption', 'OD', x_SkuPriceType == 'ReservedInstance', 'RI', x_SkuPriceType == 'SavingsPlan', 'SP', 'XX'), substring(ChargeCategory, 0, 1), x_SkuTerm, '_', x_SkuProductId, '_', x_SkuId, '_', x_SkuMeterType, '_', x_SkuTier, x_SkuOfferId)
+        | extend x_BillingAccountId = iff(BillingAccountId startswith '/', split(BillingAccountId, '/')[-1], coalesce(BillingAccountId, EnrollmentNumber))
+        | extend x_BillingProfileId = iff(BillingProfileId startswith '/', split(BillingProfileId, '/')[-1], coalesce(BillingProfileId, EnrollmentNumber))
+        | extend tmp_SavingsPlanKey = strcat(x_SkuMeterId, x_SkuProductId, x_SkuId, x_SkuTier, x_SkuOfferId)
+        //
+        // Get latest ingested row based on the unique ID
+        | extend x_IngestionTime = ingestion_time()
+    );
+    //
+    // Meters for reservations and savings plans to identify commitment eligibility
+    let riMeters = prices | where x_SkuPriceType == 'ReservedInstance' | distinct x_SkuMeterId;
+    let spMeters = prices | where x_SkuPriceType == 'SavingsPlan' | distinct x_SkuMeterId;
+    //
+    // Copy list/base/contracted prices from on-demand SKUs
+    prices
+    | where x_SkuPriceType == 'SavingsPlan'
+    // If we use join, specify the shuffle key
+    // TODO: Compare join vs. lookup perf -- | join kind=leftouter hint.strategy=shuffle (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | distinct tmp_SavingsPlanKey, ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice) on tmp_SavingsPlanKey
+    | lookup kind=leftouter (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | distinct tmp_SavingsPlanKey, ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice) on tmp_SavingsPlanKey
+    | extend ListUnitPrice = coalesce(ListUnitPrice, ListUnitPrice1)
+    | extend ContractedUnitPrice = coalesce(ContractedUnitPrice, ContractedUnitPrice1)
+    | extend x_BaseUnitPrice = coalesce(x_BaseUnitPrice, x_BaseUnitPrice1)
+    | project-away ListUnitPrice1, ContractedUnitPrice1, x_BaseUnitPrice1, tmp_SavingsPlanKey
+    | union ((prices | where x_SkuPriceType != 'SavingsPlan'))
+    //
+    // Calculate commitment discount elgibility
+    // TODO: Would a join be faster?
+    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance', 'Eligible', 'Not Eligible')
+    | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
+    //
+    // Add PricingUnit and x_PricingBlockSize
+    // TODO: Compare join vs. lookup perf -- | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1
+    | lookup kind=leftouter (PricingUnits) on x_PricingUnitDescription
+    //
+    | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
+    | extend x_EffectiveUnitPriceDiscount = ContractedUnitPrice - x_EffectiveUnitPrice
+    | extend x_ContractedUnitPriceDiscount = ListUnitPrice - ContractedUnitPrice
+    | extend x_TotalUnitPriceDiscount = ListUnitPrice - x_EffectiveUnitPrice
+    | project
+        BillingAccountId = tolower(case(
+            BillingProfileId startswith '/', BillingProfileId,
+            BillingAccountId startswith '/', BillingAccountId,
+            strcat('/providers/microsoft.billing/billingaccounts/', x_BillingAccountId, iff(x_BillingProfileId == x_BillingAccountId, '', strcat('/billingprofiles/', x_BillingProfileId)))
+        )),
+        BillingAccountName = coalesce(BillingProfileName, BillingAccountName, x_BillingProfileId),
+        BillingCurrency = coalesce(BillingCurrency, CurrencyCode, Currency),  // Currency last as a fallback only
+        ChargeCategory,
+        CommitmentDiscountCategory = case(
+            x_SkuPriceType == 'ReservedInstance', 'Usage',
+            x_SkuPriceType == 'SavingsPlan', 'Spend',
+            ''
+        ),
+        CommitmentDiscountType = case(
+            x_SkuPriceType == 'ReservedInstance', 'Reservation',
+            x_SkuPriceType == 'SavingsPlan', 'Savings plan',
+            ''
+        ),
+        ContractedUnitPrice,
+        ListUnitPrice,
+        PricingCategory = case(
+            x_SkuPriceType == 'Consumption', 'Standard',
+            x_SkuPriceType == 'ReservedInstance', 'Standard',  // Reservation purchases are tracked as "Standard"
+            x_SkuPriceType == 'SavingsPlan', 'Committed',
+            ''
+        ),
+        PricingUnit,
+        SkuId = coalesce(ProductId, ProductID),
+        SkuPriceId = strcat(x_SkuProductId, '_', x_SkuId, '_', x_SkuMeterType),
+        SkuPriceIdv2,
+        x_BaseUnitPrice,
+        x_BillingAccountAgreement = case(
+            strlen(x_BillingAccountId) > 32, 'MCA',
+            strlen(x_BillingAccountId) < 32, 'EA',
+            'Unknown'
+        ),
+        x_BillingAccountId,
+        x_BillingProfileId,
+        x_CommitmentDiscountSpendEligibility,
+        x_CommitmentDiscountUsageEligibility,
+        x_ContractedUnitPriceDiscount,
+        x_ContractedUnitPriceDiscountPercent = 1.0 * x_ContractedUnitPriceDiscount / ListUnitPrice * 100,
+        x_EffectivePeriodEnd = startofmonth(x_EffectivePeriodEnd + 1h),
+        x_EffectivePeriodStart,
+        x_EffectiveUnitPrice,
+        x_EffectiveUnitPriceDiscount,
+        x_EffectiveUnitPriceDiscountPercent = 1.0 * x_EffectiveUnitPriceDiscount / ContractedUnitPrice * 100,
+        x_IngestionTime,
+        x_PricingBlockSize,
+        x_PricingCurrency = coalesce(Currency, CurrencyCode),  // CurrencyCode last as a fallback only
+        x_PricingSubcategory = case(
+            x_SkuPriceType == 'Consumption' and (x_SkuIncludedQuantity > 0 or x_SkuTier > 0), 'Tiered',
+            x_SkuPriceType == 'Consumption', 'Standard',
+            x_SkuPriceType == 'ReservedInstance', 'Standard', // Reservation purchases are tracked as "Standard"
+            x_SkuPriceType == 'SavingsPlan', 'Committed Spend',
+            ''
+        ),
+        x_PricingUnitDescription,
+        x_SkuDescription = Product,
+        x_SkuId,
+        x_SkuIncludedQuantity,
+        x_SkuMeterCategory,
+        x_SkuMeterId,
+        x_SkuMeterName,
+        x_SkuMeterSubcategory,
+        x_SkuMeterType,
+        x_SkuPriceType,
+        x_SkuProductId,
+        x_SkuRegion,
+        x_SkuServiceFamily,
+        x_SkuOfferId,
+        x_SkuPartNumber,
+        x_SkuTerm,
+        x_SkuTier,
+        x_SourceName = coalesce(x_SourceName, 'Cost Management'),
+        x_SourceProvider = coalesce(x_SourceProvider, 'Microsoft'),
+        x_SourceType = coalesce(x_SourceType, 'PriceSheet'),
+        x_SourceVersion = coalesce(x_SourceVersion, '2023-05-01'),
+        x_TotalUnitPriceDiscount,
+        x_TotalUnitPriceDiscountPercent = 1.0 * x_TotalUnitPriceDiscount / ListUnitPrice * 100
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Prices_final_v1_0 table
+// FOCUS 1.0 version of the price sheet that covers everything defined in Prices_raw.
+.create-merge table Prices_final_v1_0 (
+    BillingAccountId:                     string,
+    BillingAccountName:                   string,
+    BillingCurrency:                      string,
+    ChargeCategory:                       string,
+    CommitmentDiscountCategory:           string,
+    CommitmentDiscountType:               string,
+    ContractedUnitPrice:                  decimal,
+    ListUnitPrice:                        decimal,
+    PricingCategory:                      string,
+    PricingUnit:                          string,
+    SkuId:                                string,
+    SkuPriceId:                           string,
+    SkuPriceIdv2:                         string,    // Hubs add-on
+    x_BaseUnitPrice:                      decimal,   // Azure
+    x_BillingAccountAgreement:            string,    // Hubs add-on
+    x_BillingAccountId:                   string,    // Azure MCA
+    x_BillingProfileId:                   string,    // Azure MCA
+    x_CommitmentDiscountSpendEligibility: string,    // Hubs add-on
+    x_CommitmentDiscountUsageEligibility: string,    // Hubs add-on
+    x_ContractedUnitPriceDiscount:        decimal,   // Hubs add-on
+    x_ContractedUnitPriceDiscountPercent: decimal,   // Hubs add-on
+    x_EffectivePeriodEnd:                 datetime,  // Azure
+    x_EffectivePeriodStart:               datetime,  // Azure
+    x_EffectiveUnitPrice:                 decimal,   // Azure
+    x_EffectiveUnitPriceDiscount:         decimal,   // Hubs add-on
+    x_EffectiveUnitPriceDiscountPercent:  decimal,   // Hubs add-on
+    x_IngestionTime:                      datetime,  // Hubs add-on
+    x_PricingBlockSize:                   decimal,   // Hubs add-on
+    x_PricingCurrency:                    string,    // Azure
+    x_PricingSubcategory:                 string,    // Hubs add-on
+    x_PricingUnitDescription:             string,    // Azure
+    x_SkuDescription:                     string,    // Azure
+    x_SkuId:                              string,    // Azure
+    x_SkuIncludedQuantity:                decimal,   // Azure EA
+    x_SkuMeterCategory:                   string,    // Azure
+    x_SkuMeterId:                         string,    // Azure
+    x_SkuMeterName:                       string,    // Azure
+    x_SkuMeterSubcategory:                string,    // Azure
+    x_SkuMeterType:                       string,    // Azure
+    x_SkuPriceType:                       string,    // Azure
+    x_SkuProductId:                       string,    // Azure
+    x_SkuRegion:                          string,    // Azure
+    x_SkuServiceFamily:                   string,    // Azure
+    x_SkuOfferId:                         string,    // Azure EA
+    x_SkuPartNumber:                      string,    // Azure EA
+    x_SkuTerm:                            int,       // Azure
+    x_SkuTier:                            decimal,   // Azure MCA
+    x_SourceName:                         string,    // Hubs add-on
+    x_SourceProvider:                     string,    // Hubs add-on
+    x_SourceType:                         string,    // Hubs add-on
+    x_SourceVersion:                      string,    // Hubs add-on
+    x_TotalUnitPriceDiscount:             decimal,   // Hubs add-on
+    x_TotalUnitPriceDiscountPercent:      decimal    // Hubs add-on
+)
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Disable Prices_raw streaming ingestion (required for Fabric)
+.alter table Prices_raw policy streamingingestion disable
+
+// Update policy for Prices_raw -> Prices_final_v1_0
+// NOTE: Must be after transform function is defined
+.alter table Prices_final_v1_0 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "Prices_raw",
+    "Query": "Prices_transform_v1_0()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
