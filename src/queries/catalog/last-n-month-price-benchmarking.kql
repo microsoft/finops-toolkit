@@ -25,16 +25,16 @@ let end = now();
 Costs_v1_0
 | where ChargePeriodStart between (start .. end)
 | extend 
-    x_CommitmentDiscountSavings = iif(ContractedCost == 0.0, 0.0, todouble(ContractedCost - EffectiveCost)),
-    x_NegotiatedDiscountSavings = iif(ListCost == 0.0, 0.0, todouble(ListCost - ContractedCost)),
-    x_TotalSavings = iif(ListCost == 0.0, 0.0, todouble(ListCost - EffectiveCost)),
-    x_CommitmentDiscountPercent = iif(ContractedCost == 0.0, 0.0, todouble(ContractedCost - EffectiveCost) * 100.0 / todouble(ContractedCost)),
-    x_NegotiatedDiscountPercent = iif(ListCost == 0.0, 0.0, todouble(ListCost - ContractedCost) * 100.0 / todouble(ListCost)),
-    x_TotalDiscountPercent = iif(ListCost == 0.0, 0.0, todouble(ListCost - EffectiveCost) * 100.0 / todouble(ListCost))
+    x_CommitmentDiscountSavings = iif(ContractedCost == 0.0, 0.0, toreal(ContractedCost - EffectiveCost)),
+    x_NegotiatedDiscountSavings = iif(ListCost == 0.0, 0.0, toreal(ListCost - ContractedCost)),
+    x_TotalSavings = iif(ListCost == 0.0, 0.0, toreal(ListCost - EffectiveCost)),
+    x_CommitmentDiscountPercent = iif(ContractedCost == 0.0, 0.0, toreal(ContractedCost - EffectiveCost) * 100.0 / toreal(ContractedCost)),
+    x_NegotiatedDiscountPercent = iif(ListCost == 0.0, 0.0, toreal(ListCost - ContractedCost) * 100.0 / toreal(ListCost)),
+    x_TotalDiscountPercent = iif(ListCost == 0.0, 0.0, toreal(ListCost - EffectiveCost) * 100.0 / toreal(ListCost))
 | summarize 
-    ListCost = sum(ListCost), 
-    ContractedCost = sum(ContractedCost), 
-    EffectiveCost = sum(EffectiveCost),
+    ListCost = sum(toreal(ListCost)), 
+    ContractedCost = sum(toreal(ContractedCost)), 
+    EffectiveCost = sum(toreal(EffectiveCost)),
     CommitmentSavings = sum(x_CommitmentDiscountSavings), 
     NegotiatedSavings = sum(x_NegotiatedDiscountSavings), 
     TotalSavings = sum(x_TotalSavings),
@@ -44,12 +44,12 @@ Costs_v1_0
     by ServiceName
 | project 
     ServiceName, 
-    ListCost = round(todouble(ListCost), 0), 
-    ContractedCost = round(todouble(ContractedCost), 0), 
-    EffectiveCost = round(todouble(EffectiveCost), 0), 
-    NegotiatedSavings = round(todouble(NegotiatedSavings), 0), 
-    CommitmentSavings = round(todouble(CommitmentSavings), 0), 
-    TotalSavings = round(todouble(TotalSavings), 0), 
-    NegotiatedSavingsPct = round(todouble(NegotiatedSavingsPct), 0), 
-    CommitmentSavingsPct = round(todouble(CommitmentSavingsPct), 0), 
-    TotalSavingsPct = round(todouble(TotalSavingsPct), 0)
+    ListCost = round(ListCost, 0), 
+    ContractedCost = round(ContractedCost, 0), 
+    EffectiveCost = round(EffectiveCost, 0), 
+    NegotiatedSavings = round(NegotiatedSavings, 0), 
+    CommitmentSavings = round(CommitmentSavings, 0), 
+    TotalSavings = round(TotalSavings, 0), 
+    NegotiatedSavingsPct = round(NegotiatedSavingsPct, 0), 
+    CommitmentSavingsPct = round(CommitmentSavingsPct, 0), 
+    TotalSavingsPct = round(TotalSavingsPct, 0)
