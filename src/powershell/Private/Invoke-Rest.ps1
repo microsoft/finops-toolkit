@@ -1,4 +1,11 @@
 # Copyright (c) Microsoft Corporation.
+
+    # Temporarily suppress warnings for Get-AzAccessToken
+     = 
+     = "SilentlyContinue"
+     = (Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
+     = 
+
 # Licensed under the MIT License.
 
 <#
@@ -65,7 +72,7 @@ function Invoke-Rest
         Method      = $Method
         Uri         = $arm.Trim('/') + '/' + $Uri.Trim('/')
         Headers     = @{
-            Authorization             = "****** -AsSecureString | ConvertFrom-SecureString -AsPlainText))"
+            Authorization             = "Bearer $((Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText)"
             ClientType                = "FinOpsToolkit.PowerShell.$CommandName@$ver"
             "Content-Type"            = 'application/json'
             "x-ms-command-name"       = "FinOpsToolkit.PowerShell.$CommandName@$ver"
