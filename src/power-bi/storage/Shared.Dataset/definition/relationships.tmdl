@@ -58,6 +58,7 @@ relationship afee555d-1ede-a014-e6ba-9e35673a6629
 	toColumn: Resources.id
 
 relationship 9c200e9e-608c-4f03-c37f-3e66ce337f82
+	crossFilteringBehavior: bothDirections
 	toCardinality: many
 	fromColumn: Resources.location
 	toColumn: Regions.RegionId
@@ -92,4 +93,13 @@ relationship 2ad9b8bc-59fb-e94c-a36f-1fa66aaa02a8
 	crossFilteringBehavior: bothDirections
 	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
 	toColumn: Resources.id
+
+relationship AutoDetected_d442ee36-a039-47be-83cf-fd058a0973d7
+	fromColumn: AdvisorReservationRecommendations.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship AutoDetected_19cbab3d-1150-45a4-9258-ca0b47ba687d
+	isActive: false
+	fromColumn: AdvisorRecommendations.subscriptionId
+	toColumn: Subscriptions.subscriptionId
 

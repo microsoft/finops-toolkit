@@ -1,12 +1,6 @@
 table Resources
 	lineageTag: ec447c64-6e55-41d8-a5ea-a43adab5dc79
 
-	column x_ResourceGroupId = "/subscriptions/" & Resources[subscriptionId] & "/resourcegroups/" & Resources[resourceGroup]
-		lineageTag: dfd516fd-8d25-441f-93a3-190abe05d572
-		summarizeBy: none
-
-		annotation SummarizationSetBy = Automatic
-
 	column id
 		dataType: string
 		lineageTag: 6c849866-bafa-4cdf-a863-0a5831052c26
@@ -47,6 +41,14 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
+	column resourceGroup
+		dataType: string
+		lineageTag: bf7f9a12-8b99-43f1-bb81-7df06117afb8
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
 	column subscriptionId
 		dataType: string
 		lineageTag: 8c7bbeee-c26d-4a1c-9f17-1061d8e43724
@@ -63,19 +65,17 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_ResourceGroupId = "/subscriptions/" & Resources[subscriptionId] & "/resourcegroups/" & Resources[resourceGroup]
+		lineageTag: dfd516fd-8d25-441f-93a3-190abe05d572
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
 	column timeModified
 		dataType: string
 		lineageTag: f9a30d28-b76c-4f48-b909-ae980bbfbc27
 		summarizeBy: none
 		sourceColumn: timeModified
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: bf7f9a12-8b99-43f1-bb81-7df06117afb8
-		summarizeBy: none
-		sourceColumn: resourceGroup
 
 		annotation SummarizationSetBy = Automatic
 

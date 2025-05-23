@@ -555,5 +555,5 @@ expression 'Remove Duplicate Resource IDs' = false meta [IsParameterQuery=true, 
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Logical
 
