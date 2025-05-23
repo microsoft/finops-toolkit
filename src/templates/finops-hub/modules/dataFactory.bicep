@@ -145,7 +145,7 @@ var storageRbacRoles = [
 ]
 
 // Roles for ADF to to start check ADX cluster and to start cluster if stopped
-var AdxRbacRoles = [
+var adxRbacRoles = [
   'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor permissions on the cluster
 ]
 
@@ -169,7 +169,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = if (!empty(r
 }
 
 // Get ADX cluster instance
-resource ADXcluster 'Microsoft.Kusto/clusters@2023-08-15' existing = {
+resource dataExplorerCluster 'Microsoft.Kusto/clusters@2023-08-15' existing = if (deployDataExplorer) {
   name: dataExplorerName
 }  
 
@@ -349,9 +349,9 @@ resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssi
 }]
 
 // Grant ADF identity access to manage ADX cluster
-resource factoryIdentityADXRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in AdxRbacRoles: {
-  name: guid(ADXcluster.id, role, dataFactory.id)
-  scope: ADXcluster
+resource factoryIdentityADXRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in adxRbacRoles: {
+  name: guid(dataExplorerCluster.id, role, dataFactory.id)
+  scope: dataExplorerCluster
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: dataFactory.identity.principalId
@@ -5083,13 +5083,13 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           method: 'GET'
           headers: {}
           url: {
-            value: '@{variables(\'resourceManagementUri\')}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerName}?api-version=2024-04-13'
+            value: '@${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}?api-version=2024-04-13'
             type: 'Expression'
           }
           authentication: {
             type: 'MSI'
             resource: {
-              value: '@variables(\'resourceManagementUri\')'
+              value: environment().resourceManager
               type: 'Expression'
             }
           }
@@ -5112,7 +5112,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         }
         userProperties: []
         typeProperties: {
-          variableName: 'clusterstatusvalue'
+          variableName: 'dataExplorerStatus'
           value: {
             value: '@activity(\'ListADXCluster\').output.value[0].properties.state'
             type: 'Expression'
@@ -5133,7 +5133,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@equals(variables(\'clusterstatusvalue\'), \'Stopped\')'
+            value: '@equals(variables(\'dataExplorerStatus\'), \'Stopped\')'
             type: 'Expression'
           }
           ifTrueActivities: [
@@ -5153,14 +5153,14 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
                 method: 'POST'
                 headers: {}
                 url: {
-                  value: '@{variables(\'resourceManagementUri\')}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerName}/start?api-version=2024-04-13'
+                  value: '@${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}/start?api-version=2024-04-13'
                   type: 'Expression'
                 }
                 body: {}
                 authentication: {
                   type: 'MSI'
                   resource: {
-                    value: '@variables(\'resourceManagementUri\')'
+                    value: environment().resourceManager
                     type: 'Expression'
                   }
                 }
@@ -5183,14 +5183,10 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
       timestamp: {
         type: 'string'
       }
-      clusterstatusvalue: {
+      dataExplorerStatus: {
         type: 'String'
       }
-      resourceManagementUri: {
-        type: 'String'
-        defaultValue: environment().resourceManager
-      }
-    }
+   }
     annotations: [
       'New ingestion'
     ]
