@@ -60,9 +60,19 @@ _Released June 2, 2025_
 
 ### [Open data](open-data.md) v0.11
 
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "10 Seconds" unit of measure.
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+
 **[Services](open-data.md#services)**
 
 - **Added**
+  - Added a service mapping for microsoft.premonition/libraries.
   - Mapped the following resource types to their respective services:
     - microsoft.batch/batchaccounts/pools
     - microsoft.compute/galleries/images/versions
