@@ -45,7 +45,8 @@ If you want to make modifications to the Cost optimization workbook or use other
 
 First, confirm you have the following least-privileged roles to deploy and use the workbook.
 
-- [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) on the target resource group allows you to deploy the workbook or edit and save the workbook after deployment.
+- **Contributor** or a role with both `Microsoft.Resources/deployments/validate/action` and `Microsoft.Resources/deployments/write` permissions is required for ARM template deployments.
+- [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) on the target resource group allows you to edit and save the workbook after deployment.
 - [Reader](/azure/role-based-access-control/built-in-roles#reader) is required on all subscriptions you will monitor to access resource information.
 
 > [!NOTE]

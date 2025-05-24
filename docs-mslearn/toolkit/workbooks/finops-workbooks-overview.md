@@ -27,7 +27,8 @@ This template includes the following workbooks:
 
 1. To deploy and use the workbook, confirm you have the following least-privileged roles:
 
-   - [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) on the target resource group allows you to deploy the workbook or edit and save the workbook after deployment.
+   - **Contributor** or a role with both `Microsoft.Resources/deployments/validate/action` and `Microsoft.Resources/deployments/write` permissions is required for ARM template deployments.
+   - [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) on the target resource group allows you to edit and save the workbook after deployment.
    - [Reader](/azure/role-based-access-control/built-in-roles#reader) is required on all subscriptions you will monitor to access resource information.
 
    > [!NOTE]
