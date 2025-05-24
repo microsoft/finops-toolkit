@@ -154,6 +154,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '10 PiB/Hour'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'PiB/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 Pipelines'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'Pipelines'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 Rotations'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'Rotations'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '10 Seconds'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'Seconds'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 Service Endpoints'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'Endpoints'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 TB'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'TB'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '10 TB Hours'; AccountTypes = 'EA'; PricingBlockSize = 10; DistinctUnits = 'TB Hours'; }
@@ -196,7 +197,7 @@ function Get-OpenDataPricingUnit
         ,[PSCustomObject]@{ UnitOfMeasure = '100 Mbps'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'Mbps'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 Minutes'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'Minutes'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 Months'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'Months'; }
-        ,[PSCustomObject]@{ UnitOfMeasure = '100 Seconds'; AccountTypes = 'MCA'; PricingBlockSize = 100; DistinctUnits = 'Seconds'; }
+        ,[PSCustomObject]@{ UnitOfMeasure = '100 Seconds'; AccountTypes = 'MCA, EA'; PricingBlockSize = 100; DistinctUnits = 'Seconds'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 TB'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'TB'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 TB/Hour'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'TB/Hour'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '100 TB/Month'; AccountTypes = 'EA'; PricingBlockSize = 100; DistinctUnits = 'TB/Month'; }
