@@ -27,12 +27,11 @@ This template includes the following workbooks:
 
 1. To deploy and use the workbook, confirm you have the following least-privileged roles:
 
-   - **Contributor** or a role with `Microsoft.Resources/deployments/validate/action` permission is required to deploy the ARM template.
-   - **Workbook Contributor** allows you to save the workbook after deployment.
-   - **Reader** to view all of the workbook tabs.
+   - [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) on the target resource group allows you to deploy the workbook or edit and save the workbook after deployment.
+   - [Reader](/azure/role-based-access-control/built-in-roles#reader) is required on all subscriptions you will monitor to access resource information.
 
    > [!NOTE]
-   > If you only have read access (Reader role), you cannot deploy using the ARM template buttons below. Instead, you can download the workbook JSON files directly from the [FinOps toolkit GitHub repository](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/finops-workbooks/workbooks) and import them manually through Azure Monitor Workbooks. You will not be able to save the workbooks, but you can view all tabs.
+   > If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs. You can download the workbook JSON files from the FinOps workbooks download in the [latest release](https://aka.ms/ftk/latest).
 
 2. Deploy the **finops-workbooks** template using one of the following methods:
 
@@ -48,11 +47,12 @@ This template includes the following workbooks:
 
    **Option 2:** Import JSON files directly (works with Reader access)
    
-   1. Download the workbook files from the [FinOps toolkit GitHub repository](https://github.com/microsoft/finops-toolkit/tree/main/src/workbooks)
+   1. Download FinOps workbooks from the [latest release](https://aka.ms/ftk/latest).
    2. Navigate to [Azure Monitor Workbooks](https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks) in the Azure portal
-   3. Click on "+ New" and select "Import from file"
-   4. Upload the downloaded .workbook file
-   5. Click "Apply" to view the workbook
+   3. Click on **+ New** and select **Advanced editory**
+   4. Copy the text from the desired workbook.json from the downloaded ZIP file, paste it into the editor, and select **Apply**.
+   5. Select **Done editing** to view the workbook.
+   6. Repeat steps 3-5 for each workbook.
 
 <br>
 
