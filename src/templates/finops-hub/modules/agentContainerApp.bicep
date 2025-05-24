@@ -255,7 +255,7 @@ resource containerAppAuthConfig 'Microsoft.App/containerApps/authConfigs@2025-01
     identityProviders: {
       azureActiveDirectory: {
         registration: {
-          openIdIssuer: 'https://login.microsoftonline.com/${hubAgentTenantId}/v2.0'
+          openIdIssuer: '${environment().authentication.loginEndpoint}${hubAgentTenantId}/v2.0'
           clientId: hubAgentAppId
         }
         validation: {

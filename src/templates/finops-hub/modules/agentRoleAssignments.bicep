@@ -20,9 +20,6 @@ param containerRegistryName string
 param searchServicePrincipalId string
 
 @description('Storage Name')
-param keyVaultName string
-
-@description('Storage Name')
 param storageName string
 
 var role = {
@@ -42,9 +39,7 @@ resource aiServices 'Microsoft.CognitiveServices/accounts@2023-05-01' existing =
   name: aiServicesName
 }
 
-resource keyVault 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
-  name: keyVaultName
-}
+
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2025-04-01' existing = {
   name: containerRegistryName

@@ -1,62 +1,99 @@
 // Execute this main file to deploy Azure AI Foundry resources in the basic security configuration
 
 // Parameters
+@description('Required. Id of the subnet for private endpoints used by the agent container.')
+param agentSubnetId string
+
+@description('The model location for the agent. Used for Cognitive Services deployment region.')
+param agentModelLocation string
+
+@description('The model name for AOAI deployment.')
+param aoamodel string = 'gpt-4o'
+
+@description('The format for AOAI model deployment.')
+param aoaiformat string = 'OpenAI'
+
+@description('The SKU for AOAI model deployment.')
+param aoaisku string = 'GlobalStandard'
+
+@description('The SKU capacity for AOAI model deployment.')
+param aoaiskuCapacity int = 30
+
+@description('The version for AOAI model deployment.')
+param aoaiversion string = '2024-11-20'
+
+@description('The model name for DeepSeek deployment.')
+param deepSeekModel string = 'DeepSeek-R1'
+
+@description('The format for DeepSeek model deployment.')
+param deepSeekFormat string = 'DeepSeek'
+
+@description('The SKU for DeepSeek model deployment.')
+param deepseekSku string = 'GlobalStandard'
+
+@description('The SKU capacity for DeepSeek model deployment.')
+param deepseekSkuCapacity int = 1
+
+@description('The version for DeepSeek model deployment.')
+param deepSeekVersion string = '1'
+
+@description('Optional. Enable public access to the data lake. Default: true.')
+param enablePublicAccess bool = true
+
 @description('Required. Name of the hub. Used to ensure unique resource names.')
 param hubName string
 
-@description('Required. Suffix to add to the KeyVault instance name to ensure uniqueness.')
-param uniqueSuffix string
+@description('Specifies the Application Id of the Entra Id App Registration for the container app.')
+param hubAgentAppId string
 
-@description('Optional. Tags to apply to all resources.')
+@description('Specifies the Tenant Id of the Entra Id App Registration for the container app.')
+param hubAgentTenantId string
+
+@description('The name of the keyvault to store the agent secrets in.')
+param keyVaultName string
+
+@description('The location into which the resources should be deployed.')
+param location string
+
+@description('Required. Id of the subnet for private endpoints used by the container app.')
+param containerSubnetId string
+
+@description('Required. Tags to apply to all resources.')
 param tags object = {}
 
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
-@description('Optional. Enable public access to the data lake.  Default: false.')
-param enablePublicAccess bool = true
-
 @description('Required. Id of the virtual network for private endpoints.')
 param virtualNetworkId string
 
-@description('Required. Id of the subnet for private endpoints.')
-param agentSubnetId string
+@description('Required. Suffix to add to the instance name to ensure uniqueness.')
+param uniqueSuffix string
 
-@description('Required. Id of the subnet for private endpoints.')
-param containerSubnetId string
-
-@description('Specifies the Tenant Id of the Entra Id App Registration for the container app.')
-param hubAgentTenantId string
-
-@description('Specifies the Application Id of the Entra Id App Registration for the container app.')
-param hubAgentAppId string
-
-@description('The location into which the resources should be deployed.')
-param location string 
-
-@description('The location into which the resources should be deployed.')
-
-
+@description('The SKU for Cognitive Services.')
 param cognitiveServicesSku string = 'S0'
 
-param aoamodel string = 'gpt-4o'
-param agentModelLocation string
-param aoaiformat string = 'OpenAI'
-param aoaisku string = 'GlobalStandard'
-param aoaiskuCapacity int = 30
-param aoaiversion string = '2024-11-20'
-
+@description('The model name for text embedding deployment.')
 param textEmbeddingModel string = 'text-embedding-3-large'
+
+@description('The format for text embedding model deployment.')
 param textEmbeddingFormat string = 'OpenAI'
+
+@description('The SKU for text embedding model deployment.')
 param textEmbeddingSku string = 'GlobalStandard'
+
+@description('The SKU capacity for text embedding model deployment.')
 param textEmbeddingSkuCapacity int = 30
+
+@description('The version for text embedding model deployment.')
 param textEmbeddingVersion string = '1'
 
-param deepSeekModel string = 'DeepSeek-R1'
-param deepSeekFormat string = 'DeepSeek'
-param deepSeekVersion string = '1'
-param deepseekSku string = 'GlobalStandard'
-param deepseekSkuCapacity int = 1
+@description('Determines whether to use an API key or Azure Active Directory (AAD) for the AI service connection authentication. The default value is ApiKey.')
+@allowed([
+  'ApiKey'
+  'AAD'
+])
+param connectionAuthMode string = 'ApiKey'
 
 @description('Determines whether or not to use credentials for the system datastores of the workspace workspaceblobstore and workspacefilestore. The default value is accessKey, in which case, the workspace will create the system datastores with credentials. If set to identity, the workspace will create the system datastores with no credentials.')
 @allowed([
@@ -65,51 +102,32 @@ param deepseekSkuCapacity int = 1
 ])
 param systemDatastoresAuthMode string = 'identity'
 
-@description('Determines whether to use an API key or Azure Active Directory (AAD) for the AI service connection authentication. The default value is apiKey.')
-@allowed([
-  'ApiKey'
-  'AAD'
-])
-param connectionAuthMode string = 'ApiKey'
-
-// Variables
-var agentName = toLower('ai${hubName}')
-var safeLocationName = toLower(replace(agentModelLocation, ' ', ''))
-
 // params for environment variables
 param ADX_CLUSTER_URL string
 param ADX_DATABASE string
 @secure()
-param TAVILY_API_KEY string
+param TAVILY_API_KEY string = ''
 
+// Variables
+var agentName = toLower('ai${hubName}')
+var safeLocationName = toLower(replace(agentModelLocation, ' ', ''))
 var PROJECT_CONNECTION_STRING = '' // d16d1fab-0997-46d3-b7d5-6bda819ca42f.workspace.westus3.api.azureml.ms;cab7feeb-759d-478c-ade6-9326de0651ff;ftk-sdp;aiftk-sdph24tipbpqcuhahub-project
-var AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED  = aoamodel
-var AZURE_AI_SEARCH_SERVICE_ENDPOINT  = agentSearchService.outputs.searchServiceEndpoint
-var AZURE_AI_SEARCH_ADMIN_KEY  = 'unset'
-var AZURE_AI_SEARCH_INDEX_NAME  = 'unset'
-var AZURE_AI_SEARCH_INDEX_KQL  = 'unset'
-var AZURE_OPENAI_ENDPOINT  = 'https://${safeLocationName}.api.cognitive.microsoft.com'
-var AZURE_OPENAI_EMBEDDING_DEPLOYMENT  = textEmbeddingModel
-var AZURE_OPENAI_API_VERSION  = aoaiversion //'2023-05-15'
-var AZURE_INFERENCE_ENDPOINT='https://${safeLocationName}.api.cognitive.microsoft.com/models'
-var MODEL_NAME=deepSeekModel
+var AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME_STRUCTURED = aoamodel
+var AZURE_AI_SEARCH_SERVICE_ENDPOINT = agentSearchService.outputs.searchServiceEndpoint
+var AZURE_AI_SEARCH_ADMIN_KEY = 'unset'
+var AZURE_AI_SEARCH_INDEX_NAME = 'unset'
+var AZURE_AI_SEARCH_INDEX_KQL = 'unset'
+var AZURE_OPENAI_ENDPOINT = 'https://${safeLocationName}.api.cognitive.microsoft.com'
+var AZURE_OPENAI_EMBEDDING_DEPLOYMENT = textEmbeddingModel
+var AZURE_OPENAI_API_VERSION = aoaiversion //'2023-05-15'
+var AZURE_INFERENCE_ENDPOINT = 'https://${safeLocationName}.api.cognitive.microsoft.com/models'
+var MODEL_NAME = deepSeekModel
 //var AZURE_OPENAI_KEY  = agentcognitiveservicesExisting.listKeys().key1
 //var AZURE_INFERENCE_KEY=agentcognitiveservicesExisting.listKeys().key1
 // Dependent resources for the Azure Machine Learning workspace
 
-module agentKeyvault 'keyvault.bicep' = {
-  name: 'agent-keyvault'
-  params: {
-    location: location
-    enablePublicAccess: enablePublicAccess
-    privateEndpointSubnetId: agentSubnetId
-    virtualNetworkId: virtualNetworkId
-    hubName: agentName
-    uniqueSuffix: uniqueSuffix
-    tags: tags
-    tagsByResource: tagsByResource
-    storageAccountKey: '' // This is not used in this module, but is required for the keyvault module
-  }
+resource agentKeyvault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
+  name: keyVaultName
 }
 
 module agentContainerRegistry 'agentContainerRegistry.bicep' = {
@@ -154,7 +172,7 @@ module agentStorage 'agentStorage.bicep' = {
   }
 }
 
-module agentcognitiveservices 'agentCognitiveServices.bicep'  = {
+module agentcognitiveservices 'agentCognitiveServices.bicep' = {
   name: 'agent-cognitive-services'
   params: {
     location: agentModelLocation
@@ -205,14 +223,14 @@ module agentcognitiveservices 'agentCognitiveServices.bicep'  = {
         }
       }
     ]
-  }  
+  }
 }
 
 module agentworkspace 'agentWorkspace.bicep' = {
   name: 'agent-ml-workspace'
   params: {
     // workspace organization
-    aiHubName: '${agentName}${uniqueSuffix}hub'
+    aiHubName: '${hubName}${uniqueSuffix}hub'
     aiHubFriendlyName: '${hubName} AI Hub'
     aiHubDescription: 'AI Hub for ${hubName}'
     location: location
@@ -231,7 +249,7 @@ module agentworkspace 'agentWorkspace.bicep' = {
     aiServicesTarget: agentcognitiveservices.outputs.aiServicesEndpoint
     //applicationInsightsId: aiDependencies.outputs.applicationInsightsId
     containerRegistryId: agentContainerRegistry.outputs.id
-    keyVaultId: agentKeyvault.outputs.resourceId
+    keyVaultId: agentKeyvault.id
     storageAccountId: agentStorage.outputs.storageId
     searchId: agentSearchService.outputs.searchServiceId
     searchTarget: agentSearchService.outputs.searchServiceEndpoint
@@ -239,7 +257,6 @@ module agentworkspace 'agentWorkspace.bicep' = {
     //configuration settings
     systemDatastoresAuthMode: systemDatastoresAuthMode
     connectionAuthMode: connectionAuthMode
-
   }
 }
 
@@ -254,7 +271,6 @@ module agentroleassignments 'agentRoleAssignments.bicep' = {
     searchServicePrincipalId: agentSearchService.outputs.searchServicePrincipalId
     searchServiceName: agentSearchService.outputs.searchServiceName
     storageName: agentStorage.outputs.storageName
-    keyVaultName: agentKeyvault.outputs.name
     containerRegistryName: agentContainerRegistry.outputs.name
   }
 }
@@ -262,16 +278,17 @@ module agentroleassignments 'agentRoleAssignments.bicep' = {
 // Container for the agent
 
 resource agentcognitiveservicesExisting 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
-  name: '${agentName}${uniqueSuffix}'
+  name: replace('${agentName}${uniqueSuffix}', '-', '')
   dependsOn: [
-    agentcognitiveservices
+    agentworkspace
   ]
 }
+
 module agentContainer 'agentContainerApp.bicep' = {
   name: 'agent-container'
   params: {
-    containerAppEnvName: take('aca${agentName}${uniqueSuffix}',  30)
-    containerAppName: take('app${agentName}${uniqueSuffix}',  30)
+    containerAppEnvName: take('aca${agentName}${uniqueSuffix}', 30)
+    containerAppName: take('app${agentName}${uniqueSuffix}', 30)
     containerSubnetId: containerSubnetId
     tags: tags
     tagsByResource: tagsByResource

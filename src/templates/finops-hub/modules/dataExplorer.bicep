@@ -451,7 +451,7 @@ output principalId string = cluster.identity.principalId
 output clusterName string = cluster.name
 
 @description('The URI of the cluster.')
-output clusterUri string = cluster.properties.uri
+output clusterUri string = 'https://${cluster.name}.${location}.kusto.windows.net'
 
 @description('The name of the database for data ingestion.')
 output ingestionDbName string = cluster::ingestionDb.name

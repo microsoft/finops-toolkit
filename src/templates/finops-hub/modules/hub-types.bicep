@@ -81,6 +81,7 @@ type HubVaultConfig = {
     dfs: 'Resource ID and name for the DFS storage DNS zone.'
     queue: 'Resource ID and name for the queue storage DNS zone.'
     table: 'Resource ID and name for the table storage DNS zone.'
+    file: 'Resource ID and name for the file storage DNS zone.'
   }
   subnets: {
     dataFactory: 'Resource ID of the subnet for Data Factory instances.'
@@ -99,6 +100,7 @@ type HubNetworkConfig = {
     dfs: IdNameObject
     queue: IdNameObject
     table: IdNameObject
+    file: IdNameObject
   }
   subnets: {
     dataFactory: string
@@ -277,6 +279,7 @@ func newHubCoreConfigInternal(
       dfs: { id: '', name: '' }
       queue: { id: '', name: '' }
       table: { id: '', name: '' }
+      file: { id: '', name: '' }
     }
     subnets: {
       dataFactory: ''
@@ -294,6 +297,7 @@ func newHubCoreConfigInternal(
       dfs: dnsZoneIdName('dfs')
       queue: dnsZoneIdName('queue')
       table: dnsZoneIdName('table')
+      file: dnsZoneIdName('file')
     }
     subnets: {
       dataFactory: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')

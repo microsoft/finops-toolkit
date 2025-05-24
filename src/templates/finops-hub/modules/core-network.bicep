@@ -103,6 +103,26 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
   }
 }
 
+// Required for Azure AI Foundry
+resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (coreConfig.network.isPrivate) {
+  name: coreConfig.network.dnsZones.file.name
+  location: 'global'
+  tags: getHubTags(coreConfig, 'Microsoft.Storage/privateDnsZones')
+  properties: {}
+  
+  resource filePrivateDnsZoneLink 'virtualNetworkLinks' = {
+    name: '${replace(filePrivateDnsZone.name, '.', '-')}-link'
+    location: 'global'
+    tags: getHubTags(coreConfig, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+    properties: {
+      registrationEnabled: false
+      virtualNetwork: {
+        id: coreConfig.network.id
+      }
+    }
+  }
+}
+
 //------------------------------------------------------------------------------
 // Script storage
 //------------------------------------------------------------------------------

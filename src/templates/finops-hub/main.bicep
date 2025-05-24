@@ -144,9 +144,6 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
-@description('Optional. Enable Hub FinOps Agent. Default: false.')
-param enableHubAgent bool = false
-
 @description('Specifies the Tenant Id of the Entra Id App Registration for the container app.')
 param hubAgentTenantId string
 
@@ -187,7 +184,6 @@ module hub 'modules/hub.bicep' = {
     dataExplorerFinalRetentionInMonths: dataExplorerFinalRetentionInMonths
     remoteHubStorageUri: remoteHubStorageUri
     remoteHubStorageKey: remoteHubStorageKey
-    enableHubAgent: enableHubAgent
     hubAgentAppId: hubAgentAppId
     hubAgentTenantId: hubAgentTenantId
     enablePublicAccess: enablePublicAccess

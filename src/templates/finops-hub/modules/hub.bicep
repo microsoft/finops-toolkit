@@ -155,9 +155,6 @@ param dataExplorerRawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
 
-@description('Optional. Enable Hub FinOps Agent. Default: false.')
-param enableHubAgent bool = false
-
 @description('Specifies the Tenant Id of the Entra Id App Registration for the container app.')
 param hubAgentTenantId string
 
@@ -197,14 +194,18 @@ var coreConfig = newHubCoreConfig(
 // Do not reference these deployments directly or indirectly to avoid a DeploymentNotFound error
 var useFabric = !empty(fabricQueryUri)
 var deployDataExplorer = !useFabric && !empty(dataExplorerName)
+var deployAgent = !empty(hubAgentAppId) && !empty(hubAgentTenantId)
 var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clusterName
 var safeDataExplorerUri = useFabric ? fabricQueryUri : (!deployDataExplorer ? '' : dataExplorer.outputs.clusterUri)
 var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
 var safeDataExplorerIngestionDb = useFabric ? 'Ingestion' : (!deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName)
+var safeDataExplorerHubDb = useFabric ? 'Hub' : (!deployDataExplorer ? '' : dataExplorer.outputs.hubDbName)
 var safeDataExplorerIngestionCapacity = useFabric ? fabricCapacityUnits : (!deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity)
 var safeDataExplorerPrincipalId = !deployDataExplorer ? '' : dataExplorer.outputs.principalId
 var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
 var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
+var safeAgentSubnetId = enablePublicAccess ? '' : vnet.outputs.agentSubnetId
+var safeContainerSubnetId = enablePublicAccess ? '' : vnet.outputs.containerSubnetId
 // var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
 // var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 
@@ -309,7 +310,11 @@ module appRegistration 'hub-app.bicep' = {
     appName: 'Core'
     displayName: 'FinOps hub core'
     appVersion: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
-    features: [
+    features: deployAgent ? [
+      'DataFactory'
+      'Storage'
+      'KeyVault'
+    ] : [
       'DataFactory'
       'Storage'
     ]
@@ -414,6 +419,30 @@ module dataFactoryResources 'dataFactory.bicep' = {
     remoteHubStorageUri: remoteHubStorageUri
   }
 }
+
+//------------------------------------------------------------------------------
+// Agent
+//------------------------------------------------------------------------------
+
+module agent 'hub-agent.bicep' = if (deployAgent) {
+  name: 'agent'
+  params: {
+    ADX_CLUSTER_URL: safeDataExplorerUri
+    ADX_DATABASE: safeDataExplorerHubDb
+    agentModelLocation: agentModelLocation
+    agentSubnetId: safeAgentSubnetId
+    containerSubnetId: safeContainerSubnetId
+    hubAgentAppId: hubAgentAppId
+    hubAgentTenantId: hubAgentTenantId
+    hubName: hubName
+    keyVaultName: appRegistration.outputs.config.publisher.keyVault
+    location: location
+    TAVILY_API_KEY: '' // TODO: Provide actual API key if needed
+    uniqueSuffix: uniqueString(resourceGroup().id)
+    virtualNetworkId: safeVnetId
+  }
+}
+
 
 //------------------------------------------------------------------------------
 // Remote hub app
