@@ -1,0 +1,85 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+//------------------------------------------------------------------------------
+// Settings
+//------------------------------------------------------------------------------
+
+.set-or-append Ingestion.settings <|
+let
+    Raw_Retention = $$rawRetentionInDays$$
+    , Default_Retention = iif(Raw_Retention > 0, Raw_Retention, 1)
+    , Max_Retention = tolong(timespan(365d) / 1d)
+    , OptimizedCostPrices = "AzureOptimizedCostPrices"
+    , OptimizedCostRecommendations = "AzureOptimizedCostRecommendations"
+    , OptimizedCostDetails = "AzureOptimizedCostDetails"
+    , OptimizedCommitmentDiscountCharges = "AzureOptimizedCommitmentDiscountCharges"
+    , Raw_Tables = datatable (name:string)
+    [
+        "AzureCostPrices_raw"
+        , "AzureCostExportRaw_raw"
+        , "AzureCostExportReservationCharges_raw"
+        , "AzureCostExportSavingsPlanCharges_raw"
+        , "AzureRecommendations_raw"
+        , "AzureTransactions_raw"
+    ]
+in table(name:string, value:string, comment:string)
+[
+    // Raw tables
+    "RawTableNames", strcat_array(Raw_Tables.name, ", "), "the names of the raw tables"
+    
+    // Optimized tables
+    , "OptimizedCostPrices", OptimizedCostPrices, "optimized prices table name"
+    , "OptimizedCostRecommendations", OptimizedCostRecommendations, "optimized recommendations table name"
+    , "OptimizedCostDetails", OptimizedCostDetails, "optimized details table name"
+    , "OptimizedCommitmentDiscountCharges", OptimizedCommitmentDiscountCharges, "optimized commitment discount charges table name"
+    
+    // Retention
+    , "RawRetention", tostring(Default_Retention), "retention for raw tables in days"
+    , "MaxRetention", tostring(Max_Retention), "maximum retention for undocumented tables in days"
+]
+
+//------------------------------------------------------------------------------
+// Open Data
+//------------------------------------------------------------------------------
+
+// Create table for open data schemas
+.set-or-append Ingestion.datasets <|
+Resource_Type_Enum()
+| where type in (Resource_Type_Enum_AWS(), Resource_Type_Enum_Azure(), Resource_Type_Enum_GCP())
+| extend api_name = replace_string(case(type =~ "Azure", tolower(type_and_api), type_and_api), " ", "")
+| extend id = hash(type_and_api)
+| order by type, display_name asc
+| project id, type, display_name, api_name, json_schema
+
+// Column names
+.set-or-append Ingestion.open_data_columns <|
+let
+    col_common = datatable(name:string, type:string, description:string)
+    [
+        "id", "string", "The unique identifier for this record. (e.g., 'abc123')"
+        , "bi_id", "string", "The unique identifier for this resource across all cloud service providers. (e.g., '/subscriptions/12345/resourceGroups/MyRG/providers/Microsoft.Storage/storageAccounts/mystorageaccount')"
+        , "base_id", "string", "The unique identifier for the account. (e.g., '/subscriptions/12345')"
+        , "cloud_id", "string", "The unique identifier for the subscription/account/project. (e.g., 'abcdefg-ab12-ab12-ab12-abcdefghijkl')"
+        , "name", "string", "The name of the resource. (e.g., 'mystorageaccount')"
+        , "resource_path", "string", "The resource path for the resource. (e.g., '/resourceGroups/MyRG/providers/Microsoft.Storage/storageAccounts/mystorageaccount')"
+        , "container_path", "string", "The full path of the resource's container. (e.g., '/subscriptions/123/resourceGroups/Example-Project')"
+        , "cloud_provider", "string", "The cloud service provider. (e.g., 'Azure')"
+        , "cloud_environment", "string", "The cloud environment. (e.g., 'AzureCloud')"
+        , "account_name", "string", "The name of the account. (e.g., 'My Enterprise Agreement (12345)')"
+        , "account_type", "string", "The type of account. (e.g., 'EA')"
+        , "account", "string", "The account's alphanumerical form. (e.g., '12345')"
+        , "subscription_id", "string", "The subscription ID. (e.g., 'abcdefg-ab12-ab12-ab12-abcdefghijkl')"
+        , "subscription_name", "string", "The subscription name. (e.g., 'My Subscription Name')"
+        , "resource_group", "string", "The resource group name. (e.g., 'MyRG')"
+        , "resource_group_id", "string", "The resource group ID. (e.g., '/subscriptions/12345/resourceGroups/MyRG')"
+        , "resource_type", "string", "The type of resource. (e.g., 'Microsoft.Storage/storageAccounts')"
+        , "resource_category", "string", "The category of resource. (e.g., 'Storage')"
+        , "resource_location", "string", "The Azure region in which this resource was created. (e.g., 'westus')"
+        , "region_name", "string", "The human-readable name for the region. (e.g., 'West US')"
+        , "location", "string", "The Azure region. (e.g., 'westus')"
+        , "tags", "dynamic", "The resource tags. (e.g., {'Environment': 'Production', 'Owner':'abc@contoso.com'})"
+        , "json_data", "dynamic", "The full JSON payload of the resource."
+    ]
+;
+col_common
