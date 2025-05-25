@@ -5,7 +5,22 @@
 with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')
 _resource_type_3(id: string) {
     dynamic({
-        "microsoft.insights/tenantactiongroups": { "SingularDisplayName": "Microsoft.Insights tenant action group" }
+        "microsoft.insights/autoscalesettings": { "SingularDisplayName": "Microsoft.Insights autoscalesetting" }
+        ,"microsoft.insights/components": { "SingularDisplayName": "Application Insights app" }
+        ,"microsoft.insights/datacollectionendpoints": { "SingularDisplayName": "Data collection endpoint" }
+        ,"microsoft.insights/datacollectionruleassociations": { "SingularDisplayName": "Microsoft.Insights data collection rule association" }
+        ,"microsoft.insights/datacollectionrules": { "SingularDisplayName": "Data collection rule" }
+        ,"microsoft.insights/diagnosticsettings": { "SingularDisplayName": "Diagnostic settings" }
+        ,"microsoft.insights/diagnosticsettingscategories": { "SingularDisplayName": "Microsoft.Insights diagnostic settings category" }
+        ,"microsoft.insights/guestdiagnosticsettings": { "SingularDisplayName": "Microsoft.insights guest diagnostic setting" }
+        ,"microsoft.insights/guestdiagnosticsettingsassociation": { "SingularDisplayName": "Microsoft.insights guest diagnostic settings association" }
+        ,"microsoft.insights/logprofiles": { "SingularDisplayName": "Microsoft.Insights logprofile" }
+        ,"microsoft.insights/metricalerts": { "SingularDisplayName": "Metric alert rule" }
+        ,"microsoft.insights/notificationstatus": { "SingularDisplayName": "Microsoft.Insights notification statu" }
+        ,"microsoft.insights/privatelinkscopeoperationstatuses": { "SingularDisplayName": "Microsoft.insights private link scope operation statuse" }
+        ,"microsoft.insights/privatelinkscopes": { "SingularDisplayName": "Azure Monitor Private Link Scope" }
+        ,"microsoft.insights/scheduledqueryrules": { "SingularDisplayName": "Log search alert rule" }
+        ,"microsoft.insights/tenantactiongroups": { "SingularDisplayName": "Microsoft.Insights tenant action group" }
         ,"microsoft.insights/tenantactiongroups/notificationstatus": { "SingularDisplayName": "Microsoft.Insights tenant action groups notification statu" }
         ,"microsoft.insights/vminsightsonboardingstatuses": { "SingularDisplayName": "Microsoft.Insights VM insights onboarding statuse" }
         ,"microsoft.insights/webtests": { "SingularDisplayName": "Application Insights availability test" }
@@ -146,6 +161,7 @@ _resource_type_3(id: string) {
         ,"microsoft.management/managementgroups/providers/templatespecs": { "SingularDisplayName": "Template spec" }
         ,"microsoft.management/managementgroups/settings": { "SingularDisplayName": "Microsoft.Management management groups setting" }
         ,"microsoft.management/managementgroups/subscriptions": { "SingularDisplayName": "Microsoft.Management management groups subscription" }
+        ,"microsoft.management/servicegroups": { "SingularDisplayName": "Service group" }
         ,"microsoft.managementpartner/partners": { "SingularDisplayName": "Microsoft.ManagementPartner partner" }
         ,"microsoft.manufacturingplatform/manufacturingdataservices": { "SingularDisplayName": "Factory Operations Agent in Azure AI Foundry" }
         ,"microsoft.maps/accounts": { "SingularDisplayName": "Azure Maps Account" }
@@ -404,6 +420,7 @@ _resource_type_3(id: string) {
         ,"microsoft.network/networkwatchers/flowlogs": { "SingularDisplayName": "Flow log" }
         ,"microsoft.network/p2svpngateways": { "SingularDisplayName": "VPN Gateway (Point to Site)" }
         ,"microsoft.network/privatednszones": { "SingularDisplayName": "Private DNS zone" }
+        ,"microsoft.network/privatednszones/virtualnetworklinks": { "SingularDisplayName": "Virtual network link" }
         ,"microsoft.network/privateendpoints": { "SingularDisplayName": "Private endpoint" }
         ,"microsoft.network/privatelinkservices": { "SingularDisplayName": "Private link service" }
         ,"microsoft.network/publicipaddresses": { "SingularDisplayName": "Public IP address" }
@@ -488,22 +505,5 @@ _resource_type_3(id: string) {
         ,"microsoft.offazure/mastersites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure master sites operations statu" }
         ,"microsoft.offazure/mastersites/privateendpointconnections": { "SingularDisplayName": "Microsoft.OffAzure master sites private endpoint connection" }
         ,"microsoft.offazure/mastersites/privatelinkresources": { "SingularDisplayName": "Microsoft.OffAzure master sites private link resource" }
-        ,"microsoft.offazure/mastersites/sqlsites": { "SingularDisplayName": "Microsoft.OffAzure master sites sql site" }
-        ,"microsoft.offazure/mastersites/sqlsites/discoverysitedatasources": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites discovery site data source" }
-        ,"microsoft.offazure/mastersites/sqlsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites job" }
-        ,"microsoft.offazure/mastersites/sqlsites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites operations statu" }
-        ,"microsoft.offazure/mastersites/sqlsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites run as account" }
-        ,"microsoft.offazure/mastersites/sqlsites/sqlavailabilitygroups": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql availability group" }
-        ,"microsoft.offazure/mastersites/sqlsites/sqldatabases": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql database" }
-        ,"microsoft.offazure/mastersites/sqlsites/sqlservers": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql server" }
-        ,"microsoft.offazure/mastersites/webappsites": { "SingularDisplayName": "Microsoft.OffAzure master sites web app site" }
-        ,"microsoft.offazure/mastersites/webappsites/discoverysitedatasources": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites discovery site data source" }
-        ,"microsoft.offazure/mastersites/webappsites/extendedmachines": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites extended machine" }
-        ,"microsoft.offazure/mastersites/webappsites/iiswebapplications": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites iis web application" }
-        ,"microsoft.offazure/mastersites/webappsites/iiswebservers": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites iis web server" }
-        ,"microsoft.offazure/mastersites/webappsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites runasaccount" }
-        ,"microsoft.offazure/mastersites/webappsites/tomcatwebapplications": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites tomcat web application" }
-        ,"microsoft.offazure/mastersites/webappsites/tomcatwebservers": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites tomcat web server" }
-        ,"microsoft.offazure/serversites": { "SingularDisplayName": "Microsoft.OffAzure server site" }
     })[tolower(id)]
 }
