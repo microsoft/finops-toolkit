@@ -11,6 +11,8 @@
 
 > **Note:** Refer to the [FinOps Hub Database Documentation](./finops-hub-database-guide.md) for table and column definitions.
 
+> **Tip:** If you do not find a more specific or suitable query for your analysis, start with the [`costs-enriched-base`](./catalog/costs-enriched-base.kql) query. It provides the full enrichment and savings logic for all cost columns and is the recommended foundation for custom analytics and reporting.
+
 ---
 
 ## FinOps Framework & Principles

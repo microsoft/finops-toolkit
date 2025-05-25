@@ -16,16 +16,14 @@ This document provides a comprehensive overview of how to query and analyze data
   - [Query Best Practices](#query-best-practices)
   - [Key Enrichment Columns](#key-enrichment-columns)
   - [Example Queries](#example-queries)
-  - [Example Query: Financial Hierarchy Reporting](#example-query-financial-hierarchy-reporting)
     - [Example Query: Cost by Billing Profile, Invoice Section, Team, Product, Application](#example-query-cost-by-billing-profile-invoice-section-team-product-application)
-  - [Example Query: Reservation Recommendation Breakdown](#example-query-reservation-recommendation-breakdown)
+    - [Example Query: Reservation Recommendation Breakdown](#example-query-reservation-recommendation-breakdown)
     - [Example Query: Quarterly Cost by Resource Group](#example-query-quarterly-cost-by-resource-group)
     - [Example Query: Top 5 Resource Groups by Effective Cost (Last Month)](#example-query-top-5-resource-groups-by-effective-cost-last-month)
     - [Example Query: Commitment Discount Utilization Pie Chart](#example-query-commitment-discount-utilization-pie-chart)
     - [Example Query: All available columns](#example-query-all-available-columns)
-      - [Column Definitions](#column-definitions)
-  - [Additional Tables](#additional-tables)
-  - [Schema Reference](#schema-reference)
+  - [Table Reference](#table-reference)
+    - [Costs()](#costs)
     - [Prices()](#prices)
     - [Recommendations()](#recommendations)
     - [Transactions()](#transactions)
@@ -39,6 +37,8 @@ This document provides a comprehensive overview of how to query and analyze data
 
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization—virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs extend Cost Management to provide a scalable platform for advanced data reporting and analytics, through tools like Power BI and Microsoft Fabric.
 
+---
+
 ### Key Benefits
 
 1. Report on cost and usage across multiple accounts and subscriptions—even across tenants.
@@ -51,6 +51,8 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 8. Backwards compatibility as future dataset versions add or change columns.
 9. Convert exported data to parquet for faster data access.
 
+---
+
 ### What's Included
 
 The FinOps hub template includes:
@@ -62,6 +64,8 @@ The FinOps hub template includes:
 - **Key Vault:** Stores Data Factory system managed identity credentials.
 
 Once deployed, you can query data directly using KQL, visualize data using Data Explorer dashboards, Fabric RTI dashboards, or Power BI reports, or connect to the database/storage from your own tools.
+
+---
 
 ### Prerequisites
 
@@ -114,7 +118,7 @@ Columns prefixed with `x_` are toolkit enrichments. Some of the most useful are:
 
 ## Example Queries
 
-## Example Query: Financial Hierarchy Reporting
+---
 
 ### Example Query: Cost by Billing Profile, Invoice Section, Team, Product, Application
 
@@ -150,7 +154,7 @@ on 1 == 1
 
 ---
 
-## Example Query: Reservation Recommendation Breakdown
+### Example Query: Reservation Recommendation Breakdown
 
 Shows how to analyze reservation recommendations for cost savings including break-even points.
 
@@ -195,6 +199,8 @@ Recommendations()
     x_SkuTermLabel = case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
 ```
 
+---
+
 ### Example Query: Quarterly Cost by Resource Group
 
 ```kusto
@@ -209,6 +215,8 @@ Costs()
 | order by x_ChargeMonth desc, TotalEffectiveCost desc
 ```
 
+---
+
 ### Example Query: Top 5 Resource Groups by Effective Cost (Last Month)
 
 ```kusto
@@ -219,6 +227,8 @@ Costs()
 | summarize TotalEffectiveCost = sum(EffectiveCost) by x_ResourceGroupName
 | top 5 by TotalEffectiveCost desc
 ```
+
+---
 
 ### Example Query: Commitment Discount Utilization Pie Chart
 
@@ -237,6 +247,8 @@ base
 | order by PercentOfTotal desc
 | render piechart
 ```
+
+---
 
 ### Example Query: All available columns
 
@@ -345,7 +357,18 @@ Costs()
 | project-away tmp_SQLAHB, tmp_IsVMUsage, tmp_ResourceParent
 ```
 
-#### Column Definitions
+---
+
+## Table Reference
+
+> **Note:**  
+> All columns prefixed with `x_` are toolkit enrichment columns, providing additional context for FinOps analysis.
+
+Below are the column definitions for the main analytic tables in the FinOps Hubs database. These definitions are based on Microsoft Learn, FinOps best practices, and common cloud cost management terminology.
+
+---
+
+### Costs()
 
 The following table lists the columns produced in the `All available columns` query.
 
@@ -507,23 +530,6 @@ The following table lists the columns produced in the `All available columns` qu
 
 ---
 
-## Additional Tables
-
-The FinOps Hubs database includes several tables which are accessed via these functions for specialized cost and usage analysis:
-
-| Table/Function Name        | Description                                                        |
-|----------------------------|--------------------------------------------------------------------|
-| Prices()                   | Price list for Azure services.                                     |
-| Recommendations()          | Provides recommendations for cost optimization via Reserved Instance Purchases. |
-| Transactions()             | Tracks all transactions related to Reserved Instances, including purchases, refunds, and adjustments. |
-
-## Schema Reference
-
-> **Note:**  
-> All columns prefixed with `x_` are toolkit enrichment columns, providing additional context for FinOps analysis.
-
-Below are the column definitions for the main analytic tables in the FinOps Hubs database. These definitions are based on Microsoft Learn, FinOps best practices, and common cloud cost management terminology.
-
 ### Prices()
 
 | Column Name                              | Data Type   | Description |
@@ -582,6 +588,8 @@ Below are the column definitions for the main analytic tables in the FinOps Hubs
 | x_TotalUnitPriceDiscount                 | decimal     | Total discount amount. |
 | x_TotalUnitPriceDiscountPercent          | decimal     | Total discount percent. |
 
+---
+
 ### Recommendations()
 
 | Column Name              | Data Type   | Description |
@@ -598,6 +606,8 @@ Below are the column definitions for the main analytic tables in the FinOps Hubs
 | x_SourceProvider         | string      | Provider of the data source. |
 | x_SourceType             | string      | Type of data source. |
 | x_SourceVersion          | string      | Version of the data source. |
+
+---
 
 ### Transactions()
 
@@ -642,6 +652,8 @@ Below are the column definitions for the main analytic tables in the FinOps Hubs
 | x_SourceVersion              | string      | Version of the data source. |
 | x_SubscriptionId             | string      | Subscription identifier. |
 | x_TransactionType            | string      | Type of transaction (e.g., Purchase, Refund). |
+
+---
 
 ## Glossary
 
