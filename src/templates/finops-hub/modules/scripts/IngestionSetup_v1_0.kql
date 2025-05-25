@@ -1,9 +1,13 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-//------------------------------------------------------------------------------
-// Prices
-//------------------------------------------------------------------------------
+//===| Prices |=========================================================================================================
+// NOTE: Must be before cost details.
+//
+// Supported versions:
+// - MS EA 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-ea
+// - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
+//======================================================================================================================
 
 // Create prices raw table
 .create table AzureCostPrices_raw (ContextDate:datetime, Context:string, RawData:dynamic)
@@ -67,9 +71,19 @@
 }
 ```
 
-//------------------------------------------------------------------------------
-// Cost and Usage
-//------------------------------------------------------------------------------
+//===| Cost and Usage |=================================================================================================
+// Supported versions:
+// - MS: 1.0, 1.0-preview(v1) -- See https://aka.ms/costmgmt/exports/focus
+// - AWS: 1.0                 -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
+// - GCP: Jan-Jun 2024        -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
+//                                   Links to (Aug 2024): https://services.google.com/fh/files/misc/focus_guide_v1.pdf
+//                               See also:
+//                               - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/standard-usage
+//                               - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/detailed-usage
+// - OCI: 1.0                 -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
+//
+// Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
+//======================================================================================================================
 
 // Create raw table for cost and usage data
 .create table AzureCostExportRaw_raw (ContextDate:datetime, Context:string, RawData:dynamic)
@@ -280,9 +294,11 @@
 }
 ```
 
-//------------------------------------------------------------------------------
-// Commitment Discount Usage
-//------------------------------------------------------------------------------
+//===| CommitmentDiscountUsage |========================================================================================
+// Supported versions:
+// - MS EA reservation details: 2023-03-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-ea
+// - MS MCA reservation details: 2023-03-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-mca
+//======================================================================================================================
 
 // Create raw table for commitment discount usage
 .create table AzureCostExportReservationCharges_raw (ContextDate:datetime, Context:string, RawData:dynamic)
@@ -403,9 +419,11 @@
 }
 ```
 
-//------------------------------------------------------------------------------
-// Recommendations
-//------------------------------------------------------------------------------
+//===| Recommendations |================================================================================================
+// Supported datasets/versions:
+// - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
+// - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
+//======================================================================================================================
 
 // Create raw table for recommendations
 .create table AzureRecommendations_raw (ContextDate:datetime, Context:string, RawData:dynamic)
@@ -485,9 +503,11 @@
 }
 ```
 
-//------------------------------------------------------------------------------
-// Transactions
-//------------------------------------------------------------------------------
+//===| Transactions |===================================================================================================
+// Supported versions:
+// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
+// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
+//======================================================================================================================
 
 // Create raw table for transactions
 .create table AzureTransactions_raw (ContextDate:datetime, Context:string, RawData:dynamic)
