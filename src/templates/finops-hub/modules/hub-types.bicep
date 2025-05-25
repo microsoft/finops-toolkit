@@ -348,10 +348,7 @@ func newAppInternalConfig(
   appName string,
   appNamespace string,
   displayName string,
-  version string,
-  customStorageName string,
-  customDataFactoryName string,
-  customKeyVaultName string
+  version string
 ) HubAppConfig => {
   ...coreConfig
   publisher: {
@@ -362,13 +359,13 @@ func newAppInternalConfig(
     tags: union(coreConfig.hub.tags, publisherTags)
 
     // Globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
-    dataFactory: !empty(customDataFactoryName) ? customDataFactoryName : replace('${take('${replace(coreConfig.hub.name, '_', '-')}-engine', 63 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
+    dataFactory: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-engine', 63 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
 
     // Globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
-    keyVault: !empty(customKeyVaultName) ? customKeyVaultName : replace('${take('${replace(coreConfig.hub.name, '_', '-')}-vault', 24 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
+    keyVault: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-vault', 24 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
 
     // Globally unique storage account name: 3-24 chars; lowercase letters/numbers only
-    storage: !empty(customStorageName) ? customStorageName : '${take(coreConfig.hub.safeName, 24 - length(publisherSuffix))}${publisherSuffix}'
+    storage: '${take(coreConfig.hub.safeName, 24 - length(publisherSuffix))}${publisherSuffix}'
   }
   app: {
     // id: '${hubResourceId}/publishers/${namespace}/apps/${appName}'
@@ -391,10 +388,7 @@ func newAppConfig(
   namespace string,
   appName string,
   displayName string,
-  version string,
-  customStorageName string,
-  customDataFactoryName string,
-  customKeyVaultName string
+  version string
 ) HubAppConfig => newAppInternalConfig(
   config,
   publisher,
@@ -404,10 +398,7 @@ func newAppConfig(
   appName,
   '${namespace}.${appName}',  // appNamespace
   displayName,
-  version,
-  customStorageName,
-  customDataFactoryName, 
-  customKeyVaultName
+  version
 )
 
 @export()

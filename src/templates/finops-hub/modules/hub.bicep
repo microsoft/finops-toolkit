@@ -158,15 +158,6 @@ param enablePublicAccess bool = true
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
-@description('Optional. Custom name for the Storage Account. If not provided, a name will be generated based on the hub name.')
-param storageAccountName string = ''
-
-@description('Optional. Custom name for the Data Factory. If not provided, a name will be generated based on the hub name.')
-param dataFactoryName string = ''
-
-@description('Optional. Custom name for the Key Vault. If not provided, a name will be generated based on the hub name.')
-param keyVaultName string = ''
-
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
@@ -311,9 +302,6 @@ module appRegistration 'hub-app.bicep' = {
       'Storage'
     ]
     telemetryString: telemetryString
-    storageAccountName: storageAccountName
-    dataFactoryName: dataFactoryName
-    keyVaultName: keyVaultName
 
     coreConfig: coreConfig
   }

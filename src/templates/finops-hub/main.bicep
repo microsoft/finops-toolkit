@@ -147,15 +147,6 @@ param enablePublicAccess bool = true
 @description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
-@description('Optional. Custom name for the Storage Account. If not provided, a name will be generated based on the hub name. Must follow Azure Storage naming rules.')
-param storageAccountName string = ''
-
-@description('Optional. Custom name for the Data Factory. If not provided, a name will be generated based on the hub name. Must follow Azure Data Factory naming rules.')
-param dataFactoryName string = ''
-
-@description('Optional. Custom name for the Key Vault. If not provided, a name will be generated based on the hub name. Must follow Azure Key Vault naming rules.')
-param keyVaultName string = ''
-
 
 //==============================================================================
 // Resources
@@ -185,9 +176,6 @@ module hub 'modules/hub.bicep' = {
     remoteHubStorageKey: remoteHubStorageKey
     enablePublicAccess: enablePublicAccess
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
-    storageAccountName: storageAccountName
-    dataFactoryName: dataFactoryName  
-    keyVaultName: keyVaultName
   }
 }
 
