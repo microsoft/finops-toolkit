@@ -59,6 +59,7 @@ function Invoke-Rest
 
     $ver = 'unknown'
     try { $ver = Get-VersionNumber } catch {}
+
     # Temporarily suppress warnings for Get-AzAccessToken 
     $prevWarningPreference = $WarningPreference 
     $WarningPreference = "SilentlyContinue" 
