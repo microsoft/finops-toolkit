@@ -349,9 +349,9 @@ func newAppInternalConfig(
   appNamespace string,
   displayName string,
   version string,
-  customStorageName string = '',
-  customDataFactoryName string = '',
-  customKeyVaultName string = '',
+  customStorageName string,
+  customDataFactoryName string,
+  customKeyVaultName string
 ) HubAppConfig => {
   ...coreConfig
   publisher: {
@@ -392,9 +392,9 @@ func newAppConfig(
   appName string,
   displayName string,
   version string,
-  customStorageName string = '',
-  customDataFactoryName string = '',
-  customKeyVaultName string = '',
+  customStorageName string,
+  customDataFactoryName string,
+  customKeyVaultName string
 ) HubAppConfig => newAppInternalConfig(
   config,
   publisher,

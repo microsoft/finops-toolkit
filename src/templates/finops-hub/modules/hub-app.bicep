@@ -60,7 +60,17 @@ param coreConfig HubCoreConfig
 // Variables
 //==============================================================================
 
-var appConfig = newAppConfig(coreConfig, publisher, namespace, appName, displayName, appVersion, storageAccountName, dataFactoryName, keyVaultName)
+var appConfig = newAppConfig(
+  coreConfig,
+  publisher,
+  namespace,
+  appName,
+  displayName,
+  appVersion,
+  storageAccountName,
+  dataFactoryName,
+  keyVaultName
+)
 
 // Features
 var usesDataFactory = contains(features, 'DataFactory')
