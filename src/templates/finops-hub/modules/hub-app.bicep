@@ -38,6 +38,15 @@ param features HubAppFeature[] = []
 @description('Optional. Custom string with additional metadata to log. Must an alphanumeric string without spaces or special characters except for underscores and dashes. Namespace + appName + telemetryString must be 50 characters or less - additional characters will be trimmed.')
 param telemetryString string = ''
 
+@description('Optional. Custom name for the Storage Account. If not provided, a name will be generated based on the hub name.')
+param storageAccountName string = ''
+
+@description('Optional. Custom name for the Data Factory. If not provided, a name will be generated based on the hub name.')
+param dataFactoryName string = ''
+
+@description('Optional. Custom name for the Key Vault. If not provided, a name will be generated based on the hub name.')
+param keyVaultName string = ''
+
 //------------------------------------------------------------------------------
 // Temporary parameters that should be removed in the future
 //------------------------------------------------------------------------------
@@ -57,7 +66,10 @@ var appConfig = newAppConfig(
   namespace,
   appName,
   displayName,
-  appVersion
+  appVersion,
+  storageAccountName,
+  dataFactoryName,
+  keyVaultName
 )
 
 // Features
