@@ -14,7 +14,7 @@
 // =========================================================================
 
 let monthname = dynamic(['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']);
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= startofmonth(now())
 | summarize EffectiveCost = sum(EffectiveCost) by ChargePeriodStart, Month = strcat(format_datetime(ChargePeriodStart, 'MM '), monthname[monthofyear(ChargePeriodStart)])
 | order by ChargePeriodStart asc

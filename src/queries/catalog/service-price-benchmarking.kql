@@ -22,7 +22,7 @@
 let numberOfMonths = 1;
 let start = startofmonth(ago(numberOfMonths * 30d));
 let end = now();
-Costs_v1_0
+Costs()
 | where ChargePeriodStart between (start .. end)
 | extend 
     x_CommitmentDiscountSavings = iif(ContractedCost == 0.0, 0.0, toreal(ContractedCost - EffectiveCost)),

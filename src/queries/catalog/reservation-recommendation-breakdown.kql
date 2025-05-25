@@ -1,6 +1,6 @@
 // Reservation Recommendation Breakdown
 // Analyzes reservation recommendations for cost savings including break-even points
-Recommendations_v1_0
+Recommendations()
 | where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'
 | extend RegionId = tostring(x_RecommendationDetails.RegionId)
 | extend RegionName = tostring(x_RecommendationDetails.RegionName)

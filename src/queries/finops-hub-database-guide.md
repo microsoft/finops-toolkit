@@ -118,17 +118,17 @@ Columns prefixed with `x_` are toolkit enrichments. Some of the most useful are:
 
 ### Example Query: Cost by Billing Profile, Invoice Section, Team, Product, Application
 
-This example demonstrates how to report costs using the full financial hierarchy: **Billing Profile → Invoice Section → Team → Product → Application**. The last three levels are derived from resource tags. This query uses the `Costs_v1_0` table and the recommended enrichment columns.
+This example demonstrates how to report costs using the full financial hierarchy: **Billing Profile → Invoice Section → Team → Product → Application**. The last three levels are derived from resource tags. This query uses the `Costs()` table and the recommended enrichment columns.
 
 ```kusto
 let numberOfMonths = 1; // Set to desired reporting period
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | extend Team = tostring(Tags['team']), Product = tostring(Tags['product']), Application = tostring(Tags['application'])
 | summarize TotalCost = sum(EffectiveCost)
     by x_BillingProfileName, x_InvoiceSectionName, Team, Product, Application
 | join kind=leftouter (
-    Costs_v1_0
+    Costs()
     | where ChargePeriodStart >= monthsago(numberOfMonths)
     | summarize GrandTotal = sum(EffectiveCost)
 )
@@ -155,7 +155,7 @@ on 1 == 1
 Shows how to analyze reservation recommendations for cost savings including break-even points.
 
 ```kusto
-Recommendations_v1_0
+Recommendations()
 | where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'
 | extend RegionId = tostring(x_RecommendationDetails.RegionId)
 | extend RegionName = tostring(x_RecommendationDetails.RegionName)
@@ -199,7 +199,7 @@ Recommendations_v1_0
 
 ```kusto
 let numberOfMonths = 3;  // Look back 3 months for a quarterly report
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | as filteredCosts
 | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
@@ -213,7 +213,7 @@ Costs_v1_0
 
 ```kusto
 let numberOfMonths = 1;
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | extend x_ResourceGroupName = tostring(split(ResourceId, '/')[4])
 | summarize TotalEffectiveCost = sum(EffectiveCost) by x_ResourceGroupName
@@ -224,7 +224,7 @@ Costs_v1_0
 
 ```kusto
 let numberOfMonths = 1;
-let base = Costs_v1_0
+let base = Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))
 | extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''));
@@ -242,7 +242,7 @@ base
 
 ```kusto
 let numberOfMonths = 1;  // Number of months to look back.  Set numberOfMonths = 3 for a quarterly report
-Costs_v1_0
+Costs()
 //
 // Apply summarization settings
 | where ChargePeriodStart >= monthsago(numberOfMonths)

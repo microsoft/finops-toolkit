@@ -5,6 +5,6 @@
 // Last Tested: 2025-05-16
 //
 let startOfYear = startofyear(now());
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= startOfYear
 | summarize TotalEffectiveCost = sum(EffectiveCost), TotalBilledCost = sum(BilledCost)

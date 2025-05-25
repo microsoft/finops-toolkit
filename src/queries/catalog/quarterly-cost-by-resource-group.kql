@@ -18,7 +18,7 @@
 // Looks back 3 months for a quarterly report of cost by resource group
 let N = 5
 let numberOfMonths = 3;  // Look back 3 months for a quarterly report
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | as filteredCosts
 | extend x_ChargeMonth = startofmonth(ChargePeriodStart)

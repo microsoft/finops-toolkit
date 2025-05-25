@@ -6,7 +6,7 @@
 //
 let N = 10;
 let numberOfMonths = 1;
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | summarize TotalEffectiveCost = sum(EffectiveCost) by ServiceName
 | top N by TotalEffectiveCost desc

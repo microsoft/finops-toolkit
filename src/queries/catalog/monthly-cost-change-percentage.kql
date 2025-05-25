@@ -14,7 +14,7 @@
 // =========================================================================
 
 let numberOfMonths = 13;
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | summarize BilledCost = sum(BilledCost), EffectiveCost = sum(EffectiveCost) by BillingPeriodStart = startofmonth(ChargePeriodStart)
 | order by BillingPeriodStart asc

@@ -17,7 +17,7 @@
 // Top N Resource Groups by Effective Cost (Last Month)
 let N = 5;
 let numberOfMonths = 1;
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | extend x_ResourceGroupName = tostring(split(ResourceId, '/')[4])
 | summarize TotalEffectiveCost = sum(EffectiveCost) by x_ResourceGroupName

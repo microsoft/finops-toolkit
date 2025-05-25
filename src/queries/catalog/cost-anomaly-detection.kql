@@ -8,7 +8,7 @@ let numberOfMonths = 12;
 let start = startofmonth(ago(numberOfMonths * 30d));
 let end = now();
 let interval = 1d;
-Costs_v1_0
+Costs()
 | where ChargePeriodStart between (start .. end)
 | summarize DailyCost = sum(EffectiveCost) by bin(ChargePeriodStart, interval)
 | make-series CostSeries = sum(DailyCost) on ChargePeriodStart from start to end step interval

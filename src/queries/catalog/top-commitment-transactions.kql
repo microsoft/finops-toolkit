@@ -1,40 +1,26 @@
 // ============================================================================
-// All Available Cost Columns Query
-//
+// Query: Top N Commitment Transactions
 // Description:
-//   This query returns a fully enriched, analytics-ready view of all cost and usage records
-//   from the FinOps Hub Costs_v1_0 table. It includes all standard cost columns, toolkit
-//   enrichment columns (prefixed with x_), hybrid benefit and commitment discount logic,
-//   savings calculations, and resource metadata. This is the canonical base query for
-//   Power BI, dashboards, and custom analytics.
-//
+//   Returns the top N commitment (Reserved Instance/Savings Plan) transactions by billed cost for the last N months.
+//   Includes enrichment for VM/SQL Hybrid Benefit, license status, and savings calculations.
+// Author: FinOps Toolkit
 // Parameters:
+//   N: Number of top transactions to return (default: 10)
 //   numberOfMonths: Number of months to look back (default: 1)
-//
-// Key Features:
-//   - Applies summarization window (lookback period)
-//   - Adds reporting and charge month columns
-//   - Enriches with VM, SKU, and hybrid benefit details
-//   - Calculates license status, type, and quantity for VMs
-//   - Computes commitment discount utilization and savings
-//   - Adds toolkit metadata (tool, version, resource parent, etc.)
-//   - Adds unique name helpers for reporting
-//   - Explains zero cost records
-//   - Projects away temp columns for a clean output
-//
 // Output:
-//   Each row represents a single cost record with all enrichment and analytics columns needed
-//   for FinOps reporting, allocation, and optimization.
-//
-// For full schema and column definitions, see:
-//   https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md#column-definitions
-// ============================================================================
+//   Each row represents a single commitment transaction with detailed cost, savings, and enrichment columns.
+// Usage:
+//   Use this query to analyze the largest RI/SP transactions and their associated savings and license status.
+// Last Tested: 2025-05-17
+// =========================================================================
 
+let N = 10;
 let numberOfMonths = 1;
-Costs_v1_0
+Costs()
 //
 // Apply summarization settings
-| where ChargePeriodStart >= monthsago(numberOfMonths)
+| where ChargePeriodStart >= monthsago(numberOfMonths) and tolower(tostring(ChargeCategory)) != 'usage' and isnotempty(CommitmentDiscountType) and toreal(BilledCost) > 0
+| top N by toreal(BilledCost)
 | as filteredCosts
 | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
 | extend x_ReportingDate = startofmonth(ChargePeriodStart)
@@ -84,7 +70,6 @@ Costs_v1_0
 | extend EffectiveCost = round(toreal(EffectiveCost), 6)
 | extend ContractedCost = round(toreal(ContractedCost), 6)
 | extend ListCost = round(toreal(ListCost), 6)
-| extend ConsumedQuantity = round(toreal(ConsumedQuantity), 6)
 | extend ListUnitPrice = round(toreal(ListUnitPrice), 6)
 | extend ContractedUnitPrice = round(toreal(ContractedUnitPrice), 6)
 | extend x_EffectiveUnitPrice = round(toreal(x_EffectiveUnitPrice), 6)
@@ -128,3 +113,4 @@ Costs_v1_0
 | extend Tags = tostring(Tags)
 | extend x_SkuDetails = tostring(x_SkuDetails)
 | project-away tmp_IsSQLAHB, tmp_IsVMUsage, tmp_ResourceParent
+| project-away ConsumedQuantity, ConsumedUnit, Tags, x_BilledCostInUsd, x_ContractedCostInUsd, x_CostAllocationRuleName, x_CostCategories, x_Credits, x_CostType, x_CurrencyConversionRate, x_CustomerId, x_CustomerName, x_Discount, x_ExportTime, x_InvoiceId, x_InvoiceIssuerId, x_ListCostInUsd, x_Location, x_Operation, x_PartnerCreditApplied, x_PartnerCreditRate, x_Project, x_ResellerId, x_ResellerName, x_ResourceGroupName, x_ResourceType, x_ServiceCode, x_ServiceId, x_ServicePeriodEnd, x_ServicePeriodStart, x_SkuDetails, x_SkuOfferId, x_SkuServiceFamily, x_SkuTier

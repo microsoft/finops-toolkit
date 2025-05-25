@@ -14,7 +14,7 @@
 // =========================================================================
 
 let numberOfMonths = 12;
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= startofmonth(now(), -numberOfMonths)
 | summarize EffectiveCost = sum(EffectiveCost) by x_ChargeMonth
 | order by x_ChargeMonth asc
@@ -26,7 +26,7 @@ Costs_v1_0
 //
 // Description:
 //   This query returns a fully enriched, analytics-ready view of all cost and usage records
-//   from the FinOps Hub Costs_v1_0 table. It includes all standard cost columns, toolkit
+//   from the FinOps Hub Costs() table. It includes all standard cost columns, toolkit
 //   enrichment columns (prefixed with x_), hybrid benefit and commitment discount logic,
 //   savings calculations, and resource metadata. This is the canonical base query for
 //   Power BI, dashboards, and custom analytics.
@@ -54,7 +54,7 @@ Costs_v1_0
 // ============================================================================
 
 let numberOfMonths = 1;
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= startofmonth(now(), -numberOfMonths) and (numberOfMonths == 0 or ChargePeriodStart < startofmonth(now()))
 | where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))  // x_AmortizationCategory != 'Principal'
 | extend x_NegotiatedDiscountSavings = iff(ListCost       < ContractedCost, decimal(0), ListCost - ContractedCost)

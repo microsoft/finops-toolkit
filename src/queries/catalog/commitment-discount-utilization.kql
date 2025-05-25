@@ -15,7 +15,7 @@
 
 // Last N Month Commitment Discount Utilization
 let numberOfMonths = 1;
-let base = Costs_v1_0
+let base = Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))
 | extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''));

@@ -18,11 +18,11 @@
 let N = 5; // Set to desired number of top results
 let numberOfMonths = 1; // Set to desired reporting period
 let GrandTotal = toscalar(
-    Costs_v1_0
+    Costs()
     | where ChargePeriodStart >= monthsago(numberOfMonths)
     | summarize sum(toreal(EffectiveCost))
 );
-Costs_v1_0
+Costs()
 | where ChargePeriodStart >= monthsago(numberOfMonths)
 | extend Team = tostring(Tags['team']), Product = tostring(Tags['product']), Application = tostring(Tags['application']), Environment = tostring(Tags['environment'])
 | summarize TotalCost = sum(toreal(EffectiveCost))
