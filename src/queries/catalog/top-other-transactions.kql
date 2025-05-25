@@ -6,7 +6,9 @@
 //   This query is optimized to only include columns that are populated for these transaction types.
 //
 // Parameters:
-//   numberOfMonths: Number of months to look back (default: 1)
+//   N: Number of top transactions to return (default: 10)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
 //
 // Output:
 //   Each row represents a single cost record for a non-commitment purchase, with key financial and allocation metadata.
@@ -17,8 +19,9 @@
 //   Example: Marketplace SaaS, third-party, or other direct purchases.
 // ============================================================================
 let N = 10;
-let numberOfMonths = 1;
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
 Costs()
-| where ChargePeriodStart >= monthsago(numberOfMonths) and tolower(tostring(ChargeCategory)) != 'usage' and isempty(CommitmentDiscountType) and toreal(BilledCost) > 0
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate and tolower(tostring(ChargeCategory)) != 'usage' and isempty(CommitmentDiscountType) and toreal(BilledCost) > 0
 | top N by toreal(BilledCost)
 | project ChargePeriodStart, ChargeCategory, BilledCost, BillingCurrency, SubAccountName, x_InvoiceSectionName, PricingCategory, PricingQuantity, PricingUnit, ProviderName, PublisherName

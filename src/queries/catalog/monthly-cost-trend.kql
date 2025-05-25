@@ -5,7 +5,8 @@
 //   Useful for visualizing both billed and effective cost trends over time.
 // Author: FinOps Toolkit Team
 // Parameters:
-//   numberOfMonths: Number of months to look back (default: 12)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(365d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
 // Output:
 //   Each row represents a month with its total billed and effective cost.
 // Usage:
@@ -13,9 +14,10 @@
 // Last Tested: 2025-05-17
 // =========================================================================
 
-let numberOfMonths = 12;
+let startDate = startofmonth(ago(365d)); // Default: 12 months
+let endDate = startofmonth(now());
 Costs()
-| where ChargePeriodStart >= monthsago(numberOfMonths)
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
 | summarize TotalBilledCost = sum(BilledCost), TotalEffectiveCost = sum(EffectiveCost) by x_ChargeMonth
 | order by x_ChargeMonth asc

@@ -6,7 +6,8 @@
 // Author: FinOps Toolkit
 // Parameters:
 //   N: Number of top resource groups to return (default: 5)
-//   numberOfMonths: Number of months to look back (default: 1)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
 // Output:
 //   Each row represents a resource group with its total effective cost for the period.
 // Usage:
@@ -14,11 +15,12 @@
 // Last Tested: 2025-05-17
 // ============================================================================
 
-// Top N Resource Groups by Effective Cost (Last Month)
+// Top N Resource Groups by Effective Cost (Custom Date Range)
 let N = 5;
-let numberOfMonths = 1;
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
 Costs()
-| where ChargePeriodStart >= monthsago(numberOfMonths)
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | extend x_ResourceGroupName = tostring(split(ResourceId, '/')[4])
-| summarize TotalEffectiveCost = sum(EffectiveCost) by x_ResourceGroupName
+| summarize TotalEffectiveCost = sum(EffectiveCost) by SubAccountName, x_ResourceGroupName
 | top N by TotalEffectiveCost desc

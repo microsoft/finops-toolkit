@@ -1,18 +1,17 @@
-// Cost Forecasting (Next 3 Months)
+// Cost Forecasting (Custom Date Range, Next 3 Months)
 // Forecasts future cost using time series decomposition and forecasting.
-// Parameters: numberOfMonths (default: 12), forecastPeriods (default: 90), interval (default: 1d)
+// Parameters: startDate, endDate, forecastPeriods (default: 90), interval (default: 1d)
 // Author: FinOps Toolkit Team
 // Last Tested: 2025-05-17
 //
-let numberOfMonths = 12;
+let startDate = startofmonth(ago(365d)); // Default: last 12 months
+let endDate = startofmonth(now());
 let forecastPeriods = 90;
-let start = startofmonth(ago(numberOfMonths * 30d));
-let end = now();
 let interval = 1d;
 Costs()
-| where ChargePeriodStart between (start .. end)
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | summarize DailyCost = sum(EffectiveCost) by bin(ChargePeriodStart, interval)
-| make-series CostSeries = sum(DailyCost) on ChargePeriodStart from start to end step interval
+| make-series CostSeries = sum(DailyCost) on ChargePeriodStart from startDate to endDate step interval
 | extend forecast = series_decompose_forecast(CostSeries, forecastPeriods)
 | project ChargePeriodStart, CostSeries, forecast
 // | render timechart

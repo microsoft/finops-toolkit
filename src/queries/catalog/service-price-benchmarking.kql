@@ -5,7 +5,8 @@
 //   Useful for benchmarking Azure service pricing and identifying savings opportunities.
 // Author: FinOps Toolkit Team
 // Parameters:
-//   numberOfMonths: Number of months to look back (default: 1)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
 // Output:
 //   Each row represents a service with cost and savings metrics for the period.
 // Usage:
@@ -13,17 +14,16 @@
 // Last Tested: 2025-05-17
 // =========================================================================
 
-// Last N Month Price Benchmarking by Service
-// Returns list price, contracted price, effective price, negotiated savings (%), commitment savings (%), and total savings (%) by service for the last month.
-// Parameters: numberOfMonths (default: 1)
+// Last N Month Price Benchmarking by Service (Custom Date Range)
+// Returns list price, contracted price, effective price, negotiated savings (%), commitment savings (%), and total savings (%) by service for the specified date range.
+// Parameters: startDate, endDate
 // Author: FinOps Toolkit Team
 // Last Tested: 2025-05-17
 //
-let numberOfMonths = 1;
-let start = startofmonth(ago(numberOfMonths * 30d));
-let end = now();
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
 Costs()
-| where ChargePeriodStart between (start .. end)
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | extend 
     x_CommitmentDiscountSavings = iif(ContractedCost == 0.0, 0.0, toreal(ContractedCost - EffectiveCost)),
     x_NegotiatedDiscountSavings = iif(ListCost == 0.0, 0.0, toreal(ListCost - ContractedCost)),
@@ -47,7 +47,7 @@ Costs()
     ListCost = round(ListCost, 0), 
     ContractedCost = round(ContractedCost, 0), 
     EffectiveCost = round(EffectiveCost, 0), 
-    NegotiatedSavings = round(NegotiatedSavings, 0), 
+    NegotiatedSavings = round(NegotiatedSavings, 0),
     CommitmentSavings = round(CommitmentSavings, 0), 
     TotalSavings = round(TotalSavings, 0), 
     NegotiatedSavingsPct = round(NegotiatedSavingsPct, 0), 

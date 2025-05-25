@@ -6,7 +6,8 @@
 // Author: FinOps Toolkit
 // Parameters:
 //   N: Number of top results to return (default: 5)
-//   numberOfMonths: Number of months to look back (default: 1)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
 // Output:
 //   Each row represents a unique combination in the financial hierarchy with total cost and percent of total.
 // Usage:
@@ -16,14 +17,15 @@
 // Top N cost by Billing Profile, Invoice Section, Team, Product, Application
 // Reports costs using the full financial hierarchy: Billing Profile → Invoice Section → Team → Product → Application
 let N = 5; // Set to desired number of top results
-let numberOfMonths = 1; // Set to desired reporting period
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
 let GrandTotal = toscalar(
     Costs()
-    | where ChargePeriodStart >= monthsago(numberOfMonths)
+    | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
     | summarize sum(toreal(EffectiveCost))
 );
 Costs()
-| where ChargePeriodStart >= monthsago(numberOfMonths)
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | extend Team = tostring(Tags['team']), Product = tostring(Tags['product']), Application = tostring(Tags['application']), Environment = tostring(Tags['environment'])
 | summarize TotalCost = sum(toreal(EffectiveCost))
     by x_BillingProfileName, x_InvoiceSectionName, Team, Product, Application, Environment

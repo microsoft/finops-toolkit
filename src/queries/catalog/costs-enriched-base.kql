@@ -9,7 +9,8 @@
 //   Power BI, dashboards, and custom analytics.
 //
 // Parameters:
-//   numberOfMonths: Number of months to look back (default: 1)
+//   startDate: Start of the reporting window (default: startofmonth(ago(30d)))
+//   endDate: End of the reporting window (default: startofmonth(now()))
 //
 // Key Features:
 //   - Applies summarization window (lookback period)
@@ -30,11 +31,12 @@
 //   https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md#column-definitions
 // ============================================================================
 
-let numberOfMonths = 1;
+let startDate = startofmonth(ago(30d));
+let endDate = startofmonth(now());
 Costs()
 //
 // Apply summarization settings
-| where ChargePeriodStart >= monthsago(numberOfMonths)
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | as filteredCosts
 | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
 | extend x_ReportingDate = startofmonth(ChargePeriodStart)
@@ -42,7 +44,6 @@ Costs()
 | extend x_SkuVMProperties = tostring(x_SkuDetails.VMProperties)
 | extend x_CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
 //
-// Hybrid Benefit
 | extend tmp_IsVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'
 | extend x_SkuCoreCount = iff(tmp_IsVMUsage, toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores)), toint(''))
 | extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)
@@ -79,7 +80,6 @@ Costs()
 | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, toreal(0))
 | extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
 //
-// Savings (all cost/quantity columns cast to real and rounded for serialization safety)
 | extend BilledCost = round(toreal(BilledCost), 6)
 | extend EffectiveCost = round(toreal(EffectiveCost), 6)
 | extend ContractedCost = round(toreal(ContractedCost), 6)
@@ -97,7 +97,6 @@ Costs()
 | extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,              toreal(0), round(toreal((ListUnitPrice - ContractedUnitPrice) / ListUnitPrice), 6))
 | extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,              toreal(0), round(toreal((ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice), 6))
 //
-// Toolkit
 | extend x_ToolkitTool = tostring(Tags['ftk-tool'])
 | extend x_ToolkitVersion = tostring(Tags['ftk-version'])
 | extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])

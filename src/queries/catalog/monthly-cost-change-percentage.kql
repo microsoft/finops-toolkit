@@ -5,17 +5,18 @@
 //   Useful for identifying cost spikes, drops, and trends in Azure spend.
 // Author: FinOps Toolkit Team
 // Parameters:
-//   numberOfMonths: Number of months to look back (default: 13)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(390d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
 // Output:
 //   Each row represents a month with percent change in billed and effective cost from the previous month.
 // Usage:
 //   Use this query to monitor cost volatility, trend direction, and to quickly spot anomalous changes in monthly Azure costs.
 // Last Tested: 2025-05-17
 // =========================================================================
-
-let numberOfMonths = 13;
+let startDate = startofmonth(ago(390d)); // Default: last 13 months
+let endDate = startofmonth(now());
 Costs()
-| where ChargePeriodStart >= monthsago(numberOfMonths)
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | summarize BilledCost = sum(BilledCost), EffectiveCost = sum(EffectiveCost) by BillingPeriodStart = startofmonth(ChargePeriodStart)
 | order by BillingPeriodStart asc
 | extend PreviousBilledCost = prev(BilledCost)

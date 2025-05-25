@@ -1,11 +1,12 @@
 // ============================================================================
-// Query: Cost by Region (Last N Months)
+// Query: Cost by Region (Custom Date Range)
 // Description:
-//   Returns total effective cost by region for the last N months (default: 1).
+//   Returns total effective cost by region for a custom date range.
 //   Useful for regional cost breakdowns and optimization.
 // Author: FinOps Toolkit Team
 // Parameters:
-//   numberOfMonths: Number of months to look back (default: 1)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
 // Output:
 //   Each row represents a region with its total effective cost for the period.
 // Usage:
@@ -13,8 +14,9 @@
 // Last Tested: 2025-05-17
 // =========================================================================
 
-let numberOfMonths = 1;
+let startDate = startofmonth(ago(30d)); // Set default as needed
+let endDate = startofmonth(now());
 Costs()
-| where ChargePeriodStart >= monthsago(numberOfMonths)
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | summarize TotalEffectiveCost = sum(EffectiveCost) by RegionName
 | order by TotalEffectiveCost desc
