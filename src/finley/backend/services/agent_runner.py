@@ -20,9 +20,11 @@ from azure.ai.projects.models import (
 
 from core import config
 from user_functions.query_adx_strict import query_adx_database
-from user_functions.search_web_docs import search_web_docs
+from user_functions.vector_search_enhanced import run_vector_search
+# from user_functions.search_web_docs import search_web_docs
 from utils.format_output import format_markdown_table
 from utils.json_extract import extract_json_from_text
+
 # === Azure Monitor and OpenTelemetry setup ===
 from azure.monitor.opentelemetry import configure_azure_monitor
 
@@ -42,15 +44,73 @@ session_threads: Dict[str, str] = {}
 agent_id_cache: str | None = None
 
 
+# def load_prompt() -> str:
+#     try:
+#         prompt_path = os.path.abspath(config.PROMPT_PATH)
+#         with open(prompt_path, encoding="utf-8") as f:
+#             return f.read()
+#     except Exception as e:
+#         return f"You are Finley, the FinOps assistant. Prompt file failed to load: {str(e)}"
 def load_prompt() -> str:
+    """Load the main prompt and KQL reference with robust error handling."""
+    main_prompt = "You are Finley, the FinOps assistant."
+    kql_content = ""
+    
     try:
+        # Determine file paths
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        instructions_dir = os.path.join(base_dir, "agent_instructions")
+        
+        # Load main prompt file (with fallback)
         prompt_path = os.path.abspath(config.PROMPT_PATH)
-        with open(prompt_path, encoding="utf-8") as f:
-            return f.read()
+        prompt_fallback = os.path.join(instructions_dir, "finley_agent.md")
+        
+        print(f"Attempting to load prompt from config path: {prompt_path}")
+        if os.path.exists(prompt_path):
+            with open(prompt_path, encoding="utf-8") as f:
+                main_prompt = f.read()
+                print(f"✅ Successfully loaded main prompt from: {prompt_path}")
+        elif os.path.exists(prompt_fallback):
+            with open(prompt_fallback, encoding="utf-8") as f:
+                main_prompt = f.read()
+                print(f"✅ Successfully loaded main prompt from fallback: {prompt_fallback}")
+        else:
+            print(f"⚠️ Both prompt paths failed: {prompt_path} and {prompt_fallback}")
+            print(f"Using default prompt instead.")
+        
+        # Load KQL queries reference
+        kql_path = os.path.join(instructions_dir, "finops-hub-queries.md")
+        print(f"Attempting to load KQL queries from: {kql_path}")
+        
+        if os.path.exists(kql_path):
+            with open(kql_path, encoding="utf-8") as f:
+                kql_content = f.read()
+                print(f"✅ Successfully loaded KQL queries from: {kql_path}")
+        else:
+            print(f"⚠️ KQL queries file not found at: {kql_path}")
+        
+        # Combine prompts if KQL content was loaded
+        if kql_content:
+            combined_prompt = f"""{main_prompt}
+
+<finops_hub_kql_queries>
+{kql_content}
+</finops_hub_kql_queries>
+
+You have access to the FinOps Hub KQL queries above.
+1. Reference these queries to provide specific examples
+2. Explain how queries can be modified to meet the user's needs
+3. When appropriate, suggest relevant cost analysis queries from this reference
+4. Every output from the adx tool needs to stay true to the tools output format.
+5. Always add nice formatting to make it prettier for the user.
+"""
+            return combined_prompt
+        else:
+            return main_prompt
+            
     except Exception as e:
-        return f"You are Finley, the FinOps assistant. Prompt file failed to load: {str(e)}"
-
-
+        print(f"⚠️ Error in load_prompt(): {str(e)}")
+        return f"You are Finley, the FinOps assistant. All prompt files failed to load: {str(e)}"
 def safe_tool_output(result, max_length=config.MAX_TOOL_OUTPUT_LENGTH) -> str:
     try:
         serialized = json.dumps(result)
@@ -82,8 +142,6 @@ def format_adx_response(content: str) -> str:
         )
     except Exception:
         return content
-
-
 def stream_response(user_input: str, session_id: str) -> Generator[str, None, None]:
     global agent_id_cache
 
@@ -106,10 +164,10 @@ def stream_response(user_input: str, session_id: str) -> Generator[str, None, No
                     name="Finley",
                     instructions=load_prompt(),
                     tools=FunctionTool(
-                        functions=[query_adx_database, search_web_docs]
+                        functions=[query_adx_database, run_vector_search]
                     ).definitions,
                     temperature=0.2,
-                    top_p=0.3,
+                    top_p=0.3
                 )
                 agent_id_cache = agent.id
             else:
@@ -157,7 +215,7 @@ def stream_response(user_input: str, session_id: str) -> Generator[str, None, No
                         if isinstance(tool_call, RequiredFunctionToolCall):
                             try:
                                 output = FunctionTool(
-                                    functions=[query_adx_database, search_web_docs]
+                                    functions=[query_adx_database, run_vector_search]
                                 ).execute(tool_call)
                                 tool_outputs.append(
                                     ToolOutput(

@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROMPT_PATH = os.getenv("PROMPT_PATH", os.path.join(BASE_DIR, "../agent_instructions/finley_agent.txt"))
+PROMPT_PATH = os.getenv("PROMPT_PATH", os.path.join(BASE_DIR, "../agent_instructions/finley_agent.xml"))
 
 # Load environment variables from .env file manually
 load_dotenv()

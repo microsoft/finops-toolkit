@@ -1,0 +1,318 @@
+/* Container for citation section */
+.ftk-chat-citations {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: rgba(0, 120, 212, 0.08);
+  border-left: 4px solid #0078d4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ftk-citation-header {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  color: #0078d4;
+  font-weight: 600;
+}
+
+/* Citation Number Reference in Text */
+.ftk-citation-ref {
+  color: #0078d4;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+  background-color: rgba(0, 120, 212, 0.1);
+  border-radius: 4px;
+  padding: 0 4px;
+  margin: 0 2px;
+}
+
+.ftk-citation-ref:hover {
+  text-decoration: underline;
+  background-color: rgba(0, 120, 212, 0.2);
+}
+
+/* Style for superscript citations */
+.ftk-citation-ref.ftk-superscript {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 1;
+  background-color: transparent;
+  padding: 0;
+  font-weight: bold;
+}
+
+/* Citation Card (Collapsed by Default) */
+.ftk-citation-card {
+  border: 1px solid rgba(0, 120, 212, 0.3);
+  border-radius: 6px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: #f5f9ff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.ftk-citation-card:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  border-color: rgba(0, 120, 212, 0.6);
+  transform: translateY(-1px);
+}
+
+.ftk-citation-card-header {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #323130;
+}
+
+.ftk-citation-card-details {
+  display: none;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f0f2f5;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+  border-left: 3px solid #0078d4;
+}
+
+.ftk-citation-card-expanded .ftk-citation-card-details {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ftk-citation-section {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  padding: 2px 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.ftk-citation-section strong {
+  margin-right: 5px;
+  color: #0078d4;
+  min-width: 60px;
+}
+
+.ftk-citation-content {
+  font-style: italic;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.ftk-citation-source a {
+  color: #0078d4;
+  text-decoration: none;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ftk-citation-source a:hover {
+  text-decoration: underline;
+}
+
+.ftk-citation-links {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+  color: #333;
+}
+
+.ftk-citation-toggle {
+  margin-bottom: 10px;
+}
+
+.ftk-citation-toggle-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  background: #f3f4f6;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.ftk-citation-toggle-btn:hover {
+  background: #e5e7eb;
+}
+
+.ftk-citation-link-item {
+  margin-right: 16px;
+}
+
+.ftk-citation-link-item a {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.ftk-citation-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.ftk-citation-card summary:hover {
+  color: #005a9e;
+}
+
+.ftk-citation-card-details {
+  display: none;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+}
+
+.ftk-citation-card-expanded .ftk-citation-card-details {
+  display: block;
+}
+
+.ftk-citation-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+  background-color: #fcfcff;
+}
+
+.ftk-citation-active {
+  background-color: rgba(0, 120, 212, 0.15) !important;
+  border-color: #0078d4 !important;
+  box-shadow: 0 0 8px rgba(0, 120, 212, 0.3) !important;
+}
+
+.ftk-citation-highlight {
+  animation: highlight-citation 1.5s ease;
+}
+
+@keyframes highlight-citation {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 120, 212, 0.3);
+    border-color: #0078d4;
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(0, 120, 212, 0.7);
+    border-color: #0078d4;
+    background-color: rgba(0, 120, 212, 0.2);
+  }
+}
+
+/* Educational reference styling for links and citations */
+.ftk-educational-link {
+  border-left: 2px solid #0078d4;
+  background-color: rgba(0, 120, 212, 0.15) !important;
+  padding-left: 6px !important;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ftk-educational-link .ftk-reference-icon {
+  margin-right: 4px;
+  font-size: 0.9em;
+}
+
+.ftk-educational-citation {
+  border-left: 3px solid #0078d4;
+  background-color: rgba(0, 120, 212, 0.05);
+}
+
+.ftk-educational-citation:hover {
+  background-color: rgba(0, 120, 212, 0.1);
+}
+
+/* Animation for clicked reference links */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(0, 120, 212, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.ftk-citation-ref.ftk-reference-clicked {
+  animation: pulse 0.5s ease;
+}
+
+/* New styles for external links and citation sources */
+.ftk-external-resource-link {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  color: #0078d4;
+  text-decoration: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(0, 120, 212, 0.08);
+  transition: all 0.2s ease;
+}
+
+.ftk-external-resource-link:hover {
+  background-color: rgba(0, 120, 212, 0.15);
+  text-decoration: underline;
+}
+
+.ftk-external-link-icon {
+  margin-left: 4px;
+  font-size: 0.75em;
+  opacity: 0.8;
+}
+
+.ftk-citation-url {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 2px;
+  margin-left: 65px;
+  word-break: break-all;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ftk-source-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  text-decoration: none;
+  margin-top: 6px;
+}
+
+.ftk-external-source {
+  background-color: rgba(0, 120, 212, 0.1);
+  color: #0078d4;
+  border: 1px solid rgba(0, 120, 212, 0.3);
+}
+
+.ftk-external-source:hover {
+  background-color: rgba(0, 120, 212, 0.2);
+}
+
+.ftk-file-source {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #555;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ftk-file-source:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #333;
+}

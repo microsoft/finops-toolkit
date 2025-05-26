@@ -181,7 +181,7 @@ Here is the data, already JSON-safe:
         messages=[
             {
                 "role": "system",
-                "content": "You must respond with valid JSON matching the schema above.",
+                "content": "You must respond with valid JSON matching the schema above. Always use markdown as your output.",
             },
             {"role": "user", "content": prompt},
         ],
@@ -276,5 +276,7 @@ def query_adx_database(kql_query: str) -> dict:
 
 # ─── Quick test ────────────────────────────────────────────────────────────────
 # if __name__ == "__main__":
-#     test_kql = "Costs_v1_0 | summarize sum(EffectiveCost) by ServiceName"
+# #     test_kql = "Costs_v1_0 | summarize sum(EffectiveCost) by ServiceName"
+#     test_kql = "let costs = Costs_v1_0 | where ChargePeriodStart >= startofmonth(ago(1d)); let all = costs | summarize sum(EffectiveCost) by ServiceName; all | order by sum_EffectiveCost desc | limit 5"  
 #     print(json.dumps(query_adx_database(test_kql), indent=2))
+    

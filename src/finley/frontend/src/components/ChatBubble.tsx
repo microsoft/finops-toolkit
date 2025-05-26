@@ -9,14 +9,15 @@ import { agentEmojis } from "../constants/agents";
 import "katex/dist/katex.min.css";
 import rehypeKatex from "rehype-katex";
 import './ftk-markdown.css';
-
+import { Citation } from "../utils/citationUtils";
+import CitationHandler from "./CitationHandler";
 
 interface ChatBubbleProps {
     role: "user" | "agent" | "system" | "assistant";
     agent?: string;
     content: string;
     sources?: string[];
-
+    citations?: Citation[];
 }
 
 
@@ -62,16 +63,27 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
     role,
     agent = "TeamLeader",
     content,
-    sources = []
+    sources = [],
+    citations = []
 }) => {
     const isUser = role === "user";
+    
+    // Log for debugging
+    if (citations && citations.length > 0) {
+        console.log(`ChatBubble rendering with ${citations.length} citations:`, 
+            citations.map(c => ({id: c.id, title: c.title || c.document_name})));
+    }
 
     const cleanedContent = useMemo(() => {
         if (content.includes("Service1.") || content.includes("Service2.")) {
             return content.replace(/Service\d+\./g, "");
         }
+        // Remove citation section from content if it will be rendered separately
+        if (citations && citations.length > 0 && content.includes("## 📚 Citations and References")) {
+            return content.split("## 📚 Citations and References")[0].trim();
+        }
         return content.trim();
-    }, [content]);
+    }, [content, citations]);
 
     const jsonTable = role === "user" ? tryRenderJsonTable(cleanedContent) : null;
 
@@ -186,8 +198,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
                     />
 
 
-                )}
-                {sources.length > 0 && (
+                )}                {sources.length > 0 && (
                     <div className="ftk-chat-sources">
                         <strong>📚 Sources:</strong>
                         <ul>
@@ -199,6 +210,44 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                )}                {/* Render citations if available */}
+                {citations && citations.length > 0 && (
+                    <div className="ftk-chat-citations">
+                        <h4 className="ftk-citation-header">📚 Citations and References</h4>
+                        <CitationHandler 
+                            content={cleanedContent}
+                            citations={citations}
+                        />
+                        {/* Debug info for citation data */}
+                        <div style={{ fontSize: '12px', padding: '8px', marginTop: '8px', 
+                                    backgroundColor: '#f0f0f0', borderRadius: '4px', 
+                                    border: '1px dashed #ccc' }}>
+                            <div><strong>Citation Debug:</strong> {citations.length} found</div>
+                            <div><strong>Fields:</strong> {citations.length > 0 ? Object.keys(citations[0]).join(', ') : 'none'}</div>
+                            <div style={{ maxHeight: '200px', overflow: 'auto', fontSize: '11px', 
+                                        marginTop: '4px', fontFamily: 'monospace' }}>
+                                {citations.map((c, i) => (
+                                    <div key={i} style={{marginBottom: '8px', padding: '4px', borderBottom: '1px dotted #ccc'}}>
+                                        <div><strong>[{i+1}] {c.document_name || c.title}</strong> (ID: {c.id})</div>
+                                        {c.section && <div style={{color: '#444'}}>
+                                            <strong>Section:</strong> {c.section}
+                                        </div>}
+                                        {c.filepath && <div style={{color: '#444'}}>
+                                            <strong>Path:</strong> {c.filepath}
+                                        </div>}
+                                        {c.chunkId && <div style={{color: '#444'}}>
+                                            <strong>Chunk:</strong> {c.chunkId}
+                                        </div>}
+                                        {c.content && <div style={{marginTop: '4px', color: '#555', 
+                                                    fontStyle: 'italic', padding: '4px', backgroundColor: '#f8f8f8',
+                                                    borderRadius: '2px', border: '1px solid #eee'}}>
+                                            <strong>Content:</strong> "{c.content.substring(0, 100)}..."
+                                        </div>}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

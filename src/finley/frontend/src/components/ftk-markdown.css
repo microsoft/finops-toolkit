@@ -10,6 +10,17 @@
     font-weight: bold;
   }
   
+  /* Specific styling for citation headings */
+  .ftk-chat-content h2:has(+ p:contains("[1]")),
+  .ftk-chat-content h2:contains("Citations and References") {
+    margin-top: 1.5em;
+    padding: 8px 12px;
+    background-color: rgba(0, 120, 212, 0.08);
+    border-left: 4px solid #0078d4;
+    border-radius: 4px;
+    color: #0078d4;
+  }
+  
   .ftk-chat-content ul,
   .ftk-chat-content ol {
     padding-left: 1.5em;
@@ -41,3 +52,82 @@
     background: #ddd;
   }
   
+  /* Styling for links in markdown content */
+.ftk-markdown a {
+  color: #0078d4;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+
+.ftk-markdown a:hover {
+  text-decoration: underline;
+  color: #106ebe;
+}
+
+/* Special styling for reference links like [What is FOCUS?](#) */
+.ftk-markdown a[href="#"] {
+  color: #0078d4;
+  font-weight: 500;
+  text-decoration: none;
+  background-color: rgba(0, 120, 212, 0.1);
+  border-radius: 4px;
+  padding: 0 4px;
+  margin: 0 2px;
+  transition: background-color 0.2s;
+}
+
+.ftk-markdown a[href="#"]:hover {
+  background-color: rgba(0, 120, 212, 0.2);
+  text-decoration: underline;
+}
+
+/* Enhanced styling for reference links with custom component */
+.ftk-reference-link {
+  color: #0078d4;
+  font-weight: 500;
+  text-decoration: none;
+  background-color: rgba(0, 120, 212, 0.1);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 0 2px;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.ftk-reference-link:hover {
+  background-color: rgba(0, 120, 212, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ftk-educational-link {
+  background-color: rgba(0, 120, 212, 0.15);
+  border-left: 2px solid #0078d4;
+}
+
+.ftk-reference-icon {
+  margin-right: 4px;
+  font-size: 0.9em;
+}
+
+/* Animation for clicked reference links */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(0, 120, 212, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.ftk-reference-clicked {
+  animation: pulse 0.5s ease;
+}

@@ -1,15 +1,18 @@
 import { useState, useRef, useEffect } from "react";
-import { Input, Button, Text } from "@fluentui/react-components";
+import { Button, Text } from "@fluentui/react-components";
 import ChatBubble from "./ChatBubble";
 import TypingBubble from "./TypingBubble";
 import "./ChatWindow.css";
-import { ChevronDown24Regular } from "@fluentui/react-icons";
+import { ChevronDown24Regular, Send24Regular } from "@fluentui/react-icons";
+import { Citation, formatCitationsForMarkdown } from "../utils/citationUtils";
 
 type ChatMessage = {
   role: "user" | "agent" | "assistant" | "system";
   agent: string;
   content: string;
   sources?: string[];
+  processedContent?: string;
+  citations?: Citation[];
 };
 
 const promptSuggestions = [
@@ -41,12 +44,12 @@ export default function ChatWindow() {
   useEffect(() => {
     localStorage.setItem("sessionId", sessionIdRef.current);
   }, []);
-  
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [typingMessage, setTypingMessage] = useState<string>("Finley is thinking...");
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
     containerRef.current?.scrollTo({
@@ -54,9 +57,8 @@ export default function ChatWindow() {
       behavior: "smooth",
     });
   };
-
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isTyping) return;  
 
     setMessages((prev) => [
       ...prev,
@@ -72,10 +74,17 @@ export default function ChatWindow() {
     const baseUrl = import.meta.env.VITE_BACKEND_URL;
     const eventSource = new EventSource(
     `${baseUrl}/api/ask-stream?prompt=${encodedPrompt}&sessionId=${sessionIdRef.current}`
-    );
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
+    );    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);      // Debug incoming data with more details
+      console.log("API Response Data:", {
+        content: data.content?.substring(0, 50) + "...",
+        hasCitations: data.citations ? true : false,
+        citationsCount: data.citations?.length || 0,
+        citationFields: data.citations?.length > 0 ? Object.keys(data.citations[0]) : [],
+        firstCitation: data.citations?.length > 0 ? JSON.stringify(data.citations[0]).substring(0, 100) + "..." : null,
+        responseProperties: Object.keys(data)
+      });
+      
       if (data.content === "[DONE]") {
         setIsTyping(false);
         setTypingMessage("");
@@ -83,19 +92,120 @@ export default function ChatWindow() {
         return;
       }
 
-      if (!data.content?.trim()) return;
+      // Validate API response structure
+      if (!data || typeof data !== 'object') {
+        console.error("Invalid API response:", data);
+        return;
+      }
 
+      // Check if content is present
+      if (!data.content?.trim()) return;      // Process citations if present
+      let processedContent = data.content;
+      let citations: Citation[] = [];
+      
+      // Improved citation detection - check data.citations for array type and length
+      const hasCitations = Array.isArray(data.citations) && data.citations.length > 0;
+      console.log("Citation detection:", {
+        hasCitations,
+        citationsLength: Array.isArray(data.citations) ? data.citations.length : 'not an array',
+        firstCitationSample: hasCitations ? JSON.stringify(data.citations[0]).substring(0, 80) + '...' : 'none'
+      });
+      
+      if (hasCitations) {
+        try {
+          console.log("Processing citations from API:", data.citations.length, 
+                     "first citation:", data.citations[0]);          // Use the citations directly rather than trying to parse from content
+          citations = data.citations.map((citation: unknown, index: number) => {
+            // Ensure citation is an object before spreading
+            const citationObj = typeof citation === 'object' && citation !== null ? citation : {};
+            
+            // Verify all backend fields are present
+            const backendFields = [
+              'id', 'title', 'section', 'filepath', 
+              'document_name', 'chunkId', 'content'
+            ];
+            
+            // Log any missing fields for debugging
+            const missingFields = backendFields.filter(
+              field => !(field in citationObj)
+            );
+            
+            if (missingFields.length > 0) {
+              console.warn(`Citation missing fields: ${missingFields.join(', ')}`);
+            }
+            
+            // Create properly typed citation object, preserving all fields
+            // Use type assertion to access specific fields
+            const partialCitation = citationObj as Partial<Citation>;
+            // Handle possible field name variations with a type-safe approach
+            const content = partialCitation.content || 
+                            (citationObj as Record<string, unknown>)['content_sample'] as string || 
+                            partialCitation.snippet || '';
+                            
+            const title = partialCitation.title || 
+                         partialCitation.document_name || 
+                         `Citation ${index + 1}`;
+                         
+            return {
+              ...citationObj,
+              id: partialCitation.id || String(index + 1),
+              reindex_id: String(index + 1), // Ensure each citation has a display ID
+              content: content,
+              title: title
+            };
+          });
+          
+          // Format and append citations section at the end for visibility
+          const formattedCitations = formatCitationsForMarkdown(citations);
+          
+          // Keep the original content but add citations section at the end
+          processedContent = `${data.content}\n\n${formattedCitations}`;
+          
+          console.log("Processed citations:", citations.length, 
+            "with IDs:", citations.map(c => c.id).join(", "));
+        } catch (error) {
+          console.error('Error processing citations:', error);
+          processedContent = data.content;
+        }
+      }      // Create message with correct structure for proper citation handling
       const msg: ChatMessage = {
         role: data.role || "agent",
         agent: data.agent || "Finley",
-        content: data.content,
+        content: processedContent,
         sources: data.sources || [],
+        // Ensure citations are explicitly set if available
+        citations: citations && citations.length > 0 ? citations : undefined,
       };
+
+      // Create a final check to ensure citations are included in the message
+      // If there are citations in the original data, make sure they're passed along
+      if (msg.citations === undefined && hasCitations) {
+        console.log("Citations were found in data but not properly processed - fixing", {
+          citationsInMsg: msg.citations ? 'present' : 'undefined',
+          citationsInData: hasCitations ? data.citations.length : 0
+        });
+        // Ensure correct citation formatting
+        msg.citations = data.citations.map((c: Record<string, unknown>, idx: number) => ({
+          id: (c.id as string) || String(idx + 1),
+          reindex_id: String(idx + 1),
+          title: (c.title as string) || (c.document_name as string) || `Citation ${idx + 1}`,
+          content: (c.content as string) || (c.content_sample as string) || (c.snippet as string) || '',
+          section: (c.section as string) || '',
+          filepath: (c.filepath as string) || '',
+          chunkId: (c.chunkId as string) || ''
+        }));
+      }
 
       if (msg.role === "system") {
         setIsTyping(true);
         setTypingMessage(msg.content);
       } else {
+        // Log the message structure for debugging
+        if (msg.citations) {
+          console.log("Adding message with citations:", msg.citations.length);
+        } else {
+          console.log("Adding message with NO citations");
+        }
         setMessages((prev) => [...prev, msg]);
       }
     };
@@ -115,33 +225,71 @@ export default function ChatWindow() {
     };
 
     setInput("");
+    
+    // Focus back on the input field after sending
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
   };
-
   // Smooth scroll on new message or typing
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-  
     const handleScroll = () => {
       const isAtBottom =
-        Math.abs(container.scrollHeight - container.scrollTop - container.clientHeight) < 80;
+        Math.abs(container.scrollHeight - container.scrollTop - container.clientHeight) < 50;
       setShowScrollButton(!isAtBottom);
     };
   
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
+    // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    }
+  }, [messages]);
   
+  // Auto-scroll when typing indicator appears or disappears
+  useEffect(() => {
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+  }, [isTyping]);
+  
+  // Update input rows based on content, but keep it compact and auto-expand
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px';
+    }
+  };
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px';
+    }
+  }, [input]);
 
+  // Focus input field on component mount
+  useEffect(() => {
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 500);
+  }, []);
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column", padding: 16 }}>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", padding: "16px 16px 0 16px" }}>
       <div
         ref={containerRef}
         id="chat-container"
         style={{
           flex: 1,
           overflowY: "auto",
-          paddingBottom: 80,
+          paddingBottom: 90, // Increased padding to ensure content doesn't hide behind input
           position: "relative",
         }}
       >
@@ -185,8 +333,7 @@ export default function ChatWindow() {
               ))}
             </div>
           </div>
-        ) : (
-          <div
+        ) : (          <div
             style={{
               maxWidth: 800,
               margin: "0 auto",
@@ -194,53 +341,76 @@ export default function ChatWindow() {
               flexDirection: "column",
               gap: 12,
             }}
-          >
-            {messages.map((msg, idx) => (
-              <ChatBubble
-                key={idx}
-                role={msg.role}
-                agent={msg.agent}
-                content={msg.content}
-                sources={msg.sources}
-              />
-            ))}
+            className="ftk-chat-messages"
+          >            {messages.map((msg, idx) => 
+              (msg.role === 'agent' || msg.role === 'assistant') ? (
+                <div key={idx}>
+                  <ChatBubble
+                    role={msg.role}
+                    agent={msg.agent}
+                    content={msg.content}
+                    sources={msg.sources}
+                    citations={msg.citations}
+                  />
+                  {/* Debug info - remove in production */}
+                  {msg.citations && msg.citations.length > 0 && (
+                    <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px', textAlign: 'right' }}>
+                      {msg.citations.length} citations
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <ChatBubble
+                  key={idx}
+                  role={msg.role}
+                  agent={msg.agent}
+                  content={msg.content}
+                  sources={msg.sources}
+                  citations={msg.citations}
+                />
+              )
+            )}
             {isTyping && <TypingBubble message={typingMessage} />}
           </div>
         )}
 
 
       </div>
-      {/* Floating scroll-to-bottom button OUTSIDE chat container */}
-
-      {showScrollButton && (
+      {/* Floating scroll-to-bottom button OUTSIDE chat container */}      {showScrollButton && (
   <button className="ftk-scroll-btn" onClick={scrollToBottom} aria-label="Scroll to bottom">
-    <ChevronDown24Regular />
+    <ChevronDown24Regular style={{ width: '18px', height: '18px' }} />
   </button>
-)}
-
-      {/* Input Bar */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 24,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "100%",
-          maxWidth: 800,
-          padding: "0 16px",
-        }}
-      >
-        <div style={{ display: "flex", gap: 8 }}>
-          <Input
-            size="large"
+)}{/* Input Bar */}
+      <div className="ftk-chat-inputbar">
+        <div className="ftk-chat-inputbar-inner">
+          <textarea
+            ref={inputRef}
+            className="ftk-chat-textarea"
+            rows={1}
             value={input}
             placeholder="Ask Finley anything..."
-            onChange={(_e, data) => setInput(data.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            style={{ flex: 1 }}
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+              // Focus back on input after Escape
+              if (e.key === "Escape") {
+                e.preventDefault();
+                inputRef.current?.blur();
+                setTimeout(() => inputRef.current?.focus(), 100);
+              }
+            }}
           />
-          <Button appearance="primary" onClick={handleSend}>
-            Send
+          <Button 
+            appearance="primary" 
+            className="ftk-chat-send-btn" 
+            onClick={handleSend} 
+            disabled={!input.trim() || isTyping}
+            aria-label="Send message"
+          >
+            <Send24Regular />
           </Button>
         </div>
       </div>

@@ -1,6 +1,8 @@
 // src/components/NavBar.tsx
 import { makeStyles, tokens } from "@fluentui/react-components";
 import { Link } from "react-router-dom";
+import { Button } from "@fluentui/react-components";
+import { Home24Regular, Chat24Regular } from "@fluentui/react-icons";
 
 const useStyles = makeStyles({
   nav: {
@@ -14,11 +16,31 @@ const useStyles = makeStyles({
   logo: {
     fontWeight: 600,
     fontSize: "1.25rem",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
   },
   links: {
     display: "flex",
-    gap: "1.5rem",
+    gap: "0.75rem",
     fontWeight: 500,
+  },
+  buttonLink: {
+    textDecoration: "none",
+    display: "flex",
+    alignItems: "center",
+  },
+  navButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    padding: "0.5rem 0.75rem",
+    borderRadius: "6px",
+    fontSize: "0.9375rem",
+    fontWeight: 500,
+    ":hover": {
+      backgroundColor: tokens.colorNeutralBackground3Hover,
+    },
   },
 });
 
@@ -28,8 +50,16 @@ export default function NavBar() {
     <header className={styles.nav}>
       <div className={styles.logo}>🤖 Finley</div>
       <nav className={styles.links}>
-        <Link to="/">Home</Link>
-        <Link to="/chat">Chat</Link>
+        <Link to="/" className={styles.buttonLink}>
+          <Button icon={<Home24Regular />} appearance="transparent" className={styles.navButton}>
+            Home
+          </Button>
+        </Link>
+        <Link to="/chat" className={styles.buttonLink}>
+          <Button icon={<Chat24Regular />} appearance="transparent" className={styles.navButton}>
+            Chat
+          </Button>
+        </Link>
       </nav>
     </header>
   );

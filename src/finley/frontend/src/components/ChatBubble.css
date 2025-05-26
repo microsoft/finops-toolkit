@@ -1,3 +1,4 @@
+/* filepath: c:\_repos\finops-toolkit-1\src\finley\frontend\src\components\ChatBubble.css */
 /* === FTK Chat Bubble Styling === */
 
 .ftk-chat-bubble {
@@ -68,6 +69,13 @@
     font-size: 0.905em;
     line-height: 1.4;
     display: block;
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+}
+
+.ftk-chat-content * {
+    pointer-events: auto;
 }
 
 .ftk-chat-content h1,
@@ -94,176 +102,151 @@
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
-.ftk-chat-content th {
-    background-color: #f3f4f6;
-}
-
-.ftk-chat-content th:first-child {
-    border-top-left-radius: 12px;
-}
-
-.ftk-chat-content th:last-child {
-    border-top-right-radius: 12px;
-}
-
-.ftk-chat-content tr:last-child td:first-child {
-    border-bottom-left-radius: 12px;
-}
-
-.ftk-chat-content tr:last-child td:last-child {
-    border-bottom-right-radius: 12px;
-}
-
-.ftk-chat-content th,
-.ftk-chat-content td {
-    border: 1px solid #ccc;
-    padding: 6px 10px;
-    text-align: left;
-}
-
-/* Code & Pre Blocks */
-.ftk-chat-content pre {
-    background: #282c34;
-    color: #ffffff;
-    padding: 12px;
-    border-radius: 6px;
-    overflow-x: auto;
-}
-
-.ftk-chat-content code {
-    background: #f0f0f0;
-    padding: 2px 4px;
+/* Reference link styling within chat bubbles */
+.ftk-chat-bubble .ftk-reference-link {
+    margin: 2px 0;
+    display: inline-flex;
+    align-items: center;
     border-radius: 4px;
-    font-size: 0.95em;
-    font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
-}
-
-.ftk-chat-content pre code {
-    background: none;
-    padding: 0;
-}
-
-/* Links */
-.ftk-chat-content a {
-    color: #1e88e5;
-    text-decoration: underline;
-}
-
-/* Sources */
-.ftk-chat-sources {
-    margin-top: 10px;
-    font-size: 0.9em;
-    color: #333;
-}
-
-.ftk-chat-sources ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.ftk-chat-sources li {
-    list-style-type: disc;
-}
-
-/* Typing Indicator */
-.ftk-typing-dots {
-    display: flex;
-    gap: 6px;
-    margin-top: 6px;
-}
-
-.ftk-typing-dots span {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #aaa;
-    animation: blink 1.4s infinite both;
-}
-
-.ftk-typing-dots span:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.ftk-typing-dots span:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes blink {
-
-    0%,
-    80%,
-    100% {
-        opacity: 0.3;
-    }
-
-    40% {
-        opacity: 1;
-    }
-}
-
-/* Tags */
-.ftk-tag-agent {
-    background: #f0f4ff;
-    padding: 2px 8px;
-    border-radius: 8px;
-    color: #2b6cb0;
+    background-color: rgba(0, 120, 212, 0.1);
+    color: #0078d4;
     font-weight: 500;
+    text-decoration: none;
+    padding: 2px 6px;
+    transition: all 0.2s ease;
+}
+
+.ftk-chat-bubble .ftk-reference-link:hover {
+    background-color: rgba(0, 120, 212, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ftk-chat-bubble .ftk-educational-link {
+    background-color: rgba(0, 120, 212, 0.15);
+    border-left: 2px solid #0078d4;
+}
+
+.ftk-chat-bubble .ftk-reference-icon {
+    margin-right: 4px;
+    font-size: 0.9em;
+}
+
+/* Tag styling */
+.ftk-tag-user,
+.ftk-tag-agent,
+.ftk-tag-system,
+.ftk-tag-assistant {
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 0.85em;
 }
 
 .ftk-tag-user {
-    background: #fef3c7;
-    color: #92400e;
+    background-color: #64b5f6;
+    color: white;
+}
+
+.ftk-tag-agent,
+.ftk-tag-assistant {
+    background-color: #81c784;
+    color: white;
 }
 
 .ftk-tag-system {
-    background: #e0e7ff;
-    color: #3730a3;
+    background-color: #ffb74d;
+    color: white;
 }
 
-/* Code Block Style */
-.ftk-code-block {
-    background-color: #f9f9f9;
-    border-left: 4px solid #4f46e5;
-    padding: 12px;
-    overflow-x: auto;
-    border-radius: 6px;
-}
-
-/* Divider */
-.ftk-chat-divider {
-    margin: 12px 0;
-    border-top: 1px solid #ddd;
-    opacity: 0.6;
-}
-
-/* Optional: Gradient Header Label */
-.ftk-gradient-header {
-    font-weight: 700;
-    font-size: 1rem;
-    background: linear-gradient(to right, #4f46e5, #9333ea);
-    color: transparent;
-}
-
+/* Markdown Table */
 .ftk-table {
+    width: 100%;
     border-collapse: collapse;
-
-    margin-top: 8px;
-    font-size: 14px;
+    margin: 1em 0;
+    font-size: 0.95em;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
     overflow: hidden;
-
-}
-
-.ftk-table th,
-.ftk-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    max-width: 400px;
 }
 
 .ftk-table th {
-    background-color: #f9fafb;
-    font-weight: 600;
-    max-width: 400px;
-    overflow: hidden;
+    background-color: #f0f0f0;
+    color: #333;
+    font-weight: 500;
+    text-align: left;
+    padding: 10px 15px;
+}
+
+.ftk-table td {
+    padding: 8px 15px;
+    border-top: 1px solid #eee;
+    vertical-align: top;
+}
+
+.ftk-table tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.ftk-table tr:hover {
+    background-color: #f0f7ff;
+}
+
+/* Code styling */
+.ftk-code-block {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 12px 0;
+    position: relative;
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 0.9em;
+    overflow-x: auto;
+}
+
+/* Custom Tag Styling */
+.ftk-markdown a.tag {
+    background-color: #e4f3ff;
+    color: #007acc;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    margin: 0 4px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.ftk-markdown a.tag:hover {
+    background-color: #d0e8fb;
+}
+
+/* Blockquote Styling */
+.ftk-markdown blockquote {
+    margin: 8px 0;
+    padding: 8px 12px;
+    border-left: 3px solid #90caf9;
+    background-color: rgba(144, 202, 249, 0.1);
+    font-style: italic;
+}
+
+/* Citation List */
+.ftk-citation-list {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+    font-size: 0.85em;
+    color: #777;
+}
+
+.ftk-citation-item {
+    margin: 4px 0;
+}
+
+.ftk-citation-link {
+    color: #0078d4;
+    text-decoration: none;
+}
+
+.ftk-citation-link:hover {
+    text-decoration: underline;
 }
