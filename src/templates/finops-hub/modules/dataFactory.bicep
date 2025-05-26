@@ -4968,12 +4968,6 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               'Succeeded'
             ]
           }
-          {
-            activity: 'ADXDeployment'
-            dependencyConditions: [
-            'Failed'
-           ]
-          }
         ]
         userProperties: []
         typeProperties: {
