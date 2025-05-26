@@ -74,6 +74,7 @@ var ftkReleaseUri = endsWith(ftkVersion, '-dev')
   : 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}'
 var exportApiVersion = '2023-07-01-preview'
 var hubDataExplorerName = 'hubDataExplorer'
+var dataExplorerDeployed = deployDataExplorer ? true : false
 
 // cSpell:ignore timeframe
 // Function to generate the body for a Cost Management export
@@ -4967,6 +4968,12 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               'Succeeded'
             ]
           }
+          {
+            activity: 'ADXDeployment'
+            dependencyConditions: [
+            'Failed'
+           ]
+          }
         ]
         userProperties: []
         typeProperties: {
@@ -5059,17 +5066,11 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         type: 'WebActivity'
         dependsOn: [
           {
-            activity: 'Set Ingestion Timestamp'
+           activity: 'ADXDeployment'
             dependencyConditions: [
               'Succeeded'
             ]
-          }
-          {
-            activity: 'Filter Out Folders'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
+          }            
         ]
         policy: {
           timeout: '0.12:00:00'
@@ -5169,11 +5170,34 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           ]
         }
       }
+      {
+        name: 'ADXDeployment'
+        description: 'validates if ADX deployment is available'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Set Ingestion Timestamp'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(pipeline().parameters.dataExplorerDeployment,true)'
+            type: 'Expression'
+          }
+        }
+      }
     ]
-    
     parameters: {
       folderPath: {
         type: 'string'
+      }
+    dataExplorerDeployment: {
+        type: 'bool'
+        defaultValue:dataExplorerDeployed
       }
     }
     variables: {
