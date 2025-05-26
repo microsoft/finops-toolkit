@@ -5084,7 +5084,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           method: 'GET'
           headers: {}
           url: {
-            value: '@${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}?api-version=2024-04-13'
+            value: '${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}?api-version=2024-04-13'
             type: 'Expression'
           }
           authentication: {
@@ -5115,7 +5115,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         typeProperties: {
           variableName: 'dataExplorerStatus'
           value: {
-            value: '@activity(\'ListADXCluster\').output.value[0].properties.state'
+            value: '@activity(\'ListADXCluster\').output.properties.state'
             type: 'Expression'
           }
         }
@@ -5154,7 +5154,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
                 method: 'POST'
                 headers: {}
                 url: {
-                  value: '@${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}/start?api-version=2024-04-13'
+                  value: '${environment().resourceManager}subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}/start?api-version=2024-04-13'
                   type: 'Expression'
                 }
                 body: {}
