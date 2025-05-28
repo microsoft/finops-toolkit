@@ -60,9 +60,55 @@ _Released June 2, 2025_
 
 ### [Open data](open-data.md) v0.11
 
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "10 Seconds" unit of measure.
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 4 new Microsoft.AszLabHardware resource types.
+  - Added 3 new Microsoft.AzureCloudMetadata resource types.
+  - Added 3 new Microsoft.Discovery resource types.
+  - Added 2 new Microsoft.DocumentDB resource types.
+  - Added 3 new Microsoft.Premonition resource types.
+  - Added 2 new Microsoft.StorageHub resource types.
+  - Added the following resource types:
+    - microsoft.app/agents
+    - microsoft.cognitiveservices/accounts/projects
+    - microsoft.containerservice/managedclusters/managednamespaces
+    - microsoft.management/servicegroups
+    - microsoft.network/privatednszones/virtualnetworklinks
+    - microsoft.web/logicappstemplate
+    - oracle.database/basedb
+- **Changed**
+  - Updated the following resource types:
+    - microsoft.azurestackhci/networksecuritygroups
+    - microsoft.cache/redisenterprise
+    - microsoft.cognitiveservices/accounts
+    - microsoft.dashboard/dashboards
+    - microsoft.datareplication/replicationvaults
+    - microsoft.deviceregistry/schemaregistries
+    - microsoft.devtestlab/labs/virtualmachines
+    - microsoft.documentdb/fleets
+    - microsoft.fileshares/fileshares
+    - microsoft.healthdataaiservices/deidservices
+    - microsoft.machinelearningservices/aistudio
+    - microsoft.mission/approvals
+    - microsoft.mission/virtualenclaves/enclaveendpoints
+    - microsoft.mission/virtualenclaves/workloads
+    - microsoft.monitor/pipelinegroups
+    - microsoft.sovereign/landingzoneaccounts
+    - microsoft.storagediscovery/storagediscoveryworkspaces
+    - oracle.database/networkanchors
+    - oracle.database/resourceanchors
+
 **[Services](open-data.md#services)**
 
 - **Added**
+
+  - Added a service mapping for microsoft.premonition/libraries.
   - Add service mappings to separate App Service and Functions.
   - Mapped the following resource types to their respective services:
     - microsoft.batch/batchaccounts/pools
