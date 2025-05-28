@@ -1,10 +1,16 @@
-# === Base: Python slim image
-FROM python:3.12.10-slim
+FROM python:alpine3.21
 ARG PYTHON_ENV=my_env
 ENV PYTHON_ENV=$PYTHON_ENV
 COPY requirements /requirements/
-# Using the dos2unix tool to convert the script to Unix-style line endings.
-RUN apt-get update && apt-get install -y dos2unix
+RUN apk update && apk add --no-cache \
+    dos2unix \
+    bash \
+    gcc \
+    g++ \
+    musl-dev \
+    linux-headers \
+    python3-dev \
+    unixodbc-dev
 RUN dos2unix /requirements/set_python_env.sh
 RUN bash /requirements/set_python_env.sh $PYTHON_ENV
 ENV PATH="/opt/my_env/bin:$PATH"
