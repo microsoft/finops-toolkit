@@ -57,6 +57,7 @@ _resource_type_1(id: string) {
         ,"microsoft.apimanagement/service": { "SingularDisplayName": "API Management service" }
         ,"microsoft.apimanagement/service/workspaces": { "SingularDisplayName": "Workspace" }
         ,"microsoft.apisecurity/defendersettings": { "SingularDisplayName": "Microsoft.ApiSecurity defender setting" }
+        ,"microsoft.app/agents": { "SingularDisplayName": "SRE Agent" }
         ,"microsoft.app/builders": { "SingularDisplayName": "Microsoft.App builder" }
         ,"microsoft.app/builders/builds": { "SingularDisplayName": "Microsoft.App builders build" }
         ,"microsoft.app/connectedenvironments": { "SingularDisplayName": "Container Apps Connected Environment" }
@@ -96,6 +97,10 @@ _resource_type_1(id: string) {
         ,"microsoft.arc/kubernetesresources": { "SingularDisplayName": "Azure Arc Kubernetes cluster" }
         ,"microsoft.arc/kubernetesresourcesfairfax": { "SingularDisplayName": "Azure Arc Kubernetes cluster" }
         ,"microsoft.arcnetworking/arcnwloadbalancers": { "SingularDisplayName": "Microsoft.ArcNetworking arc nw load balancer" }
+        ,"microsoft.aszlabhardware/labservers": { "SingularDisplayName": "Microsoft.AszLabHardware labserver" }
+        ,"microsoft.aszlabhardware/reservations": { "SingularDisplayName": "Microsoft.AszLabHardware reservation" }
+        ,"microsoft.aszlabhardware/reservations/servers": { "SingularDisplayName": "Microsoft.AszLabHardware reservations server" }
+        ,"microsoft.aszlabhardware/servers": { "SingularDisplayName": "Microsoft.AszLabHardware server" }
         ,"microsoft.attestation/attestationproviders": { "SingularDisplayName": "Attestation provider" }
         ,"microsoft.authorization/accessreviewhistorydefinitions": { "SingularDisplayName": "Microsoft.Authorization access review history definition" }
         ,"microsoft.authorization/accessreviewscheduledefinitions": { "SingularDisplayName": "Microsoft.Authorization access review schedule definition" }
@@ -301,6 +306,9 @@ _resource_type_1(id: string) {
         ,"microsoft.azurecis/pushagentv2accounts": { "SingularDisplayName": "Microsoft.AzureCis push agent v2 account" }
         ,"microsoft.azurecis/servicerecords": { "SingularDisplayName": "Microsoft.AzureCis service record" }
         ,"microsoft.azurecis/sharedconfigvalues": { "SingularDisplayName": "Microsoft.AzureCis shared config value" }
+        ,"microsoft.azurecloudmetadata/clouds": { "SingularDisplayName": "Microsoft.AzureCloudMetadata cloud" }
+        ,"microsoft.azurecloudmetadata/clouds/geographies": { "SingularDisplayName": "Microsoft.AzureCloudMetadata clouds geography" }
+        ,"microsoft.azurecloudmetadata/clouds/geographies/regions": { "SingularDisplayName": "Microsoft.AzureCloudMetadata clouds geographies region" }
         ,"microsoft.azuredatatransfer/connections": { "SingularDisplayName": "Connection" }
         ,"microsoft.azuredatatransfer/connections/flows": { "SingularDisplayName": "Flow" }
         ,"microsoft.azuredatatransfer/pipelines": { "SingularDisplayName": "Pipeline" }
@@ -497,13 +505,5 @@ _resource_type_1(id: string) {
         ,"microsoft.classicnetwork/virtualnetworks": { "SingularDisplayName": "Virtual network (classic)" }
         ,"microsoft.classicstorage/storageaccounts": { "SingularDisplayName": "Storage account (classic)" }
         ,"microsoft.classicstorage/storageaccounts/disks": { "SingularDisplayName": "Disk (classic)" }
-        ,"microsoft.classicstorage/storageaccounts/osimages": { "SingularDisplayName": "OS image (classic)" }
-        ,"microsoft.classicstorage/storageaccounts/vmimages": { "SingularDisplayName": "VM image (classic)" }
-        ,"microsoft.cleanroom/cleanrooms": { "SingularDisplayName": "Microsoft.CleanRoom cleanroom" }
-        ,"microsoft.cleanroom/collaborations": { "SingularDisplayName": "Microsoft.CleanRoom collaboration" }
-        ,"microsoft.cleanroom/collaborations/contracts": { "SingularDisplayName": "Microsoft.CleanRoom collaborations contract" }
-        ,"microsoft.cleanroom/consortiums": { "SingularDisplayName": "Microsoft.CleanRoom consortium" }
-        ,"microsoft.cleanroom/microservices": { "SingularDisplayName": "Microsoft.CleanRoom microservice" }
-        ,"microsoft.cloud/hubs": { "SingularDisplayName": "FinOps hub" }
     })[tolower(id)]
 }

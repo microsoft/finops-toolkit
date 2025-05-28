@@ -5,7 +5,24 @@
 with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')
 _resource_type_4(id: string) {
     dynamic({
-        "microsoft.offazure/serversites/jobs": { "SingularDisplayName": "Microsoft.OffAzure server sites job" }
+        "microsoft.offazure/mastersites/sqlsites": { "SingularDisplayName": "Microsoft.OffAzure master sites sql site" }
+        ,"microsoft.offazure/mastersites/sqlsites/discoverysitedatasources": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites discovery site data source" }
+        ,"microsoft.offazure/mastersites/sqlsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites job" }
+        ,"microsoft.offazure/mastersites/sqlsites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites operations statu" }
+        ,"microsoft.offazure/mastersites/sqlsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites run as account" }
+        ,"microsoft.offazure/mastersites/sqlsites/sqlavailabilitygroups": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql availability group" }
+        ,"microsoft.offazure/mastersites/sqlsites/sqldatabases": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql database" }
+        ,"microsoft.offazure/mastersites/sqlsites/sqlservers": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites sql server" }
+        ,"microsoft.offazure/mastersites/webappsites": { "SingularDisplayName": "Microsoft.OffAzure master sites web app site" }
+        ,"microsoft.offazure/mastersites/webappsites/discoverysitedatasources": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites discovery site data source" }
+        ,"microsoft.offazure/mastersites/webappsites/extendedmachines": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites extended machine" }
+        ,"microsoft.offazure/mastersites/webappsites/iiswebapplications": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites iis web application" }
+        ,"microsoft.offazure/mastersites/webappsites/iiswebservers": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites iis web server" }
+        ,"microsoft.offazure/mastersites/webappsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites runasaccount" }
+        ,"microsoft.offazure/mastersites/webappsites/tomcatwebapplications": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites tomcat web application" }
+        ,"microsoft.offazure/mastersites/webappsites/tomcatwebservers": { "SingularDisplayName": "Microsoft.OffAzure master sites web app sites tomcat web server" }
+        ,"microsoft.offazure/serversites": { "SingularDisplayName": "Microsoft.OffAzure server site" }
+        ,"microsoft.offazure/serversites/jobs": { "SingularDisplayName": "Microsoft.OffAzure server sites job" }
         ,"microsoft.offazure/serversites/machines": { "SingularDisplayName": "Microsoft.OffAzure server sites machine" }
         ,"microsoft.offazure/serversites/machines/softwareinventories": { "SingularDisplayName": "Microsoft.OffAzure server sites machines software inventory" }
         ,"microsoft.offazure/serversites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure server sites operations statu" }
@@ -86,6 +103,9 @@ _resource_type_4(id: string) {
         ,"microsoft.powerbidedicated/autoscalevcores": { "SingularDisplayName": "Microsoft.PowerBIDedicated auto scale vcore" }
         ,"microsoft.powerbidedicated/capacities": { "SingularDisplayName": "Power BI Embedded" }
         ,"microsoft.powerplatform/accounts": { "SingularDisplayName": "Microsoft.PowerPlatform account" }
+        ,"microsoft.premonition/libraries": { "SingularDisplayName": "Microsoft.Premonition library" }
+        ,"microsoft.premonition/libraries/analyses": { "SingularDisplayName": "Microsoft.Premonition libraries analyse" }
+        ,"microsoft.premonition/libraries/samples": { "SingularDisplayName": "Microsoft.Premonition libraries sample" }
         ,"microsoft.professionalservice/resources": { "SingularDisplayName": "Professional Service" }
         ,"microsoft.programmableconnectivity/gateways": { "SingularDisplayName": "APC Gateway" }
         ,"microsoft.programmableconnectivity/operatorapiconnections": { "SingularDisplayName": "APC Operator API Connection" }
@@ -227,7 +247,7 @@ _resource_type_4(id: string) {
         ,"microsoft.security/settings": { "SingularDisplayName": "Microsoft.Security setting" }
         ,"microsoft.security/standards": { "SingularDisplayName": "Microsoft.Security standard" }
         ,"microsoft.security/workspacesettings": { "SingularDisplayName": "Microsoft.Security workspace setting" }
-        ,"microsoft.securitycopilot/capacities": { "SingularDisplayName": "Microsoft Security Copilot compute capacity" }
+        ,"microsoft.securitycopilot/capacities": { "SingularDisplayName": "Microsoft Security compute capacity" }
         ,"microsoft.securitydetonation/chambers": { "SingularDisplayName": "Security Detonation Chamber" }
         ,"microsoft.securityinsightsarg/sentinel": { "SingularDisplayName": "Microsoft Sentinel" }
         ,"microsoft.sentinelplatformservices/sentinelplatformservices": { "SingularDisplayName": "Microsoft.SentinelPlatformServices sentinel platform service" }
@@ -263,7 +283,7 @@ _resource_type_4(id: string) {
         ,"microsoft.solutions/applicationdefinitions": { "SingularDisplayName": "Service catalog managed application definition" }
         ,"microsoft.solutions/applications": { "SingularDisplayName": "Managed application" }
         ,"microsoft.solutions/jitrequests": { "SingularDisplayName": "Microsoft.Solutions JIT request" }
-        ,"microsoft.sovereign/landingzoneaccounts": { "SingularDisplayName": "Landing zone accounts" }
+        ,"microsoft.sovereign/landingzoneaccounts": { "SingularDisplayName": "Landing zone account" }
         ,"microsoft.sovereign/landingzoneaccounts/landingzoneconfigurations": { "SingularDisplayName": "Landing Zone Configuration" }
         ,"microsoft.sovereign/landingzoneaccounts/landingzoneregistrations": { "SingularDisplayName": "Landing Zone Registration" }
         ,"microsoft.sovereign/landingzoneconfigurations": { "SingularDisplayName": "Landing Zone Configuration" }
@@ -291,6 +311,8 @@ _resource_type_4(id: string) {
         ,"microsoft.storagecache/amlfilesystems": { "SingularDisplayName": "Azure Managed Lustre" }
         ,"microsoft.storagecache/caches": { "SingularDisplayName": "HPC cache" }
         ,"microsoft.storagediscovery/storagediscoveryworkspaces": { "SingularDisplayName": "Storage Discovery workspace" }
+        ,"microsoft.storagehub/all": { "SingularDisplayName": "All resources" }
+        ,"microsoft.storagehub/policycomplianceresources": { "SingularDisplayName": "Policy compliance" }
         ,"microsoft.storageinsights/storagecollectionrules": { "SingularDisplayName": "Microsoft.StorageInsights storage collection rule" }
         ,"microsoft.storagemover/storagemovers": { "SingularDisplayName": "Storage mover" }
         ,"microsoft.storagepool/diskpools": { "SingularDisplayName": "Microsoft.StoragePool disk pool" }
@@ -402,6 +424,7 @@ _resource_type_4(id: string) {
         ,"microsoft.web/hostingenvironments": { "SingularDisplayName": "App Service Environment" }
         ,"microsoft.web/ishostingenvironmentnameavailable": { "SingularDisplayName": "Microsoft.Web ishostingenvironmentnameavailable" }
         ,"microsoft.web/kubeenvironments": { "SingularDisplayName": "App Service Kubernetes Environment" }
+        ,"microsoft.web/logicappstemplate": { "SingularDisplayName": "Logic Apps Template" }
         ,"microsoft.web/publishingusers": { "SingularDisplayName": "Microsoft.Web publishing user" }
         ,"microsoft.web/serverfarms": { "SingularDisplayName": "App Service plan" }
         ,"microsoft.web/sites": { "SingularDisplayName": "App Service web app" }
@@ -447,13 +470,14 @@ _resource_type_4(id: string) {
         ,"newrelic.observability/monitors": { "SingularDisplayName": "New Relic" }
         ,"nginx.nginxplus/nginxdeployments": { "SingularDisplayName": "NGINXaaS" }
         ,"oracle.database/autonomousdatabases": { "SingularDisplayName": "Autonomous Database" }
+        ,"oracle.database/basedb": { "SingularDisplayName": "Autonomous Database" }
         ,"oracle.database/cloudexadatainfrastructures": { "SingularDisplayName": "Oracle Exadata Infrastructure" }
         ,"oracle.database/cloudvmclusters": { "SingularDisplayName": "Oracle Exadata VM Cluster" }
         ,"oracle.database/exadbvmclusters": { "SingularDisplayName": "Oracle Exascale VM Cluster" }
         ,"oracle.database/exascaledbstoragevaults": { "SingularDisplayName": "Oracle Exascale DB Storage Vault" }
-        ,"oracle.database/networkanchors": { "SingularDisplayName": "Oracle.Database network anchor" }
+        ,"oracle.database/networkanchors": { "SingularDisplayName": "Network Anchor" }
         ,"oracle.database/oraclesubscriptions": { "SingularDisplayName": "OracleSubscription" }
-        ,"oracle.database/resourceanchors": { "SingularDisplayName": "Oracle.Database resource anchor" }
+        ,"oracle.database/resourceanchors": { "SingularDisplayName": "Resource Anchor" }
         ,"paloaltonetworks.cloudngfw/firewalls": { "SingularDisplayName": "Cloud NGFW by Palo Alto Networks" }
         ,"paloaltonetworks.cloudngfw/globalrulestacks": { "SingularDisplayName": "Global Rulestack" }
         ,"paloaltonetworks.cloudngfw/localrulestacks": { "SingularDisplayName": "Local Rulestack for Cloud NGFW by Palo Alto Networks" }

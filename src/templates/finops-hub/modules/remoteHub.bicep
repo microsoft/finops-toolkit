@@ -12,9 +12,6 @@ import { HubCoreConfig } from 'hub-types.bicep'
 @secure()
 param remoteStorageKey string
 
-@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
-param enableDefaultTelemetry bool = true
-
 //------------------------------------------------------------------------------
 // Temporary parameters that should be removed in the future
 //------------------------------------------------------------------------------
@@ -52,7 +49,6 @@ module appRegistration 'hub-app.bicep' = {
       'KeyVault'
       'Storage'
     ]
-    enableDefaultTelemetry: enableDefaultTelemetry
 
     coreConfig: coreConfig
   }

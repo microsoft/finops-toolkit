@@ -118,7 +118,7 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
     }
 
     # TODO: Create a way to define file consolidation via config (or maybe a custom build script in the folder)
-    if ($templateName -eq "finops-hubs")
+    if ($templateName -eq "finops-hub")
     {
         @(
             @{
