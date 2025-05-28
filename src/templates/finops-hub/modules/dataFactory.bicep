@@ -98,6 +98,7 @@ func getExportBodyV2(exportContainerName string, datasetType string, schemaVersi
 
 var deployDataExplorer = !empty(dataExplorerId)
 var useFabric = !deployDataExplorer && !empty(dataExplorerUri)
+var dataExplorerDeployed = deployDataExplorer ? true : false
 
 var datasetPropsDefault = {
     location: {
@@ -150,6 +151,11 @@ var storageRbacRoles = [
   '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
 ]
 
+// Roles for ADF to to start check ADX cluster and to start cluster if stopped
+var adxRbacRoles = [
+  'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor permissions on the cluster
+]
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -168,6 +174,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = if (!empty(remoteHubStorageUri)) {
   name: keyVaultName
 }
+
+// Get ADX cluster instance
+resource dataExplorerCluster 'Microsoft.Kusto/clusters@2023-08-15' existing = if (deployDataExplorer) {
+  name: dataExplorerName
+}  
 
 // cSpell:ignore azuretimezones
 module azuretimezones 'azuretimezones.bicep' = {
@@ -337,6 +348,17 @@ resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@
 resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
   name: guid(storageAccount.id, role, dataFactory.id)
   scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+    principalId: dataFactory.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
+// Grant ADF identity access to manage ADX cluster
+resource factoryIdentityADXRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in adxRbacRoles: {
+  name: guid(dataExplorerCluster.id, role, dataFactory.id)
+  scope: dataExplorerCluster
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: dataFactory.identity.principalId
@@ -4936,11 +4958,11 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
             ]
           }
           {
-            activity: 'Set Ingestion Timestamp'
+            activity: 'Data Explorer validation'
             dependencyConditions: [
               'Succeeded'
             ]
-          }
+          }       
         ]
         userProperties: []
         typeProperties: {
@@ -5027,10 +5049,122 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           ]
         }
       }
+      {
+        name: 'Data Explorer validation'
+        description: 'if a Data Explorer instance is deployed, the status will be checked and if the instance is in state "Stopped" the instance will be started'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Set Ingestion Timestamp'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(pipeline().parameters.dataExplorerDeployment,true)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Get ADX Cluster details'
+              description: 'list ADX cluster details for receiving the status of it'
+              type: 'WebActivity'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'GET'
+                url: {
+                  value: '${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}?api-version=2024-04-13'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: environment().resourceManager
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'adxStatusVariable'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Get ADX Cluster details'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'dataExplorerStatus'
+                value: {
+                  value: '@if(equals(activity(\'Get ADX Cluster details\').output.properties.state,\'Stopped\'),\'Stopped\',\'Running\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Start ADX Cluster'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'adxStatusVariable'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'POST'
+                url: {
+                  value: '@if(equals(variables(\'dataExplorerStatus\'),\'Stopped\'),\'${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}/start?api-version=2024-04-13\',\'${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}/start?api-version=2024-04-13\')\n    \n\n    '
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: environment().resourceManager
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
     ]
     parameters: {
       folderPath: {
         type: 'string'
+      }
+      dataExplorerDeployment: {
+        type: 'bool'
+        defaultValue:dataExplorerDeployed
       }
     }
     variables: {
@@ -5039,6 +5173,9 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
       }
       timestamp: {
         type: 'string'
+      }
+      dataExplorerStatus: {
+        type: 'String'
       }
     }
     annotations: [
