@@ -47,6 +47,8 @@ _Released June 2, 2025_
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
   - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+- **Changed**
+  - Merged vnet and core-network. modules into infrastructure.bicep (no functional changes).
 - **Fixed**
   - Address new data quality issues with data ingested into Data Explorer:
     - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
