@@ -36,7 +36,7 @@ This template includes the following workbooks:
 
 2. Deploy the **finops-workbooks** template using one of the following methods:
 
-   **Option 1:** Deploy using ARM template (requires Contributor access)
+   **Option 1:** Deploy using ARM template (requires Microsoft.Resources/deployments permissions, Workbook Contributor, and Reader)
 
    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true" /></a>
    &nbsp;
