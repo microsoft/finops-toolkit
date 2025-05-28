@@ -107,7 +107,9 @@ _Released June 2, 2025_
 **[Services](open-data.md#services)**
 
 - **Added**
+
   - Added a service mapping for microsoft.premonition/libraries.
+  - Add service mappings to separate App Service and Functions.
   - Mapped the following resource types to their respective services:
     - microsoft.batch/batchaccounts/pools
     - microsoft.compute/galleries/images/versions
