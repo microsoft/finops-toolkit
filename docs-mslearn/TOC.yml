@@ -162,6 +162,8 @@
           href: toolkit/power-bi/cost-summary.md
         - name: Governance report
           href: toolkit/power-bi/governance.md
+        - name: Invoicing and chargeback report
+          href: toolkit/power-bi/invoicing.md
         - name: Rate optimization report
           href: toolkit/power-bi/rate-optimization.md
         - name: Workload optimization report
