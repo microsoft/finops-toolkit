@@ -11,6 +11,7 @@ export interface Citation {
   part_index?: number;
   document_name?: string;
   filename?: string; // Backend sometimes includes this
+  file_name?: string; // Added for consistency with CitationHandler
   source_info?: string; // Backend sometimes includes this
 }
 
@@ -176,38 +177,72 @@ export function formatCitationsForMarkdown(citations: Citation[]): string {
 export function convertToCitationData(citations: Citation[]) {
   if (!citations || citations.length === 0) return [];
   
-  return citations.map(citation => {
-    // Get a reasonable title - prefer document_name, then title, then extract from filepath
-    let title = citation.document_name || citation.title;
-    if (!title && citation.filepath) {
-      // Extract filename from path with support for both / and \ path separators
+  console.log('Converting citations to CitationData format:', citations.length);
+  
+  return citations.map((citation, index) => {    // Get a reasonable title - prefer document_name, then title, then extract from filepath
+    let title = citation.document_name || citation.title || '';
+    let fileName = citation.filename || citation.file_name || ''; // Use filename if provided
+    
+    // Extract filename from path with support for both / and \ path separators if filepath exists
+    if (!fileName && citation.filepath) {
       const pathParts = citation.filepath.split(/[/\\]/);
-      title = pathParts[pathParts.length - 1];
+      fileName = pathParts[pathParts.length - 1] || '';
+      
+      // If no title yet, use filename as title
+      if (!title) {
+        title = fileName;
+      }
     }
+    
+    // If we have a URL but no title yet, extract domain as title
     if (!title && citation.url) {
       try {
         const url = new URL(citation.url);
         title = url.hostname;
       } catch {
-        title = citation.url;
+        title = citation.url || '';
       }
     }
     
-    const finalTitle = title || 'Untitled Document';
-    const isEducational = 
+    // Further title extraction from content if necessary
+    if (!title && citation.content) {
+      // Try to extract a meaningful title from content
+      // First look for a filename pattern
+      const fileNameMatch = citation.content.match(/(\w+[-_]?\w+\.(pdf|docx|xlsx|html?|md|json|txt|csv))/i);
+      if (fileNameMatch) {
+        title = fileNameMatch[0];
+      } else {
+        // Otherwise use the first 40 chars of content as the title
+        title = citation.content.substring(0, 40) + (citation.content.length > 40 ? '...' : '');
+      }
+    }
+    
+    // Ensure we have a title
+    const finalTitle = title || 'Document ' + (index + 1);
+    
+    // Determine if this is an educational resource
+    const isEducational: boolean | undefined = 
       finalTitle.toLowerCase().includes('focus') || 
-      finalTitle.toLowerCase().includes('finops');    // Look for file path in local sources only
+      finalTitle.toLowerCase().includes('finops') ||
+      (citation.source_info && 
+       (citation.source_info.toLowerCase().includes('educational') ||
+        citation.source_info.toLowerCase().includes('framework'))) ? 
+      true : undefined;
+    
+    // Look for file path in local sources only
     // Only use the filepath if it's a local path (not an external URL)
     // This ensures we only use local file references
     const filepath = citation.filepath && !citation.filepath.startsWith('http') 
       ? citation.filepath 
       : undefined;
     
-    // Do not use any external URLs for citations
-    // If we don't have a valid local filepath, we'll use undefined
-    // This ensures citations stay within the app and don't link externally
-    // For AI Search index citations, make sure we use internal references only
-    // This will ensure that all citations are handled internally
+    console.log(`Citation ${index + 1} converted:`, {
+      id: citation.reindex_id || citation.id,
+      title: finalTitle.substring(0, 30) + (finalTitle.length > 30 ? '...' : ''),
+      isEducational,
+      hasFilePath: !!filepath,
+      hasContent: !!(citation.content || citation.snippet)
+    });
     
     return {
       id: citation.reindex_id || citation.id,
@@ -217,6 +252,8 @@ export function convertToCitationData(citations: Citation[]) {
       content: citation.content || citation.snippet || undefined,
       chunkId: citation.chunkId || undefined,
       isEducational: isEducational,
+      document_name: finalTitle,
+      file_name: fileName,
       sourceInfo: citation.source_info // Include source_info in case needed
     };
   });

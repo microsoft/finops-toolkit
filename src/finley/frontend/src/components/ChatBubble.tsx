@@ -72,17 +72,33 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
     if (citations && citations.length > 0) {
         console.log(`ChatBubble rendering with ${citations.length} citations:`, 
             citations.map(c => ({id: c.id, title: c.title || c.document_name})));
-    }
-
-    const cleanedContent = useMemo(() => {
+    }    const cleanedContent = useMemo(() => {
+        let processed = content;
+        
+        // Clean up service references
         if (content.includes("Service1.") || content.includes("Service2.")) {
-            return content.replace(/Service\d+\./g, "");
+            processed = processed.replace(/Service\d+\./g, "");
         }
+        
         // Remove citation section from content if it will be rendered separately
-        if (citations && citations.length > 0 && content.includes("## 📚 Citations and References")) {
-            return content.split("## 📚 Citations and References")[0].trim();
+        if (citations && citations.length > 0) {
+            // Remove the citations section
+            if (processed.includes("## 📚 Citations and References")) {
+                processed = processed.split("## 📚 Citations and References")[0].trim();
+            }
+            
+            // Remove legacy citation formats to avoid duplication
+            // Match patterns like (Source: doc), (Reference: doc), etc.
+            processed = processed.replace(/\((?:Source|Reference|From|Ref|Citation):?\s*([^)]+)\)/gi, "");
+            
+            // Remove standalone citation lines at the end of the content
+            processed = processed.replace(/(?:Source|Reference|From|Ref|Citation)s?:[ \t]+([^\n]+)(?:\n|$)/gi, "");
+            
+            // Clean up any empty lines at the end
+            processed = processed.replace(/\n+$/g, "");
         }
-        return content.trim();
+        
+        return processed.trim();
     }, [content, citations]);
 
     const jsonTable = role === "user" ? tryRenderJsonTable(cleanedContent) : null;
@@ -214,40 +230,41 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
                 )}                {/* Render citations if available */}
                 {citations && citations.length > 0 && (
                     <div className="ftk-chat-citations">
-                        <h4 className="ftk-citation-header">📚 Citations and References</h4>
                         <CitationHandler 
                             content={cleanedContent}
                             citations={citations}
                         />
-                        {/* Debug info for citation data */}
-                        <div style={{ fontSize: '12px', padding: '8px', marginTop: '8px', 
-                                    backgroundColor: '#f0f0f0', borderRadius: '4px', 
-                                    border: '1px dashed #ccc' }}>
-                            <div><strong>Citation Debug:</strong> {citations.length} found</div>
-                            <div><strong>Fields:</strong> {citations.length > 0 ? Object.keys(citations[0]).join(', ') : 'none'}</div>
-                            <div style={{ maxHeight: '200px', overflow: 'auto', fontSize: '11px', 
-                                        marginTop: '4px', fontFamily: 'monospace' }}>
-                                {citations.map((c, i) => (
-                                    <div key={i} style={{marginBottom: '8px', padding: '4px', borderBottom: '1px dotted #ccc'}}>
-                                        <div><strong>[{i+1}] {c.document_name || c.title}</strong> (ID: {c.id})</div>
-                                        {c.section && <div style={{color: '#444'}}>
-                                            <strong>Section:</strong> {c.section}
-                                        </div>}
-                                        {c.filepath && <div style={{color: '#444'}}>
-                                            <strong>Path:</strong> {c.filepath}
-                                        </div>}
-                                        {c.chunkId && <div style={{color: '#444'}}>
-                                            <strong>Chunk:</strong> {c.chunkId}
-                                        </div>}
-                                        {c.content && <div style={{marginTop: '4px', color: '#555', 
-                                                    fontStyle: 'italic', padding: '4px', backgroundColor: '#f8f8f8',
-                                                    borderRadius: '2px', border: '1px solid #eee'}}>
-                                            <strong>Content:</strong> "{c.content.substring(0, 100)}..."
-                                        </div>}
-                                    </div>
-                                ))}
+                        {/* Debug info for citation data - only show in development */}
+                        {process.env.NODE_ENV === 'development' && (
+                            <div style={{ fontSize: '12px', padding: '8px', marginTop: '8px', 
+                                        backgroundColor: '#f0f0f0', borderRadius: '4px', 
+                                        border: '1px dashed #ccc' }}>
+                                <div><strong>Citation Debug:</strong> {citations.length} found</div>
+                                <div><strong>Fields:</strong> {citations.length > 0 ? Object.keys(citations[0]).join(', ') : 'none'}</div>
+                                <div style={{ maxHeight: '200px', overflow: 'auto', fontSize: '11px', 
+                                            marginTop: '4px', fontFamily: 'monospace' }}>
+                                    {citations.map((c, i) => (
+                                        <div key={i} style={{marginBottom: '8px', padding: '4px', borderBottom: '1px dotted #ccc'}}>
+                                            <div><strong>[{i+1}] {c.document_name || c.title}</strong> (ID: {c.id})</div>
+                                            {c.section && <div style={{color: '#444'}}>
+                                                <strong>Section:</strong> {c.section}
+                                            </div>}
+                                            {c.filepath && <div style={{color: '#444'}}>
+                                                <strong>Path:</strong> {c.filepath}
+                                            </div>}
+                                            {c.chunkId && <div style={{color: '#444'}}>
+                                                <strong>Chunk:</strong> {c.chunkId}
+                                            </div>}
+                                            {c.content && <div style={{marginTop: '4px', color: '#555', 
+                                                        fontStyle: 'italic', padding: '4px', backgroundColor: '#f8f8f8',
+                                                        borderRadius: '2px', border: '1px solid #eee'}}>
+                                                <strong>Content:</strong> "{c.content.substring(0, 100)}..."
+                                            </div>}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
             </div>

@@ -184,16 +184,14 @@ export default function ChatWindow() {
           citationsInMsg: msg.citations ? 'present' : 'undefined',
           citationsInData: hasCitations ? data.citations.length : 0
         });
-        // Ensure correct citation formatting
-        msg.citations = data.citations.map((c: Record<string, unknown>, idx: number) => ({
-          id: (c.id as string) || String(idx + 1),
-          reindex_id: String(idx + 1),
-          title: (c.title as string) || (c.document_name as string) || `Citation ${idx + 1}`,
-          content: (c.content as string) || (c.content_sample as string) || (c.snippet as string) || '',
-          section: (c.section as string) || '',
-          filepath: (c.filepath as string) || '',
-          chunkId: (c.chunkId as string) || ''
-        }));
+        
+        // Process citations thoroughly to ensure complete information
+        msg.citations = processCitations(data.citations);
+      }
+      
+      // Final legacy citation check
+      if (!msg.citations && msg.content.includes('(Source:')) {
+        console.log("No structured citations found, but source references exist in text - will be processed by CitationHandler");
       }
 
       if (msg.role === "system") {
@@ -350,10 +348,9 @@ export default function ChatWindow() {
                     agent={msg.agent}
                     content={msg.content}
                     sources={msg.sources}
-                    citations={msg.citations}
-                  />
-                  {/* Debug info - remove in production */}
-                  {msg.citations && msg.citations.length > 0 && (
+                    citations={msg.citations}                  />
+                  {/* Debug info - only show in development */}
+                  {process.env.NODE_ENV === 'development' && msg.citations && msg.citations.length > 0 && (
                     <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px', textAlign: 'right' }}>
                       {msg.citations.length} citations
                     </div>
@@ -416,4 +413,74 @@ export default function ChatWindow() {
       </div>
     </div>
   );
+}
+
+// Helper function to thoroughly process citations
+function processCitations(rawCitations: Record<string, unknown>[]): Citation[] {
+  if (!Array.isArray(rawCitations) || rawCitations.length === 0) return [];
+  
+  console.log('Processing citations:', rawCitations.length);
+  
+  return rawCitations.map((citation: Record<string, unknown>, idx: number) => {
+    // Extract core fields with type safety
+    const id = (citation.id as string) || String(idx + 1);
+    const reindex_id = String(idx + 1);
+    
+    // Try multiple field names for title
+    const title = (citation.title as string) || 
+                 (citation.document_name as string) || 
+                 `Citation ${idx + 1}`;
+    
+    // Try multiple field names for content
+    const content = (citation.content as string) || 
+                   (citation.content_sample as string) || 
+                   (citation.snippet as string) || 
+                   '';
+    
+    // Extract document name with fallbacks
+    const document_name = (citation.document_name as string) || 
+                         (citation.title as string) || 
+                         `Document ${idx + 1}`;
+    
+    // Extract filename with multiple strategies
+    let file_name = (citation.file_name as string) || '';
+    
+    // If no direct filename, try to extract from filepath
+    if (!file_name && citation.filepath) {
+      const filepath = citation.filepath as string;
+      const pathParts = filepath.split(/[/\\]/);
+      file_name = pathParts[pathParts.length - 1] || '';
+    }
+    
+    // If still no filename but we have a document name, try to extract filename pattern
+    if (!file_name && document_name) {
+      const filePattern = document_name.match(/(\w+[-_]?\w+\.(pdf|docx|xlsx|html?|md|json|txt|csv))/i);
+      if (filePattern) {
+        file_name = filePattern[0];
+      }
+    }
+    
+    // For debugging
+    console.log(`Processed citation ${idx + 1}:`, {
+      id,
+      title: title.substring(0, 30) + (title.length > 30 ? '...' : ''),
+      document_name: document_name.substring(0, 30) + (document_name.length > 30 ? '...' : ''),
+      file_name
+    });
+    
+    return {
+      id,
+      reindex_id,
+      title,
+      content,
+      section: (citation.section as string) || '',
+      filepath: (citation.filepath as string) || '',
+      chunkId: (citation.chunkId as string) || '',
+      document_name,
+      file_name,
+      // Include any additional metadata that might be useful
+      url: (citation.url as string) || '',
+      source_info: (citation.source_info as string) || ''
+    };
+  });
 }

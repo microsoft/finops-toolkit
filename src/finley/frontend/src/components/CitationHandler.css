@@ -46,36 +46,81 @@
 /* Citation Card (Collapsed by Default) */
 .ftk-citation-card {
   border: 1px solid rgba(0, 120, 212, 0.3);
-  border-radius: 6px;
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  background: #f5f9ff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  padding: 16px;
+  background: #f9fbff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ftk-citation-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: #0078d4;
+  opacity: 0.8;
 }
 
 .ftk-citation-card:hover {
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
   border-color: rgba(0, 120, 212, 0.6);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
-.ftk-citation-card-header {
-  cursor: pointer;
+.ftk-citation-card:focus {
+  box-shadow: 0 4px 16px rgba(0,120,212,0.18);
+  border-color: #005a9e;
+  outline: none;
+  background-color: #f0f7ff;
+}
+
+.ftk-citation-card-title {
+  font-size: 1.05em;
   font-weight: 600;
-  font-size: 0.95rem;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.ftk-citation-card-author {
+  color: #555;
+  font-size: 0.93em;
+  margin-top: 4px;
+  font-style: italic;
   display: flex;
-  gap: 10px;
   align-items: center;
-  color: #323130;
+  gap: 5px;
+}
+
+.ftk-citation-card-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #0078d4;
+  font-size: 0.95em;
+  margin: 4px 0;
+}
+
+.ftk-citation-card-docname {
+  color: #444;
+  font-size: 0.93em;
+  margin-top: 4px;
+  font-style: italic;
+  line-height: 1.4;
 }
 
 .ftk-citation-card-details {
   display: none;
-  margin-top: 8px;
-  padding: 8px;
+  margin-top: 10px;
+  padding: 10px;
   background-color: #f0f2f5;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.9rem;
   color: #333;
   border-left: 3px solid #0078d4;
@@ -84,6 +129,56 @@
 .ftk-citation-card-expanded .ftk-citation-card-details {
   display: block;
   animation: fadeIn 0.3s ease;
+}
+
+/* Citation Number Reference in Text */
+.ftk-citation-ref {
+  color: #0078d4;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+  background-color: rgba(0, 120, 212, 0.1);
+  border-radius: 4px;
+  padding: 0 4px;
+  margin: 0 2px;
+}
+
+.ftk-citation-ref:hover {
+  text-decoration: underline;
+  background-color: rgba(0, 120, 212, 0.2);
+}
+
+/* Style for superscript citations */
+.ftk-citation-ref.ftk-superscript,
+.ftk-citation-inline {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 1;
+  background-color: transparent;
+  padding: 0;
+  font-weight: bold;
+  color: #0078d4;
+  text-decoration: none;
+  margin: 0 1px;
+}
+
+.ftk-citation-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  width: 16px;
+  background-color: rgba(0, 120, 212, 0.1);
+  border-radius: 50%;
+  font-size: 0.7em;
+  margin-left: 2px;
+  transition: background-color 0.2s ease;
+}
+
+.ftk-citation-inline:hover {
+  background-color: rgba(0, 120, 212, 0.3);
+  text-decoration: none;
 }
 
 @keyframes fadeIn {
@@ -316,3 +411,129 @@
   background-color: rgba(0, 0, 0, 0.1);
   color: #333;
 }
+
+
+/* --- Pill-style citation cards --- */
+.ftk-citation-pills-container {
+  margin-top: 18px;
+  padding: 0 2px;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.ftk-citation-pills-scroll {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #0078d4 #f5f9ff;
+}
+
+.ftk-citation-pill {
+  display: flex;
+  align-items: center;
+  background: #f5f9ff;
+  border: 1.5px solid #0078d4;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 0.97rem;
+  color: #0078d4;
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  min-width: 0;
+  max-width: 320px;
+  white-space: nowrap;
+}
+
+.ftk-citation-pill:hover, .ftk-citation-pill:focus {
+  background: #e6f2fb;
+  box-shadow: 0 2px 8px rgba(0,120,212,0.10);
+  outline: none;
+}
+
+.ftk-citation-pill-number {
+  background: #0078d4;
+  color: #fff;
+  border-radius: 50%;
+  width: 1.6em;
+  height: 1.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.ftk-citation-pill-title {
+  font-weight: 500;
+  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  white-space: nowrap;
+}
+
+.ftk-citation-pill-author {
+  color: #555;
+  font-size: 0.85em;
+  margin-left: 6px;
+  font-style: italic;
+}
+
+.ftk-citation-pill-edu {
+  margin-left: 8px;
+  font-size: 1.1em;
+}
+/* --- End pill-style citation cards --- */
+
+/* --- Card-style citation cards --- */
+.ftk-citation-card-list {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  margin-top: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #0078d4 #f5f9ff;
+}
+
+.ftk-citation-card {
+  min-width: 220px;
+  max-width: 340px;
+  background: #f5f9ff;
+  border: 1.5px solid #0078d4;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 18px 20px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: box-shadow 0.18s, border 0.18s;
+}
+
+.ftk-citation-card:focus, .ftk-citation-card:hover {
+  box-shadow: 0 4px 16px rgba(0,120,212,0.13);
+  border-color: #005a9e;
+  outline: none;
+}
+
+.ftk-citation-card-title {
+  font-size: 1.05em;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: #1a1a1a;
+}
+
+.ftk-citation-card-author {
+  color: #555;
+  font-size: 0.93em;
+  margin-top: 2px;
+  font-style: italic;
+}
+/* --- End card-style citation cards --- */

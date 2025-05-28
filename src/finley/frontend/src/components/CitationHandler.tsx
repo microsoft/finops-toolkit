@@ -1,5 +1,5 @@
 // filepath: c:\_repos\finops-toolkit-1\src\finley\frontend\src\components\CitationHandler.tsx
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './CitationHandler.css';
 import { Citation, convertToCitationData } from '../utils/citationUtils';
 
@@ -17,6 +17,8 @@ interface CitationData {
   content?: string;
   isEducational?: boolean;
   chunkId?: string;  // Added chunkId property
+  document_name?: string; // Added for display
+  file_name?: string; // Added for file name
 }
 
 interface CitationHandlerProps {
@@ -48,26 +50,21 @@ const CitationHandler: React.FC<CitationHandlerProps> = ({
     if (contentProcessedRef.current) return;
     contentProcessedRef.current = true;
 
-    // Log for debugging
-    console.log('CitationHandler processing content with citations:', providedCitations?.length);
-    if (providedCitations && providedCitations.length > 0) {
-      console.log('Citation details:', providedCitations.map(c => ({
-        id: c.id, 
-        title: c.title || c.document_name,
-        section: c.section,
-        filepath: c.filepath,
-        chunkId: c.chunkId
-      })));    }
+    // --- DEBUG LOGGING ---
+    console.log('CitationHandler: providedCitations', providedCitations);
+    // --- END DEBUG LOGGING ---
 
-    // Add a helper function to process markdown links to create citation cards
     if (providedCitations && providedCitations.length > 0) {
+      // Normalize citations to always have document_name and file_name
       const formattedCitations = convertToCitationData(providedCitations as Citation[]);
-      setCitations(formattedCitations);
+      const normalized = normalizeCitations(formattedCitations);
+      console.log('CitationHandler: normalized citations', normalized);
+      setCitations(normalized);
 
-      let processedText = content;      processedText = processedText.replace(
+      let processedText = content;
+      processedText = processedText.replace(
         CITATION_REGEX,
         (match, id) => {
-          // Always use local anchor references for citations
           const href = `#citation-${id}`;
           return `<a href="${href}" class="ftk-citation-ref" data-citation-id="${id}" role="button" tabindex="0" aria-label="Citation ${id}">${match}</a>`;
         }
@@ -80,9 +77,117 @@ const CitationHandler: React.FC<CitationHandlerProps> = ({
       return;
     }
 
-    const citationMatch = content.match(CITATION_SECTION_REGEX);
-    const extractedCitations: CitationData[] = [];
+    // --- Always parse (Citations: ...) and remove from content ---
     let mainContent = content;
+    let foundCitations = false;
+    // Legacy citation extraction (e.g., (Citations: ...))
+    // Regex: (Citations: 1, 2, 3)
+    const legacyCitationRegex = /\(Citations?: ([^)]+)\)/i;
+    const citationTextMatch = content.match(legacyCitationRegex);
+    if (citationTextMatch) {
+      // Remove unused 'match' variable warning by omitting it
+      const ids = citationTextMatch[1]
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean);
+      if (ids.length > 0) {
+        const extractedCitations = ids.map((id, idx) => ({
+          id: String(idx + 1),
+          title: id,
+          document_name: id,
+        }));
+        setCitations(normalizeCitations(extractedCitations));
+        foundCitations = true;
+      }
+    }    // --- Extract (Source: ...) legacy citation ---
+    // Example: (Source: FinOps Open Cost and Usage Specification, what-is-focus.md)
+    // Also support various formats like:
+    // (Source: Document name)
+    // (Source: Document name, filename.md)
+    // (Sources: Doc1, Doc2)
+    // (Reference: Document name)
+    // (From: Document name)
+    // Even plain text at the end like "Source: Document name"
+    // Or References: followed by a bullet list of sources
+    
+    // Enhanced regex pattern for more flexible citation format detection
+    const sourceCitationRegex = /(?:\((?:Source|Reference|From|Ref|Citation):?\s*([^)]+)\))|(?:(?:Source|Reference|From|Ref|Citation)s?:[ \t]+([^\n]+)(?:\n|$))|(?:See(?:\salso)?:[ \t]+([^\n]+)(?:\n|$))/gi;
+    
+    console.log('Checking for source citations');
+    const sourceCitationMatches = [...content.matchAll(sourceCitationRegex)];
+    console.log('Found source citations:', sourceCitationMatches.length, sourceCitationMatches);
+    
+    if (sourceCitationMatches.length > 0) {      const extractedCitations = sourceCitationMatches.map((match, idx) => {
+        // Get the citation text from either the first or second capture group
+        const citationText = (match[1] || match[2] || '').trim();
+        
+        // Try to intelligently split the citation into document name and file name
+        let docName = citationText;
+        let fileName = '';
+        
+        // First check for explicit file patterns
+        const filePattern = citationText.match(/(\w+[-_]?\w+\.(pdf|docx|xlsx|html?|md|json|txt|csv))/i);
+        if (filePattern) {
+          fileName = filePattern[0];
+          // Remove the file name from doc name if it's at the end
+          if (docName.endsWith(fileName)) {
+            docName = docName.substring(0, docName.length - fileName.length).trim();
+            // Remove trailing comma if present
+            if (docName.endsWith(',')) {
+              docName = docName.substring(0, docName.length - 1).trim();
+            }
+          }
+        } else {
+          // If no file pattern found, try splitting on last comma
+          const lastComma = citationText.lastIndexOf(',');
+          if (lastComma !== -1) {
+            // Check if what's after the comma might be a file name
+            const potentialFile = citationText.slice(lastComma + 1).trim();
+            if (potentialFile.length < 40 && !potentialFile.includes(' ')) {
+              fileName = potentialFile;
+              docName = citationText.slice(0, lastComma).trim();
+            }
+          }
+        }
+        
+        console.log(`Processing citation ${idx + 1}:`, { docName, fileName, original: citationText });
+        
+        return {
+          id: String(idx + 1),
+          title: docName,
+          document_name: docName,
+          file_name: fileName,
+        };
+      });
+        console.log('Extracted citations:', extractedCitations);
+      
+      // Set the citations state
+      const normalizedCitations = normalizeCitations(extractedCitations);
+      console.log('Normalized citations:', normalizedCitations);
+      
+      // Debug log each citation's details
+      normalizedCitations.forEach((citation, index) => {
+        logCitationDetails(citation, index);
+      });
+      
+      setCitations(normalizedCitations);
+      foundCitations = true;
+      
+      // Replace all citation patterns in the content with clickable superscript citation references
+      let replacementIndex = 0;
+      mainContent = mainContent.replace(sourceCitationRegex, () => {
+        const citationId = String(++replacementIndex);
+        const href = `#citation-${citationId}`;
+        return `<sup><a href="${href}" class="ftk-citation-inline" data-citation-id="${citationId}" role="button" tabindex="0" aria-label="Citation ${citationId}">${citationId}</a></sup>`;
+      }).trim();
+    }
+    // Only remove the citation text if we are rendering cards
+    if (foundCitations) {
+      mainContent = mainContent.replace(/\(Citations: [^)]+\)/i, '').trim();
+    }
+
+    const citationMatch = mainContent.match(CITATION_SECTION_REGEX);
+    const extractedCitations: CitationData[] = [];
     
     if (citationMatch) {
       const citationSection = citationMatch[0];
@@ -110,11 +215,12 @@ const CitationHandler: React.FC<CitationHandlerProps> = ({
             section: match[3] || undefined,
             filepath: match[4] || undefined,
             content: extractedContent,
+            document_name: match[2].trim(),
+            file_name: match[4] ? match[4].split(/[/\\]/).pop() : undefined,
           });
         }
       });
-
-      setCitations(extractedCitations);    
+      setCitations(normalizeCitations(extractedCitations));    
     } else {
       // Use a single refId variable for all reference types
       let refId = 1;
@@ -132,12 +238,13 @@ const CitationHandler: React.FC<CitationHandlerProps> = ({
           const id = match[1];
           const filepath = match[2].trim();
           const title = filepath.split('/').pop()?.split('#')[0] || filepath;
-          
           extractedCitations.push({
             id: id,
             title: title.trim(),
             filepath: filepath,
             content: `Citation ${id}`,
+            document_name: title.trim(),
+            file_name: filepath.split(/[/\\]/).pop(),
           });
           refId = Math.max(refId, parseInt(id) + 1);
         }
@@ -250,11 +357,11 @@ const CitationHandler: React.FC<CitationHandlerProps> = ({
       }
       
       if (extractedCitations.length > 0) {
-        setCitations(extractedCitations);
+        setCitations(normalizeCitations(extractedCitations));
       }
     }
       // Create processedText variable for citation processing
-    let processedText = content;
+    let processedText = mainContent;
     
     // Process standard bracket citations like [1]
     processedText = processedText.replace(
@@ -309,7 +416,7 @@ const CitationHandler: React.FC<CitationHandlerProps> = ({
         if (url === '#' || !url) {
           const citationId = extractedCitations.find(c => c.title?.trim() === text.trim())?.id;
             if (citationId) {
-            // Always use local anchor references for all citations
+            // Always use local anchor references
             const href = `#citation-${citationId}`;
             
             const isEducationalLink = 
@@ -360,156 +467,229 @@ const CitationHandler: React.FC<CitationHandlerProps> = ({
     }
   }, [content, onContentChange, providedCitations]);
 
-  // Set the initial state of all citations to be expanded
-  const [expandedCitations, setExpandedCitations] = useState<Record<string, boolean>>({});
-  
-  // Auto-expand all citations on initial render for visibility
-  useEffect(() => {
-    if (citations.length > 0) {
-      const expanded: Record<string, boolean> = {};
-      citations.forEach(citation => {
-        expanded[citation.id] = true;  // Set all to expanded by default
-      });
-      setExpandedCitations(expanded);
-    }
-  }, [citations]);
-  
-  // Method to handle citation link clicks
-  const handleCitationLinkClick = useCallback((id: string, e?: React.MouseEvent | MouseEvent) => {
-    if (e) e.preventDefault();
-    
-    // Expand the citation if it's not already expanded
-    setExpandedCitations(prev => ({
-      ...prev,
-      [id]: true
-    }));
-    
-    // Find the citation element and highlight it
-    const citationEl = document.getElementById(`citation-${id}`);
-    if (citationEl) {
-      // Remove active class from all citations
-      document.querySelectorAll('.ftk-citation-card').forEach(el =>
-        el.classList.remove('ftk-citation-active')
-      );
-      
-      // Add active and highlight classes to the clicked citation
-      citationEl.classList.add('ftk-citation-active', 'ftk-citation-highlight');
-      
-      // Pulse animation for all reference links that point to this citation
-      document.querySelectorAll(`[data-citation-id="${id}"]`).forEach(el => {
-        el.classList.add('ftk-reference-clicked');
-        setTimeout(() => {
-          el.classList.remove('ftk-reference-clicked');
-        }, 500);
-      });
-      
-      // Scroll to the citation
-      citationEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
-      // Remove highlight class after animation completes
-      setTimeout(() => {
-        citationEl.classList.remove('ftk-citation-highlight');
-      }, 1500);
-    }
-  }, []);
-
-  // Install a global handler for citation clicks
-  useEffect(() => {
-    if (processedContentRef.current) {
-      if (typeof window !== 'undefined' && !window.handleCitationClick) {
-        window.handleCitationClick = handleCitationLinkClick;
+  // --- Inline citation rendering ---
+  // Always process [n] and superscript numbers as inline clickable links
+  let displayContent = processedContentRef.current || content;
+  if (citations.length > 0) {
+    // Replace [n] with superscript clickable links
+    displayContent = displayContent.replace(
+      CITATION_REGEX,
+      (_match, id) => {
+        const href = `#citation-${id}`;
+        return `<sup><a href="${href}" class="ftk-citation-inline" data-citation-id="${id}" role="button" tabindex="0" aria-label="Citation ${id}">${id}</a></sup>`;
       }
-        // Process the content on citation link click - add click listeners to all citation references
-      setTimeout(() => {
-        const linkElements = document.querySelectorAll('.ftk-citation-ref');
-        linkElements.forEach(element => {          element.addEventListener('click', (e) => {
-            const id = element.getAttribute('data-citation-id');
-            if (id) {
-              // Always prevent default navigation and use local reference
-              e.preventDefault();
-              handleCitationLinkClick(id, e as MouseEvent);
-            }
-          });
-        });
-      }, 100); // Small delay to ensure DOM is ready
-    }
-    
-    // Cleanup
-    return () => {
-      if (typeof window !== 'undefined' && window.handleCitationClick === handleCitationLinkClick) {
-        // Only clear if it's still our handler
-        window.handleCitationClick = () => {}; // Empty handler
+    );
+    // Replace bare numbers (superscript style) with clickable links if they match a citation
+    const citationIds = new Set(citations.map(c => c.id));
+    displayContent = displayContent.replace(
+      SUPERSCRIPT_CITATION_REGEX,
+      (_match, id) => {
+        if (citationIds.has(id)) {
+          const href = `#citation-${id}`;
+          return `<sup><a href="${href}" class="ftk-citation-inline" data-citation-id="${id}" role="button" tabindex="0" aria-label="Citation ${id}">${id}</a></sup>`;
+        }
+        return _match;
       }
-    };
-  }, [handleCitationLinkClick]);
+    );
+  }
+  // --- Render ---
+  console.log('Rendering with citations:', citations.length, citations);
   
-  const toggleCitation = (id: string) => {
-    setExpandedCitations(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
   return (
     <div className="ftk-citation-handler">
-      <div dangerouslySetInnerHTML={{ __html: processedContentRef.current || content }} />
-
-      {citations.length > 0 && (
-        <div className="ftk-citation-links">
-          <h3>📚 Citations and References</h3>
-          {/* Debug info */}
-          <small style={{ color: '#666', marginBottom: '8px', display: 'block' }}>
-            {citations.length} citation(s) available
-          </small>
-          <div className="ftk-citation-cards">
-            {citations.map((citation) => (
-              <div 
-                key={citation.id} 
-                id={`citation-${citation.id}`} 
-                className={`ftk-citation-card ${expandedCitations[citation.id] ? 'ftk-citation-card-expanded' : ''} ${citation.isEducational ? 'ftk-educational-citation' : ''}`}
-              >
-                <div 
-                  className="ftk-citation-card-header" 
-                  onClick={() => toggleCitation(citation.id)}
-                >
-                  <span>
-                    {citation.isEducational && <span className="ftk-reference-icon">📖</span>}
-                    [{citation.id}] {citation.title}
-                  </span>
-                </div>                <div className="ftk-citation-card-details">
-                  {citation.section && <div className="ftk-citation-section"><strong>Section:</strong> {citation.section}</div>}                  {/* Show citation information - no external links */}
-                  {citation.filepath && !citation.filepath.startsWith("http") && (
-                    <>
-                      <div className="ftk-citation-section"><strong>File:</strong> {citation.filepath.split(/[/\\]/).pop()}</div>
-                      <div className="ftk-citation-section"><strong>Path:</strong> {citation.filepath}</div>
-                    </>
-                  )}
-                  
-                  {/* If it was an external resource, just show the title but no link */}
-                  {citation.filepath && citation.filepath.startsWith("http") && (
-                    <div className="ftk-citation-section">
-                      <strong>Resource:</strong> <span className="ftk-resource-title">{citation.title}</span>
-                    </div>
-                  )}
-                  
-                  {/* Display chunk ID if available */}
-                  {citation.chunkId && <div className="ftk-citation-section"><strong>Chunk ID:</strong> {citation.chunkId}</div>}
-                  {citation.content && <div className="ftk-citation-content"><p>"{citation.content}"</p></div>}                  {/* Only show View Source for local files, not for external resources */}
-                  {citation.filepath && !citation.filepath.startsWith("http") && (
-                    <div className="ftk-citation-source">
-                      <span className="ftk-source-link ftk-file-source">
-                        Source: {citation.filepath.split(/[/\\]/).pop()}
-                      </span>
-                    </div>
-                  )}
+      <div dangerouslySetInnerHTML={{ __html: displayContent }} />      {citations.length > 0 ? (        <div className="ftk-citation-card-list" aria-label="Citations and References" role="region" style={{
+          marginTop: '30px', 
+          borderTop: '1px solid #e0e0e0', 
+          paddingTop: '24px',
+          background: 'linear-gradient(to bottom, rgba(240,245,255,0.5), transparent)',
+          borderRadius: '10px',
+          position: 'relative'
+        }}>
+          <h3 style={{
+            marginBottom: '16px', 
+            fontSize: '1.25em', 
+            color: '#333',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            <span style={{fontSize: '1.2em', lineHeight: '1em'}}>📚</span> 
+            <span>Citations and References {citations.length > 1 ? `(${citations.length})` : ''}</span>
+          </h3>
+          <div className="ftk-citation-cards-container" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px'
+          }}>
+            {citations.map((citation) => (              <div
+                key={citation.id}
+                id={`citation-${citation.id}`}
+                className="ftk-citation-card"
+                style={{
+                  padding: '14px', 
+                  margin: '0', 
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                  backgroundColor: '#fcfcfc',
+                  transition: 'all 0.2s ease',
+                  position: 'relative',
+                  cursor: 'default'
+                }}
+                aria-label={`Citation ${citation.id}: ${citation.title}`}
+                tabIndex={0}
+                onClick={() => {
+                  // Add highlighting effect on click
+                  const el = document.getElementById(`citation-${citation.id}`);
+                  if (el) {
+                    el.style.backgroundColor = '#f0f7ff';
+                    setTimeout(() => {
+                      el.style.backgroundColor = '#fcfcfc';
+                    }, 300);
+                  }
+                }}
+              >                <div className="ftk-citation-pill-number" style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: '10px',
+                  backgroundColor: '#0078d4',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '26px',
+                  height: '26px',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  fontSize: '0.9em',
+                  boxShadow: '0 2px 4px rgba(0,120,212,0.2)'
+                }}>{citation.id}</div>                <div className="ftk-citation-card-title" style={{
+                  fontWeight: 600, 
+                  marginBottom: '6px',
+                  fontSize: '1.05em',
+                  color: '#222'
+                }}>{citation.title}</div>
+                {citation.section && (
+                  <div className="ftk-citation-card-section" style={{
+                    marginBottom: '4px', 
+                    color: '#0078d4', 
+                    fontSize: '0.95em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px'
+                  }}>
+                    <span style={{fontWeight: 500}}>Section:</span> {citation.section}
+                  </div>
+                )}                <div className="ftk-citation-card-docname" style={{
+                  color: '#444', 
+                  fontSize: '0.93em', 
+                  marginTop: '4px', 
+                  fontStyle: 'italic'
+                }} title={citation.document_name}>
+                  {citation.document_name}
                 </div>
+                {citation.file_name && (
+                  <div className="ftk-citation-card-author" style={{
+                    fontSize: '0.85em', 
+                    color: '#666',
+                    marginTop: '3px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }} title={citation.file_name}>
+                    <span style={{color: '#888', fontSize: '0.9em'}}>📄</span>
+                    {citation.file_name}
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
+      ) : (
+        // Show debugging info if no citations are displayed
+        process.env.NODE_ENV === 'development' && (
+          <div style={{marginTop: '20px', padding: '10px', border: '1px dashed red', color: 'red', fontSize: '12px'}}>
+            No citations found in content. Debug info: foundCitations={String(citations.length > 0)}
+          </div>
+        )
       )}
     </div>
   );
 };
+
+// Helper to normalize citation data for both structured and legacy/fallback formats
+function normalizeCitations(rawCitations: CitationData[]): CitationData[] {
+  console.log('Normalizing citations:', rawCitations.length);
+  
+  return rawCitations.map((c) => {
+    // Always ensure document_name and file_name fields
+    let document_name = c.document_name || c.title || '';
+    let file_name = '';
+    
+    // Enhanced file extraction from various sources
+    if (c.filepath) {
+      file_name = c.filepath.split(/[/\\]/).pop() || '';
+      // If document_name is a path, use just the file name
+      if (!c.document_name && (document_name.includes('/') || document_name.includes('\\'))) {
+        document_name = file_name;
+      }
+    } else if (c.file_name) {
+      // Direct file_name field takes precedence
+      file_name = c.file_name;
+    } else {
+      // Try different methods to extract file information
+      
+      // Method 1: If title or document_name looks like a file with extension
+      if (document_name.match(/\.(pdf|docx|xlsx|html?|md|json|txt|csv)$/i)) {
+        file_name = document_name;
+      }
+      
+      // Method 2: Look for file patterns in the document name
+      const filePattern = document_name.match(/(\w+[-_]?\w+\.(pdf|docx|xlsx|html?|md|json|txt|csv))/i);
+      if (filePattern) {
+        file_name = filePattern[0];
+      }
+      
+      // Method 3: Check if content contains file references
+      if (c.content) {
+        const contentFilePattern = c.content.match(/(\w+[-_]?\w+\.(pdf|docx|xlsx|html?|md|json|txt|csv))/i);
+        if (contentFilePattern && !file_name) {
+          file_name = contentFilePattern[0];
+        }
+      }
+    }
+    
+    // Clean up document_name if it's excessively long
+    if (document_name.length > 100) {
+      document_name = document_name.substring(0, 97) + '...';
+    }
+    
+    // If we still don't have a reasonable document name, try to create one
+    if (!document_name || document_name.length < 3) {
+      document_name = file_name || `Citation ${c.id}`;
+    }
+    
+    console.log(`Citation ${c.id} normalized:`, { document_name, file_name });
+    
+    return {
+      ...c,
+      document_name,
+      file_name,
+    };
+  });
+}
+
+// Debug helper function to log citation details
+function logCitationDetails(citation: CitationData, index: number): void {
+  console.log(`Citation ${index + 1} details:`, {
+    id: citation.id,
+    title: citation.title,
+    document_name: citation.document_name,
+    file_name: citation.file_name,
+    section: citation.section,
+    filepath: citation.filepath,
+    isEducational: citation.isEducational,
+    chunkId: citation.chunkId
+  });
+}
 
 export default CitationHandler;
