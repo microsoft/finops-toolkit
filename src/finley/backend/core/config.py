@@ -12,3 +12,6 @@ PROJECT_CONNECTION_STRING = os.getenv("PROJECT_CONNECTION_STRING")
 AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME = os.getenv("AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME")
 FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
 MAX_TOOL_OUTPUT_LENGTH = int(os.getenv("MAX_TOOL_OUTPUT_LENGTH", 1048576))
+
+# CORS origins (comma-separated)
+CORS_ALLOW_ORIGINS = [origin.strip() for origin in os.getenv("CORS_ALLOW_ORIGINS", FRONTEND_ORIGIN).split(",") if origin.strip()]
