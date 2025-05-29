@@ -843,7 +843,7 @@ module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
   }
 }
 
-module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = if (deployDataExplorer) {
+module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = if (deployDataExplorer || useFabric) {
   name: 'Microsoft.FinOpsHubs.Core_IngestionManifestAddedTrigger'
   dependsOn: [
     stopTriggers

@@ -115,6 +115,8 @@ Transforms:
   - Remove "Unassigned" in the `x_InvoiceSectionName` column.
   - Corrected `x_EffectiveUnitPrice` when it's calculated and has a rounding error.
   - Add new `x_SourceChanges` checks for `MissingConsumedQuantity`, `MissingPricingQuantity`, and `XEffectiveUnitPriceRoundingError`.
+- v0.10+:
+  - Change `BillingPeriodStart` and `BillingPeriodEnd` to be the first of the month.
 
 ### Price data transforms
 

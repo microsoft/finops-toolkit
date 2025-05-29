@@ -27,6 +27,13 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
+@description('Optional. SKU to use for the KeyVault instance, if enabled. Allowed values: "standard", "premium". Default: "premium".')
+@allowed([
+  'premium'
+  'standard'
+])
+param keyVaultSku string = 'premium'
+
 @description('Optional. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string = ''
 
@@ -168,20 +175,12 @@ var coreConfig = newHubCoreConfig(
   tags,
   tagsByResource,
   storageSku,
+  keyVaultSku,
   enableInfrastructureEncryption,
   enablePublicAccess,
-  virtualNetworkAddressPrefix
+  virtualNetworkAddressPrefix,
+  enableDefaultTelemetry
 )
-
-// Generate globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
-var dataFactoryPrefix = '${replace(hubName, '_', '-')}-engine'
-var dataFactorySuffix = '-${coreConfig.hub.suffix}'
-var dataFactoryName = replace(
-  '${take(dataFactoryPrefix, 63 - length(dataFactorySuffix))}${dataFactorySuffix}',
-  '--',
-  '-'
-)
-
 
 // Do not reference these deployments directly or indirectly to avoid a DeploymentNotFound error
 var useFabric = !empty(fabricQueryUri)
@@ -194,7 +193,7 @@ var safeDataExplorerIngestionCapacity = useFabric ? fabricCapacityUnits : (!depl
 var safeDataExplorerPrincipalId = !deployDataExplorer ? '' : dataExplorer.outputs.principalId
 var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
 var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
-var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
+// var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
 // var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
 
 // cSpell:ignore eventgrid
@@ -249,11 +248,37 @@ var telemetryString = join([
 //==============================================================================
 
 //------------------------------------------------------------------------------
+// Telemetry
+//------------------------------------------------------------------------------
+
+resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
+  name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  tags: getHubTags(coreConfig, 'Microsoft.Resources/deployments')
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      metadata: {
+        _generator: {
+          name: 'FinOps toolkit'
+          version: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
+        }
+      }
+      resources: []
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 // Base resources needed for hub apps
 //------------------------------------------------------------------------------
 
 module coreNetwork 'core-network.bicep' = {
-  name: 'Microsoft.FinOpsToolkit.Hubs.Core_Network'
+  name: 'Microsoft.FinOpsHubs.Core_Network'
+  dependsOn: [
+    vnet
+  ]
   params: {
     coreConfig: coreConfig
   }
@@ -263,20 +288,20 @@ module coreNetwork 'core-network.bicep' = {
 // App registration
 //------------------------------------------------------------------------------
 
+// TODO: Move into core.bicep
 module appRegistration 'hub-app.bicep' = {
-  name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  name: 'Microsoft.FinOpsHubs.Core_Register'
   params: {
-    // hubName: hubName
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
     displayName: 'FinOps hub core'
     appVersion: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
     features: [
+      'DataFactory'
       'Storage'
     ]
     telemetryString: telemetryString
-    enableDefaultTelemetry: enableDefaultTelemetry
 
     coreConfig: coreConfig
   }
@@ -339,7 +364,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     location: location
     tags: coreConfig.hub.tags
     tagsByResource: tagsByResource
-    dataFactoryName: dataFactory.name
+    dataFactoryName: appRegistration.outputs.config.publisher.dataFactory
     rawRetentionInDays: dataExplorerRawRetentionInDays
     virtualNetworkId: safeVnetId
     privateEndpointSubnetId: safeDataExplorerSubnetId
@@ -352,24 +377,11 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
 // Data Factory and pipelines
 //------------------------------------------------------------------------------
 
-resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
-  name: dataFactoryName
-  location: location
-  // TODO: Switch to use publisher tags
-  tags: getHubTags(coreConfig, 'Microsoft.DataFactory/factories')
-  identity: { type: 'SystemAssigned' }
-  properties: any({ // Using any() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet
-      globalConfigurations: {
-        PipelineBillingEnabled: 'true'
-      }
-  })
-}
-
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
     hubName: hubName
-    dataFactoryName: dataFactory.name
+    dataFactoryName: appRegistration.outputs.config.publisher.dataFactory
     location: location
     tags: appRegistration.outputs.config.publisher.tags
     tagsByResource: tagsByResource
@@ -383,39 +395,23 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerIngestionCapacity: safeDataExplorerIngestionCapacity
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
-    keyVaultName: empty(remoteHubStorageKey) ? '' : keyVault.outputs.name
-    remoteHubStorageUri: remoteHubStorageUri
     enablePublicAccess: enablePublicAccess
+
+    // TODO: Move to remoteHub.bicep
+    keyVaultName: empty(remoteHubStorageKey) ? '' : appRegistration.outputs.config.publisher.keyVault
+    remoteHubStorageUri: remoteHubStorageUri
   }
 }
 
 //------------------------------------------------------------------------------
-// Key Vault for storing secrets
+// Remote hub app
 //------------------------------------------------------------------------------
 
-module keyVault 'keyVault.bicep' = if (!empty(remoteHubStorageKey)) {
-  name: 'keyVault'
+module remoteHub 'remoteHub.bicep' = if (!empty(remoteHubStorageKey)) {
+  name: 'Microsoft.FinOpsHubs.RemoteHub'
   params: {
-    hubName: hubName
-    uniqueSuffix: coreConfig.hub.suffix
-    location: location
-    tags: appRegistration.outputs.config.app.tags
-    tagsByResource: tagsByResource
-    storageAccountKey: remoteHubStorageKey
-    enablePublicAccess: enablePublicAccess
-    virtualNetworkId: safeVnetId
-    privateEndpointSubnetId: safeFinopsHubSubnetId
-    accessPolicies: [
-      {
-        objectId: dataFactory.identity.principalId
-        tenantId: subscription().tenantId
-        permissions: {
-          secrets: [
-            'get'
-          ]
-        }
-      }
-    ]
+    remoteStorageKey: remoteHubStorageKey
+    coreConfig: coreConfig
   }
 }
 
@@ -430,7 +426,7 @@ output name string = hubName
 output location string = location
 
 @description('Name of the Data Factory.')
-output dataFactoryName string = dataFactory.name
+output dataFactoryName string = appRegistration.outputs.config.publisher.dataFactory
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storage.outputs.resourceId
@@ -454,7 +450,7 @@ output ingestionDbName string = useFabric ? 'Ingestion' : (!deployDataExplorer ?
 output hubDbName string = useFabric ? 'Hub' : (!deployDataExplorer ? '' : dataExplorer.outputs.hubDbName)
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output managedIdentityId string = dataFactory.identity.principalId
+output managedIdentityId string = appRegistration.outputs.principalId
 
 @description('Azure AD tenant ID. This will be needed when configuring managed exports.')
 output managedIdentityTenantId string = tenant().tenantId
