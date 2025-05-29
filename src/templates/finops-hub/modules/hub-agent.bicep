@@ -106,7 +106,7 @@ param systemDatastoresAuthMode string = 'identity'
 param ADX_CLUSTER_URL string
 param ADX_DATABASE string
 @secure()
-param TAVILY_API_KEY string = ''
+param TAVILY_API_KEY string = 'unset'
 
 // Variables
 var agentName = toLower('ai${hubName}')

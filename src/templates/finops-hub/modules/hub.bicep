@@ -437,9 +437,9 @@ module agent 'hub-agent.bicep' = if (deployAgent) {
     hubName: hubName
     keyVaultName: appRegistration.outputs.config.publisher.keyVault
     location: location
-    TAVILY_API_KEY: '' // TODO: Provide actual API key if needed
     uniqueSuffix: uniqueString(resourceGroup().id)
     virtualNetworkId: safeVnetId
+    enablePublicAccess: enablePublicAccess
   }
 }
 
