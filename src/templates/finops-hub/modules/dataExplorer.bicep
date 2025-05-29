@@ -315,7 +315,6 @@ module ingestion_InitScripts 'hub-database.bicep' = {
 module ingestion_VersionedScripts 'hub-database.bicep' = {
   name: 'ingestion_VersionedScripts'
   dependsOn: [
-    ingestion_CommonScripts
     ingestion_InitScripts
   ]
   params: {
