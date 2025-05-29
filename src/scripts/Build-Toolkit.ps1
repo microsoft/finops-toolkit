@@ -130,7 +130,7 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
                     "OpenDataFunctions_resource_type_4.kql",
                     "OpenDataFunctions.kql",
                     "Common.kql",
-                    "IngestionSetup_NonVersioned.kql",
+                    "IngestionSetup_Init.kql",
                     "IngestionSetup_v1_0.kql"
                 )
             }

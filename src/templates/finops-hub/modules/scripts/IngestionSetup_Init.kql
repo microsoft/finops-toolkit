@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+//======================================================================================================================
+// Ingestion database
+// Used for data ingestion, normalization, and cleansing.
+//======================================================================================================================
+
+// For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script
+
 //===| Settings |=======================================================================================================
 
 .create-merge table HubSettingsLog (
