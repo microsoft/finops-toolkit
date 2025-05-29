@@ -465,6 +465,7 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'ussecwc'; RegionId = 'ussecwestcentral'; RegionName = 'USSec West Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'ussecwest'; RegionId = 'ussecwest'; RegionName = 'USSec West'; }
         ,[PSCustomObject]@{ OriginalValue = 'ussecwestcentral'; RegionId = 'ussecwestcentral'; RegionName = 'USSec West Central'; }
+        ,[PSCustomObject]@{ OriginalValue = 'ussgovarizona'; RegionId = 'usgovarizona'; RegionName = 'USGov Arizona'; }
         ,[PSCustomObject]@{ OriginalValue = 'ussouth'; RegionId = 'southcentralus'; RegionName = 'South Central US'; }
         ,[PSCustomObject]@{ OriginalValue = 'ussouthcentral'; RegionId = 'southcentralus'; RegionName = 'South Central US'; }
         ,[PSCustomObject]@{ OriginalValue = 'usstagesc'; RegionId = 'southcentralusstg'; RegionName = 'South Central US STG'; }
