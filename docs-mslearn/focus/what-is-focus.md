@@ -139,6 +139,7 @@ If you're interested in a more thorough walkthrough of all the FOCUS columns, ch
 - [Service columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-service-columns/4388703)
 - [SKU columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-skus/4398881)
 - [Purchase columns](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-purchases/4404283)
+- [Commitment discounts](https://techcommunity.microsoft.com/blog/finopsblog/learning-focus-commitment-discounts/4411405)
 
 New blog posts are released periodically, so watch the [FinOps blog](https://aka.ms/finops/blog) for updates every couple of weeks.
 
