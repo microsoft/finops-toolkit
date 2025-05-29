@@ -230,6 +230,21 @@ To upgrade FinOps hubs 0.8 to 0.9:
 
 <br>
 
+## Upgrading 0.9
+
+To upgrade FinOps hubs 0.9 to 0.10:
+
+1. Redeploy the template.
+2. Update [Power BI reports](../power-bi/reports.md).
+3. Update the [Data Explorer dashboard](configure-dashboards.md).
+
+> [!div class="nextstepaction"]
+> [Download 0.9](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
+
+[View changes](../changelog.md#v09)
+
+<br>
+
 ## Give feedback
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
