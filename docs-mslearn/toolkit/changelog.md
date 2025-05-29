@@ -46,6 +46,10 @@ _Released June 2, 2025_
 - **Added**
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
+  - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+- **Fixed**
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
 
@@ -54,6 +58,34 @@ _Released June 2, 2025_
     - Telemetry is not personally identifiable and only used to improve the template.
     - Disable telemetry by setting the **enableDefaultTelemetry** parameter to **false**.
 
+### [Open data](open-data.md) v0.11
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the following resource types to their respective services:
+    - microsoft.batch/batchaccounts/pools
+    - microsoft.compute/galleries/images/versions
+    - microsoft.compute/virtualmachinescalesets/virtualmachines
+    - microsoft.compute/virtualmachinescalesets/virtualmachines/networkinterfaces/ipconfigurations/publicipaddresses
+    - microsoft.datafactory/factories/pipelines
+    - microsoft.datafactory/factories/triggers
+    - microsoft.netapp/netappaccounts/capacitypools
+    - microsoft.network/dnsresolvers/outboundendpoints
+    - microsoft.network/networkwatchers/connectionmonitors
+    - microsoft.network/networkwatchers/flowlogs
+    - microsoft.network/networkwatchers/networkwatcher_canadacentral
+    - microsoft.search/searchservices/sharedprivatelinkresources
+    - microsoft.sql/longtermretentionservers/longtermretentiondatabases
+    - microsoft.storage/storageaccounts/blobservices
+    - microsoft.storage/storageaccounts/fileservices
+    - microsoft.storage/storageaccounts/queueservices
+    - microsoft.storage/storageaccounts/tableservices
+    - microsoft.synapse/workspaces/bigdatapools
+    - microsoft.synapse/workspaces/kustopools
+    - microsoft.synapse/workspaces/sqlpools
+    - microsoft.web/sites/slots
+  
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
 > [!div class="nextstepaction"]
@@ -89,7 +121,6 @@ _Released May 4, 2025_
     - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
     - Set ListCost based on ContractedCost or ListUnitPrice when not specified.
     - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
-    - Corrected x_EffectiveUnitPrice when it's calculated and has a rounding error.
     - Add new x_SourceChanges checks for "MissingConsumedQuantity", "MissingPricingQuantity", and "XEffectiveUnitPriceRoundingError".
 
 ### [Power BI reports](power-bi/reports.md) v0.10
