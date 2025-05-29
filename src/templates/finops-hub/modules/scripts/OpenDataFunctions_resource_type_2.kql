@@ -5,7 +5,15 @@
 with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')
 _resource_type_2(id: string) {
     dynamic({
-        "microsoft.clouddeviceplatform/delegatedidentities": { "SingularDisplayName": "Microsoft.CloudDevicePlatform delegated identity" }
+        "microsoft.classicstorage/storageaccounts/osimages": { "SingularDisplayName": "OS image (classic)" }
+        ,"microsoft.classicstorage/storageaccounts/vmimages": { "SingularDisplayName": "VM image (classic)" }
+        ,"microsoft.cleanroom/cleanrooms": { "SingularDisplayName": "Microsoft.CleanRoom cleanroom" }
+        ,"microsoft.cleanroom/collaborations": { "SingularDisplayName": "Microsoft.CleanRoom collaboration" }
+        ,"microsoft.cleanroom/collaborations/contracts": { "SingularDisplayName": "Microsoft.CleanRoom collaborations contract" }
+        ,"microsoft.cleanroom/consortiums": { "SingularDisplayName": "Microsoft.CleanRoom consortium" }
+        ,"microsoft.cleanroom/microservices": { "SingularDisplayName": "Microsoft.CleanRoom microservice" }
+        ,"microsoft.cloud/hubs": { "SingularDisplayName": "FinOps hub" }
+        ,"microsoft.clouddeviceplatform/delegatedidentities": { "SingularDisplayName": "Microsoft.CloudDevicePlatform delegated identity" }
         ,"microsoft.cloudhealth/healthmodels": { "SingularDisplayName": "Health Model" }
         ,"microsoft.cloudtest/accounts": { "SingularDisplayName": "CloudTest Account" }
         ,"microsoft.cloudtest/buildcaches": { "SingularDisplayName": "1ES Build Cache" }
@@ -15,7 +23,8 @@ _resource_type_2(id: string) {
         ,"microsoft.clusterstor/nodes": { "SingularDisplayName": "ClusterStor" }
         ,"microsoft.codesigning/codesigningaccounts": { "SingularDisplayName": "Trusted Signing Account" }
         ,"microsoft.codespaces/plans": { "SingularDisplayName": "Microsoft.Codespaces plan" }
-        ,"microsoft.cognitiveservices/accounts": { "SingularDisplayName": "Azure AI services" }
+        ,"microsoft.cognitiveservices/accounts": { "SingularDisplayName": "Azure AI Foundry" }
+        ,"microsoft.cognitiveservices/accounts/projects": { "SingularDisplayName": "Azure AI Foundry project" }
         ,"microsoft.cognitiveservices/commitmentplans": { "SingularDisplayName": "Microsoft.CognitiveServices commitment plan" }
         ,"microsoft.cognitiveservices/commitmentplans/accountassociations": { "SingularDisplayName": "Microsoft.CognitiveServices commitment plans account association" }
         ,"microsoft.communication/communicationservices": { "SingularDisplayName": "Communication Service" }
@@ -121,6 +130,7 @@ _resource_type_2(id: string) {
         ,"microsoft.containerregistry/registries/webhooks": { "SingularDisplayName": "Container registry webhook" }
         ,"microsoft.containerservice/fleets": { "SingularDisplayName": "Kubernetes fleet manager" }
         ,"microsoft.containerservice/managedclusters": { "SingularDisplayName": "Kubernetes service" }
+        ,"microsoft.containerservice/managedclusters/managednamespaces": { "SingularDisplayName": "Managed namespace" }
         ,"microsoft.containerservice/managedclusters/microsoft.kubernetesconfiguration/extensions": { "SingularDisplayName": "Kubernetes service extension" }
         ,"microsoft.containerservice/managedclusters/microsoft.kubernetesconfiguration/fluxconfigurations": { "SingularDisplayName": "GitOps configuration" }
         ,"microsoft.containerservice/managedclusters/microsoft.kubernetesconfiguration/namespaces": { "SingularDisplayName": "Kubernetes namespace" }
@@ -148,7 +158,7 @@ _resource_type_2(id: string) {
         ,"microsoft.customerlockbox/tenantoptedin": { "SingularDisplayName": "Microsoft.CustomerLockbox tenant opted in" }
         ,"microsoft.customproviders/associations": { "SingularDisplayName": "Microsoft.CustomProviders association" }
         ,"microsoft.customproviders/resourceproviders": { "SingularDisplayName": "Microsoft.CustomProviders resource provider" }
-        ,"microsoft.dashboard/dashboards": { "SingularDisplayName": "Azure Monitor Dashboard" }
+        ,"microsoft.dashboard/dashboards": { "SingularDisplayName": "Azure Monitor dashboards with Grafana" }
         ,"microsoft.dashboard/grafana": { "SingularDisplayName": "Azure Managed Grafana" }
         ,"microsoft.dataaccelerator/indexclusters": { "SingularDisplayName": "Microsoft.DataAccelerator index cluster" }
         ,"microsoft.databasefleetmanager/fleets": { "SingularDisplayName": "Database fleet manager" }
@@ -182,7 +192,7 @@ _resource_type_2(id: string) {
         ,"microsoft.datareplication/replicationfabrics/fabricagents": { "SingularDisplayName": "Microsoft.DataReplication replication fabrics fabric agent" }
         ,"microsoft.datareplication/replicationfabrics/fabricagents/operations": { "SingularDisplayName": "Microsoft.DataReplication replication fabrics fabric agents operation" }
         ,"microsoft.datareplication/replicationfabrics/operations": { "SingularDisplayName": "Microsoft.DataReplication replication fabrics operation" }
-        ,"microsoft.datareplication/replicationvaults": { "SingularDisplayName": "Microsoft.DataReplication replication vault" }
+        ,"microsoft.datareplication/replicationvaults": { "SingularDisplayName": "Data replication vault" }
         ,"microsoft.datareplication/replicationvaults/alertsettings": { "SingularDisplayName": "Microsoft.DataReplication replication vaults alert setting" }
         ,"microsoft.datareplication/replicationvaults/events": { "SingularDisplayName": "Microsoft.DataReplication replication vaults event" }
         ,"microsoft.datareplication/replicationvaults/jobs": { "SingularDisplayName": "Microsoft.DataReplication replication vaults job" }
@@ -273,9 +283,14 @@ _resource_type_2(id: string) {
         ,"microsoft.devtunnels/tunnelplans": { "SingularDisplayName": "Dev Tunnels Domain" }
         ,"microsoft.diagnostics/apollo": { "SingularDisplayName": "Microsoft.Diagnostics apollo" }
         ,"microsoft.digitaltwins/digitaltwinsinstances": { "SingularDisplayName": "Azure Digital Twins" }
+        ,"microsoft.discovery/storages": { "SingularDisplayName": "Microsoft.Discovery storage" }
+        ,"microsoft.discovery/supercomputers": { "SingularDisplayName": "Microsoft.Discovery supercomputer" }
+        ,"microsoft.discovery/workspaces": { "SingularDisplayName": "Microsoft.Discovery workspace" }
         ,"microsoft.documentdb/cassandraclusters": { "SingularDisplayName": "Azure Managed Instance for Apache Cassandra" }
         ,"microsoft.documentdb/databaseaccounts": { "SingularDisplayName": "Cosmos DB account" }
-        ,"microsoft.documentdb/fleets": { "SingularDisplayName": "Cosmos DB Fleet" }
+        ,"microsoft.documentdb/fleets": { "SingularDisplayName": "Azure Cosmos DB Fleet" }
+        ,"microsoft.documentdb/fleetspacepotentialdatabaseaccounts": { "SingularDisplayName": "Potential Azure Cosmos DB account" }
+        ,"microsoft.documentdb/fleetspacepotentialdatabaseaccountswithlocations": { "SingularDisplayName": "Potential Azure Cosmos DB account" }
         ,"microsoft.documentdb/mongoclusters": { "SingularDisplayName": "Azure Cosmos DB for MongoDB (vCore)" }
         ,"microsoft.documentdb/throughputpools": { "SingularDisplayName": "Microsoft.DocumentDB throughput pool" }
         ,"microsoft.documentdb/throughputpools/throughputpoolaccounts": { "SingularDisplayName": "Microsoft.DocumentDB throughput pools throughput pool account" }
@@ -490,20 +505,5 @@ _resource_type_2(id: string) {
         ,"microsoft.insights/activitylogalerts": { "SingularDisplayName": "Activity log alert rule" }
         ,"microsoft.insights/alertrules": { "SingularDisplayName": "Microsoft.Insights alertrule" }
         ,"microsoft.insights/alertrules/incidents": { "SingularDisplayName": "Microsoft.insights alertrules incident" }
-        ,"microsoft.insights/autoscalesettings": { "SingularDisplayName": "Microsoft.Insights autoscalesetting" }
-        ,"microsoft.insights/components": { "SingularDisplayName": "Application Insights app" }
-        ,"microsoft.insights/datacollectionendpoints": { "SingularDisplayName": "Data collection endpoint" }
-        ,"microsoft.insights/datacollectionruleassociations": { "SingularDisplayName": "Microsoft.Insights data collection rule association" }
-        ,"microsoft.insights/datacollectionrules": { "SingularDisplayName": "Data collection rule" }
-        ,"microsoft.insights/diagnosticsettings": { "SingularDisplayName": "Diagnostic settings" }
-        ,"microsoft.insights/diagnosticsettingscategories": { "SingularDisplayName": "Microsoft.Insights diagnostic settings category" }
-        ,"microsoft.insights/guestdiagnosticsettings": { "SingularDisplayName": "Microsoft.insights guest diagnostic setting" }
-        ,"microsoft.insights/guestdiagnosticsettingsassociation": { "SingularDisplayName": "Microsoft.insights guest diagnostic settings association" }
-        ,"microsoft.insights/logprofiles": { "SingularDisplayName": "Microsoft.Insights logprofile" }
-        ,"microsoft.insights/metricalerts": { "SingularDisplayName": "Metric alert rule" }
-        ,"microsoft.insights/notificationstatus": { "SingularDisplayName": "Microsoft.Insights notification statu" }
-        ,"microsoft.insights/privatelinkscopeoperationstatuses": { "SingularDisplayName": "Microsoft.insights private link scope operation statuse" }
-        ,"microsoft.insights/privatelinkscopes": { "SingularDisplayName": "Azure Monitor Private Link Scope" }
-        ,"microsoft.insights/scheduledqueryrules": { "SingularDisplayName": "Log search alert rule" }
     })[tolower(id)]
 }

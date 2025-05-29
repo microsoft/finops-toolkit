@@ -148,6 +148,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10 PiB/Hour",EA,10,PiB/Hour
 "10 Pipelines",EA,10,Pipelines
 "10 Rotations",EA,10,Rotations
+"10 Seconds",EA,10,Seconds
 "10 Service Endpoints",EA,10,Endpoints
 "10 TB",EA,10,TB
 "10 TB Hours",EA,10,TB Hours
@@ -190,7 +191,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "100 Mbps",EA,100,Mbps
 "100 Minutes",EA,100,Minutes
 "100 Months",EA,100,Months
-"100 Seconds",MCA,100,Seconds
+"100 Seconds","MCA, EA",100,Seconds
 "100 TB",EA,100,TB
 "100 TB/Hour",EA,100,TB/Hour
 "100 TB/Month",EA,100,TB/Month
