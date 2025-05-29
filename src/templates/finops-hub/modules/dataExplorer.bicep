@@ -312,8 +312,8 @@ module ingestion_SetupScript_Init 'hub-database.bicep' = {
   }
 }
 
-module ingestion_SetupScript_v1_0 'hub-database.bicep' = {
-  name: 'ingestion_SetupScript_v1_0'
+module ingestion_SetupScript 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript'
   dependsOn: [
     ingestion_CommonScripts
     ingestion_SetupScript_Init
