@@ -92,6 +92,12 @@ param AZURE_INFERENCE_ENDPOINT string
 
 param MODEL_NAME  string
 
+@description('Resource ID of the virtual network for private endpoints.')
+param virtualNetworkId string = ''
+
+// DNS configuration for private deployments
+var containerAppDnsZoneName = '${location}.azurecontainerapps.io'
+
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2025-01-01' = {
   name: containerAppEnvName
   location: location
@@ -275,7 +281,39 @@ resource containerAppAuthConfig 'Microsoft.App/containerApps/authConfigs@2025-01
       cookieExpiration: {}
       nonce: {}
     }
-    encryptionSettings: {}
+    encryptionSettings: {}  }
+}
+
+resource containerAppDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
+  name: containerAppDnsZoneName
+  location: 'global'
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones'] ?? {})
+  properties: {}
+}
+
+resource containerAppDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
+  name: '${replace(containerAppDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  parent: containerAppDnsZone
+  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
+  properties: {
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+    registrationEnabled: false
+  }
+}
+
+resource containerAppDnsARecord 'Microsoft.Network/privateDnsZones/A@2024-06-01' = if (!enablePublicAccess) {
+  parent: containerAppDnsZone
+  name: containerAppName
+  properties: {
+    ttl: 3600
+    aRecords: [
+      {
+        ipv4Address: containerAppEnv.properties.staticIp
+      }
+    ]
   }
 }
 

@@ -108,6 +108,8 @@ param ADX_DATABASE string
 @secure()
 param TAVILY_API_KEY string = 'unset'
 
+param containerimage string = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+
 // Variables
 var agentName = toLower('ai${hubName}')
 var safeLocationName = toLower(replace(agentModelLocation, ' ', ''))
@@ -289,12 +291,13 @@ module agentContainer 'agentContainerApp.bicep' = {
   params: {
     containerAppEnvName: take('aca${agentName}${uniqueSuffix}', 30)
     containerAppName: take('app${agentName}${uniqueSuffix}', 30)
+    virtualNetworkId: virtualNetworkId
     containerSubnetId: containerSubnetId
     tags: tags
     tagsByResource: tagsByResource
     cpuCore: '1'
     enablePublicAccess: enablePublicAccess
-    containerImage: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+    containerImage: containerimage
     targetPort: 80
     location: location
     maxReplicas: 3
