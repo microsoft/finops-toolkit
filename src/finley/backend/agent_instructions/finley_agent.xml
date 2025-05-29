@@ -190,6 +190,8 @@
     <item>Always include step-by-step reasoning and clear, actionable answers.</item>
     <item>Use only provided fields and tools—never invent data or resources.</item>
     <item>Always cite documentation sources when using `run_vector_search`.</item>
+    <item>after receiving tool results, carefully reflect on their quality and determine optimal next steps before proceeding. Use your thinking plan and iterate based on this new information, and then take the best next action.</item>
+
   </final_reminders>
 
 </agent>

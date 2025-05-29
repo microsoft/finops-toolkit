@@ -16,6 +16,24 @@ type ChatMessage = {
 };
 
 const promptSuggestions = [
+  "Give my Azure Hybrid Benefit summary",
+  "What is my ESR?",
+  "Perform a Commitment Discount Analysis",
+  "Give me a detailed table of all my Reservation purchases",
+  "Show me the utilization rate for each of my Azure reservations by resource group",
+  "Analyze my Reservation utilization",
+//   "Which resources are eligible for savings plans or reservations but aren’t covered?",
+  "For my highest-cost resources with no discounts, recommend which type of Azure discount (reservation, savings plan, or negotiated) I should apply to each resource.",
+  "Which of my high-cost virtual machines and SQL databases are eligible for reservations or savings plans, and what should I do?",
+  "For each resource in my top 20 by cost with no discounts, tell me if it’s eligible for a reservation, savings plan, or negotiated discount, and what action I should take.",
+  "How are my savings trending over the last 6/12 months?",
+  "What is the savings rate for each of my subscriptions?",
+  "How much am I saving with Azure Hybrid Benefit?",
+  "For each of my top resources, tell me if I should use a savings plan or reservation based on my usage patterns.",
+  "Analyze my Azure cost and usage data for the past 12 months. Calculate the average $/hour eligible for a savings plan across all subscriptions, including only compute resources (Virtual Machines, Virtual Machine Scale Sets, App Service Environments) that are not already covered by reservations. Exclude any costs already covered by reservations. Present the result as a single $/hour value I can confidently use for a shared-scope savings plan commitment.",
+  "Analyze my Azure cost and usage data for the past 12 months. For each subscription, calculate the average $/hour eligible for a savings plan, including only compute resources (Virtual Machines, Virtual Machine Scale Sets, App Service Environments) that are not already covered by reservations. Exclude any costs already covered by reservations. Present the results in a table with columns: Subscription, Eligible Compute $/hr (avg, not covered by reservations).",
+  "Analyze my Azure cost and usage data for the past 12 months. For my top resources by cost (including virtual machines, virtual machine scale sets, SQL databases, SQL elastic pools, and SQL managed instances), check whether it is already covered by a reservation or savings plan, then recommend for each: The optimal purchase scope (shared or single subscription). Whether I should buy a reservation, a savings plan (with recommended $/hour commitment), or reserved capacity. For reservations or reserved capacity: the estimated quantity (number of instances or vCores) I should purchase, based on my average or peak usage. For savings plans: the recommended $/hour commitment based on my eligible compute usage. Any additional notes or best practices for maximizing savings. Please include a table with resource name, type, scope, recommended purchase type, estimated quantity or $/hour, and notes.",
+  "Show me resources with the highest cost but no discounts.",
   "Educate me on the Finops Framework.",
   "What is FOCUS and why should I care?",
   "What are the top 5 costly services?",
@@ -25,7 +43,7 @@ const promptSuggestions = [
   "Identify resource outliers for this month based on cost.",
   "What was the cost of the top consuming resource in West Europe?",
   "List untagged resources with high costs.",
-  "Can you provide the monthly cost consumption forecast for the next six months based on historical data? Please ensure a linear or average growth rate method is applied if more advanced plugins are unavailable.",
+//   "Can you provide the monthly cost consumption forecast for the next six months based on historical data? Please ensure a linear or average growth rate method is applied if more advanced plugins are unavailable.",
   // "Based on averaging past monthly costs, create a forecast for this environment for the next 3 months"
   // "Based on averaging past monthly costs, create a forecast for resource group rg-finopshubs0-7-adx for the next 3 months"
   "Give me the list of the top 3 biggest consumers, meaning resource based on aggregated cost of the past 3 months.",

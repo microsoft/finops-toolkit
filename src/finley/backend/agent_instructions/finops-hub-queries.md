@@ -1223,6 +1223,55 @@ costs
 
 **Description**: Provides a comprehensive summary of Azure Hybrid Benefit usage, including coverage percentages and capacity metrics.
 
+### Hybrid Benefit Breakdown by resource
+
+```kusto
+let CostsByDayAHB = () {
+    Costs_v1_0
+    | where ChargePeriodStart >= monthsago(13)
+    | extend x_SkuLicenseStatus = case(
+        ChargeCategory != 'Usage', '',
+        (x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and x_SkuMeterSubcategory contains 'Windows') or tolower(x_SkuDetails.AHB) == 'false', 'Not Enabled',
+        x_SkuDetails.ImageType contains 'Windows Server BYOL' or tolower(x_SkuDetails.AHB) == 'true' or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'Enabled',
+        ''
+    )
+    | extend x_SkuLicenseType = case(
+        ChargeCategory != 'Usage', '',
+        x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or x_SkuDetails.ImageType contains 'Windows Server BYOL'), 'Windows Server',
+        isnotempty(tolower(x_SkuDetails.AHB)) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',
+        ''
+    )
+    | extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))
+    | extend x_SkuType = tostring(x_SkuDetails.ServiceType)
+    | extend x_SkuLicenseQuantity = case(
+        isempty(x_SkuCoreCount), toint(''),
+        x_SkuCoreCount <= 8, 8,
+        x_SkuCoreCount <= 16, 16,
+        x_SkuCoreCount == 20, 24,
+        x_SkuCoreCount > 20, x_SkuCoreCount,
+        toint('')
+    )
+    | extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount
+};
+CostsByDayAHB
+| where isnotempty(x_SkuLicenseStatus)
+| summarize arg_max(ChargePeriodStart, *) by ResourceId
+| project
+    ["License type"] = x_SkuLicenseType,
+    ResourceName,
+    ResourceType,
+    SKU = x_SkuType,
+    ["SKU cores"] = x_SkuCoreCount,
+    ["Required capacity"] = x_SkuLicenseQuantity,
+    ["Unused capacity"] = x_SkuLicenseUnusedQuantity,
+    x_SkuLicenseStatus,
+    x_ResourceGroupName,
+    SubAccountName
+| order by x_SkuLicenseStatus desc, ["Unused capacity"] desc
+```
+
+**Description**: Provides a breakdon of Azure Hybrid Benefit by resource. This view spotlights where AHB is enabled, where it's not, and—most importantly—where you're leaving savings on the table due to underutilized vCPU capacity.
+
 ### Underutilized vCPU Capacity
 
 ```kusto
