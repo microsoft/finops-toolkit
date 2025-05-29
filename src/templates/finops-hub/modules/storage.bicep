@@ -95,7 +95,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
 
 // TODO: Move to core module
 module configContainer 'hub-storage.bicep' = {
-  name: 'Microsoft.FinOpsHubs.Core_SchemaFiles'
+  name: 'Microsoft.CostManagement.Exports_SchemaFiles'
   params: {
     container: 'config'
     files: schemaFiles
@@ -158,38 +158,18 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
   }
 }]
 
-resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
-  name: '${storageAccountName}_uploadSettings'
-  kind: 'AzurePowerShell'
-  // cSpell:ignore chinaeast
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
+module uploadSettings 'hub-deploymentScript.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_UpdateSettings'
   dependsOn: [
     configContainer
     identityRoleAssignments
   ]
-  properties: union(enablePublicAccess ? {} : {
-    storageAccountSettings: {
-      storageAccountName: scriptStorageAccount.name
-    }
-    containerSettings: {
-      containerGroupName: '${scriptStorageAccount.name}cg'
-      subnetIds: [
-        {
-          id: scriptSubnetId
-        }
-      ]
-    }
-  }, {
-    azPowerShellVersion: '9.0'
-    retentionInterval: 'PT1H'
+  params: {
+    identityName: identity.name
+    scriptName: '${storageAccountName}_uploadSettings'
+    location: startsWith(location, 'china') ? 'chinaeast2' : location  // cSpell:ignore chinaeast
+    tags: tags
+    tagsByResource: tagsByResource
     environmentVariables: [
       {
         // cSpell:ignore ftkver
@@ -226,7 +206,11 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
-  })
+
+    enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: scriptStorageAccountName
+    scriptSubnetId: scriptSubnetId
+  }
 }
 
 //==============================================================================
