@@ -175,7 +175,7 @@ If Power BI returns an unknown error, use the following steps to identify the pr
 1. Open the report.
 2. In the ribbon, select **Transform data** > **Transform data**.
 3. From the **Power Query Editor** window, find the query that is failing in the list of queries on the left.
-4. Jump to the troubleshooting section based on the folder (e.g., Storage, Resource Graph).
+4. Jump to the troubleshooting section based on the folder.
 
 ### Troubleshoot storage query errors
 
@@ -205,8 +205,6 @@ If Power BI returns an unknown error, use the following steps to identify the pr
 3. If that step errors, select the one before it (skip anything with an underscore or lowercase first character).
 4. Repeat 3 until you find one that works.
 5. Share the name of the first step that is failing in any issue or support request to help troubleshoot further.
-
-
 
 <br>
 
