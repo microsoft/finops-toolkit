@@ -294,8 +294,8 @@ module ingestion_OpenDataInternalScripts 'hub-database.bicep' = {
   }
 }
 
-module ingestion_CommonScripts 'hub-database.bicep' = {
-  name: 'ingestion_CommonScripts'
+module ingestion_SetupScript_Init 'hub-database.bicep' = {
+  name: 'ingestion_SetupScript_Init'
   dependsOn: [
     ingestion_OpenDataInternalScripts
   ]
@@ -305,19 +305,7 @@ module ingestion_CommonScripts 'hub-database.bicep' = {
     scripts: {
       openDataScript: loadTextContent('scripts/OpenDataFunctions.kql')
       commonScript: loadTextContent('scripts/Common.kql')
-    }
-    continueOnErrors: continueOnErrors
-    forceUpdateTag: forceUpdateTag
-  }
-}
-
-module ingestion_SetupScript_Init 'hub-database.bicep' = {
-  name: 'ingestion_SetupScript_Init'
-  params: {
-    clusterName: cluster.name
-    databaseName: cluster::ingestionDb.name
-    scripts: {
-      setupScriptNonVersioned: loadTextContent('scripts/IngestionSetup_Init.kql')
+      initScript: loadTextContent('scripts/IngestionSetup_Init.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
@@ -334,7 +322,7 @@ module ingestion_SetupScript_v1_0 'hub-database.bicep' = {
     clusterName: cluster.name
     databaseName: cluster::ingestionDb.name
     scripts: {
-      setupScriptV1: replace(loadTextContent('scripts/IngestionSetup_v1_0.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+      setupScript_v1_0: replace(loadTextContent('scripts/IngestionSetup_v1_0.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
