@@ -47,6 +47,8 @@ param scriptSubnetId string = ''
 var fileCount = length(items(files))
 var hasFiles = fileCount > 0
 
+var deploymentName = '${deployment().name}.Upload'
+
 
 //==============================================================================
 // Resources
@@ -75,43 +77,17 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 // Upload schema file to storage
 //------------------------------------------------------------------------------
 
-resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing =  if (hasFiles && !enablePublicAccess) {
-  name: scriptStorageAccountName
-}
+module uploadFiles 'hub-deploymentScript.bicep' = if (hasFiles) {
+  name: deploymentName
+  params: {
+    location: location
+    tags: tags
+    tagsByResource: tagsByResource
 
-resource blobManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (hasFiles) {
-  name: blobManagerIdentityName
-}
-
-resource uploadFiles 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (hasFiles) {
-  name: '${storageAccountName}_uploadFiles'
-  kind: 'AzurePowerShell'
-  // cSpell:ignore chinaeast
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${blobManagerIdentity.id}': {}
-    }
-  }
-  dependsOn: []
-  properties: union(enablePublicAccess ? {} : {
-    storageAccountSettings: {
-      storageAccountName: scriptStorageAccount.name
-    }
-    containerSettings: {
-      containerGroupName: '${scriptStorageAccount.name}cg'
-      subnetIds: [
-        {
-          id: scriptSubnetId
-        }
-      ]
-    }
-  }, {
-    azPowerShellVersion: '9.0'
-    retentionInterval: 'PT1H'
+    identityName: blobManagerIdentityName
+    enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: scriptStorageAccountName
+    scriptSubnetId: scriptSubnetId
     environmentVariables: [
       {
         name: 'storageAccountName'
@@ -127,7 +103,7 @@ resource uploadFiles 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (ha
       }
     ]
     scriptContent: loadTextContent('./scripts/Upload-StorageFile.ps1')
-  })
+  }
 }
 
 
