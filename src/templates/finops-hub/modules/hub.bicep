@@ -191,10 +191,10 @@ var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.cluster
 var safeDataExplorerIngestionDb = useFabric ? 'Ingestion' : (!deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName)
 var safeDataExplorerIngestionCapacity = useFabric ? fabricCapacityUnits : (!deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity)
 var safeDataExplorerPrincipalId = !deployDataExplorer ? '' : dataExplorer.outputs.principalId
-var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
-var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
-// var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
-// var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
+var safeVnetId = enablePublicAccess ? '' : infrastructure.outputs.vNetId
+var safeDataExplorerSubnetId = enablePublicAccess ? '' : infrastructure.outputs.dataExplorerSubnetId
+// var safeFinopsHubSubnetId = enablePublicAccess ? '' : infrastructure.outputs.finopsHubSubnetId
+// var safeScriptSubnetId = enablePublicAccess ? '' : infrastructure.outputs.scriptSubnetId
 
 // cSpell:ignore eventgrid
 // var eventGridName = 'finops-hub-eventgrid-${config.hub.suffix}'
@@ -274,11 +274,8 @@ resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefa
 // Base resources needed for hub apps
 //------------------------------------------------------------------------------
 
-module coreNetwork 'core-network.bicep' = {
-  name: 'Microsoft.FinOpsHubs.Core_Network'
-  dependsOn: [
-    vnet
-  ]
+module infrastructure 'infrastructure.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Infrastructure'
   params: {
     coreConfig: coreConfig
   }
@@ -291,6 +288,10 @@ module coreNetwork 'core-network.bicep' = {
 // TODO: Move into core.bicep
 module appRegistration 'hub-app.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Register'
+  // name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
+  dependsOn: [
+    infrastructure
+  ]
   params: {
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
@@ -308,31 +309,13 @@ module appRegistration 'hub-app.bicep' = {
 }
 
 //------------------------------------------------------------------------------
-// Virtual network
-//------------------------------------------------------------------------------
-
-// cSpell:ignore vnet
-// TODO: Move to core-network.bicep
-module vnet 'vnet.bicep' = if (!enablePublicAccess) {
-  name: 'vnet'
-  params: {
-    hubName: hubName
-    location: location
-    virtualNetworkAddressPrefix: coreConfig.network.addressPrefix
-    tags: coreConfig.hub.tags
-    tagsByResource: tagsByResource
-  }
-}
-
-//------------------------------------------------------------------------------
 // ADLSv2 storage account for staging and archive
 //------------------------------------------------------------------------------
 
 module storage 'storage.bicep' = {
   name: 'storage'
   dependsOn: [
-    coreNetwork
-    vnet
+    infrastructure
   ]
   params: {
     storageAccountName: appRegistration.outputs.config.publisher.storage
@@ -396,6 +379,8 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
     enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: coreConfig.deployment.storage
+    scriptSubnetId: coreConfig.network.subnets.scripts
 
     // TODO: Move to remoteHub.bicep
     keyVaultName: empty(remoteHubStorageKey) ? '' : appRegistration.outputs.config.publisher.keyVault
