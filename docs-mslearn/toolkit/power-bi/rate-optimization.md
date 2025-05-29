@@ -127,6 +127,26 @@ The chart breaks down the cost of used (utilized) vs. unused charges. The commit
 
 <br>
 
+## Commitment discount utilization
+
+The **Commitment discount utilization** page provides a summary of the utilization of your commitment discounts by showing the total covered usage cost divided by the total effective (amortized) commitment discount cost for the period.
+
+The chart shows the sum of all used cost compared to unused cost as percentages per day. The table shows a list of all commitment discounts. To view the utilization for a single commitment discount in the chart, select the row in the table, set applicable filters on the left, or use the "Drill through" capability from another page.
+
+:::image type="content" source="./media/rate-optimization/commitment-discount-utilization.png" border="true" alt-text="Screenshot of the Commitment discounts page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discount-utilization.png" :::
+
+<br>
+
+## Commitment discount resources
+
+The **Commitment discount resources** page provides a list of all resources that were covered by the selected commitment discounts (all by default).
+
+The chart breaks down the effective cost of your commitment discounts by resource over time. The table shows the utilization, cost, and savings for the entire period. To view resources for a single commitment discount in the chart, set applicable filters on the left or use the "Drill through" capability from another page.
+
+:::image type="content" source="./media/rate-optimization/commitment-discount-resources.png" border="true" alt-text="Screenshot of the Commitment discounts page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discount-resources.png" :::
+
+<br>
+
 ## Chargeback
 
 The **Chargeback** page helps facilitate chargeback at a subscription, resource group, or resource level. Use the table for chargeback.
