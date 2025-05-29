@@ -60,6 +60,11 @@ _Released June 2, 2025_
     - Telemetry is not personally identifiable and only used to improve the template.
     - Disable telemetry by setting the **enableDefaultTelemetry** parameter to **false**.
 
+### [Optimization engine](optimization-engine/overview.md) v0.11
+
+- **Changed**
+  - Upgraded Azure Resource Manager SQL Server name availability API version, used by the engine deployment script, due to upcoming deprecation of 2014-04-01 version.
+
 ### [Open data](open-data.md) v0.11
 
 **[Pricing units](open-data.md#pricing-units)**
