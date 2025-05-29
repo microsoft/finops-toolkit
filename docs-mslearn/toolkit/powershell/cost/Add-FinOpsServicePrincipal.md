@@ -16,7 +16,7 @@ ms.reviewer: brettwil
 
 The **Add-FinOpsServicePrincipal** command grants the specified service principal or managed identity access to an Enterprise Agreement billing account or department.  
 
-For more information about granting roles to service principals, see [Assign Enterprise Agreement roles to service principals](https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/assign-roles-azure-service-principals). For more information about the permissions associated with each role, see [Usage and costs access by role](https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/understand-ea-roles#usage-and-costs-access-by-role).
+For more information about granting roles to service principals, see [Assign Enterprise Agreement roles to service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals). For more information about the permissions associated with each role, see [Usage and costs access by role](/azure/cost-management-billing/manage/understand-ea-roles#usage-and-costs-access-by-role).
 
 <br>
 
@@ -34,12 +34,12 @@ Add-FinOpsServicePrincipal `
 
 ## Parameters
 
-| Name             | Description                                                                                                                                                                         |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ObjectId`          | Required. The object ID of the service principal or managed identity.                                                                                                                                          |
-| `TenantId` | Required. The Azure Active Directory tenant which contains the identity.                                                                                             |
-| `BillingAccountId`      | Required. The billing account ID (enrollment number) to grant permissions against.                                                                                                                            |
-| `DepartmentId`       | Optional. The department ID to grant permissions against.                                                                                                            |
+| Name               | Description                                                                        |
+| ------------------ | ---------------------------------------------------------------------------------- |
+| `ObjectId`         | Required. The object ID of the service principal or managed identity.              |
+| `TenantId`         | Required. The Azure Active Directory tenant which contains the identity.           |
+| `BillingAccountId` | Required. The billing account ID (enrollment number) to grant permissions against. |
+| `DepartmentId`     | Optional. The department ID to grant permissions against.                          |
 
 <br>
 
@@ -77,7 +77,7 @@ Grants Department Administrator (read only) permissions to the specified service
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK0.9/bladeName/PowerShell/featureName/Hubs.DeployHub)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK0.10/bladeName/PowerShell/featureName/Hubs.DeployHub)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

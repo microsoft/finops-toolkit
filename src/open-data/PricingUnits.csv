@@ -57,7 +57,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 Hourly Unit",EA,1,Units/Hour
 "1 Hourly Units",EA,1,Units/Hour
 "1 Hours",EA,1,Hours
-"1 IOPS/Month",MCA,1,IOPS/Month
+"1 IOPS/Month","MCA, EA",1,IOPS/Month
 "1 Key",EA,1,Keys
 "1 Key Use",EA,1,Keys
 "1 MB","MCA, EA",1,MB
@@ -288,6 +288,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10000000 Transactions",EA,10000000,Transactions
 "100000000",EA,100000000,Units
 "100000000 ",EA,100000000,Units
+"100000000 /Day",EA,100000000,Units/Day
 "100000000 /Month",EA,100000000,Units/Month
 "100000000 Events",EA,100000000,Events
 "100000000 Operation Units",EA,100000000,Units

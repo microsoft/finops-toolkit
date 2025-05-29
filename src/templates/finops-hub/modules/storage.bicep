@@ -5,21 +5,14 @@
 // Parameters
 //==============================================================================
 
-@description('Required. Name of the FinOps hub instance. Used to ensure unique resource names.')
-param hubName string
+@description('Required. Name of the storage account.')
+param storageAccountName string
 
-@description('Required. Suffix to add to the storage account name to ensure uniqueness.')
-param uniqueSuffix string
+@description('Required. Name of the storage account used for deployment scripts.')
+param scriptStorageAccountName string
 
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
-
-@allowed([
-  'Premium_LRS'
-  'Premium_ZRS'
-])
-@description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
-param sku string = 'Premium_LRS'
 
 @description('Optional. Tags to apply to all resources.')
 param tags object = {}
@@ -37,22 +30,13 @@ param msexportRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
-@description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
-param enableInfrastructureEncryption bool = false
-
 @description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
 param rawRetentionInDays int = 0
 
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param finalRetentionInMonths int = 13
 
-@description('Required. Id of the virtual network for private endpoints.')
-param virtualNetworkId string
-
-@description('Required. Id of the subnet for private endpoints.')
-param privateEndpointSubnetId string
-
-@description('Required. Id of the virtual network for running deployment scripts.')
+@description('Required. Resource ID of the virtual network for running deployment scripts.')
 param scriptSubnetId string
 
 @description('Optional. Enable public access to the data lake.  Default: false.')
@@ -63,10 +47,6 @@ param enablePublicAccess bool
 //------------------------------------------------------------------------------
 
 // Generate globally unique storage account name: 3-24 chars; lowercase letters/numbers only
-var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
-var storageAccountSuffix = uniqueSuffix
-var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
-var scriptStorageAccountName = '${take(safeHubName, 16 - length(storageAccountSuffix))}script${storageAccountSuffix}'
 var schemaFiles = {
   // cSpell:ignore actualcost, amortizedcost, focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
   'schemas/actualcost_c360-2025-04.json': loadTextContent('../schemas/actualcost_c360-2025-04.json')
@@ -96,246 +76,12 @@ var blobUploadRbacRoles = [
 // Resources
 //==============================================================================
 
-// TODO: Move storage account creation to the hub-app module + output SA name
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: storageAccountName
-  location: location
-  sku: {
-    name: sku
-  }
-  kind: 'BlockBlobStorage'
-  tags: union(tags, tagsByResource[?'Microsoft.Storage/storageAccounts'] ?? {})
-  properties: union(!enableInfrastructureEncryption ? {} : {
-    encryption: {
-      keySource: 'Microsoft.Storage'
-      requireInfrastructureEncryption: enableInfrastructureEncryption
-    }
-  }, {
-    supportsHttpsTrafficOnly: true
-    allowSharedKeyAccess: true
-    isHnsEnabled: true
-    minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: false
-    publicNetworkAccess: 'Enabled'
-    networkAcls: {
-      bypass: 'AzureServices'
-      defaultAction: enablePublicAccess ? 'Allow' : 'Deny'
-    }
-  })
 }
 
-resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' =  if (!enablePublicAccess){
+resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = if (!enablePublicAccess) {
   name: scriptStorageAccountName
-  location: location
-  sku: {
-    name: 'Standard_LRS' //sku
-  }
-  kind: 'StorageV2'// 'BlockBlobStorage'
-  tags: union(tags, tagsByResource[?'Microsoft.Storage/storageAccounts'] ?? {})
-  properties: {
-    supportsHttpsTrafficOnly: true
-    allowSharedKeyAccess: true
-    isHnsEnabled: false
-    minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: false
-    publicNetworkAccess: 'Enabled'
-    networkAcls: {
-      bypass: 'AzureServices'
-      defaultAction: 'Deny'
-      virtualNetworkRules: [
-        {
-          id: scriptSubnetId
-          action: 'Allow'
-        }
-      ]
-    }
-  }
-}
-
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
-  // cSpell:ignore privatelink
-  name: 'privatelink.blob.${environment().suffixes.storage}'
-  location: 'global'
-  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
-  properties: {}
-}
-
-resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
-  name: 'privatelink.dfs.${environment().suffixes.storage}'
-  location: 'global'
-  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
-  properties: {}
-}
-
-resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
-  name: 'privatelink.queue.${environment().suffixes.storage}'
-  location: 'global'
-  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
-  properties: {}
-}
-
-resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (!enablePublicAccess) {
-  name: 'privatelink.table.${environment().suffixes.storage}'
-  location: 'global'
-  tags: union(tags, tagsByResource[?'Microsoft.Storage/privateDnsZones'] ?? {})
-  properties: {}
-}
-
-resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
-  parent: blobPrivateDnsZone
-  name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
-  location: 'global'
-  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
-  properties: {
-    registrationEnabled: false
-    virtualNetwork: {
-      id: virtualNetworkId
-    }
-  }
-}
-
-resource dfsPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
-  parent: dfsPrivateDnsZone
-  name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
-  location: 'global'
-  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
-  properties: {
-    registrationEnabled: false
-    virtualNetwork: {
-      id: virtualNetworkId
-    }
-  }
-}
-
-resource queuePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
-  parent: queuePrivateDnsZone
-  name: '${replace(queuePrivateDnsZone.name, '.', '-')}-link'
-  location: 'global'
-  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
-  properties: {
-    registrationEnabled: false
-    virtualNetwork: {
-      id: virtualNetworkId
-    }
-  }
-}
-
-resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (!enablePublicAccess) {
-  parent: tablePrivateDnsZone
-  name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
-  location: 'global'
-  tags: union(tags, tagsByResource[?'Microsoft.Network/privateDnsZones/virtualNetworkLinks'] ?? {})
-  properties: {
-    registrationEnabled: false
-    virtualNetwork: {
-      id: virtualNetworkId
-    }
-  }
-}
-
-resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
-  name: '${storageAccount.name}-blob-ep'
-  location: location
-  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
-  properties: {
-    subnet: {
-      id: privateEndpointSubnetId
-    }
-    privateLinkServiceConnections: [
-      {
-        name: 'blobLink'
-        properties: {
-          privateLinkServiceId: storageAccount.id
-          groupIds: ['blob']
-        }
-      }
-    ]
-  }
-}
-
-resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
-  name: '${scriptStorageAccount.name}-blob-ep'
-  location: location
-  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
-  properties: {
-    subnet: {
-      id: privateEndpointSubnetId
-    }
-    privateLinkServiceConnections: [
-      {
-        name: 'scriptLink'
-        properties: {
-          privateLinkServiceId: scriptStorageAccount.id
-          groupIds: ['blob']
-        }
-      }
-    ]
-  }
-}
-
-resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (!enablePublicAccess) {
-  name: '${storageAccount.name}-dfs-ep'
-  location: location
-  tags: union(tags, tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
-  properties: {
-    subnet: {
-      id: privateEndpointSubnetId
-    }
-    privateLinkServiceConnections: [
-      {
-        name: 'dfsLink'
-        properties: {
-          privateLinkServiceId: storageAccount.id
-          groupIds: ['dfs']
-        }
-      }
-    ]
-  }
-}
-
-resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
-  name: 'storage-endpoint-zone'
-  parent: blobEndpoint
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: blobPrivateDnsZone.name
-        properties: {
-          privateDnsZoneId: blobPrivateDnsZone.id
-        }
-      }
-    ]
-  }
-}
-
-resource dfsPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
-  name: 'dfs-endpoint-zone'
-  parent: dfsEndpoint
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: dfsPrivateDnsZone.name
-        properties: {
-          privateDnsZoneId: dfsPrivateDnsZone.id
-        }
-      }
-    ]
-  }
-}
-
-resource scriptPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = if (!enablePublicAccess) {
-  name: 'blob-endpoint-zone'
-  parent: scriptEndpoint
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: blobPrivateDnsZone.name
-        properties: {
-          privateDnsZoneId: blobPrivateDnsZone.id
-        }
-      }
-    ]
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -428,10 +174,6 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   dependsOn: [
     configContainer
     identityRoleAssignments
-    blobEndpoint
-    blobPrivateDnsZoneGroup
-    scriptEndpoint
-    scriptPrivateDnsZoneGroup
   ]
   properties: union(enablePublicAccess ? {} : {
     storageAccountSettings: {

@@ -20,9 +20,9 @@ Open, extensible, and scalable cost governance for the enterprise.
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in March 2025<span class="ftk-version">v0.9</span></h3>
+    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
     <p>
-        In March, FinOps hubs saw a revamp of reservation recommendations, expansion of managed exports to cover all Cost Management datasets, and many small fixes and improvements.
+        In April, FinOps hubs added support for Microsoft Fabric, Azure Gov, and Azure China, and also introduced a series of data quality improvements on top of native cost details.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -59,7 +59,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 <div id="pricing" class="ftk-pricing">
     <h3>Estimated cost for FinOps hubs</h3>
-    <p>FinOps hubs starts at $120/mo + $10 per $1 million in monitored spend.</p>
+    <p>FinOps hubs starts at $120/mo + $10/mo per $1 million in monitored spend.</p>
     <p>Costs may be lower depending on your negotiated and commitment discounts.</p>
 </div>
 <a name="deploy"></a>
@@ -138,6 +138,8 @@ Create a new or update an existing FinOps hub instance.
             </p>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy">Deploy to Azure</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy/gov">Deploy to Azure Gov</a>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/finops/hubs/deploy/china">Deploy to Azure China</a>
                 <a class="btn mb-4 mb-md-0 mr-4 ftk-externallink ftk-btnlink" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/template">About the template</a>
             </p>
         </div>
