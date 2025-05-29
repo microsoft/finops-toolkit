@@ -541,9 +541,10 @@ This is likely because a managed identity was explicitly deleted without first r
 
 **Mitigation**: To fix this issue, delete the orphaned role assignments in the Azure portal:
 
-- Navigate to the resource group or affected resource (such as Data Explorer cluster) and select **Access control (IAM)** in the menu.
+- Navigate to the resource group or affected resource (such as Data Explorer cluster).
+- Select **Access control (IAM)** in the menu.
 - Select the **Role assignments** tab.
-- Find any role assignments with an "unknown" identity and delete them.
+- Find any role assignments with an unknown identity and delete them.
 
 <br>
 
