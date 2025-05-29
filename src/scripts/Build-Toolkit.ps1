@@ -118,7 +118,7 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
     }
 
     # TODO: Create a way to define file consolidation via config (or maybe a custom build script in the folder)
-    if ($templateName -eq "finops-hubs")
+    if ($templateName -eq "finops-hub")
     {
         @(
             @{
@@ -130,7 +130,8 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
                     "OpenDataFunctions_resource_type_4.kql",
                     "OpenDataFunctions.kql",
                     "Common.kql",
-                    "IngestionSetup.kql"
+                    "IngestionSetup_Init.kql",
+                    "IngestionSetup_v1_0.kql"
                 )
             }
             @{
