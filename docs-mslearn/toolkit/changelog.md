@@ -30,9 +30,72 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
+## v0.11
+
+_Released June 2, 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+
+- **Added**
+  - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
+- **Changed**
+  - Moved telemetry setting into internal config settings object.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.11
+
+- **Added**
+  - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
+  - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
+  - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+- **Fixed**
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
+
+### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
+
+- **Added**
+  - Added telemetry to the FinOps alerts template to track usage and bugs.
+    - Telemetry is not personally identifiable and only used to improve the template.
+    - Disable telemetry by setting the **enableDefaultTelemetry** parameter to **false**.
+
+### [Open data](open-data.md) v0.11
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the following resource types to their respective services:
+    - microsoft.batch/batchaccounts/pools
+    - microsoft.compute/galleries/images/versions
+    - microsoft.compute/virtualmachinescalesets/virtualmachines
+    - microsoft.compute/virtualmachinescalesets/virtualmachines/networkinterfaces/ipconfigurations/publicipaddresses
+    - microsoft.datafactory/factories/pipelines
+    - microsoft.datafactory/factories/triggers
+    - microsoft.netapp/netappaccounts/capacitypools
+    - microsoft.network/dnsresolvers/outboundendpoints
+    - microsoft.network/networkwatchers/connectionmonitors
+    - microsoft.network/networkwatchers/flowlogs
+    - microsoft.network/networkwatchers/networkwatcher_canadacentral
+    - microsoft.search/searchservices/sharedprivatelinkresources
+    - microsoft.sql/longtermretentionservers/longtermretentiondatabases
+    - microsoft.storage/storageaccounts/blobservices
+    - microsoft.storage/storageaccounts/fileservices
+    - microsoft.storage/storageaccounts/queueservices
+    - microsoft.storage/storageaccounts/tableservices
+    - microsoft.synapse/workspaces/bigdatapools
+    - microsoft.synapse/workspaces/kustopools
+    - microsoft.synapse/workspaces/sqlpools
+    - microsoft.web/sites/slots
+  
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.10...v0.11)
+
+<br>
+
 ## v0.10
 
-_Released April 2025_
+_Released May 4, 2025_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v0.10
 
@@ -42,30 +105,42 @@ _Released April 2025_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
 
 - **Added**
-  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
   - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
+  - Added support for Azure Gov and Azure China.
+  - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
   - Created a new bicep modules to support extensibility:
-    - The **hub-app** module tracks telemetry when an app is deployed.
+    - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
     - The **hub-database** module runs KQL scripts in the Data Explorer database.
     - The **hub-vault** module adds secrets to the hub vault.
+  - Workaround subnets reordering and bicep limitation.
 - **Fixed**
-  - Workaround subnets reordering and bicep limitation
+  - Address new data quality issues with data ingested into Data Explorer:
+    - Fix x_EffectiveUnitPrice when it's calculated and there is a rounding error compared to x_BilledUnitPrice or ContractedUnitPrice.
+    - Calculate PricingQuantity and ConsumedQuantity when there is cost but no quantity.
+    - Set ListCost based on ContractedCost or ListUnitPrice when not specified.
+    - Replaced "-2" and "Unassigned" values in the x_InvoiceSectionId and x_InvoiceSectionName columns.
+    - Add new x_SourceChanges checks for "MissingConsumedQuantity", "MissingPricingQuantity", and "XEffectiveUnitPriceRoundingError".
 
 ### [Power BI reports](power-bi/reports.md) v0.10
 
 - **Added**
-  - Added a note about SAS token usage may require configuration at the storage account (and not a container) level ([#1418](https://github.com/microsoft/finops-toolkit/issues/1418#issuecomment-2834146702)).
-  - Added additional documentation to cover errors with mitigation steps.
+  - Added support for Azure Gov and Azure China.
+  - Documented that SAS tokens may require configuration at the storage account (and not a container) level ([#1418](https://github.com/microsoft/finops-toolkit/issues/1418#issuecomment-2834146702)).
+  - Documented additional errors and mitigation steps.
 - **Changed**
   - Updated documentation to clarify the ADLS storage requirement.
 - **Fixed**
-  - Fixed the duplicate resource ID error in the Resources query ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
   - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
   - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
   - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
   - Updated Resource Graph queries to support handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
+  - Fixed reservation recommendation query for raw MCA exports ([#1530](https://github.com/microsoft/finops-toolkit/issues/1530)).
+  - Fixed a parsing issue with the HubScopes query ([#1521](https://github.com/microsoft/finops-toolkit/issues/1521)).
+  - Added a "Remove Duplicate Resource IDs" parameter to work around a bug in Azure Resource Graph ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
+    - This parameter is not recommended as it may return incorrect or incomplete data.
+    - If you receive this error, please file a support request against the Azure Resource Graph team to resolve the bug creating duplicate rows.
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.10
 
@@ -84,7 +159,52 @@ _Released April 2025_
 ### [PowerShell module](powershell/powershell-commands.md) v0.10
 
 - **Added**
-  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/hubs/Add-FinOpsServicePrincipal.md).
+  - Documented the [Add-FinOpsServicePrincipal PowerShell command](powershell/cost/Add-FinOpsServicePrincipal.md).
+- **Changed**
+  - Updated the [Start-FinOpsCostExport](powershell/cost/Start-FinOpsCostExport.md) examples to include the `-Scope` parameter ([#1495](https://github.com/microsoft/finops-toolkit/issues/1495)).
+
+### [Open data](open-data.md) v0.10
+
+**[Pricing units](open-data.md#pricing-units)**
+
+- **Added**
+  - Added the "100000000 /Day" unit of measure.
+
+**[Regions](open-data.md#regions)**
+
+- **Added**
+  - Added the "ussgovarizona" region.
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 7 Microsoft.ApplicationMigration resource types.
+  - Added 20 Microsoft.Migrate resource types.
+  - Added the following resource types:
+    - microsoft.azurecis/azcopies
+    - microsoft.billingbenefits/credits
+    - microsoft.billingbenefits/discounts
+    - microsoft.containerservice/managedclusters/namespaces
+    - microsoft.netapp/netappaccounts/backuppolicies
+    - microsoft.quantum/provideraccounts
+    - microsoft.relationships/servicegrouprelationships
+    - microsoft.resources/virtualsubscriptionsforresourcepicker
+    - microsoft.saashub/saasresources
+    - microsoft.sentinelplatformservices/sentinelplatformservices
+    - oracle.database/networkanchors
+    - oracle.database/resourceanchors
+  **Changed**
+  - Updated the following resource types:
+    - dell.storage/filesystems
+    - lambdatest.hyperexecute/organizations
+    - microsoft.billingbenefits/maccs
+    - microsoft.cache/redisenterprise
+    - microsoft.codesigning/codesigningaccounts
+    - microsoft.fileshares/fileshares
+    - microsoft.hardwaresecuritymodules/cloudhsmclusters
+    - microsoft.kubernetes/connectedclusters
+    - microsoft.liftrpilot/organizations
+    - mongodb.atlas/organizations
 
 ### [Open data](open-data.md) v0.10
 
@@ -177,7 +297,7 @@ _Released April 4, 2025_
   - Added support for MCA reservation recommendation exports.
   - Added support for multiple reservation recommendation exports to support shared and single recommendations for all services and lookback periods.
   - Managed exports now create price, reservation detail, reservation transaction, and VM reservation recommendation exports.
-  - Address new data quality issues with ingested data:
+  - Address new data quality issues with data ingested into Data Explorer:
     - Change `BillingAccountId` to be lowercase in both the cost and price datasets.
     - Change `CommitmentDiscountId` to be lowercase in the cost dataset.
     - Handle `x_BillingProfileId` case-sensitivity for the cost/price join (without changing data).
@@ -1561,7 +1681,7 @@ _Released May 27, 2023_
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.9/bladeName/Toolkit/featureName/Changelog)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Toolkit/featureName/Changelog)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

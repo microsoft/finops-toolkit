@@ -339,14 +339,14 @@ table Resources
 				        { "id", "name", "type", "location", "subscriptionId", "sku.name", "sku.tier", "provisioningState", "privateEndpointConnections", "encryption", "creationTime", "supportsHttpsTrafficOnly", "allowBlobPublicAccess", "minimumTlsVersion", "primaryEndpoints", "keyCreationTime", "primaryLocation", "statusOfPrimary", "networkAcls", "allowCrossTenantReplication", "allowSharedKeyAccess", "accessTier", "isHnsEnabled", "isBlueShiftAccount" },
 				        {}
 				      )
-				    else Source
+				    else Source,
 				
 				  // Remove duplicate IDs
 				  // This step may hide valid rows and show invalid rows due to a bug in Resource Graph. We do not recommend it but are including it in case you want to unblock yourself.
 				  // If you experience a "duplicate IDs" error for the Resources table, please file a support request against Azure Resource Graph.
-				  // RemoveDuplicates = if (Table.HasColumns(Source, {"id"})) then Table.Distinct(Source, {"id"}) else Source
+				  RemoveDuplicates = if #"Remove Duplicate Resource IDs" then Table.Distinct(NullHandling, {"id"}) else NullHandling
 				in
-				  NullHandling
+				  RemoveDuplicates
 
 	annotation PBI_NavigationStepName = Navigation
 
