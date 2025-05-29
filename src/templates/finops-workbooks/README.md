@@ -39,13 +39,9 @@ To learn more about FinOps workbooks, the roadmap, or how to contribute , see [F
 ## 📋 Prerequisites
 
 To deploy workbooks using ARM templates, you must have:
-- **Contributor** role or a role with both `Microsoft.Resources/deployments/validate/action` and `Microsoft.Resources/deployments/write` permissions
-- **Workbook Contributor** role to save the workbook after deployment
-- **Reader** role on all subscriptions you want to monitor
-
-To use workbooks, you need read access to the resources being monitored. The exact permissions vary by resource and service.
-
-If you only have **Reader** access, you cannot deploy using ARM templates, but you can still import the workbooks directly through Azure Monitor. See the [FinOps workbooks documentation](https://aka.ms/finops/workbooks) for instructions.
+- **Contributor** role or a role with both `Microsoft.Resources/deployments/validate/action` and `Microsoft.Resources/deployments/write` permissions.
+- **Workbook Contributor** role to edit and save workbooks.
+- **Reader** role on all subscriptions you want to monitor.
 
 If you run into any issues, see [Troubleshooting FinOps toolkit solutions](https://aka.ms/ftk/tsg).
 
