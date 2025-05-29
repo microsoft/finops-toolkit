@@ -751,7 +751,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/16977341?v=4",
       "profile": "https://github.com/robbdi",
       "contributions": [
-        "code"
+        "code",
+        "question"
       ]
     },
     {
@@ -759,6 +760,42 @@
       "name": "Tim Jacomb",
       "avatar_url": "https://avatars.githubusercontent.com/u/21194782?v=4",
       "profile": "https://github.com/timja",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "l3hMichaelPeterson",
+      "name": "l3hMichaelPeterson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/202707120?v=4",
+      "profile": "https://github.com/l3hMichaelPeterson",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "bradlovas",
+      "name": "bradlovas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48303312?v=4",
+      "profile": "https://github.com/bradlovas",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "macko76",
+      "name": "C:\\>Marius",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3911916?v=4",
+      "profile": "http://nettitude.wordpress.com",
+      "contributions": [
+        "review"
+      ]
+    },
+    {
+      "login": "NicholasBrand",
+      "name": "NicholasBrand",
+      "avatar_url": "https://avatars.githubusercontent.com/u/92826586?v=4",
+      "profile": "https://github.com/NicholasBrand",
       "contributions": [
         "code"
       ]

@@ -566,8 +566,8 @@ Prices_transform_v1_0()
     x_OnDemandCostInUsd:        decimal,   // Azure 1.0-preview(v1) only
     x_OnDemandUnitPrice:        decimal,   // Azure 1.0-preview(v1) only
     x_Operation:                string,    // AWS 1.0
-    x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
-    x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
+    x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+  // TODO: x_PartnerCreditApplied should be a decimal
+    x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+  // TODO: x_PartnerCreditRate should be a decimal
     x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
     x_PricingCurrency:          string,    // Azure 1.0-preview(v1)+
     x_PricingSubcategory:       string,    // Azure 1.0-preview(v1)+
@@ -966,8 +966,8 @@ Costs_transform_v1_0()
         BillingAccountName,
         BillingAccountType,
         BillingCurrency,
-        BillingPeriodEnd,
-        BillingPeriodStart,
+        BillingPeriodEnd = startofmonth(BillingPeriodEnd),
+        BillingPeriodStart = startofmonth(BillingPeriodStart),
         ChargeCategory = case(
             // Handle FOCUS 1.0-preview ChargeSubcategory
             ChargeSubcategory == 'Credit', 'Credit',
@@ -1270,7 +1270,7 @@ Costs_transform_v1_0()
     ChargeType:             string,
     ConsumedService:        string,
     CostCenter:             string,
-    Costs:                  decimal,
+    Cost:                   decimal,
     Date:                   datetime,
     EffectivePrice:         decimal,
     Frequency:              string,
@@ -1326,7 +1326,7 @@ Costs_transform_v1_0()
     { "Column": "ChargeType",             "Properties": { "Field": "ChargeType" } },
     { "Column": "ConsumedService",        "Properties": { "Field": "ConsumedService" } },
     { "Column": "CostCenter",             "Properties": { "Field": "CostCenter" } },
-    { "Column": "Costs",                  "Properties": { "Field": "Costs" } },
+    { "Column": "Cost",                   "Properties": { "Field": "Cost" } },
     { "Column": "Date",                   "Properties": { "Field": "Date" } },
     { "Column": "EffectivePrice",         "Properties": { "Field": "EffectivePrice" } },
     { "Column": "Frequency",              "Properties": { "Field": "Frequency" } },
@@ -1378,7 +1378,524 @@ ActualCosts_transform_v1_0()
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     // TODO: Transform actual costs to FOCUS 1.0 format
     ActualCosts_raw
+    | where ChargeType in ('Purchase', 'Refund') and isnotempty(ReservationId)
+    //
+    //
+    // !!! The rest of the query is reused for both the ActualCosts and AmortizedCosts queries -- Copy all changes in both transform functions !!!
+    //
+    //
+    | extend x_AmortizationClass = case(
+        ChargeType in ('Purchase', 'Refund') and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
+        ''
+    )
+    | extend tmp_ResourceInfo = parse_resourceid(ResourceId)
+    // TODO: PricingCategory needs to include savings plan usage and spot usage
+    | extend PricingCategory = case(
+        x_AmortizationClass == 'Amortized Charge', 'Committed',
+        ChargeType in ('Usage', 'Purchase'), 'Standard',
+        ''
+    )
+    | extend x_ResourceType = tostring(tmp_ResourceInfo.x_ResourceType)
+    | project-rename
+        PricingQuantity = Quantity,
+        x_PricingUnitDescription = UnitOfMeasure
+    | join kind=leftouter (PricingUnits) on x_PricingUnitDescription
+    | join kind=leftouter (Regions) on ResourceLocation
+    | join kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
+    // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
+    | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceName, ServiceCategory) on x_ResourceType
+    | join kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
+    | project
+        AvailabilityZone = AvailabilityZone,
+        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', decimal(0), Cost),
+        BillingAccountId = strcat('/providers/microsoft.billing/billingaccounts/', BillingAccountId, iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), '', strcat('/billingprofiles/', BillingProfileId))),
+        BillingAccountName = coalesce(BillingProfileName, BillingAccountName),
+        BillingAccountType = iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), 'Billing Profile', 'Billing Account'),
+        BillingCurrency,
+        BillingPeriodEnd = startofmonth(BillingPeriodEndDate, 1),
+        BillingPeriodStart = startofmonth(BillingPeriodStartDate),
+        ChargeCategory = case(
+            ChargeType in ('Usage', 'Purchase', 'Credit', 'Tax'), ChargeType,
+            ChargeType in ('UnusedReservation', 'UnusedSavingsPlan'), 'Usage',
+            ChargeType == 'Refund', 'Purchase',
+            'Adjustment'
+        ),
+        ChargeClass = iff(ChargeType == 'Refund', 'Correction', ''),
+        ChargeDescription = Product,
+        ChargeFrequency = case(
+            Frequency == 'UsageBased', 'Usage-Based',
+            Frequency == 'OneTime', 'One-Time',
+            Frequency  // "Recurring" and any fallback
+        ),
+        ChargePeriodStart = Date,
+        ChargePeriodEnd = Date + 1d,
+        ChargeSubcategory = '',
+        // TODO: CommitmentDiscount* decimal(null)umns need to handle savings plans
+        CommitmentDiscountCategory,
+        CommitmentDiscountId = iff(isnotempty(ReservationId), strcat('/providers/microsoft.capacity/reservationorders/', ProductOrderId, '/reservations/', ReservationId), ''),
+        CommitmentDiscountName = ReservationName,
+        CommitmentDiscountStatus = case(
+            isempty(ReservationId), '',
+            isnotempty(ReservationId) and ChargeType == 'Usage', 'Used',
+            ChargeType startswith 'Unused', 'Unused',
+            'Unused'
+        ),
+        CommitmentDiscountType = iff(isnotempty(ReservationId), 'Reservation', ''),
+        ConsumedQuantity = PricingQuantity * x_PricingBlockSize,
+        ConsumedUnit = PricingUnit,
+        ContractedCost = UnitPrice * PricingQuantity,
+        ContractedUnitPrice = UnitPrice,
+        EffectiveCost = iff(x_AmortizationClass == 'Principal', decimal(0), Cost),
+        InvoiceIssuerName = 'Microsoft',
+        ListCost = decimal(null),
+        ListUnitPrice = decimal(null),
+        PricingCategory,
+        PricingQuantity,
+        PricingUnit,
+        ProviderName = 'Microsoft',
+        PublisherName = iff(PublisherType == 'Marketplace', PublisherName, 'Microsoft'),
+        RegionId,
+        RegionName,
+        ResourceId = tostring(tmp_ResourceInfo.ResourceId),
+        ResourceName = tostring(tmp_ResourceInfo.ResourceName),
+        ResourceType,
+        ServiceCategory,
+        ServiceName,
+        Region = '',
+        SubAccountId = strcat('/subscriptions/', SubscriptionId),
+        SubAccountName = SubscriptionName,
+        SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
+        SkuId = '',
+        SkuPriceId = '',
+        Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
+        UsageAmount = decimal(null),
+        UsageQuantity = decimal(null),
+        UsageUnit = '',
+        x_AccountId = '',
+        x_AccountName = AccountName,
+        x_AccountOwnerId = AccountOwnerId,
+        x_BilledCostInUsd = decimal(null),
+        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), UnitPrice),
+        x_BillingAccountId = BillingAccountId,
+        x_BillingAccountName = BillingAccountName,
+        x_BillingExchangeRate = decimal(null),
+        x_BillingExchangeRateDate = datetime(null),
+        x_BillingProfileId = BillingProfileId,
+        x_BillingProfileName = BillingProfileName,
+        x_ChargeId = '',
+        x_ContractedCostInUsd = decimal(null),
+        x_Cost = decimal(null),
+        x_CostAllocationRuleName = '',
+        x_CostCategories = '',
+        x_CostCenter = CostCenter,
+        x_CostType = '',
+        x_Credits = '',
+        x_CurrencyConversionRate = decimal(null),
+        x_CustomerId = '',
+        x_CustomerName = '',
+        x_Discount = '',
+        x_EffectiveCostInUsd = '',
+        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), EffectivePrice),
+        x_ExportTime = datetime(null),
+        x_InvoiceId = '',
+        x_InvoiceIssuerId = '',
+        x_InvoiceSectionId = InvoiceSectionId,
+        x_InvoiceSectionName = InvoiceSection,
+        x_ListCostInUsd = decimal(null),
+        x_Location = '',
+        x_OnDemandCost = decimal(null),
+        x_OnDemandCostInUsd = decimal(null),
+        x_OnDemandUnitPrice = decimal(null),
+        x_Operation = '',
+        x_PartnerCreditApplied = decimal(null),
+        x_PartnerCreditRate = decimal(null),
+        x_PricingBlockSize,
+        x_PricingCurrency = iff(BillingAccountId == BillingProfileId, BillingCurrency, ''),
+        x_PricingSubcategory = case(
+            // TODO: Add x_SkuTier when supported by C360 -- PricingCategory == 'Standard' and isnotempty(x_SkuTier), 'Tiered',
+            PricingCategory == 'Standard', 'Standard',
+            PricingCategory == 'Committed', strcat('Committed ', CommitmentDiscountCategory),
+            PricingCategory == 'Dynamic', 'Spot',
+            ''
+        ),
+        x_PricingUnitDescription,
+        x_Project = '',
+        x_PublisherCategory = iff(PublisherType == 'Marketplace', 'Vendor', 'Cloud Provider'),
+        x_PublisherId = '',
+        x_ResellerId = '',
+        x_ResellerName = '',
+        x_ResourceGroupName = ResourceGroup,
+        x_ResourceType,
+        x_ServiceCode = '',
+        x_ServiceId = '',
+        x_ServicePeriodEnd = '',
+        x_ServicePeriodStart = '',
+        x_SkuDescription = Product,
+        x_SkuDetails = parse_json(iff(AdditionalInfo startswith '{', AdditionalInfo, strcat('{', AdditionalInfo, '}'))),
+        x_SkuIsCreditEligible = IsAzureCreditEligible,
+        x_SkuMeterCategory = MeterCategory,
+        x_SkuMeterId = MeterId,
+        x_SkuMeterName = MeterName,
+        x_SkuMeterSubcategory = MeterSubCategory,
+        x_SkuOfferId = OfferId,
+        x_SkuOrderId = ProductOrderId,
+        x_SkuOrderName = ProductOrderName,
+        x_SkuPartNumber = PartNumber,
+        // TODO: x_SkuPlan = PlanName,
+        x_SkuRegion = MeterRegion,
+        x_SkuServiceFamily = ServiceFamily,
+        x_SkuTerm = Term,
+        x_SkuTier = '',
+        x_SourceName = 'C360',
+        x_SourceProvider = 'Microsoft',
+        x_SourceType = 'ActualCost',
+        x_SourceVersion = 'C360-2025-04',
+        x_UsageType = ''
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Disable ActualCosts_raw streaming ingestion (required for Fabric)
+.alter table ActualCosts_raw policy streamingingestion disable
+
+// Update policy for ActualCosts_raw -> Costs_raw table
+// NOTE: Must be after transform function is defined
+.alter table Costs_raw policy update
+``` 
+[{
+    "IsEnabled": true,
+    "Source": "ActualCosts_raw",
+    "Query": "ActualCosts_transform_v1_0()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
+//===| Amortized costs |=================================================================================================
+// Supported versions:
+// - C360-2025-04
+//======================================================================================================================
+
+// AmortizedCosts_raw table
+.create-merge table AmortizedCosts_raw (
+    AccountName:            string,  // C360-2025-04
+    AccountOwnerId:         string,
+    AdditionalInfo:         string,
+    AvailabilityZone:       string,
+    BillingAccountId:       string, 
+    BillingAccountName:     string,
+    BillingCurrency:        string,
+    BillingPeriodEndDate:   datetime,
+    BillingPeriodStartDate: datetime,
+    BillingProfileId:       string,
+    BillingProfileName:     string,
+    ChargeType:             string,
+    ConsumedService:        string,
+    CostCenter:             string,
+    Cost:                   decimal,
+    Date:                   datetime,
+    EffectivePrice:         decimal,
+    Frequency:              string,
+    InvoiceSection:         string,
+    InvoiceSectionId:       string,
+    IsAzureCreditEligible:  bool,
+    MeterCategory:          string,
+    MeterId:                string,
+    MeterName:              string,
+    MeterRegion:            string,
+    MeterSubCategory:       string,
+    OfferId:                string,
+    PartNumber:             string,
+    PlanName:               string,
+    Product:                string,
+    ProductOrderId:         string,
+    ProductOrderName:       string,
+    PublisherName:          string,
+    PublisherType:          string,
+    Quantity:               decimal,
+    ReservationId:          string,
+    ReservationName:        string,
+    ResourceGroup:          string,
+    ResourceId:             string,
+    ResourceLocation:       string,
+    ResourceName:           string,
+    ServiceFamily:          string,
+    ServiceInfo1:           string,
+    ServiceInfo2:           string,
+    SubscriptionId:         string,
+    SubscriptionName:       string,
+    Tags:                   string,
+    Term:                   string,
+    UnitOfMeasure:          string,
+    UnitPrice:              decimal
+)
+
+// AmortizedCosts_raw ingestion mapping
+.create-or-alter table AmortizedCosts_raw ingestion parquet mapping "AmortizedCosts_raw_mapping"
+```
+[
+    { "Column": "AccountName",            "Properties": { "Field": "AccountName" } },
+    { "Column": "AccountOwnerId",         "Properties": { "Field": "AccountOwnerId" } },
+    { "Column": "AdditionalInfo",         "Properties": { "Field": "AdditionalInfo" } },
+    { "Column": "AvailabilityZone",       "Properties": { "Field": "AvailabilityZone" } },
+    { "Column": "BillingAccountId",       "Properties": { "Field": "BillingAccountId" } },
+    { "Column": "BillingAccountName",     "Properties": { "Field": "BillingAccountName" } },
+    { "Column": "BillingCurrency",        "Properties": { "Field": "BillingCurrency" } },
+    { "Column": "BillingPeriodEndDate",   "Properties": { "Field": "BillingPeriodEndDate" } },
+    { "Column": "BillingPeriodStartDate", "Properties": { "Field": "BillingPeriodStartDate" } },
+    { "Column": "BillingProfileId",       "Properties": { "Field": "BillingProfileId" } },
+    { "Column": "BillingProfileName",     "Properties": { "Field": "BillingProfileName" } },
+    { "Column": "ChargeType",             "Properties": { "Field": "ChargeType" } },
+    { "Column": "ConsumedService",        "Properties": { "Field": "ConsumedService" } },
+    { "Column": "CostCenter",             "Properties": { "Field": "CostCenter" } },
+    { "Column": "Cost",                   "Properties": { "Field": "Cost" } },
+    { "Column": "Date",                   "Properties": { "Field": "Date" } },
+    { "Column": "EffectivePrice",         "Properties": { "Field": "EffectivePrice" } },
+    { "Column": "Frequency",              "Properties": { "Field": "Frequency" } },
+    { "Column": "InvoiceSection",         "Properties": { "Field": "InvoiceSection" } },
+    { "Column": "InvoiceSectionId",       "Properties": { "Field": "InvoiceSectionId" } },
+    { "Column": "IsAzureCreditEligible",  "Properties": { "Field": "IsAzureCreditEligible" } },
+    { "Column": "MeterCategory",          "Properties": { "Field": "MeterCategory" } },
+    { "Column": "MeterId",                "Properties": { "Field": "MeterId" } },
+    { "Column": "MeterName",              "Properties": { "Field": "MeterName" } },
+    { "Column": "MeterRegion",            "Properties": { "Field": "MeterRegion" } },
+    { "Column": "MeterSubCategory",       "Properties": { "Field": "MeterSubCategory" } },
+    { "Column": "OfferId",                "Properties": { "Field": "OfferId" } },
+    { "Column": "PartNumber",             "Properties": { "Field": "PartNumber" } },
+    { "Column": "PlanName",               "Properties": { "Field": "PlanName" } },
+    { "Column": "Product",                "Properties": { "Field": "Product" } },
+    { "Column": "ProductOrderId",         "Properties": { "Field": "ProductOrderId" } },
+    { "Column": "ProductOrderName",       "Properties": { "Field": "ProductOrderName" } },
+    { "Column": "PublisherName",          "Properties": { "Field": "PublisherName" } },
+    { "Column": "PublisherType",          "Properties": { "Field": "PublisherType" } },
+    { "Column": "Quantity",               "Properties": { "Field": "Quantity" } },
+    { "Column": "ReservationId",          "Properties": { "Field": "ReservationId" } },
+    { "Column": "ReservationName",        "Properties": { "Field": "ReservationName" } },
+    { "Column": "ResourceGroup",          "Properties": { "Field": "ResourceGroup" } },
+    { "Column": "ResourceId",             "Properties": { "Field": "ResourceId" } },
+    { "Column": "ResourceLocation",       "Properties": { "Field": "ResourceLocation" } },
+    { "Column": "ResourceName",           "Properties": { "Field": "ResourceName" } },
+    { "Column": "ServiceFamily",          "Properties": { "Field": "ServiceFamily" } },
+    { "Column": "ServiceInfo1",           "Properties": { "Field": "ServiceInfo1" } },
+    { "Column": "ServiceInfo2",           "Properties": { "Field": "ServiceInfo2" } },
+    { "Column": "SubscriptionId",         "Properties": { "Field": "SubscriptionId" } },
+    { "Column": "SubscriptionName",       "Properties": { "Field": "SubscriptionName" } },
+    { "Column": "Tags",                   "Properties": { "Field": "Tags" } },
+    { "Column": "Term",                   "Properties": { "Field": "Term" } },
+    { "Column": "UnitOfMeasure",          "Properties": { "Field": "UnitOfMeasure" } },
+    { "Column": "UnitPrice",              "Properties": { "Field": "UnitPrice" } }
+]
+```
+
+// AmortizedCosts_raw retention policy
+.alter-merge table AmortizedCosts_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// AmortizedCosts_transform_v1_0 function
+.create-or-alter function
+with (docstring='ActualCost exports transformed to FOCUS 1.0.', folder='Costs')
+AmortizedCosts_transform_v1_0()
+{
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
+    // TODO: Transform actual costs to FOCUS 1.0 format
+    AmortizedCosts_raw
+    //
+    //
+    // !!! The rest of the query is reused for both the ActualCosts and AmortizedCosts queries -- Copy all changes in both transform functions !!!
+    //
+    //
+    | extend x_AmortizationClass = case(
+        ChargeType in ('Purchase', 'Refund') and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', 'Amortized Charge',
+        ''
+    )
+    | extend tmp_ResourceInfo = parse_resourceid(ResourceId)
+    // TODO: PricingCategory needs to include savings plan usage and spot usage
+    | extend PricingCategory = case(
+        x_AmortizationClass == 'Amortized Charge', 'Committed',
+        ChargeType in ('Usage', 'Purchase'), 'Standard',
+        ''
+    )
+    | extend x_ResourceType = tostring(tmp_ResourceInfo.x_ResourceType)
+    | project-rename
+        PricingQuantity = Quantity,
+        x_PricingUnitDescription = UnitOfMeasure
+    | join kind=leftouter (PricingUnits) on x_PricingUnitDescription
+    | join kind=leftouter (Regions) on ResourceLocation
+    | join kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
+    // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
+    | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceName, ServiceCategory) on x_ResourceType
+    | join kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
+    | project
+        AvailabilityZone = AvailabilityZone,
+        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', decimal(0), Cost),
+        BillingAccountId = strcat('/providers/microsoft.billing/billingaccounts/', BillingAccountId, iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), '', strcat('/billingprofiles/', BillingProfileId))),
+        BillingAccountName = coalesce(BillingProfileName, BillingAccountName),
+        BillingAccountType = iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), 'Billing Profile', 'Billing Account'),
+        BillingCurrency,
+        BillingPeriodEnd = startofmonth(BillingPeriodEndDate, 1),
+        BillingPeriodStart = startofmonth(BillingPeriodStartDate),
+        ChargeCategory = case(
+            ChargeType in ('Usage', 'Purchase', 'Credit', 'Tax'), ChargeType,
+            ChargeType in ('UnusedReservation', 'UnusedSavingsPlan'), 'Usage',
+            ChargeType == 'Refund', 'Purchase',
+            'Adjustment'
+        ),
+        ChargeClass = iff(ChargeType == 'Refund', 'Correction', ''),
+        ChargeDescription = Product,
+        ChargeFrequency = case(
+            Frequency == 'UsageBased', 'Usage-Based',
+            Frequency == 'OneTime', 'One-Time',
+            Frequency  // "Recurring" and any fallback
+        ),
+        ChargePeriodStart = Date,
+        ChargePeriodEnd = Date + 1d,
+        ChargeSubcategory = '',
+        // TODO: CommitmentDiscount* decimal(null)umns need to handle savings plans
+        CommitmentDiscountCategory,
+        CommitmentDiscountId = iff(isnotempty(ReservationId), strcat('/providers/microsoft.capacity/reservationorders/', ProductOrderId, '/reservations/', ReservationId), ''),
+        CommitmentDiscountName = ReservationName,
+        CommitmentDiscountStatus = case(
+            isempty(ReservationId), '',
+            isnotempty(ReservationId) and ChargeType == 'Usage', 'Used',
+            ChargeType startswith 'Unused', 'Unused',
+            'Unused'
+        ),
+        CommitmentDiscountType = iff(isnotempty(ReservationId), 'Reservation', ''),
+        ConsumedQuantity = PricingQuantity * x_PricingBlockSize,
+        ConsumedUnit = PricingUnit,
+        ContractedCost = UnitPrice * PricingQuantity,
+        ContractedUnitPrice = UnitPrice,
+        EffectiveCost = iff(x_AmortizationClass == 'Principal', decimal(0), Cost),
+        InvoiceIssuerName = 'Microsoft',
+        ListCost = decimal(null),
+        ListUnitPrice = decimal(null),
+        PricingCategory,
+        PricingQuantity,
+        PricingUnit,
+        ProviderName = 'Microsoft',
+        PublisherName = iff(PublisherType == 'Marketplace', PublisherName, 'Microsoft'),
+        RegionId,
+        RegionName,
+        ResourceId = tostring(tmp_ResourceInfo.ResourceId),
+        ResourceName = tostring(tmp_ResourceInfo.ResourceName),
+        ResourceType,
+        ServiceCategory,
+        ServiceName,
+        Region = '',
+        SubAccountId = strcat('/subscriptions/', SubscriptionId),
+        SubAccountName = SubscriptionName,
+        SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
+        SkuId = '',
+        SkuPriceId = '',
+        Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
+        UsageAmount = decimal(null),
+        UsageQuantity = decimal(null),
+        UsageUnit = '',
+        x_AccountId = '',
+        x_AccountName = AccountName,
+        x_AccountOwnerId = AccountOwnerId,
+        x_BilledCostInUsd = decimal(null),
+        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), UnitPrice),
+        x_BillingAccountId = BillingAccountId,
+        x_BillingAccountName = BillingAccountName,
+        x_BillingExchangeRate = decimal(null),
+        x_BillingExchangeRateDate = datetime(null),
+        x_BillingProfileId = BillingProfileId,
+        x_BillingProfileName = BillingProfileName,
+        x_ChargeId = '',
+        x_ContractedCostInUsd = decimal(null),
+        x_Cost = decimal(null),
+        x_CostAllocationRuleName = '',
+        x_CostCategories = '',
+        x_CostCenter = CostCenter,
+        x_CostType = '',
+        x_Credits = '',
+        x_CurrencyConversionRate = decimal(null),
+        x_CustomerId = '',
+        x_CustomerName = '',
+        x_Discount = '',
+        x_EffectiveCostInUsd = '',
+        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), EffectivePrice),
+        x_ExportTime = datetime(null),
+        x_InvoiceId = '',
+        x_InvoiceIssuerId = '',
+        x_InvoiceSectionId = InvoiceSectionId,
+        x_InvoiceSectionName = InvoiceSection,
+        x_ListCostInUsd = decimal(null),
+        x_Location = '',
+        x_OnDemandCost = decimal(null),
+        x_OnDemandCostInUsd = decimal(null),
+        x_OnDemandUnitPrice = decimal(null),
+        x_Operation = '',
+        x_PartnerCreditApplied = decimal(null),
+        x_PartnerCreditRate = decimal(null),
+        x_PricingBlockSize,
+        x_PricingCurrency = iff(BillingAccountId == BillingProfileId, BillingCurrency, ''),
+        x_PricingSubcategory = case(
+            // TODO: Add x_SkuTier when supported by C360 -- PricingCategory == 'Standard' and isnotempty(x_SkuTier), 'Tiered',
+            PricingCategory == 'Standard', 'Standard',
+            PricingCategory == 'Committed', strcat('Committed ', CommitmentDiscountCategory),
+            PricingCategory == 'Dynamic', 'Spot',
+            ''
+        ),
+        x_PricingUnitDescription,
+        x_Project = '',
+        x_PublisherCategory = iff(PublisherType == 'Marketplace', 'Vendor', 'Cloud Provider'),
+        x_PublisherId = '',
+        x_ResellerId = '',
+        x_ResellerName = '',
+        x_ResourceGroupName = ResourceGroup,
+        x_ResourceType,
+        x_ServiceCode = '',
+        x_ServiceId = '',
+        x_ServicePeriodEnd = '',
+        x_ServicePeriodStart = '',
+        x_SkuDescription = Product,
+        x_SkuDetails = parse_json(iff(AdditionalInfo startswith '{', AdditionalInfo, strcat('{', AdditionalInfo, '}'))),
+        x_SkuIsCreditEligible = IsAzureCreditEligible,
+        x_SkuMeterCategory = MeterCategory,
+        x_SkuMeterId = MeterId,
+        x_SkuMeterName = MeterName,
+        x_SkuMeterSubcategory = MeterSubCategory,
+        x_SkuOfferId = OfferId,
+        x_SkuOrderId = ProductOrderId,
+        x_SkuOrderName = ProductOrderName,
+        x_SkuPartNumber = PartNumber,
+        // TODO: x_SkuPlan = PlanName,
+        x_SkuRegion = MeterRegion,
+        x_SkuServiceFamily = ServiceFamily,
+        x_SkuTerm = Term,
+        x_SkuTier = '',
+        x_SourceName = 'C360',
+        x_SourceProvider = 'Microsoft',
+        x_SourceType = 'ActualCost',
+        x_SourceVersion = 'C360-2025-04',
+        x_UsageType = ''
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Disable AmortizedCosts_raw streaming ingestion (required for Fabric)
+.alter table AmortizedCosts_raw policy streamingingestion disable
+
+// Update policy for AmortizedCosts_raw -> Costs_raw table
+// NOTE: Must be after transform function is defined
+.alter table Costs_raw policy update
+``` 
+[{
+    "IsEnabled": true,
+    "Source": "AmortizedCosts_raw",
+    "Query": "AmortizedCosts_transform_v1_0()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
 
 
 //===| CommitmentDiscountUsage |========================================================================================
