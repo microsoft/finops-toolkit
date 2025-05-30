@@ -28,11 +28,6 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### [PowerShell module](powershell/powershell-commands.md)
-
-- **Fixed**
-  - Fixed upcoming breaking changes warning in `Get-AzAccessToken` cmdlet by adding temporary warning suppression ([#987](https://github.com/microsoft/finops-toolkit/issues/987)).
-
 <br><a name="latest"></a>
 
 ## v0.11
@@ -43,8 +38,6 @@ _Released June 2, 2025_
 
 - **Added**
   - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
-- **Changed**
-  - Moved telemetry setting into internal config settings object.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.11
 
@@ -54,12 +47,14 @@ _Released June 2, 2025_
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
   - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+    - This does not support Cost Management actual/amortized data, but that can be added. Please submit a [feature request](https://aka.ms/ftk/ideas), if desired.
   - Added support for backporting FOCUS 1.2 into the existing FOCUS 1.0 schema.
     - This is a short-term solution to avoid errors if FOCUS 1.2 exports are created.
     - Full FOCUS 1.2 support will come in a future release.
     - This has not been fully tested as FOCUS 1.2 exports are not available yet.
 - **Changed**
-  - Merged vnet and core-network. modules into infrastructure.bicep (no functional changes).
+  - Merged vnet and core-network modules into infrastructure.bicep (no functional changes).
+  - Moved telemetry setting into internal config settings object.
   - Redesigned the [FinOps hubs upgrade guide](hubs/upgrade.md) to be easier to follow.
   - Updated the [compatibility guide](hubs/compatibility.md) for 0.9-11.
 - **Fixed**
@@ -86,10 +81,12 @@ _Released June 2, 2025_
 - **Changed**
   - Upgraded Azure Resource Manager SQL Server name availability API version, used by the engine deployment script, due to upcoming deprecation of 2014-04-01 version.
 
-### [PowerShell module](powershell/powershell-commands.md) v0.10
+### [PowerShell module](powershell/powershell-commands.md) v0.11
 
 - **Fixed**
   - Fixed an error in the [Start-FinOpsCostExport command](powershell/cost/start-finopscostexport.md) ([#884](https://github.com/microsoft/finops-toolkit/issues/884), [#988](https://github.com/microsoft/finops-toolkit/issues/988))
+  - Suppressed upcoming breaking changes warning for the Get-AzAccessToken cmdlet ([#987](https://github.com/microsoft/finops-toolkit/issues/987)).
+
 
 ### [Open data](open-data.md) v0.11
 
@@ -140,7 +137,6 @@ _Released June 2, 2025_
 **[Services](open-data.md#services)**
 
 - **Added**
-
   - Added a service mapping for microsoft.premonition/libraries.
   - Add service mappings to separate App Service and Functions.
   - Mapped the following resource types to their respective services:
@@ -1706,7 +1702,7 @@ _Released May 27, 2023_
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Toolkit/featureName/Changelog)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.11/bladeName/Toolkit/featureName/Changelog)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
