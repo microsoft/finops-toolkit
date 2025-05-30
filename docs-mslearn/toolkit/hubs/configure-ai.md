@@ -38,7 +38,7 @@ The simplest way to get started with an AI-powered FinOps hub is with [GitHub Co
    1. Open VS Code.
    2. Open a folder or workspace where you want to connect to your FinOps hub instance.
    3. Create a `.github` folder at the root of the workspace.
-   4. Download the [GitHub Copilot instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hubs-copilot-instructions.md) and save it to the `.github` folder as `copilot-instructions.md`.
+   4. Download the [GitHub Copilot instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hubs-copilot.zip) and extract the contents to the `.github` folder.
 
 5. Install GitHub Copilot and Azure MCP:
 
