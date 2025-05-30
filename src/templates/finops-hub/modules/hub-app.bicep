@@ -38,9 +38,6 @@ param features HubAppFeature[] = []
 @description('Optional. Custom string with additional metadata to log. Must an alphanumeric string without spaces or special characters except for underscores and dashes. Namespace + appName + telemetryString must be 50 characters or less - additional characters will be trimmed.')
 param telemetryString string = ''
 
-@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
-param enableDefaultTelemetry bool = true
-
 //------------------------------------------------------------------------------
 // Temporary parameters that should be removed in the future
 //------------------------------------------------------------------------------
@@ -57,10 +54,12 @@ param coreConfig HubCoreConfig
 var appConfig = newAppConfig(coreConfig, publisher, namespace, appName, displayName, appVersion)
 
 // Features
+var usesDataFactory = contains(features, 'DataFactory')
+var usesKeyVault = contains(features, 'KeyVault')
 var usesStorage = contains(features, 'Storage')
 
 // App telemetry
-var telemetryId = 'ftk-hubapp-${appConfig.app.name}${empty(telemetryString) ? '' : '_'}${telemetryString}'  // cSpell:ignore hubapp
+var telemetryId = 'ftk-hubapp-${appConfig.app.fullName}${empty(telemetryString) ? '' : '_'}${telemetryString}'  // cSpell:ignore hubapp
 var telemetryProps = {
   mode: 'Incremental'
   template: {
@@ -76,6 +75,23 @@ var telemetryProps = {
   }
 }
 
+// Storage infrastructure encryption
+var storageInfrastructureEncryptionProperties = !coreConfig.storage.isInfrastructureEncrypted ? {} : {
+  encryption: {
+    keySource: 'Microsoft.Storage'
+    requireInfrastructureEncryption: coreConfig.storage.isInfrastructureEncrypted
+  }
+}
+
+// KeyVault access policies
+var keyVaultAccessPolicies = [
+  {
+    objectId: dataFactory.identity.principalId
+    tenantId: subscription().tenantId
+    permissions: { secrets: ['get'] }
+  }
+]
+
 
 //==============================================================================
 // Resources
@@ -90,7 +106,7 @@ var telemetryProps = {
 // No information about you or your cost data is collected.
 //------------------------------------------------------------------------------
 
-resource appTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
+resource appTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (coreConfig.deployment.isTelemetryEnabled) {
   name: length(telemetryId) <= 64 ? telemetryId : substring(telemetryId, 0, 64)
   tags: getAppTags(appConfig, 'Microsoft.Resources/deployments', true)
   properties: telemetryProps
@@ -99,6 +115,22 @@ resource appTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableD
 //------------------------------------------------------------------------------
 // TODO: Get hub details
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Data Factory
+//------------------------------------------------------------------------------
+
+resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = if (usesDataFactory) {
+  name: appConfig.publisher.dataFactory
+  location: appConfig.hub.location
+  tags: getPublisherTags(appConfig, 'Microsoft.DataFactory/factories')
+  identity: { type: 'SystemAssigned' }
+  properties: any({ // Using any() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet
+      globalConfigurations: {
+        PipelineBillingEnabled: 'true'
+      }
+  })
+}
 
 //------------------------------------------------------------------------------
 // Storage account
@@ -112,12 +144,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (use
   }
   kind: 'BlockBlobStorage'
   tags: getPublisherTags(appConfig, 'Microsoft.Storage/storageAccounts')
-  properties: union(!coreConfig.storage.isInfrastructureEncrypted ? {} : {
-    encryption: {
-      keySource: 'Microsoft.Storage'
-      requireInfrastructureEncryption: coreConfig.storage.isInfrastructureEncrypted
-    }
-  }, {
+  properties: {
+    ...storageInfrastructureEncryptionProperties
     supportsHttpsTrafficOnly: true
     allowSharedKeyAccess: true
     isHnsEnabled: true
@@ -128,14 +156,14 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (use
       bypass: 'AzureServices'
       defaultAction: coreConfig.network.isPrivate ? 'Deny' : 'Allow'
     }
-  })
+  }
 }
 
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (coreConfig.network.isPrivate) {
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (usesStorage && coreConfig.network.isPrivate) {
   name: 'privatelink.blob.${environment().suffixes.storage}'  // cSpell:ignore privatelink
 }
 
-resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (coreConfig.network.isPrivate) {
+resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesStorage && coreConfig.network.isPrivate) {
   name: '${storageAccount.name}-blob-ep'
   location: coreConfig.hub.location
   tags: getPublisherTags(appConfig, 'Microsoft.Network/privateEndpoints')
@@ -169,11 +197,11 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (core
   }
 }
 
-resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (coreConfig.network.isPrivate) {
+resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (usesStorage && coreConfig.network.isPrivate) {
   name: 'privatelink.dfs.${environment().suffixes.storage}'  // cSpell:ignore privatelink
 }
 
-resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (coreConfig.network.isPrivate) {
+resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesStorage && coreConfig.network.isPrivate) {
   name: '${storageAccount.name}-dfs-ep'
   location: coreConfig.hub.location
   tags: getPublisherTags(appConfig, 'Microsoft.Network/privateEndpoints')
@@ -207,6 +235,95 @@ resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (coreC
   }
 }
 
+//------------------------------------------------------------------------------
+// KeyVault for secrets
+//------------------------------------------------------------------------------
+
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
+  name: appConfig.publisher.keyVault
+  location: coreConfig.hub.location
+  tags: getPublisherTags(appConfig, 'Microsoft.KeyVault/vaults')
+  properties: {
+    sku: any({
+      name: coreConfig.keyVault.sku
+      family: 'A'
+    })
+    enabledForDeployment: true
+    enabledForTemplateDeployment: true
+    enabledForDiskEncryption: true
+    enableSoftDelete: true
+    softDeleteRetentionInDays: 90
+    enableRbacAuthorization: false
+    createMode: 'default'
+    tenantId: subscription().tenantId
+    accessPolicies: keyVaultAccessPolicies
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: coreConfig.network.isPrivate ? 'Deny' : 'Allow'
+    }
+  }
+  
+  resource keyVault_accessPolicies 'accessPolicies' = {
+    name: 'add'
+    properties: {
+      accessPolicies: keyVaultAccessPolicies
+    }
+  }
+}
+
+resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (usesKeyVault && coreConfig.network.isPrivate) {
+  name: 'privatelink${replace(environment().suffixes.keyvaultDns, 'vault', 'vaultcore')}'  // cSpell:ignore privatelink, vaultcore
+  location: 'global'
+  tags: getPublisherTags(appConfig, 'Microsoft.Network/privateDnsZones')
+  properties: {}
+  
+  resource keyVaultPrivateDnsZoneLink 'virtualNetworkLinks@2024-06-01' = {
+    name: '${replace(keyVaultPrivateDnsZone.name, '.', '-')}-link'
+    location: 'global'
+    tags: getPublisherTags(appConfig, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+    properties: {
+      virtualNetwork: {
+        id: coreConfig.network.id
+      }
+      registrationEnabled: false
+    }
+  }
+}
+
+resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesKeyVault && coreConfig.network.isPrivate) {
+  name: '${keyVault.name}-ep'
+  location: coreConfig.hub.location
+  tags: getPublisherTags(appConfig, 'Microsoft.Network/privateEndpoints')
+  properties: {
+    subnet: {
+      id: coreConfig.network.subnets.keyVault
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'keyVaultLink'
+        properties: {
+          privateLinkServiceId: keyVault.id
+          groupIds: ['vault']
+        }
+      }
+    ]
+  }
+
+  resource keyVaultPrivateDnsZoneGroup 'privateDnsZoneGroups' = {
+    name: 'keyvault-endpoint-zone'
+    properties: {
+      privateDnsZoneConfigs: [
+        {
+          name: keyVaultPrivateDnsZone.name
+          properties: {
+            privateDnsZoneId: keyVaultPrivateDnsZone.id
+          }
+        }
+      ]
+	  }
+	}
+}
+
 
 //==============================================================================
 // Outputs
@@ -214,3 +331,6 @@ resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (coreC
 
 @description('FinOps hub app configuration.')
 output config HubAppConfig = appConfig
+
+@description('Principal ID for the managed identity used by Data Factory.')
+output principalId string = dataFactory.identity.principalId
