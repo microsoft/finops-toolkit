@@ -60,7 +60,7 @@ The **Get started** page includes a basic introduction to the report with more l
 
 For instructions on how to connect this report to your data, including details about supported parameters, select the **Connect your data** button. Hold <kbd>Ctrl</kbd> when clicking the button in Power BI Desktop. If you need assistance, select the **Get help** button.
 
-:::image type="content" source="./media/cost-summary/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows a basic introduction to the report" lightbox="./media/cost-summary/get-started.png" :::
+:::image type="content" source="./media/cost-summary/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows a basic introduction to the report." lightbox="./media/cost-summary/get-started.png" :::
 
 <br>
 
@@ -70,7 +70,7 @@ The **Summary** page shows the running total (or accumulated cost) for the selec
 
 The page uses the standard layout with cost, negotiated discount savings, and commitment discount savings in the chart. The subscription hierarchy with resource groups and resources are shown in the table.
 
-:::image type="content" source="./media/cost-summary/summary.png" border="true" alt-text="Screenshot of the Summary page that shows a running total" lightbox="./media/cost-summary/summary.png" :::
+:::image type="content" source="./media/cost-summary/summary.png" border="true" alt-text="Screenshot of the Summary page that shows a running total." lightbox="./media/cost-summary/summary.png" :::
 
 <br>
 
@@ -91,17 +91,27 @@ The **Charge breakdown** page shows a breakdown of all charges using the followi
 - x_ResourceGroupName
 - ResourceName
 
-:::image type="content" source="./media/cost-summary/charge-breakdown.png" border="true" alt-text="Screenshot of the Charge breakdown page that shows a breakdown of all charges" lightbox="./media/cost-summary/charge-breakdown.png" :::
+:::image type="content" source="./media/cost-summary/charge-breakdown.png" border="true" alt-text="Screenshot of the Charge breakdown page that shows a breakdown of all charges." lightbox="./media/cost-summary/charge-breakdown.png" :::
 
 <br>
 
- ## Services
+## Services
 
 The **Services** page offers a breakdown of cost by service. This page is useful for determining how service usage changes over time at a high level - usually across multiple subscriptions or the entire billing account.
 
 The page uses the standard layout with a breakdown of services (meter category) in the chart and table. The table has a further breakdown by tier (meter subcategory), meter, and product.
 
-:::image type="content" source="./media/cost-summary/services.png" border="true" alt-text="Screenshot of the Services page that shows a breakdown of cost by service" lightbox="./media/cost-summary/services.png" :::
+:::image type="content" source="./media/cost-summary/services.png" border="true" alt-text="Screenshot of the Services page that shows a breakdown of cost by service." lightbox="./media/cost-summary/services.png" :::
+
+<br>
+
+## Usage analysis
+
+The **Usage analysis** page shows the consumed quantity compared to cost for a specific unit (for instance, hours). You can further filter the SKUs by meter hierarchy to analyze specific usage trends over time.
+
+This page requires a single unit filter to ensure quantity numbers are comparable. Quantities of different units cannot be added together correctly. If you find unit is not set as you expect, submit a [change request](https://aka.ms/ftk/ideas).
+
+:::image type="content" source="./media/cost-summary/usage-analysis.png" border="true" alt-text="Screenshot of the Usage analysis page that shows a breakdown of usage and cost over time." lightbox="./media/cost-summary/usage-analysis.png" :::
 
 <br>
 
@@ -111,7 +121,7 @@ The **Subscriptions** page includes a breakdown of cost by subscription. This pa
 
 The page uses the standard layout with a breakdown of subscriptions in the chart and table. The table has a further breakdown by resource group and resource.
 
-:::image type="content" source="./media/cost-summary/subscriptions.png" border="true" alt-text="Screenshot of the Subscriptions page that shows a breakdown of cost by subscription" lightbox="./media/cost-summary/subscriptions.png" :::
+:::image type="content" source="./media/cost-summary/subscriptions.png" border="true" alt-text="Screenshot of the Subscriptions page that shows a breakdown of cost by subscription." lightbox="./media/cost-summary/subscriptions.png" :::
 
 <br>
 
@@ -121,7 +131,7 @@ The **Resource groups** page includes a breakdown of cost by resource group. Thi
 
 The page uses the standard layout with a breakdown of resource groups in the chart and table. The table has a further breakdown by resource.
 
-:::image type="content" source="./media/cost-summary/resource-groups.png" border="true" alt-text="Screenshot of the Resource groups page that shows a breakdown of cost by resource group" lightbox="./media/cost-summary/resource-groups.png" :::
+:::image type="content" source="./media/cost-summary/resource-groups.png" border="true" alt-text="Screenshot of the Resource groups page that shows a breakdown of cost by resource group." lightbox="./media/cost-summary/resource-groups.png" :::
 
 <br>
 
@@ -131,7 +141,7 @@ The **Resources** page includes a breakdown of cost by resource. This page is us
 
 The page uses the standard layout with a breakdown of resources in the chart and table. Instead of a hierarchy, The table includes columns about the resource location, resource group, subscription, and tags.
 
-:::image type="content" source="./media/cost-summary/resources.png" border="true" alt-text="Screenshot of the Resources page that shows a breakdown of cost by resource" lightbox="./media/cost-summary/resources.png" :::
+:::image type="content" source="./media/cost-summary/resources.png" border="true" alt-text="Screenshot of the Resources page that shows a breakdown of cost by resource." lightbox="./media/cost-summary/resources.png" :::
 
 <br>
 
@@ -142,7 +152,7 @@ The **Regions** page includes a breakdown of cost by region with a map showing t
 > [!NOTE]
 > Regions in the Cost Management FOCUS dataset include additional data cleansing for consistency with Azure regions and may not match the exact values in actual and amortized datasets.
 
-:::image type="content" source="./media/cost-summary/regions.png" border="true" alt-text="Screenshot of the Regions page that shows a breakdown of cost by region" lightbox="./media/cost-summary/regions.png" :::
+:::image type="content" source="./media/cost-summary/regions.png" border="true" alt-text="Screenshot of the Regions page that shows a breakdown of cost by region." lightbox="./media/cost-summary/regions.png" :::
 
 <br>
 
@@ -150,7 +160,7 @@ The **Regions** page includes a breakdown of cost by region with a map showing t
 
 The **Inventory** page includes a list of resource types with the count, total cost, and cost per resource for each type.
 
-:::image type="content" source="./media/cost-summary/inventory.png" border="true" alt-text="Screenshot of the Inventory page that shows a list of resource types" lightbox="./media/cost-summary/inventory.png" :::
+:::image type="content" source="./media/cost-summary/inventory.png" border="true" alt-text="Screenshot of the Inventory page that shows a list of resource types." lightbox="./media/cost-summary/inventory.png" :::
 
 <br>
 
@@ -162,7 +172,7 @@ The **Prices** page shows the prices for all products used during the period.
 
 The chart shows a summary of the meters that were most used.
 
-:::image type="content" source="./media/cost-summary/prices.png" border="true" alt-text="Screenshot of the Prices page that shows prices for all products" lightbox="./media/cost-summary/prices.png" :::
+:::image type="content" source="./media/cost-summary/prices.png" border="true" alt-text="Screenshot of the Prices page that shows prices for all products." lightbox="./media/cost-summary/prices.png" :::
 
 <br>
 
@@ -172,7 +182,7 @@ The **Purchases** page shows a list of products that were purchased during the p
 
 <!-- NOTE: There are similar pages in the cost-summary.md and rate-optimization files. They are not identical. Please keep both updated at the same time. -->
 
-:::image type="content" source="./media/cost-summary/purchases.png" border="true" alt-text="Screenshot of the Purchases page that shows a list of purchased products" lightbox="./media/cost-summary/purchases.png" :::
+:::image type="content" source="./media/cost-summary/purchases.png" border="true" alt-text="Screenshot of the Purchases page that shows a list of purchased products." lightbox="./media/cost-summary/purchases.png" :::
 
 <br>
 
@@ -180,7 +190,7 @@ The **Purchases** page shows a list of products that were purchased during the p
 
 The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions. This page is only available in storage-based reports. If using Data Explorer, use the [Data Explorer query console](https://dataexplorer.azure.com).
 
-:::image type="content" source="./media/cost-summary/data-quality.png" border="true" alt-text="Screenshot of the Data quality page that shows several data categories" lightbox="./media/cost-summary/data-quality.png" :::
+:::image type="content" source="./media/cost-summary/data-quality.png" border="true" alt-text="Screenshot of the Data quality page that shows several data categories." lightbox="./media/cost-summary/data-quality.png" :::
 
 <br>
 
@@ -188,7 +198,7 @@ The **Data quality** page is for data validation purposes only; however, it can 
 
 The **Tags example** page provides a set of visuals to demonstrate promoted tags in Power BI reports. Promoted tags are configured directly in the **Costs** query in Power BI.
 
-:::image type="content" source="./media/cost-summary/tags-example.png" border="true" alt-text="Screenshot of the Tags example page that shows several data categories" lightbox="./media/cost-summary/tags-example.png" :::
+:::image type="content" source="./media/cost-summary/tags-example.png" border="true" alt-text="Screenshot of the Tags example page that shows several data categories." lightbox="./media/cost-summary/tags-example.png" :::
 
 <br>
 

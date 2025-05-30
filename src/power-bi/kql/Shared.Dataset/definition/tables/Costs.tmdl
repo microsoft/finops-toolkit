@@ -205,13 +205,15 @@ table Costs
 
 	column BillingPeriodStart
 		dataType: dateTime
-		formatString: General Date
+		formatString: Mmm yyyy
 		sourceProviderType: datetimeoffset
 		lineageTag: 831b36ac-173c-4384-91c2-9c53a057055c
 		summarizeBy: none
 		sourceColumn: BillingPeriodStart
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
 
 	column ChargeCategory
 		dataType: string

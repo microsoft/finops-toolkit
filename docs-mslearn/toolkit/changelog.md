@@ -53,6 +53,12 @@ _Released June 2, 2025_
   - Address new data quality issues with data ingested into Data Explorer:
     - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
 
+### [Power BI reports](power-bi/reports.md) v0.10
+
+- **Added**
+  - Added a new [Invoicing and charegback report](power-bi/invoicing.md) that shows billed cost breakdowns, chargeback, and invoice recon pages.
+  - Added a new [Usage analysis page](power-bi/cost-summary.md#usage-analysis) that shows usage over time compared to cost for a specific unit.
+
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
 
 - **Added**
