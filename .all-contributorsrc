@@ -751,7 +751,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/16977341?v=4",
       "profile": "https://github.com/robbdi",
       "contributions": [
-        "code"
+        "code",
+        "question"
       ]
     },
     {
@@ -779,6 +780,24 @@
       "profile": "https://github.com/bradlovas",
       "contributions": [
         "bug"
+      ]
+    },
+    {
+      "login": "macko76",
+      "name": "C:\\>Marius",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3911916?v=4",
+      "profile": "http://nettitude.wordpress.com",
+      "contributions": [
+        "review"
+      ]
+    },
+    {
+      "login": "NicholasBrand",
+      "name": "NicholasBrand",
+      "avatar_url": "https://avatars.githubusercontent.com/u/92826586?v=4",
+      "profile": "https://github.com/NicholasBrand",
+      "contributions": [
+        "code"
       ]
     }
   ],

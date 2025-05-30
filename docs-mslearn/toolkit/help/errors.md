@@ -526,6 +526,28 @@ If you deleted FinOps hubs and are attempting to redeploy it with the same value
 
 <br>
 
+## RoleAssignmentExists
+
+<sup>Severity: Minor</sup>
+
+When upgrading FinOps hubs from one version to another, you might encounter the following error if role assignments created in a previous deployment still exist:
+
+```json
+"code": "RoleAssignmentExists",
+"message": "The role assignment already exists."
+```
+
+This is likely because a managed identity was explicitly deleted without first removing all of its role assignments.
+
+**Mitigation**: To fix this issue, delete the orphaned role assignments in the Azure portal:
+
+- Navigate to the resource group or affected resource (such as Data Explorer cluster).
+- Select **Access control (IAM)** in the menu.
+- Select the **Role assignments** tab.
+- Find any role assignments with an unknown identity and delete them.
+
+<br>
+
 ## SchemaLoadFailed
 
 <sup>Severity: Critical</sup>

@@ -356,6 +356,118 @@ table AdvisorRecommendations
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	column type
+		dataType: string
+		lineageTag: ac61d87d-1570-4b1a-97b1-0178fc944bb3
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 9f303a32-9ab0-4a62-97b5-09ce9630feee
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: a113728e-e322-41d5-9605-c61609c31352
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 763782ff-4b2b-4c62-88ab-81426f80db79
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: 9d01f317-2b3c-429a-9edd-d5e000cf7eab
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: 64459c7e-80f2-42d2-b149-27201ab28ecc
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 8115cac1-1999-4fd2-acd9-198d1efa40a1
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: c6148b22-09be-4d0d-9ffe-5ecc3a0fdf15
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: 20739f02-9f27-49a4-b777-72b7a22d11c9
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column properties
+		dataType: string
+		lineageTag: 5a807d2f-0fd7-4cc4-8148-fb54899da4fa
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: efb6b31c-93d6-4eda-9033-31af080009fe
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: edf81095-af38-4974-9320-6567dd06ae16
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 8338ea34-4f56-4839-a052-d7a72d4ba7b4
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: 64c356d0-098f-431c-bf9c-929f991acb02
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
 	partition AdvisorRecommendations = m
 		mode: import
 		queryGroup: 'Resource Graph'
@@ -365,7 +477,7 @@ table AdvisorRecommendations
 				
 				
 				  advisorresources 
-				  | where type == 'microsoft.advisor/recommendationsx'
+				  | where type == 'microsoft.advisor/recommendations'
 				  | where properties.category == 'Cost'
 				  | extend
 				    ['properties.recommendationTypeId'] = properties.recommendationTypeId,

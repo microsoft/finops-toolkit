@@ -23,11 +23,6 @@ relationship f2289f99-f546-f6c2-3c36-724c25d99e09
 	fromColumn: Disks.managedBy
 	toColumn: VirtualMachines.id
 
-relationship bee35174-8d46-db97-50df-02670026ee71
-	crossFilteringBehavior: bothDirections
-	fromColumn: AdvisorReservationRecommendations.subscriptionId
-	toColumn: Subscriptions.subscriptionId
-
 relationship c8a2b782-448d-e933-0cee-5a6387245222
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.subscriptionId
