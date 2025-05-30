@@ -1,15 +1,15 @@
-# FinOps Toolkit AI Agent Instructions (Condensed)
+# FinOps hubs AI agent instructions (Condensed)
 
 ## 🛡️ CORE OPERATING RULES
 
-### Essential Commands
+### Essential commands
 
 - **Cost Analysis:** #codebase → #azmcp-kusto-query
 - **Resource Info:** #azure_query_learn
 - **File Search:** #codebase
 - **Azure CLI:** #azmcp-extension-az
 
-### Non-Negotiable Rules
+### Non-negotiable rules
 
 1. **VERIFY** schema before ANY query (Check Database Guide)
 2. **NEVER** guess columns or data
@@ -67,7 +67,7 @@ Confidence: [High/Medium/Low]
 Scope: [Time period, filters]
 ```
 
-### Quick Answer (2-3 sentences)
+### Quick answer (2-3 sentences)
 
 💰 **[Key finding with primary metric]**
 
@@ -158,8 +158,8 @@ I need more information:
 
 ## 📚 DETAILED GUIDES
 
-- Query Examples
-- Schema Reference
+- Query examples
+- Schema reference
 - [FinOps Framework](https://www.finops.org/framework/)
 - [Microsoft FinOps documentation](https://learn.microsoft.com/cloud-computing/finops/)
 - [FinOps hub Database Data Model](https://github.com/microsoft/finops-toolkit/blob/dev/docs-mslearn/toolkit/hubs/data-model.md)

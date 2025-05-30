@@ -88,13 +88,13 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
 | ForEach-Object {
     $srcDir = $_
     $templateName = $srcDir.Name
-    
+
     # Skip if not the specified template
     if ($Template -ne "*" -and $Template -ne $templateName)
     {
         return
     }
-    
+
     Write-Host "Building template $templateName..."
 
     # Get custom build configuration

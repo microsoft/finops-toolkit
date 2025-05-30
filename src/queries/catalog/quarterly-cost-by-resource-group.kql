@@ -24,7 +24,6 @@ Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | as filteredCosts
 | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
-| extend x_ResourceGroupName = tostring(split(ResourceId, '/')[4])
-| summarize TotalEffectiveCost = sum(EffectiveCost) by SubAccountName, x_ResourceGroupName, x_ChargeMonth
-| order by x_ChargeMonth desc, TotalEffectiveCost desc
-| top N by TotalEffectiveCost
+| summarize EffectiveCost = sum(EffectiveCost) by SubAccountName, x_ResourceGroupName, x_ChargeMonth
+| order by x_ChargeMonth desc, EffectiveCost desc
+| top N by EffectiveCost

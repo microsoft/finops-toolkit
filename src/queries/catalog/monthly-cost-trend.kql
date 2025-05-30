@@ -19,5 +19,5 @@ let endDate = startofmonth(now());
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
 | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
-| summarize TotalBilledCost = sum(BilledCost), TotalEffectiveCost = sum(EffectiveCost) by x_ChargeMonth
+| summarize BilledCost = sum(BilledCost), EffectiveCost = sum(EffectiveCost) by x_ChargeMonth
 | order by x_ChargeMonth asc

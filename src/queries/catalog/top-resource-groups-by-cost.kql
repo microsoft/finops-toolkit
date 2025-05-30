@@ -21,6 +21,5 @@ let startDate = startofmonth(ago(30d)); // Default: last month
 let endDate = startofmonth(now());
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
-| extend x_ResourceGroupName = tostring(split(ResourceId, '/')[4])
-| summarize TotalEffectiveCost = sum(EffectiveCost) by SubAccountName, x_ResourceGroupName
-| top N by TotalEffectiveCost desc
+| summarize EffectiveCost = sum(EffectiveCost) by SubAccountName, x_ResourceGroupName
+| top N by EffectiveCost desc
