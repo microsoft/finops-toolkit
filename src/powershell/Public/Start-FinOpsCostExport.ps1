@@ -98,7 +98,7 @@ function Start-FinOpsCostExport
         # If -StartDate is not set, assume the current month
         if (-not $StartDate)
         {
-            $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC)
+            $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).ToUniversalTime().Date
         }
 
         # If -EndDate is not set, assume 1 month
@@ -182,7 +182,7 @@ function Start-FinOpsCostExport
             }
             
             $body = @{ timePeriod = @{ from = $firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'"); to = $lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } }
-            Write-Verbose "Executing $($firstDay.ToString("MMM d yyyy")) export $runpath"
+            Write-Verbose "Executing $($firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")) to $($lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")) export $runpath"
         }
         else
         {

@@ -71,6 +71,11 @@ _Released June 2, 2025_
 - **Changed**
   - Upgraded Azure Resource Manager SQL Server name availability API version, used by the engine deployment script, due to upcoming deprecation of 2014-04-01 version.
 
+### [PowerShell module](powershell/powershell-commands.md) v0.10
+
+- **Fixed**
+  - Fixed an error in the [Start-FinOpsCostExport command](powershell/cost/start-finopscostexport.md) ([#884](https://github.com/microsoft/finops-toolkit/issues/884), [#988](https://github.com/microsoft/finops-toolkit/issues/988))
+
 ### [Open data](open-data.md) v0.11
 
 **[Pricing units](open-data.md#pricing-units)**
