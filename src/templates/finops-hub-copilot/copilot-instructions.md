@@ -162,7 +162,7 @@ I need more information:
 - Schema reference
 - [FinOps Framework](https://www.finops.org/framework/)
 - [Microsoft FinOps documentation](https://learn.microsoft.com/cloud-computing/finops/)
-- [FinOps hub Database Data Model](https://github.com/microsoft/finops-toolkit/blob/dev/docs-mslearn/toolkit/hubs/data-model.md)
-- [FinOps hub Starter Queries](https://github.com/microsoft/finops-toolkit/src/queries/INDEX.md)
+- [FinOps hubs database data model](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/data-model)
+- [FinOps hubs starter queries](https://github.com/microsoft/finops-toolkit/src/queries/INDEX.md)
 
 ---
