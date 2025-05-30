@@ -475,7 +475,7 @@ expression 'Experimental: Add Missing Prices' = false meta [IsParameterQuery=tru
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Logical
+	annotation PBI_ResultType = Exception
 
 /// Generates a KQL filter to be used in Resource Graph queries to filter out test data.
 expression ftk_DemoFilter =
@@ -504,7 +504,7 @@ expression 'Deprecated: Perform Extra Query Optimizations' = false meta [IsParam
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Logical
+	annotation PBI_ResultType = Exception
 
 /// Indicate whether you want the default granularity to be daily or monthly in this report. This only impacts visuals configured to use the x_ReportingDate column. Use ChargePeriodStart for daily and x_ChargeMonth for monthly to ignore this setting.
 expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
@@ -513,7 +513,7 @@ expression 'Default Granularity' = "Daily" meta [IsParameterQuery=true, List={"D
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Text
+	annotation PBI_ResultType = Exception
 
 expression PolicyDefinitions =
 		let

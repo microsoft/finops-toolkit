@@ -8656,6 +8656,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -9309,6 +9319,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Current SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -9331,6 +9351,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Target SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -9987,6 +10017,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Resource name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -12060,6 +12100,26 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Subscription": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Subscription name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -13517,6 +13577,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.5
 			          }
+			        },
+			        {
+			          "Resource type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -14763,6 +14833,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.582
 			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -14955,6 +15035,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Virtual machine name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ],
@@ -17141,6 +17231,26 @@ cultureInfo en-US
 			          "storageProfile.osDisk.osType": {
 			            "State": "Generated"
 			          }
+			        },
+			        {
+			          "OS type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "OS": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -17211,6 +17321,16 @@ cultureInfo en-US
 			        {
 			          "hardwareProfile.vmSize": {
 			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "Size": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -17336,6 +17456,26 @@ cultureInfo en-US
 			        {
 			          "powerState.displayStatus": {
 			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "Power state": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "State": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -17979,6 +18119,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Disk name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -18204,6 +18354,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -18661,6 +18821,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Network interface": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -19088,6 +19258,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -20094,6 +20274,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Private IP address": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -21394,6 +21584,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Public IP name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -22260,6 +22460,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Public IP address": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -25130,6 +25340,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Resource name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -25556,6 +25776,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -27572,6 +27802,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Policy": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -29529,6 +29769,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
+			        },
+			        {
+			          "Scope": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -31241,6 +31491,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -31473,6 +31733,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
+			        },
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -31558,6 +31828,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.492
+			          }
+			        },
+			        {
+			          "Tier": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -31674,6 +31954,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.468
+			          }
+			        },
+			        {
+			          "Capacity": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -31980,6 +32270,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
+			        },
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -32002,6 +32302,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "Backup storage redundancy": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -32606,6 +32916,16 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "License type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -33605,6 +33925,16 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.99
 			          }
+			        },
+			        {
+			          "Non-compliant": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -33754,29 +34084,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ServiceCategory"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Service category": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Category": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.servicename": {
 			      "Definition": {
@@ -33785,19 +34093,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ServiceName"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Service": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.billingcurrency": {
 			      "Definition": {
@@ -33806,19 +34102,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "BillingCurrency"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Currency": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.commitmentdiscountname": {
 			      "Definition": {
@@ -33827,19 +34111,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "CommitmentDiscountName"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.commitmentdiscounttype": {
 			      "Definition": {
@@ -33848,39 +34120,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "CommitmentDiscountType"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Commitment type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Commitment": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.regionname": {
 			      "Definition": {
@@ -33907,19 +34147,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "SubAccountName"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Subscription": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.chargeperiodstart": {
 			      "Definition": {
@@ -33928,19 +34156,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ChargePeriodStart"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Date": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.effectivecostrunningtotal": {
 			      "Definition": {
@@ -33958,19 +34174,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_SkuMeterCategory"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Meter category": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.resourcenameunique": {
 			      "Definition": {
@@ -33988,19 +34192,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_ResourceGroupName"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Resource group": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_resourcegroupnameunique": {
 			      "Definition": {
@@ -34018,19 +34210,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_SkuDescription"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.resourcename": {
 			      "Definition": {
@@ -34039,19 +34219,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ResourceName"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Resource": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.resourcetype": {
 			      "Definition": {
@@ -34060,19 +34228,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ResourceType"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_effectivecostperresource": {
 			      "Definition": {
@@ -34090,19 +34246,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_EffectiveUnitPrice"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Effective": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.listunitprice": {
 			      "Definition": {
@@ -34111,19 +34255,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ListUnitPrice"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "List": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_skutermlabel": {
 			      "Definition": {
@@ -34132,19 +34264,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_SkuTermLabel"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Term": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_skuordername": {
 			      "Definition": {
@@ -34162,19 +34282,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "PublisherName"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Publisher": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_publishercategory": {
 			      "Definition": {
@@ -34282,19 +34390,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_ChargeMonth"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Month": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.chargedescription": {
 			      "Definition": {
@@ -34303,19 +34399,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ChargeDescription"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Charge": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.contractedunitprice": {
 			      "Definition": {
@@ -34324,19 +34408,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ContractedUnitPrice"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Contracted": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.consumedunit": {
 			      "Definition": {
@@ -34345,19 +34417,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ConsumedUnit"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Unit": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.chargefrequency": {
 			      "Definition": {
@@ -34366,19 +34426,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "ChargeFrequency"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Frequency": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_commitmentutilization": {
 			      "Definition": {
@@ -34630,19 +34678,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_EffectiveSavingsRate"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Effective Savings Rate (ESR)": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_commitmentdiscountmetercategory": {
 			      "Definition": {
@@ -34732,7 +34768,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "skuName"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "disks.diskstate": {
 			      "Definition": {
@@ -34741,7 +34789,29 @@ cultureInfo en-US
 			          "ConceptualProperty": "diskState"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Disk state": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "State": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "disks.skutier": {
 			      "Definition": {
@@ -34750,7 +34820,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "skuTier"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Tier": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "reservationrecommendations.x_breakevendate": {
 			      "Definition": {
@@ -34768,7 +34850,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.securityRules.name"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Security rules name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "networksecuritygroups.properties_securityrules_properties_access": {
 			      "Definition": {
@@ -34777,7 +34871,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.securityRules.properties.access"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Access": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "networksecuritygroups.properties_securityrules_properties_direction": {
 			      "Definition": {
@@ -34786,7 +34892,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.securityRules.properties.direction"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Direction": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "networksecuritygroups.properties_securityrules_properties_priority": {
 			      "Definition": {
@@ -34795,7 +34913,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.securityRules.properties.priority"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Priority": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "networksecuritygroups.properties_securityrules_properties_sourceaddressprefix": {
 			      "Definition": {
@@ -34804,7 +34934,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.securityRules.properties.sourceAddressPrefix"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Source address prefix": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "networksecuritygroups.properties_securityrules_properties_sourceportrange": {
 			      "Definition": {
@@ -34813,7 +34955,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.securityRules.properties.sourcePortRange"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Source port range": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "networksecuritygroups.properties_securityrules_properties_destinationaddressprefix": {
 			      "Definition": {
@@ -34822,7 +34976,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.securityRules.properties.destinationAddressPrefix"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Destination address prefix": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "networksecuritygroups.properties_securityrules_properties_destinationportrange": {
 			      "Definition": {
@@ -34831,7 +34997,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.securityRules.properties.destinationPortRange"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Destination port range": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "resources.type": {
 			      "Definition": {
@@ -34840,7 +35018,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "type"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Type code": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "resources.location": {
 			      "Definition": {
@@ -34849,7 +35039,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "location"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "resources.resourcegroup": {
 			      "Definition": {
@@ -34858,7 +35060,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "resourceGroup"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "resources.name": {
 			      "Definition": {
@@ -34867,7 +35081,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "name"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "disks.lastownershipupdatetime": {
 			      "Definition": {
@@ -34885,19 +35111,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "BillingPeriodStart"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Billing period": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_pricingunitdescription": {
 			      "Definition": {
@@ -34906,19 +35120,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_PricingUnitDescription"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Unit of measure": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_billedunitprice": {
 			      "Definition": {
@@ -34927,19 +35129,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_BilledUnitPrice"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Price": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_billingprofilename": {
 			      "Definition": {
@@ -34948,19 +35138,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_BillingProfileName"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Billing profile / Enrollment": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_invoicesectionname": {
 			      "Definition": {
@@ -34969,10 +35147,28 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_InvoiceSectionName"
 			        }
 			      },
+			      "State": "Generated"
+			    },
+			    "costs.x_skuservicefamily": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Costs",
+			          "ConceptualProperty": "x_SkuServiceFamily"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "vmdisks.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "VMDisks",
+			          "ConceptualProperty": "name"
+			        }
+			      },
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Invoice section": {
+			          "Disk name": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -34983,17 +35179,59 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "costs.x_skuservicefamily": {
+			    "vmdisks.location": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "x_SkuServiceFamily"
+			          "ConceptualEntity": "VMDisks",
+			          "ConceptualProperty": "location"
 			        }
 			      },
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Service family": {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "vmdisks.skuname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "VMDisks",
+			          "ConceptualProperty": "skuName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "vmdisks.disktype": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "VMDisks",
+			          "ConceptualProperty": "diskType"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Disk type": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

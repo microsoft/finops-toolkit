@@ -1,0 +1,176 @@
+table VMDisks
+	lineageTag: e63fdb8f-a3c0-49bd-a8fe-796d50b0deed
+
+	column subscriptionId
+		dataType: string
+		lineageTag: dcc3bbc0-92b8-468d-9260-a990cb1a3a45
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: aff538d8-5135-4c23-9775-3101dab71ca5
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column id
+		dataType: string
+		lineageTag: aa532b74-a0e6-4784-bea5-5bc44bd10117
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 3933dbad-dbcb-41ef-ba32-d181191d6481
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 053370a0-a286-4394-92ce-2950c7206ee8
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 3eccd171-26f8-4d52-a922-50d60fedc38f
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 4e9dc32d-894f-4f31-962e-195f9284fd3d
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column osType
+		dataType: string
+		lineageTag: 2c1c02b4-ae58-48e1-ae3f-aff3088508c9
+		summarizeBy: none
+		sourceColumn: osType
+
+		annotation SummarizationSetBy = Automatic
+
+	column skuName
+		dataType: string
+		lineageTag: 85ed1fb9-ae51-411e-81b3-37b13b0dcaae
+		summarizeBy: none
+		sourceColumn: skuName
+
+		annotation SummarizationSetBy = Automatic
+
+	column skuTier
+		dataType: string
+		lineageTag: 50aa457e-8891-4aa2-8808-3b702a8017dc
+		summarizeBy: none
+		sourceColumn: skuTier
+
+		annotation SummarizationSetBy = Automatic
+
+	column diskSizeGB
+		dataType: double
+		lineageTag: 2e4775fb-5cac-4a35-a29f-614aa5573613
+		summarizeBy: sum
+		sourceColumn: diskSizeGB
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column diskMBpsReadWrite
+		dataType: double
+		lineageTag: eeb0553c-3fc1-4f2f-8c98-9d830b773047
+		summarizeBy: sum
+		sourceColumn: diskMBpsReadWrite
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column diskIOPSReadWrite
+		dataType: double
+		lineageTag: 0a2fb113-61b6-4d6b-a735-f401a3f1943d
+		summarizeBy: sum
+		sourceColumn: diskIOPSReadWrite
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column diskState
+		dataType: string
+		lineageTag: 0fb2f7d8-6157-40c4-9349-65426d0ae46f
+		summarizeBy: none
+		sourceColumn: diskState
+
+		annotation SummarizationSetBy = Automatic
+
+	column timeCreated
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 065e5056-578e-4aac-9ef7-6981ad7ad57a
+		summarizeBy: none
+		sourceColumn: timeCreated
+
+		annotation SummarizationSetBy = Automatic
+
+	column LastOwnershipUpdateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 761a0b3a-c21c-4368-b08d-c2222b941b4a
+		summarizeBy: none
+		sourceColumn: LastOwnershipUpdateTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column Redundancy
+		dataType: string
+		lineageTag: 4538d129-8cc2-4ce4-98c1-d61710e11fad
+		summarizeBy: none
+		sourceColumn: Redundancy
+
+		annotation SummarizationSetBy = Automatic
+
+	column parentVM
+		dataType: string
+		lineageTag: 0a4bfef3-0eaf-434e-a676-c20d67886f5e
+		summarizeBy: none
+		sourceColumn: parentVM
+
+		annotation SummarizationSetBy = Automatic
+
+	column diskType
+		dataType: string
+		lineageTag: 6e7a1212-63e0-4cf1-876a-f7ff1c73c4c9
+		summarizeBy: none
+		sourceColumn: diskType
+
+		annotation SummarizationSetBy = Automatic
+
+	partition VMDisks = m
+		mode: import
+		queryGroup: 'Resource Graph'
+		source =
+				let
+				    Source = Disks
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
