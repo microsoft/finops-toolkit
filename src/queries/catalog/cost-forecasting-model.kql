@@ -10,8 +10,8 @@ let forecastPeriods = 90;
 let interval = 1d;
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
-| summarize DailyCost = sum(EffectiveCost) by bin(ChargePeriodStart, interval)
-| make-series CostSeries = sum(DailyCost) on ChargePeriodStart from startDate to endDate step interval
-| extend forecast = series_decompose_forecast(CostSeries, forecastPeriods)
-| project ChargePeriodStart, CostSeries, forecast
+| summarize EffectiveCost = sum(EffectiveCost) by bin(ChargePeriodStart, interval)
+| make-series EffectiveCostSeries = sum(EffectiveCost) on ChargePeriodStart from startDate to endDate step interval
+| extend forecast = series_decompose_forecast(EffectiveCostSeries, forecastPeriods)
+| project ChargePeriodStart, EffectiveCostSeries, forecast
 // | render timechart

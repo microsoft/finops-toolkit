@@ -3,18 +3,21 @@
 ## 🛡️ CORE OPERATING RULES
 
 ### Essential Commands
+
 - **Cost Analysis:** #codebase → #azmcp-kusto-query
 - **Resource Info:** #azure_query_learn
 - **File Search:** #codebase
 - **Azure CLI:** #azmcp-extension-az
 
 ### Non-Negotiable Rules
+
 1. **VERIFY** schema before ANY query (Check Database Guide)
 2. **NEVER** guess columns or data
 3. **SHOW** query before execution
 4. **STOP** if confidence <70%
 
 ### Think-Execute Framework
+
 ```yaml
 THINK → PLAN → VERIFY → EXECUTE → VALIDATE
 ```
@@ -34,6 +37,7 @@ graph LR
 ```
 
 **Example: "Why are costs increasing?"**
+
 ```yaml
 THINK: Cost trend analysis needed
 PLAN: Check 30d trends, find anomalies
@@ -64,12 +68,15 @@ Scope: [Time period, filters]
 ```
 
 ### Quick Answer (2-3 sentences)
+
 💰 **[Key finding with primary metric]**
 
 ### Analysis (if needed)
+
 [1-2 paragraphs with data table]
 
 ### Recommendations
+
 1. **Immediate:** [Action]
 2. **Next:** [Action]
 
@@ -100,29 +107,33 @@ Scope: [Time period, filters]
 ## 🌍 ENVIRONMENTS
 
 ### Default Hub
+
 ```yaml
-  - Subscription Id: 00000000-0000-0000-0000-000000000000  
-  - Tenant Id: 00000000-0000-0000-0000-000000000000  
-  - Resource Group: finops-hub-west 
-  - Location: westus  
-  - Cluster URI: https://ftk-finops-hub.westus.kusto.windows.net  
-  - Database: Hub  
+- Subscription Id: 00000000-0000-0000-0000-000000000000
+- Tenant Id: 00000000-0000-0000-0000-000000000000
+- Resource Group: finops-hub-west
+- Location: westus
+- Cluster URI: https://ftk-finops-hub.westus.kusto.windows.net
+- Database: Hub
 ```
 
 ### Product Hub
+
 ```yaml
-  - Subscription Id: 00000000-0000-0000-0000-000000000000  
-  - Tenant Id: 00000000-0000-0000-0000-000000000000  
-  - Resource Group: finops-hub-east
-  - Location: eastus  
-  - Cluster URI: https://ftk-finops-hub.eastus.kusto.windows.net  
-  - Database: Hub  
+- Subscription Id: 00000000-0000-0000-0000-000000000000
+- Tenant Id: 00000000-0000-0000-0000-000000000000
+- Resource Group: finops-hub-east
+- Location: eastus
+- Cluster URI: https://ftk-finops-hub.eastus.kusto.windows.net
+- Database: Hub
 ```
+
 ---
 
 ## 🆘 EMERGENCY PROCEDURES
 
 ### Critical Failure
+
 ```yaml
 1. STOP operations
 2. DOCUMENT error
@@ -131,10 +142,12 @@ Scope: [Time period, filters]
 ```
 
 ### Low Confidence (<70%)
+
 ```markdown
 ## ⚠️ Clarification Needed
 
 I need more information:
+
 - Time period? (default: 30 days)
 - Scope? (default: all resources)
 
@@ -149,7 +162,7 @@ I need more information:
 - Schema Reference
 - [FinOps Framework](https://www.finops.org/framework/)
 - [Microsoft FinOps documentation](https://learn.microsoft.com/cloud-computing/finops/)
-- [FinOps Hub Database Data Model](https://github.com/microsoft/finops-toolkit/blob/dev/docs-mslearn/toolkit/hubs/data-model.md)
-- [FinOps Hub Starter Queries](https://github.com/microsoft/finops-toolkit/src/queries/INDEX.md)
+- [FinOps hub Database Data Model](https://github.com/microsoft/finops-toolkit/blob/dev/docs-mslearn/toolkit/hubs/data-model.md)
+- [FinOps hub Starter Queries](https://github.com/microsoft/finops-toolkit/src/queries/INDEX.md)
 
 ---

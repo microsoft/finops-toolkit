@@ -18,5 +18,5 @@ let startDate = startofmonth(ago(30d)); // Set default as needed
 let endDate = startofmonth(now());
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
-| summarize TotalEffectiveCost = sum(EffectiveCost) by RegionName
-| order by TotalEffectiveCost desc
+| summarize EffectiveCost = sum(EffectiveCost) by RegionName
+| order by EffectiveCost desc

@@ -511,7 +511,7 @@ This error means that you have more resources than are supported in an unfiltere
 
 <sup>Severity: Minor</sup>
 
-If you deleted FinOps Hubs and are attempting to redeploy it with the same values, including the Managed Identity name, you might encounter the following known issue:
+If you deleted FinOps hubs and are attempting to redeploy it with the same values, including the Managed Identity name, you might encounter the following known issue:
 
 ```json
 "code": "RoleAssignmentUpdateNotPermitted",

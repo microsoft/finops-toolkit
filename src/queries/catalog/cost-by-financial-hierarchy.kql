@@ -26,10 +26,13 @@ let GrandTotal = toscalar(
 );
 Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
-| extend Team = tostring(Tags['team']), Product = tostring(Tags['product']), Application = tostring(Tags['application']), Environment = tostring(Tags['environment'])
-| summarize TotalCost = sum(toreal(EffectiveCost))
-    by x_BillingProfileName, x_InvoiceSectionName, Team, Product, Application, Environment
-| extend PercentOfTotal = 100.0 * TotalCost / GrandTotal
-| project x_BillingProfileName, x_InvoiceSectionName, Team, Product, Application, Environment, TotalCost, PercentOfTotal
-| order by TotalCost desc
-| top N by TotalCost
+| extend x_Team = tostring(Tags['team'])
+| extend x_Product = tostring(Tags['product'])
+| extend x_Application = tostring(Tags['application'])
+| extend x_Environment = tostring(Tags['environment'])
+| summarize EffectiveCost = sum(toreal(EffectiveCost))
+    by x_BillingProfileName, x_InvoiceSectionName, x_Team, x_Product, x_Application, x_Environment
+| extend PercentOfTotal = 100.0 * EffectiveCost / GrandTotal
+| project x_BillingProfileName, x_InvoiceSectionName, x_Team, x_Product, x_Application, x_Environment, EffectiveCost, PercentOfTotal
+| order by EffectiveCost desc
+| top N by EffectiveCost
