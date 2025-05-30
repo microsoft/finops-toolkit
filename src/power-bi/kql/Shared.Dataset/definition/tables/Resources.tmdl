@@ -39,14 +39,6 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
-	column kind
-		dataType: string
-		lineageTag: 8ebe6066-07a6-44dd-ace8-cac50dde8d42
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
 	column location
 		dataType: string
 		lineageTag: 565179fa-8aec-468c-bee1-0442f3a3be54
@@ -71,126 +63,6 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
-	column managedBy
-		dataType: string
-		lineageTag: 3d6b3bd8-61e1-4ee9-9e48-2dde4126c5ed
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column apiVersion
-		dataType: string
-		lineageTag: 9f385638-4826-47d3-a778-582a1d84e06e
-		summarizeBy: none
-		sourceColumn: apiVersion
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 3083cfd2-2a0b-4611-b20f-83b62b59e61b
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: 775f4617-96b6-437e-9ee4-0d6bab5cf383
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: 3528df7f-0a3e-4b5e-a014-6576dcc17841
-		summarizeBy: none
-		sourceColumn: properties
-
-		annotation SummarizationSetBy = Automatic
-
-	column tags
-		dataType: string
-		lineageTag: 3a72fc35-9187-4335-9dfe-db3a29fe52d9
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 0b2fc11d-ad31-4b95-892d-10f69345bcda
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: f7fcdecc-b196-45e7-b4fa-7d9e78cca4cd
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: d0a8c984-aa5f-46ed-bc4f-e800b5c08135
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column systemData
-		dataType: string
-		lineageTag: a75abd3c-1e1a-4c6c-bf27-bb4721fabf61
-		summarizeBy: none
-		sourceColumn: systemData
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'sku.name'
-		dataType: string
-		lineageTag: 35b069ad-c8bc-4391-803c-f021a5fbfb65
-		summarizeBy: none
-		sourceColumn: sku.name
-
-		annotation SummarizationSetBy = Automatic
-
-	column 'sku.tier'
-		dataType: string
-		lineageTag: 086b9d6b-f3a9-4d75-a7ea-6f006347d008
-		summarizeBy: none
-		sourceColumn: sku.tier
-
-		annotation SummarizationSetBy = Automatic
-
-	column provisioningState
-		dataType: string
-		lineageTag: fdd2dbec-e551-4142-b5d9-0d603d9c3cf5
-		summarizeBy: none
-		sourceColumn: provisioningState
-
-		annotation SummarizationSetBy = Automatic
-
-	column privateEndpointConnections
-		dataType: string
-		lineageTag: 89ca0b2d-8e5b-4034-9ae2-65448c4e4fe0
-		summarizeBy: none
-		sourceColumn: privateEndpointConnections
-
-		annotation SummarizationSetBy = Automatic
-
-	column encryption
-		dataType: string
-		lineageTag: 9c2d6029-d42b-4bc5-8295-4e208708265a
-		summarizeBy: none
-		sourceColumn: encryption
-
-		annotation SummarizationSetBy = Automatic
-
 	column creationTime
 		dataType: string
 		lineageTag: 3793d80a-795c-429a-a786-e29e1c04cb0c
@@ -199,107 +71,11 @@ table Resources
 
 		annotation SummarizationSetBy = Automatic
 
-	column supportsHttpsTrafficOnly
+	column timeModified
 		dataType: string
-		lineageTag: 063e00d5-bd8e-4760-93ff-d92d0a7c37ac
+		lineageTag: 1fea57ec-7e6c-4929-84f9-8842192253b1
 		summarizeBy: none
-		sourceColumn: supportsHttpsTrafficOnly
-
-		annotation SummarizationSetBy = Automatic
-
-	column allowBlobPublicAccess
-		dataType: string
-		lineageTag: 3e46aa0d-e102-4b91-9c9a-2ab20dc8ddf8
-		summarizeBy: none
-		sourceColumn: allowBlobPublicAccess
-
-		annotation SummarizationSetBy = Automatic
-
-	column minimumTlsVersion
-		dataType: string
-		lineageTag: 44d0cd04-8b9e-4ad6-b3e9-ecc0bf65bfa9
-		summarizeBy: none
-		sourceColumn: minimumTlsVersion
-
-		annotation SummarizationSetBy = Automatic
-
-	column primaryEndpoints
-		dataType: string
-		lineageTag: b12a7771-9025-4915-bab0-ed938b232268
-		summarizeBy: none
-		sourceColumn: primaryEndpoints
-
-		annotation SummarizationSetBy = Automatic
-
-	column keyCreationTime
-		dataType: string
-		lineageTag: fa324614-c1fa-4583-a85f-de4b0dc7bf27
-		summarizeBy: none
-		sourceColumn: keyCreationTime
-
-		annotation SummarizationSetBy = Automatic
-
-	column primaryLocation
-		dataType: string
-		lineageTag: b2dbc044-29a4-48e7-aebc-847a1a81d90e
-		summarizeBy: none
-		sourceColumn: primaryLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column statusOfPrimary
-		dataType: string
-		lineageTag: cba54bc2-286f-4066-afa7-1c8b4fa0913d
-		summarizeBy: none
-		sourceColumn: statusOfPrimary
-
-		annotation SummarizationSetBy = Automatic
-
-	column networkAcls
-		dataType: string
-		lineageTag: d40a196a-ead5-41b5-9dc2-a637b7ec22fe
-		summarizeBy: none
-		sourceColumn: networkAcls
-
-		annotation SummarizationSetBy = Automatic
-
-	column allowCrossTenantReplication
-		dataType: string
-		lineageTag: 47485702-2b07-4a14-a4a9-1fc64ec0039f
-		summarizeBy: none
-		sourceColumn: allowCrossTenantReplication
-
-		annotation SummarizationSetBy = Automatic
-
-	column allowSharedKeyAccess
-		dataType: string
-		lineageTag: 243e9cb9-46bb-4d2e-9fd6-87ada5759ca0
-		summarizeBy: none
-		sourceColumn: allowSharedKeyAccess
-
-		annotation SummarizationSetBy = Automatic
-
-	column accessTier
-		dataType: string
-		lineageTag: 8c0df7eb-7b03-4def-a02b-77427378e142
-		summarizeBy: none
-		sourceColumn: accessTier
-
-		annotation SummarizationSetBy = Automatic
-
-	column isHnsEnabled
-		dataType: string
-		lineageTag: 390621b6-ef69-4bf4-8e99-1c669cde054d
-		summarizeBy: none
-		sourceColumn: isHnsEnabled
-
-		annotation SummarizationSetBy = Automatic
-
-	column isBlueShiftAccount
-		dataType: string
-		lineageTag: c27473d5-cf3f-42e0-afa1-b25a7b70cd4c
-		summarizeBy: none
-		sourceColumn: isBlueShiftAccount
+		sourceColumn: timeModified
 
 		annotation SummarizationSetBy = Automatic
 
@@ -312,25 +88,9 @@ table Resources
 				    resources
 				    | extend
 				      id = tolower(id),
-				      ['sku.name'] = sku.name,
-				      ['sku.tier'] = sku.tier,
-				      ['provisioningState'] = properties.provisioningState,
-				      ['privateEndpointConnections'] = properties.privateEndpointConnections,
-				      ['encryption'] = properties.encryption,
 				      ['creationTime'] = properties.creationTime,
-				      ['supportsHttpsTrafficOnly'] = properties.supportsHttpsTrafficOnly,
-				      ['allowBlobPublicAccess'] = properties.allowBlobPublicAccess,
-				      ['minimumTlsVersion'] = properties.minimumTlsVersion,
-				      ['primaryEndpoints'] = properties.primaryEndpoints,
-				      ['keyCreationTime'] = properties.keyCreationTime,
-				      ['primaryLocation'] = properties.primaryLocation,
-				      ['statusOfPrimary'] = properties.statusOfPrimary,
-				      ['networkAcls'] = properties.networkAcls,
-				      ['allowCrossTenantReplication'] = properties.allowCrossTenantReplication,
-				      ['allowSharedKeyAccess'] = properties.allowSharedKeyAccess,
-				      ['accessTier'] = properties.accessTier,
-				      ['isHnsEnabled'] = properties.isHnsEnabled,
-				      ['isBlueShiftAccount'] = properties.isBlueShiftAccount
+				      ['timeModified'] = properties.timeModified
+				    | project id, name, type, tenantId, location, subscriptionId, resourceGroup, creationTime, timeModified
 				  " & ftk_DemoFilter(),
 				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
 				  NullHandling =
@@ -346,7 +106,7 @@ table Resources
 				  // If you experience a "duplicate IDs" error for the Resources table, please file a support request against Azure Resource Graph.
 				  RemoveDuplicates = if #"Remove Duplicate Resource IDs" then Table.Distinct(NullHandling, {"id"}) else NullHandling
 				in
-				  RemoveDuplicates
+				    RemoveDuplicates
 
 	annotation PBI_NavigationStepName = Navigation
 
