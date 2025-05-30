@@ -148,7 +148,7 @@ I need more information:
 - Query Examples
 - Schema Reference
 - [FinOps Framework](https://www.finops.org/framework/)
-- [Azure FinOps Docs](https://learn.microsoft.com/azure/cost-management-billing/)
+- [Microsoft FinOps documentation](https://learn.microsoft.com/cloud-computing/finops/)
 - [FinOps Hub Database Data Model](https://github.com/microsoft/finops-toolkit/blob/dev/docs-mslearn/toolkit/hubs/data-model.md)
 - [FinOps Hub Starter Queries](https://github.com/microsoft/finops-toolkit/src/queries/INDEX.md)
 

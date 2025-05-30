@@ -45,7 +45,6 @@ _Released June 2, 2025_
 
 - **Added**
   - Added instructions to tune GitHub Copilot Agent mode for FinOps hubs.
-  - Added `.github/copilot-instructions-finops-hub.md` example (don't overwrite anyone's existing configs)
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
 

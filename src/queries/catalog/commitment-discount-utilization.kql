@@ -19,7 +19,7 @@ let startDate = startofmonth(ago(30d)); // Default: last month
 let endDate = startofmonth(now());
 let base = Costs()
 | where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
-| extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, ''))
+| extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores, 0))
 | extend x_ConsumedCoreHours = iff(isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, todecimal(''));
 let total = base | summarize Total=todecimal(sum(x_ConsumedCoreHours));
 base
