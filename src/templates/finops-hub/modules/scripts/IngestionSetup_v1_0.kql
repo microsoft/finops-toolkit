@@ -342,6 +342,8 @@ Costs_transform_v1_0()
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
     | extend x_SourceType     = coalesce(x_SourceType, iff(isnotempty(x_BillingProfileId), 'FocusCost', ''))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, case(
+        isnotempty(coalesce(InvoiceId, SkuMeter, PricingCurrency)) and isempty(SkuPriceDetails) and isnotempty(x_SkuDetails), '1.2-preview',
+        isnotempty(coalesce(InvoiceId, SkuMeter, PricingCurrency)), '1.2',
         isnotempty(coalesce(ChargeClass, CommitmentDiscountStatus, tostring(ConsumedQuantity), ConsumedUnit, tostring(ContractedCost), tostring(ContractedUnitPrice), RegionId, RegionName)), '1.0',
         isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), iff(ProviderName == 'Microsoft', '1.0-preview(v1)', '1.0-preview'),
         ''
@@ -579,7 +581,7 @@ Costs_transform_v1_0()
         x_EffectiveUnitPrice,        // Azure 1.0-preview(v1)+
         x_ExportTime,                // GCP Jan 2024
         x_IngestionTime,             // Hubs add-on
-        x_InvoiceId,                 // Azure 1.0-preview(v1)+
+        x_InvoiceId = coalesce(InvoiceId, x_InvoiceId),  // Azure 1.0-preview(v1)+
         x_InvoiceIssuerId,           // Azure 1.0-preview(v1)+
         x_InvoiceSectionId = case(   // Azure 1.0-preview(v1)+
             x_InvoiceSectionId == '-2', '',
@@ -595,7 +597,7 @@ Costs_transform_v1_0()
         x_PartnerCreditApplied,      // Azure 1.0-preview(v1)+
         x_PartnerCreditRate,         // Azure 1.0-preview(v1)+
         x_PricingBlockSize,          // Azure 1.0-preview(v1)+
-        x_PricingCurrency,           // Azure 1.0-preview(v1)+
+        x_PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency),  // Azure 1.0-preview(v1)+
         x_PricingSubcategory,        // Azure 1.0-preview(v1)+
         x_PricingUnitDescription,    // Azure 1.0-preview(v1)+
         x_Project,                   // GCP Jan 2024
@@ -614,7 +616,7 @@ Costs_transform_v1_0()
         x_SkuIsCreditEligible,       // Azure 1.0-preview(v1)+
         x_SkuMeterCategory,          // Azure 1.0-preview(v1)+
         x_SkuMeterId,                // Azure 1.0-preview(v1)+
-        x_SkuMeterName,              // Azure 1.0-preview(v1)+
+        x_SkuMeterName = coalesce(SkuMeter, x_SkuMeterName),  // Azure 1.0-preview(v1)+
         x_SkuMeterSubcategory,       // Azure 1.0-preview(v1)+
         x_SkuOfferId,                // Azure 1.0-preview(v1)+
         x_SkuOrderId,                // Azure 1.0-preview(v1)+

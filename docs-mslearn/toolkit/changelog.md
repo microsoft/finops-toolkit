@@ -53,6 +53,10 @@ _Released June 2, 2025_
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
   - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+  - Added support for backporting FOCUS 1.2 into the existing FOCUS 1.0 schema.
+    - This is a short-term solution to avoid errors if FOCUS 1.2 exports are created.
+    - Full FOCUS 1.2 support will come in a future release.
+    - This has not been fully tested as FOCUS 1.2 exports are not available yet.
 - **Changed**
   - Merged vnet and core-network. modules into infrastructure.bicep (no functional changes).
 - **Fixed**

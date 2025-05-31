@@ -1383,6 +1383,7 @@ table Costs
 				    PerformDeprecatedOptimizations = #"Deprecated: Perform Extra Query Optimizations",
 				    HasPreview = Table.HasColumns(RawData, {"ChargeSubcategory"}),
 				    Has10      = Table.HasColumns(RawData, {"ChargeClass"}),
+				    Has12      = Table.HasColumns(RawData, {"InvoiceId"}),
 				    LatestSchema = if HasPreview = false then RawData
 				        else if PerformDeprecatedOptimizations = false then error "LegacyFocusVersion: Please enable the 'Perform Extra Query Optimizations' parameter"
 				        else (
@@ -1408,12 +1409,25 @@ table Costs
 				                        each [ContractedUnitPrice],   each if [ContractedUnitPrice] <> null   then [ContractedUnitPrice]   else [x_OnDemandUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
 				                        each [RegionName],            each if [RegionName] <> null            then [RegionName]            else [Region],              Replacer.ReplaceValue, {"RegionName"})
 				                    else Table.RenameColumns(PricingCategory, {{"x_OnDemandCost", "ContractedCost"}, {"x_OnDemandCostInUsd", "x_ContractedCostInUsd"}, {"x_OnDemandUnitPrice", "ContractedUnitPrice"}, {"Region", "RegionName"}}),
-				                RemovePreviewCols   = Table.RemoveColumns(RenamePreviewCols, {"ChargeSubcategory", "UsageQuantity", "UsageUnit", "x_ChargeId"})
+				                RemovePreviewCols   = Table.RemoveColumns(RenamePreviewCols, {"ChargeSubcategory", "UsageQuantity", "UsageUnit", "x_ChargeId"}),
+
+				                // Handle columns renamed in FOCUS 1.2 gracefully -- Copy values to/from 1.0 and 1.2 columns
+				                Align12 = if (HasPreview or Has10) and Has12 then
+				                    Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(RemovePreviewCols,
+				                        // Copy 1.0 values to 1.2 columns
+				                        null, each [x_InvoiceId],       Replacer.ReplaceValue, {"InvoiceId"}),
+				                        null, each [x_PricingCurrency], Replacer.ReplaceValue, {"PricingCurrency"}),
+				                        null, each [x_SkuMeterName],    Replacer.ReplaceValue, {"SkuMeter"}),
+                                // Copy 1.2 values to 1.0 columns
+                                null, each [InvoiceId],         Replacer.ReplaceValue, {"x_InvoiceId"}),
+				                        null, each [PricingCurrency],   Replacer.ReplaceValue, {"x_PricingCurrency"}),
+				                        null, each [SkuMeter],          Replacer.ReplaceValue, {"x_SkuMeterName"})
+                        else RemovePreviewCols
 				            in
-				                RemovePreviewCols
+				                Align12
 				        ),
 				
-				    // Fix known bugs and set datatyps
+				    // Fix known bugs and set data types
 				    Fixes = Table.TransformColumnTypes(
 				        Table.ReplaceValue(Table.ReplaceValue(
 				            // Create AvailabilityZone column if missing to support non-Microsoft clouds
