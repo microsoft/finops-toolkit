@@ -28,6 +28,11 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### [PowerShell module](powershell/powershell-commands.md)
+
+- **Fixed**
+  - Fixed upcoming breaking changes warning in `Get-AzAccessToken` cmdlet by adding temporary warning suppression ([#987](https://github.com/microsoft/finops-toolkit/issues/987)).
+
 <br><a name="latest"></a>
 
 ## v0.11
