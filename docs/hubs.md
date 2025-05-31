@@ -62,9 +62,17 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
     <p>FinOps hubs starts at $120/mo + $10/mo per $1 million in monitored spend.</p>
     <p>Costs may be lower depending on your negotiated and commitment discounts.</p>
 </div>
+
+## Unlocking scalable FinOps intelligence
+
+FinOps hubs streamline cost governance with an open architecture that leverages Azure Data Factory to orchestrate seamless data ingestion into Microsoft Fabric or Azure Data Explorer. With rich reports, dashboards, and an AI agent that understands your data, FinOps hubs empower organizations with scalable analytics and actionable insights to facilitate data-driven financial decisions that maximize efficiency with confidence.
+
+<div style="padding:2rem; text-align:center">
+    <img src="assets/img/architecture.png" alt="Diagram depicting the FinOps hubs architecture with Cost Management exporting data into Data Lake storage, Data Factory transforming and ingesting data into Data Explorer or Fabric, and GitHub Copilot, Power BI reports, and ADX/Fabric dashboards querying data.">
+</div>
 <a name="deploy"></a>
 
-## Deploy FinOps hub
+## Deploy FinOps hubs
 
 Create a new or update an existing FinOps hub instance.
 
@@ -119,7 +127,7 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">3️⃣&nbsp; Optional: Configurate Microsoft Fabric</button>
+        <button class="ftk-accordion">3️⃣&nbsp; Optional: Configure Microsoft Fabric</button>
         <div>
             <p>
                 If connecting FinOps hubs to Microsoft Fabric, you will need to set up Real-Time Intelligence (RTI) before deploying the template and configure access after deploying the template.
@@ -156,7 +164,7 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">5️⃣&nbsp; Set up reports and dashboards</button>
+        <button class="ftk-accordion">6️⃣&nbsp; Set up reports and dashboards</button>
         <div>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-dashboards">Set up ADX dashboard</a>

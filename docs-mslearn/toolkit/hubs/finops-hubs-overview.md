@@ -22,6 +22,8 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 FinOps hubs extend Cost Management to provide a scalable platform for advanced data reporting and analytics, through tools like Microsoft Fabric, Azure Data Explorer, and GitHub Copilot. FinOps hubs are a foundation to build your own cost management and optimization solution or augment existing solutions with seamlessly connected AI-powered tools.
 
+:::image type="content" source="media/finops-hubs-overview/architecture.png" border="true" alt-text="Diagram depicting the FinOps hubs architecture with Cost Management exporting data into Data Lake storage, Data Factory transforming and ingesting data into Data Explorer or Fabric, and GitHub Copilot, Power BI reports, and ADX/Fabric dashboards querying data." lightbox="media/finops-hubs-overview/architecture.png" :::
+
 > [!NOTE]
 > Estimated cost: Starts at $120/mo + $10/mo per $1M in cost being monitored.
 >
