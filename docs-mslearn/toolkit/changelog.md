@@ -53,6 +53,7 @@ _Released June 2, 2025_
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
   - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+  - Top 10 request: Added architecture diagram to documentation ([#401](https://github.com/microsoft/finops-toolkit/issues/401)).
 - **Changed**
   - Merged vnet and core-network. modules into infrastructure.bicep (no functional changes).
 - **Fixed**
@@ -176,7 +177,7 @@ _Released May 4, 2025_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
 
 - **Added**
-  - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
+  - Top 10 request: Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
   - Added support for Azure Gov and Azure China.
   - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
   - Created a new bicep modules to support extensibility:
@@ -346,7 +347,7 @@ _Released April 4, 2025_
 **General**
 
 - **Added**
-  - Added support for promoted tags with spaces in the tag key.
+  - Top 10 request: Added support for promoted tags with spaces in the tag key.
 - **Changed**
   - Updated the savings columns to exclude rows where costs are missing or incorrect.
   - Disabled the **Deprecated: Perform Extra Query Optimizations** parameter by default ([#1380](https://github.com/microsoft/finops-toolkit/issues/1380)).
@@ -361,7 +362,7 @@ _Released April 4, 2025_
 
 - **Added**
   - Added support for MCA reservation recommendation exports.
-  - Show break-even point calculation for reservation recommendations. ([#406](https://github.com/microsoft/finops-toolkit/issues/406)).
+  - Top 10 request: Show break-even point calculation for reservation recommendations. ([#406](https://github.com/microsoft/finops-toolkit/issues/406)).
 - **Fixed**
   - Fixed core count double-counting on the Hybrid Benefit page.
   - Fixed savings to include negotiated discounts on the Total savings page.
