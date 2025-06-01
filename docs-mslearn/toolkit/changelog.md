@@ -60,6 +60,8 @@ _Released June 2, 2025_
     - This has not been fully tested as FOCUS 1.2 exports are not available yet.
 - **Changed**
   - Merged vnet and core-network. modules into infrastructure.bicep (no functional changes).
+  - Redesigned the [FinOps hubs upgrade guide](hubs/upgrade.md) to be easier to follow.
+  - Updated the [compatibility guide](hubs/compatibility.md) for 0.9-11.
 - **Fixed**
   - Address new data quality issues with data ingested into Data Explorer:
     - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
