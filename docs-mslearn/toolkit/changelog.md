@@ -44,8 +44,8 @@ _Released June 2, 2025_
 - **Added**
   - Added instructions to tune GitHub Copilot Agent mode for FinOps hubs.
   - Top 10 request: Added architecture diagram to documentation ([#401](https://github.com/microsoft/finops-toolkit/issues/401)).
+  - Simplified the FinOps hubs [upgrade guide](hubs/upgrade.md) to be a step-by-step tutorial.
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
-  - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
   - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
     - This does not support Cost Management actual/amortized data, but that can be added. Please submit a [feature request](https://aka.ms/ftk/ideas), if desired.
   - Added support for backporting FOCUS 1.2 into the existing FOCUS 1.0 schema.
