@@ -17,11 +17,6 @@ relationship 52d8acfd-e4eb-fdfe-9d4f-9eae3f716ab4
 	fromColumn: NetworkInterfaces.'properties.ipConfigurations.properties.publicIPAddress.id'
 	toColumn: PublicIPAddresses.id
 
-relationship bee35174-8d46-db97-50df-02670026ee71
-	crossFilteringBehavior: bothDirections
-	fromColumn: AdvisorReservationRecommendations.subscriptionId
-	toColumn: Subscriptions.subscriptionId
-
 relationship c8a2b782-448d-e933-0cee-5a6387245222
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.subscriptionId
@@ -56,11 +51,6 @@ relationship 2d0a2bef-ef33-9e59-b9b6-714b0796ce66
 	fromColumn: Disks.managedBy
 	toColumn: VirtualMachines.id
 
-relationship 2ad9b8bc-59fb-e94c-a36f-1fa66aaa02a8
-	crossFilteringBehavior: bothDirections
-	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
-	toColumn: Resources.id
-
 relationship afee555d-1ede-a014-e6ba-9e35673a6629
 	crossFilteringBehavior: bothDirections
 	fromCardinality: one
@@ -68,6 +58,7 @@ relationship afee555d-1ede-a014-e6ba-9e35673a6629
 	toColumn: Resources.id
 
 relationship 9c200e9e-608c-4f03-c37f-3e66ce337f82
+	crossFilteringBehavior: bothDirections
 	toCardinality: many
 	fromColumn: Resources.location
 	toColumn: Regions.RegionId
@@ -93,4 +84,22 @@ relationship 7938f383-ec64-86d6-dce0-ea5ae181eacc
 	fromCardinality: one
 	fromColumn: Disks.id
 	toColumn: Resources.id
+
+relationship 2423822b-0029-3fbf-67c8-65c9cadc81d5
+	fromColumn: NetworkSecurityGroups.id
+	toColumn: Resources.id
+
+relationship 2ad9b8bc-59fb-e94c-a36f-1fa66aaa02a8
+	crossFilteringBehavior: bothDirections
+	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
+	toColumn: Resources.id
+
+relationship AutoDetected_d442ee36-a039-47be-83cf-fd058a0973d7
+	fromColumn: AdvisorReservationRecommendations.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship AutoDetected_19cbab3d-1150-45a4-9258-ca0b47ba687d
+	isActive: false
+	fromColumn: AdvisorRecommendations.subscriptionId
+	toColumn: Subscriptions.subscriptionId
 

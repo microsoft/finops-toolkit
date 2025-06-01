@@ -7,7 +7,7 @@ table Costs
 				SUM('Costs'[EffectiveCost]),
 				FILTER(
 					ALLSELECTED('Costs'[ChargePeriodStart]),
-					ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
+					ISONORAFTER(DATEVALUE('Costs'[ChargePeriodStart]), DATEVALUE(MAX('Costs'[ChargePeriodStart])), DESC)
 				)
 			)
 		formatString: #,0.00
@@ -56,7 +56,7 @@ table Costs
 				SUM('Costs'[x_TotalSavings]),
 				FILTER(
 					ALLSELECTED('Costs'[ChargePeriodStart]),
-					ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
+					ISONORAFTER(DATEVALUE('Costs'[ChargePeriodStart]), DATEVALUE(MAX('Costs'[ChargePeriodStart])), DESC)
 				)
 			)
 		formatString: #,0.00
@@ -68,7 +68,7 @@ table Costs
 				SUM('Costs'[x_CommitmentDiscountSavings]),
 				FILTER(
 					ALLSELECTED('Costs'[ChargePeriodStart]),
-					ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
+					ISONORAFTER(DATEVALUE('Costs'[ChargePeriodStart]), DATEVALUE(MAX('Costs'[ChargePeriodStart])), DESC)
 				)
 			)
 		formatString: #,0.00
@@ -80,7 +80,7 @@ table Costs
 				SUM('Costs'[x_NegotiatedDiscountSavings]),
 				FILTER(
 					ALLSELECTED('Costs'[ChargePeriodStart]),
-					ISONORAFTER('Costs'[ChargePeriodStart], MAX('Costs'[ChargePeriodStart]), DESC)
+					ISONORAFTER(DATEVALUE('Costs'[ChargePeriodStart]), DATEVALUE(MAX('Costs'[ChargePeriodStart])), DESC)
 				)
 			)
 		formatString: #,0.00
@@ -205,13 +205,15 @@ table Costs
 
 	column BillingPeriodStart
 		dataType: dateTime
-		formatString: General Date
+		formatString: Mmm yyyy
 		sourceProviderType: datetimeoffset
 		lineageTag: 831b36ac-173c-4384-91c2-9c53a057055c
 		summarizeBy: none
 		sourceColumn: BillingPeriodStart
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
 
 	column ChargeCategory
 		dataType: string

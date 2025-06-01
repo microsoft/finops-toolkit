@@ -58,13 +58,21 @@ See [Commitment discounts](#commitment-discounts).
 
 <br>
 
+## ESR or Effective Savings Rate
+
+"Effective Savings Rate" (ESR) is a metric that measures the percentage of cost savings achieved through rate optimization efforts. ESR helps organizations understand how much they're saving compared to what they would have paid with list unit prices that don't include discounts.
+
+In its simplest form, ESR is calculated as `(EffectiveCost - ListCost) / ListCost`. However, this must also exclude any purchases that are amortized over the same period (e.g., commitment discount purchases). Amortized purchases have 0 EffectiveCost and a non-zero ListCost, which can skew numbers.
+
+<br>
+
 ## List cost
 
-"List cost" is the cost of a product or service if it were billed at its [list price](#list-price).
+"List cost" is the cost of a product or service if it were billed at its [list unit price](#list-unit-price).
 
-## List price
+## List unit price
 
-"List price" (also called "market price") is the publicly available price for a product or service. It's the price you would pay if you purchased the product or service without any discounts.
+"List unit price" (also called "market price") is the publicly available price for a product or service. It's the price you would pay if you purchased the product or service without any discounts.
 
 <br>
 

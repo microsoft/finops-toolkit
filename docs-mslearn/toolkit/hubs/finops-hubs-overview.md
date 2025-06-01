@@ -3,7 +3,7 @@ title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: flanakin
 ms.author: micflan
-ms.date: 04/29/2025
+ms.date: 05/17/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -20,7 +20,9 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 - **Built for scale**<br>_Designed to support the largest accounts and organizations._
 - **Open and extensible**<br>_Embrace the ecosystem and prioritize enabling the platform._
 
-FinOps hubs extend Cost Management to provide a scalable platform for advanced data reporting and analytics, through tools like Power BI and Microsoft Fabric. FinOps hubs are a foundation to build your own cost management and optimization solution.
+FinOps hubs extend Cost Management to provide a scalable platform for advanced data reporting and analytics, through tools like Microsoft Fabric, Azure Data Explorer, and GitHub Copilot. FinOps hubs are a foundation to build your own cost management and optimization solution or augment existing solutions with seamlessly connected AI-powered tools.
+
+:::image type="content" source="media/finops-hubs-overview/architecture.png" border="true" alt-text="Diagram depicting the FinOps hubs architecture with Cost Management exporting data into Data Lake storage, Data Factory transforming and ingesting data into Data Explorer or Fabric, and GitHub Copilot, Power BI reports, and ADX/Fabric dashboards querying data." lightbox="media/finops-hubs-overview/architecture.png" :::
 
 > [!NOTE]
 > Estimated cost: Starts at $120/mo + $10/mo per $1M in cost being monitored.
@@ -52,8 +54,9 @@ FinOps hubs streamline implementing the FinOps Framework. They're being designed
 FinOps hubs provide many benefits over using Cost Management exports:
 
 - Report on cost and usage across multiple accounts and subscriptions in separate tenants.
-- Report on negotiated and commitment discount savings for EA billing accounts and MCA billing profiles.
-- Run advanced analytical queries and report on year over year cost trends in seconds.
+- Summarize negotiated and commitment discount savings for EA and MCA accounts.
+- Run advanced analytical queries and report on year-over-year cost trends in seconds.
+- Leverage AI-powered tools, like GitHub Copilot, or build custom agents to accelerate FinOps tasks with an MCP server that understands FinOps and seamlessly connects to your data.
 - Ingest data into Microsoft Fabric Real-Time Intelligence (RTI) or Azure Data Explorer (ADX).
 - Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../focus/what-is-focus.md).
 - Expanded support for more clouds, accounts, and scopes:
@@ -61,7 +64,7 @@ FinOps hubs provide many benefits over using Cost Management exports:
   - Azure Government
   - Azure China
   - Microsoft Online Services Agreement (MOSA) subscriptions¹
-- Extensible via Data Factory, Data Explorer, Fabric, and Power BI capabilities to integrate business or other providers cost data.
+- Extensible via Data Factory, Data Explorer, Fabric, and Power BI capabilities to integrate business or other provider cost data.
 - Backwards compatibility as future dataset versions add new or change existing columns.
 - Convert exported data to parquet for faster data access.
 
@@ -73,8 +76,7 @@ _¹ MOSA (or pay-as-you-go) subscriptions are only supported in FinOps hubs 0.1.
 
 The FinOps hub template includes the following resources:
 
-- Azure Data Explorer (Kusto) as a scalable datastore for advanced analytics (optional).
-  - Alternatively, FinOps hubs can also connect to Microsoft Fabric Real-Time Intelligence (RTI).
+- Optional: Azure Data Explorer (Kusto) or Microsoft Fabric Real-Time Intelligence (RTI) as a scalable datastore for advanced analytics.
 - Storage account (Data Lake Storage Gen2) as a staging area for data ingestion.
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
@@ -154,6 +156,8 @@ After you deploy a hub instance, there are several ways for you to get started:
 - Generate custom alerts using Power Automate.
 
   You have many options for generating custom alerts. [Power Automate](https://powerautomate.microsoft.com/connectors/details/shared_azureblob/azure-blob-storage) is a great option for people who are new to automation. You can also use [Data Factory](/azure/data-factory/introduction), [Functions](/azure/azure-functions/functions-overview), or any other service that supports custom code or direct access to data in Azure Data Lake Storage Gen2.
+
+For additional examples, see [Creating custom analyses and reports with FinOps hubs](https://techcommunity.microsoft.com/blog/finopsblog/creating-custom-analyses-and-reports-with-finops-hubs/4408601).
 
 No matter what you choose to do we recommend creating a new Bicep module to support updating your solution. You can reference `finops-hub/main.bicep` or `hub.bicep` directly to ensure you can apply new updates as they're released.
 
