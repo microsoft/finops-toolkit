@@ -15,7 +15,7 @@
 
 // ActualCosts_raw table
 .create-merge table ActualCosts_raw (
-    AccountName:            string,  // C360-2025-04
+    AccountName:            string,
     AccountOwnerId:         string,
     AdditionalInfo:         string,
     AvailabilityZone:       string,
@@ -138,7 +138,7 @@
 
 // AmortizedCosts_raw table
 .create-merge table AmortizedCosts_raw (
-    AccountName:            string,  // C360-2025-04
+    AccountName:            string,
     AccountOwnerId:         string,
     AdditionalInfo:         string,
     AvailabilityZone:       string,
@@ -318,6 +318,7 @@
 //                               - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/standard-usage
 //                               - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/detailed-usage
 // - OCI: 1.0                 -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
+// - Tencent: 1.0             -- See https://www.tencentcloud.com/document/product/555/67495 / https://www.tencentcloud.com/document/product/555/67496
 //
 // Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
 //======================================================================================================================
@@ -332,6 +333,8 @@
     BillingCurrency:            string,    // FOCUS 0.5+
     BillingPeriodEnd:           datetime,  // FOCUS 0.5+
     BillingPeriodStart:         datetime,  // FOCUS 0.5+
+    CapacityReservationId:      string,    // FOCUS 1.1+
+    CapacityReservationStatus:  string,    // FOCUS 1.1+
     ChargeCategory:             string,    // FOCUS 1.0-preview+
     ChargeClass:                string,    // FOCUS 1.0+
     ChargeDescription:          string,    // FOCUS 1.0+
@@ -342,17 +345,21 @@
     CommitmentDiscountCategory: string,    // FOCUS 1.0-preview+
     CommitmentDiscountId:       string,    // FOCUS 1.0-preview+
     CommitmentDiscountName:     string,    // FOCUS 1.0-preview+
+    CommitmentDiscountQuantity: decimal,   // FOCUS 1.1+
     CommitmentDiscountStatus:   string,    // FOCUS 1.0+
     CommitmentDiscountType:     string,    // FOCUS 1.0-preview+
+    CommitmentDiscountUnit:     string,    // FOCUS 1.1+
     ConsumedQuantity:           decimal,   // FOCUS 1.0+
     ConsumedUnit:               string,    // FOCUS 1.0+
     ContractedCost:             decimal,   // FOCUS 1.0+
     ContractedUnitPrice:        decimal,   // FOCUS 1.0+
     EffectiveCost:              decimal,   // FOCUS 1.0-preview+
+    InvoiceId:                  string,    // FOCUS 1.2+
     InvoiceIssuerName:          string,    // FOCUS 0.5+
     ListCost:                   decimal,   // FOCUS 1.0-preview+
     ListUnitPrice:              decimal,   // FOCUS 1.0-preview+
     PricingCategory:            string,    // FOCUS 1.0-preview+
+    PricingCurrency:            string,    // FOCUS 1.2+
     PricingQuantity:            decimal,   // FOCUS 1.0-preview+
     PricingUnit:                string,    // FOCUS 1.0-preview+
     ProviderName:               string,    // FOCUS 0.5+
@@ -365,7 +372,10 @@
     ResourceType:               string,    // FOCUS 1.0-preview+
     ServiceCategory:            string,    // FOCUS 0.5+
     ServiceName:                string,    // FOCUS 0.5+
+    ServiceSubcategory:         string,    // FOCUS 1.1+
     SkuId:                      string,    // FOCUS 1.0-preview+
+    SkuMeter:                   string,    // FOCUS 1.1+
+    SkuPriceDetails:            string,    // FOCUS 1.1+
     SkuPriceId:                 string,    // FOCUS 1.0-preview+
     SubAccountId:               string,    // FOCUS 0.5+
     SubAccountName:             string,    // FOCUS 0.5+
@@ -377,6 +387,7 @@
     x_AccountId:                string,    // Azure 1.0-preview(v1)+
     x_AccountName:              string,    // Azure 1.0-preview(v1)+
     x_AccountOwnerId:           string,    // Azure 1.0-preview(v1)+
+    x_AmortizationClass:        string,    // Azure 1.2-preview+
     x_BilledCostInUsd:          decimal,   // Azure 1.0-preview(v1)+
     x_BilledUnitPrice:          decimal,   // Azure 1.0-preview(v1)+
     x_BillingAccountId:         string,    // Azure 1.0-preview(v1)+
@@ -387,6 +398,8 @@
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
     x_ContractedCostInUsd:      decimal,   // Azure 1.0+
+    x_ComponentName:            string,    // Tencent 1.0+
+    x_ComponentType:            string,    // Tencent 1.0+
     x_Cost:                     decimal,   // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           string,    // AWS 1.0 (JSON)
@@ -399,7 +412,7 @@
     x_Discount:                 string,    // AWS 1.0 (JSON)
     x_EffectiveCostInUsd:       decimal,   // Azure 1.0-preview(v1)+
     x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
-    x_ExportTime:               datetime,  // GCP Jan 2024
+    x_ExportTime:               datetime,  // GCP Jan 2024 / Tencent 1.0+
     x_InvoiceId:                string,    // Azure 1.0-preview(v1)+
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
@@ -410,10 +423,11 @@
     x_OnDemandCostInUsd:        decimal,   // Azure 1.0-preview(v1) only
     x_OnDemandUnitPrice:        decimal,   // Azure 1.0-preview(v1) only
     x_Operation:                string,    // AWS 1.0
+    x_OwnerAccountID:           string,    // Tencent 1.0+
     x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+  // TODO: x_PartnerCreditApplied should be a decimal
     x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+  // TODO: x_PartnerCreditRate should be a decimal
     x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
-    x_PricingCurrency:          string,    // Azure 1.0-preview(v1)+
+    x_PricingCurrency:          string,    // Azure 1.0-preview(v1)-1.0r2
     x_PricingSubcategory:       string,    // Azure 1.0-preview(v1)+
     x_PricingUnitDescription:   string,    // Azure 1.0-preview(v1)+
     x_Project:                  string,    // GCP Jan 2024
@@ -425,23 +439,26 @@
     x_ResourceType:             string,    // Azure 1.0-preview(v1)+
     x_ServiceCode:              string,    // AWS 1.0
     x_ServiceId:                string,    // GCP Jan 2024
+    x_ServiceModel:             string,    // Azure 1.2-preview+
     x_ServicePeriodEnd:         datetime,  // Azure 1.0-preview(v1)+
     x_ServicePeriodStart:       datetime,  // Azure 1.0-preview(v1)+
     x_SkuDescription:           string,    // Azure 1.0-preview(v1)+
-    x_SkuDetails:               string,    // Azure 1.0-preview(v1)+
+    x_SkuDetails:               string,    // Azure 1.0-preview(v1)-1.2-preview
     x_SkuIsCreditEligible:      bool,      // Azure 1.0-preview(v1)+
     x_SkuMeterCategory:         string,    // Azure 1.0-preview(v1)+
     x_SkuMeterId:               string,    // Azure 1.0-preview(v1)+
-    x_SkuMeterName:             string,    // Azure 1.0-preview(v1)+
+    x_SkuMeterName:             string,    // Azure 1.0-preview(v1)-1.0r2
     x_SkuMeterSubcategory:      string,    // Azure 1.0-preview(v1)+
     x_SkuOfferId:               string,    // Azure 1.0-preview(v1)+
     x_SkuOrderId:               string,    // Azure 1.0-preview(v1)+
     x_SkuOrderName:             string,    // Azure 1.0-preview(v1)+
     x_SkuPartNumber:            string,    // Azure 1.0-preview(v1)+
+    x_SkuPlanName:              string,    // Azure 1.2-preview+
     x_SkuRegion:                string,    // Azure 1.0-preview(v1)+
     x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
     x_SkuTerm:                  int,       // Azure 1.0-preview(v1)+
     x_SkuTier:                  string,    // Azure 1.0-preview(v1)+
+    x_SubproductName:           string,    // Tencent 1.0+
     x_SourceName:               string,    // Hubs add-on
     x_SourceProvider:           string,    // Hubs add-on
     x_SourceType:               string,    // Hubs add-on
@@ -461,6 +478,8 @@
     { "Column": "BillingCurrency",            "Properties": { "Field": "BillingCurrency" } },
     { "Column": "BillingPeriodEnd",           "Properties": { "Field": "BillingPeriodEnd" } },
     { "Column": "BillingPeriodStart",         "Properties": { "Field": "BillingPeriodStart" } },
+    { "Column": "CapacityReservationId",      "Properties": { "Field": "CapacityReservationId" } },
+    { "Column": "CapacityReservationStatus",  "Properties": { "Field": "CapacityReservationStatus" } },
     { "Column": "ChargeCategory",             "Properties": { "Field": "ChargeCategory" } },
     { "Column": "ChargeClass",                "Properties": { "Field": "ChargeClass" } },
     { "Column": "ChargeDescription",          "Properties": { "Field": "ChargeDescription" } },
@@ -471,17 +490,21 @@
     { "Column": "CommitmentDiscountCategory", "Properties": { "Field": "CommitmentDiscountCategory" } },
     { "Column": "CommitmentDiscountId",       "Properties": { "Field": "CommitmentDiscountId" } },
     { "Column": "CommitmentDiscountName",     "Properties": { "Field": "CommitmentDiscountName" } },
+    { "Column": "CommitmentDiscountQuantity", "Properties": { "Field": "CommitmentDiscountQuantity" } },
     { "Column": "CommitmentDiscountStatus",   "Properties": { "Field": "CommitmentDiscountStatus" } },
     { "Column": "CommitmentDiscountType",     "Properties": { "Field": "CommitmentDiscountType" } },
+    { "Column": "CommitmentDiscountUnit",     "Properties": { "Field": "CommitmentDiscountUnit" } },
     { "Column": "ConsumedQuantity",           "Properties": { "Field": "ConsumedQuantity" } },
     { "Column": "ConsumedUnit",               "Properties": { "Field": "ConsumedUnit" } },
     { "Column": "ContractedCost",             "Properties": { "Field": "ContractedCost" } },
     { "Column": "ContractedUnitPrice",        "Properties": { "Field": "ContractedUnitPrice" } },
     { "Column": "EffectiveCost",              "Properties": { "Field": "EffectiveCost" } },
+    { "Column": "InvoiceId",                  "Properties": { "Field": "InvoiceId" } },
     { "Column": "InvoiceIssuerName",          "Properties": { "Field": "InvoiceIssuerName" } },
     { "Column": "ListCost",                   "Properties": { "Field": "ListCost" } },
     { "Column": "ListUnitPrice",              "Properties": { "Field": "ListUnitPrice" } },
     { "Column": "PricingCategory",            "Properties": { "Field": "PricingCategory" } },
+    { "Column": "PricingCurrency",            "Properties": { "Field": "PricingCurrency" } },
     { "Column": "PricingQuantity",            "Properties": { "Field": "PricingQuantity" } },
     { "Column": "PricingUnit",                "Properties": { "Field": "PricingUnit" } },
     { "Column": "ProviderName",               "Properties": { "Field": "ProviderName" } },
@@ -494,7 +517,10 @@
     { "Column": "ResourceType",               "Properties": { "Field": "ResourceType" } },
     { "Column": "ServiceCategory",            "Properties": { "Field": "ServiceCategory" } },
     { "Column": "ServiceName",                "Properties": { "Field": "ServiceName" } },
+    { "Column": "ServiceSubcategory",         "Properties": { "Field": "ServiceSubcategory" } },
     { "Column": "SkuId",                      "Properties": { "Field": "SkuId" } },
+    { "Column": "SkuMeter",                   "Properties": { "Field": "SkuMeter" } },
+    { "Column": "SkuPriceDetails",            "Properties": { "Field": "SkuPriceDetails" } },
     { "Column": "SkuPriceId",                 "Properties": { "Field": "SkuPriceId" } },
     { "Column": "SubAccountId",               "Properties": { "Field": "SubAccountId" } },
     { "Column": "SubAccountName",             "Properties": { "Field": "SubAccountName" } },
@@ -506,6 +532,7 @@
     { "Column": "x_AccountId",                "Properties": { "Field": "x_AccountId" } },
     { "Column": "x_AccountName",              "Properties": { "Field": "x_AccountName" } },
     { "Column": "x_AccountOwnerId",           "Properties": { "Field": "x_AccountOwnerId" } },
+    { "Column": "x_AmortizationClass",        "Properties": { "Field": "x_AmortizationClass" } },
     { "Column": "x_BilledCostInUsd",          "Properties": { "Field": "x_BilledCostInUsd" } },
     { "Column": "x_BilledUnitPrice",          "Properties": { "Field": "x_BilledUnitPrice" } },
     { "Column": "x_BillingAccountId",         "Properties": { "Field": "x_BillingAccountId" } },
@@ -516,6 +543,8 @@
     { "Column": "x_BillingProfileName",       "Properties": { "Field": "x_BillingProfileName" } },
     { "Column": "x_ChargeId",                 "Properties": { "Field": "x_ChargeId" } },
     { "Column": "x_ContractedCostInUsd",      "Properties": { "Field": "x_ContractedCostInUsd" } },
+    { "Column": "x_ComponentName",            "Properties": { "Field": "x_ComponentName" } },
+    { "Column": "x_ComponentType",            "Properties": { "Field": "x_ComponentType" } },
     { "Column": "x_Cost",                     "Properties": { "Field": "x_Cost" } },
     { "Column": "x_CostAllocationRuleName",   "Properties": { "Field": "x_CostAllocationRuleName" } },
     { "Column": "x_CostCategories",           "Properties": { "Field": "x_CostCategories" } },
@@ -539,6 +568,7 @@
     { "Column": "x_OnDemandCostInUsd",        "Properties": { "Field": "x_OnDemandCostInUsd" } },
     { "Column": "x_OnDemandUnitPrice",        "Properties": { "Field": "x_OnDemandUnitPrice" } },
     { "Column": "x_Operation",                "Properties": { "Field": "x_Operation" } },
+    { "Column": "x_OwnerAccountID",           "Properties": { "Field": "x_OwnerAccountID" } },
     { "Column": "x_PartnerCreditApplied",     "Properties": { "Field": "x_PartnerCreditApplied" } },
     { "Column": "x_PartnerCreditRate",        "Properties": { "Field": "x_PartnerCreditRate" } },
     { "Column": "x_PricingBlockSize",         "Properties": { "Field": "x_PricingBlockSize" } },
@@ -554,6 +584,7 @@
     { "Column": "x_ResourceType",             "Properties": { "Field": "x_ResourceType" } },
     { "Column": "x_ServiceCode",              "Properties": { "Field": "x_ServiceCode" } },
     { "Column": "x_ServiceId",                "Properties": { "Field": "x_ServiceId" } },
+    { "Column": "x_ServiceModel",             "Properties": { "Field": "x_ServiceModel" } },
     { "Column": "x_ServicePeriodEnd",         "Properties": { "Field": "x_ServicePeriodEnd" } },
     { "Column": "x_ServicePeriodStart",       "Properties": { "Field": "x_ServicePeriodStart" } },
     { "Column": "x_SkuDescription",           "Properties": { "Field": "x_SkuDescription" } },
@@ -567,6 +598,7 @@
     { "Column": "x_SkuOrderId",               "Properties": { "Field": "x_SkuOrderId" } },
     { "Column": "x_SkuOrderName",             "Properties": { "Field": "x_SkuOrderName" } },
     { "Column": "x_SkuPartNumber",            "Properties": { "Field": "x_SkuPartNumber" } },
+    { "Column": "x_SkuPlanName",              "Properties": { "Field": "x_SkuPlanName" } },
     { "Column": "x_SkuRegion",                "Properties": { "Field": "x_SkuRegion" } },
     { "Column": "x_SkuServiceFamily",         "Properties": { "Field": "x_SkuServiceFamily" } },
     { "Column": "x_SkuTerm",                  "Properties": { "Field": "x_SkuTerm" } },
@@ -575,6 +607,7 @@
     { "Column": "x_SourceProvider",           "Properties": { "Field": "x_SourceProvider" } },
     { "Column": "x_SourceType",               "Properties": { "Field": "x_SourceType" } },
     { "Column": "x_SourceVersion",            "Properties": { "Field": "x_SourceVersion" } },
+    { "Column": "x_SubproductName",           "Properties": { "Field": "x_SubproductName" } },
     { "Column": "x_UsageType",                "Properties": { "Field": "x_UsageType" } }
 ]
 ```

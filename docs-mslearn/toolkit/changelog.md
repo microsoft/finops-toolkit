@@ -50,21 +50,27 @@ _Released June 2, 2025_
 
 - **Added**
   - Added instructions to tune GitHub Copilot Agent mode for FinOps hubs.
+  - Top 10 request: Added architecture diagram to documentation ([#401](https://github.com/microsoft/finops-toolkit/issues/401)).
   - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
   - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
-  - Top 10 request: Added architecture diagram to documentation ([#401](https://github.com/microsoft/finops-toolkit/issues/401)).
+  - Added support for backporting FOCUS 1.2 into the existing FOCUS 1.0 schema.
+    - This is a short-term solution to avoid errors if FOCUS 1.2 exports are created.
+    - Full FOCUS 1.2 support will come in a future release.
+    - This has not been fully tested as FOCUS 1.2 exports are not available yet.
 - **Changed**
   - Merged vnet and core-network. modules into infrastructure.bicep (no functional changes).
 - **Fixed**
   - Address new data quality issues with data ingested into Data Explorer:
     - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
 
-### [Power BI reports](power-bi/reports.md) v0.10
+### [Power BI reports](power-bi/reports.md) v0.11
 
 - **Added**
   - Added a new [Invoicing and charegback report](power-bi/invoicing.md) that shows billed cost breakdowns, chargeback, and invoice recon pages.
   - Added a new [Usage analysis page](power-bi/cost-summary.md#usage-analysis) that shows usage over time compared to cost for a specific unit.
+- **Fixed**
+  - Fixed inconsistent numbers in the running total chart caused by date handling issues ([#1614](https://github.com/microsoft/finops-toolkit/issues/1614))
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
 

@@ -128,7 +128,7 @@
 
 function New-FinOpsCostExport
 {
-    [Diagnostics.CodeAnalysis.SuppressMessage("PSReviewUnusedParameter", "", Justification="False positive rule")]
+    [Diagnostics.CodeAnalysis.SuppressMessage("PSReviewUnusedParameter", "", Justification = "False positive rule")]
     [CmdletBinding(DefaultParameterSetName = "Scheduled")]
     param
     (
@@ -330,6 +330,7 @@ function New-FinOpsCostExport
                 {
                     if ($Dataset -eq "FocusCost")
                     {
+                        # TODO: Change to "1.2-preview" after released
                         $DatasetVersion = "1.0"
                     }
                     elseif ($Dataset -eq "ActualCost" -or $Dataset -eq "AmortizedCost")
