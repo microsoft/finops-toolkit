@@ -5097,7 +5097,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               }
             }
             {
-              name: 'adxStatusVariable'
+              name: 'Set DataExplorerStatus'
               type: 'SetVariable'
               dependsOn: [
                 {
