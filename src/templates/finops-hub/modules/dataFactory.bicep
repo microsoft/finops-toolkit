@@ -352,6 +352,7 @@ module deleteOldResources 'hub-deploymentScript.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_ADF.DeleteOldResources'
   dependsOn: [
     triggerManagerRoleAssignments
+    stopTriggers
   ]
   params: {
     location: location
@@ -5060,6 +5061,7 @@ module startTriggers 'hub-deploymentScript.bicep' = {
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule
+    deleteOldResources
   ]
   params: {
     location: location
