@@ -5068,7 +5068,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           }
           ifTrueActivities: [
             {
-              name: 'Get ADX Cluster details'
+              name: 'Get ADX Cluster Details'
               description: 'list ADX cluster details for receiving the status of it'
               type: 'WebActivity'
               dependsOn: []
