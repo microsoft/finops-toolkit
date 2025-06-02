@@ -42,7 +42,7 @@ The simplest way to get started with an AI-powered FinOps hub is with [GitHub Co
 
 5. Install GitHub Copilot and Azure MCP:
 
-   ### [VS Code](#tab/vscode)
+   <!-- ### [VS Code](#tab/vscode) -->
 
    - [Install GitHub Copilot](vscode:extension/GitHub.copilot)
    - [Install GitHub Copilot Chat](vscode:extension/GitHub.copilot-chat)
