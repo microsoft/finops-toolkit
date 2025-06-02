@@ -5064,7 +5064,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@equals(pipeline().parameters.dataExplorerDeployment,true)'
+            value: '@equals(${deployDataExplorer}, true)'
             type: 'Expression'
           }
           ifTrueActivities: [
