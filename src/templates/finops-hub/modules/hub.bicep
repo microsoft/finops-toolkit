@@ -17,6 +17,16 @@ param location string = resourceGroup().location
 // @description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" (same as location).')
 // param eventGridLocation string = ''
 
+@description('Optional. Custom name for the Storage Account. If not provided, a name will be generated based on the hub name.')
+param storageAccountName string = ''
+
+@description('Optional. Custom name for the Data Factory. If not provided, a name will be generated based on the hub name.')
+param dataFactoryName string = ''
+
+@description('Optional. Custom name for the Key Vault. If not provided, a name will be generated based on the hub name.')
+
+param keyVaultName string = ''
+
 @allowed([
   'Premium_LRS'
   'Premium_ZRS'
@@ -303,6 +313,9 @@ module appRegistration 'hub-app.bicep' = {
       'Storage'
     ]
     telemetryString: telemetryString
+    storageAccountName: storageAccountName
+    dataFactoryName: dataFactoryName
+    keyVaultName: keyVaultName
 
     coreConfig: coreConfig
   }
