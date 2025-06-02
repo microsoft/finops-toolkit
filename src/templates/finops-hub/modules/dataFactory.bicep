@@ -5125,7 +5125,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               type: 'WebActivity'
               dependsOn: [
                 {
-                  activity: 'adxStatusVariable'
+                  activity: 'Set DataExplorerStatus'
                   dependencyConditions: [
                     'Succeeded'
                   ]
