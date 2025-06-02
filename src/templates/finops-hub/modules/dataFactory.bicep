@@ -5100,7 +5100,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               type: 'SetVariable'
               dependsOn: [
                 {
-                  activity: 'Get ADX Cluster details'
+                  activity: 'Get ADX Cluster Details'
                   dependencyConditions: [
                     'Succeeded'
                   ]
