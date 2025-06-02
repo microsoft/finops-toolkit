@@ -14,9 +14,9 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Upgrade a FinOps hubs instance
 
-This article helps you upgrade an existing FinOps hub instance to the latest version to use new capabilities.
+This tutorial helps you upgrade an existing FinOps hub instance to the latest version to use new capabilities.
 
-Upgrading a FinOps hub instance is usually the same as the initial setup where you deploy the FinOps hub template and then update Power BI reports and Data Explorer dashboards. However, depending on what version you're moving from or to, additional steps may be needed. Use the following steps to upgrade your FinOps hub instance. If you have any questions, [start a discussion](https://aka.ms/discuss).
+Upgrading a FinOps hub instance is usually the same as the initial setup where you deploy the FinOps hub template and then update Power BI reports and Data Explorer dashboards. However, depending on what version you're moving from or to, extra steps may be needed. Use the following steps to upgrade your FinOps hub instance. If you have any questions, [start a discussion](https://aka.ms/discuss).
 
 <br>
 
@@ -31,7 +31,7 @@ Before you upgrade, make sure you know what version you're currently running. Yo
 3. Find the **settings.json** row and select the **⋯** menu on the right side of the page, then **View/edit**.
 4. Look for the **version** property.
 
-If you are using FinOps hubs older than 0.2, the simplest upgrade bath will be to deploy a new instance. The steps below do not account for differences leading up to 0.2. To deploy a new instance, see [Create a FinOps hub instance](deploy.md).
+If you're using FinOps hubs older than 0.2, it's simplest to deploy a new instance. The steps in this tutorial don't account for differences leading up to 0.2. To deploy a new instance, see [Create a FinOps hub instance](deploy.md).
 
 For a list of changes since your release, refer to the [changelog](../changelog.md).
 
@@ -45,16 +45,16 @@ This step only applies when upgrading from FinOps hubs 0.7 and targeting a deplo
 - Upgrading from FinOps hubs 0.7 and using private network routing.
 - Upgrading from FinOps hubs 0.8 or later.
 
-FinOps hubs 0.8 introduced architectural changes to how networking resources were deployed. Networking resources must be deleted before upgrading from 0.7 to 0.8 or later. If you are moving from 0.6 or earlier to 0.8 or later, you can skip this step. The instructions assume your FinOps hub instance is the only thing in the resource group and there are no other networking resources. Do not delete resources that are not related to FinOps hubs.
+FinOps hubs 0.8 introduced architectural changes to how networking resources were deployed. Networking resources must be deleted before upgrading from 0.7 to 0.8 or later. If you're moving from 0.6 or earlier to 0.8 or later, you can skip this step. The instructions assume your FinOps hub instance is the only thing in the resource group and there are no other networking resources. Don't delete resources that aren't related to FinOps hubs.
 
 To delete FinOps hubs 0.7 networking resources:
 
 1. Open the FinOps hub resource group in the Azure portal.
 2. Delete all private endpoints within the resource group.
-3. Delete all private DNS zones within the resource group.
-4. Delete the virtual network.  If errors are encountered:
+3. Delete all private Domain Name System (DNS) zones within the resource group.
+4. Delete the virtual network. If errors are encountered:
    - Confirm no private endpoints or DNS zones remain.
-   - Check the connected devices tab and remove any lingering resources to ensure the virtual network is not in use.
+   - Check the connected devices tab and remove any lingering resources to ensure the virtual network isn't in use.
 
 <br>
 
@@ -66,7 +66,7 @@ The Microsoft Fabric eventhouse database schema must be manually updated with ea
 
 ## Step 3: Deploy the FinOps hub template
 
-Upgrading a FinOps hub instance requires redeploying the latest version of the template. This will create any new resources and update existing resources. Make sure to specify the same hub name and Data Explorer cluster name or Fabric eventhouse query URI to ensure the existing instance is updated.
+Upgrading a FinOps hub instance requires redeploying the latest version of the template. Deploying the template creates new resources and updates existing resources as needed. To ensure the existing instance is updated, make sure to specify the same hub name and Data Explorer cluster name or Fabric eventhouse query URI.
 
 > [!div class="nextstepaction"]
 > [Deploy](deploy.md#deploy-the-finops-hub-template)
@@ -83,25 +83,25 @@ FinOps toolkit 0.5 reports replaced the Cost Management connector with reservati
 
 ## Step 5: Remove duplicate data (0.2-6)
 
-This step only applies if upgrading from FinOps hubs 0.6 or ealier. Skip this step if upgrading from FinOps hubs 0.7 or later.
+This step only applies if upgrading from FinOps hubs 0.6 or earlier. Skip this step if upgrading from FinOps hubs 0.7 or later.
 
-FinOps hubs 0.6 and 0.7 changed the folder path for data stored in the **ingestion** container, which means older Power BI reports don't work with FinOps hubs 0.7 and later. Newer Power BI reports continue to support older folder paths, so the data does not need to be re-exported for storage reports; however, since FinOps hubs 0.6 and 0.7 use new folder paths, it is possible for data to be duplicated during the current month. To avoid the duplication, delete the current month's data from the old path in the **ingestion** container to avoid it being double-counted.
+FinOps hubs 0.6 and 0.7 changed the folder path for data stored in the **ingestion** container, which means older Power BI reports don't work with FinOps hubs 0.7 and later. New Power BI reports are backwards compatible and support old folder paths. You don't need to re-export data for storage reports. However, since FinOps hubs 0.6 and 0.7 use new folder paths, you may see duplicate data for the current month. To avoid the duplication, delete the current month's data from the old path in the **ingestion** container to avoid it being double-counted.
 
 If you enable Azure Data Explorer or Microsoft Fabric, you need to reingest historical data to add it to Data Explorer. This ingestion requirement also applies to data brought in from other systems or clouds.
 
 > [!IMPORTANT]
-> If you re-export historical data in 0.7 or later that was previously exported in an earlier release, older data is not removed. Delete the older data in the **ingestion** container to avoid inaccurate numbers due to duplicated data. FinOps hubs 0.7 moves all content into a folder based on the dataset type: **CommitmentDiscountUsage**, **Costs**, **Prices**, **Recommendations**, or **Transactions**. Any other folders can be safely removed. Once removed, run historical data backfill as needed.
+> If you re-export historical data in 0.7 or later that was previously exported in an earlier release, older data isn't removed. Delete the older data in the **ingestion** container to avoid inaccurate numbers due to duplicated data. FinOps hubs 0.7 moves all content into a folder based on the dataset type: **CommitmentDiscountUsage**, **Costs**, **Prices**, **Recommendations**, or **Transactions**. Any other folders can be safely removed. Once removed, run historical data backfill as needed.
 
 <br>
 
 ## Step 6: Update Power BI reports
 
-While Power BI reports are designed to work with the the corresponding FinOps hub instance, most releases don't require an update to Power BI reports. Updating Power BI reports is required for FinOps hubs 0.6 or earlier. Refer to the [compatibility guide](compatibility.md) for additional details.
+While Power BI reports are designed to work with the corresponding FinOps hub instance, most releases don't require an update to Power BI reports. Updating Power BI reports is required for FinOps hubs 0.6 or earlier. For more information, see the [compatibility guide](compatibility.md).
 
 To update Power BI reports:
 
 1. Download the latest templates:
-   - [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip) for Data Explorer or Microsoft Fabric.
+   - [Kusto Query Language (KQL) reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip) for Data Explorer or Microsoft Fabric.
    - [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip) for storage only deployments.
 2. Extract and open the desired report template in Power BI Desktop.
 3. Specify report parameters as needed and load each report.
@@ -112,11 +112,11 @@ To update Power BI reports:
      - ChargeClass (new) is `Correction` for refunds.
      - CommitmentDiscountStatus (new) replaces ChargeSubcategory for commitment discount usage.
      - RegionId and RegionName replaced Region.
-   - Consider contributing customizations into the FinOps toolkit to avoid this in future updates.
+   - To avoid manually applying customizations in future updates, consider contributing customizations into the FinOps toolkit.
 5. Publish reports to a Fabric workspace.
 6. Repeat 2-5 for each report.
 
-For additional details, see [Set up Power BI reports](../power-bi/setup.md).
+For more information, see [Set up Power BI reports](../power-bi/setup.md).
 
 <br>
 
@@ -127,7 +127,7 @@ The Data Explorer dashboard was introduced with Data Explorer support in 0.7 and
 > [!div class="nextstepaction"]
 > [Download dashboard](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json)
 
-For more details, see [Configure Data Explorer dashboards](configure-dashboards.md).
+For more information, see [Configure Data Explorer dashboards](configure-dashboards.md).
 
 <br>
 

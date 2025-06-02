@@ -133,7 +133,7 @@ The **Commitment discount utilization** page provides a summary of the utilizati
 
 The chart shows the sum of all used cost compared to unused cost as percentages per day. The table shows a list of all commitment discounts. To view the utilization for a single commitment discount in the chart, select the row in the table, set applicable filters on the left, or use the "Drill through" capability from another page.
 
-:::image type="content" source="./media/rate-optimization/commitment-discount-utilization.png" border="true" alt-text="Screenshot of the Commitment discounts page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discount-utilization.png" :::
+:::image type="content" source="./media/rate-optimization/commitment-discount-utilization.png" border="true" alt-text="Screenshot of the Commitment discount utilization page that shows an aggregate utilization percentage for the selected commitment discounts." lightbox="./media/rate-optimization/commitment-discount-utilization.png" :::
 
 <br>
 
@@ -143,7 +143,7 @@ The **Commitment discount resources** page provides a list of all resources that
 
 The chart breaks down the effective cost of your commitment discounts by resource over time. The table shows the utilization, cost, and savings for the entire period. To view resources for a single commitment discount in the chart, set applicable filters on the left or use the "Drill through" capability from another page.
 
-:::image type="content" source="./media/rate-optimization/commitment-discount-resources.png" border="true" alt-text="Screenshot of the Commitment discounts page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discount-resources.png" :::
+:::image type="content" source="./media/rate-optimization/commitment-discount-resources.png" border="true" alt-text="Screenshot of the Commitment discount resources page that shows a list of resources covered by selected commitment discounts during the period." lightbox="./media/rate-optimization/commitment-discount-resources.png" :::
 
 <br>
 

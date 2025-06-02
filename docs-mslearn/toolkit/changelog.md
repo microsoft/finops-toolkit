@@ -44,8 +44,6 @@ _Released June 2, 2025_
 - **Added**
   - Added instructions to tune GitHub Copilot Agent mode for FinOps hubs.
   - Top 10 request: Added architecture diagram to documentation ([#401](https://github.com/microsoft/finops-toolkit/issues/401)).
-  - Simplified the FinOps hubs [upgrade guide](hubs/upgrade.md) to be a step-by-step tutorial.
-  - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
   - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
     - This does not support Cost Management actual/amortized data, but that can be added. Please submit a [feature request](https://aka.ms/ftk/ideas), if desired.
   - Added support for backporting FOCUS 1.2 into the existing FOCUS 1.0 schema.
@@ -66,6 +64,8 @@ _Released June 2, 2025_
 - **Added**
   - Added a new [Invoicing and charegback report](power-bi/invoicing.md) that shows billed cost breakdowns, chargeback, and invoice recon pages.
   - Added a new [Usage analysis page](power-bi/cost-summary.md#usage-analysis) that shows usage over time compared to cost for a specific unit.
+  - Added a new [Commitment discount utilization page](power-bi/rate-optimization.md#commitment-discount-utilization) that shows commitment discount utilization over time.
+  - Added a new [Commitment discount resources page](power-bi/rate-optimization.md#commitment-discount-resources) that shows the resources that were covered by a specific commitment discount.
 - **Fixed**
   - Fixed inconsistent numbers in the running total chart caused by date handling issues ([#1614](https://github.com/microsoft/finops-toolkit/issues/1614))
 
@@ -86,7 +86,6 @@ _Released June 2, 2025_
 - **Fixed**
   - Fixed an error in the [Start-FinOpsCostExport command](powershell/cost/start-finopscostexport.md) ([#884](https://github.com/microsoft/finops-toolkit/issues/884), [#988](https://github.com/microsoft/finops-toolkit/issues/988))
   - Suppressed upcoming breaking changes warning for the Get-AzAccessToken cmdlet ([#987](https://github.com/microsoft/finops-toolkit/issues/987)).
-
 
 ### [Open data](open-data.md) v0.11
 
