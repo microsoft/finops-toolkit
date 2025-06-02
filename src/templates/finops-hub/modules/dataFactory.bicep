@@ -98,7 +98,6 @@ func getExportBodyV2(exportContainerName string, datasetType string, schemaVersi
 
 var deployDataExplorer = !empty(dataExplorerId)
 var useFabric = !deployDataExplorer && !empty(dataExplorerUri)
-var dataExplorerDeployed = deployDataExplorer ? true : false
 
 var datasetPropsDefault = {
     location: {
