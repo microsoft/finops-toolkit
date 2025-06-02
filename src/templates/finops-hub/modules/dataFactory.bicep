@@ -356,7 +356,7 @@ resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssi
 }]
 
 // Grant ADF identity access to manage ADX cluster
-resource factoryIdentityADXRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in adxRbacRoles: {
+resource factoryIdentityDataExplorerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in adxRbacRoles: {
   name: guid(dataExplorerCluster.id, role, dataFactory.id)
   scope: dataExplorerCluster
   properties: {
