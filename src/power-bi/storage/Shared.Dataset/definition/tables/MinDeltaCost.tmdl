@@ -1,0 +1,26 @@
+table MinDeltaCost
+	lineageTag: a530ec9c-bdca-418a-8fe4-07f9aa3dae23
+
+	measure 'MinDeltaCost Value' = SELECTEDVALUE('MinDeltaCost'[MinDeltaCost], -1000)
+		formatString: 0
+		lineageTag: a653fcc2-1100-4ddf-bb1d-05dc83571abc
+
+	column MinDeltaCost
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 6340f819-cd53-401b-9f71-b724cc999f65
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+		annotation SummarizationSetBy = User
+
+	partition MinDeltaCost = calculated
+		mode: import
+		source = GENERATESERIES(-1000000, 1000000, 1000)
+
+	annotation PBI_Id = e24a2b4f14e84c718efa450710ee6015
+
