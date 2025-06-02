@@ -48,11 +48,13 @@ The simplest way to get started with an AI-powered FinOps hub is with [GitHub Co
    - [Install GitHub Copilot Chat](vscode:extension/GitHub.copilot-chat)
    - [Install Azure MCP server for VS Code](https://insiders.vscode.dev/redirect/mcp/install?name=Azure%20MCP%20Server&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40azure%2Fmcp%40latest%22%2C%22server%22%2C%22start%22%5D%7D)
 
+   <!--
    ### [VS Code Insiders](#tab/vscode-insiders)
 
    - [Install GitHub Copilot](vscode-insiders:extension/GitHub.copilot)
    - [Install GitHub Copilot Chat](vscode-insiders:extension/GitHub.copilot-chat)
    - [Install Azure MCP server for VS Code](https://insiders.vscode.dev/redirect/mcp/install?name=Azure%20MCP%20Server&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40azure%2Fmcp%40latest%22%2C%22server%22%2C%22start%22%5D%7D&quality=insiders)
+   -->
 
 For details about the Azure MCP server, see [Azure MCP on GitHub](https://github.com/Azure/azure-mcp?tab=readme-ov-file#-azure-mcp-server).
 
@@ -75,11 +77,12 @@ After you install the Azure MCP server and configure your AI client, use the fol
 If you're using GitHub Copilot, start by opening Chat in Agent mode:
 
 - [Open Agent mode in VS Code](vscode://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai)
-- [Open Agent mode in VS Code Insiders](vscode-insiders://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai)
+<!-- - [Open Agent mode in VS Code Insiders](vscode-insiders://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai) -->
 
 The AI instructions for FinOps hubs are preconfigured for FinOps tasks and already know how to find and connect to your FinOps hub instance. To start, ask to connect to your FinOps hub instance:
 
-[`Connect to my hub`](vscode-insiders://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai&query=Connect+to+my+hub)
+- [`Connect to my hub in VS Code`](vscode://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai&query=Connect+to+my+hub)
+<!-- - [`Connect to my hub in VS Code Insiders`](vscode-insiders://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai&query=Connect+to+my+hub) -->
 
 ```plaintext
 /ftk-hubs-connect
@@ -172,7 +175,7 @@ These are just a few examples of the types of requests you can get answers to to
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.10/bladeName/Hubs/featureName/ConfigureAI)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.11/bladeName/Hubs/featureName/ConfigureAI)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

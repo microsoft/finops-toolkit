@@ -686,7 +686,7 @@ The following table lists the columns produced in the `All available columns` qu
 
 - [FinOps hubs overview](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/finops-hubs-overview)
 - [FinOps toolkit troubleshooting guide](https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting)
-- [FinOps toolkit common errors](https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/help/errors)
+- [FinOps toolkit common errors](https://learn.microsoft.com/cloud-computing/finops/toolkit/help/errors)
 - [FinOps Open Cost and Usage Specification (FOCUS)](https://learn.microsoft.com/cloud-computing/finops/toolkit/focus/what-is-focus)
 - [Schema optimization best practices (Azure Data Explorer)](https://learn.microsoft.com/azure/data-explorer/schema-best-practice)
 - [Kusto Query Language documentation](https://learn.microsoft.com/azure/data-explorer/kusto/query/)
