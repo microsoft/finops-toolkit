@@ -397,9 +397,9 @@
     x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
-    x_ContractedCostInUsd:      decimal,   // Azure 1.0+
     x_ComponentName:            string,    // Tencent 1.0+
     x_ComponentType:            string,    // Tencent 1.0+
+    x_ContractedCostInUsd:      decimal,   // Azure 1.0+
     x_Cost:                     decimal,   // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           string,    // AWS 1.0 (JSON)
@@ -458,11 +458,11 @@
     x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
     x_SkuTerm:                  int,       // Azure 1.0-preview(v1)+
     x_SkuTier:                  string,    // Azure 1.0-preview(v1)+
-    x_SubproductName:           string,    // Tencent 1.0+
     x_SourceName:               string,    // Hubs add-on
     x_SourceProvider:           string,    // Hubs add-on
     x_SourceType:               string,    // Hubs add-on
     x_SourceVersion:            string,    // Hubs add-on
+    x_SubproductName:           string,    // Tencent 1.0+ // cSpell:ignore Subproduct
     x_UsageType:                string     // AWS 1.0
 )
 
