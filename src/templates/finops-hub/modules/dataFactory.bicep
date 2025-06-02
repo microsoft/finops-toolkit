@@ -4962,7 +4962,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
             dependencyConditions: [
               'Succeeded'
             ]
-          }       
+          }
         ]
         userProperties: []
         typeProperties: {
