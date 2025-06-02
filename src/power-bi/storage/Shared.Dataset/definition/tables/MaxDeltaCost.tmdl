@@ -1,0 +1,26 @@
+table MaxDeltaCost
+	lineageTag: dd66a7c6-c07c-478c-8a79-2cd9aa5d08d2
+
+	measure 'MaxDeltaCost Value' = SELECTEDVALUE('MaxDeltaCost'[MaxDeltaCost], 1000)
+		formatString: 0
+		lineageTag: 22ce8aea-23f7-4808-9e39-89744482a978
+
+	column MaxDeltaCost
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 88f814c3-b58a-4d16-a20c-3247fc780dfb
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+		annotation SummarizationSetBy = User
+
+	partition MaxDeltaCost = calculated
+		mode: import
+		source = GENERATESERIES(-1000000, 1000000, 1000)
+
+	annotation PBI_Id = c82fa6b73e044043847ce40da54a9240
+

@@ -94,3 +94,7 @@ relationship 7938f383-ec64-86d6-dce0-ea5ae181eacc
 	fromColumn: Disks.id
 	toColumn: Resources.id
 
+relationship cb9142cb-6d13-cfa8-49c5-2ebab53f5648
+	fromColumn: Costs.x_ReportingDate
+	toColumn: DateTable.Date
+
