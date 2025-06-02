@@ -5161,10 +5161,6 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
       folderPath: {
         type: 'string'
       }
-      dataExplorerDeployment: {
-        type: 'bool'
-        defaultValue:dataExplorerDeployed
-      }
     }
     variables: {
       containerFolderPath: {
