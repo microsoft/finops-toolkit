@@ -5115,7 +5115,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               typeProperties: {
                 variableName: 'dataExplorerStatus'
                 value: {
-                  value: '@if(equals(activity(\'Get ADX Cluster details\').output.properties.state,\'Stopped\'),\'Stopped\',\'Running\')'
+                  value: '@if(equals(activity(\'Get ADX Cluster Details\').output.properties.state,\'Stopped\'),\'Stopped\',\'Running\')'
                   type: 'Expression'
                 }
               }
