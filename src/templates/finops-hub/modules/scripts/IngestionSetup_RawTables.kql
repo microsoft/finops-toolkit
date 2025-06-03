@@ -13,8 +13,11 @@
 // - C360-2025-04
 //======================================================================================================================
 
-// ActualCosts_raw table
-.create-merge table ActualCosts_raw (
+// ActualCosts_raw table (create)
+.create-merge table ActualCosts_raw ( AccountName: string )
+
+// ActualCosts_raw table (alter)
+.alter table ActualCosts_raw (
     AccountName:            string,
     AccountOwnerId:         string,
     AdditionalInfo:         string,
@@ -136,8 +139,11 @@
 // - C360-2025-04
 //======================================================================================================================
 
-// AmortizedCosts_raw table
-.create-merge table AmortizedCosts_raw (
+// AmortizedCosts_raw table (create)
+.create-merge table AmortizedCosts_raw ( AccountName: string )
+
+// AmortizedCosts_raw table (alter)
+.alter table AmortizedCosts_raw (
     AccountName:            string,
     AccountOwnerId:         string,
     AdditionalInfo:         string,
@@ -260,8 +266,11 @@
 // - MS MCA reservation details: 2023-03-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-mca
 //======================================================================================================================
 
-// CommitmentDiscountUsage_raw table
-.create-merge table CommitmentDiscountUsage_raw (
+// CommitmentDiscountUsage_raw table (create)
+.create-merge table CommitmentDiscountUsage_raw ( InstanceFlexibilityGroup: string )
+
+// CommitmentDiscountUsage_raw table (alter)
+.alter table CommitmentDiscountUsage_raw (
     InstanceFlexibilityGroup: string,
     InstanceFlexibilityRatio: decimal,
     InstanceId:               string,
@@ -323,8 +332,11 @@
 // Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
 //======================================================================================================================
 
-// Costs_raw table
-.create-merge table Costs_raw (
+// Costs_raw table (create)
+.create-merge table Costs_raw ( AvailabilityZone: string )
+
+// Costs_raw table (alter)
+.alter table Costs_raw (
     AvailabilityZone:           string,    // FOCUS 0.5+
     BilledCost:                 decimal,   // FOCUS 0.5+
     BillingAccountId:           string,    // FOCUS 0.5+
@@ -627,8 +639,11 @@
 // - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
 //======================================================================================================================
 
-// Prices_raw table
-.create-merge table Prices_raw (
+// Prices_raw table (create)
+.create-merge table Prices_raw ( BasePrice: decimal )
+
+// Prices_raw table (alter)
+.alter table Prices_raw (
     BasePrice:          decimal,  // Azure EA + MCA
     BillingAccountId:   string,   // Azure MCA
     BillingAccountName: string,   // Azure MCA
@@ -725,8 +740,11 @@
 // - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
 //======================================================================================================================
 
-// Recommendations_raw table
-.create-merge table Recommendations_raw (
+// Recommendations_raw table (create)
+.create-merge table Recommendations_raw ( CostWithNoReservedInstances: decimal )
+
+// Recommendations_raw table (alter)
+.alter table Recommendations_raw (
     CostWithNoReservedInstances:        decimal,   // MS CM EA resv reco 2024-05-01
     CostWithNoReservedInstancesJson:    string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces and flag as JSON
     FirstUsageDate:                     datetime,  // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
@@ -801,8 +819,11 @@
 // - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
-// Transactions_raw table
-.create-merge table Transactions_raw (
+// Transactions_raw table (create)
+.create-merge table Transactions_raw ( AccountName: string )
+
+// Transactions_raw table (alter)
+.alter table Transactions_raw (
     AccountName:                    string,    // MS CM EA resv trans 2023-05-01
     AccountOwnerEmail:              string,    // MS CM EA resv trans 2023-05-01
     Amount:                         decimal,   // MS CM EA+MCA resv trans 2023-05-01

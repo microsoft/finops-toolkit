@@ -359,10 +359,10 @@ func newAppInternalConfig(
     tags: union(coreConfig.hub.tags, publisherTags)
 
     // Globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
-    dataFactory: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-engine', 63 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
+    dataFactory: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-engine', 63 - length(publisherSuffix) - 1)}-${publisherSuffix}', '--', '-')
 
     // Globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
-    keyVault: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-vault', 24 - length(publisherSuffix))}${publisherSuffix}', '--', '-')
+    keyVault: replace('${take('${replace(coreConfig.hub.name, '_', '-')}-vault', 24 - length(publisherSuffix) - 1)}-${publisherSuffix}', '--', '-')
 
     // Globally unique storage account name: 3-24 chars; lowercase letters/numbers only
     storage: '${take(coreConfig.hub.safeName, 24 - length(publisherSuffix))}${publisherSuffix}'

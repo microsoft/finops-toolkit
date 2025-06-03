@@ -137,7 +137,7 @@ function Copy-TemplateFiles()
                     Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
                 }
             }
-            else
+            elseif (Test-Path "$srcPath/azuredeploy.json")
             {
                 # Copy azuredeploy.json to docs/deploy folder
                 Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
