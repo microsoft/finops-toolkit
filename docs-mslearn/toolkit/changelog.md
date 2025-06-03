@@ -48,7 +48,6 @@ _Released June 2, 2025_
     - This does not support Cost Management actual/amortized data, but that can be added. Please submit a [feature request](https://aka.ms/ftk/ideas), if desired.
   - Added support for backporting FOCUS 1.2 into the existing FOCUS 1.0 schema.
     - This is a short-term solution to avoid errors if FOCUS 1.2 exports are created.
-    - Full FOCUS 1.2 support will come in a future release.
     - This has not been fully tested as FOCUS 1.2 exports are not available yet.
 - **Changed**
   - Merged vnet and core-network modules into infrastructure.bicep (no functional changes).
@@ -183,7 +182,7 @@ _Released May 4, 2025_
   - Top 10 request: Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
   - Added support for Azure Gov and Azure China.
   - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
-  - Created a new bicep modules to support extensibility:
+  - Created new bicep modules to support extensibility:
     - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
