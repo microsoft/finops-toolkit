@@ -661,27 +661,21 @@ CostsByDay
 ### Effective Savings Rate (ESR)
 
 ```kusto
-let data = materialize(
-    CostsByMonth
-    | where x_AmortizationCategory != 'Principal'
-    | summarize 
-        ListCost = sum(ListCost),
-        ContractedCost = sum(ContractedCost),
-        EffectiveCost = sum(EffectiveCost)
-    | extend TotalSavings = ListCost - EffectiveCost
-    | extend EffectiveSavingsRate = TotalSavings / ListCost
-    | project json = todynamic(strcat('[',
-        '{ "order":11, "type":"TotalSavings", "label":"Total savings", "value":"', numberstring(round(TotalSavings, 2)), '" },',
-        '{ "order":12, "type":"", "label":"", "value":"➗" },',
-        '{ "order":13, "type":"List", "label":"Cost without discounts", "value":"', numberstring(round(ListCost, 2)), '" },',
-        '{ "order":14, "type":"", "label":"", "value":"🟰" },',
-        '{ "order":15, "type":"EffectiveSavingsRate", "label":"Effective savings rate", "value":"', percentstring(EffectiveSavingsRate), '" }',
-    ']'))
-    | mv-expand json
-    | order by toint(json.order) asc
-    | project Label = tostring(json.label), Value = tostring(json.value), Type = tostring(json.type)
-);
-data
+Costs_v1_0
+| summarize ListCost = sum(ListCost), EffectiveCost = sum(EffectiveCost)
+| extend TotalSavings = ListCost - EffectiveCost
+| extend EffectiveSavingsRate = TotalSavings / ListCost
+| project TotalSavings, ListCost, EffectiveSavingsRate
+```
+
+```kusto
+Costs_v1_0
+| summarize ListCost = sum(ListCost), ContractedCost = sum(ContractedCost), EffectiveCost = sum(EffectiveCost)
+| extend NegotiatedSavings = ListCost - ContractedCost
+| extend CommitmentSavings = ContractedCost - EffectiveCost
+| extend TotalSavings = ListCost - EffectiveCost
+| extend EffectiveSavingsRate = TotalSavings / ListCost
+| project ListCost, ContractedCost, EffectiveCost, NegotiatedSavings, CommitmentSavings, TotalSavings, EffectiveSavingsRate
 ```
 
 **Description**: Calculates the Effective Savings Rate (ESR), which is the percentage of savings relative to list prices.

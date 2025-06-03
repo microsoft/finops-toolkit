@@ -55,9 +55,14 @@ def run_vector_search(query_text, use_semantic=True):
     index_name = os.environ.get("AZURE_AI_SEARCH_INDEX") or os.environ.get("AZURE_SEARCH_INDEX")
     key = os.environ.get("AZURE_SEARCH_ADMIN_KEY") or os.environ.get("AZURE_SEARCH_KEY")
     
-    if not all([endpoint, index_name, key]):
-        raise ValueError(f"Missing required environment variables")
+    if not endpoint:
+        raise ValueError("Missing required environment variable: AZURE_AI_SEARCH_SERVICE_ENDPOINT or AZURE_SEARCH_ENDPOINT")
+    if not index_name:
+        raise ValueError("Missing required environment variable: AZURE_AI_SEARCH_INDEX or AZURE_SEARCH_INDEX")
+    if not key:
+        raise ValueError("Missing required environment variable: AZURE_SEARCH_ADMIN_KEY or AZURE_SEARCH_KEY")
 
+    # Now that we've verified these aren't None, we can safely use them as strings
     search_client = SearchClient(
         endpoint=endpoint,
         index_name=index_name,
@@ -177,15 +182,25 @@ def run_vector_search(query_text, use_semantic=True):
         # Just count the result, we'll handle citations differently
         result_count += 1
 
-    if hasattr(results, 'answers') and results.answers:
+    # Check for semantic answers in the results
+    answers = []
+    if use_semantic:
+        try:
+            if hasattr(results, 'get_answers'):
+                answers = results.get_answers()
+            # The _answers attribute is not reliably accessible in the SearchItemPaged type
+        except Exception as e:
+            print(f"Warning: Could not retrieve semantic answers: {str(e)}")
+    
+    if answers:
         output_lines.insert(1, "### 💡 Direct Answer\n")
-        for answer in results.answers[:1]:
-            answer_text = answer.text
+        for answer in answers[:1]:
+            answer_text = answer.text if answer.text is not None else ""
             
             # Add citations to the direct answer if possible
             for snippet in cited_snippets:
                 # Check if the title appears in the answer text
-                if snippet["title"].lower() in answer_text.lower():
+                if answer_text and snippet.get("title") and snippet["title"].lower() in answer_text.lower():
                     # Make sure we add the citation at the end if it doesn't already exist
                     if snippet["id"] not in answer_text:
                         answer_text += f" {snippet['id']}"

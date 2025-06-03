@@ -23,8 +23,8 @@ model_name = os.getenv("MODEL_NAMEDS", "DeepSeek-R1")
 # Initialize client
 try:
     client = ChatCompletionsClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(key),
+        endpoint=endpoint, # type: ignore
+        credential=AzureKeyCredential(key), # type: ignore
         headers={"x-ms-model-mesh-model-name": model_name}  # Add the model name in the header
     )
     print("✅ Client initialized | Model:", client.get_model_info().model_name)
@@ -56,8 +56,8 @@ try:
     
     # Initialize direct chat client
     deepseek_client = ChatCompletionsClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(key),
+        endpoint=endpoint, # type: ignore
+        credential=AzureKeyCredential(key), # type: ignore
         headers={"x-ms-model-mesh-model-name": model_name}  # Add the model name in the header
     )
     print(f"✅ DeepSeek-R1 client initialized | Model: {model_name}")
@@ -136,6 +136,10 @@ def finops_expert_with_tavily(query):
     try:
         print(f"🔍 Searching for FinOps documentation about: {query}")
         
+        # Initialize variables before conditional blocks
+        context = ""
+        urls = []
+        
         # Try to get documentation from Tavily search if client is available
         if tavily_client:
             search_result = search_finops_docs_with_tavily(query)
@@ -181,7 +185,7 @@ def finops_expert_with_tavily(query):
         user_message = f"""
         Based on Microsoft's FinOps documentation:
         
-        {context}
+        {context} # type: ignore
         
         User query: {query}
         

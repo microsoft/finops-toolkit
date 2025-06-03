@@ -1,4 +1,0 @@
-ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
-promptflow-devkit 1.17.2 requires pillow<11.1.0,>=10.1.0, but you have pillow 11.1.0 which is incompatible.
-semantic-kernel 1.26.1 requires pydantic!=2.10.0,!=2.10.1,!=2.10.2,!=2.10.3,<2.11,>=2.0, but you have pydantic 2.11.1 which is incompatible.
-semantic-kernel 1.26.1 requires websockets<15,>=13, but you have websockets 15.0.1 which is incompatible.
