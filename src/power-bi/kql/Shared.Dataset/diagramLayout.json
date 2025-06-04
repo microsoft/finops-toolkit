@@ -321,8 +321,7 @@
         },
         {
           "location": {},
-          "nodeIndex": "VMDisks",
-          "nodeLineageTag": "7c82182e-366d-4b8c-ab62-f2c7a44b4722",
+          "nodeIndex": "VirtualMachinesDisks",
           "size": {
             "height": 300,
             "width": 234
@@ -372,19 +371,6 @@
         },
         {
           "location": {
-            "x": 659.28571428571422,
-            "y": 19.571428571428555
-          },
-          "nodeIndex": "VMDisks",
-          "nodeLineageTag": "7c82182e-366d-4b8c-ab62-f2c7a44b4722",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 1
-        },
-        {
-          "location": {
             "x": 639.42857142857144,
             "y": 453.71428571428578
           },
@@ -408,6 +394,18 @@
             "width": 234
           },
           "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 659.28571428571422,
+            "y": 19.571428571428555
+          },
+          "nodeIndex": "VirtualMachinesDisks",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "Virtual Machines",

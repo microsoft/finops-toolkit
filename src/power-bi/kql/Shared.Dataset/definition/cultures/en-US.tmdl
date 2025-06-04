@@ -35161,7 +35161,7 @@ cultureInfo en-US
 			    "vmdisks.name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "VMDisks",
+			          "ConceptualEntity": "VirtualMachinesDisks",
 			          "ConceptualProperty": "name"
 			        }
 			      },
@@ -35182,7 +35182,7 @@ cultureInfo en-US
 			    "vmdisks.location": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "VMDisks",
+			          "ConceptualEntity": "VirtualMachinesDisks",
 			          "ConceptualProperty": "location"
 			        }
 			      },
@@ -35203,7 +35203,7 @@ cultureInfo en-US
 			    "vmdisks.skuname": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "VMDisks",
+			          "ConceptualEntity": "VirtualMachinesDisks",
 			          "ConceptualProperty": "skuName"
 			        }
 			      },
@@ -35224,7 +35224,7 @@ cultureInfo en-US
 			    "vmdisks.disktype": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "VMDisks",
+			          "ConceptualEntity": "VirtualMachinesDisks",
 			          "ConceptualProperty": "diskType"
 			        }
 			      },

@@ -1,4 +1,4 @@
-table VMDisks
+table VirtualMachinesDisks
 	lineageTag: 7c82182e-366d-4b8c-ab62-f2c7a44b4722
 
 	column subscriptionId
@@ -161,7 +161,7 @@ table VMDisks
 
 		annotation SummarizationSetBy = Automatic
 
-	partition VMDisks = m
+	partition VirtualMachinesDisks = m
 		mode: import
 		queryGroup: 'Resource Graph'
 		source =

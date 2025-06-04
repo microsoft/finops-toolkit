@@ -95,12 +95,12 @@ relationship 4ee90fb7-c63f-2de1-0745-44302c95785b
 	toColumn: Resources.id
 
 relationship AutoDetected_9a71eb9a-89de-418e-b137-caa4fe556065
-	fromColumn: VMDisks.subscriptionId
+	fromColumn: VirtualMachinesDisks.subscriptionId
 	toColumn: Subscriptions.subscriptionId
 
 relationship d97e2f6d-bcf9-c4d5-09e0-d36bb4bfd461
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
-	fromColumn: VMDisks.managedBy
+	fromColumn: VirtualMachinesDisks.managedBy
 	toColumn: VirtualMachines.id
 
