@@ -188,7 +188,7 @@ V5\Delivery Artifacts\Well-Architected Cost Optimization Assessment Executive Su
     ```
 
     * Replace `"C:\Path\To\Your\Recommendations.xlsx"` with the actual path to your Excel file.
-    * Replace `"C:\Path\To\Your\Presentation.pptx"` with the path to your PowerPoint template.
+    * Replace `"C:\Path\To\Your\Well-Architected Cost Optimization Assessment Executive Summary.pptx"` with the path to your PowerPoint template.
     * Replace `"C:\Path\To\Your\UpdatedPresentation.pptx"` with the desired output path (optional).
 
     **Example (without specifying OutputPath):**
