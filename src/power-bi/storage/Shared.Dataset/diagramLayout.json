@@ -364,8 +364,7 @@
             "x": 3256.5962438145889,
             "y": 1003.9967510650295
           },
-          "nodeIndex": "VMDisks",
-          "nodeLineageTag": "e63fdb8f-a3c0-49bd-a8fe-796d50b0deed",
+          "nodeIndex": "VirtualMachinesDisks",
           "size": {
             "height": 300,
             "width": 234
@@ -444,13 +443,12 @@
             "x": 683.89285714285722,
             "y": 103.57142857142856
           },
-          "nodeIndex": "VMDisks",
-          "nodeLineageTag": "e63fdb8f-a3c0-49bd-a8fe-796d50b0deed",
+          "nodeIndex": "VirtualMachinesDisks",
           "size": {
             "height": 300,
             "width": 234
           },
-          "zIndex": 5
+          "zIndex": 0
         }
       ],
       "name": "Virtual Machines",
