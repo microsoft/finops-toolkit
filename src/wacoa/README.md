@@ -184,11 +184,11 @@ V5\Delivery Artifacts\Well-Architected Cost Optimization Assessment Executive Su
 
 2.  **Execute the Script:**
     ```powershell
-    .\generateCostPPT.ps1 -InputPath "C:\Path\To\Your\Recommendations.xlsx" -PowerPointPath "C:\Path\To\Your\Presentation.pptx" -OutputPath "C:\Path\To\Your\UpdatedPresentation.pptx"
+    .\generateCostPPT.ps1 -InputPath "C:\Path\To\Your\Recommendations.xlsx" -PowerPointPath "C:\Path\To\Your\Well-Architected Cost Optimization Assessment Executive Summary.pptx" -OutputPath "C:\Path\To\Your\UpdatedPresentation.pptx"
     ```
 
     * Replace `"C:\Path\To\Your\Recommendations.xlsx"` with the actual path to your Excel file.
-    * Replace `"C:\Path\To\Your\Presentation.pptx"` with the path to your PowerPoint template.
+    * Replace `"C:\Path\To\Your\Well-Architected Cost Optimization Assessment Executive Summary.pptx"` with the path to your PowerPoint template.
     * Replace `"C:\Path\To\Your\UpdatedPresentation.pptx"` with the desired output path (optional).
 
     **Example (without specifying OutputPath):**
