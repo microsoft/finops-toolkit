@@ -1,0 +1,55 @@
+name: 'Update MS Learn Documentation Dates'
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'docs-mslearn/**/*.md'
+  workflow_dispatch: {}
+
+env:
+  github_user_name: "github-actions"
+  github_email: "41898282+github-actions[bot]@users.noreply.github.com"
+  github_commit_message: "Update MS Learn documentation dates"
+
+jobs:
+  update-mslearn-dates:
+    name: Update ms.date fields in documentation
+    if: github.repository == 'microsoft/finops-toolkit' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions: 
+     contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Local Git
+        run: |
+          git config --global user.name $github_user_name
+          git config --global user.email $github_email
+
+      - name: Update MS Learn documentation dates
+        shell: pwsh
+        run: |
+          $VerbosePreference = "Continue"
+          ./src/scripts/Update-MsLearnDate.ps1
+
+      - name: Check for changes
+        id: git_status
+        run: |
+          mapfile -t CHECK_GIT_STATUS < <(git status -s)
+          printf "%s\n" "${CHECK_GIT_STATUS[@]}"
+          echo "changes=${#CHECK_GIT_STATUS[@]}" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.git_status.outputs.changes > 0
+        run: |
+          echo "Pushing changes to origin..."
+          git add .
+          git commit -m "$github_commit_message [$GITHUB_ACTOR/${GITHUB_SHA::8}]"
+          git push
