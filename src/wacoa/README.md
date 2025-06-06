@@ -106,11 +106,11 @@ This PowerShell script solution automates the generation of cost optimization re
     *   Navigate to the directory where you saved `CostRecommendations.ps1`.
     *   Run the script:
         ```powershell
-        .\CostRecommendations.ps1
+        .\collectCostRecommendations.ps1
         ```
     *   You can also use the `-Verbose` switch for more detailed console output:
         ```powershell
-        .\CostRecommendations.ps1 -Verbose
+        .\collectCostRecommendations.ps1-Verbose
         ```
 
 4.  **Follow the Interactive Prompts:**
@@ -135,7 +135,7 @@ This PowerShell script solution automates the generation of cost optimization re
 ## **Supporting Files**
 
 ### `settings.json` (Auto-generated/Customizable)
-*   **Location:** Same directory as `CostRecommendations.ps1`.
+*   **Location:** Same directory as `collectCostRecommendations.ps1`.
 *   **Purpose:** Stores configuration for script version, repository URLs (for updates and resource downloads), and local paths.
 
 ### `azure-resources/` (Auto-downloaded)
