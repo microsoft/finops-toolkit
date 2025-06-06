@@ -103,3 +103,13 @@ relationship AutoDetected_19cbab3d-1150-45a4-9258-ca0b47ba687d
 	fromColumn: AdvisorRecommendations.subscriptionId
 	toColumn: Subscriptions.subscriptionId
 
+relationship AutoDetected_8af1c026-78c9-4c32-ba5d-c90a60061c83
+	fromColumn: VirtualMachinesDisks.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship 6fd3a8f2-806c-c31c-48fc-fd3779d51a20
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: VirtualMachines.id
+	toColumn: VirtualMachinesDisks.managedBy
+
