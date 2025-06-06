@@ -330,7 +330,7 @@ table StorageData
 						//     else PreCheck,
 						"Error",
 							each try if [StorageContainer] = "config" and [Name] = "settings.json" then (
-								try  if (Text.StartsWith([HubVersion], "0.0") or Text.StartsWith([HubVersion], "0.1")) then "InvalidHubVersion"
+								try  if (Text.StartsWith([HubVersion], "0.0") or [HubVersion] = "0.1" or Text.StartsWith([HubVersion], "0.1.") or Text.StartsWith([HubVersion], "0.1-")) then "InvalidHubVersion"
 								else if [HubVersion] = "0.2"                                                           then "BadHubVersion"
 								else null
 								otherwise "UnknownHubVersion"
