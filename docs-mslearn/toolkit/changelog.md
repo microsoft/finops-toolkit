@@ -57,6 +57,7 @@ _Released June 2, 2025_
 - **Fixed**
   - Address new data quality issues with data ingested into Data Explorer:
     - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
+    - Change data types for ChargePeriodStart and ChargePeriodEnd from 'datetimezone' to 'date' in Power BI KQL reports to resolve invalid calculations in running total measures.
 
 ### [Power BI reports](power-bi/reports.md) v0.11
 
