@@ -18,7 +18,7 @@ metadata:
 # highlightedContent section (optional)
 # Maximum of 8 items
 highlightedContent:
-  # itemType: architecture | concept | deploy | download | get-started | how-to-guide | learn | overview | quickstart | reference | tutorial | video | whats-new
+# itemType: architecture | concept | deploy | download | get-started | how-to-guide | learn | overview | quickstart | reference | tutorial | video | whats-new
   items:
     # Card
     - title: What is FinOps?
@@ -47,100 +47,101 @@ highlightedContent:
 
 # conceptualContent section (optional)
 conceptualContent:
-  # itemType: architecture | concept | deploy | download | get-started | how-to-guide | learn | overview | quickstart | reference | tutorial | video | whats-new
+# itemType: architecture | concept | deploy | download | get-started | how-to-guide | learn | overview | quickstart | reference | tutorial | video | whats-new
   title: FinOps Framework # < 60 chars (Optional; Remove if not applicable.)
   summary: The FinOps Framework is a comprehensive set of best practices and principles to help organizations drive greater business value from the cloud. # < 160 chars (Optional; Remove if not applicable.)
   items:
     # Card
     - title: Understand usage and cost
       links:
-        - url: framework/understand/understand-cloud-usage-cost.md
-          itemType: overview
-          text: Overview
-        - url: framework/understand/ingestion.md
-          itemType: concept
-          text: Data ingestion
-        - url: framework/understand/allocation.md
-          itemType: concept
-          text: Allocation
-        - url: framework/understand/reporting.md
-          itemType: concept
-          text: Reporting + analytics
-        - url: framework/understand/anomalies.md
-          itemType: concept
-          text: Anomaly management
+      - url: framework/understand/understand-cloud-usage-cost.md
+        itemType: overview
+        text: Overview
+      - url: framework/understand/ingestion.md
+        itemType: concept
+        text: Data ingestion
+      - url: framework/understand/allocation.md
+        itemType: concept
+        text: Allocation
+      - url: framework/understand/reporting.md
+        itemType: concept
+        text: Reporting + analytics
+      - url: framework/understand/anomalies.md
+        itemType: concept
+        text: Anomaly management
     # Card
     - title: Quantify business value
       links:
-        - url: framework/quantify/quantify-business-value.md
-          itemType: overview
-          text: Overview
-        - url: framework/quantify/planning.md
-          itemType: concept
-          text: Planning and estimating
-        - url: framework/quantify/forecasting.md
-          itemType: concept
-          text: Forecasting
-        - url: framework/quantify/budgeting.md
-          itemType: concept
-          text: Budgeting
-        - url: framework/quantify/benchmarking.md
-          itemType: concept
-          text: Benchmarking
-        - url: framework/quantify/unit-economics.md
-          itemType: concept
-          text: Unit economics
+      - url: framework/quantify/quantify-business-value.md
+        itemType: overview
+        text: Overview
+      - url: framework/quantify/planning.md
+        itemType: concept
+        text: Planning and estimating
+      - url: framework/quantify/forecasting.md
+        itemType: concept
+        text: Forecasting
+      - url: framework/quantify/budgeting.md
+        itemType: concept
+        text: Budgeting
+      - url: framework/quantify/benchmarking.md
+        itemType: concept
+        text: Benchmarking
+      - url: framework/quantify/unit-economics.md
+        itemType: concept
+        text: Unit economics
     # Card
     - title: Optimize usage and cost
       links:
-        - url: framework/optimize/optimize-cloud-usage-cost.md
-          itemType: overview
-          text: Overview
-        - url: framework/optimize/architecting.md
-          itemType: concept
-          text: Architecting for cloud
-        - url: framework/optimize/workloads.md
-          itemType: concept
-          text: Workload optimization
-        - url: framework/optimize/licensing.md
-          itemType: concept
-          text: Licensing and SaaS
-        - url: framework/optimize/rates.md
-          itemType: concept
-          text: Rate optimization
-        - url: framework/optimize/sustainability.md
-          itemType: concept
-          text: Cloud sustainability
+      - url: framework/optimize/optimize-cloud-usage-cost.md
+        itemType: overview
+        text: Overview
+      - url: framework/optimize/architecting.md
+        itemType: concept
+        text: Architecting for cloud
+      - url: framework/optimize/workloads.md
+        itemType: concept
+        text: Workload optimization
+      - url: framework/optimize/licensing.md
+        itemType: concept
+        text: Licensing and SaaS
+      - url: framework/optimize/rates.md
+        itemType: concept
+        text: Rate optimization
+      - url: framework/optimize/sustainability.md
+        itemType: concept
+        text: Cloud sustainability
     # Card
     - title: Manage the FinOps practice
       links:
-        - url: framework/manage/manage-finops.md
-          itemType: overview
-          text: Overview
-        - url: framework/manage/operations.md
-          itemType: concept
-          text: FinOps practice operations
-        - url: framework/manage/education.md
-          itemType: concept
-          text: FinOps education and enablement
-        - url: framework/manage/governance.md
-          itemType: concept
-          text: Policy and governance
-        - url: framework/manage/invoicing-chargeback.md
-          itemType: concept
-          text: Invoicing + chargeback
-        - url: framework/manage/assessment.md
-          itemType: concept
-          text: FinOps assessment
-        - url: framework/manage/onboarding.md
-          itemType: concept
-          text: Onboarding workloads
-        - url: framework/manage/tools-services.md
-          itemType: concept
-          text: FinOps tools and services
-        - url: framework/manage/intersecting-disciplines.md
-          itemType: concept
-          text: Intersecting disciplines
+      - url: framework/manage/manage-finops.md
+        itemType: overview
+        text: Overview
+      - url: framework/manage/operations.md
+        itemType: concept
+        text: FinOps practice operations
+      - url: framework/manage/education.md
+        itemType: concept
+        text: FinOps education and enablement
+      - url: framework/manage/governance.md
+        itemType: concept
+        text: Policy and governance
+      - url: framework/manage/invoicing-chargeback.md
+        itemType: concept
+        text: Invoicing + chargeback
+      - url: framework/manage/assessment.md
+        itemType: concept
+        text: FinOps assessment
+      - url: framework/manage/onboarding.md
+        itemType: concept
+        text: Onboarding workloads
+      - url: framework/manage/tools-services.md
+        itemType: concept
+        text: FinOps tools and services
+      - url: framework/manage/intersecting-disciplines.md
+        itemType: concept
+        text: Intersecting disciplines
+
 
 tools:
   title: Tools
@@ -177,29 +178,29 @@ additionalContent:
       items:
         - title: Getting started + community
           links:
-            - url: https://finops.org/
-              text: FinOps Foundation
-            - url: https://www.finops.org/community/events/
-              text: FinOps events
-            - url: https://www.finops.org/community/community-slack/
-              text: Community Slack
-            - url: https://www.finops.org/members/microsoft/
-              text: Microsoft member profile
+          - url: https://finops.org/
+            text: FinOps Foundation
+          - url: https://www.finops.org/community/events/
+            text: FinOps events
+          - url: https://www.finops.org/community/community-slack/
+            text: Community Slack
+          - url: https://www.finops.org/members/microsoft/
+            text: Microsoft member profile
         - title: Learning + best practices
           links:
-            - url: https://learn.finops.org/
-              text: FinOps certification and training
-            - url: https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA
-              text: YouTube channel
-            - url: https://www.finops.org/framework/
-              text: FinOps Framework
+          - url: https://learn.finops.org/
+            text: FinOps certification and training
+          - url: https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA
+            text: YouTube channel
+          - url: https://www.finops.org/framework/
+            text: FinOps Framework
         - title: Projects + resources
           links:
-            - url: https://finops.org/
-              text: FinOps Open Cost and Usage specification
-            - url: https://www.finops.org/working-groups/
-              text: Working groups
-            - url: https://data.finops.org/
-              text: State of FinOps
-            - url: https://www.finops.org/landscape/?prod_TOOLS_SERVICES%5BrefinementList%5D%5Bcloud_providers%5D%5B0%5D=Azure
-              text: Tools, services, and training
+          - url: https://finops.org/
+            text: FinOps Open Cost and Usage specification
+          - url: https://www.finops.org/working-groups/
+            text: Working groups
+          - url: https://data.finops.org/
+            text: State of FinOps
+          - url: https://www.finops.org/landscape/?prod_TOOLS_SERVICES%5BrefinementList%5D%5Bcloud_providers%5D%5B0%5D=Azure
+            text: Tools, services, and training
