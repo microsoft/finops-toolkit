@@ -6,8 +6,8 @@
 Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
-        $plannedRelease = '0.11'
-        $expected = @('0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+        $plannedRelease = '0.12'
+        $expected = @('0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
 
         # Act
         $result = Get-FinOpsToolkitVersion
@@ -36,6 +36,7 @@ Describe 'Get-FinOpsToolkitVersion' {
 
                 # Templates
                 CheckFile "finops-alerts-v$verStr.zip"            '0.9'  $null
+                CheckFile "finops-hub-copilot.zip"                '0.11' $null
                 CheckFile "finops-hub-dashboard.json"             '0.8'  $null
                 CheckFile "finops-hub-fabric-setup-Hub.kql"       '0.10' $null
                 CheckFile "finops-hub-fabric-setup-Ingestion.kql" '0.10' $null
@@ -79,7 +80,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "sample-exports.zip"                  '0.2' '0.2'
 
                 $_.Files.Count | Should -Be $fileCount
-                Report "$($_.Version) checks passed – $fileCount files"
+                Report "$($_.Version) checks passed - $fileCount files"
             }
         }
     }
