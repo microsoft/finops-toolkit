@@ -1,9 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { HubAppConfig } from 'hub-types.bicep'
+
+
 //==============================================================================
 // Parameters
 //==============================================================================
+
+@description('Required. Name of the publisher-specific storage account to create or update.')
+param appConfig HubAppConfig
 
 @description('Required. Name of the storage container to create or update.')
 param container string
@@ -11,33 +17,8 @@ param container string
 @description('Optional. Dictionary of key/value pairs for the files to upload to the specified container. The key is the target path under the container and the value is the contents of the file. Default: {} (no files to upload).')
 param files object = {}
 
-//------------------------------------------------------------------------------
-// Hub context
-//------------------------------------------------------------------------------
-
-@description('Required. Name of the publisher-specific storage account to create or update.')
-param storageAccountName string
-
-@description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
-param location string = resourceGroup().location
-
-@description('Optional. Tags to apply to all resources.')
-param tags object = {}
-
-@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
-param tagsByResource object = {}
-
-@description('Optional. The name of the managed identity to use for uploading files.')
-param blobManagerIdentityName string = ''
-
-@description('Required. Indicates whether public access should be enabled.')
-param enablePublicAccess bool
-
-@description('Optional. The name of the storage account used for deployment scripts.')
-param scriptStorageAccountName string = ''
-
-@description('Optional. Resource ID of the virtual network for running deployment scripts.')
-param scriptSubnetId string = ''
+@description('Optional. Indicates whether to create the blob manager user assigned identity even if files are not being uploaded. Default: false.')
+param forceCreateBlobManagerIdentity bool = false
 
 
 //==============================================================================
@@ -47,8 +28,6 @@ param scriptSubnetId string = ''
 var fileCount = length(items(files))
 var hasFiles = fileCount > 0
 
-var deploymentName = '${deployment().name}.Upload'
-
 
 //==============================================================================
 // Resources
@@ -56,9 +35,9 @@ var deploymentName = '${deployment().name}.Upload'
 
 // Get storage account instance
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: storageAccountName
+  name: appConfig.publisher.storage
   
-  resource blobService 'blobServices@2022-09-01' = {
+  resource blobService 'blobServices@2022-09-01' existing = {
     name: 'default'
 
     resource targetContainer 'containers@2022-09-01' = {
@@ -73,25 +52,41 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 
 // TODO: Enforce retention
 
-//------------------------------------------------------------------------------
-// Upload schema file to storage
-//------------------------------------------------------------------------------
-
-module uploadFiles 'hub-deploymentScript.bicep' = if (hasFiles) {
-  name: deploymentName
+// Create blob manager identity for uploads
+module identity 'hub-identity.bicep' = if (hasFiles || forceCreateBlobManagerIdentity) {
+  name: '${deployment().name}.Identity'
   params: {
-    location: location
-    tags: tags
-    tagsByResource: tagsByResource
+    identityName: '${appConfig.publisher.storage}_blobManager'
+    appConfig: appConfig
+    roleAssignmentResourceId: resourceId('Microsoft.Storage/storageAccounts', appConfig.publisher.storage)
+    roles: [
+      // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+      // Used by deployment scripts to write data to blob storage
+      'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+      
+      // Storage File Data Privileged Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor
+      // https://learn.microsoft.com/azure/azure-resource-manager/templates/deployment-script-template#use-existing-storage-account
+      '69566ab7-960f-475b-8e7c-b3118f30c6bd'
+    ]
+  }
+}
 
-    identityName: blobManagerIdentityName
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
+// Upload schema file to storage
+module uploadFiles 'hub-deploymentScript.bicep' = if (hasFiles) {
+  name: '${deployment().name}.Upload'
+  params: {
+    location: appConfig.hub.location
+    tags: appConfig.app.tags
+    tagsByResource: appConfig.deployment.tagsByResource
+
+    identityName: identity.outputs.name
+    enablePublicAccess: !appConfig.network.isPrivate
+    scriptStorageAccountName: appConfig.deployment.storage
+    scriptSubnetId: appConfig.network.subnets.scripts
     environmentVariables: [
       {
         name: 'storageAccountName'
-        value: storageAccount.name
+        value: appConfig.publisher.storage
       }
       {
         name: 'containerName'
@@ -116,3 +111,12 @@ output containerName string = storageAccount::blobService::targetContainer.name
 
 @description('The number of files uploaded to the storage container.')
 output filesUploaded int = fileCount
+
+@description('Resource ID of the user assigned identity used to upload files. Will be empty if no files are uploaded or forceCreateBlobManagerIdentity is false.')
+output identityId string = hasFiles || forceCreateBlobManagerIdentity ? identity.outputs.id : ''
+
+@description('Name of the user assigned identity used to upload files. Will be empty if no files are uploaded or forceCreateBlobManagerIdentity is false.')
+output identityName string = hasFiles || forceCreateBlobManagerIdentity ? identity.outputs.name : ''
+
+@description('Principal ID of the user assigned identity used to upload files. Will be empty if no files are uploaded or forceCreateBlobManagerIdentity is false.')
+output identityPrincipalId string = hasFiles || forceCreateBlobManagerIdentity ? identity.outputs.principalId : ''
