@@ -22,20 +22,10 @@ param coreConfig HubCoreConfig
 
 
 //==============================================================================
-// Variables
-//==============================================================================
-
-// None
-
-
-//==============================================================================
 // Resources
 //==============================================================================
 
-//------------------------------------------------------------------------------
 // App registration
-//------------------------------------------------------------------------------
-
 module appRegistration 'hub-app.bicep' = {
   name: 'Microsoft.FinOpsHubs.RemoteHub_Register'
   params: {
@@ -54,10 +44,7 @@ module appRegistration 'hub-app.bicep' = {
   }
 }
 
-//------------------------------------------------------------------------------
 // Key Vault secret
-//------------------------------------------------------------------------------
-
 module keyVault_secret 'hub-vault.bicep' = {
   name: 'keyVault_secret'
   params: {
@@ -74,4 +61,5 @@ module keyVault_secret 'hub-vault.bicep' = {
 // Outputs
 //==============================================================================
 
-// None
+@description('Name of the Key Vault instance.')
+output keyVaultName string = appRegistration.outputs.config.publisher.keyVault
