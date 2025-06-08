@@ -14,13 +14,14 @@ param logAnalyticsWorkspaceName string
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: logAnalyticsWorkspaceName
   location: location
+  tags: tags
   properties: {
     sku: {
       name: 'PerGB2018'
     }
     retentionInDays: 30
     publicNetworkAccessForIngestion: 'Enabled'
-    publicNetworkAccessForQuery: 'Disabled'
+    publicNetworkAccessForQuery: 'Enabled'
   }
 }
 

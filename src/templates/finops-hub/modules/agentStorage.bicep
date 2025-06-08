@@ -87,7 +87,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     minimumTlsVersion: 'TLS1_2'
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Deny'
+      defaultAction: enablePublicAccess ? 'Allow' : 'Deny'
     }
     supportsHttpsTrafficOnly: true
   }
@@ -174,7 +174,7 @@ resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' exist
 
 resource filePrivateEndpointDns 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = if (!enablePublicAccess) {
   parent: storagePrivateEndpointFile
-  name: 'flie-PrivateDnsZoneGroup'
+  name: 'file-PrivateDnsZoneGroup'
   properties:{
     privateDnsZoneConfigs: [
       {

@@ -146,7 +146,7 @@ var subnets = [
 resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = {
   name: nsgName
   location: location
-  tags: union(tags, tagsByResource[?'Microsoft.Storage/networkSecurityGroups'] ?? {})
+  tags: union(tags, tagsByResource[?'Microsoft.Network/networkSecurityGroups'] ?? {})
   properties: {
     securityRules: [
       {

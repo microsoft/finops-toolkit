@@ -18,8 +18,8 @@ param aiHubFriendlyName string = aiHubName
 @description('AI hub description')
 param aiHubDescription string
 
-//@description('Resource ID of the application insights resource for storing diagnostics logs')
-//param applicationInsightsId string
+@description('Resource ID of the application insights resource for storing diagnostics logs')
+param applicationInsightsId string
 
 @description('Resource ID of the container registry resource for storing docker images')
 param containerRegistryId string
@@ -88,7 +88,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
     // dependent resources
     keyVault: keyVaultId
     storageAccount: storageAccountId
-    //applicationInsights: applicationInsightsId
+    applicationInsights: applicationInsightsId
     containerRegistry: containerRegistryId
 
     // network settings
@@ -104,7 +104,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
 
   
   // Azure Search connection
-  resource searchServiceConnection 'connections@2024-01-01-preview' = {
+  resource searchServiceConnection 'connections@2024-10-01' = {
     name: '${aiHubName}-connection-Search'
     properties: {
       category: 'CognitiveSearch'
@@ -112,7 +112,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
       #disable-next-line BCP225
       authType: connectionAuthMode 
       isSharedToAll: true
-      useWorkspaceManagedIdentity: false
+      useWorkspaceManagedIdentity: true
       sharedUserList: []
 
       credentials: connectionAuthMode == 'ApiKey'
@@ -129,7 +129,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
   }
 
   // AI Services connection
-  resource aiServicesConnection 'connections@2024-01-01-preview' = {
+  resource aiServicesConnection 'connections@2024-10-01' = {
     name: '${aiHubName}-connection-AIServices'
     properties: {
       category: 'AIServices'
@@ -137,6 +137,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
       #disable-next-line BCP225
       authType: connectionAuthMode 
       isSharedToAll: true
+      useWorkspaceManagedIdentity: true
       
       credentials: connectionAuthMode == 'ApiKey'
         ? {
@@ -153,7 +154,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview'
 
 }
 
-resource project 'Microsoft.MachineLearningServices/workspaces@2024-07-01-preview' = {
+resource project 'Microsoft.MachineLearningServices/workspaces@2024-10-01-preview' = {
   name: projectName
   kind: 'Project'
   location: location
@@ -263,3 +264,4 @@ output aiHubName string = aiHub.name
 output aiHubPrincipalId string = aiHub.identity.principalId
 
 output projectID string = project.id
+output projectPrincipalId string = project.identity.principalId
