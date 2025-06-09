@@ -40,7 +40,11 @@ param(
 $repoRoot = "$PSScriptRoot/../.."
 
 # Handle absolute vs relative paths
-$targetPath = "$repoRoot/$Path"
+if ([System.IO.Path]::IsPathRooted($Path)) {
+    $targetPath = $Path
+} else {
+    $targetPath = "$repoRoot/$Path"
+}
 
 if (-not (Test-Path $targetPath)) {
     Write-Error "Path not found: $targetPath"
