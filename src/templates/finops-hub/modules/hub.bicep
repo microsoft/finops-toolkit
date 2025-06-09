@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getHubTags, getPublisherTags, HubCoreConfig, newHubCoreConfig } from 'hub-types.bicep'
+import { getHubTags, getPublisherTags, HubProperties, newHub } from 'hub-types.bicep'
 
 
 //==============================================================================
@@ -169,7 +169,7 @@ param enableDefaultTelemetry bool = true
 // TODO: Move hub config to be retrieved from the cloud
 
 // Hub details
-var coreConfig = newHubCoreConfig(
+var hub = newHub(
   hubName,
   location,
   tags,
@@ -253,7 +253,7 @@ var telemetryString = join([
 
 resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
-  tags: getHubTags(coreConfig, 'Microsoft.Resources/deployments')
+  tags: getHubTags(hub, 'Microsoft.Resources/deployments')
   properties: {
     mode: 'Incremental'
     template: {
@@ -277,7 +277,7 @@ resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefa
 module infrastructure 'infrastructure.bicep' = {
   name: 'Microsoft.FinOpsHubs.Infrastructure'
   params: {
-    coreConfig: coreConfig
+    hub: hub
   }
 }
 
@@ -293,6 +293,7 @@ module appRegistration 'hub-app.bicep' = {
     infrastructure
   ]
   params: {
+    hub: hub
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
@@ -303,8 +304,6 @@ module appRegistration 'hub-app.bicep' = {
       'Storage'
     ]
     telemetryString: telemetryString
-
-    coreConfig: coreConfig
   }
 }
 
@@ -318,17 +317,17 @@ module storage 'storage.bicep' = {
     infrastructure
   ]
   params: {
-    storageAccountName: appRegistration.outputs.config.publisher.storage
+    storageAccountName: appRegistration.outputs.config.storage
     location: location
-    tags: coreConfig.hub.tags
+    tags: hub.tags
     tagsByResource: tagsByResource
     scopesToMonitor: scopesToMonitor
     msexportRetentionInDays: exportRetentionInDays  // cSpell:ignore msexport
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
-    scriptSubnetId: coreConfig.network.subnets.scripts
-    scriptStorageAccountName: coreConfig.deployment.storage
+    scriptSubnetId: hub.?routing.subnets.scripts ?? ''
+    scriptStorageAccountName: hub.?routing.scriptStorage ?? ''
     enablePublicAccess: enablePublicAccess
   }
 }
@@ -345,11 +344,11 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     clusterCapacity: dataExplorerCapacity
     // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
     location: location
-    tags: coreConfig.hub.tags
+    tags: hub.tags
     tagsByResource: tagsByResource
-    dataFactoryName: appRegistration.outputs.config.publisher.dataFactory
+    dataFactoryName: appRegistration.outputs.config.dataFactory
     rawRetentionInDays: dataExplorerRawRetentionInDays
-    virtualNetworkId: safeVnetId
+    virtualNetworkId: safeVnetId  // cSpell:ignore vnet
     privateEndpointSubnetId: safeDataExplorerSubnetId
     enablePublicAccess: enablePublicAccess
     storageAccountName: storage.outputs.name
@@ -364,7 +363,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
     hubName: hubName
-    dataFactoryName: appRegistration.outputs.config.publisher.dataFactory
+    dataFactoryName: appRegistration.outputs.config.dataFactory
     location: location
     tags: appRegistration.outputs.config.publisher.tags
     tagsByResource: tagsByResource
@@ -379,11 +378,11 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
     enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: coreConfig.deployment.storage
-    scriptSubnetId: coreConfig.network.subnets.scripts
+    scriptStorageAccountName: hub.?routing.scriptStorage ?? ''
+    scriptSubnetId: hub.?routing.subnets.scripts ?? ''
 
     // TODO: Move to remoteHub.bicep
-    keyVaultName: empty(remoteHubStorageKey) ? '' : appRegistration.outputs.config.publisher.keyVault
+    keyVaultName: empty(remoteHubStorageKey) ? '' : appRegistration.outputs.config.keyVault
     remoteHubStorageUri: remoteHubStorageUri
   }
 }
@@ -395,8 +394,8 @@ module dataFactoryResources 'dataFactory.bicep' = {
 module remoteHub 'remoteHub.bicep' = if (!empty(remoteHubStorageKey)) {
   name: 'Microsoft.FinOpsHubs.RemoteHub'
   params: {
+    hub: hub
     remoteStorageKey: remoteHubStorageKey
-    coreConfig: coreConfig
   }
 }
 
@@ -411,7 +410,7 @@ output name string = hubName
 output location string = location
 
 @description('Name of the Data Factory.')
-output dataFactoryName string = appRegistration.outputs.config.publisher.dataFactory
+output dataFactoryName string = appRegistration.outputs.config.dataFactory
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storage.outputs.resourceId

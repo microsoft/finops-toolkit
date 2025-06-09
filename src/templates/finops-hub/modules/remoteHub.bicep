@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { HubCoreConfig } from 'hub-types.bicep'
+import { HubProperties } from 'hub-types.bicep'
 
 
 //==============================================================================
@@ -17,8 +17,8 @@ param remoteStorageKey string
 //------------------------------------------------------------------------------
 
 // TODO: Pull deployment config from the cloud
-@description('Required. FinOps hub coreConfig.')
-param coreConfig HubCoreConfig
+@description('Required. FinOps hub instance properties.')
+param hub HubProperties
 
 
 //==============================================================================
@@ -39,6 +39,7 @@ param coreConfig HubCoreConfig
 module appRegistration 'hub-app.bicep' = {
   name: 'Microsoft.FinOpsHubs.RemoteHub_Register'
   params: {
+    hub: hub
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
     appName: 'RemoteHub'
@@ -49,8 +50,6 @@ module appRegistration 'hub-app.bicep' = {
       'KeyVault'
       'Storage'
     ]
-
-    coreConfig: coreConfig
   }
 }
 
@@ -61,7 +60,7 @@ module appRegistration 'hub-app.bicep' = {
 module keyVault_secret 'hub-vault.bicep' = {
   name: 'keyVault_secret'
   params: {
-    vaultName: appRegistration.outputs.config.publisher.keyVault
+    vaultName: appRegistration.outputs.config.keyVault
     secretName: '${toLower(appRegistration.outputs.config.hub.name)}-storage-key'
     secretValue: remoteStorageKey
     secretExpirationInSeconds: 1702648632

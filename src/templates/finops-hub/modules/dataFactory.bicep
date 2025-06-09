@@ -138,16 +138,23 @@ var allHubTriggers = [
 
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
-  '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
+  // Data Factory contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
+  // Used to start/stop triggers and delete old pipelines/triggers
+  '673868aa-7521-48a0-acc6-0f60742d39f5'
 ]
 
 // Roles for ADF to manage data in storage
 // Does not include roles assignments needed against the export scope
 var storageRbacRoles = [
-  '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
-  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
-  'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
-  '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
+  // Storage Account Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
+  // Used to move files from the msexports to ingestion container
+  '17d1049b-9a84-46fb-8f53-869881c3d3ab'
+  // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+  'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+  // Reader -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
+  'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+  // User Access Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
+  '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
 ]
 
 //==============================================================================
