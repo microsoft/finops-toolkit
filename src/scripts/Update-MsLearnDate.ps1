@@ -37,21 +37,17 @@ param(
 )
 
 # Get the repository root directory (two levels up from this script)
-$repoRoot = Resolve-Path (Join-Path $PSScriptRoot "../..")
+$repoRoot = "$PSScriptRoot/../.."
 
 # Handle absolute vs relative paths
-if ([System.IO.Path]::IsPathRooted($Path)) {
-    $targetPath = $Path
-} else {
-    $targetPath = Join-Path $repoRoot $Path
-}
+$targetPath = "$repoRoot/$Path"
 
 if (-not (Test-Path $targetPath)) {
     Write-Error "Path not found: $targetPath"
     exit 1
 }
 
-Write-Host "Searching for markdown files in: $targetPath"
+Write-Host "Searching for markdown files in: $Path"
 
 # Get current date in MM/dd/yyyy format
 $currentDate = Get-Date -Format "MM/dd/yyyy"
@@ -61,53 +57,38 @@ Write-Host "Current date: $currentDate"
 $datePattern = "^ms\.date:\s+\d{2}/\d{2}/\d{4}\s*$"
 $replacementPattern = "ms.date: $currentDate"
 
-# Find all markdown files
-$markdownFiles = Get-ChildItem -Path $targetPath -Filter "*.md" -Recurse
+# Find markdown files - handle both files and directories
+if (Test-Path $targetPath -PathType Leaf) {
+    # Single file
+    if ($targetPath -like "*.md") {
+        $markdownFiles = @(Get-Item $targetPath)
+    } else {
+        Write-Host "Specified file is not a markdown file: $targetPath"
+        exit 0
+    }
+} else {
+    # Directory - find all markdown files
+    $markdownFiles = Get-ChildItem -Path $targetPath -Filter "*.md" -Recurse
+}
 
 $updatedFiles = @()
 $totalFilesProcessed = 0
 
 foreach ($file in $markdownFiles) {
     $totalFilesProcessed++
-    $relativePath = $file.FullName.Replace($repoRoot.Path + [IO.Path]::DirectorySeparatorChar, "")
+    $relativePath = $file.FullName -replace [regex]::Escape((Resolve-Path $repoRoot).Path + [IO.Path]::DirectorySeparatorChar), ""
     
     $content = Get-Content $file.FullName -Raw
-    $lines = Get-Content $file.FullName
     
-    $updatedLines = @()
-    $fileChanged = $false
+    # Replace all lines that match the ms.date pattern (using multiline flag)
+    $updatedContent = $content -replace "(?m)^ms\.date:\s+\d{2}/\d{2}/\d{4}\s*$", $replacementPattern
     
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        $line = $lines[$i]
-        
-        if ($line -match $datePattern) {
-            $oldLine = $line
-            $newLine = $replacementPattern
-            
-            if ($oldLine -ne $newLine) {
-                $fileChanged = $true
-                Write-Host "  Found match in $relativePath (line $($i + 1)): '$oldLine' -> '$newLine'"
-                
-                if (-not $WhatIf) {
-                    $updatedLines += $newLine
-                } else {
-                    $updatedLines += $oldLine
-                }
-            } else {
-                $updatedLines += $line
-            }
-        } else {
-            $updatedLines += $line
-        }
-    }
-    
-    if ($fileChanged) {
+    if ($content -ne $updatedContent) {
         $updatedFiles += $file
+        Write-Host "  Updated ms.date in: $relativePath"
         
         if (-not $WhatIf) {
-            # Write the updated content back to the file
-            $updatedLines | Set-Content $file.FullName -Encoding UTF8
-            Write-Host "  Updated: $relativePath"
+            $updatedContent | Set-Content $file.FullName -Encoding UTF8 -NoNewline
         } else {
             Write-Host "  Would update: $relativePath"
         }
