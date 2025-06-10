@@ -85,6 +85,7 @@ The following datasets were accounted for in the design, but are not natively su
 - Amazon Web Services (AWS) FOCUS 1.0
 - Google Cloud Platform (GCP) FOCUS 1.0
 - Oracle Cloud Infrastructure (OCI) FOCUS 1.0
+- Alibaba Cloud FOCUS 1.0
 
 Transforms:
 
