@@ -112,24 +112,18 @@ expression 'Default Granularity' = "Monthly" meta [IsParameterQuery=true, List={
 expression PolicyDefinitions =
 		let
 		  query = "
-		    policyResources
-		    | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'
-		    | extend
-		      displayName = properties.displayName,
-		      policyType = properties.policyType,
+		  policyResources
+		    | where type =='microsoft.authorization/policydefinitions' |
+		      extend displayName = properties.displayName,
 		      description = properties.description,
-		      version = properties.version,
-		      parameters = properties.parameters,
-		      policyDefinitions = properties.policyDefinitions,
-		      policyDefinitionGroups = properties.policyDefinitionGroups,
-		      versions = properties.versions,
-		      oldVersions = properties.oldVersions
-		  " & ftk_DemoFilter(),
+		      version = properties.version
+		    | project subscriptionId, id, name, displayName, description, version"
+		  & ftk_DemoFilter(),
 		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
 		  NullHandling =
 		    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 					#table(
-						{ "id", "name", "displayName", "policyType", "description", "version", "parameters", "policyDefinitions", "policyDefinitionGroups", "versions", "oldVersions" },
+						{ "id", "name", "displayName", "description", "version" },
 						{}
 					)
 		    else Source
