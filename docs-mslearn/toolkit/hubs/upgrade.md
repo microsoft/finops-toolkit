@@ -62,8 +62,8 @@ To delete FinOps hubs 0.7 networking resources:
 
 This step only applies if you are using Microsoft Fabric as a primary data store. Skip this step if any of the following apply:
 
-- You are using Azure Storage as your data store
-- You are using Azure Data Explorer as your data store
+- You are using Azure Storage as your data store.
+- You are using Azure Data Explorer as your data store.
 
 The Microsoft Fabric eventhouse database schema must be manually updated with each release. For details, see [Set up Microsoft Fabric](deploy.md#optional-set-up-microsoft-fabric).
 
