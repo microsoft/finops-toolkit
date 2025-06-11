@@ -1,11 +1,3 @@
-relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
-	fromColumn: StorageData.Scope
-	toColumn: HubScopes.Scope
-
-relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
-	fromColumn: StorageErrors.Scope
-	toColumn: HubScopes.Scope
-
 relationship 6d712dbc-9af3-fda3-1038-e362f5e56ab5
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
@@ -27,23 +19,6 @@ relationship ff6ac972-2c35-c20d-b9d4-84c273cc9b5f
 	toCardinality: many
 	fromColumn: PolicyStates.'properties.policyAssignmentId'
 	toColumn: PolicyAssignments.id
-
-relationship 923fe473-f344-7b97-3b8a-c6b009d13973
-	crossFilteringBehavior: bothDirections
-	fromColumn: PolicyStates.'properties.policyAssignmentId'
-	toColumn: 'Compliance calculation'.id
-
-relationship b4df7db2-17c9-dcef-7d32-4d6aaf3b4f3c
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: Costs.x_CommitmentDiscountKey
-	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
-
-relationship c0c15128-2725-100f-2945-f99368d742f6
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
-	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
 
 relationship 2d0a2bef-ef33-9e59-b9b6-714b0796ce66
 	crossFilteringBehavior: bothDirections
@@ -112,4 +87,29 @@ relationship 6fd3a8f2-806c-c31c-48fc-fd3779d51a20
 	toCardinality: many
 	fromColumn: VirtualMachines.id
 	toColumn: VirtualMachinesDisks.managedBy
+
+relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
+	fromColumn: StorageData.Scope
+	toColumn: HubScopes.Scope
+
+relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
+	fromColumn: StorageErrors.Scope
+	toColumn: HubScopes.Scope
+
+relationship 923fe473-f344-7b97-3b8a-c6b009d13973
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyStates.'properties.policyAssignmentId'
+	toColumn: 'Compliance calculation'.id
+
+relationship b4df7db2-17c9-dcef-7d32-4d6aaf3b4f3c
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Costs.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+
+relationship c0c15128-2725-100f-2945-f99368d742f6
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
 
