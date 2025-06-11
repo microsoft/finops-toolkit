@@ -242,7 +242,7 @@ Prices_transform_v1_0()
 .alter table Prices_final_v1_0 policy update
 ```
 [{
-    "IsEnabled": true,
+    "IsEnabled": false,
     "Source": "Prices_raw",
     "Query": "Prices_transform_v1_0()",
     "IsTransactional": true,
@@ -759,7 +759,7 @@ Costs_transform_v1_0()
 .alter table Costs_final_v1_0 policy update
 ```
 [{
-    "IsEnabled": true,
+    "IsEnabled": false,
     "Source": "Costs_raw",
     "Query": "Costs_transform_v1_0()",
     "IsTransactional": true,
@@ -982,7 +982,7 @@ ActualCosts_transform_v1_0()
 .alter table Costs_raw policy update
 ``` 
 [{
-    "IsEnabled": true,
+    "IsEnabled": false,
     "Source": "ActualCosts_raw",
     "Query": "ActualCosts_transform_v1_0()",
     "IsTransactional": true,
@@ -1204,7 +1204,7 @@ AmortizedCosts_transform_v1_0()
 .alter table Costs_raw policy update
 ``` 
 [{
-    "IsEnabled": true,
+    "IsEnabled": false,
     "Source": "AmortizedCosts_raw",
     "Query": "AmortizedCosts_transform_v1_0()",
     "IsTransactional": true,
@@ -1315,7 +1315,7 @@ CommitmentDiscountUsage_transform_v1_0()
 .alter table CommitmentDiscountUsage_final_v1_0 policy update
 ```
 [{
-    "IsEnabled": true,
+    "IsEnabled": false,
     "Source": "CommitmentDiscountUsage_raw",
     "Query": "CommitmentDiscountUsage_transform_v1_0()",
     "IsTransactional": true,
@@ -1427,7 +1427,7 @@ Recommendations_transform_v1_0()
 .alter table Recommendations_final_v1_0 policy update
 ```
 [{
-    "IsEnabled": true,
+    "IsEnabled": false,
     "Source": "Recommendations_raw",
     "Query": "Recommendations_transform_v1_0()",
     "IsTransactional": true,
@@ -1579,7 +1579,7 @@ Transactions_transform_v1_0()
 .alter table Transactions_final_v1_0 policy update
 ```
 [{
-    "IsEnabled": true,
+    "IsEnabled": false,
     "Source": "Transactions_raw",
     "Query": "Transactions_transform_v1_0()",
     "IsTransactional": true,
