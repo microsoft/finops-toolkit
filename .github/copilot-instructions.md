@@ -1,21 +1,21 @@
 <!-- markdownlint-disable MD013 MD022 MD032 -->
 
-# GitHub Copilot Instructions for FinOps Toolkit
+# GitHub Copilot instructions for FinOps toolkit
 
-## 🎯 Repository Overview
+## 🎯 Repository overview
 
 This is the Microsoft FinOps toolkit - an open-source collection of tools and resources that help organizations learn, adopt, and implement FinOps capabilities in the Microsoft Cloud. The toolkit includes starter kits, scripts, advanced solutions, workbooks, and FinOps hubs for cost optimization and management.
 
-## 🛡️ Core Principles
+## 🛡️ Core principles
 
-### Quality Standards
+### Quality standards
 
 - **Documentation first**: Document everything with inline comments and READMEs
 - **Zero lint errors**: Resolve all lint errors before suggesting changes
 - **Test coverage**: Ensure changes don't break existing functionality
 - **Microsoft standards**: Follow Microsoft style guide and development practices
 
-### Code Style Guidelines
+### Code style guidelines
 
 - Follow existing code patterns and conventions in each language
 - Use sentence casing, not Title Casing (except for product names)
@@ -23,24 +23,24 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
 - Write like you speak - project friendliness
 - Avoid end punctuation on titles, headings, and short list items
 
-## 📁 Repository Structure
+## 📁 Repository structure
 
 - `/src/` - Source code for all toolkit components
-- `/docs/` - Public documentation and deployment templates  
+- `/docs/` - Public website and deployment templates  
 - `/docs-wiki/` - Developer guidelines and project documentation
 - `/docs-mslearn/` - Microsoft Learn documentation content
 - `/.github/` - GitHub workflows, templates, and configuration
 
-## 🔧 Development Guidelines
+## 🔧 Development guidelines
 
-### Before Making Changes
+### Before making changes
 
-1. **Read the relevant documentation** in docs-wiki folder
-2. **Understand the existing patterns** in the codebase
+1. **Read the relevant documentation** in README.md file in each folder or parent folder
+2. **Understand the existing patterns** in the codebase that are documented in the docs-wiki folder
 3. **Check for existing tests** and maintain test coverage
-4. **Follow the branching strategy** (dev branch for active development)
+4. **Add new unit and integration tests** and always improve scenario coverage
 
-### Code Quality Requirements
+### Code quality requirements
 
 - Install recommended VS Code extensions for auto-formatting
 - Every folder should have a README.md file
@@ -49,7 +49,7 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
   - [PowerShell guidelines](https://learn.microsoft.com/powershell/scripting/developer/cmdlet/cmdlet-development-guidelines)
   - [Bicep lint rules](https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter)
 
-### Content Standards (Microsoft Style Guide)
+### Content standards (Microsoft style guide)
 
 - Use bigger ideas, fewer words
 - Write like you speak
@@ -63,60 +63,60 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
 - Don't be spacey
 - Revise weak writing
 
-## 🚀 Common Tasks
+## 🚀 Common tasks
 
-### Adding New Features
+### Adding new features
 
 - Create feature branches for multi-developer work
 - Submit PRs to `dev` branch with complete, validated changes
 - Update applicable documentation in `/docs/`
 - Cover external-facing changes in changelog
 
-### Bug Fixes
+### Bug fixes
 
 - Focus on minimal, surgical changes
 - Maintain existing functionality
 - Add or update tests to prevent regressions
 - Document the fix clearly
 
-### Documentation Updates
+### Documentation updates
 
 - Keep documentation inline with code when possible
 - Update README files when adding new components
 - Follow Microsoft style guide for all content
 - Use consistent formatting and structure
 
-## 🎯 Specific Areas
+## 🎯 Specific areas
 
-### FinOps Tools & Solutions
+### FinOps tools & solutions
 
 - Focus on cost optimization and management scenarios
 - Follow FinOps Framework principles and terminology
 - Ensure solutions work across Azure environments
 - Consider scalability and enterprise requirements
 
-### PowerShell Development
+### PowerShell development
 
 - Follow PowerShell cmdlet development guidelines
 - Use approved verbs and consistent parameter naming
 - Include comprehensive help documentation
 - Support pipeline input where appropriate
 
-### Bicep Templates
+### Bicep templates
 
 - Follow Bicep linting rules and best practices
 - Use consistent naming conventions
 - Include parameter descriptions and constraints
 - Test deployments thoroughly
 
-### Workbooks & Queries
+### Workbooks & queries
 
 - Focus on actionable insights and clear visualizations
 - Use consistent query patterns and naming
 - Document data sources and calculations
 - Ensure compatibility with different Azure environments
 
-## ❌ Avoid These Mistakes
+## ❌ Avoid these mistakes
 
 - Don't guess at data schemas or API formats
 - Don't break existing functionality with changes
@@ -126,7 +126,7 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
 - Don't skip documentation updates
 - Don't submit PRs with merge conflicts
 
-## 📚 Key Resources
+## 📚 Key resources
 
 - [FinOps Framework](https://www.finops.org/framework/)
 - [Microsoft FinOps documentation](https://learn.microsoft.com/cloud-computing/finops/)
