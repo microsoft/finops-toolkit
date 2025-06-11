@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD013 MD022 MD032 -->
-
 # GitHub Copilot instructions for FinOps toolkit
 
 ## 🎯 Repository overview
