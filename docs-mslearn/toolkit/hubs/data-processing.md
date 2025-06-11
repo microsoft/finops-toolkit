@@ -82,10 +82,11 @@ Supported datasets:
 
 The following datasets were accounted for in the design, but are not natively supported. To ingest these datasets, create a data pipeline (or external process) that pushes parquet files into the `ingestion/Costs/yyyy/mm/{scope-path}` folder in storage. The `{scope-path}` can be any unique path, like `aws/123` or `gcp/projects/foo`. The only requirement is to ensure each scope is in a separate folder. After copying external content, also create a **manifest.json** file to trigger Data Explorer ingestion.
 
+- Alibaba Cloud FOCUS 1.0
 - Amazon Web Services (AWS) FOCUS 1.0
 - Google Cloud Platform (GCP) FOCUS 1.0
 - Oracle Cloud Infrastructure (OCI) FOCUS 1.0
-- Alibaba Cloud FOCUS 1.0
+- Tencent Cloud FOCUS 1.0
 
 Transforms:
 

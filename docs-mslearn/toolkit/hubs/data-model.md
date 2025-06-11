@@ -152,7 +152,16 @@ The **Costs** managed dataset includes:
 - **Costs()** function in the **Hub** database.
 - **Costs** table in Power BI reports.
 
-The **Costs_raw** table supports FOCUS 1.0 data ingestion from Microsoft, Amazon Web Services (AWS), Google Cloud Platform (GCP), Oracle Cloud Infrastructure (OCI), and Alibaba Cloud. FinOps hubs does not support directly pulling data from other clouds, but if data is added to the **ingestion** storage container, it will be ingested with all custom columns.
+The **Costs_raw** table supports FOCUS 1.0 data ingestion from the following service providers:
+
+- Microsoft Cloud
+- Alibaba Cloud
+- Amazon Web Services (AWS)
+- Google Cloud Platform (GCP)
+- Oracle Cloud Infrastructure (OCI)
+- Tencent Cloud
+
+FinOps hubs does not support directly pulling data from other clouds, but if data is added to the **ingestion** storage container, it will be ingested with all custom columns.
 
 <br>
 
