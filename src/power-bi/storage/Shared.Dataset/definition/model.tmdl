@@ -29,21 +29,14 @@ queryGroup 'Open data'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.144.476.0 (25.06)+7a83fae39386dfcf045cabec34c48590526dd9bd
+annotation PBIDesktopVersion = 2.144.655.0 (25.06)+114ed9e0eb4b96aa01002b329ec03e276ce380b1
 
 annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","Default Granularity","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","Costs","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","Prices","Experimental: Add Missing Prices","Deprecated: Perform Extra Query Optimizations","HubScopes","HubSettings","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","ReservationDetails","ReservationTransactions","Remove Duplicate Resource IDs","VirtualMachinesDisks"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
-ref table HubSettings
-ref table HubScopes
-ref table StorageData
-ref table StorageErrors
 ref table Costs
-ref table InstanceSizeFlexibility
 ref table Prices
-ref table ReservationDetails
-ref table ReservationTransactions
 ref table AdvisorRecommendations
 ref table Resources
 ref table ManagementGroups
@@ -58,10 +51,17 @@ ref table NetworkSecurityGroups
 ref table PolicyAssignments
 ref table PolicyStates
 ref table SqlDatabases
-ref table 'Compliance calculation'
 ref table PricingUnits
-ref table ReservationRecommendations
 ref table Disks
+ref table HubSettings
+ref table HubScopes
+ref table StorageData
+ref table StorageErrors
+ref table InstanceSizeFlexibility
+ref table ReservationDetails
+ref table ReservationTransactions
+ref table 'Compliance calculation'
+ref table ReservationRecommendations
 ref table VirtualMachinesDisks
 
 ref cultureInfo en-US
