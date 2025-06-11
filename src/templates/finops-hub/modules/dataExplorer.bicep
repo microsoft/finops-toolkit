@@ -323,6 +323,7 @@ module ingestion_VersionedScripts 'hub-database.bicep' = {
     databaseName: cluster::ingestionDb.name
     scripts: {
       v1_0: loadTextContent('scripts/IngestionSetup_v1_0.kql')
+      v1_2: loadTextContent('scripts/IngestionSetup_v1_2.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
