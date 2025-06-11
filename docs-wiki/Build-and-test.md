@@ -7,6 +7,7 @@ On this page:
 - [⚙️ Building tools](#️-building-tools)
 - [🤏 Lint tests](#-lint-tests)
 - [🤞 PS -WhatIf / az validate](#-ps--whatif--az-validate)
+- [🔍 Automated ARM template validation](#-automated-arm-template-validation)
 - [👍 Manually deployed + verified](#-manually-deployed--verified)
 - [💪 Unit tests](#-unit-tests)
 - [🙌 Integration tests](#-integration-tests)
@@ -186,6 +187,82 @@ To run `-WhatIf` for a deployment, run:
 cd "<repo-root>"
 src/scripts/Deploy-Toolkit "<tool-name>" -Build -WhatIf
 ```
+
+<br>
+
+## 🔍 Automated ARM template validation
+
+ARM templates in the repository are automatically validated using GitHub Actions as part of the PR process. This validation includes multiple checks to ensure templates meet best practices and will deploy successfully.
+
+### GitHub Actions workflow
+
+The validation workflow is triggered automatically when a PR includes changes to ARM templates or Bicep files. The following validations are performed:
+
+1. **Bicep Linting**: The Bicep linter checks for syntax errors and best practices.
+2. **PSRule.Rules.Azure**: [PSRule.Rules.Azure](https://github.com/Azure/PSRule.Rules.Azure) runs comprehensive validation against Azure best practices and security standards.
+3. **ARM Template Test Toolkit (ARM-TTK)**: [ARM-TTK](https://learn.microsoft.com/azure/azure-resource-manager/templates/test-toolkit) provides additional checks for common deployment issues.
+4. **Azure CLI validation**: Templates are validated using `az deployment validate` to check for syntax errors without actual deployment.
+
+### Running validation locally
+
+To run ARM template validation locally before submitting a PR, use the `Test-ArmTemplate` script:
+
+```powershell
+cd "<repo-root>"
+src/scripts/Test-ArmTemplate
+```
+
+This script will:
+1. Validate all ARM templates in the release directory
+2. Run checks with PSRule.Rules.Azure
+3. Run validation with ARM-TTK
+4. Validate templates with Azure CLI
+
+You can also validate a specific template:
+
+```powershell
+cd "<repo-root>"
+src/scripts/Test-ArmTemplate -TemplatePath "release/finops-hub/azuredeploy.json"
+```
+
+Alternatively, you can run individual validation steps manually:
+
+1. **Build the templates**:
+
+   ```powershell
+   cd "<repo-root>"
+   src/scripts/Build-Toolkit "<template-name>"
+   ```
+
+2. **Run PSRule validation** (requires [PSRule.Rules.Azure](https://github.com/Azure/PSRule.Rules.Azure) module):
+
+   ```powershell
+   cd "<repo-root>"
+   Install-Module -Name PSRule.Rules.Azure -Force -Scope CurrentUser
+   Get-ChildItem -Path "release" -Filter "*.json" -Recurse | Invoke-PSRule -Module PSRule.Rules.Azure
+   ```
+
+3. **Run ARM-TTK** (requires [ARM-TTK](https://github.com/Azure/arm-ttk)):
+
+   ```powershell
+   cd "<repo-root>"
+   # Install ARM-TTK if not already installed
+   $armTtkPath = "<path-to-arm-ttk>"
+   Import-Module "$armTtkPath/arm-ttk.psd1"
+   
+   # Run validation
+   Get-ChildItem -Path "release" -Filter "*.json" -Recurse | ForEach-Object {
+       Test-AzTemplate -TemplatePath $_.FullName
+   }
+   ```
+
+4. **Validate with Azure CLI**:
+
+   ```powershell
+   cd "<repo-root>"
+   $template = "<path-to-json-template>"
+   az deployment group validate --resource-group "validation-rg" --template-file $template
+   ```
 
 <br>
 
