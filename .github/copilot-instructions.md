@@ -90,7 +90,6 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
 
 ### FinOps tools & solutions
 
-- Focus on cost optimization and management scenarios
 - Follow FinOps Framework principles and terminology
 - Ensure solutions work across Azure environments
 - Consider scalability and enterprise requirements
