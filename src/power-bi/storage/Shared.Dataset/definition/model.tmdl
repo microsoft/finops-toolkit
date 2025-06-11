@@ -35,15 +35,8 @@ annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","Ra
 
 annotation PBI_ProTooling = ["DevMode"]
 
-ref table HubSettings
-ref table HubScopes
-ref table StorageData
-ref table StorageErrors
 ref table Costs
-ref table InstanceSizeFlexibility
 ref table Prices
-ref table ReservationDetails
-ref table ReservationTransactions
 ref table AdvisorRecommendations
 ref table Resources
 ref table ManagementGroups
@@ -58,10 +51,17 @@ ref table NetworkSecurityGroups
 ref table PolicyAssignments
 ref table PolicyStates
 ref table SqlDatabases
-ref table 'Compliance calculation'
 ref table PricingUnits
-ref table ReservationRecommendations
 ref table Disks
+ref table HubSettings
+ref table HubScopes
+ref table StorageData
+ref table StorageErrors
+ref table InstanceSizeFlexibility
+ref table ReservationDetails
+ref table ReservationTransactions
+ref table 'Compliance calculation'
+ref table ReservationRecommendations
 ref table VirtualMachinesDisks
 
 ref cultureInfo en-US
