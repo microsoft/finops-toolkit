@@ -695,11 +695,11 @@ The rest of this document lists the FOCUS requirements grouped by attribute and 
 
 <sup>Source: [columns/servicename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/servicename.md)</sup>
 
-| ID     | Type        | Criteria                                                                                                                                                | Status   | Notes |
-| ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| SvN0   | Description | An offering that can be purchased from a provider (for example, cloud virtual machine, SaaS database, professional services from a systems integrator). | Supports |       |
-| SvN1   | MUST        | The ServiceName column MUST be present in the cost data.                                                                                                | Supports |       |
-| SvN2.1 | MUST        | \[ServiceName\] MUST be of type String...                                                                                                               | Supports |       |
+| ID     | Type        | Criteria                                                                                                                                                | Status             | Notes                                                        |
+| ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------ |
+| SvN0   | Description | An offering that can be purchased from a provider (for example, cloud virtual machine, SaaS database, professional services from a systems integrator). | Supports           |                                                              |
+| SvN1   | MUST        | The ServiceName column MUST be present in the cost data.                                                                                                | Supports           |                                                              |
+| SvN2.1 | MUST        | \[ServiceName\] MUST be of type String...                                                                                                               | Supports           |                                                              |
 | SvN2.2 | MUST        | \[ServiceName\]... MUST NOT contain null values.                                                                                                        | Partially supports | ServiceName may be empty for some purchases and adjustments. |
 
 ### SKU ID
@@ -780,7 +780,7 @@ The rest of this document lists the FOCUS requirements grouped by attribute and 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Guide.FOCUS/featureName/Conformance.Report)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.11/bladeName/Guide.FOCUS/featureName/Conformance.Report)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

@@ -1,9 +1,9 @@
 ---
 title: FinOps toolkit Invoicing and chargeback report
-description: Learn about the Invoicing and chargeback report in Power BI to review and reconcile billed charges compared to your Microsoft Cloud invoice..
+description: Learn about the Invoicing and chargeback report in Power BI to review and reconcile billed charges compared to your Microsoft Cloud invoice.
 author: flanakin
 ms.author: micflan
-ms.date: 05/28/2025
+ms.date: 06/04/2025
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -22,7 +22,7 @@ The **Invoicing and chargeback report** provides a general overview of billed co
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Incoicing%20and%20chargeback%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Incoicing%20and%20chargeback%20report%3F/surveyId/FTK0.10/bladeName/PowerBI.Invoicing/featureName/Documentation)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Incoicing%20and%20chargeback%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Incoicing%20and%20chargeback%20report%3F/surveyId/FTK0.11/bladeName/PowerBI.Invoicing/featureName/Documentation)
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
@@ -67,7 +67,7 @@ The **Summary** page shows the monthly billed cost for the selected period. This
 
 <br>
 
- ## Services
+## Services
 
 The **Services** page offers a breakdown of cost by service. This page is useful for determining how service usage changes over time at a high level - usually across multiple subscriptions or the entire billing account.
 

@@ -51,6 +51,8 @@ var schemaFiles = {
   // cSpell:ignore actualcost, amortizedcost, focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
   'schemas/actualcost_c360-2025-04.json': loadTextContent('../schemas/actualcost_c360-2025-04.json')
   'schemas/amortizedcost_c360-2025-04.json': loadTextContent('../schemas/amortizedcost_c360-2025-04.json')
+  'schemas/focuscost_1.2.json': loadTextContent('../schemas/focuscost_1.2.json')
+  'schemas/focuscost_1.2-preview.json': loadTextContent('../schemas/focuscost_1.2-preview.json')
   'schemas/focuscost_1.0r2.json': loadTextContent('../schemas/focuscost_1.0r2.json')
   'schemas/focuscost_1.0.json': loadTextContent('../schemas/focuscost_1.0.json')
   'schemas/focuscost_1.0-preview(v1).json': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
@@ -66,10 +68,10 @@ var schemaFiles = {
 // Roles needed to upload files
 // Storage Blob Data Contributor - used by deployment scripts to write data to blob storage
 // Storage File Data Privileged Contributor - used by deployment scripts to write data to blob storage
-// https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deployment-script-template#use-existing-storage-account
+// https://learn.microsoft.com/azure/azure-resource-manager/templates/deployment-script-template#use-existing-storage-account
 var blobUploadRbacRoles = [
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
-  '69566ab7-960f-475b-8e7c-b3118f30c6bd' // Storage File Data Privileged Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor
+  '69566ab7-960f-475b-8e7c-b3118f30c6bd' // Storage File Data Privileged Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor
 ]
 
 //==============================================================================

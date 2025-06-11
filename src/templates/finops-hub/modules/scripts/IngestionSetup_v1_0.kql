@@ -342,6 +342,8 @@ Costs_transform_v1_0()
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
     | extend x_SourceType     = coalesce(x_SourceType, iff(isnotempty(x_BillingProfileId), 'FocusCost', ''))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, case(
+        isnotempty(coalesce(InvoiceId, SkuMeter, PricingCurrency)) and isempty(SkuPriceDetails) and isnotempty(x_SkuDetails), '1.2-preview',
+        isnotempty(coalesce(InvoiceId, SkuMeter, PricingCurrency)), '1.2',
         isnotempty(coalesce(ChargeClass, CommitmentDiscountStatus, tostring(ConsumedQuantity), ConsumedUnit, tostring(ContractedCost), tostring(ContractedUnitPrice), RegionId, RegionName)), '1.0',
         isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), iff(ProviderName == 'Microsoft', '1.0-preview(v1)', '1.0-preview'),
         ''
@@ -579,7 +581,7 @@ Costs_transform_v1_0()
         x_EffectiveUnitPrice,        // Azure 1.0-preview(v1)+
         x_ExportTime,                // GCP Jan 2024
         x_IngestionTime,             // Hubs add-on
-        x_InvoiceId,                 // Azure 1.0-preview(v1)+
+        x_InvoiceId = coalesce(InvoiceId, x_InvoiceId),  // Azure 1.0-preview(v1)+
         x_InvoiceIssuerId,           // Azure 1.0-preview(v1)+
         x_InvoiceSectionId = case(   // Azure 1.0-preview(v1)+
             x_InvoiceSectionId == '-2', '',
@@ -595,7 +597,7 @@ Costs_transform_v1_0()
         x_PartnerCreditApplied,      // Azure 1.0-preview(v1)+
         x_PartnerCreditRate,         // Azure 1.0-preview(v1)+
         x_PricingBlockSize,          // Azure 1.0-preview(v1)+
-        x_PricingCurrency,           // Azure 1.0-preview(v1)+
+        x_PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency),  // Azure 1.0-preview(v1)+
         x_PricingSubcategory,        // Azure 1.0-preview(v1)+
         x_PricingUnitDescription,    // Azure 1.0-preview(v1)+
         x_Project,                   // GCP Jan 2024
@@ -614,7 +616,7 @@ Costs_transform_v1_0()
         x_SkuIsCreditEligible,       // Azure 1.0-preview(v1)+
         x_SkuMeterCategory,          // Azure 1.0-preview(v1)+
         x_SkuMeterId,                // Azure 1.0-preview(v1)+
-        x_SkuMeterName,              // Azure 1.0-preview(v1)+
+        x_SkuMeterName = coalesce(SkuMeter, x_SkuMeterName),  // Azure 1.0-preview(v1)+
         x_SkuMeterSubcategory,       // Azure 1.0-preview(v1)+
         x_SkuOfferId,                // Azure 1.0-preview(v1)+
         x_SkuOrderId,                // Azure 1.0-preview(v1)+
@@ -817,6 +819,8 @@ ActualCosts_transform_v1_0()
         BillingCurrency,
         BillingPeriodEnd = startofmonth(BillingPeriodEndDate, 1),
         BillingPeriodStart = startofmonth(BillingPeriodStartDate),
+        CapacityReservationId = '',
+        CapacityReservationStatus = '',
         ChargeCategory = case(
             ChargeType in ('Usage', 'Purchase', 'Credit', 'Tax'), ChargeType,
             ChargeType in ('UnusedReservation', 'UnusedSavingsPlan'), 'Usage',
@@ -837,6 +841,7 @@ ActualCosts_transform_v1_0()
         CommitmentDiscountCategory,
         CommitmentDiscountId = iff(isnotempty(ReservationId), strcat('/providers/microsoft.capacity/reservationorders/', ProductOrderId, '/reservations/', ReservationId), ''),
         CommitmentDiscountName = ReservationName,
+        CommitmentDiscountQuantity = decimal(null),
         CommitmentDiscountStatus = case(
             isempty(ReservationId), '',
             isnotempty(ReservationId) and ChargeType == 'Usage', 'Used',
@@ -844,19 +849,23 @@ ActualCosts_transform_v1_0()
             'Unused'
         ),
         CommitmentDiscountType = iff(isnotempty(ReservationId), 'Reservation', ''),
+        CommitmentDiscountUnit = '',
         ConsumedQuantity = PricingQuantity * x_PricingBlockSize,
         ConsumedUnit = PricingUnit,
         ContractedCost = UnitPrice * PricingQuantity,
         ContractedUnitPrice = UnitPrice,
         EffectiveCost = iff(x_AmortizationClass == 'Principal', decimal(0), Cost),
+        InvoiceId = '',
         InvoiceIssuerName = 'Microsoft',
         ListCost = decimal(null),
         ListUnitPrice = decimal(null),
         PricingCategory,
+        PricingCurrency = '',
         PricingQuantity,
         PricingUnit,
         ProviderName = 'Microsoft',
         PublisherName = iff(PublisherType == 'Marketplace', PublisherName, 'Microsoft'),
+        Region = '',
         RegionId,
         RegionName,
         ResourceId = tostring(tmp_ResourceInfo.ResourceId),
@@ -864,12 +873,14 @@ ActualCosts_transform_v1_0()
         ResourceType,
         ServiceCategory,
         ServiceName,
-        Region = '',
+        ServiceSubcategory = '',
+        SkuId = '',
+        SkuMeter = '',
+        SkuPriceDetails = '',
+        SkuPriceId = '',
         SubAccountId = strcat('/subscriptions/', SubscriptionId),
         SubAccountName = SubscriptionName,
         SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
-        SkuId = '',
-        SkuPriceId = '',
         Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
         UsageAmount = decimal(null),
         UsageQuantity = decimal(null),
@@ -877,6 +888,7 @@ ActualCosts_transform_v1_0()
         x_AccountId = '',
         x_AccountName = AccountName,
         x_AccountOwnerId = AccountOwnerId,
+        x_AmortizationClass = '',
         x_BilledCostInUsd = decimal(null),
         x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), UnitPrice),
         x_BillingAccountId = BillingAccountId,
@@ -886,6 +898,8 @@ ActualCosts_transform_v1_0()
         x_BillingProfileId = BillingProfileId,
         x_BillingProfileName = BillingProfileName,
         x_ChargeId = '',
+        x_ComponentName = '',
+        x_ComponentType = '',
         x_ContractedCostInUsd = decimal(null),
         x_Cost = decimal(null),
         x_CostAllocationRuleName = '',
@@ -910,6 +924,7 @@ ActualCosts_transform_v1_0()
         x_OnDemandCostInUsd = decimal(null),
         x_OnDemandUnitPrice = decimal(null),
         x_Operation = '',
+        x_OwnerAccountID = '',
         x_PartnerCreditApplied = '',
         x_PartnerCreditRate = '',
         x_PricingBlockSize,
@@ -931,6 +946,7 @@ ActualCosts_transform_v1_0()
         x_ResourceType,
         x_ServiceCode = '',
         x_ServiceId = '',
+        x_ServiceModel = '',
         x_ServicePeriodEnd = datetime(null),
         x_ServicePeriodStart = datetime(null),
         x_SkuDescription = Product,
@@ -944,7 +960,7 @@ ActualCosts_transform_v1_0()
         x_SkuOrderId = ProductOrderId,
         x_SkuOrderName = ProductOrderName,
         x_SkuPartNumber = PartNumber,
-        // TODO: x_SkuPlan = PlanName,
+        x_SkuPlanName = '',
         x_SkuRegion = MeterRegion,
         x_SkuServiceFamily = ServiceFamily,
         x_SkuTerm = toint(Term),
@@ -953,6 +969,7 @@ ActualCosts_transform_v1_0()
         x_SourceProvider = 'Microsoft',
         x_SourceType = 'ActualCost',
         x_SourceVersion = 'C360-2025-04',
+        x_SubproductName = '',
         x_UsageType = ''
 }
 
@@ -1019,6 +1036,8 @@ AmortizedCosts_transform_v1_0()
         BillingCurrency,
         BillingPeriodEnd = startofmonth(BillingPeriodEndDate, 1),
         BillingPeriodStart = startofmonth(BillingPeriodStartDate),
+        CapacityReservationId = '',
+        CapacityReservationStatus = '',
         ChargeCategory = case(
             ChargeType in ('Usage', 'Purchase', 'Credit', 'Tax'), ChargeType,
             ChargeType in ('UnusedReservation', 'UnusedSavingsPlan'), 'Usage',
@@ -1039,6 +1058,7 @@ AmortizedCosts_transform_v1_0()
         CommitmentDiscountCategory,
         CommitmentDiscountId = iff(isnotempty(ReservationId), strcat('/providers/microsoft.capacity/reservationorders/', ProductOrderId, '/reservations/', ReservationId), ''),
         CommitmentDiscountName = ReservationName,
+        CommitmentDiscountQuantity = decimal(null),
         CommitmentDiscountStatus = case(
             isempty(ReservationId), '',
             isnotempty(ReservationId) and ChargeType == 'Usage', 'Used',
@@ -1046,19 +1066,23 @@ AmortizedCosts_transform_v1_0()
             'Unused'
         ),
         CommitmentDiscountType = iff(isnotempty(ReservationId), 'Reservation', ''),
+        CommitmentDiscountUnit = '',
         ConsumedQuantity = PricingQuantity * x_PricingBlockSize,
         ConsumedUnit = PricingUnit,
         ContractedCost = UnitPrice * PricingQuantity,
         ContractedUnitPrice = UnitPrice,
         EffectiveCost = iff(x_AmortizationClass == 'Principal', decimal(0), Cost),
+        InvoiceId = '',
         InvoiceIssuerName = 'Microsoft',
         ListCost = decimal(null),
         ListUnitPrice = decimal(null),
         PricingCategory,
+        PricingCurrency = '',
         PricingQuantity,
         PricingUnit,
         ProviderName = 'Microsoft',
         PublisherName = iff(PublisherType == 'Marketplace', PublisherName, 'Microsoft'),
+        Region = '',
         RegionId,
         RegionName,
         ResourceId = tostring(tmp_ResourceInfo.ResourceId),
@@ -1066,12 +1090,14 @@ AmortizedCosts_transform_v1_0()
         ResourceType,
         ServiceCategory,
         ServiceName,
-        Region = '',
+        ServiceSubcategory = '',
+        SkuId = '',
+        SkuMeter = '',
+        SkuPriceDetails = '',
+        SkuPriceId = '',
         SubAccountId = strcat('/subscriptions/', SubscriptionId),
         SubAccountName = SubscriptionName,
         SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
-        SkuId = '',
-        SkuPriceId = '',
         Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
         UsageAmount = decimal(null),
         UsageQuantity = decimal(null),
@@ -1079,6 +1105,7 @@ AmortizedCosts_transform_v1_0()
         x_AccountId = '',
         x_AccountName = AccountName,
         x_AccountOwnerId = AccountOwnerId,
+        x_AmortizationClass = '',
         x_BilledCostInUsd = decimal(null),
         x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), UnitPrice),
         x_BillingAccountId = BillingAccountId,
@@ -1088,6 +1115,8 @@ AmortizedCosts_transform_v1_0()
         x_BillingProfileId = BillingProfileId,
         x_BillingProfileName = BillingProfileName,
         x_ChargeId = '',
+        x_ComponentName = '',
+        x_ComponentType = '',
         x_ContractedCostInUsd = decimal(null),
         x_Cost = decimal(null),
         x_CostAllocationRuleName = '',
@@ -1112,6 +1141,7 @@ AmortizedCosts_transform_v1_0()
         x_OnDemandCostInUsd = decimal(null),
         x_OnDemandUnitPrice = decimal(null),
         x_Operation = '',
+        x_OwnerAccountID = '',
         x_PartnerCreditApplied = '',
         x_PartnerCreditRate = '',
         x_PricingBlockSize,
@@ -1133,6 +1163,7 @@ AmortizedCosts_transform_v1_0()
         x_ResourceType,
         x_ServiceCode = '',
         x_ServiceId = '',
+        x_ServiceModel = '',
         x_ServicePeriodEnd = datetime(null),
         x_ServicePeriodStart = datetime(null),
         x_SkuDescription = Product,
@@ -1146,7 +1177,7 @@ AmortizedCosts_transform_v1_0()
         x_SkuOrderId = ProductOrderId,
         x_SkuOrderName = ProductOrderName,
         x_SkuPartNumber = PartNumber,
-        // TODO: x_SkuPlan = PlanName,
+        x_SkuPlanName = '',
         x_SkuRegion = MeterRegion,
         x_SkuServiceFamily = ServiceFamily,
         x_SkuTerm = toint(Term),
@@ -1155,6 +1186,7 @@ AmortizedCosts_transform_v1_0()
         x_SourceProvider = 'Microsoft',
         x_SourceType = 'ActualCost',
         x_SourceVersion = 'C360-2025-04',
+        x_SubproductName = '',
         x_UsageType = ''
 }
 

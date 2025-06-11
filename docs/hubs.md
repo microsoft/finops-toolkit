@@ -20,9 +20,9 @@ Open, extensible, and scalable cost governance for the enterprise.
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
+    <h3>What's new in May 2025<span class="ftk-version">v0.11</span></h3>
     <p>
-        In April, FinOps hubs added support for Microsoft Fabric, Azure Gov, and Azure China, and also introduced a series of data quality improvements on top of native cost details.
+        In May, FinOps hubs added support for GitHub Copilot Agent mode and data quality improvements to improve cost savings calculations on top of native cost details.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -32,28 +32,28 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 <div class="ftk-gallery">
     <div class="ftk-tile">
-        <div>📥 Ingest FinOps data</div>
-        <div>Automate data ingestion into Azure Data Explorer or Microsoft Fabric to facilitate big data analytics at scale.</div>
-    </div>
-    <div class="ftk-tile">
         <div>📊 Standardized reporting</div>
-        <div>Flexible reports in Power BI and Data Explorer using the FinOps Open Cost and Usage Specification.</div>
+        <div>Flexible reports in Fabric, Power BI, and Data Explorer using the FinOps Open Cost and Usage Specification.</div>
     </div>
     <div class="ftk-tile">
-        <div>🏗️ Extensible platform</div>
-        <div>Bring your own data, build a custom allocation model, trigger custom alerts, and more.</div>
+        <div>🤖 AI-powered experiences</div>
+        <div>Accelerate FinOps efforts with AI-powered tools that understand FinOps and seamlessly connect to your data.</div>
     </div>
     <div class="ftk-tile">
         <div>☁️ Consolidate accounts</div>
         <div>Centralize FinOps data across multiple subscriptions, accounts, and clouds.</div>
     </div>
     <div class="ftk-tile">
-        <div>🛡️ Secure processing</div>
-        <div>Secure financial and organizational data on a private, isolated network you control and govern.</div>
-    </div>
-    <div class="ftk-tile">
         <div>🪛 Data preparation</div>
         <div>FinOps hubs tunes data to fill gaps and improve overall data quality and completeness.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🏗️ Extensible platform</div>
+        <div>Bring your own data, build a custom allocation model, trigger custom alerts, and more.</div>
+    </div>
+    <div class="ftk-tile">
+        <div>🛡️ Secure processing</div>
+        <div>Secure financial and organizational data on a private, isolated network you control and govern.</div>
     </div>
 </div>
 
@@ -62,9 +62,17 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
     <p>FinOps hubs starts at $120/mo + $10/mo per $1 million in monitored spend.</p>
     <p>Costs may be lower depending on your negotiated and commitment discounts.</p>
 </div>
+
+## Unlocking scalable FinOps intelligence
+
+FinOps hubs streamline cost governance with an open architecture that leverages Azure Data Factory to orchestrate seamless data ingestion into Microsoft Fabric or Azure Data Explorer. With rich reports, dashboards, and an AI agent that understands your data, FinOps hubs empower organizations with scalable analytics and actionable insights to facilitate data-driven financial decisions that maximize efficiency with confidence.
+
+<div style="padding:2rem; text-align:center">
+    <img src="assets/img/architecture.png" alt="Diagram depicting the FinOps hubs architecture with Cost Management exporting data into Data Lake storage, Data Factory transforming and ingesting data into Data Explorer or Fabric, and GitHub Copilot, Power BI reports, and ADX/Fabric dashboards querying data.">
+</div>
 <a name="deploy"></a>
 
-## Deploy FinOps hub
+## Deploy FinOps hubs
 
 Create a new or update an existing FinOps hub instance.
 
@@ -119,7 +127,7 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">3️⃣&nbsp; Optional: Configurate Microsoft Fabric</button>
+        <button class="ftk-accordion">3️⃣&nbsp; Optional: Configure Microsoft Fabric</button>
         <div>
             <p>
                 If connecting FinOps hubs to Microsoft Fabric, you will need to set up Real-Time Intelligence (RTI) before deploying the template and configure access after deploying the template.
@@ -156,7 +164,7 @@ Create a new or update an existing FinOps hub instance.
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">5️⃣&nbsp; Set up reports and dashboards</button>
+        <button class="ftk-accordion">6️⃣&nbsp; Set up reports and dashboards</button>
         <div>
             <p>
                 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/configure-dashboards">Set up ADX dashboard</a>
@@ -179,7 +187,9 @@ Create a new or update an existing FinOps hub instance.
     </div>
 </div>
 
-<br><a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
+<br>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy">Deployment tutorial</a>
+<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Hubs/featureName/Marketing.Deploy">💜 Give feedback</a>
 <a name="docs"></a>
 
 ## Learn more from documentation

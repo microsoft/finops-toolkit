@@ -30,6 +30,17 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
+## v0.12
+
+_Released June 2025_
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.11...v0.12)
+
+<br>
+
 ## v0.11
 
 _Released June 2, 2025_
@@ -38,26 +49,35 @@ _Released June 2, 2025_
 
 - **Added**
   - Documented a new FOCUS 1.0 conformance gap where **ServiceName** may be empty for some purchases and adjustments.
-- **Changed**
-  - Moved telemetry setting into internal config settings object.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.11
 
 - **Added**
-  - Documented the v0.9 and v0.10 in the [compatibility guide](hubs/compatibility.md).
-  - Documented the steps to update FinOps hubs v0.9 to v0.10 in the [upgrade guide](hubs/upgrade.md).
+  - Added instructions to tune GitHub Copilot Agent mode for FinOps hubs.
+  - Top 10 request: Added architecture diagram to documentation ([#401](https://github.com/microsoft/finops-toolkit/issues/401)).
   - Added support for ingesting actual/amortized cost from the Microsoft internal C360 tool.
+    - This does not support Cost Management actual/amortized data, but that can be added. Please submit a [feature request](https://aka.ms/ftk/ideas), if desired.
+  - Added support for backporting FOCUS 1.2 into the existing FOCUS 1.0 schema.
+    - This is a short-term solution to avoid errors if FOCUS 1.2 exports are created.
+    - This has not been fully tested as FOCUS 1.2 exports are not available yet.
 - **Changed**
-  - Merged vnet and core-network. modules into infrastructure.bicep (no functional changes).
+  - Merged vnet and core-network modules into infrastructure.bicep (no functional changes).
+  - Moved telemetry setting into internal config settings object.
+  - Redesigned the [FinOps hubs upgrade guide](hubs/upgrade.md) to be easier to follow.
+  - Updated the [compatibility guide](hubs/compatibility.md) for 0.9-11.
 - **Fixed**
   - Address new data quality issues with data ingested into Data Explorer:
     - Fix BillingPeriodStart and BillingPeriodEnd to always be at the start of the month.
 
-### [Power BI reports](power-bi/reports.md) v0.10
+### [Power BI reports](power-bi/reports.md) v0.11
 
 - **Added**
   - Added a new [Invoicing and charegback report](power-bi/invoicing.md) that shows billed cost breakdowns, chargeback, and invoice recon pages.
   - Added a new [Usage analysis page](power-bi/cost-summary.md#usage-analysis) that shows usage over time compared to cost for a specific unit.
+  - Added a new [Commitment discount utilization page](power-bi/rate-optimization.md#commitment-discount-utilization) that shows commitment discount utilization over time.
+  - Added a new [Commitment discount resources page](power-bi/rate-optimization.md#commitment-discount-resources) that shows the resources that were covered by a specific commitment discount.
+- **Fixed**
+  - Fixed inconsistent numbers in the running total chart caused by date handling issues ([#1614](https://github.com/microsoft/finops-toolkit/issues/1614))
 
 ### [FinOps alerts](alerts/finops-alerts-overview.md) v0.11
 
@@ -71,10 +91,11 @@ _Released June 2, 2025_
 - **Changed**
   - Upgraded Azure Resource Manager SQL Server name availability API version, used by the engine deployment script, due to upcoming deprecation of 2014-04-01 version.
 
-### [PowerShell module](powershell/powershell-commands.md) v0.10
+### [PowerShell module](powershell/powershell-commands.md) v0.11
 
 - **Fixed**
   - Fixed an error in the [Start-FinOpsCostExport command](powershell/cost/start-finopscostexport.md) ([#884](https://github.com/microsoft/finops-toolkit/issues/884), [#988](https://github.com/microsoft/finops-toolkit/issues/988))
+  - Suppressed upcoming breaking changes warning for the Get-AzAccessToken cmdlet ([#987](https://github.com/microsoft/finops-toolkit/issues/987)).
 
 ### [Open data](open-data.md) v0.11
 
@@ -125,7 +146,6 @@ _Released June 2, 2025_
 **[Services](open-data.md#services)**
 
 - **Added**
-
   - Added a service mapping for microsoft.premonition/libraries.
   - Add service mappings to separate App Service and Functions.
   - Mapped the following resource types to their respective services:
@@ -170,10 +190,10 @@ _Released May 4, 2025_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.10
 
 - **Added**
-  - Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
+  - Top 10 request: Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
   - Added support for Azure Gov and Azure China.
   - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
-  - Created a new bicep modules to support extensibility:
+  - Created new bicep modules to support extensibility:
     - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
     - The **hub-storage** module creates containers in the hub storage account.
     - The **hub-event-trigger** module creates a trigger in the hub Data Factory instance.
@@ -340,7 +360,7 @@ _Released April 4, 2025_
 **General**
 
 - **Added**
-  - Added support for promoted tags with spaces in the tag key.
+  - Top 10 request: Added support for promoted tags with spaces in the tag key.
 - **Changed**
   - Updated the savings columns to exclude rows where costs are missing or incorrect.
   - Disabled the **Deprecated: Perform Extra Query Optimizations** parameter by default ([#1380](https://github.com/microsoft/finops-toolkit/issues/1380)).
@@ -355,7 +375,7 @@ _Released April 4, 2025_
 
 - **Added**
   - Added support for MCA reservation recommendation exports.
-  - Show break-even point calculation for reservation recommendations. ([#406](https://github.com/microsoft/finops-toolkit/issues/406)).
+  - Top 10 request: Show break-even point calculation for reservation recommendations. ([#406](https://github.com/microsoft/finops-toolkit/issues/406)).
 - **Fixed**
   - Fixed core count double-counting on the Hybrid Benefit page.
   - Fixed savings to include negotiated discounts on the Total savings page.
@@ -1691,7 +1711,7 @@ _Released May 27, 2023_
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.10/bladeName/Toolkit/featureName/Changelog)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.11/bladeName/Toolkit/featureName/Changelog)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

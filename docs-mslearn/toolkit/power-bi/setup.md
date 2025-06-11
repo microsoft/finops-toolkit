@@ -54,11 +54,11 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
 
 3. Download and open the desired report in Power BI Desktop.
 
-   | Data source                                | Download                                                                                                                             | Notes                                                                                                      |
-   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring over $100,000 or 13 months of data.                                            |
-   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring over $2 million per month.                                                 |
-   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring over $1 million in total cost or accounts that contain savings plan usage. |
+   | Data source                                | Download                                                                                                                              | Notes                                                                                                      |
+   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                   | Recommended when monitoring over $100,000 or 13 months of data.                                            |
+   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                           | Not recommended when monitoring over $2 million per month.                                                 |
+   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.pbix) | Not recommended when monitoring over $1 million in total cost or accounts that contain savings plan usage. |
 
 4. Open each report and specify the applicable report parameters:
 
