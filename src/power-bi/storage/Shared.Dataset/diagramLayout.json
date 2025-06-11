@@ -358,6 +358,18 @@
             "width": 234
           },
           "zIndex": 22
+        },
+        {
+          "location": {
+            "x": 3256.5962438145889,
+            "y": 1003.9967510650295
+          },
+          "nodeIndex": "VirtualMachinesDisks",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "All tables",
@@ -366,8 +378,87 @@
       "showExtraHeaderInfo": false,
       "hideKeyFieldsWhenCollapsed": false,
       "tablesLocked": false
+    },
+    {
+      "ordinal": 1,
+      "scrollPosition": {
+        "x": 26.464285714285666,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": -13,
+            "y": 97
+          },
+          "nodeIndex": "Resources",
+          "nodeLineageTag": "ec447c64-6e55-41d8-a5ea-a43adab5dc79",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 383.77777777777777,
+            "y": 104.11111111111111
+          },
+          "nodeIndex": "VirtualMachines",
+          "nodeLineageTag": "bc3b3e64-3016-4758-897f-eeae6043bd77",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 9.1111111111111143,
+            "y": 489.44444444444434
+          },
+          "nodeIndex": "NetworkInterfaces",
+          "nodeLineageTag": "471a2007-5388-404a-97e6-1b2292878a8c",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 396.88888888888891,
+            "y": 486.11111111111109
+          },
+          "nodeIndex": "PublicIPAddresses",
+          "nodeLineageTag": "5c35f59e-97dc-424c-b1ae-0526c2c708ed",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 683.89285714285722,
+            "y": 103.57142857142856
+          },
+          "nodeIndex": "VirtualMachinesDisks",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Virtual Machines",
+      "zoomValue": 70,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
     }
   ],
-  "selectedDiagram": "All tables",
+  "selectedDiagram": "Virtual Machines",
   "defaultDiagram": "All tables"
 }
