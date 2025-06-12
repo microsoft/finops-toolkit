@@ -113,8 +113,8 @@ expression PolicyDefinitions =
 		let
 		  query = "
 		  policyResources
-		    | where type =='microsoft.authorization/policydefinitions' |
-		      extend displayName = properties.displayName,
+		  | where type =='microsoft.authorization/policydefinitions'
+		  | extend displayName = properties.displayName,
 		      description = properties.description,
 		      version = properties.version
 		    | project subscriptionId, id, name, displayName, description, version"
