@@ -38,7 +38,10 @@ To learn more about FinOps workbooks, the roadmap, or how to contribute , see [F
 
 ## 📋 Prerequisites
 
-Azure Monitor workbooks provide direct access to Azure resource details. To deploy workbooks, you must have the **Workbook Contributor** role. To use workbooks, you need read access to the resources being monitored. The exact permissions vary by resource and service.
+To deploy workbooks using ARM templates, you must have:
+- **Contributor** role or a role with both `Microsoft.Resources/deployments/validate/action` and `Microsoft.Resources/deployments/write` permissions.
+- **Workbook Contributor** role to edit and save workbooks.
+- **Reader** role on all subscriptions you want to monitor.
 
 If you run into any issues, see [Troubleshooting FinOps toolkit solutions](https://aka.ms/ftk/tsg).
 
