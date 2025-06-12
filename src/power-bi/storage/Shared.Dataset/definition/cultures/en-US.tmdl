@@ -2747,6 +2747,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.485
 			          }
+			        },
+			        {
+			          "Billing period": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			        }
 			        }
 			      ],
 			      "SemanticType": "Time"
@@ -4737,6 +4747,25 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.599
 			          }
+			        },
+			        {
+			          "Price": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Effective": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			        }
 			      ]
 			    },
@@ -8008,6 +8037,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
+			        },
+			        {
+			          "Billing profile / Enrollment": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			        }
 			        }
 			      ]
 			    },
@@ -9883,6 +9922,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.75
 			          }
+			        },
+			        {
+			          "Unit of measure": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			        }
 			        }
 			      ]
 			    },
@@ -16445,6 +16494,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.499
 			          }
+			        },
+			        {
+			          "Price": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			        }
 			        }
 			      ]
 			    },

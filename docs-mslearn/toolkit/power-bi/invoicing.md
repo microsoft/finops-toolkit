@@ -95,7 +95,7 @@ This page uses effective (amortized) cost rather than billed cost, which is used
 
 ## Invoice recon (MCA)
 
-The **Invoice recon (MCA)** page includes a breakdown of your billed cost by invoice section, service family, and meter to align to Microsoft Customer Agreement (MCA) invoices. This page is useful for comparing billed charges on the invoice with cost and usage details in Cost Management for MCA billing profiles. Enterprise Agreement (EA) enrollments can also use this page; however, it will not align to EA invoices.
+The **Invoice recon (MCA)** page includes a breakdown of your billed cost by invoice section, service family, and meter to align to Microsoft Customer Agreement (MCA) invoices. This page is useful for comparing billed charges on the invoice with cost and usage details in Cost Management for MCA billing profiles. Enterprise Agreement (EA) enrollments can also use this page; however, it will not align to EA invoices and EA invoice IDs are not included in the cost data.
 
 :::image type="content" source="./media/invoicing/invoice-recon-mca.png" border="true" alt-text="Screenshot of the Invoice recon (MCA) page that shows a breakdown of cost by invoice section, service family, and meter." lightbox="./media/invoicing/invoice-recon-mca.png" :::
 
@@ -104,6 +104,8 @@ The **Invoice recon (MCA)** page includes a breakdown of your billed cost by inv
 ## Invoice recon (EA)
 
 The **Invoice recon (EA)** page includes a breakdown of your billed cost by charge description (product) to align to Enterprise Agreement (EA) invoices. This page is useful for comparing billed charges on the invoice with cost and usage details in Cost Management for EA enrollments. Microsoft Customer Agreement (MCA) billing profiles can also use this page; however, it will not align to MCA invoices.
+
+Note that reservation refunds and credits may not be accounted for in the cost data. Please use the Azure portal or export reservation transactions to review refunds.
 
 :::image type="content" source="./media/invoicing/invoice-recon-ea.png" border="true" alt-text="Screenshot of the Invoice recon (EA) page that shows a breakdown of cost by charge description." lightbox="./media/invoicing/invoice-recon-ea.png" :::
 
