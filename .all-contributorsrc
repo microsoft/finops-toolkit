@@ -824,6 +824,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "shasulin",
+      "name": "shasulin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45314814?v=4",
+      "profile": "https://github.com/shasulin",
+      "contributions": [
+        "review"
+      ]
     }
   ],
   "commitType": "docs",
