@@ -24,6 +24,11 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) vnext
+
+- **Fixed**
+  - Fixed VNet CIDR validation to accept /24, /25, or /26 blocks instead of requiring only /26, enabling users with larger VNets to upgrade ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
