@@ -83,6 +83,7 @@ var privateEndpointDeploymentProperties = enablePublicAccess ? {} : {
 //------------------------------------------------------------------------------
 
 // Create managed identity to run deployment scripts
+// TODO: Use hub-identity.bicep
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
   tags: union(tags, tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
@@ -95,6 +96,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' exi
 }
 
 // Assign the identity access to the script storage account
+// TODO: Use hub-identity.bicep
 resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in privateEndpointDeploymentRoles: if (!enablePublicAccess) {
   name: guid(role, identity.id)
   scope: scriptStorageAccount
@@ -110,7 +112,6 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 // Upload schema file to storage
 //------------------------------------------------------------------------------
 
-// TODO: Move to hub-deploymentScript.bicep
 resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   name: scriptName
   dependsOn: [
