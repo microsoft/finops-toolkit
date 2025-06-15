@@ -24,6 +24,12 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) pending changes
+
+- **Added**
+  - Added support for Alibaba Cloud FOCUS data ingestion.
+    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
