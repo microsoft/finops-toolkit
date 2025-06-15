@@ -17,78 +17,6 @@ table AdvisorReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: 6f67e3de-1718-458f-84e2-704ada614a9c
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: e234753b-df26-4bad-9de1-a06cee5c9c33
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: 534bd722-dd95-4aad-92d8-bc8529546ff5
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: 09df61d7-3eec-4971-aa97-d3489f18c68c
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: 83b30238-1681-410f-8d99-ffa3cccc1cc1
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: 16bdbe5d-b58a-4f14-8467-ebac36aa3ba0
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: c466ebc3-989d-4b83-8588-8b94c8c4ff54
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 010e18a7-cf07-452c-97d6-f42a7cc11e5c
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: e5699310-6f0b-4a68-bd99-979ee7bdfeac
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.recommendationTypeId'
 		dataType: string
 		lineageTag: badf977b-e853-4e53-a169-64a2dd84d1dd
@@ -346,51 +274,11 @@ table AdvisorReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column tags
-		dataType: string
-		lineageTag: b16b5afb-c413-4ff0-ab8c-6c6600861a21
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 88c80752-1903-4373-8066-70bdf23003f4
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 0331483a-6206-4584-9900-4236aab8bc93
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 58d3f314-0458-4b2b-a447-fc15b23e5b02
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
 	column recommendedActions
 		dataType: string
 		lineageTag: e7e9e023-cf8c-4c71-b652-4481af19b173
 		summarizeBy: none
 		sourceColumn: recommendedActions
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: 0d32e76f-c900-4a15-b9ed-03b50dc581a8
-		summarizeBy: none
-		sourceColumn: properties
 
 		annotation SummarizationSetBy = Automatic
 

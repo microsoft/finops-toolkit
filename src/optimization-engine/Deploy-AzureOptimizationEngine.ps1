@@ -562,7 +562,7 @@ $sql = Get-AzSqlServer -ResourceGroupName $resourceGroupName -Name $sqlServerNam
 if ($null -eq $sql -and -not($sqlServerName -like "*.database.*") -and -not($IgnoreNamingAvailabilityErrors))
 {
 
-    $SqlServerNameAvailabilityUriPath = "/subscriptions/$subscriptionId/providers/Microsoft.Sql/checkNameAvailability?api-version=2014-04-01"
+    $SqlServerNameAvailabilityUriPath = "/subscriptions/$subscriptionId/providers/Microsoft.Sql/checkNameAvailability?api-version=2021-11-01"
     $body = "{`"name`": `"$sqlServerName`", `"type`": `"Microsoft.Sql/servers`"}"
     # TODO: Switch to custom Invoke-Rest command to leverage telemetry tracking
     $sqlNameResult = (Invoke-AzRestMethod -Path $SqlServerNameAvailabilityUriPath -Method POST -Payload $body).Content | ConvertFrom-Json

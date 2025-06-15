@@ -7,13 +7,13 @@ brand: visual-studio
 metadata:
   title: FinOps documentation
   description: FinOps combines financial management principles with cloud engineering and operations to provide organizations with a better understanding of their cloud spending. It also helps you make informed decisions on how to allocate and manage your cloud costs.
+  author: flanakin
+  ms.author: micflan
+  ms.date: 05/07/2025
   ms.topic: landing-page
-  ms.author: banders
-  ms.reviewer: micflan
-  author: bandersmsft
-  ms.service: finops
-  ms.date: 12/13/2024
   ms.custom: intro-landing-hub
+  ms.service: finops
+  ms.reviewer: micflan
 
 # highlightedContent section (optional)
 # Maximum of 8 items

@@ -368,7 +368,4 @@ venv/
 ENV/
 env/
 
-# ARM-TTK download location
-release/.tools/
-
 CLAUDE.md

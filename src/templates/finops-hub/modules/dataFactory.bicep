@@ -57,8 +57,14 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
-@description('Optional. Enable public access.')
+@description('Required. Enable public access.')
 param enablePublicAccess bool
+
+@description('Required. The name of the storage account used for deployment scripts. Required when using private endpoints and uploading files or creating an identity.')
+param scriptStorageAccountName string
+
+@description('Required. Resource ID of the virtual network for running deployment scripts. Required when using private endpoints and uploading files.')
+param scriptSubnetId string
 
 //------------------------------------------------------------------------------
 // Variables
@@ -342,26 +348,17 @@ resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssi
 // Delete old triggers and pipelines
 //------------------------------------------------------------------------------
 
-resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_deleteOldResources'
-  // cSpell:ignore chinaeast2
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${triggerManagerIdentity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module deleteOldResources 'hub-deploymentScript.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_ADF.DeleteOldResources'
   dependsOn: [
     triggerManagerRoleAssignments
+    stopTriggers
   ]
-  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
-  properties: {
-    azPowerShellVersion: '8.0'
-    retentionInterval: 'PT1H'
-    cleanupPreference: 'OnSuccess'
+  params: {
+    location: location
+    identityName: triggerManagerIdentity.name
+    tags: tags
+    tagsByResource: tagsByResource
     scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
     environmentVariables: [
       {
@@ -377,6 +374,10 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
         value: dataFactory.name
       }
     ]
+
+    enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: scriptStorageAccountName
+    scriptSubnetId: scriptSubnetId
   }
 }
 
@@ -384,24 +385,16 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 // Stop all triggers before deploying
 //------------------------------------------------------------------------------
 
-resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_stopTriggers'
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${triggerManagerIdentity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module stopTriggers 'hub-deploymentScript.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_ADF.StopTriggers'
   dependsOn: [
     triggerManagerRoleAssignments
   ]
-  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
-  properties: {
-    azPowerShellVersion: '8.0'
-    retentionInterval: 'PT1H'
-    cleanupPreference: 'OnSuccess'
+  params: {
+    location: location
+    identityName: triggerManagerIdentity.name
+    tags: tags
+    tagsByResource: tagsByResource
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     arguments: '-Stop'
     environmentVariables: [
@@ -422,6 +415,10 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         value: join(allHubTriggers, '|')
       }
     ]
+
+    enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: scriptStorageAccountName
+    scriptSubnetId: scriptSubnetId
   }
 }
 
@@ -843,7 +840,7 @@ module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
   }
 }
 
-module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = if (deployDataExplorer) {
+module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = if (deployDataExplorer || useFabric) {
   name: 'Microsoft.FinOpsHubs.Core_IngestionManifestAddedTrigger'
   dependsOn: [
     stopTriggers
@@ -5055,18 +5052,8 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
 // Start all triggers
 //------------------------------------------------------------------------------
 
-resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_startTriggers'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${triggerManagerIdentity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module startTriggers 'hub-deploymentScript.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_ADF.StartTriggers'
   dependsOn: [
     triggerManagerRoleAssignments
     trigger_ExportManifestAdded
@@ -5074,11 +5061,14 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule
+    deleteOldResources
   ]
-  properties: {
-    azPowerShellVersion: '8.0'
-    retentionInterval: 'PT1H'
-    cleanupPreference: 'OnSuccess'
+  params: {
+    location: location
+    tags: tags
+    tagsByResource: tagsByResource
+    identityName: triggerManagerIdentity.name
+
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     environmentVariables: [
       {
@@ -5102,6 +5092,10 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         value: join([ pipeline_InitializeHub.name ], '|')
       }
     ]
+
+    enablePublicAccess: enablePublicAccess
+    scriptStorageAccountName: scriptStorageAccountName
+    scriptSubnetId: scriptSubnetId
   }
 }
 

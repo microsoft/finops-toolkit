@@ -3,6 +3,7 @@ model Model
 	defaultPowerBIDataSourceVersion: powerBI_V3
 	sourceQueryCulture: en-US
 	dataAccessOptions
+		fastCombine
 		legacyRedirects
 		returnErrorValuesAsNull
 
@@ -32,9 +33,9 @@ queryGroup 'Data Explorer'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.143.403.0 (25.05)+98b007a6419223060d4fee8c6e55a7efc9090b04
+annotation PBIDesktopVersion = 2.144.655.0 (25.06)+114ed9e0eb4b96aa01002b329ec03e276ce380b1
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URL","Storage URL","Number of Months","Default Granularity","Remove Duplicate Resource IDs","ftk_DemoFilter","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URL","Storage URL","Number of Months","Default Granularity","Remove Duplicate Resource IDs","ftk_DemoFilter","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","VirtualMachinesDisks"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -62,6 +63,7 @@ ref table 'Compliance calculation'
 ref table PricingUnits
 ref table Costs
 ref table ReservationRecommendations
+ref table VirtualMachinesDisks
 
 ref cultureInfo en-US
 

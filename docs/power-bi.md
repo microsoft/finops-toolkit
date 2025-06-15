@@ -20,9 +20,9 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 FinOps toolkit Power BI reports provide a great starting point for FinOps reporting. Customize and augment reports with your own data to facilitate organizational requirements.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
+    <h3>What's new in May 2025<span class="ftk-version">v0.11</span></h3>
     <p>
-        In April, Power BI reports added support for Azure Gov and Azure China, and applied many small fixes and improvements across reports.
+        In May, Power BI reports were updated to add a new Invoicing and chargeback report and a Usage analysis page in the Cost summary report.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -171,6 +171,12 @@ Create a new or update an existing FinOps hub instance.
         <div>🪙 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/rate-optimization">Rate optimization</a></div>
         <div>
             Review cost savings from negotiated and commitment discounts and identify opportunities to increase savings.
+        </div>
+    </div>
+    <div class="ftk-tile">
+        <div>🧾 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/invoicing">Invoicing + chargeback</a></div>
+        <div>
+            Review billed costs, compare Cost Management with EA or MCA invoices, and break costs down for chargeback.
         </div>
     </div>
     <div class="ftk-tile">

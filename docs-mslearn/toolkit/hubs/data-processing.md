@@ -115,6 +115,8 @@ Transforms:
   - Remove "Unassigned" in the `x_InvoiceSectionName` column.
   - Corrected `x_EffectiveUnitPrice` when it's calculated and has a rounding error.
   - Add new `x_SourceChanges` checks for `MissingConsumedQuantity`, `MissingPricingQuantity`, and `XEffectiveUnitPriceRoundingError`.
+- v0.11+:
+  - Change `BillingPeriodStart` and `BillingPeriodEnd` to be the first of the month.
 
 ### Price data transforms
 
@@ -599,7 +601,7 @@ The following steps outline the process for exporting and processing cost data u
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.10/bladeName/Hubs/featureName/DataProcessing)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.11/bladeName/Hubs/featureName/DataProcessing)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

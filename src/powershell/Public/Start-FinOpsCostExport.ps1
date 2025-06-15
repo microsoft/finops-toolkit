@@ -98,7 +98,7 @@ function Start-FinOpsCostExport
         # If -StartDate is not set, assume the current month
         if (-not $StartDate)
         {
-            $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC)
+            $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).ToUniversalTime().Date
         }
 
         # If -EndDate is not set, assume 1 month
@@ -172,8 +172,17 @@ function Start-FinOpsCostExport
                 $firstDay = $StartDate
                 $lastDay = $EndDate
             }
+            
+            # Ensure end date is not in the future
+            $today = (Get-Date).ToUniversalTime().Date
+            if ($lastDay -ge $today)
+            {
+                Write-Verbose "Adjusting end date to yesterday as it cannot be in the future."
+                $lastDay = $today.AddDays(-1)
+            }
+            
             $body = @{ timePeriod = @{ from = $firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'"); to = $lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } }
-            Write-Verbose "Executing $($firstDay.ToString("MMM d yyyy")) export $runpath"
+            Write-Verbose "Executing $($firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")) to $($lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")) export $runpath"
         }
         else
         {
@@ -208,14 +217,16 @@ function Start-FinOpsCostExport
                 Write-Information "Requests are being throttled by Cost Management. Waiting 60 seconds and retrying..."
             }
             Start-Sleep -Seconds 60
+            # Don't increment $monthToExport - retry the same month
         }
         else
         {
             # If not retrying, then track the success
             $success = $success -and $response.Success
+            
+            # Only increment month if not throttled
+            $monthToExport += 1
         }
-
-        $monthToExport += 1
     } while ($months -gt 1 -and $EndDate.AddMonths($monthToExport * -1) -ge $StartDate)
 
     if ($months -gt 1)

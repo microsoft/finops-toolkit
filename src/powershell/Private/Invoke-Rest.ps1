@@ -60,12 +60,19 @@ function Invoke-Rest
     $ver = 'unknown'
     try { $ver = Get-VersionNumber } catch {}
 
+    # TODO: Remove after Az PowerShell 13.0
+    # Temporarily suppress warnings for Get-AzAccessToken
+    $prevWarningPreference = $WarningPreference 
+    $WarningPreference = "SilentlyContinue" 
+    $token = (Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText 
+    $WarningPreference = $prevWarningPreference
+
     $arm = (Get-AzContext).Environment.ResourceManagerUrl
     $params = @{
         Method      = $Method
         Uri         = $arm.Trim('/') + '/' + $Uri.Trim('/')
         Headers     = @{
-            Authorization             = "Bearer $((Get-AzAccessToken -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText)"
+            Authorization             = "Bearer $token"
             ClientType                = "FinOpsToolkit.PowerShell.$CommandName@$ver"
             "Content-Type"            = 'application/json'
             "x-ms-command-name"       = "FinOpsToolkit.PowerShell.$CommandName@$ver"

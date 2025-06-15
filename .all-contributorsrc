@@ -11,7 +11,7 @@
     {
       "login": "ms:nelson",
       "name": "Nelson Pereira",
-      "avatar_url": "https://media.licdn.com/dms/image/v2/C5603AQGWN7nsODstqA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1516244319322?e=1747872000&v=beta&t=lfNCm-3-1YJhteCW640sF8nfeUOtCc3YfnbKVpHu8Ko#",
+      "avatar_url": "https://media.licdn.com/dms/image/v2/C5603AQGWN7nsODstqA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1516244319322?e=1754524800&v=beta&t=EHH5lzBH8qFaqZHcVIn0ovzgkugW-QRlmEnEfgyawOU#",
       "profile": "https://www.linkedin.com/in/nelsonmpereira/",
       "contributions": [
         "leader"
@@ -25,8 +25,8 @@
       "contributions": [
         "leader",
         "code",
-        "review",
         "doc",
+        "review",
         "mentoring",
         "promotion"
       ]
@@ -39,8 +39,8 @@
       "contributions": [
         "leader",
         "code",
-        "review",
         "doc",
+        "review",
         "mentoring",
         "promotion"
       ]
@@ -67,7 +67,7 @@
     {
       "login": "ms:fernandovas",
       "name": "Fernando Vasconcellos",
-      "avatar_url": "https://media.licdn.com/dms/image/v2/C4D03AQGOHJHlq3nhpQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1571181473582?e=1747872000&v=beta&t=Lyp-ij1u_tJT_GRSb7pa8syMMKH9bY6DExCLjhIyJME#",
+      "avatar_url": "https://media.licdn.com/dms/image/v2/C4D03AQGOHJHlq3nhpQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1571181473582?e=1754524800&v=beta&t=dzXv18_LMfbGr2BgOKVVHfxD7OxudO0prln_zP0OEvw#",
       "profile": "https://www.linkedin.com/in/fernando-vasconcellos-ba398b191/",
       "contributions": [
         "leader",
@@ -91,8 +91,8 @@
       "profile": "https://github.com/MSBrett",
       "contributions": [
         "code",
-        "review",
-        "doc"
+        "doc",
+        "review"
       ]
     },
     {
@@ -102,8 +102,8 @@
       "profile": "https://aka.ms/helderpinto",
       "contributions": [
         "code",
-        "review",
         "doc",
+        "review",
         "bug"
       ]
     },
@@ -114,7 +114,8 @@
       "profile": "https://github.com/nteyan",
       "contributions": [
         "code",
-        "doc"
+        "doc",
+        "review"
       ]
     },
     {
@@ -133,7 +134,8 @@
       "profile": "https://github.com/ro100e",
       "contributions": [
         "code",
-        "doc"
+        "doc",
+        "review"
       ]
     },
     {
@@ -143,8 +145,8 @@
       "profile": "https://github.com/Springstone",
       "contributions": [
         "code",
-        "review",
-        "doc"
+        "doc",
+        "review"
       ]
     },
     {
@@ -154,8 +156,8 @@
       "profile": "https://github.com/aromano2",
       "contributions": [
         "code",
-        "review",
-        "doc"
+        "doc",
+        "review"
       ]
     },
     {
@@ -202,7 +204,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/127963872?v=4",
       "profile": "https://github.com/jamelachahbar",
       "contributions": [
-        "code"
+        "code",
+        "review"
       ]
     },
     {
@@ -325,8 +328,9 @@
       "profile": "https://github.com/DUeffing",
       "contributions": [
         "ideas",
-        "bug",
-        "doc"
+        "code",
+        "doc",
+        "bug"
       ]
     },
     {
@@ -353,7 +357,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/114724932?v=4",
       "profile": "https://aka.ms/yuanzhang9",
       "contributions": [
-        "code"
+        "code",
+        "review"
       ]
     },
     {
@@ -574,8 +579,9 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/28718362?v=4",
       "profile": "https://github.com/thecloudman",
       "contributions": [
-        "bug",
-        "code"
+        "code",
+        "review",
+        "bug"
       ]
     },
     {
@@ -751,7 +757,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/16977341?v=4",
       "profile": "https://github.com/robbdi",
       "contributions": [
-        "code"
+        "code",
+        "question"
       ]
     },
     {
@@ -779,6 +786,52 @@
       "profile": "https://github.com/bradlovas",
       "contributions": [
         "bug"
+      ]
+    },
+    {
+      "login": "macko76",
+      "name": "C:\\>Marius",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3911916?v=4",
+      "profile": "http://nettitude.wordpress.com",
+      "contributions": [
+        "review"
+      ]
+    },
+    {
+      "login": "NicholasBrand",
+      "name": "NicholasBrand",
+      "avatar_url": "https://avatars.githubusercontent.com/u/92826586?v=4",
+      "profile": "https://github.com/NicholasBrand",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "JacobStruiksma",
+      "name": "Jacob Struiksma",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9788612?v=4",
+      "profile": "https://github.com/JacobStruiksma",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "adeelaz",
+      "name": "Adeel Aziz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63263829?v=4",
+      "profile": "https://github.com/adeelaz",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "shasulin",
+      "name": "shasulin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45314814?v=4",
+      "profile": "https://github.com/shasulin",
+      "contributions": [
+        "review"
       ]
     }
   ],

@@ -1,0 +1,12 @@
+let N = 10;
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate and tolower(tostring(ChargeCategory)) != 'usage' and isnotempty(CommitmentDiscountType) and toreal(BilledCost) > 0
+| top N by toreal(BilledCost)
+| as filteredCosts
+| extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(tostring(CommitmentDiscountName), ' (', tostring(CommitmentDiscountType), ')'))
+| extend ResourceNameUnique = iff(isempty(ResourceId), '', strcat(tostring(ResourceName), ' (', tostring(ResourceType), ')'))
+| extend x_ResourceGroupNameUnique = iff(isempty(x_ResourceGroupName), '', strcat(tostring(x_ResourceGroupName), ' (', tostring(SubAccountName), ')'))
+| extend SubAccountNameUnique = iff(isempty(SubAccountId), '', strcat(tostring(SubAccountName), ' (', tostring(split(tostring(SubAccountId), '/')[3]), ')'))
+| project-away ConsumedQuantity, ConsumedUnit, Tags, x_BilledCostInUsd, x_ContractedCostInUsd, x_CostAllocationRuleName, x_CostCategories, x_Credits, x_CostType, x_CurrencyConversionRate, x_CustomerId, x_CustomerName, x_Discount, x_ExportTime, x_InvoiceId, x_InvoiceIssuerId, x_ListCostInUsd, x_Location, x_Operation, x_PartnerCreditApplied, x_PartnerCreditRate, x_Project, x_ResellerId, x_ResellerName, x_ResourceGroupName, x_ResourceType, x_ServiceCode, x_ServiceId, x_ServicePeriodEnd, x_ServicePeriodStart, x_SkuDetails, x_SkuOfferId, x_SkuServiceFamily, x_SkuTier
