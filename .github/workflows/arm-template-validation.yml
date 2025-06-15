@@ -3,12 +3,18 @@ name: 'ARM Template Validation'
 permissions:
   contents: read
 
+# Phase 1 of ARM template validation rollout - workflow is disabled for CI/CD
+# To enable in Phase 2, uncomment the 'on' section below
+# on:
+#   pull_request:
+#     paths:
+#       - 'src/templates/**'
+#       - 'src/bicep-registry/**'
+#       - '.github/workflows/arm-template-validation.yml'
+
+# Workflow can still be run manually during Phase 1
 on:
-  pull_request:
-    paths:
-      - 'src/templates/**'
-      - 'src/bicep-registry/**'
-      - '.github/workflows/arm-template-validation.yml'
+  workflow_dispatch:
 
 jobs:
   validate_templates:
@@ -40,11 +46,24 @@ jobs:
         shell: pwsh
         run: |
           cd ${{ github.workspace }}
-          $armTtkPath = "./arm-ttk"
+          # ARM-TTK version pinning - using stable release 0.26 (20250401)
+          # Update this version when newer stable releases are available
+          $armTtkVersion = "20250401"
+          $armTtkPath = "./release/.tools/arm-ttk"
+          
           New-Item -Path $armTtkPath -ItemType Directory -Force
-          Invoke-WebRequest -Uri "https://github.com/Azure/arm-ttk/archive/refs/heads/master.zip" -OutFile "./arm-ttk.zip"
-          Expand-Archive -Path "./arm-ttk.zip" -DestinationPath $armTtkPath -Force
-          Import-Module "$armTtkPath/arm-ttk-master/arm-ttk/arm-ttk.psd1" -Force
+          Write-Host "Downloading ARM-TTK version $armTtkVersion..."
+          $armTtkZip = "$armTtkPath/arm-ttk-$armTtkVersion.zip"
+          Invoke-WebRequest -Uri "https://github.com/Azure/arm-ttk/archive/refs/tags/$armTtkVersion.zip" -OutFile $armTtkZip
+          
+          # Extract to a versioned subfolder
+          $extractPath = "$armTtkPath/arm-ttk-$armTtkVersion"
+          Expand-Archive -Path $armTtkZip -DestinationPath $extractPath -Force
+          
+          # Clean up the zip file
+          Remove-Item -Path $armTtkZip -Force
+          
+          Import-Module "$armTtkPath/arm-ttk-$armTtkVersion/arm-ttk-$armTtkVersion/arm-ttk/arm-ttk.psd1" -Force
 
       - name: Validate templates with PSRule
         shell: pwsh

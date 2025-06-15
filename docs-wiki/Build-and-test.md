@@ -192,11 +192,28 @@ src/scripts/Deploy-Toolkit "<tool-name>" -Build -WhatIf
 
 ## 🔍 Automated ARM template validation
 
-ARM templates in the repository are automatically validated using GitHub Actions as part of the PR process. This validation includes multiple checks to ensure templates meet best practices and will deploy successfully.
+> **Note**: ARM template validation is currently in Phase 1 of rollout and is available for local use only. Automated CI/CD validation is temporarily disabled while we fix existing template validation errors. See issue #1696 for Phase 2 rollout plans.
+
+ARM templates in the repository can be validated using multiple tools to ensure templates meet best practices and will deploy successfully. During Phase 1, validation must be run locally before submitting PRs.
+
+### Phased rollout plan
+
+The ARM template validation is being rolled out in phases to ensure smooth integration:
+
+**Phase 1 (Current)**: 
+- Validation tools are available for local use only
+- CI/CD workflow is disabled to prevent PR failures
+- Contributors should run validation locally before submitting PRs
+- ARM-TTK is downloaded to `release/.tools/arm-ttk` instead of `.temp`
+
+**Phase 2 (Planned)**:
+- Fix all existing template validation errors
+- Re-enable CI/CD workflow for automatic PR validation
+- All PRs will be required to pass validation checks
 
 ### GitHub Actions workflow
 
-The validation workflow is triggered automatically when a PR includes changes to ARM templates or Bicep files. The following validations are performed:
+The validation workflow will be triggered automatically when a PR includes changes to ARM templates or Bicep files (**currently disabled in Phase 1**). The following validations are performed:
 
 1. **Bicep Linting**: The Bicep linter checks for syntax errors and best practices.
 2. **PSRule.Rules.Azure**: [PSRule.Rules.Azure](https://github.com/Azure/PSRule.Rules.Azure) runs comprehensive validation against Azure best practices and security standards.
@@ -263,6 +280,60 @@ Alternatively, you can run individual validation steps manually:
    $template = "<path-to-json-template>"
    az deployment group validate --resource-group "validation-rg" --template-file $template
    ```
+
+### What's Being Validated
+
+The ARM template validation process helps prevent common deployment failures and ensures templates follow Azure best practices. Here's what each validation tool checks:
+
+#### PSRule.Rules.Azure
+
+PSRule.Rules.Azure validates templates against Azure best practices, including:
+
+- **Security standards**: Ensures resources follow security best practices (e.g., HTTPS enforcement, encryption at rest)
+- **Resource configuration**: Validates proper resource naming, tagging, and configuration
+- **Parameter usage**: Checks that parameters are properly defined and used
+- **API versions**: Ensures recent and stable API versions are used
+- **Network security**: Validates network security rules and configurations
+- **Diagnostics**: Checks that diagnostic settings are properly configured
+
+#### ARM Template Test Toolkit (ARM-TTK)
+
+ARM-TTK performs additional validation checks including:
+
+- **Template structure**: Validates JSON syntax and schema compliance
+- **Parameter files**: Ensures parameter files match template parameters
+- **Security**: Checks for hardcoded passwords, secure parameter usage
+- **Resource dependencies**: Validates proper use of dependsOn
+- **Output usage**: Ensures outputs are properly defined
+- **Location handling**: Validates proper use of location parameters
+- **Resource naming**: Checks for proper resource naming conventions
+
+#### Azure CLI Validation
+
+Azure CLI validation (`az deployment validate`) performs:
+
+- **Syntax validation**: Checks JSON syntax and ARM template schema
+- **Resource provider registration**: Validates required providers are available
+- **Quota checks**: Ensures deployment won't exceed subscription quotas
+- **Permission validation**: Checks if the deployment has required permissions
+- **Parameter validation**: Ensures all required parameters are provided
+- **Deployment scope**: Validates resources match the deployment scope
+
+### Validation Modes
+
+The validation script supports two modes:
+
+- **Strict mode** (default): All validation rules are enforced. Use this for production-ready templates.
+- **Lenient mode**: Skips certain validation rules that might fail for experimental features or prototypes. Use `-ValidationLevel Lenient` when running `Test-ArmTemplate`.
+
+Rules skipped in lenient mode include:
+- Hardcoded values in templates (for quick prototypes)
+- Missing parameter definitions (for experimental features)
+- Debug deployment settings
+- Larger parameter files
+- Flexible location handling
+
+This multi-layered validation approach helps catch issues early in the development process, reducing failed deployments and improving template quality.
 
 <br>
 

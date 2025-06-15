@@ -26,6 +26,11 @@
 
     .PARAMETER SkipAzValidate
     Optional. Skip Azure CLI validation. Default = false.
+
+    .PARAMETER ValidationLevel
+    Optional. Validation level (Strict or Lenient). Default = Strict.
+    - Strict: All validation rules are enforced (default)
+    - Lenient: Skip certain validation rules that might fail for experimental features
 #>
 
 [CmdletBinding()]
@@ -40,7 +45,11 @@ param(
     [switch] $SkipArmTtk,
 
     [Parameter(Mandatory = $false)]
-    [switch] $SkipAzValidate
+    [switch] $SkipAzValidate,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Strict', 'Lenient')]
+    [string] $ValidationLevel = 'Strict'
 )
 
 # Get the root directory of the repo
@@ -95,9 +104,18 @@ if ($templates.Count -eq 0) {
 
 $hasErrors = $false
 
+# Define rules to skip in lenient mode
+$lenientSkipRules = @(
+    'Azure.Template.UseParameters',  # Allow hardcoded values for experimental features
+    'Azure.Template.DefineParameters', # Allow missing parameters for prototypes
+    'Azure.Template.DebugDeployment', # Allow debug settings in experimental templates
+    'Azure.ARM.MaxParameterFile',    # Allow larger parameter files for complex scenarios
+    'Azure.Template.LocationType'    # Allow flexible location handling
+)
+
 # Validate with PSRule.Rules.Azure
 if (-not $SkipPSRule) {
-    Write-Host "Running PSRule.Rules.Azure validation..." -ForegroundColor Cyan
+    Write-Host "Running PSRule.Rules.Azure validation (Mode: $ValidationLevel)..." -ForegroundColor Cyan
 
     Ensure-ModuleInstalled "PSRule.Rules.Azure"
 
@@ -108,6 +126,18 @@ if (-not $SkipPSRule) {
         
         # Check for failures
         $failures = $results | Where-Object { $_.Outcome -eq 'Fail' }
+        
+        # In lenient mode, filter out rules that should be skipped
+        if ($ValidationLevel -eq 'Lenient' -and $failures) {
+            $originalFailureCount = $failures.Count
+            $failures = $failures | Where-Object { $_.RuleName -notin $lenientSkipRules }
+            
+            if ($originalFailureCount -gt $failures.Count) {
+                $skippedCount = $originalFailureCount - $failures.Count
+                Write-Host "Skipped $skippedCount validation rule(s) in lenient mode" -ForegroundColor Yellow
+            }
+        }
+        
         if ($failures) {
             $hasErrors = $true
             Write-Host "PSRule validation failed for $($template.Name):" -ForegroundColor Red
@@ -116,24 +146,44 @@ if (-not $SkipPSRule) {
     }
 }
 
+# Define ARM-TTK tests to skip in lenient mode
+$lenientSkipArmTtkTests = @(
+    'Parameters Should Be Derived From DeploymentTemplate',
+    'Parameters Must Be Referenced',
+    'Secure String Parameters Cannot Have Default',
+    'Min And Max Value Are Numbers',
+    'DeploymentTemplate Must Not Contain Hardcoded Uri'
+)
+
 # Validate with ARM-TTK
 if (-not $SkipArmTtk) {
-    Write-Host "Running ARM-TTK validation..." -ForegroundColor Cyan
+    Write-Host "Running ARM-TTK validation (Mode: $ValidationLevel)..." -ForegroundColor Cyan
 
     # Check if ARM-TTK is installed
     if (-not (Test-ModuleInstalled "arm-ttk")) {
         Write-Host "ARM-TTK not found. Installing..." -ForegroundColor Yellow
         
-        $armTtkPath = "$env:TEMP/arm-ttk"
+        # ARM-TTK version pinning - using stable release 0.26 (20250401)
+        # Update this version when newer stable releases are available
+        $armTtkVersion = "20250401"
+        $armTtkPath = "$repoRoot/release/.tools/arm-ttk"
+        
         if (-not (Test-Path $armTtkPath)) {
             New-Item -Path $armTtkPath -ItemType Directory -Force | Out-Null
+            
+            $armTtkZip = "$armTtkPath/arm-ttk-$armTtkVersion.zip"
+            Write-Host "Downloading ARM-TTK version $armTtkVersion..." -ForegroundColor Yellow
+            Invoke-WebRequest -Uri "https://github.com/Azure/arm-ttk/archive/refs/tags/$armTtkVersion.zip" -OutFile $armTtkZip
+            
+            # Extract to a versioned subfolder
+            $extractPath = "$armTtkPath/arm-ttk-$armTtkVersion"
+            Expand-Archive -Path $armTtkZip -DestinationPath $extractPath -Force
+            
+            # Clean up the zip file
+            Remove-Item -Path $armTtkZip -Force
         }
         
-        $armTtkZip = "$env:TEMP/arm-ttk.zip"
-        Invoke-WebRequest -Uri "https://github.com/Azure/arm-ttk/archive/refs/heads/master.zip" -OutFile $armTtkZip
-        Expand-Archive -Path $armTtkZip -DestinationPath $armTtkPath -Force
-        
-        Import-Module "$armTtkPath/arm-ttk-master/arm-ttk/arm-ttk.psd1" -Force
+        Import-Module "$armTtkPath/arm-ttk-$armTtkVersion/arm-ttk-$armTtkVersion/arm-ttk/arm-ttk.psd1" -Force
     }
 
     foreach ($template in $templates) {
@@ -144,6 +194,18 @@ if (-not $SkipArmTtk) {
             
             # Check for failures
             $failures = $testResults | Where-Object { -not $_.Passed }
+            
+            # In lenient mode, filter out tests that should be skipped
+            if ($ValidationLevel -eq 'Lenient' -and $failures) {
+                $originalFailureCount = $failures.Count
+                $failures = $failures | Where-Object { $_.Name -notin $lenientSkipArmTtkTests }
+                
+                if ($originalFailureCount -gt $failures.Count) {
+                    $skippedCount = $originalFailureCount - $failures.Count
+                    Write-Host "Skipped $skippedCount ARM-TTK test(s) in lenient mode" -ForegroundColor Yellow
+                }
+            }
+            
             if ($failures) {
                 $hasErrors = $true
                 Write-Host "ARM-TTK validation failed for $($template.Name):" -ForegroundColor Red
@@ -159,7 +221,11 @@ if (-not $SkipArmTtk) {
 
 # Validate with Azure CLI
 if (-not $SkipAzValidate) {
-    Write-Host "Running Azure CLI validation..." -ForegroundColor Cyan
+    Write-Host "Running Azure CLI validation (Mode: $ValidationLevel)..." -ForegroundColor Cyan
+    
+    if ($ValidationLevel -eq 'Lenient') {
+        Write-Host "Note: Azure CLI validation warnings will be ignored in lenient mode" -ForegroundColor Yellow
+    }
 
     if (Ensure-AzureCliInstalled) {
         foreach ($template in $templates) {

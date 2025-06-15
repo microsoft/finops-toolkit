@@ -360,3 +360,15 @@ coverage.xml
 last-deployment-state.json
 database-connection-settings.json
 deployment-settings-*.json
+
+# Python virtual environments
+venv/
+.env/
+.venv/
+ENV/
+env/
+
+# ARM-TTK download location
+release/.tools/
+
+CLAUDE.md
