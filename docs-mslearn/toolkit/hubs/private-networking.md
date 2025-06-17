@@ -78,12 +78,12 @@ Before enabling private access, review the networking details on this page to un
 
 When private access is selected, your FinOps hub instance includes a virtual network to ensure communication between its various components remain private.
 
-- The virtual network can be a **/24** (256 IP addresses), **/25** (128 IP addresses), or **/26** (64 IP addresses) in size. The default is **/26** to conserve IP addresses while providing the minimum required subnet sizes for Container Services (used during deployments for running scripts) and Data Explorer.
-- The IP range can be set at the time of deployment and defaults to **10.20.30.0/26**. Choose a larger subnet (like **/24**) if you need additional address space for services such as Power BI VNet Data Gateway.
+- The virtual network can be any subnet size from **/8** to **/26**, with a minimum of **/26** (64 IP addresses) required. The default is **/26** to conserve IP addresses while providing the minimum required subnet sizes for Container Services (used during deployments for running scripts) and Data Explorer.
+- The IP range can be set at the time of deployment and defaults to **10.20.30.0/26**. Choose a larger subnet (like **/24** or smaller) if you need additional address space for services such as Power BI VNet Data Gateway.
 
 If necessary, you can create the virtual network, subnets, and optionally peer it with your hub network before deploying FinOps hubs if you follow these requirements:
 
-- The virtual network should be a **/24**, **/25**, or **/26** in size (256, 128, or 64 IP addresses respectively).
+- The virtual network should be a minimum of **/26** in size (64 IP addresses) but can be any size up to **/8** (16,777,216 IP addresses).
 - The name should be `<HubName>-vNet`.
 - The virtual network must be divided into three subnets with the service delegations as specified:
   - **private-endpoint-subnet** (**/28**) – no service delegations configured; hosts private endpoints for storage and key vault.

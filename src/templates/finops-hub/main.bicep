@@ -144,7 +144,7 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable public access to FinOps hubs resources.  Default: true.')
 param enablePublicAccess bool = true
 
-@description('Optional. Address space for the workload. A /24, /25, or /26 subnet is required for the workload. Default: "10.20.30.0/26".')
+@description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
 
