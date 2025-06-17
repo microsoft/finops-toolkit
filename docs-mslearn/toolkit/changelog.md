@@ -54,6 +54,15 @@ _Released June 2025_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
 
+- **Added**
+  - Added full support for FOCUS 1.2 in Azure Data Explorer and Microsoft Fabric.
+    - This adds support for ingesting the Cost Management 1.2-preview FOCUS dataset version.
+    - When FOCUS 1.0 or 1.0-preview data is ingested, it will be converted to FOCUS 1.2. Historical data will remain in the `*_final_v1_0` tables.
+    - All unversioned Hub database functions, like `Costs()`, will include added and removed columns.
+    - New versioned Hub database functions, like `Costs_v1_2()`, were added based on the FOCUS 1.2 schema changes.
+    - Make sure you use the 1.0 functions, like `Costs_v1_0()`, to avoid breaking changes between FOCUS versions.
+    - This is **not** a breaking change if you are following the prescribed guidance of using versioned functions.
+    - This change does not include Power BI and Data Explorer dashboard updates. Those are still using the `*_v1_0` functions.
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
 
