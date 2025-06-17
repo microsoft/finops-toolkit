@@ -1395,7 +1395,7 @@ Recommendations_transform_v1_0()
     | project
       ProviderName,
       SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
-    x_IngestionTime,
+      x_IngestionTime,
       x_EffectiveCostAfter = TotalCostWithReservedInstances,
       x_EffectiveCostBefore = CostWithNoReservedInstances,
       x_EffectiveCostSavings = NetSavings,

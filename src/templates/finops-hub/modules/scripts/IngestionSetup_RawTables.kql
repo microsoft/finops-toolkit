@@ -421,8 +421,8 @@
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           string,    // AWS 1.0 (JSON)
     x_CostCenter:               string,    // Azure 1.0-preview(v1)+
-    x_Credits:                  string,    // GCP Jan 2024
     x_CostType:                 string,    // GCP Jan 2024
+    x_Credits:                  string,    // GCP Jan 2024
     x_CurrencyConversionRate:   decimal,   // GCP Jun 2024
     x_CustomerId:               string,    // Azure 1.0-preview(v1)+
     x_CustomerName:             string,    // Azure 1.0-preview(v1)+
@@ -442,8 +442,8 @@
     x_OnDemandUnitPrice:        decimal,   // Azure 1.0-preview(v1) only
     x_Operation:                string,    // AWS 1.0
     x_OwnerAccountID:           string,    // Tencent 1.0+
-    x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+  // TODO: x_PartnerCreditApplied should be a decimal
-    x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+  // TODO: x_PartnerCreditRate should be a decimal
+    x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
+    x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
     x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
     x_PricingCurrency:          string,    // Azure 1.0-preview(v1)-1.0r2
     x_PricingSubcategory:       string,    // Azure 1.0-preview(v1)+
