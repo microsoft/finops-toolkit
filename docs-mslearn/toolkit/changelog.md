@@ -32,6 +32,11 @@ The following section lists features and enhancements that are currently in deve
 
 ## v0.12
 
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+
+- **Changed**
+  - Updated FOCUS documentation to align to the 1.2-preview dataset from Cost Management.
+
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
 
 - **Fixed**
