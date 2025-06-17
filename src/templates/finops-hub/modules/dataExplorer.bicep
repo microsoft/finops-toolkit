@@ -330,17 +330,50 @@ module ingestion_VersionedScripts 'hub-database.bicep' = {
   }
 }
 
-module hub_SetupScript 'hub-database.bicep' = {
-  name: 'hub_SetupScript'
+module hub_OpenData 'hub-database.bicep' = {
+  name: 'hub_OpenData'
   dependsOn: [
-    ingestion_VersionedScripts
+    ingestion_InitScripts
   ]
   params: {
     clusterName: cluster.name
     databaseName: cluster::hubDb.name
     scripts: {
-      commonScript: loadTextContent('scripts/Common.kql')
-      setupScript: replace(loadTextContent('scripts/HubSetup.kql'), '$$rawRetentionInDays$$', string(rawRetentionInDays))
+      openData: loadTextContent('scripts/HubSetup_OpenData.kql')
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module hub_VersionedScripts 'hub-database.bicep' = {
+  name: 'hub_VersionedScripts'
+  dependsOn: [
+    ingestion_VersionedScripts
+    hub_OpenData
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::hubDb.name
+    scripts: {
+      v1_0: loadTextContent('scripts/HubSetup_v1_0.kql')
+      v1_2: loadTextContent('scripts/HubSetup_v1_2.kql')
+    }
+    continueOnErrors: continueOnErrors
+    forceUpdateTag: forceUpdateTag
+  }
+}
+
+module hub_LatestScripts 'hub-database.bicep' = {
+  name: 'hub_LatestScripts'
+  dependsOn: [
+    hub_VersionedScripts
+  ]
+  params: {
+    clusterName: cluster.name
+    databaseName: cluster::hubDb.name
+    scripts: {
+      latest: loadTextContent('scripts/HubSetup_Latest.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
