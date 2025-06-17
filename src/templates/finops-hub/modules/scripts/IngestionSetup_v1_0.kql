@@ -17,7 +17,7 @@
 
 // Prices_transform_v1_0 function
 .create-or-alter function
-with (docstring='Transforms Prices_raw into FOCUS 1.0.', folder='Prices')
+with (docstring='DEPRECATED: All prices transformed to FOCUS 1.0. Use Prices_transform_v1_2() instead.', folder='Prices')
 Prices_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -267,7 +267,7 @@ Prices_transform_v1_0()
 
 // Costs_transform_v1_0 function
 .create-or-alter function
-with (docstring='All costs transformed to FOCUS 1.0.', folder='Costs')
+with (docstring='DEPRECATED: All costs transformed to FOCUS 1.0. Use Costs_transform_v1_2() instead.', folder='Costs')
 Costs_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -775,7 +775,7 @@ Costs_transform_v1_0()
 
 // ActualCosts_transform_v1_0 function
 .create-or-alter function
-with (docstring='ActualCost exports transformed to FOCUS 1.0.', folder='Costs')
+with (docstring='DEPRECATED: ActualCost exports transformed to FOCUS 1.0. Use ActualCosts_transform_v1_2() instead.', folder='Costs')
 ActualCosts_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -998,7 +998,7 @@ ActualCosts_transform_v1_0()
 
 // AmortizedCosts_transform_v1_0 function
 .create-or-alter function
-with (docstring='ActualCost exports transformed to FOCUS 1.0.', folder='Costs')
+with (docstring='DEPRECATED: ActualCost exports transformed to FOCUS 1.0. Use AmortizedCosts_transform_v1_2() instead.', folder='Costs')
 AmortizedCosts_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -1221,7 +1221,7 @@ AmortizedCosts_transform_v1_0()
 
 // CommitmentDiscountUsage_transform_v1_0 function
 .create-or-alter function
-with (docstring='All commitment discount usage transformed to FOCUS 1.0. This includes reservationdeatils_raw.', folder='Commitment discounts')
+with (docstring='DEPRECATED: All commitment discount usage transformed to FOCUS 1.0. This includes reservationdeatils_raw. Use CommitmentDiscountUsage_transform_v1_2() instead.', folder='Commitment discounts')
 CommitmentDiscountUsage_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -1332,7 +1332,7 @@ CommitmentDiscountUsage_transform_v1_0()
 
 // Recommendations_transform_v1_0 function
 .create-or-alter function
-with (docstring='All recommendations transformed to FOCUS 1.0.', folder='Recommendations')
+with (docstring='DEPRECATED: All recommendations transformed to FOCUS 1.0. Use Recommendations_transform_v1_2() instead.', folder='Recommendations')
 Recommendations_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -1444,7 +1444,7 @@ Recommendations_transform_v1_0()
 
 // Transactions_transform_v1_0 function
 .create-or-alter function
-with (docstring='All transactions transformed to FOCUS 1.0.', folder='Transactions')
+with (docstring='DEPRECATED: All transactions transformed to FOCUS 1.0. Use Transactions_transform_v1_2() instead.', folder='Transactions')
 Transactions_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
