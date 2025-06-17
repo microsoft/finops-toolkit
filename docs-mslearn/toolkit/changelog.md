@@ -32,6 +32,11 @@ The following section lists features and enhancements that are currently in deve
 
 ## v0.12
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
+
+- **Fixed**
+  - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+
 _Released June 2025_
 
 > [!div class="nextstepaction"]
