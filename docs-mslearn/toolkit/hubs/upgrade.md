@@ -135,11 +135,17 @@ For more information, see [Configure Data Explorer dashboards](configure-dashboa
 
 Replace the use of deprecated columns and functions:
 
-| Old version | Deprecated                                  | Replacement                                         |
-| ----------- | ------------------------------------------- | --------------------------------------------------- |
-| 0.7         | `daterange()`                               | `datestring(datetime, [datetime])`                  |
-| 0.7         | `monthsago()`                               | `startofmonth(datetime, [offset])`                  |
-| 0.7         | `parse_resourceid(ResourceId).ResourceType` | `resource_type(x_ResourceType).SingularDisplayName` |
+| Introduced | Retired | Deprecated                                  | Replacement                                         |
+| ---------- | ------- | ------------------------------------------- | --------------------------------------------------- |
+| 0.7        | N/A     | `daterange()`                               | `datestring(datetime, [datetime])`                  |
+| 0.7        | N/A     | `monthsago()`                               | `startofmonth(datetime, [offset])`                  |
+| 0.7        | 0.8     | `parse_resourceid(ResourceId).ResourceType` | `resource_type(x_ResourceType).SingularDisplayName` |
+| 0.7        | 0.12    | `Costs().x_InvoiceId`                       | `Costs().InvoiceId`                                 |
+| 0.7        | 0.12    | `Costs().x_PricingCurrency`                 | `Costs().PricingCurrency`                           |
+| 0.7        | 0.12    | `Costs().x_SkuMeterName`                    | `Costs().SkuMeter`                                  |
+| 0.7        | 0.12    | `Prices().x_PricingCurrency`                | `Prices().PricingCurrency`                          |
+| 0.7        | 0.12    | `Prices().x_SkuMeterName`                   | `Prices().SkuMeter`                                 |
+| 0.7        | 0.12    | `Transactions().x_InvoiceId`                | `Transactions().InvoiceId`                          |
 
 <br>
 

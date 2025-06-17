@@ -61,15 +61,15 @@ Managed datasets include the following assets for FinOps hubs with storage:
 Managed datasets also include the following assets for FinOps hubs with Data Explorer:
 
 - A "raw" table in the Data Explorer **Ingestion** database (for example, **Costs_raw**).
-- A versioned "transform" function in the Data Explorer **Ingestion** database, used to transform raw data (for example, **Costs_transform_v1_0()**).
-- A versioned "final" table in the Data Explorer **Ingestion** database (for example, **Costs_final_v1_0**).
-- A versioned function in the Data Explorer **Hub** database (for example, **Costs_v1_0()**).
+- A versioned "transform" function in the Data Explorer **Ingestion** database, used to transform raw data (for example, **Costs_transform_v1_2()**).
+- A versioned "final" table in the Data Explorer **Ingestion** database (for example, **Costs_final_v1_2**).
+- A versioned function in the Data Explorer **Hub** database (for example, **Costs_v1_2()**).
 - An unversioned function in the Data Explorer **Hub** database (for example, **Costs()**).
 - A table in Power BI KQL reports that wraps the corresponding versioned function.
 
 When querying data in FinOps hubs, always use the **Hub** database and avoid working with the tables and functions in the **Ingestion** database. To learn more about the data ingestion process, see [How data is processed in FinOps hubs](data-processing.md). Use unversioned functions for ad-hoc analysis or reports that do not require long-term backwards compatibility. Use the versioned functions for reports or systems that do require backwards compatibility and you do not want to be impacted by FinOps hub updates, which may introduce new FOCUS versions.
 
-The unversioned functions call the latest versioned function, which in turn queries data from all versioned final tables in the **Ingestion** database. For instance, **Costs()** calls **Costs_v1_0()**, which queries **Costs_final_v1_0** table. When FinOps hubs adds support for a new FOCUS version, like FOCUS 1.1, all new data will be ingested into the **Costs_final_v1_1** table and the **Costs()** function calls **Costs_v1_1()**, which queries both **Costs_final_v1_0** and **Costs_final_v1_1** tables, transforming the FOCUS 1.0 data to look like FOCUS 1.1. Similarly, the **Costs_v1_0()** function queries both tables, transforming FOCUS 1.1 data to FOCUS 1.0 to support systems that can't work with newer columns.
+The unversioned functions call the latest versioned function, which in turn queries data from all versioned final tables in the **Ingestion** database. For instance, **Costs()** calls **Costs_v1_2()**, which queries **Costs_final_v1_2** table. When FinOps hubs adds support for a new FOCUS version, like FOCUS 1.1, all new data will be ingested into the **Costs_final_v1_1** table and the **Costs()** function calls **Costs_v1_1()**, which queries both **Costs_final_v1_2** and **Costs_final_v1_1** tables, transforming the FOCUS 1.0 data to look like FOCUS 1.1. Similarly, the **Costs_v1_2()** function queries both tables, transforming FOCUS 1.1 data to FOCUS 1.0 to support systems that can't work with newer columns.
 
 This same approach is used for dataset updates that change columns within the same FOCUS version. These tables and functions will use an **r#** version, like **Costs_final_v1_2r3**, signifying the third release (r3) of the FOCUS 1.2 specification. This approach helps avoid changes that may impact custom queries and reports.
 
@@ -124,13 +124,53 @@ The **CommitmentDiscountUsage** managed dataset includes:
 
 - **ingestion/CommitmentDiscountUsage** storage folder.
 - **CommitmentDiscountUsage_raw** table in the **Ingestion** database.
-- **CommitmentDiscountUsage_transform_v1_0()** function in the **Ingestion** database.
-- **CommitmentDiscountUsage_final_v1_0** table in the **Ingestion** database.
-- **CommitmentDiscountUsage_v1_0()** function in the **Hub** database.
+- **CommitmentDiscountUsage_transform_v1_2()** function in the **Ingestion** database.
+- **CommitmentDiscountUsage_final_v1_2** table in the **Ingestion** database.
+- **CommitmentDiscountUsage_v1_2()** function in the **Hub** database.
 - **CommitmentDiscountUsage()** function in the **Hub** database.
 - **CommitmentDiscountUsage** table in Power BI reports.
 
+The following are provided for backwards compatibility:
+
+- **CommitmentDiscountUsage_transform_v1_0()** function in the **Ingestion** database. This is no longer referenced and maintained for reference only.
+- **CommitmentDiscountUsage_final_v1_0** table in the **Ingestion** database to host data ingested with FinOps hubs 0.7-0.11.
+- **CommitmentDiscountUsage_v1_0()** function in the **Hub** database to convert all data to FOCUS 1.0.
+
 The **CommitmentDiscountUsage_raw** table supports Microsoft Cost Management reservation details export schemas for EA and MCA accounts. Data is transformed into a FOCUS-aligned dataset when ingested into the final table. This dataset does not explicitly support other clouds.
+
+Columns in the **CommitmentDiscountUsage** managed dataset include:
+
+| Column                              | Type      | Notes                                                                                      |
+| ----------------------------------- | --------- | ------------------------------------------------------------------------------------------ |
+| ChargePeriodEnd                     | Date/time | Source: Hubs add-on.                                                                       |
+| ChargePeriodStart                   | Date/time | Source: Microsoft 2023-03-01.                                                              |
+| CommitmentDiscountCategory          | String    | Source: Hubs add-on.                                                                       |
+| CommitmentDiscountId                | String    | Source: Microsoft 2023-03-01.                                                              |
+| CommitmentDiscountQuantity          | Decimal   | New in FOCUS 1.2. Renamed from x_CommitmentDiscountQuantity. Source: Microsoft 2023-03-01. |
+| CommitmentDiscountType              | String    | Source: Hubs add-on.                                                                       |
+| CommitmentDiscountUnit              | String    | New in FOCUS 1.2. Source: Hubs add-on.                                                     |
+| ConsumedQuantity                    | Decimal   | Source: Microsoft 2023-03-01.                                                              |
+| ProviderName                        | String    | Source: Hubs add-on.                                                                       |
+| ResourceId                          | String    | Source: Microsoft 2023-03-01.                                                              |
+| ResourceName                        | String    | Source: Hubs add-on.                                                                       |
+| ResourceType                        | String    | Source: Hubs add-on.                                                                       |
+| ServiceCategory                     | String    | Source: Hubs add-on.                                                                       |
+| ServiceName                         | String    | Source: Hubs add-on.                                                                       |
+| SubAccountId                        | String    | Source: Hubs add-on.                                                                       |
+| x_CommitmentDiscountCommittedCount  | Decimal   | Source: Microsoft 2023-03-01.                                                              |
+| x_CommitmentDiscountCommittedAmount | Decimal   | Source: Microsoft 2023-03-01.                                                              |
+| x_CommitmentDiscountNormalizedGroup | String    | Source: Microsoft 2023-03-01.                                                              |
+| x_CommitmentDiscountNormalizedRatio | Decimal   | Source: Microsoft 2023-03-01.                                                              |
+| x_IngestionTime                     | Date/time | Source: Hubs add-on.                                                                       |
+| x_ResourceGroupName                 | String    | Source: Hubs add-on.                                                                       |
+| x_ResourceType                      | String    | Source: Hubs add-on.                                                                       |
+| x_ServiceModel                      | String    | Source: Hubs add-on.                                                                       |
+| x_SkuOrderId                        | String    | Source: Microsoft 2023-03-01.                                                              |
+| x_SkuSize                           | String    | Source: Microsoft 2023-03-01.                                                              |
+| x_SourceName                        | String    | Source: Hubs add-on.                                                                       |
+| x_SourceProvider                    | String    | Source: Hubs add-on.                                                                       |
+| x_SourceType                        | String    | Source: Hubs add-on.                                                                       |
+| x_SourceVersion                     | String    | Source: Hubs add-on.                                                                       |
 
 <br>
 
@@ -146,11 +186,17 @@ The **Costs** managed dataset includes:
 
 - **ingestion/Costs** storage folder.
 - **Costs_raw** table in the **Ingestion** database.
-- **Costs_transform_v1_0()** function in the **Ingestion** database.
-- **Costs_final_v1_0** table in the **Ingestion** database.
-- **Costs_v1_0()** function in the **Hub** database.
+- **Costs_transform_v1_2()** function in the **Ingestion** database.
+- **Costs_final_v1_2** table in the **Ingestion** database.
+- **Costs_v1_2()** function in the **Hub** database.
 - **Costs()** function in the **Hub** database.
 - **Costs** table in Power BI reports.
+
+The following are provided for backwards compatibility:
+
+- **Costs_transform_v1_0()** function in the **Ingestion** database. This is no longer referenced and maintained for reference only.
+- **Costs_final_v1_0** table in the **Ingestion** database to host data ingested with FinOps hubs 0.7-0.11.
+- **Costs_v1_0()** function in the **Hub** database to convert all data to FOCUS 1.0.
 
 The **Costs_raw** table supports FOCUS 1.0 data ingestion from the following service providers:
 
@@ -162,6 +208,145 @@ The **Costs_raw** table supports FOCUS 1.0 data ingestion from the following ser
 - Tencent Cloud
 
 FinOps hubs does not support directly pulling data from other clouds, but if data is added to the **ingestion** storage container, it will be ingested with all custom columns.
+
+Columns in the **Costs** managed dataset include:
+
+| Column                               | Type      | Notes                                                  |
+| ------------------------------------ | --------- | ------------------------------------------------------ |
+| AvailabilityZone                     | String    |                                                        |
+| BilledCost                           | Decimal   |                                                        |
+| BillingAccountId                     | String    |                                                        |
+| BillingAccountName                   | String    |                                                        |
+| BillingAccountType                   | String    |                                                        |
+| BillingCurrency                      | String    |                                                        |
+| BillingPeriodEnd                     | Date/time |                                                        |
+| BillingPeriodStart                   | Date/time |                                                        |
+| CapacityReservationId                | String    | New in FOCUS 1.2.                                      |
+| CapacityReservationStatus            | String    | New in FOCUS 1.2.                                      |
+| ChargeCategory                       | String    |                                                        |
+| ChargeClass                          | String    |                                                        |
+| ChargeDescription                    | String    |                                                        |
+| ChargeFrequency                      | String    |                                                        |
+| ChargePeriodEnd                      | Date/time |                                                        |
+| ChargePeriodStart                    | Date/time |                                                        |
+| CommitmentDiscountCategory           | String    |                                                        |
+| CommitmentDiscountId                 | String    |                                                        |
+| CommitmentDiscountName               | String    |                                                        |
+| CommitmentDiscountQuantity           | Decimal   | New in FOCUS 1.2.                                      |
+| CommitmentDiscountStatus             | String    |                                                        |
+| CommitmentDiscountType               | String    |                                                        |
+| CommitmentDiscountUnit               | String    | New in FOCUS 1.2.                                      |
+| ConsumedQuantity                     | Decimal   |                                                        |
+| ConsumedUnit                         | String    |                                                        |
+| ContractedCost                       | Decimal   |                                                        |
+| ContractedUnitPrice                  | Decimal   |                                                        |
+| EffectiveCost                        | Decimal   |                                                        |
+| InvoiceId                            | String    | New in FOCUS 1.2. Renamed from x_InvoiceId.            |
+| InvoiceIssuerName                    | String    |                                                        |
+| ListCost                             | Decimal   |                                                        |
+| ListUnitPrice                        | Decimal   |                                                        |
+| PricingCategory                      | String    |                                                        |
+| PricingCurrency                      | String    | New in FOCUS 1.2. Renamed from x_PricingCurrency.      |
+| PricingQuantity                      | Decimal   |                                                        |
+| PricingUnit                          | String    |                                                        |
+| ProviderName                         | String    |                                                        |
+| PublisherName                        | String    |                                                        |
+| RegionId                             | String    |                                                        |
+| RegionName                           | String    |                                                        |
+| ResourceId                           | String    |                                                        |
+| ResourceName                         | String    |                                                        |
+| ResourceType                         | String    |                                                        |
+| ServiceCategory                      | String    |                                                        |
+| ServiceName                          | String    |                                                        |
+| ServiceSubcategory                   | String    | New in FOCUS 1.2.                                      |
+| SkuId                                | String    |                                                        |
+| SkuMeter                             | String    | New in FOCUS 1.2. Renamed from x_SkuMeterName.         |
+| SkuPriceDetails                      | Dynamic   | New in FOCUS 1.2. Transformed version of x_SkuDetails. |
+| SkuPriceId                           | String    |                                                        |
+| SubAccountId                         | String    |                                                        |
+| SubAccountName                       | String    |                                                        |
+| SubAccountType                       | String    |                                                        |
+| Tags                                 | Dynamic   |                                                        |
+| x_AccountId                          | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_AccountName                        | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_AccountOwnerId                     | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_AmortizationClass                  | String    | Source: Microsoft 1.2-preview+.                        |
+| x_BilledCostInUsd                    | Decimal   | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_BilledUnitPrice                    | Decimal   | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_BillingAccountAgreement            | String    | Source: Hubs add-on.                                   |
+| x_BillingAccountId                   | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_BillingAccountName                 | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_BillingExchangeRate                | Decimal   | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_BillingExchangeRateDate            | Date/time | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_BillingItemCode                    | String    | Source: Alibaba 1.0.                                   |
+| x_BillingItemName                    | String    | Source: Alibaba 1.0.                                   |
+| x_BillingProfileId                   | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_BillingProfileName                 | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ChargeId                           | String    | Source: Microsoft 1.0-preview(v1) only.                |
+| x_CommitmentDiscountNormalizedRatio  | Decimal   | Source: Microsoft 1.2-preview+.                        |
+| x_CommitmentDiscountSpendEligibility | String    | Source: Hubs add-on.                                   |
+| x_CommitmentDiscountUsageEligibility | String    | Source: Hubs add-on.                                   |
+| x_CommodityCode                      | String    | Source: Alibaba 1.0.                                   |
+| x_CommodityName                      | String    | Source: Alibaba 1.0.                                   |
+| x_ContractedCostInUsd                | Decimal   | Source: Microsoft 1.0+.                                |
+| x_CostAllocationRuleName             | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_CostCategories                     | Dynamic   | Source: AWS 1.0 (JSON).                                |
+| x_CostCenter                         | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_CostType                           | String    | Source: GCP Jan 2024.                                  |
+| x_Credits                            | Dynamic   | Source: GCP Jan 2024.                                  |
+| x_CurrencyConversionRate             | Decimal   | Source: GCP Jun 2024.                                  |
+| x_CustomerId                         | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_CustomerName                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_Discount                           | Dynamic   | Source: AWS 1.0 (JSON).                                |
+| x_EffectiveCostInUsd                 | Decimal   | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_EffectiveUnitPrice                 | Decimal   | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ExportTime                         | Date/time | Source: GCP Jan 2024.                                  |
+| x_IngestionTime                      | Date/time | Source: Hubs add-on.                                   |
+| x_InstanceID                         | String    | Source: Alibaba 1.0.                                   |
+| x_InvoiceIssuerId                    | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_InvoiceSectionId                   | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_InvoiceSectionName                 | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ListCostInUsd                      | Decimal   | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_Location                           | String    | Source: GCP Jan 2024.                                  |
+| x_Operation                          | String    | Source: AWS 1.0.                                       |
+| x_PartnerCreditApplied               | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_PartnerCreditRate                  | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_PricingBlockSize                   | Decimal   | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_PricingSubcategory                 | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_PricingUnitDescription             | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_Project                            | String    | Source: GCP Jan 2024.                                  |
+| x_PublisherCategory                  | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_PublisherId                        | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ResellerId                         | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ResellerName                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ResourceGroupName                  | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ResourceType                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ServiceCode                        | String    | Source: AWS 1.0.                                       |
+| x_ServiceId                          | String    | Source: GCP Jan 2024.                                  |
+| x_ServiceModel                       | String    | Source: Microsoft 1.2-preview+.                        |
+| x_ServicePeriodEnd                   | Date/time | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_ServicePeriodStart                 | Date/time | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuDescription                     | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuDetails                         | Dynamic   | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuIsCreditEligible                | Bool      | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuMeterCategory                   | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuMeterId                         | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuMeterSubcategory                | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuOfferId                         | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuOrderId                         | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuOrderName                       | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuPartNumber                      | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuPlanName                        | String    | Source: Microsoft 1.2-preview+.                        |
+| x_SkuRegion                          | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuServiceFamily                   | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuTerm                            | Int       | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SkuTier                            | String    | Source: Microsoft 1.0-preview(v1)+.                    |
+| x_SourceChanges                      | String    | Source: Hubs add-on.                                   |
+| x_SourceName                         | String    | Source: Hubs add-on.                                   |
+| x_SourceProvider                     | String    | Source: Hubs add-on.                                   |
+| x_SourceType                         | String    | Source: Hubs add-on.                                   |
+| x_SourceVersion                      | String    | Source: Hubs add-on.                                   |
+| x_UsageType                          | String    | Source: AWS 1.0.                                       |
 
 <br>
 
@@ -390,13 +575,79 @@ The **Prices** managed dataset includes:
 
 - **ingestion/Prices** storage folder.
 - **Prices_raw** table in the **Ingestion** database.
-- **Prices_transform_v1_0()** function in the **Ingestion** database.
-- **Prices_final_v1_0** table in the **Ingestion** database.
-- **Prices_v1_0()** function in the **Hub** database.
+- **Prices_transform_v1_2()** function in the **Ingestion** database.
+- **Prices_final_v1_2** table in the **Ingestion** database.
+- **Prices_v1_2()** function in the **Hub** database.
 - **Prices()** function in the **Hub** database.
 - **Prices** table in Power BI reports.
 
+The following are provided for backwards compatibility:
+
+- **Prices_transform_v1_0()** function in the **Ingestion** database. This is no longer referenced and maintained for reference only.
+- **Prices_final_v1_0** table in the **Ingestion** database to host data ingested with FinOps hubs 0.7-0.11.
+- **Prices_v1_0()** function in the **Hub** database to convert all data to FOCUS 1.0.
+
 The **Prices_raw** table supports Microsoft Cost Management export schemas for EA and MCA accounts. Data is transformed into a FOCUS-aligned dataset when ingested into the final table. This dataset does not explicitly support other clouds.
+
+Columns in the **Prices** managed dataset include:
+
+| Column                               | Type      | Notes                                             |
+| ------------------------------------ | --------- | ------------------------------------------------- |
+| BillingAccountId                     | String    |                                                   |
+| BillingAccountName                   | String    |                                                   |
+| BillingCurrency                      | String    |                                                   |
+| ChargeCategory                       | String    |                                                   |
+| CommitmentDiscountCategory           | String    |                                                   |
+| CommitmentDiscountType               | String    |                                                   |
+| CommitmentDiscountUnit               | String    |                                                   |
+| ContractedUnitPrice                  | Decimal   |                                                   |
+| ListUnitPrice                        | Decimal   |                                                   |
+| PricingCategory                      | String    |                                                   |
+| PricingCurrency                      | String    | New in FOCUS 1.2. Renamed from x_PricingCurrency. |
+| PricingUnit                          | String    |                                                   |
+| SkuId                                | String    |                                                   |
+| SkuMeter                             | String    | New in FOCUS 1.2. Renamed from x_SkuMeterName.    |
+| SkuPriceId                           | String    |                                                   |
+| SkuPriceIdv2                         | String    | Source: Hubs add-on.                              |
+| x_BaseUnitPrice                      | Decimal   | Source: Microsoft.                                |
+| x_BillingAccountAgreement            | String    | Source: Hubs add-on.                              |
+| x_BillingAccountId                   | String    | Source: Microsoft, MCA only.                      |
+| x_BillingProfileId                   | String    | Source: Microsoft, MCA only.                      |
+| x_CommitmentDiscountNormalizedRatio  | Decimal   | Source: Hubs add-on.                              |
+| x_CommitmentDiscountSpendEligibility | String    | Source: Hubs add-on.                              |
+| x_CommitmentDiscountUsageEligibility | String    | Source: Hubs add-on.                              |
+| x_ContractedUnitPriceDiscount        | Decimal   | Source: Hubs add-on.                              |
+| x_ContractedUnitPriceDiscountPercent | Decimal   | Source: Hubs add-on.                              |
+| x_EffectivePeriodEnd                 | Date/time | Source: Microsoft.                                |
+| x_EffectivePeriodStart               | Date/time | Source: Microsoft.                                |
+| x_EffectiveUnitPrice                 | Decimal   | Source: Microsoft.                                |
+| x_EffectiveUnitPriceDiscount         | Decimal   | Source: Hubs add-on.                              |
+| x_EffectiveUnitPriceDiscountPercent  | Decimal   | Source: Hubs add-on.                              |
+| x_IngestionTime                      | Date/time | Source: Hubs add-on.                              |
+| x_PricingBlockSize                   | Decimal   | Source: Hubs add-on.                              |
+| x_PricingSubcategory                 | String    | Source: Hubs add-on.                              |
+| x_PricingUnitDescription             | String    | Source: Microsoft.                                |
+| x_SkuDescription                     | String    | Source: Microsoft.                                |
+| x_SkuId                              | String    | Source: Microsoft.                                |
+| x_SkuIncludedQuantity                | Decimal   | Source: Microsoft, EA only.                       |
+| x_SkuMeterCategory                   | String    | Source: Microsoft.                                |
+| x_SkuMeterId                         | String    | Source: Microsoft.                                |
+| x_SkuMeterSubcategory                | String    | Source: Microsoft.                                |
+| x_SkuMeterType                       | String    | Source: Microsoft.                                |
+| x_SkuPriceType                       | String    | Source: Microsoft.                                |
+| x_SkuProductId                       | String    | Source: Microsoft.                                |
+| x_SkuRegion                          | String    | Source: Microsoft.                                |
+| x_SkuServiceFamily                   | String    | Source: Microsoft.                                |
+| x_SkuOfferId                         | String    | Source: Microsoft, EA only.                       |
+| x_SkuPartNumber                      | String    | Source: Microsoft, EA only.                       |
+| x_SkuTerm                            | Int       | Source: Microsoft.                                |
+| x_SkuTier                            | Decimal   | Source: Microsoft, MCA only.                      |
+| x_SourceName                         | String    | Source: Hubs add-on.                              |
+| x_SourceProvider                     | String    | Source: Hubs add-on.                              |
+| x_SourceType                         | String    | Source: Hubs add-on.                              |
+| x_SourceVersion                      | String    | Source: Hubs add-on.                              |
+| x_TotalUnitPriceDiscount             | Decimal   | Source: Hubs add-on.                              |
+| x_TotalUnitPriceDiscountPercent      | Decimal   | Source: Hubs add-on.                              |
 
 <br>
 
@@ -418,13 +669,36 @@ The **Recommendations** managed dataset includes:
 
 - **ingestion/Recommendations** storage folder.
 - **Recommendations_raw** table in the **Ingestion** database.
-- **Recommendations_transform_v1_0()** function in the **Ingestion** database.
-- **Recommendations_final_v1_0** table in the **Ingestion** database.
-- **Recommendations_v1_0()** function in the **Hub** database.
+- **Recommendations_transform_v1_2()** function in the **Ingestion** database.
+- **Recommendations_final_v1_2** table in the **Ingestion** database.
+- **Recommendations_v1_2()** function in the **Hub** database.
 - **Recommendations()** function in the **Hub** database.
 - **Recommendations** table in Power BI reports.
 
+The following are provided for backwards compatibility:
+
+- **Recommendations_transform_v1_0()** function in the **Ingestion** database. This is no longer referenced and maintained for reference only.
+- **Recommendations_final_v1_0** table in the **Ingestion** database to host data ingested with FinOps hubs 0.7-0.11.
+- **Recommendations_v1_0()** function in the **Hub** database to convert all data to FOCUS 1.0.
+
 The **Recommendations_raw** table supports Microsoft Cost Management reservation recommendation export schemas for EA and MCA accounts. Data is transformed into a FOCUS-aligned dataset when ingested into the final table. This dataset does not explicitly support other clouds.
+
+Columns in the **Transactions** managed dataset include:
+
+| Column                  | Type     | Notes                                |
+| ----------------------- | -------- | ------------------------------------ |
+| ProviderName            | String   | Source: Microsoft EA+MCA 2023-05-01. |
+| SubAccountId            | String   | Source: Microsoft EA+MCA 2023-05-01. |
+| x_IngestionTime         | Datetime | Source: Microsoft EA+MCA 2023-05-01. |
+| x_EffectiveCostAfter    | Decimal  | Source: Microsoft EA+MCA 2023-05-01. |
+| x_EffectiveCostBefore   | Decimal  | Source: Microsoft EA+MCA 2023-05-01. |
+| x_EffectiveCostSavings  | Decimal  | Source: Microsoft EA+MCA 2023-05-01. |
+| x_RecommendationDate    | Datetime | Source: Microsoft EA+MCA 2023-05-01. |
+| x_RecommendationDetails | Dynamic  | Source: Microsoft EA+MCA 2023-05-01. |
+| x_SourceName            | String   | Source: Microsoft EA+MCA 2023-05-01. |
+| x_SourceProvider        | String   | Source: Microsoft EA+MCA 2023-05-01. |
+| x_SourceType            | String   | Source: Microsoft EA+MCA 2023-05-01. |
+| x_SourceVersion         | String   | Source: Microsoft EA+MCA 2023-05-01. |
 
 <br>
 
@@ -499,13 +773,63 @@ The **Transactions** managed dataset includes:
 
 - **ingestion/Transactions** storage folder.
 - **Transactions_raw** table in the **Ingestion** database.
-- **Transactions_transform_v1_0()** function in the **Ingestion** database.
-- **Transactions_final_v1_0** table in the **Ingestion** database.
-- **Transactions_v1_0()** function in the **Hub** database.
+- **Transactions_transform_v1_2()** function in the **Ingestion** database.
+- **Transactions_final_v1_2** table in the **Ingestion** database.
+- **Transactions_v1_2()** function in the **Hub** database.
 - **Transactions()** function in the **Hub** database.
 - **Transactions** table in Power BI reports.
 
+The following are provided for backwards compatibility:
+
+- **Transactions_transform_v1_0()** function in the **Ingestion** database. This is no longer referenced and maintained for reference only.
+- **Transactions_final_v1_0** table in the **Ingestion** database to host data ingested with FinOps hubs 0.7-0.11.
+- **Transactions_v1_0()** function in the **Hub** database to convert all data to FOCUS 1.0.
+
 The **Transactions_raw** table supports Microsoft Cost Management reservation transactions export schemas for EA and MCA accounts. Data is transformed into a FOCUS-aligned dataset when ingested into the final table. This dataset does not explicitly support other clouds.
+
+Columns in the **Transactions** managed dataset include:
+
+| Column                       | Type      | Notes                                                                         |
+| ---------------------------- | --------- | ----------------------------------------------------------------------------- |
+| BilledCost                   | Decimal   | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| BillingAccountId             | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| BillingAccountName           | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| BillingCurrency              | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| BillingPeriodEnd             | Date/time | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| BillingPeriodStart           | Date/time | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| ChargeCategory               | String    | Source: Hubs add-on.                                                          |
+| ChargeClass                  | String    | Source: Hubs add-on.                                                          |
+| ChargeDescription            | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| ChargeFrequency              | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| ChargePeriodStart            | Date/time | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| InvoiceId                    | String    | New in FOCUS 1.2. Renamed from x_InvoiceId. Source: Microsoft MCA 2023-05-01. |
+| PricingQuantity              | Decimal   | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| PricingUnit                  | String    | Source: Hubs add-on.                                                          |
+| ProviderName                 | String    | Source: Hubs add-on.                                                          |
+| RegionId                     | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| RegionName                   | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| SubAccountId                 | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| SubAccountName               | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| x_AccountName                | String    | Source: Microsoft EA 2023-05-01.                                              |
+| x_AccountOwnerId             | String    | Source: Microsoft EA 2023-05-01.                                              |
+| x_CostCenter                 | String    | Source: Microsoft EA 2023-05-01.                                              |
+| x_InvoiceNumber              | String    | Source: Microsoft MCA 2023-05-01.                                             |
+| x_InvoiceSectionId           | String    | Source: Microsoft MCA 2023-05-01.                                             |
+| x_InvoiceSectionName         | String    | Source: Microsoft MCA 2023-05-01.                                             |
+| x_IngestionTime              | Date/time | Source: Hubs add-on.                                                          |
+| x_MonetaryCommitment         | Decimal   | Source: Microsoft EA 2023-05-01.                                              |
+| x_Overage                    | Decimal   | Source: Microsoft EA 2023-05-01.                                              |
+| x_PurchasingBillingAccountId | String    | Source: Microsoft EA 2023-05-01.                                              |
+| x_SkuOrderId                 | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| x_SkuOrderName               | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| x_SkuSize                    | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| x_SkuTerm                    | Int       | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| x_SourceName                 | String    | Source: Hubs add-on.                                                          |
+| x_SourceProvider             | String    | Source: Hubs add-on.                                                          |
+| x_SourceType                 | String    | Source: Hubs add-on.                                                          |
+| x_SourceVersion              | String    | Source: Hubs add-on.                                                          |
+| x_SubscriptionId             | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
+| x_TransactionType            | String    | Source: Microsoft EA+MCA 2023-05-01.                                          |
 
 <br>
 
