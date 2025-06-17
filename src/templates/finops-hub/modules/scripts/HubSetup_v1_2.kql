@@ -95,7 +95,7 @@ Costs_v1_2()
             ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
             ''
         )
-        | extend x_CommitmentDiscountUnit = case(
+        | extend CommitmentDiscountUnit = case(
             isempty(CommitmentDiscountQuantity), '',
             CommitmentDiscountCategory == 'Spend', PricingCurrency,
             CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == decimal(1), ConsumedUnit,

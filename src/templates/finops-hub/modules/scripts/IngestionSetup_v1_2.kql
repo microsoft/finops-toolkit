@@ -874,11 +874,10 @@ Costs_transform_v1_2()
 
 // ActualCosts_transform_v1_2 function
 .create-or-alter function
-with (docstring='ActualCost exports transformed to FOCUS 1.0.', folder='Costs')
+with (docstring='ActualCost exports transformed to FOCUS 1.2.', folder='Costs')
 ActualCosts_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
-    // TODO: Transform actual costs to FOCUS 1.0 format
     ActualCosts_raw
     | where ChargeType in ('Purchase', 'Refund') and isnotempty(ReservationId)
     //
@@ -1092,11 +1091,10 @@ ActualCosts_transform_v1_2()
 
 // AmortizedCosts_transform_v1_2 function
 .create-or-alter function
-with (docstring='ActualCost exports transformed to FOCUS 1.0.', folder='Costs')
+with (docstring='ActualCost exports transformed to FOCUS 1.2.', folder='Costs')
 AmortizedCosts_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
-    // TODO: Transform actual costs to FOCUS 1.0 format
     AmortizedCosts_raw
     //
     //
@@ -1310,7 +1308,7 @@ AmortizedCosts_transform_v1_2()
 
 // CommitmentDiscountUsage_transform_v1_2 function
 .create-or-alter function
-with (docstring='All commitment discount usage transformed to FOCUS 1.0. This includes reservationdeatils_raw.', folder='Commitment discounts')
+with (docstring='All commitment discount usage transformed to FOCUS 1.2. This includes reservationdeatils_raw.', folder='Commitment discounts')
 CommitmentDiscountUsage_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -1429,7 +1427,7 @@ CommitmentDiscountUsage_transform_v1_2()
 
 // Recommendations_transform_v1_2 function
 .create-or-alter function
-with (docstring='All recommendations transformed to FOCUS 1.0.', folder='Recommendations')
+with (docstring='All recommendations transformed to FOCUS 1.2.', folder='Recommendations')
 Recommendations_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
@@ -1541,7 +1539,7 @@ Recommendations_transform_v1_2()
 
 // Transactions_transform_v1_2 function
 .create-or-alter function
-with (docstring='All transactions transformed to FOCUS 1.0.', folder='Transactions')
+with (docstring='All transactions transformed to FOCUS 1.2.', folder='Transactions')
 Transactions_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
