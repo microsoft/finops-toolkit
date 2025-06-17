@@ -16,7 +16,7 @@
 // CommitmentDiscountUsage_final_v1_0
 .create-or-alter function
 with (docstring = 'Gets all commitment discount usage records aligned to FOCUS 1.0.', folder = 'CommitmentDiscountUsage')
-CommitmentDiscountUsage_v1_0()
+CommitmentDiscountUsage_v1_2()
 {
     database('Ingestion').CommitmentDiscountUsage_final_v1_0
     | union (
@@ -349,7 +349,45 @@ CommitmentDiscountUsage_v1_2()
     database('Ingestion').CommitmentDiscountUsage_final_v1_2
     | union (
         database('Ingestion').CommitmentDiscountUsage_final_v1_0
+        | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceSubcategory) on x_ResourceType
+        | extend CommitmentDiscountQuantity = ConsumedQuantity * x_CommitmentDiscountNormalizedRatio
+        | extend CommitmentDiscountUnit = case(
+            x_CommitmentDiscountNormalizedRatio == 1, 'Hours',
+            x_CommitmentDiscountNormalizedRatio != 1, 'Normalized Hours',
+            ''
+        )
     )
+    | project
+        ChargePeriodEnd,
+        ChargePeriodStart,
+        CommitmentDiscountCategory,
+        CommitmentDiscountId,
+        CommitmentDiscountQuantity,
+        CommitmentDiscountType,
+        CommitmentDiscountUnit,
+        ConsumedQuantity,
+        ProviderName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        ServiceCategory,
+        ServiceName,
+        ServiceSubcategory,
+        SubAccountId,
+        x_CommitmentDiscountCommittedCount,
+        x_CommitmentDiscountCommittedAmount,
+        x_CommitmentDiscountNormalizedGroup,
+        x_CommitmentDiscountNormalizedRatio,
+        x_IngestionTime,
+        x_ResourceGroupName,
+        x_ResourceType,
+        x_ServiceModel,
+        x_SkuOrderId,
+        x_SkuSize,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion
 }
 
 
@@ -361,7 +399,174 @@ Costs_v1_2()
     database('Ingestion').Costs_final_v1_2
     | union (
         database('Ingestion').Costs_final_v1_0
+        | project-rename
+            InvoiceId = x_InvoiceId,
+            PricingCurrency = x_PricingCurrency,
+            SkuMeter = x_SkuMeterName
+        | extend CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
+        | extend CapacityReservationStatus = case(
+            isempty(CapacityReservationId), '',
+            tolower(x_ResourceType) == 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
+            'Used'
+        )
+        | extend x_CommitmentDiscountNormalizedRatio = case(
+            // Not applicable
+            isempty(CommitmentDiscountStatus), decimal(null),
+            // Parse from SKU details if not specified explicitly
+            todecimal(coalesce(x_SkuDetails.RINormalizationRatio, dynamic(1)))
+        )
+        | extend CommitmentDiscountQuantity = case(
+            isempty(CommitmentDiscountStatus), decimal(null),
+            CommitmentDiscountCategory == 'Spend', EffectiveCost / coalesce(x_BillingExchangeRate, decimal(1)),
+            CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, decimal(1)) * x_CommitmentDiscountNormalizedRatio,
+            decimal(null)
+        )
+        | extend x_AmortizationClass = case(
+            ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+            ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
+            ''
+        )
+        | extend x_CommitmentDiscountUnit = case(
+            isempty(CommitmentDiscountQuantity), '',
+            CommitmentDiscountCategory == 'Spend', PricingCurrency,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == decimal(1), ConsumedUnit,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio != decimal(1), strcat('Normalized ', ConsumedUnit),
+            ''
+        ),
+        // Add ServiceSubcategory and x_ServiceModel
+        | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceSubcategory, x_ServiceModel) on x_ResourceType
     )
+    | extend SkuPriceDetails = iff(isnotempty(SkuPriceDetails), SkuPriceDetails, parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_')))
+    | project
+        AvailabilityZone,
+        BilledCost,
+        BillingAccountId,
+        BillingAccountName,
+        BillingAccountType,
+        BillingCurrency,
+        BillingPeriodEnd,
+        BillingPeriodStart,
+        CapacityReservationId,
+        CapacityReservationStatus,
+        ChargeCategory,
+        ChargeClass,
+        ChargeDescription,
+        ChargeFrequency,
+        ChargePeriodEnd,
+        ChargePeriodStart,
+        CommitmentDiscountCategory,
+        CommitmentDiscountId,
+        CommitmentDiscountName,
+        CommitmentDiscountQuantity,
+        CommitmentDiscountStatus,
+        CommitmentDiscountType,
+        CommitmentDiscountUnit,
+        ConsumedQuantity,
+        ConsumedUnit,
+        ContractedCost,
+        ContractedUnitPrice,
+        EffectiveCost,
+        InvoiceId,
+        InvoiceIssuerName,
+        ListCost,
+        ListUnitPrice,
+        PricingCategory,
+        PricingCurrency,
+        PricingQuantity,
+        PricingUnit,
+        ProviderName,
+        PublisherName,
+        RegionId,
+        RegionName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        ServiceCategory,
+        ServiceName,
+        ServiceSubcategory,
+        SkuId,
+        SkuMeter,
+        SkuPriceDetails,
+        SkuPriceId,
+        SubAccountId,
+        SubAccountName,
+        SubAccountType,
+        Tags,
+        x_AccountId,
+        x_AccountName,
+        x_AccountOwnerId,
+        x_AmortizationClass,
+        x_BilledCostInUsd,
+        x_BilledUnitPrice,
+        x_BillingAccountAgreement,
+        x_BillingAccountId,
+        x_BillingAccountName,
+        x_BillingExchangeRate,
+        x_BillingExchangeRateDate,
+        x_BillingProfileId,
+        x_BillingProfileName,
+        x_ChargeId,
+        x_CommitmentDiscountNormalizedRatio,
+        x_CommitmentDiscountSpendEligibility,
+        x_CommitmentDiscountUsageEligibility,
+        x_ContractedCostInUsd,
+        x_CostAllocationRuleName,
+        x_CostCategories,
+        x_CostCenter,
+        x_CostType,
+        x_Credits,
+        x_CurrencyConversionRate,
+        x_CustomerId,
+        x_CustomerName,
+        x_Discount,
+        x_EffectiveCostInUsd,
+        x_EffectiveUnitPrice,
+        x_ExportTime,
+        x_IngestionTime,
+        x_InvoiceIssuerId,
+        x_InvoiceSectionId,
+        x_InvoiceSectionName,
+        x_ListCostInUsd,
+        x_Location,
+        x_Operation,
+        x_PartnerCreditApplied,
+        x_PartnerCreditRate,
+        x_PricingBlockSize,
+        x_PricingSubcategory,
+        x_PricingUnitDescription,
+        x_Project,
+        x_PublisherCategory,
+        x_PublisherId,
+        x_ResellerId,
+        x_ResellerName,
+        x_ResourceGroupName,
+        x_ResourceType,
+        x_ServiceCode,
+        x_ServiceId,
+        x_ServiceModel,
+        x_ServicePeriodEnd,
+        x_ServicePeriodStart,
+        x_SkuDescription,
+        x_SkuDetails,
+        x_SkuIsCreditEligible,
+        x_SkuMeterCategory,
+        x_SkuMeterId,
+        x_SkuMeterSubcategory,
+        x_SkuOfferId,
+        x_SkuOrderId,
+        x_SkuOrderName,
+        x_SkuPartNumber,
+        x_SkuPlanName,
+        x_SkuRegion,
+        x_SkuServiceFamily,
+        x_SkuTerm,
+        x_SkuTier,
+        x_SourceChanges,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_UsageType
 }
 
 
@@ -373,7 +578,66 @@ Prices_v1_2()
     database('Ingestion').Prices_final_v1_2
     | union (
         database('Ingestion').Prices_final_v1_0
+        | project-rename
+            PricingCurrency = x_PricingCurrency,
+            SkuMeter = x_SkuMeterName
     )
+    | project
+        BillingAccountId,
+        BillingAccountName,
+        BillingCurrency,
+        ChargeCategory,
+        CommitmentDiscountCategory,
+        CommitmentDiscountType,
+        CommitmentDiscountUnit,
+        ContractedUnitPrice,
+        ListUnitPrice,
+        PricingCategory,
+        PricingCurrency,
+        PricingUnit,
+        SkuId,
+        SkuMeter,
+        SkuPriceId,
+        SkuPriceIdv2,
+        x_BaseUnitPrice,
+        x_BillingAccountAgreement,
+        x_BillingAccountId,
+        x_BillingProfileId,
+        x_CommitmentDiscountNormalizedRatio,
+        x_CommitmentDiscountSpendEligibility,
+        x_CommitmentDiscountUsageEligibility,
+        x_ContractedUnitPriceDiscount,
+        x_ContractedUnitPriceDiscountPercent,
+        x_EffectivePeriodEnd,
+        x_EffectivePeriodStart,
+        x_EffectiveUnitPrice,
+        x_EffectiveUnitPriceDiscount,
+        x_EffectiveUnitPriceDiscountPercent,
+        x_IngestionTime,
+        x_PricingBlockSize,
+        x_PricingSubcategory,
+        x_PricingUnitDescription,
+        x_SkuDescription,
+        x_SkuId,
+        x_SkuIncludedQuantity,
+        x_SkuMeterCategory,
+        x_SkuMeterId,
+        x_SkuMeterSubcategory,
+        x_SkuMeterType,
+        x_SkuPriceType,
+        x_SkuProductId,
+        x_SkuRegion,
+        x_SkuServiceFamily,
+        x_SkuOfferId,
+        x_SkuPartNumber,
+        x_SkuTerm,
+        x_SkuTier,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_TotalUnitPriceDiscount,
+        x_TotalUnitPriceDiscountPercent,
 }
 
 
@@ -386,6 +650,19 @@ Recommendations_v1_2()
     | union (
         database('Ingestion').Recommendations_final_v1_0
     )
+    | project
+        ProviderName,
+        SubAccountId,
+        x_IngestionTime,
+        x_EffectiveCostAfter,
+        x_EffectiveCostBefore,
+        x_EffectiveCostSavings,
+        x_RecommendationDate,
+        x_RecommendationDetails,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion
 }
 
 
@@ -397,7 +674,49 @@ Transactions_v1_2()
     database('Ingestion').Transactions_final_v1_2
     | union (
         database('Ingestion').Transactions_final_v1_0
+        | project-rename
+            InvoiceId = x_InvoiceId
     )
+    | project
+        BilledCost,
+        BillingAccountId,
+        BillingAccountName,
+        BillingCurrency,
+        BillingPeriodEnd,
+        BillingPeriodStart,
+        ChargeCategory,
+        ChargeClass,
+        ChargeDescription,
+        ChargeFrequency,
+        ChargePeriodStart,
+        InvoiceId,
+        PricingQuantity,
+        PricingUnit,
+        ProviderName,
+        RegionId,
+        RegionName,
+        SubAccountId,
+        SubAccountName,
+        x_AccountName,
+        x_AccountOwnerId,
+        x_CostCenter,
+        x_InvoiceNumber,
+        x_InvoiceSectionId,
+        x_InvoiceSectionName,
+        x_IngestionTime,
+        x_MonetaryCommitment,
+        x_Overage,
+        x_PurchasingBillingAccountId,
+        x_SkuOrderId,
+        x_SkuOrderName,
+        x_SkuSize,
+        x_SkuTerm,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_SubscriptionId,
+        x_TransactionType
 }
 
 
@@ -409,7 +728,7 @@ Transactions_v1_2()
 with (docstring = 'Gets all commitment discount usage records with the latest supported version of the FOCUS schema.', folder = 'CommitmentDiscountUsage')
 CommitmentDiscountUsage()
 {
-    CommitmentDiscountUsage_v1_0()
+    CommitmentDiscountUsage_v1_2()
 }
 
 
@@ -417,7 +736,7 @@ CommitmentDiscountUsage()
 with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Costs')
 Costs()
 {
-    Costs_v1_0()
+    Costs_v1_2()
 }
 
 
@@ -425,7 +744,7 @@ Costs()
 with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Prices')
 Prices()
 {
-    Prices_v1_0()
+    Prices_v1_2()
 }
 
 
@@ -433,7 +752,7 @@ Prices()
 with (docstring = 'Gets all recommendations with the latest supported version of the FOCUS schema.', folder = 'Recommendations')
 Recommendations()
 {
-    Recommendations_v1_0()
+    Recommendations_v1_2()
 }
 
 
@@ -441,5 +760,5 @@ Recommendations()
 with (docstring = 'Gets all transactions with the latest supported version of the FOCUS schema.', folder = 'Transactions')
 Transactions()
 {
-    Transactions_v1_0()
+    Transactions_v1_2()
 }

@@ -619,7 +619,12 @@ Costs_transform_v1_2()
         ServiceSubcategory,  // TODO: Populate ServiceSubcategory from ServiceName when missing
         SkuId,
         SkuMeter,
-        SkuPriceDetails,
+        SkuPriceDetails = case(
+            // FOCUS 1.2
+            isnotempty(SkuPriceDetails), SkuPriceDetails,
+            // FOCUS 1.0-preview, 1.0
+            parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_'))
+        ),
         SkuPriceId,
         SubAccountId,
         SubAccountName = iff(isempty(SubAccountId), '', SubAccountName),
@@ -1322,7 +1327,7 @@ CommitmentDiscountUsage_transform_v1_2()
     | extend x_ResourceGroupName = tostring(tmp_ResourceDetails.x_ResourceGroupName)
     | extend x_ResourceType      = tostring(tmp_ResourceDetails.x_ResourceType)
     | lookup kind=leftouter (ResourceTypes | distinct x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
-    | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, x_ServiceModel) on x_ResourceType
+    | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, ServiceSubcategory, x_ServiceModel) on x_ResourceType
     //
     // Sort columns and apply final transforms
     | project
@@ -1344,6 +1349,7 @@ CommitmentDiscountUsage_transform_v1_2()
         ResourceType,
         ServiceCategory,
         ServiceName,
+        ServiceSubcategory,
         SubAccountId,
         x_CommitmentDiscountCommittedCount  = TotalReservedQuantity,
         x_CommitmentDiscountCommittedAmount = ReservedHours,
@@ -1384,6 +1390,7 @@ CommitmentDiscountUsage_transform_v1_2()
     ResourceType:                        string,    // Hubs add-on
     ServiceCategory:                     string,    // Hubs add-on
     ServiceName:                         string,    // Hubs add-on
+    ServiceSubcategory:                  string,    // Hubs add-on
     SubAccountId:                        string,    // Hubs add-on
     x_CommitmentDiscountCommittedCount:  decimal,   // MS 2023-03-01
     x_CommitmentDiscountCommittedAmount: decimal,   // MS 2023-03-01
@@ -1455,46 +1462,46 @@ Recommendations_transform_v1_2()
     // Build recommendation details
     | lookup kind=leftouter (Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
     | extend x_RecommendationDetails = case(
-      x_SourceType == 'ReservationRecommendations', bag_pack(
-        'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
-        'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
-        'CommitmentDiscountNormalizedSize', NormalizedSize,
-        'CommitmentDiscountResourceType', ResourceType,
-        'CommitmentDiscountScope', Scope,
-        'LookbackPeriodDuration', case(
-            LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
-            LookBackPeriod matches regex @'^[0-9]+$',           strcat('P', LookBackPeriod, 'D'),
-            ''
+        x_SourceType == 'ReservationRecommendations', bag_pack(
+            'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
+            'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
+            'CommitmentDiscountNormalizedSize', NormalizedSize,
+            'CommitmentDiscountResourceType', ResourceType,
+            'CommitmentDiscountScope', Scope,
+            'LookbackPeriodDuration', case(
+                LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
+                LookBackPeriod matches regex @'^[0-9]+$',           strcat('P', LookBackPeriod, 'D'),
+                ''
+            ),
+            'LookbackPeriodStart', FirstUsageDate,
+            'RecommendedQuantity', RecommendedQuantity,
+            'RecommendedQuantityNormalized', RecommendedQuantityNormalized,
+            'RegionId', Location,
+            'RegionName', RegionName,
+            'SkuMeterId', MeterId,
+            'SkuPriceDetails', SkuProperties,
+            'SkuSize', coalesce(SKU, SkuName),
+            'SkuTerm', isoMonths(Term)
         ),
-        'LookbackPeriodStart', FirstUsageDate,
-        'RecommendedQuantity', RecommendedQuantity,
-        'RecommendedQuantityNormalized', RecommendedQuantityNormalized,
-        'RegionId', Location,
-        'RegionName', RegionName,
-        'SkuMeterId', MeterId,
-        'SkuPriceDetails', SkuProperties,
-        'SkuSize', coalesce(SKU, SkuName),
-        'SkuTerm', isoMonths(Term)
-      ),
-      dynamic({})
+        dynamic({})
     )
     //
     // Sort columns and apply final transforms
     | extend x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d)
     | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
     | project
-      ProviderName,
-      SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
-      x_IngestionTime,
-      x_EffectiveCostAfter = TotalCostWithReservedInstances,
-      x_EffectiveCostBefore = CostWithNoReservedInstances,
-      x_EffectiveCostSavings = NetSavings,
-      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d),
-      x_RecommendationDetails,
-      x_SourceName,
-      x_SourceProvider,
-      x_SourceType,
-      x_SourceVersion
+        ProviderName,
+        SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+        x_IngestionTime,
+        x_EffectiveCostAfter = TotalCostWithReservedInstances,
+        x_EffectiveCostBefore = CostWithNoReservedInstances,
+        x_EffectiveCostSavings = NetSavings,
+        x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d),
+        x_RecommendationDetails,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion
 }
 
 // Recommendations_final_v1_2 table
@@ -1565,61 +1572,61 @@ Transactions_transform_v1_2()
     //
     // Sort columns and apply final transforms
     | project
-      BilledCost = Amount,
-      BillingAccountId = case(
-        BillingProfileId startswith '/', BillingProfileId,
-        isnotempty(CurrentEnrollmentId), strcat('/providers/Microsoft.Billing/billingAccounts/', CurrentEnrollmentId),
-        isnotempty(BillingProfileId), strcat('/providers/Microsoft.Billing/billingProfiles/', BillingProfileId),
-        ''
-      ),
-      BillingAccountName = coalesce(BillingProfileName, CurrentEnrollmentId),
-      BillingCurrency = Currency,
-      BillingPeriodEnd,
-      BillingPeriodStart,
-      ChargeCategory = case(
-        EventType in ('Cancel', 'Purchase', 'Refund'), 'Purchase',
-        'Adjustment'
-      ),
-      ChargeClass = case(
-        EventType == 'Cancel', 'Cancel',  // FOCUS does not handle this scenario
-        EventType == 'Refund', 'Correction',
-        ''
-      ),
-      ChargeDescription = Description,
-      ChargeFrequency   = case(
-        BillingFrequency == 'OneTime', 'One-Time',
-        BillingFrequency == 'Recurring', 'Recurring',
-        BillingFrequency
-      ),
-      ChargePeriodStart    = EventDate,
-      InvoiceId,
-      PricingQuantity      = Quantity,
-      PricingUnit          = 'Reservations',
-      ProviderName,
-      RegionId             = Region,
-      RegionName           = Region,
-      SubAccountId         = iff(isempty(PurchasingSubscriptionGuid), '', strcat('/subscriptions/', PurchasingSubscriptionGuid)),
-      SubAccountName       = iff(isempty(PurchasingSubscriptionGuid), '', PurchasingSubscriptionName),
-      x_AccountName        = AccountName,
-      x_AccountOwnerId     = AccountOwnerEmail,
-      x_CostCenter         = CostCenter,
-      x_InvoiceNumber      = Invoice,
-      x_InvoiceSectionId   = InvoiceSectionId,
-      x_InvoiceSectionName = coalesce(InvoiceSectionName, DepartmentName),
-      x_IngestionTime      = ingestion_time(),
-      x_MonetaryCommitment = MonetaryCommitment,
-      x_Overage            = Overage,
-      x_PurchasingBillingAccountId = PurchasingEnrollment,
-      x_SkuOrderId         = ReservationOrderId,
-      x_SkuOrderName       = ReservationOrderName,
-      x_SkuSize            = ArmSkuName,
-      x_SkuTerm            = isoMonths(Term),
-      x_SourceName,
-      x_SourceProvider,
-      x_SourceType,
-      x_SourceVersion,
-      x_SubscriptionId  = PurchasingSubscriptionGuid,
-      x_TransactionType = EventType
+        BilledCost = Amount,
+        BillingAccountId = case(
+            BillingProfileId startswith '/', BillingProfileId,
+            isnotempty(CurrentEnrollmentId), strcat('/providers/Microsoft.Billing/billingAccounts/', CurrentEnrollmentId),
+            isnotempty(BillingProfileId), strcat('/providers/Microsoft.Billing/billingProfiles/', BillingProfileId),
+            ''
+        ),
+        BillingAccountName = coalesce(BillingProfileName, CurrentEnrollmentId),
+        BillingCurrency = Currency,
+        BillingPeriodEnd,
+        BillingPeriodStart,
+        ChargeCategory = case(
+            EventType in ('Cancel', 'Purchase', 'Refund'), 'Purchase',
+            'Adjustment'
+        ),
+        ChargeClass = case(
+            EventType == 'Cancel', 'Cancel',  // FOCUS does not handle this scenario
+            EventType == 'Refund', 'Correction',
+            ''
+        ),
+        ChargeDescription = Description,
+        ChargeFrequency   = case(
+            BillingFrequency == 'OneTime', 'One-Time',
+            BillingFrequency == 'Recurring', 'Recurring',
+            BillingFrequency
+        ),
+        ChargePeriodStart    = EventDate,
+        InvoiceId,
+        PricingQuantity      = Quantity,
+        PricingUnit          = 'Reservations',
+        ProviderName,
+        RegionId             = Region,
+        RegionName           = Region,
+        SubAccountId         = iff(isempty(PurchasingSubscriptionGuid), '', strcat('/subscriptions/', PurchasingSubscriptionGuid)),
+        SubAccountName       = iff(isempty(PurchasingSubscriptionGuid), '', PurchasingSubscriptionName),
+        x_AccountName        = AccountName,
+        x_AccountOwnerId     = AccountOwnerEmail,
+        x_CostCenter         = CostCenter,
+        x_InvoiceNumber      = Invoice,
+        x_InvoiceSectionId   = InvoiceSectionId,
+        x_InvoiceSectionName = coalesce(InvoiceSectionName, DepartmentName),
+        x_IngestionTime      = ingestion_time(),
+        x_MonetaryCommitment = MonetaryCommitment,
+        x_Overage            = Overage,
+        x_PurchasingBillingAccountId = PurchasingEnrollment,
+        x_SkuOrderId         = ReservationOrderId,
+        x_SkuOrderName       = ReservationOrderName,
+        x_SkuSize            = ArmSkuName,
+        x_SkuTerm            = isoMonths(Term),
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_SubscriptionId  = PurchasingSubscriptionGuid,
+        x_TransactionType = EventType
 }
 
 // Transactions_final_v1_2 table
