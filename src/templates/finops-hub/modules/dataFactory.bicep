@@ -5048,9 +5048,9 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           ]
         }
       }
-      {
+          {
         name: 'Data Explorer validation'
-        description: 'if a Data Explorer instance is deployed, the status will be checked and if the instance is in state "Stopped" the instance will be started'
+        description: 'when the FTK is deployed with an Azure Data Explorer instance, a start of the instance will be initiated to ensure a running instance'
         type: 'IfCondition'
         dependsOn: [
           {
@@ -5068,8 +5068,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           }
           ifTrueActivities: [
             {
-              name: 'Get ADX Cluster Details'
-              description: 'list ADX cluster details for receiving the status of it'
+              name: 'Start ADX Cluster'
               type: 'WebActivity'
               dependsOn: []
               policy: {
@@ -5081,11 +5080,12 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               }
               userProperties: []
               typeProperties: {
-                method: 'GET'
+                method: 'POST'
                 url: {
-                  value: '${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}?api-version=2024-04-13'
+                  value: '${environment().resourceManager}${dataExplorerCluster.id}/start?api-version=2024-04-13'
                   type: 'Expression'
                 }
+                body: '{}'
                 authentication: {
                   type: 'MSI'
                   resource: {
@@ -5096,35 +5096,50 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               }
             }
             {
-              name: 'Set DataExplorerStatus'
-              type: 'SetVariable'
+              name: 'Error ADX Start'
+              type: 'Fail'
               dependsOn: [
                 {
-                  activity: 'Get ADX Cluster Details'
+                  activity: 'Start ADX Cluster After Error'
                   dependencyConditions: [
-                    'Succeeded'
+                    'Failed'
                   ]
                 }
               ]
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
               userProperties: []
               typeProperties: {
-                variableName: 'dataExplorerStatus'
-                value: {
-                  value: '@if(equals(activity(\'Get ADX Cluster Details\').output.properties.state,\'Stopped\'),\'Stopped\',\'Running\')'
+                message: {
+                  value:'@concat(\'Failed to start DataExplorer Instance. Message: \', activity(\'Start ADX Cluster After Error\').output.error.message)'
+                  type: 'Expression'
+                }
+                errorCode: {
+                  value: '@activity(\'Start ADX Cluster After Error\').output.error.code'
                   type: 'Expression'
                 }
               }
             }
             {
-              name: 'Start ADX Cluster'
+              name: 'Wait ADX Provision State'
+              type: 'Wait'
+              dependsOn: [
+                {
+                  activity: 'Start ADX Cluster'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                waitTimeInSeconds: 600
+              }
+            }
+            {
+              name: 'Start ADX Cluster After Error'
               type: 'WebActivity'
               dependsOn: [
                 {
-                  activity: 'Set DataExplorerStatus'
+                  activity: 'Wait ADX Provision State'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -5141,8 +5156,9 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               typeProperties: {
                 method: 'POST'
                 url: {
-                  value: '@if(equals(variables(\'dataExplorerStatus\'),\'Stopped\'),\'${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}/start?api-version=2024-04-13\',\'${environment().resourceManager}/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Kusto/clusters/${dataExplorerCluster.name}/start?api-version=2024-04-13\')\n    \n\n    '
+                  value: '${environment().resourceManager}${dataExplorerCluster.id}/start?api-version=2024-04-13'
                   type: 'Expression'
+                  body: '{}'
                 }
                 authentication: {
                   type: 'MSI'
@@ -5167,11 +5183,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         type: 'string'
       }
       timestamp: {
-        type: 'string'
-      }
-      dataExplorerStatus: {
-        type: 'String'
-      }
+        type: 'string'      
     }
     annotations: [
       'New ingestion'
