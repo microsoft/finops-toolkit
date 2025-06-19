@@ -34,6 +34,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
 
+- **Added**
+  - Created a script to generate a template FOCUS conformance document.
 - **Changed**
   - Updated FOCUS documentation to align to the 1.2-preview dataset from Cost Management.
 
