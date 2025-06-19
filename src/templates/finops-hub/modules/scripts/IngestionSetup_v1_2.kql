@@ -128,7 +128,7 @@ Prices_transform_v1_2()
             isempty(CommitmentDiscountCategory), '',
             CommitmentDiscountCategory == 'Spend', PricingCurrency,
             CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == decimal(1), PricingUnit,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio != decimal(1), strcat('Normalized ', PricingUnit),
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > decimal(1), strcat('Normalized ', PricingUnit),
             ''
         ),
         ContractedUnitPrice,
@@ -584,7 +584,7 @@ Costs_transform_v1_2()
             isempty(CommitmentDiscountQuantity), '',
             CommitmentDiscountCategory == 'Spend', PricingCurrency,
             CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == decimal(1), ConsumedUnit,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio != decimal(1), strcat('Normalized ', ConsumedUnit),
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > decimal(1), strcat('Normalized ', ConsumedUnit),
             ''
         ),
         ConsumedQuantity,
@@ -649,12 +649,16 @@ Costs_transform_v1_2()
         x_BillingAccountName,
         x_BillingExchangeRate,
         x_BillingExchangeRateDate,
+        x_BillingItemCode,
+        x_BillingItemName,
         x_BillingProfileId,
         x_BillingProfileName,
         x_ChargeId,
         x_CommitmentDiscountNormalizedRatio,
         x_CommitmentDiscountSpendEligibility = '',  // TODO: Add x_CommitmentDiscountSpendEligibility for Costs
         x_CommitmentDiscountUsageEligibility = '',  // TODO: Add x_CommitmentDiscountUsageEligibility for Costs
+        x_CommodityCode,
+        x_CommodityName,
         x_ContractedCostInUsd = coalesce(x_ContractedCostInUsd, x_OnDemandCostInUsd),
         x_CostAllocationRuleName,
         x_CostCategories = parse_json(x_CostCategories),
@@ -788,12 +792,16 @@ Costs_transform_v1_2()
     x_BillingAccountName:       string,    // Azure 1.0-preview(v1)+
     x_BillingExchangeRate:      decimal,   // Azure 1.0-preview(v1)+
     x_BillingExchangeRateDate:  datetime,  // Azure 1.0-preview(v1)+
+    x_BillingItemCode:          string,    // Alibaba 1.0
+    x_BillingItemName:          string,    // Alibaba 1.0
     x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
     x_CommitmentDiscountNormalizedRatio:  decimal,  // Azure 1.2-preview+
     x_CommitmentDiscountSpendEligibility: string,   // Hubs add-on
     x_CommitmentDiscountUsageEligibility: string,   // Hubs add-on
+    x_CommodityCode:            string,    // Alibaba 1.0
+    x_CommodityName:            string,    // Alibaba 1.0
     x_ContractedCostInUsd:      decimal,   // Azure 1.0+
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           dynamic,   // AWS 1.0 (JSON)
@@ -808,6 +816,7 @@ Costs_transform_v1_2()
     x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
     x_ExportTime:               datetime,  // GCP Jan 2024
     x_IngestionTime:            datetime,  // Hubs add-on
+    x_InstanceID:               string,    // Alibaba 1.0
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+

@@ -330,8 +330,8 @@ module ingestion_VersionedScripts 'hub-database.bicep' = {
   }
 }
 
-module hub_OpenData 'hub-database.bicep' = {
-  name: 'hub_OpenData'
+module hub_InitScripts 'hub-database.bicep' = {
+  name: 'hub_InitScripts'
   dependsOn: [
     ingestion_InitScripts
   ]
@@ -339,6 +339,7 @@ module hub_OpenData 'hub-database.bicep' = {
     clusterName: cluster.name
     databaseName: cluster::hubDb.name
     scripts: {
+      common: loadTextContent('scripts/Common.kql')
       openData: loadTextContent('scripts/HubSetup_OpenData.kql')
     }
     continueOnErrors: continueOnErrors
@@ -350,7 +351,7 @@ module hub_VersionedScripts 'hub-database.bicep' = {
   name: 'hub_VersionedScripts'
   dependsOn: [
     ingestion_VersionedScripts
-    hub_OpenData
+    hub_InitScripts
   ]
   params: {
     clusterName: cluster.name

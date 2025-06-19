@@ -21,7 +21,7 @@ CommitmentDiscountUsage_v1_2()
         | extend CommitmentDiscountQuantity = ConsumedQuantity * x_CommitmentDiscountNormalizedRatio
         | extend CommitmentDiscountUnit = case(
             x_CommitmentDiscountNormalizedRatio == 1, 'Hours',
-            x_CommitmentDiscountNormalizedRatio != 1, 'Normalized Hours',
+            x_CommitmentDiscountNormalizedRatio > 1, 'Normalized Hours',
             ''
         )
     )
@@ -99,7 +99,7 @@ Costs_v1_2()
             isempty(CommitmentDiscountQuantity), '',
             CommitmentDiscountCategory == 'Spend', PricingCurrency,
             CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == decimal(1), ConsumedUnit,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio != decimal(1), strcat('Normalized ', ConsumedUnit),
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > decimal(1), strcat('Normalized ', ConsumedUnit),
             ''
         )
     )

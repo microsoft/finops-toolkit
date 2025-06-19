@@ -12,7 +12,7 @@
 // CommitmentDiscountUsage_final_v1_0
 .create-or-alter function
 with (docstring = 'Gets all commitment discount usage records aligned to FOCUS 1.0.', folder = 'CommitmentDiscountUsage')
-CommitmentDiscountUsage_v1_2()
+CommitmentDiscountUsage_v1_0()
 {
     database('Ingestion').CommitmentDiscountUsage_final_v1_0
     | union (
