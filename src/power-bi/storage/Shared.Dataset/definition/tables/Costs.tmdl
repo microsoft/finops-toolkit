@@ -1361,7 +1361,7 @@ table Costs
 		mode: import
 		queryGroup: Storage
 		source = ```
-				let
+								let
 								    // Tags to promote to explicit columns -- Tag names are case-sensitive and column names will be "tag_{TagName}"
 								    // Add any tags you need promoted to this list
 								    // For recommended tags, see https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging#minimum-suggested-tags

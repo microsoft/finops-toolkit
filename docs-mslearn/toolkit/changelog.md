@@ -39,6 +39,11 @@ The following section lists features and enhancements that are currently in deve
 
 _Released June 2025_
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
+
+- **Changed**
+  - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
 > [!div class="nextstepaction"]
