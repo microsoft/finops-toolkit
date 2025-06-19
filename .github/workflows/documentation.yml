@@ -1,25 +1,26 @@
-name: 'PowerShell Tests'
+name: 'Documentation Tests'
 
 on:
   pull_request:
     paths:
-      - 'src/powershell/**'
       - 'docs/**'
       - 'docs-mslearn/**'
       - 'docs-wiki/**'
       - '*.md'
       - 'src/**/*.md'
+
 jobs:
-  run_pester_tests:
-    name: Pester
+  broken_links:
+    name: Broken Links
     runs-on: Windows-latest
     steps:
       - name: Install and cache PowerShell modules
         uses: potatoqualitee/psmodulecache@v6.2.1
         with:
-          modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
+          modules-to-cache: Pester
           shell: pwsh
       - uses: actions/checkout@v3
-      - name: Run Tests
+      - name: Run Broken Links Test
         shell: pwsh
-        run: .build/start.ps1 -Task Test.PowerShell.All
+        run: |
+          src/scripts/Test-PowerShell.ps1 -Markdown
