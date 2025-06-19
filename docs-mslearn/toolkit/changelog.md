@@ -24,12 +24,6 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) pending changes
-
-- **Added**
-  - Added support for Alibaba Cloud FOCUS data ingestion.
-    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
-
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
@@ -38,19 +32,14 @@ The following section lists features and enhancements that are currently in deve
 
 ## v0.12
 
-### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+_Released June 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.12
 
 - **Added**
   - Created a script to generate a template FOCUS conformance document.
 - **Changed**
   - Updated FOCUS documentation to align to the 1.2-preview dataset from Cost Management.
-
-### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
-
-- **Fixed**
-  - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
-
-_Released June 2025_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
 
@@ -63,6 +52,13 @@ _Released June 2025_
     - Make sure you use the 1.0 functions, like `Costs_v1_0()`, to avoid breaking changes between FOCUS versions.
     - This is **not** a breaking change if you are following the prescribed guidance of using versioned functions.
     - This change does not include Power BI and Data Explorer dashboard updates. Those are still using the `*_v1_0` functions.
+  - Added support for Alibaba and Tencent FOCUS data ingestion.
+    - Alibaba extended columns: `x_BillingItemCode`, `x_BillingItemName`, `x_CommodityCode`, `x_CommodityName`, `x_InstanceID`.
+    - Tencent extended columns: `x_ComponentName`, `x_ComponentType`, `x_ExportTime`, `x_OwnerAccountID`, `x_SubproductName`.
+  - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+
+### [Power BI reports](power-bi/reports.md) v0.12
+
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
 
