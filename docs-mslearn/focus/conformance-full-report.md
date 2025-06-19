@@ -26,7 +26,7 @@ FOCUS requirements fall into four groups:
 - **RECOMMENDED** requirements are suggested best practices.
 - **MAY** requirements are optional and used to prepare FinOps practitioners for edge cases.
 
-While there's no official measurement for FOCUS conformance, we calculate a conformance score of **94%**, which accounts for all fully and partially supported requirements. The following table summarizes requirements by level of support.
+While there's no official measurement for FOCUS conformance, we calculate a conformance score of **94%**, which accounts for all fully and half of the partially supported requirements. The following table summarizes requirements by level of support.
 
 | Type            | Supported | Partial support | Not supported | Not applicable |
 | :-------------- | :-------: | :-------------: | :-----------: | :------------: |
