@@ -659,6 +659,8 @@ Costs_transform_v1_2()
         x_CommitmentDiscountUsageEligibility = '',  // TODO: Add x_CommitmentDiscountUsageEligibility for Costs
         x_CommodityCode,
         x_CommodityName,
+        x_ComponentName,
+        x_ComponentType,
         x_ContractedCostInUsd = coalesce(x_ContractedCostInUsd, x_OnDemandCostInUsd),
         x_CostAllocationRuleName,
         x_CostCategories = parse_json(x_CostCategories),
@@ -673,6 +675,7 @@ Costs_transform_v1_2()
         x_EffectiveUnitPrice,
         x_ExportTime,
         x_IngestionTime,
+        x_InstanceID,
         x_InvoiceIssuerId,
         x_InvoiceSectionId = case(
             x_InvoiceSectionId == '-2', '',
@@ -685,6 +688,7 @@ Costs_transform_v1_2()
         x_ListCostInUsd,
         x_Location,
         x_Operation,
+        x_OwnerAccountID,
         x_PartnerCreditApplied,
         x_PartnerCreditRate,
         x_PricingBlockSize,
@@ -722,6 +726,7 @@ Costs_transform_v1_2()
         x_SourceProvider,
         x_SourceType,
         x_SourceVersion,
+        x_SubproductName,
         x_UsageType
 }
 
@@ -802,6 +807,8 @@ Costs_transform_v1_2()
     x_CommitmentDiscountUsageEligibility: string,   // Hubs add-on
     x_CommodityCode:            string,    // Alibaba 1.0
     x_CommodityName:            string,    // Alibaba 1.0
+    x_ComponentName:            string,    // Tencent 1.0
+    x_ComponentType:            string,    // Tencent 1.0
     x_ContractedCostInUsd:      decimal,   // Azure 1.0+
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           dynamic,   // AWS 1.0 (JSON)
@@ -814,7 +821,7 @@ Costs_transform_v1_2()
     x_Discount:                 dynamic,   // AWS 1.0 (JSON)
     x_EffectiveCostInUsd:       decimal,   // Azure 1.0-preview(v1)+
     x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
-    x_ExportTime:               datetime,  // GCP Jan 2024
+    x_ExportTime:               datetime,  // GCP Jan 2024 / Tencent 1.0
     x_IngestionTime:            datetime,  // Hubs add-on
     x_InstanceID:               string,    // Alibaba 1.0
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
@@ -823,6 +830,7 @@ Costs_transform_v1_2()
     x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
     x_Location:                 string,    // GCP Jan 2024
     x_Operation:                string,    // AWS 1.0
+    x_OwnerAccountID:           string,    // Tencent 1.0
     x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
     x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
     x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
@@ -860,6 +868,7 @@ Costs_transform_v1_2()
     x_SourceProvider:           string,    // Hubs add-on
     x_SourceType:               string,    // Hubs add-on
     x_SourceVersion:            string,    // Hubs add-on
+    x_SubproductName:           string,    // Tencent 1.0
     x_UsageType:                string     // AWS 1.0
 )
 
@@ -1002,9 +1011,13 @@ ActualCosts_transform_v1_2()
         x_BillingAccountName = BillingAccountName,
         x_BillingExchangeRate = decimal(null),
         x_BillingExchangeRateDate = datetime(null),
+        x_BillingItemCode,
+        x_BillingItemName,
         x_BillingProfileId = BillingProfileId,
         x_BillingProfileName = BillingProfileName,
         x_ChargeId = '',
+        x_CommodityCode,
+        x_CommodityName,
         x_ComponentType = '',
         x_ComponentName = '',
         x_ContractedCostInUsd = decimal(null),
@@ -1021,6 +1034,7 @@ ActualCosts_transform_v1_2()
         x_EffectiveCostInUsd = decimal(null),
         x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), EffectivePrice),
         x_ExportTime = datetime(null),
+        x_InstanceID,
         x_InvoiceId = '',
         x_InvoiceIssuerId = '',
         x_InvoiceSectionId = InvoiceSectionId,
@@ -1218,9 +1232,13 @@ AmortizedCosts_transform_v1_2()
         x_BillingAccountName = BillingAccountName,
         x_BillingExchangeRate = decimal(null),
         x_BillingExchangeRateDate = datetime(null),
+        x_BillingItemCode,
+        x_BillingItemName,
         x_BillingProfileId = BillingProfileId,
         x_BillingProfileName = BillingProfileName,
         x_ChargeId = '',
+        x_CommodityCode,
+        x_CommodityName,
         x_ComponentType = '',
         x_ComponentName = '',
         x_ContractedCostInUsd = decimal(null),
@@ -1237,6 +1255,7 @@ AmortizedCosts_transform_v1_2()
         x_EffectiveCostInUsd = decimal(null),
         x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), EffectivePrice),
         x_ExportTime = datetime(null),
+        x_InstanceID,
         x_InvoiceId = '',
         x_InvoiceIssuerId = '',
         x_InvoiceSectionId = InvoiceSectionId,
