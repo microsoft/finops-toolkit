@@ -34,6 +34,11 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### [Power BI reports](power-bi/reports.md) pending changes
+
+- **Added**
+  - Added a new exec summary page to [Cost Summary](power-bi/cost-summary.md#summary) that shows top subscriptions, services and resource groups for exec level view.
+
 <br><a name="latest"></a>
 
 ## v0.12
