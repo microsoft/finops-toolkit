@@ -1,0 +1,48 @@
+advisorresources
+| where type == 'microsoft.advisor/recommendations'
+| where properties.category == 'Cost'
+| extend 
+    x_RecommendationSolution = tostring(properties.shortDescription.solution)
+| where (x_RecommendationSolution has_cs "reserved instance" or x_RecommendationSolution has_cs "savings plan")
+| extend 
+    scope = tostring(properties.extendedProperties.scope),
+    lookback = tostring(properties.extendedProperties.lookbackPeriod),
+    term = tostring(properties.extendedProperties.term)
+| where scope =~ "single" and lookback == "60" and term == "P3Y"
+| extend 
+    savings = todouble(properties.extendedProperties.savingsAmount),
+    currency = tostring(properties.extendedProperties.savingsCurrency),
+    rawMaturity = tostring(properties.extendedProperties.maturityLevel)
+| extend
+    x_RecommendationId = id,
+    x_ResourceGroupName = tolower(resourceGroup),
+    SubAccountId = subscriptionId,
+    x_RecommendationCategory = tostring(properties.category),
+    x_RecommendationImpact = tostring(properties.impact),
+    x_RecommendationProvider = 'Azure.Advisor',
+    x_RecommendationTypeId = tostring(properties.recommendationTypeId),
+    x_RecommendationControl = 'Commitment discount',
+    x_RecommendationMaturityLevel = iif(isnotempty(rawMaturity), rawMaturity, "GA"),
+    x_RecommendationDescription = tostring(properties.shortDescription.problem),
+    ResourceId = tolower(properties.resourceMetadata.resourceId),
+    x_ResourceType = tolower(properties.impactedField),
+    ResourceName = tolower(properties.impactedValue),
+    x_RecommendationDate = tostring(properties.lastUpdated),
+    x_RecommendationDetails = strcat("Resources: 1; Savings: ", tostring(savings), " ", currency)
+| project 
+    x_RecommendationId,
+    x_ResourceGroupName,
+    SubAccountId,
+    x_RecommendationCategory,
+    x_RecommendationImpact,
+    x_RecommendationProvider,
+    x_RecommendationTypeId,
+    x_RecommendationControl,
+    x_RecommendationMaturityLevel,
+    x_RecommendationDescription,
+    x_RecommendationSolution,
+    ResourceId,
+    x_ResourceType,
+    ResourceName,
+    x_RecommendationDetails,
+    x_RecommendationDate
