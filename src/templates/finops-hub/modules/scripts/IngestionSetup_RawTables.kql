@@ -13,10 +13,13 @@
 // - C360-2025-04
 //======================================================================================================================
 
-// ActualCosts_raw table (create)
-.create-merge table ActualCosts_raw ( AccountName: string )
+// ActualCosts_raw table -- Create the table if it doesn't exist
+.create-merge table ActualCosts_raw ( ignore: string )
 
-// ActualCosts_raw table (alter)
+// ActualCosts_raw table -- Remove all columns to allow changing column types
+.alter table ActualCosts_raw ( ignore: string )
+
+// ActualCosts_raw table -- Redefine all columns
 .alter table ActualCosts_raw (
     AccountName:            string,
     AccountOwnerId:         string,
@@ -32,9 +35,9 @@
     ChargeType:             string,
     ConsumedService:        string,
     CostCenter:             string,
-    Cost:                   decimal,
+    Cost:                   real,
     Date:                   datetime,
-    EffectivePrice:         decimal,
+    EffectivePrice:         real,
     Frequency:              string,
     InvoiceSection:         string,
     InvoiceSectionId:       string,
@@ -52,7 +55,7 @@
     ProductOrderName:       string,
     PublisherName:          string,
     PublisherType:          string,
-    Quantity:               decimal,
+    Quantity:               real,
     ReservationId:          string,
     ReservationName:        string,
     ResourceGroup:          string,
@@ -67,7 +70,7 @@
     Tags:                   string,
     Term:                   string,
     UnitOfMeasure:          string,
-    UnitPrice:              decimal
+    UnitPrice:              real
 )
 
 // ActualCosts_raw ingestion mapping
@@ -139,10 +142,13 @@
 // - C360-2025-04
 //======================================================================================================================
 
-// AmortizedCosts_raw table (create)
-.create-merge table AmortizedCosts_raw ( AccountName: string )
+// AmortizedCosts_raw table -- Create the table if it doesn't exist
+.create-merge table AmortizedCosts_raw ( ignore: string )
 
-// AmortizedCosts_raw table (alter)
+// AmortizedCosts_raw table -- Remove all columns to allow changing column types
+.alter table AmortizedCosts_raw ( ignore: string )
+
+// AmortizedCosts_raw table -- Redefine all columns
 .alter table AmortizedCosts_raw (
     AccountName:            string,
     AccountOwnerId:         string,
@@ -158,9 +164,9 @@
     ChargeType:             string,
     ConsumedService:        string,
     CostCenter:             string,
-    Cost:                   decimal,
+    Cost:                   real,
     Date:                   datetime,
-    EffectivePrice:         decimal,
+    EffectivePrice:         real,
     Frequency:              string,
     InvoiceSection:         string,
     InvoiceSectionId:       string,
@@ -178,7 +184,7 @@
     ProductOrderName:       string,
     PublisherName:          string,
     PublisherType:          string,
-    Quantity:               decimal,
+    Quantity:               real,
     ReservationId:          string,
     ReservationName:        string,
     ResourceGroup:          string,
@@ -193,7 +199,7 @@
     Tags:                   string,
     Term:                   string,
     UnitOfMeasure:          string,
-    UnitPrice:              decimal
+    UnitPrice:              real
 )
 
 // AmortizedCosts_raw ingestion mapping
@@ -266,22 +272,25 @@
 // - MS MCA reservation details: 2023-03-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-mca
 //======================================================================================================================
 
-// CommitmentDiscountUsage_raw table (create)
-.create-merge table CommitmentDiscountUsage_raw ( InstanceFlexibilityGroup: string )
+// CommitmentDiscountUsage_raw table -- Create the table if it doesn't exist
+.create-merge table CommitmentDiscountUsage_raw ( ignore: string )
 
-// CommitmentDiscountUsage_raw table (alter)
+// CommitmentDiscountUsage_raw table -- Remove all columns to allow changing column types
+.alter table CommitmentDiscountUsage_raw ( ignore: string )
+
+// CommitmentDiscountUsage_raw table -- Redefine all columns
 .alter table CommitmentDiscountUsage_raw (
     InstanceFlexibilityGroup: string,
-    InstanceFlexibilityRatio: decimal,
+    InstanceFlexibilityRatio: real,
     InstanceId:               string,
     Kind:                     string,
     ReservationId:            string,
     ReservationOrderId:       string,
-    ReservedHours:            decimal,
+    ReservedHours:            real,
     SkuName:                  string,
-    TotalReservedQuantity:    decimal,
+    TotalReservedQuantity:    real,
     UsageDate:                datetime,
-    UsedHours:                decimal,
+    UsedHours:                real,
     x_SourceName:             string,    // Hubs add-on
     x_SourceProvider:         string,    // Hubs add-on
     x_SourceType:             string,    // Hubs add-on
@@ -333,13 +342,16 @@
 // Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
 //======================================================================================================================
 
-// Costs_raw table (create)
-.create-merge table Costs_raw ( AvailabilityZone: string )
+// Costs_raw table -- Create the table if it doesn't exist
+.create-merge table Costs_raw ( ignore: string )
 
-// Costs_raw table (alter)
+// Costs_raw table -- Remove all columns to allow changing column types
+.alter table Costs_raw ( ignore: string )
+
+// Costs_raw table -- Redefine all columns
 .alter table Costs_raw (
     AvailabilityZone:           string,    // FOCUS 0.5+
-    BilledCost:                 decimal,   // FOCUS 0.5+
+    BilledCost:                 real,      // FOCUS 0.5+
     BillingAccountId:           string,    // FOCUS 0.5+
     BillingAccountName:         string,    // FOCUS 0.5+
     BillingAccountType:         string,    // Azure 1.0-preview(v1)+
@@ -358,22 +370,22 @@
     CommitmentDiscountCategory: string,    // FOCUS 1.0-preview+
     CommitmentDiscountId:       string,    // FOCUS 1.0-preview+
     CommitmentDiscountName:     string,    // FOCUS 1.0-preview+
-    CommitmentDiscountQuantity: decimal,   // FOCUS 1.1+
+    CommitmentDiscountQuantity: real,      // FOCUS 1.1+
     CommitmentDiscountStatus:   string,    // FOCUS 1.0+
     CommitmentDiscountType:     string,    // FOCUS 1.0-preview+
     CommitmentDiscountUnit:     string,    // FOCUS 1.1+
-    ConsumedQuantity:           decimal,   // FOCUS 1.0+
+    ConsumedQuantity:           real,      // FOCUS 1.0+
     ConsumedUnit:               string,    // FOCUS 1.0+
-    ContractedCost:             decimal,   // FOCUS 1.0+
-    ContractedUnitPrice:        decimal,   // FOCUS 1.0+
-    EffectiveCost:              decimal,   // FOCUS 1.0-preview+
+    ContractedCost:             real,      // FOCUS 1.0+
+    ContractedUnitPrice:        real,      // FOCUS 1.0+
+    EffectiveCost:              real,      // FOCUS 1.0-preview+
     InvoiceId:                  string,    // FOCUS 1.2+
     InvoiceIssuerName:          string,    // FOCUS 0.5+
-    ListCost:                   decimal,   // FOCUS 1.0-preview+
-    ListUnitPrice:              decimal,   // FOCUS 1.0-preview+
+    ListCost:                   real,      // FOCUS 1.0-preview+
+    ListUnitPrice:              real,      // FOCUS 1.0-preview+
     PricingCategory:            string,    // FOCUS 1.0-preview+
     PricingCurrency:            string,    // FOCUS 1.2+
-    PricingQuantity:            decimal,   // FOCUS 1.0-preview+
+    PricingQuantity:            real,      // FOCUS 1.0-preview+
     PricingUnit:                string,    // FOCUS 1.0-preview+
     ProviderName:               string,    // FOCUS 0.5+
     PublisherName:              string,    // FOCUS 0.5+
@@ -394,18 +406,18 @@
     SubAccountName:             string,    // FOCUS 0.5+
     SubAccountType:             string,    // Azure 1.0-preview(v1)+
     Tags:                       string,    // FOCUS 1.0-preview+
-    UsageAmount:                decimal,   // GCP Jan 2024 -- Removed Mar 2024 (UsageQuantity)
-    UsageQuantity:              decimal,   // FOCUS 1.0-preview only
+    UsageAmount:                real,      // GCP Jan 2024 -- Removed Mar 2024 (UsageQuantity)
+    UsageQuantity:              real,      // FOCUS 1.0-preview only
     UsageUnit:                  string,    // FOCUS 1.0-preview only
     x_AccountId:                string,    // Azure 1.0-preview(v1)+
     x_AccountName:              string,    // Azure 1.0-preview(v1)+
     x_AccountOwnerId:           string,    // Azure 1.0-preview(v1)+
     x_AmortizationClass:        string,    // Azure 1.2-preview+
-    x_BilledCostInUsd:          decimal,   // Azure 1.0-preview(v1)+
-    x_BilledUnitPrice:          decimal,   // Azure 1.0-preview(v1)+
+    x_BilledCostInUsd:          real,      // Azure 1.0-preview(v1)+
+    x_BilledUnitPrice:          real,      // Azure 1.0-preview(v1)+
     x_BillingAccountId:         string,    // Azure 1.0-preview(v1)+
     x_BillingAccountName:       string,    // Azure 1.0-preview(v1)+
-    x_BillingExchangeRate:      decimal,   // Azure 1.0-preview(v1)+
+    x_BillingExchangeRate:      real,      // Azure 1.0-preview(v1)+
     x_BillingExchangeRateDate:  datetime,  // Azure 1.0-preview(v1)+
     x_BillingItemCode:          string,    // Alibaba 1.0+
     x_BillingItemName:          string,    // Alibaba 1.0+
@@ -416,35 +428,35 @@
     x_CommodityName:            string,    // Alibaba 1.0+
     x_ComponentName:            string,    // Tencent 1.0+
     x_ComponentType:            string,    // Tencent 1.0+
-    x_ContractedCostInUsd:      decimal,   // Azure 1.0+
-    x_Cost:                     decimal,   // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
+    x_ContractedCostInUsd:      real,      // Azure 1.0+
+    x_Cost:                     real,      // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           string,    // AWS 1.0 (JSON)
     x_CostCenter:               string,    // Azure 1.0-preview(v1)+
     x_CostType:                 string,    // GCP Jan 2024
     x_Credits:                  string,    // GCP Jan 2024
-    x_CurrencyConversionRate:   decimal,   // GCP Jun 2024
+    x_CurrencyConversionRate:   real,      // GCP Jun 2024
     x_CustomerId:               string,    // Azure 1.0-preview(v1)+
     x_CustomerName:             string,    // Azure 1.0-preview(v1)+
     x_Discount:                 string,    // AWS 1.0 (JSON)
-    x_EffectiveCostInUsd:       decimal,   // Azure 1.0-preview(v1)+
-    x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
+    x_EffectiveCostInUsd:       real,      // Azure 1.0-preview(v1)+
+    x_EffectiveUnitPrice:       real,      // Azure 1.0-preview(v1)+
     x_ExportTime:               datetime,  // GCP Jan 2024 / Tencent 1.0+
     x_InstanceID:               string,    // Alibaba 1.0+
     x_InvoiceId:                string,    // Azure 1.0-preview(v1)+
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
-    x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
+    x_ListCostInUsd:            real,      // Azure 1.0-preview(v1)+
     x_Location:                 string,    // GCP Jan 2024
-    x_OnDemandCost:             decimal,   // Azure 1.0-preview(v1) only
-    x_OnDemandCostInUsd:        decimal,   // Azure 1.0-preview(v1) only
-    x_OnDemandUnitPrice:        decimal,   // Azure 1.0-preview(v1) only
+    x_OnDemandCost:             real,      // Azure 1.0-preview(v1) only
+    x_OnDemandCostInUsd:        real,      // Azure 1.0-preview(v1) only
+    x_OnDemandUnitPrice:        real,      // Azure 1.0-preview(v1) only
     x_Operation:                string,    // AWS 1.0
     x_OwnerAccountID:           string,    // Tencent 1.0+
     x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
     x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
-    x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
+    x_PricingBlockSize:         real,      // Azure 1.0-preview(v1)+
     x_PricingCurrency:          string,    // Azure 1.0-preview(v1)-1.0r2
     x_PricingSubcategory:       string,    // Azure 1.0-preview(v1)+
     x_PricingUnitDescription:   string,    // Azure 1.0-preview(v1)+
@@ -650,12 +662,15 @@
 // - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
 //======================================================================================================================
 
-// Prices_raw table (create)
-.create-merge table Prices_raw ( BasePrice: decimal )
+// Prices_raw table -- Create the table if it doesn't exist
+.create-merge table Prices_raw ( ignore: string )
 
-// Prices_raw table (alter)
+// Prices_raw table -- Remove all columns to allow changing column types
+.alter table Prices_raw ( ignore: string )
+
+// Prices_raw table -- Redefine all columns
 .alter table Prices_raw (
-    BasePrice:          decimal,  // Azure EA + MCA
+    BasePrice:          real,     // Azure EA + MCA
     BillingAccountId:   string,   // Azure MCA
     BillingAccountName: string,   // Azure MCA
     BillingCurrency:    string,   // Azure MCA
@@ -666,8 +681,8 @@
     EffectiveEndDate:   datetime, // Azure MCA
     EffectiveStartDate: datetime, // Azure EA + MCA
     EnrollmentNumber:   string,   // Azure EA
-    IncludedQuantity:   decimal,  // Azure EA
-    MarketPrice:        decimal,  // Azure EA + MCA
+    IncludedQuantity:   real,     // Azure EA
+    MarketPrice:        real,     // Azure EA + MCA
     MeterCategory:      string,   // Azure EA + MCA
     MeterId:            string,   // Azure MCA
     MeterID:            string,   // Azure EA
@@ -685,9 +700,9 @@
     SkuId:              string,   // Azure MCA
     SkuID:              string,   // Azure EA
     Term:               string,   // Azure EA + MCA
-    TierMinimumUnits:   decimal,  // Azure MCA
+    TierMinimumUnits:   real,     // Azure MCA
     UnitOfMeasure:      string,   // Azure EA + MCA
-    UnitPrice:          decimal,  // Azure EA + MCA
+    UnitPrice:          real,     // Azure EA + MCA
     x_SourceName:       string,   // Hubs add-on
     x_SourceProvider:   string,   // Hubs add-on
     x_SourceType:       string,   // Hubs add-on
@@ -751,24 +766,27 @@
 // - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
 //======================================================================================================================
 
-// Recommendations_raw table (create)
-.create-merge table Recommendations_raw ( CostWithNoReservedInstances: decimal )
+// Recommendations_raw table -- Create the table if it doesn't exist
+.create-merge table Recommendations_raw ( ignore: string )
 
-// Recommendations_raw table (alter)
+// Recommendations_raw table -- Remove all columns to allow changing column types
+.alter table Recommendations_raw ( ignore: string )
+
+// Recommendations_raw table -- Redefine all columns
 .alter table Recommendations_raw (
-    CostWithNoReservedInstances:        decimal,   // MS CM EA resv reco 2024-05-01
+    CostWithNoReservedInstances:        real,      // MS CM EA resv reco 2024-05-01
     CostWithNoReservedInstancesJson:    string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces and flag as JSON
     FirstUsageDate:                     datetime,  // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
     InstanceFlexibilityGroup:           string,    // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
-    InstanceFlexibilityRatio:           decimal,   // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
+    InstanceFlexibilityRatio:           real,      // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
     Location:                           string,    // MS CM EA+MCA resv reco 2024-05-01
     LookBackPeriod:                     string,    // MS CM EA+MCA resv reco 2024-05-01
     MeterId:                            string,    // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
-    NetSavings:                         decimal,   // MS CM EA resv reco 2024-05-01
+    NetSavings:                         real,      // MS CM EA resv reco 2024-05-01
     NetSavingsJson:                     string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces and flag as JSON
     NormalizedSize:                     string,    // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
-    RecommendedQuantity:                decimal,   // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
-    RecommendedQuantityNormalized:      decimal,   // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
+    RecommendedQuantity:                real,      // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
+    RecommendedQuantityNormalized:      real,      // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
     ResourceType:                       string,    // MS CM EA+MCA resv reco 2024-05-01
     Scope:                              string,    // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
     SKU:                                string,    // MS CM EA resv reco 2024-05-01
@@ -776,7 +794,7 @@
     SkuProperties:                      string,    // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
     SubscriptionId:                     string,    // MS CM EA+MCA resv reco 2024-05-01
     Term:                               string,    // MS CM EA+MCA resv reco 2024-05-01
-    TotalCostWithReservedInstances:     decimal,   // MS CM EA resv reco 2024-05-01
+    TotalCostWithReservedInstances:     real,      // MS CM EA resv reco 2024-05-01
     TotalCostWithReservedInstancesJson: string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces and flag as JSON
     x_SourceName:                       string,    // Hubs add-on
     x_SourceProvider:                   string,    // Hubs add-on
@@ -830,14 +848,17 @@
 // - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
-// Transactions_raw table (create)
-.create-merge table Transactions_raw ( AccountName: string )
+// Transactions_raw table -- Create the table if it doesn't exist
+.create-merge table Transactions_raw ( ignore: string )
 
-// Transactions_raw table (alter)
+// Transactions_raw table -- Remove all columns to allow changing column types
+.alter table Transactions_raw ( ignore: string )
+
+// Transactions_raw table -- Redefine all columns
 .alter table Transactions_raw (
     AccountName:                    string,    // MS CM EA resv trans 2023-05-01
     AccountOwnerEmail:              string,    // MS CM EA resv trans 2023-05-01
-    Amount:                         decimal,   // MS CM EA+MCA resv trans 2023-05-01
+    Amount:                         real,      // MS CM EA+MCA resv trans 2023-05-01
     ArmSkuName:                     string,    // MS CM EA+MCA resv trans 2023-05-01
     BillingFrequency:               string,    // MS CM EA+MCA resv trans 2023-05-01
     BillingMonth:                   string,    // MS CM EA resv trans 2023-05-01
@@ -854,12 +875,12 @@
     InvoiceId:                      string,    // MS CM EA+MCA resv trans 2023-05-01
     InvoiceSectionId:               string,    // MS CM MCA resv trans 2023-05-01
     InvoiceSectionName:             string,    // MS CM MCA resv trans 2023-05-01
-    MonetaryCommitment:             decimal,   // MS CM EA resv trans 2023-05-01
-    Overage:                        decimal,   // MS CM EA resv trans 2023-05-01
+    MonetaryCommitment:             real,      // MS CM EA resv trans 2023-05-01
+    Overage:                        real,      // MS CM EA resv trans 2023-05-01
     PurchasingEnrollment:           string,    // MS CM EA resv trans 2023-05-01
     PurchasingSubscriptionGuid:     string,    // MS CM EA+MCA resv trans 2023-05-01
     PurchasingSubscriptionName:     string,    // MS CM EA+MCA resv trans 2023-05-01
-    Quantity:                       decimal,   // MS CM EA+MCA resv trans 2023-05-01
+    Quantity:                       real,      // MS CM EA+MCA resv trans 2023-05-01
     Region:                         string,    // MS CM EA+MCA resv trans 2023-05-01
     ReservationOrderId:             string,    // MS CM EA+MCA resv trans 2023-05-01
     ReservationOrderName:           string,    // MS CM EA+MCA resv trans 2023-05-01

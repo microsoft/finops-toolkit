@@ -56,6 +56,8 @@ _Released June 2025_
     - Alibaba extended columns: `x_BillingItemCode`, `x_BillingItemName`, `x_CommodityCode`, `x_CommodityName`, `x_InstanceID`.
     - Tencent extended columns: `x_ComponentName`, `x_ComponentType`, `x_ExportTime`, `x_OwnerAccountID`, `x_SubproductName`.
   - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+- **Changed**
+  - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
 
 ### [Power BI reports](power-bi/reports.md) v0.12
 

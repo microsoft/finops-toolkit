@@ -32,6 +32,15 @@ Prices_transform_v1_0()
     };
     let prices = materialize(
         Prices_raw
+        //
+        // Change real to decimal
+        | extend
+            BasePrice        = todecimal(BasePrice),
+            IncludedQuantity = todecimal(IncludedQuantity),
+            MarketPrice      = todecimal(MarketPrice),
+            TierMinimumUnits = todecimal(TierMinimumUnits),
+            UnitPrice        = todecimal(UnitPrice)
+        //
         | extend x_SkuId = coalesce(SkuId, SkuID)
         | extend x_SkuMeterId = coalesce(MeterId, MeterID)
         | extend x_SkuProductId = coalesce(ProductId, ProductID)
@@ -92,7 +101,7 @@ Prices_transform_v1_0()
     //
     // Add PricingUnit and x_PricingBlockSize
     // TODO: Compare join vs. lookup perf -- | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1
-    | lookup kind=leftouter (PricingUnits) on x_PricingUnitDescription
+    | lookup kind=leftouter (PricingUnits | extend x_PricingBlockSize = todecimal(x_PricingBlockSize)) on x_PricingUnitDescription
     //
     | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
     | extend x_EffectiveUnitPriceDiscount = ContractedUnitPrice - x_EffectiveUnitPrice
@@ -272,6 +281,33 @@ Costs_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     Costs_raw
+    //
+    // Change real to decimal
+    | extend
+        BilledCost                 = todecimal(BilledCost),
+        CommitmentDiscountQuantity = todecimal(CommitmentDiscountQuantity),
+        ConsumedQuantity           = todecimal(ConsumedQuantity),
+        ContractedCost             = todecimal(ContractedCost),
+        ContractedUnitPrice        = todecimal(ContractedUnitPrice),
+        EffectiveCost              = todecimal(EffectiveCost),
+        ListCost                   = todecimal(ListCost),
+        ListUnitPrice              = todecimal(ListUnitPrice),
+        PricingQuantity            = todecimal(PricingQuantity),
+        UsageAmount                = todecimal(UsageAmount),
+        UsageQuantity              = todecimal(UsageQuantity),
+        x_BilledCostInUsd          = todecimal(x_BilledCostInUsd),
+        x_BilledUnitPrice          = todecimal(x_BilledUnitPrice),
+        x_BillingExchangeRate      = todecimal(x_BillingExchangeRate),
+        x_ContractedCostInUsd      = todecimal(x_ContractedCostInUsd),
+        x_Cost                     = todecimal(x_Cost),
+        x_CurrencyConversionRate   = todecimal(x_CurrencyConversionRate),
+        x_EffectiveCostInUsd       = todecimal(x_EffectiveCostInUsd),
+        x_EffectiveUnitPrice       = todecimal(x_EffectiveUnitPrice),
+        x_ListCostInUsd            = todecimal(x_ListCostInUsd),
+        x_OnDemandCost             = todecimal(x_OnDemandCost),
+        x_OnDemandCostInUsd        = todecimal(x_OnDemandCostInUsd),
+        x_OnDemandUnitPrice        = todecimal(x_OnDemandUnitPrice),
+        x_PricingBlockSize         = todecimal(x_PricingBlockSize)
     //
     // Dedupe rows
     | extend x_IngestionTime = ingestion_time()
@@ -812,7 +848,7 @@ ActualCosts_transform_v1_0()
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
-        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', decimal(0), Cost),
+        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', real(0), Cost),
         BillingAccountId = strcat('/providers/microsoft.billing/billingaccounts/', BillingAccountId, iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), '', strcat('/billingprofiles/', BillingProfileId))),
         BillingAccountName = coalesce(BillingProfileName, BillingAccountName),
         BillingAccountType = iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), 'Billing Profile', 'Billing Account'),
@@ -837,11 +873,11 @@ ActualCosts_transform_v1_0()
         ChargePeriodStart = Date,
         ChargePeriodEnd = Date + 1d,
         ChargeSubcategory = '',
-        // TODO: CommitmentDiscount* decimal(null)umns need to handle savings plans
+        // TODO: CommitmentDiscount* columns need to handle savings plans
         CommitmentDiscountCategory,
         CommitmentDiscountId = iff(isnotempty(ReservationId), strcat('/providers/microsoft.capacity/reservationorders/', ProductOrderId, '/reservations/', ReservationId), ''),
         CommitmentDiscountName = ReservationName,
-        CommitmentDiscountQuantity = decimal(null),
+        CommitmentDiscountQuantity = real(null),
         CommitmentDiscountStatus = case(
             isempty(ReservationId), '',
             isnotempty(ReservationId) and ChargeType == 'Usage', 'Used',
@@ -854,11 +890,11 @@ ActualCosts_transform_v1_0()
         ConsumedUnit = PricingUnit,
         ContractedCost = UnitPrice * PricingQuantity,
         ContractedUnitPrice = UnitPrice,
-        EffectiveCost = iff(x_AmortizationClass == 'Principal', decimal(0), Cost),
+        EffectiveCost = iff(x_AmortizationClass == 'Principal', real(0), Cost),
         InvoiceId = '',
         InvoiceIssuerName = 'Microsoft',
-        ListCost = decimal(null),
-        ListUnitPrice = decimal(null),
+        ListCost = real(null),
+        ListUnitPrice = real(null),
         PricingCategory,
         PricingCurrency = '',
         PricingQuantity,
@@ -882,18 +918,18 @@ ActualCosts_transform_v1_0()
         SubAccountName = SubscriptionName,
         SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
         Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
-        UsageAmount = decimal(null),
-        UsageQuantity = decimal(null),
+        UsageAmount = real(null),
+        UsageQuantity = real(null),
         UsageUnit = '',
         x_AccountId = '',
         x_AccountName = AccountName,
         x_AccountOwnerId = AccountOwnerId,
         x_AmortizationClass = '',
-        x_BilledCostInUsd = decimal(null),
-        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), UnitPrice),
+        x_BilledCostInUsd = real(null),
+        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', real(0), UnitPrice),
         x_BillingAccountId = BillingAccountId,
         x_BillingAccountName = BillingAccountName,
-        x_BillingExchangeRate = decimal(null),
+        x_BillingExchangeRate = real(null),
         x_BillingExchangeRateDate = datetime(null),
         x_BillingProfileId = BillingProfileId,
         x_BillingProfileName = BillingProfileName,
@@ -904,30 +940,30 @@ ActualCosts_transform_v1_0()
         x_CommodityName = '',
         x_ComponentName = '',
         x_ComponentType = '',
-        x_ContractedCostInUsd = decimal(null),
-        x_Cost = decimal(null),
+        x_ContractedCostInUsd = real(null),
+        x_Cost = real(null),
         x_CostAllocationRuleName = '',
         x_CostCategories = '',
         x_CostCenter = CostCenter,
         x_CostType = '',
         x_Credits = '',
-        x_CurrencyConversionRate = decimal(null),
+        x_CurrencyConversionRate = real(null),
         x_CustomerId = '',
         x_CustomerName = '',
         x_Discount = '',
-        x_EffectiveCostInUsd = decimal(null),
-        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), EffectivePrice),
+        x_EffectiveCostInUsd = real(null),
+        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', real(0), EffectivePrice),
         x_ExportTime = datetime(null),
         x_InstanceID = '',
         x_InvoiceId = '',
         x_InvoiceIssuerId = '',
         x_InvoiceSectionId = InvoiceSectionId,
         x_InvoiceSectionName = InvoiceSection,
-        x_ListCostInUsd = decimal(null),
+        x_ListCostInUsd = real(null),
         x_Location = '',
-        x_OnDemandCost = decimal(null),
-        x_OnDemandCostInUsd = decimal(null),
-        x_OnDemandUnitPrice = decimal(null),
+        x_OnDemandCost = real(null),
+        x_OnDemandCostInUsd = real(null),
+        x_OnDemandUnitPrice = real(null),
         x_Operation = '',
         x_OwnerAccountID = '',
         x_PartnerCreditApplied = '',
@@ -1034,7 +1070,7 @@ AmortizedCosts_transform_v1_0()
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
-        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', decimal(0), Cost),
+        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', real(0), Cost),
         BillingAccountId = strcat('/providers/microsoft.billing/billingaccounts/', BillingAccountId, iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), '', strcat('/billingprofiles/', BillingProfileId))),
         BillingAccountName = coalesce(BillingProfileName, BillingAccountName),
         BillingAccountType = iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), 'Billing Profile', 'Billing Account'),
@@ -1059,11 +1095,11 @@ AmortizedCosts_transform_v1_0()
         ChargePeriodStart = Date,
         ChargePeriodEnd = Date + 1d,
         ChargeSubcategory = '',
-        // TODO: CommitmentDiscount* decimal(null)umns need to handle savings plans
+        // TODO: CommitmentDiscount* columns need to handle savings plans
         CommitmentDiscountCategory,
         CommitmentDiscountId = iff(isnotempty(ReservationId), strcat('/providers/microsoft.capacity/reservationorders/', ProductOrderId, '/reservations/', ReservationId), ''),
         CommitmentDiscountName = ReservationName,
-        CommitmentDiscountQuantity = decimal(null),
+        CommitmentDiscountQuantity = real(null),
         CommitmentDiscountStatus = case(
             isempty(ReservationId), '',
             isnotempty(ReservationId) and ChargeType == 'Usage', 'Used',
@@ -1076,11 +1112,11 @@ AmortizedCosts_transform_v1_0()
         ConsumedUnit = PricingUnit,
         ContractedCost = UnitPrice * PricingQuantity,
         ContractedUnitPrice = UnitPrice,
-        EffectiveCost = iff(x_AmortizationClass == 'Principal', decimal(0), Cost),
+        EffectiveCost = iff(x_AmortizationClass == 'Principal', real(0), Cost),
         InvoiceId = '',
         InvoiceIssuerName = 'Microsoft',
-        ListCost = decimal(null),
-        ListUnitPrice = decimal(null),
+        ListCost = real(null),
+        ListUnitPrice = real(null),
         PricingCategory,
         PricingCurrency = '',
         PricingQuantity,
@@ -1104,18 +1140,18 @@ AmortizedCosts_transform_v1_0()
         SubAccountName = SubscriptionName,
         SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
         Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
-        UsageAmount = decimal(null),
-        UsageQuantity = decimal(null),
+        UsageAmount = real(null),
+        UsageQuantity = real(null),
         UsageUnit = '',
         x_AccountId = '',
         x_AccountName = AccountName,
         x_AccountOwnerId = AccountOwnerId,
         x_AmortizationClass = '',
-        x_BilledCostInUsd = decimal(null),
-        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), UnitPrice),
+        x_BilledCostInUsd = real(null),
+        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', real(0), UnitPrice),
         x_BillingAccountId = BillingAccountId,
         x_BillingAccountName = BillingAccountName,
-        x_BillingExchangeRate = decimal(null),
+        x_BillingExchangeRate = real(null),
         x_BillingExchangeRateDate = datetime(null),
         x_BillingProfileId = BillingProfileId,
         x_BillingProfileName = BillingProfileName,
@@ -1126,30 +1162,30 @@ AmortizedCosts_transform_v1_0()
         x_CommodityName = '',
         x_ComponentName = '',
         x_ComponentType = '',
-        x_ContractedCostInUsd = decimal(null),
-        x_Cost = decimal(null),
+        x_ContractedCostInUsd = real(null),
+        x_Cost = real(null),
         x_CostAllocationRuleName = '',
         x_CostCategories = '',
         x_CostCenter = CostCenter,
         x_CostType = '',
         x_Credits = '',
-        x_CurrencyConversionRate = decimal(null),
+        x_CurrencyConversionRate = real(null),
         x_CustomerId = '',
         x_CustomerName = '',
         x_Discount = '',
-        x_EffectiveCostInUsd = decimal(null),
-        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), EffectivePrice),
+        x_EffectiveCostInUsd = real(null),
+        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', real(0), EffectivePrice),
         x_ExportTime = datetime(null),
         x_InstanceID = '',
         x_InvoiceId = '',
         x_InvoiceIssuerId = '',
         x_InvoiceSectionId = InvoiceSectionId,
         x_InvoiceSectionName = InvoiceSection,
-        x_ListCostInUsd = decimal(null),
+        x_ListCostInUsd = real(null),
         x_Location = '',
-        x_OnDemandCost = decimal(null),
-        x_OnDemandCostInUsd = decimal(null),
-        x_OnDemandUnitPrice = decimal(null),
+        x_OnDemandCost = real(null),
+        x_OnDemandCostInUsd = real(null),
+        x_OnDemandUnitPrice = real(null),
         x_Operation = '',
         x_OwnerAccountID = '',
         x_PartnerCreditApplied = '',
@@ -1226,6 +1262,13 @@ CommitmentDiscountUsage_transform_v1_0()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     CommitmentDiscountUsage_raw
+    //
+    // Change real to decimal
+    | extend
+        InstanceFlexibilityRatio = todecimal(InstanceFlexibilityRatio),
+        ReservedHours            = todecimal(ReservedHours),
+        TotalReservedQuantity    = todecimal(TotalReservedQuantity),
+        UsedHours                = todecimal(UsedHours)
     //
     // Set ProviderName
     | extend ProviderName = 'Microsoft'
@@ -1346,6 +1389,16 @@ Recommendations_transform_v1_0()
         ))
     };
     Recommendations_raw
+    //
+    // Change real to decimal
+    | extend
+        CostWithNoReservedInstances    = todecimal(CostWithNoReservedInstances),
+        InstanceFlexibilityRatio       = todecimal(InstanceFlexibilityRatio),
+        NetSavings                     = todecimal(NetSavings),
+        RecommendedQuantity            = todecimal(RecommendedQuantity),
+        RecommendedQuantityNormalized  = todecimal(RecommendedQuantityNormalized),
+        TotalCostWithReservedInstances = todecimal(TotalCostWithReservedInstances)
+    //
     | extend x_IngestionTime = ingestion_time()
     //
     // Set ProviderName
@@ -1458,6 +1511,13 @@ Transactions_transform_v1_0()
         ))
     };
     Transactions_raw
+    //
+    // Change real to decimal
+    | extend
+        Amount             = todecimal(Amount),
+        MonetaryCommitment = todecimal(MonetaryCommitment),
+        Overage            = todecimal(Overage),
+        Quantity           = todecimal(Quantity)
     //
     // Set ProviderName
     | extend ProviderName = 'Microsoft'
