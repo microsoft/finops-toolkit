@@ -74,13 +74,13 @@ The page uses charts to show the top 10 subscriptions, resource groups and servi
 
 <br>
 
-## Running Total
+## Running total
 
-The **Running Total** page shows the running total (or accumulated cost) for the selected period. This page is helpful in determining what your cost trends are.
+The **Running total** page shows the running total (or accumulated cost) for the selected period. This page is helpful in determining what your cost trends are.
 
 The page uses the standard layout with cost, negotiated discount savings, and commitment discount savings in the chart. The subscription hierarchy with resource groups and resources are shown in the table.
 
-:::image type="content" source="./media/cost-summary/running-total.png" border="true" alt-text="Screenshot of the Running Total page that shows a running total." lightbox="./media/cost-summary/running-total.png" :::
+:::image type="content" source="./media/cost-summary/running-total.png" border="true" alt-text="Screenshot of the Running total page that shows the accumulated cost for the period.." lightbox="./media/cost-summary/running-total.png" :::
 
 <br>
 

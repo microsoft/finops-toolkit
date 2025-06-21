@@ -37,7 +37,9 @@ The following section lists features and enhancements that are currently in deve
 ### [Power BI reports](power-bi/reports.md) pending changes
 
 - **Added**
-  - Added a new exec summary page to [Cost Summary](power-bi/cost-summary.md#summary) that shows top subscriptions, services and resource groups for exec level view.
+  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
+- **Changed**
+  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
 
 <br><a name="latest"></a>
 
