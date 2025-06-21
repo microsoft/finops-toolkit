@@ -805,9 +805,11 @@
     x_EffectiveCostBefore:              real,      // Hubs v1_2
     x_EffectiveCostSavings:             real,      // Hubs v1_2
     x_IngestionTime:                    datetime,  // Hubs v1_2
+    x_RecommendationCategory:           string,    // Hubs v1_2
     x_RecommendationDate:               datetime,  // Hubs v1_2
     x_RecommendationDescription:        string,    // Hubs v1_2
     x_RecommendationDetails:            dynamic,   // Hubs v1_2
+    x_RecommendationId:                 string,    // Hubs v1_2
     x_ResourceGroupName:                string,    // Hubs v1_2
     x_SourceName:                       string,    // Hubs v1_0+
     x_SourceProvider:                   string,    // Hubs v1_0+
@@ -830,17 +832,32 @@
     { "Column": "NetSavings",                         "Properties": { "Field": "NetSavings" } },
     { "Column": "NetSavingsJson",                     "Properties": { "Field": "NetSavingsJson" } },
     { "Column": "NormalizedSize",                     "Properties": { "Field": "NormalizedSize" } },
+    { "Column": "ProviderName",                       "Properties": { "Field": "ProviderName" } },
     { "Column": "RecommendedQuantity",                "Properties": { "Field": "RecommendedQuantity" } },
     { "Column": "RecommendedQuantityNormalized",      "Properties": { "Field": "RecommendedQuantityNormalized" } },
+    { "Column": "ResourceId",                         "Properties": { "Field": "ResourceId" } },
+    { "Column": "ResourceName",                       "Properties": { "Field": "ResourceName" } },
     { "Column": "ResourceType",                       "Properties": { "Field": "ResourceType" } },
     { "Column": "Scope",                              "Properties": { "Field": "Scope" } },
     { "Column": "SKU",                                "Properties": { "Field": "SKU" } },
     { "Column": "SkuName",                            "Properties": { "Field": "SkuName" } },
     { "Column": "SkuProperties",                      "Properties": { "Field": "SkuProperties" } },
+    { "Column": "SubAccountId",                       "Properties": { "Field": "SubAccountId" } },
+    { "Column": "SubAccountName",                     "Properties": { "Field": "SubAccountName" } },
     { "Column": "SubscriptionId",                     "Properties": { "Field": "SubscriptionId" } },
     { "Column": "Term",                               "Properties": { "Field": "Term" } },
     { "Column": "TotalCostWithReservedInstances",     "Properties": { "Field": "TotalCostWithReservedInstances" } },
     { "Column": "TotalCostWithReservedInstancesJson", "Properties": { "Field": "TotalCostWithReservedInstancesJson" } },
+    { "Column": "x_EffectiveCostAfter",               "Properties": { "Field": "x_EffectiveCostAfter" } },
+    { "Column": "x_EffectiveCostBefore",              "Properties": { "Field": "x_EffectiveCostBefore" } },
+    { "Column": "x_EffectiveCostSavings",             "Properties": { "Field": "x_EffectiveCostSavings" } },
+    { "Column": "x_IngestionTime",                    "Properties": { "Field": "x_IngestionTime" } },
+    { "Column": "x_RecommendationCategory",           "Properties": { "Field": "x_RecommendationCategory" } },
+    { "Column": "x_RecommendationDate",               "Properties": { "Field": "x_RecommendationDate" } },
+    { "Column": "x_RecommendationDescription",        "Properties": { "Field": "x_RecommendationDescription" } },
+    { "Column": "x_RecommendationDetails",            "Properties": { "Field": "x_RecommendationDetails" } },
+    { "Column": "x_RecommendationId",                 "Properties": { "Field": "x_RecommendationId" } },
+    { "Column": "x_ResourceGroupName",                "Properties": { "Field": "x_ResourceGroupName" } },
     { "Column": "x_SourceName",                       "Properties": { "Field": "x_SourceName" } },
     { "Column": "x_SourceProvider",                   "Properties": { "Field": "x_SourceProvider" } },
     { "Column": "x_SourceType",                       "Properties": { "Field": "x_SourceType" } },

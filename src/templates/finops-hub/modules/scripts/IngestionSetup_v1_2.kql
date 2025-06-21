@@ -1488,6 +1488,9 @@ Recommendations_transform_v1_2()
     // Build recommendation details
     | lookup kind=leftouter (Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
     | extend x_RecommendationDetails = case(
+        // Use incoming x_RecommendationDetails first
+        isnotempty(x_RecommendationDetails), x_RecommendationDetails,
+        // Create one for reservation recommendations if needed
         x_SourceType == 'ReservationRecommendations', bag_pack(
             'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
             'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
@@ -1509,18 +1512,13 @@ Recommendations_transform_v1_2()
             'SkuSize', coalesce(SKU, SkuName),
             'SkuTerm', isoMonths(Term)
         ),
-        x_SourceType startswith 'FinOpsHubRecommendations-', bag_pack(
-            'RecommendationCategory', x_RecommendationCategory,
-            'RecommendationId', x_RecommendationId,
-            'RecommendationSolution', x_RecommendationSolution,
-            'RecommendationTypeId', x_RecommendationTypeId      
-        ),
         dynamic({})
     )
     //
-    // Sort columns and apply final transforms
-    | extend x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d)
+    // Prefer specified date, then fall back to generating a date based on reservation recommendation lookback period, then validate to ensure it's not in the future
+    | extend x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d))
     | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
+    //
     | project
         ProviderName,
         ResourceId,
@@ -1532,9 +1530,11 @@ Recommendations_transform_v1_2()
         x_EffectiveCostBefore = coalesce(x_EffectiveCostBefore, CostWithNoReservedInstances),
         x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings),
         x_IngestionTime,
-        x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d)),
+        x_RecommendationCategory,  // TODO: Set for reservation recommendations
+        x_RecommendationDate,
         x_RecommendationDescription,
         x_RecommendationDetails,
+        x_RecommendationId,        // TODO: Set for reservation recommendations
         x_ResourceGroupName,
         x_SourceName,
         x_SourceProvider,
@@ -1554,9 +1554,11 @@ Recommendations_transform_v1_2()
     x_EffectiveCostBefore:       real,
     x_EffectiveCostSavings:      real,
     x_IngestionTime:             datetime,
+    x_RecommendationCategory:    string,
     x_RecommendationDate:        datetime,
     x_RecommendationDescription: string,
     x_RecommendationDetails:     dynamic,
+    x_RecommendationId:          string,
     x_ResourceGroupName:         string,
     x_SourceName:                string,
     x_SourceProvider:            string,
