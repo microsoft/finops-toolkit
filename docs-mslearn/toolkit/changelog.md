@@ -67,6 +67,7 @@ _Released June 2025_
 ### [PowerShell module](powershell/powershell-commands.md) v0.12
 
 - **Changed**
+  - Updated the latest API version to 2025-03-01 in all Cost Management export commands.
   - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
 
 > [!div class="nextstepaction"]

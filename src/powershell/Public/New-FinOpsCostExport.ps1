@@ -9,7 +9,8 @@
     The New-FinOpsCostExport command creates a new Cost Management export for the specified scope.
 
     This command has been tested with the following API versions:
-    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2025-03-01 (default)
+    - 2023-07-01-preview
     - 2023-08-01
 
     .PARAMETER Name
@@ -25,7 +26,7 @@
     Optional. Schema version of the dataset to export. Default = "1.2-preview" (applies to FocusCost only).
 
     .PARAMETER DatasetFilters
-    Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (for example, VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).
+    Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview or newer. Valid filters are reservationScope (Shared or Single), resourceType (for example, VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).
 
     .PARAMETER CommitmentDiscountScope
     Optional. Reservation scope filter to use when exporting reservation recommendations. Ignored for other export types. Allowed values: Shared, Single. Default: Shared.
@@ -76,7 +77,7 @@
     Optional. Number of months to export the data for. This is only run once at create time. Failed exports are not re-attempted. Not supported when -OneTime is set. Default = 0.
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.
 
     .EXAMPLE
     New-FinopsCostExport -Name 'July2023OneTime' `
@@ -223,7 +224,7 @@ function New-FinOpsCostExport
 
         [Parameter()]
         [string]
-        $ApiVersion = '2023-07-01-preview'
+        $ApiVersion = '2025-03-01'
     )
 
     process
@@ -291,7 +292,11 @@ function New-FinOpsCostExport
             }
 
             # Set granularity based on dataset type
-            if (-not @('PriceSheet', 'ReservationRecommendations', 'ReservationTransactions') -contains $Dataset)
+            if (@('PriceSheet') -contains $Dataset)
+            {
+                $props.properties.definition.dataSet = $props.properties.definition.dataSet | Add-Member -Name granularity -Value 'Monthly' -MemberType NoteProperty -Force -PassThru
+            }
+            else
             {
                 $props.properties.definition.dataSet = $props.properties.definition.dataSet | Add-Member -Name granularity -Value 'Daily' -MemberType NoteProperty -Force -PassThru
             }
@@ -354,7 +359,7 @@ function New-FinOpsCostExport
                     }
                 }
 
-                # Add 2023-07-01-preview settings
+                # Add 2023-07-01-preview and newer settings
                 $props | Add-Member -Name name -Value $Name -MemberType NoteProperty -Force
                 $props.properties = $props.properties | Add-Member -Name exportDescription -Value $Description -MemberType NoteProperty -Force -PassThru
                 $props.properties = $props.properties | Add-Member -Name dataOverwriteBehavior -Value "$(if ($DoNotOverwrite) { "CreateNewReport" } else { "OverwritePreviousReport" })" -MemberType NoteProperty -Force -PassThru

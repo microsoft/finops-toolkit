@@ -3,7 +3,7 @@ title: Remove-FinOpsCostExport command
 description: Delete a Cost Management export and optionally data associated with the export using the Remove-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 06/21/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,9 +18,10 @@ The **Remove-FinOpsCostExport** command deletes a Cost Management export and opt
 
 This command was tested with the following API versions:
 
-- **2023-07-01-preview (default)** – Enables FocusCost and other datasets.
-- **2023-08-01**
-- **2023-03-01**
+- 2025-03-01 (default) – GA version for FocusCost and other datasets.
+- 2023-07-01-preview
+- 2023-08-01
+- 2023-03-01
 
 <br>
 
@@ -43,7 +44,7 @@ Remove-FinOpsCostExport `
 | `‑Name`       | Required. Name of the Cost Management export.                                                        |
 | `‑Scope`      | Required. Resource ID of the scope to export data for context.                                       |
 | `‑RemoveData` | Optional. Optional. Indicates that all cost data associated with the Export scope should be deleted. |
-| `‑ApiVersion` | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.     |
+| `‑ApiVersion` | Optional. API version to use when calling the Cost Management exports API. Default = 2025-03-01.     |
 
 <br>
 
