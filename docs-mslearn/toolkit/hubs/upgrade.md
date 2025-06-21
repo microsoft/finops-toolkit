@@ -172,6 +172,12 @@ If updating queries to use a newer schema version, use the following table to un
 | Prices                  | v1_2   | `CommitmentDiscountUnit`              | New custom column                               |
 | Prices                  | v1_2   | `x_PricingCurrency`                   | Renamed to `PricingCurrency`                    |
 | Prices                  | v1_2   | `x_SkuMeterName`                      | Renamed to `SkuMeter`                           |
+| Recommendations         | v1_2   | `ResourceId`                          | New custom column                               |
+| Recommendations         | v1_2   | `ResourceName`                        | New custom column                               |
+| Recommendations         | v1_2   | `ResourceType`                        | New custom column                               |
+| Recommendations         | v1_2   | `SubAccountName`                      | New custom column                               |
+| Recommendations         | v1_2   | `x_RecommendationDetails`             | New custom column                               |
+| Recommendations         | v1_2   | `x_ResourceGroupName`                 | New custom column                               |
 | Transactions            | v1_2   | `x_InvoiceId`                         | Renamed to `InvoiceId`                          |
 
 <br>
