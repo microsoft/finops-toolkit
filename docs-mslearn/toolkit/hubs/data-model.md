@@ -686,19 +686,25 @@ The **Recommendations_raw** table supports Microsoft Cost Management reservation
 Columns in the **Transactions** managed dataset include:
 
 | Column                  | Type     | Notes                                |
-| ----------------------- | -------- | ------------------------------------ |
+| --------------------------- | -------- | ------------------------------------ |
 | ProviderName            | String   | Source: Microsoft EA+MCA 2023-05-01. |
+| ResourceId                  | String   |                                      |
+| ResourceName                | String   |                                      |
+| ResourceType                | String   |                                      |
 | SubAccountId            | String   | Source: Microsoft EA+MCA 2023-05-01. |
-| x_IngestionTime         | Datetime | Source: Microsoft EA+MCA 2023-05-01. |
+| SubAccountName              | String   |                                      |
 | x_EffectiveCostAfter    | Decimal  | Source: Microsoft EA+MCA 2023-05-01. |
 | x_EffectiveCostBefore   | Decimal  | Source: Microsoft EA+MCA 2023-05-01. |
 | x_EffectiveCostSavings  | Decimal  | Source: Microsoft EA+MCA 2023-05-01. |
+| x_IngestionTime             | Datetime | Source: Hubs add-on.                 |
 | x_RecommendationDate    | Datetime | Source: Microsoft EA+MCA 2023-05-01. |
+| x_RecommendationDescription | String   | Source: Hubs add-on.                 |
 | x_RecommendationDetails | Dynamic  | Source: Microsoft EA+MCA 2023-05-01. |
-| x_SourceName            | String   | Source: Microsoft EA+MCA 2023-05-01. |
-| x_SourceProvider        | String   | Source: Microsoft EA+MCA 2023-05-01. |
-| x_SourceType            | String   | Source: Microsoft EA+MCA 2023-05-01. |
-| x_SourceVersion         | String   | Source: Microsoft EA+MCA 2023-05-01. |
+| x_ResourceGroupName         | String   |                                      |
+| x_SourceName                | String   | Source: Hubs add-on.                 |
+| x_SourceProvider            | String   | Source: Hubs add-on.                 |
+| x_SourceType                | String   | Source: Hubs add-on.                 |
+| x_SourceVersion             | String   | Source: Hubs add-on.                 |
 
 <br>
 

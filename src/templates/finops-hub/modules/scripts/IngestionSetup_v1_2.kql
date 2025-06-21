@@ -1509,6 +1509,12 @@ Recommendations_transform_v1_2()
             'SkuSize', coalesce(SKU, SkuName),
             'SkuTerm', isoMonths(Term)
         ),
+        x_SourceType startswith 'FinOpsHubRecommendations-', bag_pack(
+            'RecommendationCategory', x_RecommendationCategory,
+            'RecommendationId', x_RecommendationId,
+            'RecommendationSolution', x_RecommendationSolution,
+            'RecommendationTypeId', x_RecommendationTypeId      
+        ),
         dynamic({})
     )
     //
@@ -1517,13 +1523,19 @@ Recommendations_transform_v1_2()
     | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
     | project
         ProviderName,
-        SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        SubAccountId = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
+        SubAccountName,
+        x_EffectiveCostAfter = coalesce(x_EffectiveCostAfter, TotalCostWithReservedInstances),
+        x_EffectiveCostBefore = coalesce(x_EffectiveCostBefore, CostWithNoReservedInstances),
+        x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings),
         x_IngestionTime,
-        x_EffectiveCostAfter = TotalCostWithReservedInstances,
-        x_EffectiveCostBefore = CostWithNoReservedInstances,
-        x_EffectiveCostSavings = NetSavings,
-        x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d),
+        x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d)),
+        x_RecommendationDescription,
         x_RecommendationDetails,
+        x_ResourceGroupName,
         x_SourceName,
         x_SourceProvider,
         x_SourceType,
@@ -1533,13 +1545,19 @@ Recommendations_transform_v1_2()
 // Recommendations_final_v1_2 table
 .create-merge table Recommendations_final_v1_2 (
     ProviderName:            string,
+    ResourceId:                  string,
+    ResourceName:                string,
+    ResourceType:                string,
     SubAccountId:            string,
-    x_IngestionTime:         datetime,
+    SubAccountName:              string,
     x_EffectiveCostAfter:    decimal,
     x_EffectiveCostBefore:   decimal,
     x_EffectiveCostSavings:  decimal,
+    x_IngestionTime:             datetime,
     x_RecommendationDate:    datetime,
+    x_RecommendationDescription: string,
     x_RecommendationDetails: dynamic,
+    x_ResourceGroupName:         string,
     x_SourceName:            string,
     x_SourceProvider:        string,
     x_SourceType:            string,

@@ -767,21 +767,34 @@
     NetSavings:                         decimal,   // MS CM EA resv reco 2024-05-01
     NetSavingsJson:                     string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces and flag as JSON
     NormalizedSize:                     string,    // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
-    RecommendedQuantity:                decimal,   // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
-    RecommendedQuantityNormalized:      decimal,   // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
-    ResourceType:                       string,    // MS CM EA+MCA resv reco 2024-05-01
+    ProviderName:                       string,    // Hubs v1_2
+    RecommendedQuantity:                real,      // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
+    RecommendedQuantityNormalized:      real,      // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
+    ResourceId:                         string,    // Hubs v1_2
+    ResourceName:                       string,    // Hubs v1_2
+    ResourceType:                       string,    // Hubs v1_2, MS CM EA+MCA resv reco 2024-05-01
     Scope:                              string,    // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
     SKU:                                string,    // MS CM EA resv reco 2024-05-01
     SkuName:                            string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces
     SkuProperties:                      string,    // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
+    SubAccountId:                       string,    // Hubs v1_2
+    SubAccountName:                     string,    // Hubs v1_2
     SubscriptionId:                     string,    // MS CM EA+MCA resv reco 2024-05-01
     Term:                               string,    // MS CM EA+MCA resv reco 2024-05-01
     TotalCostWithReservedInstances:     decimal,   // MS CM EA resv reco 2024-05-01
     TotalCostWithReservedInstancesJson: string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces and flag as JSON
-    x_SourceName:                       string,    // Hubs add-on
-    x_SourceProvider:                   string,    // Hubs add-on
-    x_SourceType:                       string,    // Hubs add-on
-    x_SourceVersion:                    string     // Hubs add-on
+    x_EffectiveCostAfter:               decimal,   // Hubs v1_2
+    x_EffectiveCostBefore:              decimal,   // Hubs v1_2
+    x_EffectiveCostSavings:             decimal,   // Hubs v1_2
+    x_IngestionTime:                    datetime,  // Hubs v1_2
+    x_RecommendationDate:               datetime,  // Hubs v1_2
+    x_RecommendationDescription:        string,    // Hubs v1_2
+    x_RecommendationDetails:            dynamic,   // Hubs v1_2
+    x_ResourceGroupName:                string,    // Hubs v1_2
+    x_SourceName:                       string,    // Hubs v1_0+
+    x_SourceProvider:                   string,    // Hubs v1_0+
+    x_SourceType:                       string,    // Hubs v1_0+
+    x_SourceVersion:                    string     // Hubs v1_0+
 )
 
 // Recommendations_raw ingestion mapping
