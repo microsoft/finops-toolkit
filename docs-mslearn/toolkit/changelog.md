@@ -64,6 +64,11 @@ _Released June 2025_
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
 
+### [PowerShell module](powershell/powershell-commands.md) v0.12
+
+- **Changed**
+  - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
 > [!div class="nextstepaction"]
