@@ -292,11 +292,7 @@ function New-FinOpsCostExport
             }
 
             # Set granularity based on dataset type
-            if (@('PriceSheet') -contains $Dataset)
-            {
-                $props.properties.definition.dataSet = $props.properties.definition.dataSet | Add-Member -Name granularity -Value 'Monthly' -MemberType NoteProperty -Force -PassThru
-            }
-            else
+            if (-not @('PriceSheet', 'ReservationRecommendations', 'ReservationTransactions') -contains $Dataset)
             {
                 $props.properties.definition.dataSet = $props.properties.definition.dataSet | Add-Member -Name granularity -Value 'Daily' -MemberType NoteProperty -Force -PassThru
             }

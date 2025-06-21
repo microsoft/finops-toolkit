@@ -197,7 +197,7 @@ function Start-FinOpsCostExport
         }
         else
         {
-            Write-Verbose "Export failed to execute"
+            Write-Error "Export failed to execute: ($($response.Content.error.code)) $($response.Content.error.message)"
         }
 
         # If export throttled, wait 60 seconds and try again

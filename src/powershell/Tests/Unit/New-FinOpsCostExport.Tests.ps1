@@ -135,16 +135,27 @@ InModuleScope 'FinOpsToolkit' {
                 }
             }
 
+            It 'Should set default state to active' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams
+    
+                # Assert
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.schedule.status -eq 'Active'
+                }
+            }
+
             Describe '<_.dataset> defaults' -ForEach @(
-                @{ dataset = 'ActualCost'; version = '2021-10-01'; grain = 'Daily' },
-                @{ dataset = 'AmortizedCost'; version = '2021-10-01'; grain = 'Daily' },
-                @{ dataset = 'FocusCost'; version = '1.2-preview'; grain = 'Daily' },
-                @{ dataset = 'PriceSheet'; version = '2023-05-01'; grain = 'Monthly' },
-                @{ dataset = 'ReservationDetails'; version = '2023-03-01'; grain = 'Daily' },
-                @{ dataset = 'ReservationRecommendations'; version = '2023-05-01'; grain = 'Daily' },
-                @{ dataset = 'ReservationTransactions'; version = '2023-05-01'; grain = 'Daily' }
+                @{ dataset = 'ActualCost'; version = '2021-10-01'; schedule = 'Daily' },
+                @{ dataset = 'AmortizedCost'; version = '2021-10-01'; schedule = 'Daily' },
+                @{ dataset = 'FocusCost'; version = '1.2-preview'; schedule = 'Daily' },
+                @{ dataset = 'PriceSheet'; version = '2023-05-01'; schedule = 'Daily' },
+                @{ dataset = 'ReservationDetails'; version = '2023-03-01'; schedule = 'Daily' },
+                @{ dataset = 'ReservationRecommendations'; version = '2023-05-01'; schedule = 'Daily' },
+                @{ dataset = 'ReservationTransactions'; version = '2023-05-01'; schedule = 'Daily' }
             ) {
-                It 'Should set default <_.dataset> granularity to <_.grain>' {
+                It 'Should set default <_.dataset> recurrence to <_.grain>' {
                     # Arrange
                     # Act
                     New-FinOpsCostExport @newExportParams -Dataset $_.dataset
@@ -152,7 +163,7 @@ InModuleScope 'FinOpsToolkit' {
                     # Assert
                     Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
                         $Body.properties.definition.type -eq $_.dataset `
-                            -and $Body.properties.definition.dataSet.granularity -eq $_.grain
+                            -and $Body.properties.schedule.recurrence -eq $_.schedule
                     }
                 }
 
