@@ -113,7 +113,7 @@
   "sections": [
     {
       "config": "{}",
-      "displayName": "Running Total",
+      "displayName": "Running total",
       "displayOption": 1,
       "filters": "[]",
       "height": 720.00,
