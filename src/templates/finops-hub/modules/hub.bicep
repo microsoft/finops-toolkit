@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getHubTags, getPublisherTags, HubProperties, newHub } from 'hub-types.bicep'
+import { getHubTags, newApp, newHub } from 'hub-types.bicep'
 
 
 //==============================================================================
@@ -274,10 +274,11 @@ resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefa
 // Base resources needed for hub apps
 //------------------------------------------------------------------------------
 
+// TODO: Can this be merged into core.bicep?
 module infrastructure 'infrastructure.bicep' = {
   name: 'Microsoft.FinOpsHubs.Infrastructure'
   params: {
-    hub: hub
+    hub: hub    
   }
 }
 
@@ -345,6 +346,16 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
+    // TODO: Split dataFactory.bicep into its separate apps
+    app: newApp(
+      hub,
+      'Microsoft FinOps hubs',
+      'Microsoft.FinOpsHubs',
+      'DataFactory',
+      'FinOps hub engine',
+      loadTextContent('ftkver.txt')
+    )
+
     hubName: hubName
     dataFactoryName: core.outputs.dataFactoryName
     location: location
@@ -361,8 +372,6 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
     enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: hub.?routing.scriptStorage ?? ''
-    scriptSubnetId: hub.?routing.subnets.scripts ?? ''
 
     // TODO: Move to remoteHub.bicep
     keyVaultName: empty(remoteHubStorageKey) ? '' : remoteHub.outputs.keyVaultName

@@ -1,9 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { HubAppProperties } from 'hub-types.bicep'
+
+
 //==============================================================================
 // Parameters
 //==============================================================================
+
+@description('Required. Temporary app placeholder for the deployments module.')
+param app HubAppProperties
 
 @description('Required. Name of the FinOps hub instance.')
 param hubName string
@@ -59,12 +65,6 @@ param tagsByResource object = {}
 
 @description('Required. Enable public access.')
 param enablePublicAccess bool
-
-@description('Required. The name of the storage account used for deployment scripts. Required when using private endpoints and uploading files or creating an identity.')
-param scriptStorageAccountName string
-
-@description('Required. Resource ID of the virtual network for running deployment scripts. Required when using private endpoints and uploading files.')
-param scriptSubnetId string
 
 //------------------------------------------------------------------------------
 // Variables
@@ -362,10 +362,8 @@ module deleteOldResources 'hub-deploymentScript.bicep' = {
     stopTriggers
   ]
   params: {
-    location: location
+    app: app
     identityName: triggerManagerIdentity.name
-    tags: tags
-    tagsByResource: tagsByResource
     scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
     environmentVariables: [
       {
@@ -381,10 +379,6 @@ module deleteOldResources 'hub-deploymentScript.bicep' = {
         value: dataFactory.name
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 
@@ -398,10 +392,8 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
     triggerManagerRoleAssignments
   ]
   params: {
-    location: location
+    app: app
     identityName: triggerManagerIdentity.name
-    tags: tags
-    tagsByResource: tagsByResource
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     arguments: '-Stop'
     environmentVariables: [
@@ -422,10 +414,6 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
         value: join(allHubTriggers, '|')
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 
@@ -5071,11 +5059,8 @@ module startTriggers 'hub-deploymentScript.bicep' = {
     deleteOldResources
   ]
   params: {
-    location: location
-    tags: tags
-    tagsByResource: tagsByResource
+    app: app
     identityName: triggerManagerIdentity.name
-
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     environmentVariables: [
       {
@@ -5099,10 +5084,6 @@ module startTriggers 'hub-deploymentScript.bicep' = {
         value: join([ pipeline_InitializeHub.name ], '|')
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 

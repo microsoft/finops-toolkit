@@ -97,7 +97,7 @@ type HubProperties = {
     storageInfrastructureEncryption: bool
     storageSku: string
   }
-  routing: HubRoutingProperties?
+  routing: HubRoutingProperties
   core: {
     suffix: string
   }
@@ -210,21 +210,21 @@ func newHubInternal(
     storageInfrastructureEncryption: enableInfrastructureEncryption
     storageSku: storageSku
   }
-  routing: enablePublicAccess ? null : {
-    networkId: resourceId('Microsoft.Network/virtualNetworks', networkName)
-    networkName: networkName
-    scriptStorage: '${take(safeStorageName(name), 16 - length(suffix))}script${suffix}'
+  routing: {
+    networkId: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks', networkName)
+    networkName: enablePublicAccess ? '' : networkName
+    scriptStorage: enablePublicAccess ? '' : '${take(safeStorageName(name), 16 - length(suffix))}script${suffix}'
     dnsZones: {
-      blob: dnsZoneIdName('blob')
-      dfs: dnsZoneIdName('dfs')
-      queue: dnsZoneIdName('queue')
-      table: dnsZoneIdName('table')
+      blob: enablePublicAccess ? {} : dnsZoneIdName('blob')
+      dfs: enablePublicAccess ? {} : dnsZoneIdName('dfs')
+      queue: enablePublicAccess ? {} : dnsZoneIdName('queue')
+      table: enablePublicAccess ? {} : dnsZoneIdName('table')
     }
     subnets: {
-      dataFactory: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      keyVault: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      scripts: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
-      storage: resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      dataFactory: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      keyVault: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      scripts: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
+      storage: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
     }
   }
   core: {

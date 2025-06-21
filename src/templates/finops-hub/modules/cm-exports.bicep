@@ -1,20 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { HubCoreConfig } from 'hub-types.bicep'
+import { HubProperties } from 'hub-types.bicep'
 
 
 //==============================================================================
 // Parameters
 //==============================================================================
 
-//------------------------------------------------------------------------------
-// Temporary parameters that should be removed in the future
-//------------------------------------------------------------------------------
-
-// TODO: Pull deployment config from the cloud
-@description('Required. FinOps hub coreConfig.')
-param coreConfig HubCoreConfig
+@description('Required. FinOps hub instance to deploy the app to.')
+param hub HubProperties
 
 
 //==============================================================================
@@ -25,6 +20,7 @@ param coreConfig HubCoreConfig
 module appRegistration 'hub-app.bicep' = {
   name: 'Microsoft.CostManagement.Exports_Register'
   params: {
+    hub: hub
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
@@ -34,8 +30,6 @@ module appRegistration 'hub-app.bicep' = {
       'DataFactory'
       'Storage'
     ]
-
-    coreConfig: coreConfig
   }
 }
 
@@ -43,7 +37,7 @@ module appRegistration 'hub-app.bicep' = {
 module schemaFiles 'hub-storage.bicep' = {
   name: 'Microsoft.CostManagement.Exports_Storage.SchemaFiles'
   params: {
-    appConfig: appRegistration.outputs.config
+    app: appRegistration.outputs.app
     container: 'config'
     files: {
       // cSpell:ignore actualcost, amortizedcost, focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
@@ -69,7 +63,7 @@ module schemaFiles 'hub-storage.bicep' = {
 module exportContainer 'hub-storage.bicep' = {
   name: 'Microsoft.CostManagement.Exports_Storage.ExportContainer'
   params: {
-    appConfig: appRegistration.outputs.config
+    app: appRegistration.outputs.app
     container: 'msexports'
   }
 }

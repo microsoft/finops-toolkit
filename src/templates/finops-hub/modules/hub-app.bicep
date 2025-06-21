@@ -8,14 +8,8 @@ import { getAppTags, getPublisherTags, HubAppProperties, HubAppFeature, HubPrope
 // Parameters
 //==============================================================================
 
-// @description('Required. Name of the FinOps hub instance.')
-// param hubName string
-
-// @description('Required. Minimum version number supported by the FinOps hub app.')
-// param hubMinVersion string
-
-// @description('Required. Maximum version number supported by the FinOps hub app.')
-// param hubMaxVersion string
+@description('Required. FinOps hub instance properties.')
+param hub HubProperties
 
 @description('Required. Display name of the FinOps hub app publisher.')
 param publisher string
@@ -32,19 +26,17 @@ param displayName string
 @description('Optional. Version number of the FinOps hub app.')
 param appVersion string = ''
 
+// @description('Required. Minimum version number supported by the FinOps hub app.')
+// param hubMinVersion string
+
+// @description('Required. Maximum version number supported by the FinOps hub app.')
+// param hubMaxVersion string
+
 @description('Optional. Indicate which features the app requires. Allowed values: "Storage". Default: [] (none).')
 param features HubAppFeature[] = []
 
 @description('Optional. Custom string with additional metadata to log. Must an alphanumeric string without spaces or special characters except for underscores and dashes. Namespace + appName + telemetryString must be 50 characters or less - additional characters will be trimmed.')
 param telemetryString string = ''
-
-//------------------------------------------------------------------------------
-// Temporary parameters that should be removed in the future
-//------------------------------------------------------------------------------
-
-// TODO: Pull deployment config from the cloud
-@description('Required. FinOps hub instance properties.')
-param hub HubProperties
 
 
 //==============================================================================
@@ -173,7 +165,7 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (uses
   tags: getPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
     subnet: {
-      id: hub.?routing.subnets.storage
+      id: hub.routing.subnets.storage
     }
     privateLinkServiceConnections: [
       {
@@ -211,7 +203,7 @@ resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesS
   tags: getPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
     subnet: {
-      id: hub.?routing.subnets.storage
+      id: hub.routing.subnets.storage
     }
     privateLinkServiceConnections: [
       {
@@ -287,7 +279,7 @@ resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' =
     tags: getPublisherTags(app, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
     properties: {
       virtualNetwork: {
-        id: hub.?routing.networkId
+        id: hub.routing.networkId
       }
       registrationEnabled: false
     }
@@ -300,7 +292,7 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (
   tags: getPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
     subnet: {
-      id: hub.?routing.subnets.keyVault
+      id: hub.routing.subnets.keyVault
     }
     privateLinkServiceConnections: [
       {
@@ -334,7 +326,7 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (
 //==============================================================================
 
 @description('FinOps hub app configuration.')
-output config HubAppProperties = app
+output app HubAppProperties = app
 
 @description('Principal ID for the managed identity used by Data Factory.')
 output principalId string = dataFactory.identity.principalId

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getPublisherTags } from 'hub-types.bicep'
+import { HubAppProperties } from 'hub-types.bicep'
 
 type EnvironmentVariable = {
   name: string
@@ -12,6 +12,9 @@ type EnvironmentVariable = {
 //==============================================================================
 // Parameters
 //==============================================================================
+
+@description('Required. FinOps hub app the deployment script is being run for.')
+param app HubAppProperties
 
 @description('Required. Name of the managed identity to create.')
 param identityName string
@@ -28,46 +31,24 @@ param arguments string = ''
 @description('Optional. Environment variables to use for the deployment script.')
 param environmentVariables EnvironmentVariable[] = []
 
-//------------------------------------------------------------------------------
-// Hub context
-//------------------------------------------------------------------------------
-
-@description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
-param location string = resourceGroup().location
-
-@description('Optional. Tags to apply to all resources.')
-param tags object = {}
-
-@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
-param tagsByResource object = {}
-
-@description('Required. Indicates whether public access should be enabled.')
-param enablePublicAccess bool
-
-@description('Optional. The name of the storage account used for deployment scripts. Required when using private endpoints and uploading files or creating an identity.')
-param scriptStorageAccountName string = ''
-
-@description('Optional. Resource ID of the virtual network for running deployment scripts. Required when using private endpoints and uploading files.')
-param scriptSubnetId string = ''
-
 
 //==============================================================================
 // Variables
 //==============================================================================
 
 // See https://learn.microsoft.com/azure/azure-resource-manager/templates/deployment-script-template#use-existing-storage-account
-var privateEndpointDeploymentRoles = enablePublicAccess ? [] : [
+var privateEndpointDeploymentRoles = !app.hub.options.privateRouting ? [] : [
   '69566ab7-960f-475b-8e7c-b3118f30c6bd' // Storage File Data Privileged Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor
 ]
-var privateEndpointDeploymentProperties = enablePublicAccess ? {} : {
+var privateEndpointDeploymentProperties = !app.hub.options.privateRouting ? {} : {
   storageAccountSettings: {
-    storageAccountName: scriptStorageAccountName
+    storageAccountName: app.hub.routing.scriptStorage ?? ''
   }
   containerSettings: {
-    containerGroupName: '${scriptStorageAccountName}cg'
+    containerGroupName: '${app.hub.routing.scriptStorage}cg'
     subnetIds: [
       {
-        id: scriptSubnetId
+        id: app.hub.routing.subnets.scripts ?? ''
       }
     ]
   }
@@ -86,18 +67,18 @@ var privateEndpointDeploymentProperties = enablePublicAccess ? {} : {
 // TODO: Use hub-identity.bicep
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
-  tags: union(tags, tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
-  location: location
+  tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
+  location: app.hub.location
 }
 
 // Get script storage account for private endpoint deployment scripts
-resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing =  if (!enablePublicAccess) {
-  name: scriptStorageAccountName
+resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing =  if (app.hub.options.privateRouting) {
+  name: app.hub.routing.scriptStorage ?? ''
 }
 
 // Assign the identity access to the script storage account
 // TODO: Use hub-identity.bicep
-resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in privateEndpointDeploymentRoles: if (!enablePublicAccess) {
+resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in privateEndpointDeploymentRoles: if (app.hub.options.privateRouting) {
   name: guid(role, identity.id)
   scope: scriptStorageAccount
   properties: {
@@ -119,8 +100,8 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   ]
   kind: 'AzurePowerShell'
   // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location  // cSpell:ignore chinaeast
-  tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
+  location: startsWith(app.hub.location, 'china') ? 'chinaeast2' : app.hub.location  // cSpell:ignore chinaeast
+  tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {

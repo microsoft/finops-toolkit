@@ -8,9 +8,6 @@ import { getHubTags, HubProperties } from 'hub-types.bicep'
 // Parameters
 //==============================================================================
 
-// @description('Required. Name of the FinOps hub instance.')
-// param hubName string
-
 @description('Required. FinOps hub instance properties.')
 param hub HubProperties
 
@@ -22,7 +19,7 @@ param hub HubProperties
 var safeHubName = replace(replace(toLower(hub.name), '-', ''), '_', '')
 // cSpell:ignore vnet
 var vNetName = '${safeHubName}-vnet-${hub.location}'
-var nsgName = '${hub.?routing.networkName}-nsg'
+var nsgName = '${hub.routing.networkName}-nsg'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
 var finopsHubSubnetName = 'private-endpoint-subnet'
@@ -204,7 +201,7 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 
 // Required for the Azure portal and Storage Explorer
 resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
-  name: string(hub.?routing.dnsZones.blob.name)
+  name: string(hub.routing.dnsZones.blob.name)
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
@@ -216,7 +213,7 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: hub.?routing.networkId
+        id: hub.routing.networkId
       }
     }
   }
@@ -224,7 +221,7 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
 
 // Required for Power BI
 resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
-  name: string(hub.?routing.dnsZones.dfs.name)
+  name: string(hub.routing.dnsZones.dfs.name)
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
@@ -236,7 +233,7 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: hub.?routing.networkId
+        id: hub.routing.networkId
       }
     }
   }
@@ -244,7 +241,7 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
 
 // Required for Azure Data Explorer
 resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
-  name: string(hub.?routing.dnsZones.queue.name)
+  name: string(hub.routing.dnsZones.queue.name)
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
@@ -256,7 +253,7 @@ resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: hub.?routing.networkId
+        id: hub.routing.networkId
       }
     }
   }
@@ -264,7 +261,7 @@ resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 
 // Required for Azure Data Explorer
 resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
-  name: string(hub.?routing.dnsZones.table.name)
+  name: string(hub.routing.dnsZones.table.name)
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
@@ -276,7 +273,7 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: hub.?routing.networkId
+        id: hub.routing.networkId
       }
     }
   }
@@ -287,7 +284,7 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 //------------------------------------------------------------------------------
 
 resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (hub.options.privateRouting) {
-  name: string(hub.?routing.scriptStorage)
+  name: string(hub.routing.scriptStorage)
   location: hub.location
   sku: {
     name: 'Standard_LRS'
@@ -306,7 +303,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
       defaultAction: 'Deny'
       virtualNetworkRules: [
         {
-          id: hub.?routing.subnets.scripts ?? ''
+          id: hub.routing.subnets.scripts
           action: 'Allow'
         }
       ]
@@ -320,7 +317,7 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hu
   tags: getHubTags(hub, 'Microsoft.Network/privateEndpoints')
   properties: {
     subnet: {
-      id: hub.?routing.subnets.storage
+      id: hub.routing.subnets.storage
     }
     privateLinkServiceConnections: [
       {
