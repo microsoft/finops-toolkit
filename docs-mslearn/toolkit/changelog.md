@@ -24,11 +24,52 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) pending changes
+
+- **Added**
+  - Added support for Alibaba Cloud FOCUS data ingestion.
+    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### [Power BI reports](power-bi/reports.md) pending changes
+
+- **Added**
+  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
+- **Changed**
+  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
+
 <br><a name="latest"></a>
+
+## v0.12
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+
+- **Added**
+  - Created a script to generate a template FOCUS conformance document.
+- **Changed**
+  - Updated FOCUS documentation to align to the 1.2-preview dataset from Cost Management.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
+
+- **Fixed**
+  - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+
+_Released June 2025_
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
+
+- **Changed**
+  - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.11...v0.12)
+
+<br>
 
 ## v0.11
 

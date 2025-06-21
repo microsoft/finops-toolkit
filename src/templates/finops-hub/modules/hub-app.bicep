@@ -157,6 +157,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (use
       defaultAction: hub.options.privateRouting ? 'Deny' : 'Allow'
     }
   }
+
+  resource blobService 'blobServices' = {
+    name: 'default'
+  }
 }
 
 resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = if (usesStorage && hub.options.privateRouting) {

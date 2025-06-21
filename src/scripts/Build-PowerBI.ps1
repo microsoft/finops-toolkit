@@ -121,6 +121,11 @@ $reports | ForEach-Object {
             Tables      = @("Costs", "Prices", "PricingUnits")
             Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
         }
+        Invoicing            = @{
+            Intro       = "The Invoicing and chargeback report provides several summaries of your billed cost to facilitate invoice reconciliation for Microsoft Customer Agreement (MCA) and Enterprise Agreement (EA) accounts or to perform chargeback using effective (amortized) costs."
+            Tables      = @("Costs", "Prices", "PricingUnits")
+            Expressions = @("▶️  START HERE", "Cluster URL", "[storage]Storage URL", "Default Granularity", "Number of Months", "RangeStart", "RangeEnd", "Experimental: Add Missing Prices", "Deprecated: Perform Extra Query Optimizations", "ftk_DatetimeToJulianDate", "ftk_ImpalaToJulianDate", "ftk_Metadata", "ftk_ParseResourceId", "ftk_ParseResourceName", "ftk_ParseResourceType", "ftk_Storage")
+        }
         DataIngestion        = @{
             Intro       = "The Data ingestion report provides details about the data you've ingested into your FinOps hub storage account."
             Tables      = @("Costs", "HubScopes", "HubSettings", "Prices", "PricingUnits", "StorageData", "StorageErrors")

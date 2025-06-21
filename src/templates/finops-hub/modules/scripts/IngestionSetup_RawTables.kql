@@ -328,6 +328,7 @@
 //                               - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/detailed-usage
 // - OCI: 1.0                 -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
 // - Tencent: 1.0             -- See https://www.tencentcloud.com/document/product/555/67495 / https://www.tencentcloud.com/document/product/555/67496
+// - Alibaba: 1.0             -- See https://www.alibabacloud.com/help/en/user-center/user-guide/export-alibaba-cloud-standard-billing-focus
 //
 // Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
 //======================================================================================================================
@@ -408,9 +409,13 @@
     x_BillingExchangeRateDate:  datetime,  // Azure 1.0-preview(v1)+
     x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
+    x_BillingItemCode:          string,    // Alibaba 1.0+
+    x_BillingItemName:          string,    // Alibaba 1.0+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
     x_ComponentName:            string,    // Tencent 1.0+
     x_ComponentType:            string,    // Tencent 1.0+
+    x_CommodityCode:            string,    // Alibaba 1.0+
+    x_CommodityName:            string,    // Alibaba 1.0+
     x_ContractedCostInUsd:      decimal,   // Azure 1.0+
     x_Cost:                     decimal,   // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
@@ -429,6 +434,7 @@
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
+    x_InstanceID:               string,    // Alibaba 1.0+
     x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
     x_Location:                 string,    // GCP Jan 2024
     x_OnDemandCost:             decimal,   // Azure 1.0-preview(v1) only
@@ -553,10 +559,14 @@
     { "Column": "x_BillingExchangeRateDate",  "Properties": { "Field": "x_BillingExchangeRateDate" } },
     { "Column": "x_BillingProfileId",         "Properties": { "Field": "x_BillingProfileId" } },
     { "Column": "x_BillingProfileName",       "Properties": { "Field": "x_BillingProfileName" } },
+    { "Column": "x_BillingItemCode",          "Properties": { "Field": "x_BillingItemCode" } },
+    { "Column": "x_BillingItemName",          "Properties": { "Field": "x_BillingItemName" } },
     { "Column": "x_ChargeId",                 "Properties": { "Field": "x_ChargeId" } },
     { "Column": "x_ContractedCostInUsd",      "Properties": { "Field": "x_ContractedCostInUsd" } },
     { "Column": "x_ComponentName",            "Properties": { "Field": "x_ComponentName" } },
     { "Column": "x_ComponentType",            "Properties": { "Field": "x_ComponentType" } },
+    { "Column": "x_CommodityCode",            "Properties": { "Field": "x_CommodityCode" } },
+    { "Column": "x_CommodityName",            "Properties": { "Field": "x_CommodityName" } },
     { "Column": "x_Cost",                     "Properties": { "Field": "x_Cost" } },
     { "Column": "x_CostAllocationRuleName",   "Properties": { "Field": "x_CostAllocationRuleName" } },
     { "Column": "x_CostCategories",           "Properties": { "Field": "x_CostCategories" } },
@@ -574,6 +584,7 @@
     { "Column": "x_InvoiceIssuerId",          "Properties": { "Field": "x_InvoiceIssuerId" } },
     { "Column": "x_InvoiceSectionId",         "Properties": { "Field": "x_InvoiceSectionId" } },
     { "Column": "x_InvoiceSectionName",       "Properties": { "Field": "x_InvoiceSectionName" } },
+    { "Column": "x_InstanceID",               "Properties": { "Field": "x_InstanceID" } },
     { "Column": "x_ListCostInUsd",            "Properties": { "Field": "x_ListCostInUsd" } },
     { "Column": "x_Location",                 "Properties": { "Field": "x_Location" } },
     { "Column": "x_OnDemandCost",             "Properties": { "Field": "x_OnDemandCost" } },
