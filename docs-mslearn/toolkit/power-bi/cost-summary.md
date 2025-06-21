@@ -66,11 +66,21 @@ For instructions on how to connect this report to your data, including details a
 
 ## Summary
 
-The **Summary** page shows the running total (or accumulated cost) for the selected period. This page is helpful in determining what your cost trends are.
+The **Summary** page shows high level summary charts for the selected period. This page is helpful for an executive summary of where your costs are coming from.
+
+The page uses charts to show the top 10 subscriptions, resource groups and service category spend. Additionally it shows monthly usage broken down by pricing category, with a last 30 days daily spend trend.
+
+:::image type="content" source="./media/cost-summary/summary.png" border="true" alt-text="Screenshot of the Summary page that shows top 10 charts and usage trends." lightbox="./media/cost-summary/summary.png" :::
+
+<br>
+
+## Running total
+
+The **Running total** page shows the running total (or accumulated cost) for the selected period. This page is helpful in determining what your cost trends are.
 
 The page uses the standard layout with cost, negotiated discount savings, and commitment discount savings in the chart. The subscription hierarchy with resource groups and resources are shown in the table.
 
-:::image type="content" source="./media/cost-summary/summary.png" border="true" alt-text="Screenshot of the Summary page that shows a running total." lightbox="./media/cost-summary/summary.png" :::
+:::image type="content" source="./media/cost-summary/running-total.png" border="true" alt-text="Screenshot of the Running total page that shows the accumulated cost for the period.." lightbox="./media/cost-summary/running-total.png" :::
 
 <br>
 
