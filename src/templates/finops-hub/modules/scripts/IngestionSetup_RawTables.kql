@@ -291,10 +291,10 @@
     TotalReservedQuantity:    real,
     UsageDate:                datetime,
     UsedHours:                real,
-    x_SourceName:             string,    // Hubs add-on
-    x_SourceProvider:         string,    // Hubs add-on
-    x_SourceType:             string,    // Hubs add-on
-    x_SourceVersion:          string     // Hubs add-on
+    x_SourceName:             string,    // Hubs v1_0+
+    x_SourceProvider:         string,    // Hubs v1_0+
+    x_SourceType:             string,    // Hubs v1_0+
+    x_SourceVersion:          string     // Hubs v1_0+
 )
 
 // CommitmentDiscountUsage_raw ingestion mapping
@@ -488,10 +488,10 @@
     x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
     x_SkuTerm:                  int,       // Azure 1.0-preview(v1)+
     x_SkuTier:                  string,    // Azure 1.0-preview(v1)+
-    x_SourceName:               string,    // Hubs add-on
-    x_SourceProvider:           string,    // Hubs add-on
-    x_SourceType:               string,    // Hubs add-on
-    x_SourceVersion:            string,    // Hubs add-on
+    x_SourceName:               string,    // Hubs v1_0+
+    x_SourceProvider:           string,    // Hubs v1_0+
+    x_SourceType:               string,    // Hubs v1_0+
+    x_SourceVersion:            string,    // Hubs v1_0+
     x_SubproductName:           string,    // Tencent 1.0+ // cSpell:ignore Subproduct
     x_UsageType:                string     // AWS 1.0
 )
@@ -703,10 +703,10 @@
     TierMinimumUnits:   real,     // Azure MCA
     UnitOfMeasure:      string,   // Azure EA + MCA
     UnitPrice:          real,     // Azure EA + MCA
-    x_SourceName:       string,   // Hubs add-on
-    x_SourceProvider:   string,   // Hubs add-on
-    x_SourceType:       string,   // Hubs add-on
-    x_SourceVersion:    string    // Hubs add-on
+    x_SourceName:       string,   // Hubs v1_0+
+    x_SourceProvider:   string,   // Hubs v1_0+
+    x_SourceType:       string,   // Hubs v1_0+
+    x_SourceVersion:    string    // Hubs v1_0+
 )
 
 // Prices_raw ingestion mapping
@@ -801,9 +801,9 @@
     Term:                               string,    // MS CM EA+MCA resv reco 2024-05-01
     TotalCostWithReservedInstances:     real,      // MS CM EA resv reco 2024-05-01
     TotalCostWithReservedInstancesJson: string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces and flag as JSON
-    x_EffectiveCostAfter:               decimal,   // Hubs v1_2
-    x_EffectiveCostBefore:              decimal,   // Hubs v1_2
-    x_EffectiveCostSavings:             decimal,   // Hubs v1_2
+    x_EffectiveCostAfter:               real,      // Hubs v1_2
+    x_EffectiveCostBefore:              real,      // Hubs v1_2
+    x_EffectiveCostSavings:             real,      // Hubs v1_2
     x_IngestionTime:                    datetime,  // Hubs v1_2
     x_RecommendationDate:               datetime,  // Hubs v1_2
     x_RecommendationDescription:        string,    // Hubs v1_2
@@ -898,10 +898,10 @@
     ReservationOrderId:             string,    // MS CM EA+MCA resv trans 2023-05-01
     ReservationOrderName:           string,    // MS CM EA+MCA resv trans 2023-05-01
     Term:                           string,    // MS CM EA+MCA resv trans 2023-05-01
-    x_SourceName:                   string,    // Hubs add-on
-    x_SourceProvider:               string,    // Hubs add-on
-    x_SourceType:                   string,    // Hubs add-on
-    x_SourceVersion:                string     // Hubs add-on
+    x_SourceName:                   string,    // Hubs v1_0+
+    x_SourceProvider:               string,    // Hubs v1_0+
+    x_SourceType:                   string,    // Hubs v1_0+
+    x_SourceVersion:                string     // Hubs v1_0+
 )
 
 // Transactions_raw ingestion mapping
