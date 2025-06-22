@@ -215,16 +215,16 @@ func newHubInternal(
     networkName: enablePublicAccess ? '' : networkName
     scriptStorage: enablePublicAccess ? '' : '${take(safeStorageName(name), 16 - length(suffix))}script${suffix}'
     dnsZones: {
-      blob: enablePublicAccess ? {} : dnsZoneIdName('blob')
-      dfs: enablePublicAccess ? {} : dnsZoneIdName('dfs')
-      queue: enablePublicAccess ? {} : dnsZoneIdName('queue')
-      table: enablePublicAccess ? {} : dnsZoneIdName('table')
+      blob:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('blob')
+      dfs:   enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('dfs')
+      queue: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('queue')
+      table: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('table')
     }
     subnets: {
       dataFactory: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      keyVault: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      scripts: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
-      storage: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      keyVault:    enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      scripts:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
+      storage:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
     }
   }
   core: {
