@@ -804,7 +804,6 @@
     x_EffectiveCostAfter:               real,      // Hubs v1_2
     x_EffectiveCostBefore:              real,      // Hubs v1_2
     x_EffectiveCostSavings:             real,      // Hubs v1_2
-    x_IngestionTime:                    datetime,  // Hubs v1_2
     x_RecommendationCategory:           string,    // Hubs v1_2
     x_RecommendationDate:               datetime,  // Hubs v1_2
     x_RecommendationDescription:        string,    // Hubs v1_2
