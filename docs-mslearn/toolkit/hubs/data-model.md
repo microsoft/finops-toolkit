@@ -700,7 +700,7 @@ The following are provided for backwards compatibility:
 
 The **Recommendations_raw** table supports Microsoft Cost Management reservation recommendation export schemas for EA and MCA accounts. Data is transformed into a FOCUS-aligned dataset when ingested into the final table. This dataset does not explicitly support other clouds.
 
-Columns in the **Transactions** managed dataset include:
+Columns in the **Recommendations** managed dataset include:
 
 | Column                      | Type     | Notes                                |
 | --------------------------- | -------- | ------------------------------------ |
