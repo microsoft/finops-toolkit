@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { HubAppConfig } from 'hub-types.bicep'
+import { HubAppProperties } from 'hub-types.bicep'
 
 
 //==============================================================================
 // Parameters
 //==============================================================================
 
-@description('Required. Name of the publisher-specific storage account to create or update.')
-param appConfig HubAppConfig
+@description('Required. FinOps hub app that storage is getting updated for.')
+param app HubAppProperties
 
 @description('Required. Name of the storage container to create or update.')
 param container string
@@ -35,7 +35,7 @@ var hasFiles = fileCount > 0
 
 // Get storage account instance
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: appConfig.publisher.storage
+  name: app.storage
   
   resource blobService 'blobServices@2022-09-01' existing = {
     name: 'default'
@@ -56,9 +56,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 module identity 'hub-identity.bicep' = if (hasFiles || forceCreateBlobManagerIdentity) {
   name: '${deployment().name}.Identity'
   params: {
-    identityName: '${appConfig.publisher.storage}_blobManager'
-    appConfig: appConfig
-    roleAssignmentResourceId: resourceId('Microsoft.Storage/storageAccounts', appConfig.publisher.storage)
+    app: app
+    identityName: '${app.storage}_blobManager'
+    roleAssignmentResourceId: resourceId('Microsoft.Storage/storageAccounts', app.storage)
     roles: [
       // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
       // Used by deployment scripts to write data to blob storage
@@ -75,18 +75,12 @@ module identity 'hub-identity.bicep' = if (hasFiles || forceCreateBlobManagerIde
 module uploadFiles 'hub-deploymentScript.bicep' = if (hasFiles) {
   name: '${deployment().name}.Upload'
   params: {
-    location: appConfig.hub.location
-    tags: appConfig.app.tags
-    tagsByResource: appConfig.deployment.tagsByResource
-
+    app: app
     identityName: identity.outputs.name
-    enablePublicAccess: !appConfig.network.isPrivate
-    scriptStorageAccountName: appConfig.deployment.storage
-    scriptSubnetId: appConfig.network.subnets.scripts
     environmentVariables: [
       {
         name: 'storageAccountName'
-        value: appConfig.publisher.storage
+        value: app.storage
       }
       {
         name: 'containerName'

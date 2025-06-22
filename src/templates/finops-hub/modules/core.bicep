@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { HubCoreConfig } from 'hub-types.bicep'
+import { HubProperties } from 'hub-types.bicep'
 
 
 //==============================================================================
 // Parameters
 //==============================================================================
+
+@description('Required. FinOps hub instance to deploy the app to.')
+param hub HubProperties
 
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array
@@ -30,13 +33,16 @@ param finalRetentionInMonths int = 13
 // Temporary parameters that should be removed in the future
 //------------------------------------------------------------------------------
 
-// TODO: Pull deployment config from the cloud
-@description('Required. FinOps hub coreConfig.')
-param coreConfig HubCoreConfig
-
 // TODO: Consider moving telemetryString generation to hub-types.bicep
 @description('Optional. Custom string with additional metadata to log. Must an alphanumeric string without spaces or special characters except for underscores and dashes. Namespace + appName + telemetryString must be 50 characters or less - additional characters will be trimmed.')
 param telemetryString string = ''
+
+
+//==============================================================================
+// Variables
+//==============================================================================
+
+var app = appRegistration.outputs.app
 
 
 //==============================================================================
@@ -47,6 +53,7 @@ param telemetryString string = ''
 module appRegistration 'hub-app.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Register'
   params: {
+    hub: hub
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
     appName: 'Core'
@@ -57,8 +64,6 @@ module appRegistration 'hub-app.bicep' = {
       'Storage'
     ]
     telemetryString: telemetryString
-
-    coreConfig: coreConfig
   }
 }
 
@@ -66,7 +71,7 @@ module appRegistration 'hub-app.bicep' = {
 module configContainer 'hub-storage.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.ConfigContainer'
   params: {
-    appConfig: appRegistration.outputs.config
+    app: app
     container: 'config'
     forceCreateBlobManagerIdentity: true
   }
@@ -76,7 +81,7 @@ module configContainer 'hub-storage.bicep' = {
 module ingestionContainer 'hub-storage.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.IngestionContainer'
   params: {
-    appConfig: appRegistration.outputs.config
+    app: app
     container: 'ingestion'
   }
 }
@@ -85,11 +90,9 @@ module ingestionContainer 'hub-storage.bicep' = {
 module uploadSettings 'hub-deploymentScript.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.UpdateSettings'
   params: {
+    app: app
     identityName: configContainer.outputs.identityName
-    scriptName: '${appRegistration.outputs.config.publisher.storage}_uploadSettings'
-    location: appRegistration.outputs.config.hub.location
-    tags: appRegistration.outputs.config.publisher.tags
-    tagsByResource: appRegistration.outputs.config.deployment.tagsByResource
+    scriptName: '${app.storage}_uploadSettings'
     environmentVariables: [
       {
         // cSpell:ignore ftkver
@@ -118,7 +121,7 @@ module uploadSettings 'hub-deploymentScript.bicep' = {
       }
       {
         name: 'storageAccountName'
-        value: appRegistration.outputs.config.publisher.storage
+        value: app.storage
       }
       {
         name: 'containerName'
@@ -126,10 +129,6 @@ module uploadSettings 'hub-deploymentScript.bicep' = {
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
-
-    enablePublicAccess: !coreConfig.network.isPrivate
-    scriptStorageAccountName: coreConfig.deployment.storage
-    scriptSubnetId: coreConfig.network.subnets.scripts
   }
 }
 
@@ -138,11 +137,13 @@ module uploadSettings 'hub-deploymentScript.bicep' = {
 // Outputs
 //==============================================================================
 
+// TODO: Review the use of these outputs and deprecate the ones that aren't needed, remove them in 3 months
+
 @description('Name of the Data Factory.')
-output dataFactoryName string = appRegistration.outputs.config.publisher.dataFactory
+output dataFactoryName string = app.dataFactory
 
 @description('Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data.')
-output storageAccountName string = appRegistration.outputs.config.publisher.storage
+output storageAccountName string = app.storage
 
 @description('The name of the container used for configuration settings.')
 output configContainer string = configContainer.outputs.containerName
@@ -151,11 +152,11 @@ output configContainer string = configContainer.outputs.containerName
 output ingestionContainer string = ingestionContainer.outputs.containerName
 
 @description('URL to use when connecting custom Power BI reports to your data.')
-output storageUrlForPowerBI string = 'https://${appRegistration.outputs.config.publisher.storage}.dfs.${environment().suffixes.storage}/${ingestionContainer.outputs.containerName}'
+output storageUrlForPowerBI string = 'https://${app.storage}.dfs.${environment().suffixes.storage}/${ingestionContainer.outputs.containerName}'
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
 output principalId string = appRegistration.outputs.principalId
 
 // TODO: Remove this output
 @description('Tags for the FinOps hub publisher.')
-output publisherTags object = appRegistration.outputs.config.publisher.tags
+output publisherTags object = app.publisher.tags

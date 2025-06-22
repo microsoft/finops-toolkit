@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getHubTags, newHubCoreConfig } from 'hub-types.bicep'
+import { getHubTags, newApp, newHub } from 'hub-types.bicep'
 
 
 //==============================================================================
@@ -169,7 +169,7 @@ param enableDefaultTelemetry bool = true
 // TODO: Move hub config to be retrieved from the cloud
 
 // Hub details
-var coreConfig = newHubCoreConfig(
+var hub = newHub(
   hubName,
   location,
   tags,
@@ -253,7 +253,7 @@ var telemetryString = join([
 
 resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
-  tags: getHubTags(coreConfig, 'Microsoft.Resources/deployments')
+  tags: getHubTags(hub, 'Microsoft.Resources/deployments')
   properties: {
     mode: 'Incremental'
     template: {
@@ -274,10 +274,11 @@ resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefa
 // Base resources needed for hub apps
 //------------------------------------------------------------------------------
 
+// TODO: Can this be merged into core.bicep?
 module infrastructure 'infrastructure.bicep' = {
   name: 'Microsoft.FinOpsHubs.Infrastructure'
   params: {
-    coreConfig: coreConfig
+    hub: hub    
   }
 }
 
@@ -291,7 +292,7 @@ module core 'core.bicep' = {
     infrastructure
   ]
   params: {
-    coreConfig: coreConfig
+    hub: hub
     telemetryString: telemetryString
     scopesToMonitor: scopesToMonitor
     msexportRetentionInDays: exportRetentionInDays  // cSpell:ignore msexport
@@ -311,7 +312,7 @@ module cmExports 'cm-exports.bicep' = {
     core
   ]
   params: {
-    coreConfig: coreConfig
+    hub: hub
   }
 }
 
@@ -327,7 +328,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     clusterCapacity: dataExplorerCapacity
     // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
     location: location
-    tags: coreConfig.hub.tags
+    tags: hub.tags
     tagsByResource: tagsByResource
     dataFactoryName: core.outputs.dataFactoryName
     rawRetentionInDays: dataExplorerRawRetentionInDays
@@ -345,6 +346,16 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
+    // TODO: Split dataFactory.bicep into its separate apps
+    app: newApp(
+      hub,
+      'Microsoft FinOps hubs',
+      'Microsoft.FinOpsHubs',
+      'DataFactory',
+      'FinOps hub engine',
+      loadTextContent('ftkver.txt')
+    )
+
     hubName: hubName
     dataFactoryName: core.outputs.dataFactoryName
     location: location
@@ -361,8 +372,6 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
     enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: coreConfig.deployment.storage
-    scriptSubnetId: coreConfig.network.subnets.scripts
 
     // TODO: Move to remoteHub.bicep
     keyVaultName: empty(remoteHubStorageKey) ? '' : remoteHub.outputs.keyVaultName
@@ -377,8 +386,8 @@ module dataFactoryResources 'dataFactory.bicep' = {
 module remoteHub 'remoteHub.bicep' = if (!empty(remoteHubStorageKey)) {
   name: 'Microsoft.FinOpsHubs.RemoteHub'
   params: {
+    hub: hub
     remoteStorageKey: remoteHubStorageKey
-    coreConfig: coreConfig
   }
 }
 
