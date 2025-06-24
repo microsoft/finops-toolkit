@@ -1,3 +1,5 @@
+$IsRunningOnWindows = $PSVersionTable.Platform -eq 'Win32NT'
+
 <#
 .SYNOPSIS
     Prerequisites and validation functions for the CostRecommendations script.
@@ -9,7 +11,6 @@
     Author: arclares
 #>
 
-# Function to log messages
 function Write-Log {
     param (
         [Parameter(Mandatory = $true)]
@@ -29,7 +30,6 @@ function Write-Log {
     }
 }
 
-# Function to check if the current script version is the latest
 function Check-ScriptVersion {
     param (
         [Parameter(Mandatory = $true)]
@@ -43,17 +43,14 @@ function Check-ScriptVersion {
     Write-Log -Message "Checking for latest version at: $RemoteVersionUrl" -Level "INFO"
 
     try {
-        # Download the latest version string from the remote file
         $latestVersionString = Invoke-WebRequest -Uri $RemoteVersionUrl -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop | Select-Object -ExpandProperty Content
         $latestVersionString = $latestVersionString.Trim()
 
-        # Basic validation of the downloaded version string format
         if (-not $latestVersionString -or $latestVersionString -notmatch '^\d+\.\d+(\.\d+)?(\.\d+)?$') {
              Write-Log -Message "Could not retrieve a valid version number (e.g., x.y.z) from '$RemoteVersionUrl'. Content received: '$latestVersionString'. Skipping update check." -Level "WARNING"
-             return # Continue execution without blocking
+             return
         }
 
-        # Compare versions using the [System.Version] type
         $currentVerObj = [System.Version]$CurrentVersion
         $latestVerObj = [System.Version]$latestVersionString
 
@@ -65,7 +62,6 @@ function Check-ScriptVersion {
             Write-Host "-----------------------------------------------------------" -ForegroundColor Yellow
             Write-Log -Message "A newer version ($latestVersionString) is available. Current version is $CurrentVersion. Prompting user." -Level "WARNING"
 
-            # Prompt user for action
             while ($true) {
                 $choice = Read-Host "Do you want to [C]ontinue with the current version ($CurrentVersion) or [S]top to download the latest version? (C/S)"
                 if ($choice -ne $null) {
@@ -74,7 +70,7 @@ function Check-ScriptVersion {
                         Write-Log -Message "User chose to continue with outdated version $CurrentVersion." -Level "WARNING"
                         Write-Host "Proceeding with current version $CurrentVersion..." -ForegroundColor Cyan
                         Start-Sleep -Seconds 3
-                        return # Exit the function, script execution continues
+                        return
                     }
                     elseif ($choice -eq 's') {
                         Write-Log -Message "User chose to stop and download the latest version ($latestVersionString)." -Level "INFO"
@@ -83,7 +79,7 @@ function Check-ScriptVersion {
                         Write-Host "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/microsoft/finops-toolkit/features/wacoascripts/src/wacoa/tools/CollectCostRecommendations.ps1' -OutFile 'CollectCostRecommendations.ps1'" -ForegroundColor Cyan
                         # --- Update the URL and OutFile above ---
                         Write-Host "`nScript execution stopped. Please download the latest version and run it again." -ForegroundColor Yellow
-                        exit # Stop the entire script execution
+                        exit
                     }
                     else {
                         Write-Host "Invalid input. Please enter 'C' to Continue or 'S' to Stop." -ForegroundColor Red
@@ -105,30 +101,49 @@ function Check-ScriptVersion {
     }
 }
 
-# Function to install and import required modules
 function Install-AndImportModules {
     param (
         [string[]]$Modules
     )
-    foreach ($module in $Modules) {
-        if (-not (Get-Module -ListAvailable -Name $module)) {
-            Write-Log -Message "Installing module: $module" -Level "INFO"
-            Install-Module -Name $module -Force -Scope CurrentUser -AllowClobber -ErrorAction Stop
+
+    if (($env:ACC_ENV -eq 'AzureCloudShell') -or ($env:CLOUD_SHELL -eq 'true')) {
+        Write-Log -Message "Running in Azure Cloud Shell. Adjusting module installation..." -Level "INFO"
+        $modulesToInstallInCloudShell = @('ImportExcel', 'powershell-yaml')
+        foreach ($module in $modulesToInstallInCloudShell) {
+            if (-not (Get-Module -ListAvailable -Name $module)) {
+                Write-Log -Message "Installing module for Cloud Shell: $module" -Level "INFO"
+                Install-Module -Name $module -Force -Scope CurrentUser -AllowClobber -ErrorAction Stop
+            }
         }
-        # Check if module is already imported before trying to import again
+    }
+    else {
+        foreach ($module in $Modules) {
+            if (-not (Get-Module -ListAvailable -Name $module)) {
+                Write-Log -Message "Installing module: $module" -Level "INFO"
+                Install-Module -Name $module -Force -Scope CurrentUser -AllowClobber -ErrorAction Stop
+            }
+        }
+    }
+
+    foreach ($module in $Modules) {
         Import-Module -Name $module -ErrorAction Stop
         Write-Log -Message "Ensured module '$module' is imported." -Level "INFO"
     }
 }
 
-# Function to authenticate to Azure
 function Connect-ToAzure {
+    if (($env:ACC_ENV -eq 'AzureCloudShell') -or ($env:CLOUD_SHELL -eq 'true')) {
+        Write-Log -Message "Already connected to Azure in Cloud Shell." -Level "INFO"
+        $context = Get-AzContext
+        Write-Log -Message "Current context: Subscription: $($context.Subscription.Name) ($($context.Subscription.Id))" -Level "INFO"
+        return
+    }
+
     try {
         $context = Get-AzContext -ErrorAction Stop
         if (-not $context) {
             Write-Log -Message "Logging into Azure..." -Level "INFO"
             Connect-AzAccount -ErrorAction Stop
-            # Re-fetch context to confirm login
              $context = Get-AzContext -ErrorAction Stop
              Write-Log -Message "Logged into Azure successfully. Subscription: $($context.Subscription.Name) ($($context.Subscription.Id))" -Level "INFO"
         }
@@ -142,24 +157,23 @@ function Connect-ToAzure {
     }
 }
 
-# Function to download a GitHub folder and its contents
 function Download-GitHubFolder {
     param (
-        [string]$repoUrl, # URL to the zip file
-        [string]$Destination   # Local directory to extract the files
+        [string]$repoUrl,
+        [string]$Destination
     )
 
-    # Ensure the destination path exists
     if (-not (Test-Path -Path $Destination)) {
         Write-Log -Message "Creating directory: $Destination" -Level "INFO"
         New-Item -Path $Destination -ItemType Directory -ErrorAction Stop | Out-Null
     }
 
-    # Define the path for the temporary zip file
-    $zipFilePath = Join-Path $env:TEMP "azure-resources.zip"
+    $tempPath = $env:TEMP
+    if (-not $tempPath) { $tempPath = $env:HOME } # Fallback for Linux/Cloud Shell where $env:TEMP is null
+    if (-not $tempPath) { $tempPath = $PSScriptRoot }
+    $zipFilePath = Join-Path $tempPath "azure-resources.zip"
 
-    # Download the zip file
-    Write-Log -Message "Downloading zip file from: $repoUrl" -Level "INFO"
+    Write-Log -Message "Downloading zip file from: $repoUrl to $zipFilePath" -Level "INFO"
     try {
         Invoke-WebRequest -Uri $repoUrl -OutFile $zipFilePath -ErrorAction Stop
     }
@@ -168,7 +182,6 @@ function Download-GitHubFolder {
         throw
     }
 
-    # Extract the zip file
     Write-Log -Message "Extracting zip file to: $Destination" -Level "INFO"
     try {
         Expand-Archive -Path $zipFilePath -DestinationPath $Destination -Force -ErrorAction Stop
@@ -178,12 +191,10 @@ function Download-GitHubFolder {
         throw
     }
 
-    # Clean up the temporary zip file
     Remove-Item -Path $zipFilePath -Force -ErrorAction Stop
     Write-Log -Message "Download and extraction completed successfully." -Level "INFO"
 }
 
-# Function to read cached scope
 function Read-CachedScope {
     $cacheFilePath = Join-Path $PSScriptRoot $script:settings.paths.cacheFile
     if (Test-Path -Path $cacheFilePath) {
@@ -199,7 +210,6 @@ function Read-CachedScope {
     return $null
 }
 
-# Function to write scope to cache
 function Write-CachedScope {
     param (
         [Parameter(Mandatory = $true)]
@@ -214,9 +224,7 @@ function Write-CachedScope {
     }
 }
 
-# Function to prompt for scope selection
 function Get-Scope {
-    # Check if there is a cached scope
     $cachedScope = Read-CachedScope
 
     if ($cachedScope) {
@@ -276,17 +284,41 @@ function Get-Scope {
             }
         }
         '2' {
-            Add-Type -AssemblyName System.Windows.Forms
-            $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
-            $openFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*"
-            $openFileDialog.Title = "Select a scope JSON file"
+            $jsonPath = $null
+            if ($IsRunningOnWindows -and (-not (($env:ACC_ENV -eq 'AzureCloudShell') -or ($env:CLOUD_SHELL -eq 'true')))) {
+                try {
+                    Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+                    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+                    $openFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*"
+                    $openFileDialog.Title = "Select a scope JSON file"
 
-            if ($openFileDialog.ShowDialog() -ne "OK") {
-                Write-Log -Message "User cancelled file selection." -Level "ERROR"
-                throw "No JSON file selected."
+                    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+                        $jsonPath = $openFileDialog.FileName
+                    }
+                    else {
+                        Write-Log -Message "User cancelled file selection." -Level "ERROR"
+                        throw "No JSON file selected."
+                    }
+                }
+                catch {
+                    Write-Warning "System.Windows.Forms is not available or failed to load. Please enter the path manually."
+                    $jsonPath = Read-Host "Enter full path to the JSON file"
+                    if (-not (Test-Path -LiteralPath $jsonPath)) {
+                        Write-Log -Message "File not found at path: $jsonPath" -Level "ERROR"
+                        throw "File not found at path: $jsonPath"
+                    }
+                }
+            }
+            else {
+                Write-Host "Please provide the path to the scope JSON file." -ForegroundColor Cyan
+                Write-Host "Tip: Upload the file to your Cloud Shell home directory first." -ForegroundColor Yellow
+                $jsonPath = Read-Host "Enter file path (e.g., /home/user/scope.json or ~/scope.json)"
+                if (-not (Test-Path -LiteralPath $jsonPath)) {
+                    Write-Log -Message "File not found at path: $jsonPath" -Level "ERROR"
+                    throw "File not found at path: $jsonPath"
+                }
             }
 
-            $jsonPath = $openFileDialog.FileName
             Write-Log -Message "Selected JSON file: $jsonPath" -Level "INFO"
             
             try {
@@ -344,7 +376,6 @@ function Get-Scope {
                     throw "No valid scopes found in the JSON file."
                 }
                 
-                # Remove duplicate subscription IDs
                 $allSubscriptionIds = $allSubscriptionIds | Select-Object -Unique
                 
                 $scope = @{
@@ -373,20 +404,54 @@ function Get-Scope {
     return $scope
 }
 
-# Function to get Assessment file path
 function Get-FilePath {
-    Add-Type -AssemblyName System.Windows.Forms
-    $fileBrowser = New-Object System.Windows.Forms.OpenFileDialog
-    $fileBrowser.InitialDirectory = [Environment]::GetFolderPath('Desktop') # Default to Desktop
-    $fileBrowser.Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*" # Filter for CSV files
-    $fileBrowser.Title = "Select the Well-Architected Cost Optimization Assessment File"
+    if (($env:ACC_ENV -eq 'AzureCloudShell') -or ($env:CLOUD_SHELL -eq 'true')) {
+        Write-Host "Please provide the path to the Well-Architected assessment CSV file." -ForegroundColor Cyan
+        Write-Host "Tip: Upload the file to your Cloud Shell home directory first." -ForegroundColor Yellow
+        $filePath = Read-Host "Enter file path (e.g., /home/user/assessment.csv or ~/assessment.csv)"
+        if (Test-Path -LiteralPath $filePath) {
+            return $filePath
+        }
+        else {
+            Write-Host "File not found at path: $filePath" -ForegroundColor Red
+            return $null
+        }
+    }
+   elseif ($IsRunningOnWindows) {
+    try {
+        Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+        $fileBrowser = New-Object System.Windows.Forms.OpenFileDialog
+        $fileBrowser.InitialDirectory = [Environment]::GetFolderPath('Desktop')
+        $fileBrowser.Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*"
+        $fileBrowser.Title = "Select the Well-Architected Cost Optimization Assessment File"
 
-    # Show the file browser dialog
-    if ($fileBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        return $fileBrowser.FileName
+        if ($fileBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            return $fileBrowser.FileName
+        }
+        else {
+            return $null
+        }
+    }
+    catch {
+        Write-Warning "System.Windows.Forms is not available. Please enter the path manually."
+        $filePath = Read-Host "Enter full path to the CSV file"
+        if (-not (Test-Path -LiteralPath $filePath)) {
+            Write-Host "File not found at path: $filePath" -ForegroundColor Red
+            return $null
+        }
+        return $filePath
+    }
+}
+else {
+    Write-Host "Please provide the path to the Well-Architected assessment CSV file." -ForegroundColor Cyan
+    Write-Host "Tip: Upload the file to your Cloud Shell home directory first." -ForegroundColor Yellow
+    $filePath = Read-Host "Enter file path (e.g., /home/user/assessment.csv or ~/assessment.csv)"
+    if (Test-Path -LiteralPath $filePath) {
+        return $filePath
     }
     else {
+        Write-Host "File not found at path: $filePath" -ForegroundColor Red
         return $null
     }
 }
-
+}
