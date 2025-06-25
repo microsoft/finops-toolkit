@@ -45,6 +45,8 @@ The following section lists features and enhancements that are currently in deve
 
 ## v0.12
 
+_Released June 2025_
+
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
 
 - **Added**
@@ -54,15 +56,12 @@ The following section lists features and enhancements that are currently in deve
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
 
-- **Fixed**
-  - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
-
-_Released June 2025_
-
-### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
-
+- **Added**
+  - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
+- **Fixed**
+  - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
