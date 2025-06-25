@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getHubTags, getPublisherTags, HubCoreConfig, newHubCoreConfig } from 'hub-types.bicep'
+import { getHubTags, newApp, newHub } from 'hub-types.bicep'
 
 
 //==============================================================================
@@ -155,7 +155,7 @@ param dataExplorerFinalRetentionInMonths int = 13
 @description('Optional. Enable public access to the data lake. Default: true.')
 param enablePublicAccess bool = true
 
-@description('Optional. Address space for the workload. A /26 is required for the workload. Default: "10.20.30.0/26".')
+@description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
@@ -169,7 +169,7 @@ param enableDefaultTelemetry bool = true
 // TODO: Move hub config to be retrieved from the cloud
 
 // Hub details
-var coreConfig = newHubCoreConfig(
+var hub = newHub(
   hubName,
   location,
   tags,
@@ -191,10 +191,10 @@ var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.cluster
 var safeDataExplorerIngestionDb = useFabric ? 'Ingestion' : (!deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName)
 var safeDataExplorerIngestionCapacity = useFabric ? fabricCapacityUnits : (!deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity)
 var safeDataExplorerPrincipalId = !deployDataExplorer ? '' : dataExplorer.outputs.principalId
-var safeVnetId = enablePublicAccess ? '' : vnet.outputs.vNetId
-var safeDataExplorerSubnetId = enablePublicAccess ? '' : vnet.outputs.dataExplorerSubnetId
-// var safeFinopsHubSubnetId = enablePublicAccess ? '' : vnet.outputs.finopsHubSubnetId
-// var safeScriptSubnetId = enablePublicAccess ? '' : vnet.outputs.scriptSubnetId
+var safeVnetId = enablePublicAccess ? '' : infrastructure.outputs.vNetId
+var safeDataExplorerSubnetId = enablePublicAccess ? '' : infrastructure.outputs.dataExplorerSubnetId
+// var safeFinopsHubSubnetId = enablePublicAccess ? '' : infrastructure.outputs.finopsHubSubnetId
+// var safeScriptSubnetId = enablePublicAccess ? '' : infrastructure.outputs.scriptSubnetId
 
 // cSpell:ignore eventgrid
 // var eventGridName = 'finops-hub-eventgrid-${config.hub.suffix}'
@@ -253,7 +253,7 @@ var telemetryString = join([
 
 resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: 'pid-${telemetryId}_${telemetryString}_${uniqueString(deployment().name, location)}'
-  tags: getHubTags(coreConfig, 'Microsoft.Resources/deployments')
+  tags: getHubTags(hub, 'Microsoft.Resources/deployments')
   properties: {
     mode: 'Incremental'
     template: {
@@ -274,53 +274,31 @@ resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefa
 // Base resources needed for hub apps
 //------------------------------------------------------------------------------
 
-module coreNetwork 'core-network.bicep' = {
-  name: 'Microsoft.FinOpsHubs.Core_Network'
+// TODO: Can this be merged into core.bicep?
+module infrastructure 'infrastructure.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Infrastructure'
+  params: {
+    hub: hub    
+  }
+}
+
+//------------------------------------------------------------------------------
+// Hub core app
+//------------------------------------------------------------------------------
+
+module core 'core.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core'
   dependsOn: [
-    vnet
+    infrastructure
   ]
   params: {
-    coreConfig: coreConfig
-  }
-}
-
-//------------------------------------------------------------------------------
-// App registration
-//------------------------------------------------------------------------------
-
-// TODO: Move into core.bicep
-module appRegistration 'hub-app.bicep' = {
-  name: 'Microsoft.FinOpsHubs.Core_Register'
-  params: {
-    publisher: 'Microsoft FinOps hubs'
-    namespace: 'Microsoft.FinOpsHubs'
-    appName: 'Core'
-    displayName: 'FinOps hub core'
-    appVersion: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
-    features: [
-      'DataFactory'
-      'Storage'
-    ]
+    hub: hub
     telemetryString: telemetryString
-
-    coreConfig: coreConfig
-  }
-}
-
-//------------------------------------------------------------------------------
-// Virtual network
-//------------------------------------------------------------------------------
-
-// cSpell:ignore vnet
-// TODO: Move to core-network.bicep
-module vnet 'vnet.bicep' = if (!enablePublicAccess) {
-  name: 'vnet'
-  params: {
-    hubName: hubName
-    location: location
-    virtualNetworkAddressPrefix: coreConfig.network.addressPrefix
-    tags: coreConfig.hub.tags
-    tagsByResource: tagsByResource
+    scopesToMonitor: scopesToMonitor
+    msexportRetentionInDays: exportRetentionInDays  // cSpell:ignore msexport
+    ingestionRetentionInMonths: ingestionRetentionInMonths
+    rawRetentionInDays: dataExplorerRawRetentionInDays
+    finalRetentionInMonths: dataExplorerFinalRetentionInMonths
   }
 }
 
@@ -328,25 +306,13 @@ module vnet 'vnet.bicep' = if (!enablePublicAccess) {
 // ADLSv2 storage account for staging and archive
 //------------------------------------------------------------------------------
 
-module storage 'storage.bicep' = {
-  name: 'storage'
+module cmExports 'cm-exports.bicep' = {
+  name: 'Microsoft.CostManagement.Exports'
   dependsOn: [
-    coreNetwork
-    vnet
+    core
   ]
   params: {
-    storageAccountName: appRegistration.outputs.config.publisher.storage
-    location: location
-    tags: coreConfig.hub.tags
-    tagsByResource: tagsByResource
-    scopesToMonitor: scopesToMonitor
-    msexportRetentionInDays: exportRetentionInDays  // cSpell:ignore msexport
-    ingestionRetentionInMonths: ingestionRetentionInMonths
-    rawRetentionInDays: dataExplorerRawRetentionInDays
-    finalRetentionInMonths: dataExplorerFinalRetentionInMonths
-    scriptSubnetId: coreConfig.network.subnets.scripts
-    scriptStorageAccountName: coreConfig.deployment.storage
-    enablePublicAccess: enablePublicAccess
+    hub: hub
   }
 }
 
@@ -362,14 +328,14 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     clusterCapacity: dataExplorerCapacity
     // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
     location: location
-    tags: coreConfig.hub.tags
+    tags: hub.tags
     tagsByResource: tagsByResource
-    dataFactoryName: appRegistration.outputs.config.publisher.dataFactory
+    dataFactoryName: core.outputs.dataFactoryName
     rawRetentionInDays: dataExplorerRawRetentionInDays
-    virtualNetworkId: safeVnetId
+    virtualNetworkId: safeVnetId  // cSpell:ignore vnet
     privateEndpointSubnetId: safeDataExplorerSubnetId
     enablePublicAccess: enablePublicAccess
-    storageAccountName: storage.outputs.name
+    storageAccountName: core.outputs.storageAccountName
   }
 }
 
@@ -380,15 +346,25 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
+    // TODO: Split dataFactory.bicep into its separate apps
+    app: newApp(
+      hub,
+      'Microsoft FinOps hubs',
+      'Microsoft.FinOpsHubs',
+      'DataFactory',
+      'FinOps hub engine',
+      loadTextContent('ftkver.txt')
+    )
+
     hubName: hubName
-    dataFactoryName: appRegistration.outputs.config.publisher.dataFactory
+    dataFactoryName: core.outputs.dataFactoryName
     location: location
-    tags: appRegistration.outputs.config.publisher.tags
+    tags: core.outputs.publisherTags
     tagsByResource: tagsByResource
-    storageAccountName: storage.outputs.name
-    exportContainerName: storage.outputs.exportContainer
-    configContainerName: storage.outputs.configContainer
-    ingestionContainerName: storage.outputs.ingestionContainer
+    storageAccountName: core.outputs.storageAccountName
+    exportContainerName: cmExports.outputs.exportContainer
+    configContainerName: core.outputs.configContainer
+    ingestionContainerName: core.outputs.ingestionContainer
     dataExplorerName: safeDataExplorerName
     dataExplorerPrincipalId: safeDataExplorerPrincipalId
     dataExplorerIngestionDatabase: safeDataExplorerIngestionDb
@@ -396,11 +372,9 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
     enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: coreConfig.deployment.storage
-    scriptSubnetId: coreConfig.network.subnets.scripts
 
     // TODO: Move to remoteHub.bicep
-    keyVaultName: empty(remoteHubStorageKey) ? '' : appRegistration.outputs.config.publisher.keyVault
+    keyVaultName: empty(remoteHubStorageKey) ? '' : remoteHub.outputs.keyVaultName
     remoteHubStorageUri: remoteHubStorageUri
   }
 }
@@ -412,8 +386,8 @@ module dataFactoryResources 'dataFactory.bicep' = {
 module remoteHub 'remoteHub.bicep' = if (!empty(remoteHubStorageKey)) {
   name: 'Microsoft.FinOpsHubs.RemoteHub'
   params: {
+    hub: hub
     remoteStorageKey: remoteHubStorageKey
-    coreConfig: coreConfig
   }
 }
 
@@ -428,16 +402,16 @@ output name string = hubName
 output location string = location
 
 @description('Name of the Data Factory.')
-output dataFactoryName string = appRegistration.outputs.config.publisher.dataFactory
+output dataFactoryName string = core.outputs.dataFactoryName
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
-output storageAccountId string = storage.outputs.resourceId
+output storageAccountId string = resourceId('Microsoft.Storage/storageAccounts', core.outputs.storageAccountName)
 
 @description('Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data.')
-output storageAccountName string = storage.outputs.name
+output storageAccountName string = core.outputs.storageAccountName
 
 @description('URL to use when connecting custom Power BI reports to your data.')
-output storageUrlForPowerBI string = 'https://${storage.outputs.name}.dfs.${environment().suffixes.storage}/${storage.outputs.ingestionContainer}'
+output storageUrlForPowerBI string = core.outputs.storageUrlForPowerBI
 
 @description('The resource ID of the Data Explorer cluster.')
 output clusterId string = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
@@ -452,7 +426,7 @@ output ingestionDbName string = useFabric ? 'Ingestion' : (!deployDataExplorer ?
 output hubDbName string = useFabric ? 'Hub' : (!deployDataExplorer ? '' : dataExplorer.outputs.hubDbName)
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output managedIdentityId string = appRegistration.outputs.principalId
+output managedIdentityId string = core.outputs.principalId
 
 @description('Azure AD tenant ID. This will be needed when configuring managed exports.')
 output managedIdentityTenantId string = tenant().tenantId

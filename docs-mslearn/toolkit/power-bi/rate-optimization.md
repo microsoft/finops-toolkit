@@ -28,7 +28,7 @@ The **Rate optimization report** summarizes existing and potential savings from 
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/surveyId/FTK0.10/bladeName/PowerBI.RateOptimization/featureName/Documentation)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/surveyId/FTK0.11/bladeName/PowerBI.RateOptimization/featureName/Documentation)
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
@@ -124,6 +124,26 @@ The **Commitment discounts** page provides a list of your commitment discounts a
 The chart breaks down the cost of used (utilized) vs. unused charges. The commitment type (for example, reservation and savings plan) splits unused charges.
 
 :::image type="content" source="./media/rate-optimization/commitment-discounts.png" border="true" alt-text="Screenshot of the Commitment discounts page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discounts.png" :::
+
+<br>
+
+## Commitment discount utilization
+
+The **Commitment discount utilization** page provides a summary of the utilization of your commitment discounts by showing the total covered usage cost divided by the total effective (amortized) commitment discount cost for the period.
+
+The chart shows the sum of all used cost compared to unused cost as percentages per day. The table shows a list of all commitment discounts. To view the utilization for a single commitment discount in the chart, select the row in the table, set applicable filters on the left, or use the "Drill through" capability from another page.
+
+:::image type="content" source="./media/rate-optimization/commitment-discount-utilization.png" border="true" alt-text="Screenshot of the Commitment discount utilization page that shows an aggregate utilization percentage for the selected commitment discounts." lightbox="./media/rate-optimization/commitment-discount-utilization.png" :::
+
+<br>
+
+## Commitment discount resources
+
+The **Commitment discount resources** page provides a list of all resources that were covered by the selected commitment discounts (all by default).
+
+The chart breaks down the effective cost of your commitment discounts by resource over time. The table shows the utilization, cost, and savings for the entire period. To view resources for a single commitment discount in the chart, set applicable filters on the left or use the "Drill through" capability from another page.
+
+:::image type="content" source="./media/rate-optimization/commitment-discount-resources.png" border="true" alt-text="Screenshot of the Commitment discount resources page that shows a list of resources covered by selected commitment discounts during the period." lightbox="./media/rate-optimization/commitment-discount-resources.png" :::
 
 <br>
 

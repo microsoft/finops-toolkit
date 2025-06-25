@@ -4,18 +4,6 @@
 //======================================================================================================================
 // Hub database
 // Used for querying and reporting.
-//
-// Versioning strategy:
-// - Each dataset includes a function that returns the latest version of the data (for example, "Costs()").
-// - Every supported version of FOCUS should have a corresponding function (for example, "Costs_v1_0").
-// - Each versioned function unions data from versioned tables in the Ingestion database and transforms it to that FOCUS version for back compat.
-// - Consumers should use the unversioned function for the latest and the versioned functions for back compat.
-//
-// To add a new FOCUS versions:
-// 1. Add new FOCUS version section after the latest version section and before existing version sections
-// 2. Create new *_vX_Y functions per dataset that transforms older data to the new FOCUS version
-// 3. Update the unversioned functions to use the new *_vX_Y functions
-// 4. Update older versioned functions to also pull from the new *_vX_Y functions and transform to the old schema
 //======================================================================================================================
 
 // For allowed commands, see https://learn.microsoft.com/azure/data-explorer/database-script

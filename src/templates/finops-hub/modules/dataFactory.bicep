@@ -1,9 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { HubAppProperties } from 'hub-types.bicep'
+
+
 //==============================================================================
 // Parameters
 //==============================================================================
+
+@description('Required. Temporary app placeholder for the deployments module.')
+param app HubAppProperties
 
 @description('Required. Name of the FinOps hub instance.')
 param hubName string
@@ -59,12 +65,6 @@ param tagsByResource object = {}
 
 @description('Required. Enable public access.')
 param enablePublicAccess bool
-
-@description('Required. The name of the storage account used for deployment scripts. Required when using private endpoints and uploading files or creating an identity.')
-param scriptStorageAccountName string
-
-@description('Required. Resource ID of the virtual network for running deployment scripts. Required when using private endpoints and uploading files.')
-param scriptSubnetId string
 
 //------------------------------------------------------------------------------
 // Variables
@@ -138,16 +138,23 @@ var allHubTriggers = [
 
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
-  '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
+  // Data Factory contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
+  // Used to start/stop triggers and delete old pipelines/triggers
+  '673868aa-7521-48a0-acc6-0f60742d39f5'
 ]
 
 // Roles for ADF to manage data in storage
 // Does not include roles assignments needed against the export scope
 var storageRbacRoles = [
-  '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
-  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
-  'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
-  '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
+  // Storage Account Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
+  // Used to move files from the msexports to ingestion container
+  '17d1049b-9a84-46fb-8f53-869881c3d3ab'
+  // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+  'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+  // Reader -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
+  'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+  // User Access Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
+  '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
 ]
 
 // Roles for ADF to to start check ADX cluster and to start cluster if stopped
@@ -373,12 +380,11 @@ module deleteOldResources 'hub-deploymentScript.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_ADF.DeleteOldResources'
   dependsOn: [
     triggerManagerRoleAssignments
+    stopTriggers
   ]
   params: {
-    location: location
+    app: app
     identityName: triggerManagerIdentity.name
-    tags: tags
-    tagsByResource: tagsByResource
     scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
     environmentVariables: [
       {
@@ -394,10 +400,6 @@ module deleteOldResources 'hub-deploymentScript.bicep' = {
         value: dataFactory.name
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 
@@ -411,10 +413,8 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
     triggerManagerRoleAssignments
   ]
   params: {
-    location: location
+    app: app
     identityName: triggerManagerIdentity.name
-    tags: tags
-    tagsByResource: tagsByResource
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     arguments: '-Stop'
     environmentVariables: [
@@ -435,10 +435,6 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
         value: join(allHubTriggers, '|')
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 
@@ -5204,13 +5200,11 @@ module startTriggers 'hub-deploymentScript.bicep' = {
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule
+    deleteOldResources
   ]
   params: {
-    location: location
-    tags: tags
-    tagsByResource: tagsByResource
+    app: app
     identityName: triggerManagerIdentity.name
-
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     environmentVariables: [
       {
@@ -5234,10 +5228,6 @@ module startTriggers 'hub-deploymentScript.bicep' = {
         value: join([ pipeline_InitializeHub.name ], '|')
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 

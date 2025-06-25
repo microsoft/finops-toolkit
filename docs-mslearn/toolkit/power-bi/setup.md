@@ -54,11 +54,11 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
 
 3. Download and open the desired report in Power BI Desktop.
 
-   | Data source                                | Download                                                                                                                             | Notes                                                                                                      |
-   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                  | Recommended when monitoring over $100,000 or 13 months of data.                                            |
-   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring over $2 million per month.                                                 |
-   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring over $1 million in total cost or accounts that contain savings plan usage. |
+   | Data source                                | Download                                                                                                                              | Notes                                                                                                      |
+   | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+   | FinOps hubs with Data Explorer             | [KQL reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)                                   | Recommended when monitoring over $100,000 or 13 months of data.                                            |
+   | Exports in storage (including FinOps hubs) | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                           | Not recommended when monitoring over $2 million per month.                                                 |
+   | Cost Management connector                  | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.pbix) | Not recommended when monitoring over $1 million in total cost or accounts that contain savings plan usage. |
 
 4. Open each report and specify the applicable report parameters:
 
@@ -69,6 +69,8 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
      4. Select the **hub** deployment.
      5. Select **Outputs**.
      6. Copy the value for `clusterUri`.
+        > [!IMPORTANT]
+        > When using private endpoints in conjunction with a Power BI data gateway, make sure to use the fully qualified domain name (FQDN) of the Azure Data Explorer cluster (like `clustername.region.kusto.windows.net`) rather than the abbreviated version (like `clustername.region`). This ensures proper name resolution for the private endpoint functions as expected.
    - **Daily or Monthly** (KQL reports only) &ndash; Required granularity of data. Use this to report on longer periods of time.
      - Consider creating two copies of these reports to show both daily data for a short time period and monthly data for historical reporting.
    - **Storage URL** (storage reports only) &ndash; Required DFS endpoint for the Azure Data Lake Storage account with your data.

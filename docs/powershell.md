@@ -19,6 +19,7 @@ Automate and scale your FinOps efforts with PowerShell commands that streamline 
 
 The FinOps toolkit PowerShell module helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.
 
+<!--
 <div id="whats-new" class="ftk-new">
     <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
     <p>

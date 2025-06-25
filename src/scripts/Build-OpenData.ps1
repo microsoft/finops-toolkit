@@ -423,9 +423,12 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
                 return processResourceType $_.type @{} $_
             }
         }
-        elseif ($asset.resourceType.resourceTypeName.ToLower().StartsWith('private.') `
+        elseif ($asset.resourceType.resourceTypeName.ToLower().StartsWith('microsoft.contoso/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().StartsWith('private.') `
                 -or $asset.resourceType.resourceTypeName.ToLower().StartsWith('providers.test') `
-                -or $asset.resourceType.resourceTypeName.ToLower() -contains '/browse')
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('.samplepartner/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('.samplerp/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('/browse'))
         {
             # Skip private and test resource types
             Write-Warning "Skipping $($asset.resourceType.resourceTypeName)..."
@@ -585,33 +588,50 @@ if ($Hubs)
     }
 }
 
-<# TODO: Integrate the following script to revert SVG files with nonfunctional changes
 (git diff --name-only) `
 | Where-Object { $_ -match '^docs/svg/([^/]+/)+[^\.]+\.svg$' } `
 | ForEach-Object {
-    $file = $_
+    $file = "$PSScriptRoot/../../$_"
     $diff = git diff -- $file
     $changes = $diff -split "`n" `
     | Where-Object { $_ -match '^\+|^\-' } ` # Remove lines that are not changes
     | Where-Object { $_ -notmatch '^\+\+\+|^\-\-\-' } # Remove the diff metadata lines
-    # Check if all changes are GUID changes
-    $hasFunctionalChanges = $true
+
+    # Match added/removed lines
+    $added = @()
+    $removed = @()
     foreach ($line in $changes)
     {
-        if (
-            $line -notmatch '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' `
-                -and $line -notmatch '^\+\s*$' `
-                -and $line -notmatch '^\-\s*$' `
-        )
+        if ($line.StartsWith('+'))
         {
-            $hasFunctionalChanges = $true
+            $added += $line.Substring(1)
+        }
+        elseif ($line.StartsWith('-'))
+        {
+            $removed += $line.Substring(1) 
+        }
+    }
+
+    # Filter out files that only changed GUIDs
+    $onlyGuidChanges = $false
+    $maxPairs = [Math]::Max($added.Count, $removed.Count)
+    for ($i = 0; $i -lt $maxPairs; $i++)
+    {
+        $before = if ($i -lt $removed.Count) { $removed[$i] } else { '' }
+        $after = if ($i -lt $added.Count) { $added[$i] } else { '' }
+
+        # Replace all GUIDs in both lines with a placeholder and compare
+        $beforeClean = $before -replace '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', '__GUID__'
+        $afterClean = $after -replace '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', '__GUID__'
+        if ($beforeClean -eq $afterClean)
+        {
+            $onlyGuidChanges = $true
             break
         }
     }
-    if (-not $hasFunctionalChanges)
+    if ($onlyGuidChanges)
     {
         Write-Host "Reverting $file"
         git checkout -- $file
     }
 }
-#>
