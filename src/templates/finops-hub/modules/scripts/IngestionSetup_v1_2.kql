@@ -1488,6 +1488,9 @@ Recommendations_transform_v1_2()
     // Build recommendation details
     | lookup kind=leftouter (Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
     | extend x_RecommendationDetails = case(
+        // Use incoming x_RecommendationDetails first
+        isnotempty(x_RecommendationDetails), x_RecommendationDetails,
+        // Create one for reservation recommendations if needed
         x_SourceType == 'ReservationRecommendations', bag_pack(
             'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
             'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
@@ -1512,18 +1515,27 @@ Recommendations_transform_v1_2()
         dynamic({})
     )
     //
-    // Sort columns and apply final transforms
-    | extend x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d)
+    // Prefer specified date, then fall back to generating a date based on reservation recommendation lookback period, then validate to ensure it's not in the future
+    | extend x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d))
     | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
+    //
     | project
         ProviderName,
-        SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        SubAccountId = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
+        SubAccountName,
+        x_EffectiveCostAfter = coalesce(x_EffectiveCostAfter, TotalCostWithReservedInstances),
+        x_EffectiveCostBefore = coalesce(x_EffectiveCostBefore, CostWithNoReservedInstances),
+        x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings),
         x_IngestionTime,
-        x_EffectiveCostAfter = TotalCostWithReservedInstances,
-        x_EffectiveCostBefore = CostWithNoReservedInstances,
-        x_EffectiveCostSavings = NetSavings,
-        x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d),
+        x_RecommendationCategory,  // TODO: Set for reservation recommendations
+        x_RecommendationDate,
+        x_RecommendationDescription,
         x_RecommendationDetails,
+        x_RecommendationId,        // TODO: Set for reservation recommendations
+        x_ResourceGroupName,
         x_SourceName,
         x_SourceProvider,
         x_SourceType,
@@ -1532,18 +1544,26 @@ Recommendations_transform_v1_2()
 
 // Recommendations_final_v1_2 table
 .create-merge table Recommendations_final_v1_2 (
-    ProviderName:            string,
-    SubAccountId:            string,
-    x_IngestionTime:         datetime,
-    x_EffectiveCostAfter:    real,
-    x_EffectiveCostBefore:   real,
-    x_EffectiveCostSavings:  real,
-    x_RecommendationDate:    datetime,
-    x_RecommendationDetails: dynamic,
-    x_SourceName:            string,
-    x_SourceProvider:        string,
-    x_SourceType:            string,
-    x_SourceVersion:         string
+    ProviderName:                string,
+    ResourceId:                  string,
+    ResourceName:                string,
+    ResourceType:                string,
+    SubAccountId:                string,
+    SubAccountName:              string,
+    x_EffectiveCostAfter:        real,
+    x_EffectiveCostBefore:       real,
+    x_EffectiveCostSavings:      real,
+    x_IngestionTime:             datetime,
+    x_RecommendationCategory:    string,
+    x_RecommendationDate:        datetime,
+    x_RecommendationDescription: string,
+    x_RecommendationDetails:     dynamic,
+    x_RecommendationId:          string,
+    x_ResourceGroupName:         string,
+    x_SourceName:                string,
+    x_SourceProvider:            string,
+    x_SourceType:                string,
+    x_SourceVersion:             string
 )
 
 // Update policy for Recommendations_raw -> Recommendations_final_v1_2 table
