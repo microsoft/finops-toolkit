@@ -5050,7 +5050,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
       }
           {
         name: 'Data Explorer validation'
-        description: 'when the FTK is deployed with an Azure Data Explorer instance, a start of the instance will be initiated to ensure a running instance'
+        description: 'If Data Explorer is stopped, start it'
         type: 'IfCondition'
         dependsOn: [
           {
@@ -5109,7 +5109,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               userProperties: []
               typeProperties: {
                 message: {
-                  value:'@concat(\'Failed to start DataExplorer Instance. Message: \', activity(\'Start ADX Cluster After Error\').output.error.message)'
+                  value:'@concat(\'Failed to start the Data Explorer instance. Message: \', activity(\'Start ADX Cluster After Error\').output.error.message)'
                   type: 'Expression'
                 }
                 errorCode: {
