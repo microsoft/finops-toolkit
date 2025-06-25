@@ -28,6 +28,10 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### Start Azure Data Explorer automatically if stopped
+
+- when the FTK is deployed with an Azure Data Explorer instance, a start of the instance will be initiated to ensure a running instance
+
 <br><a name="latest"></a>
 
 ## v0.11
