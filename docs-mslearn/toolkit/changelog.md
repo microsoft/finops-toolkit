@@ -24,22 +24,9 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) pending changes
-
-- **Added**
-  - Added support for Alibaba Cloud FOCUS data ingestion.
-    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
-
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
-
-### [Power BI reports](power-bi/reports.md) pending changes
-
-- **Added**
-  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
-- **Changed**
-  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
 
 <br><a name="latest"></a>
 
@@ -47,7 +34,7 @@ The following section lists features and enhancements that are currently in deve
 
 _Released June 2025_
 
-### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.12
 
 - **Added**
   - Created a script to generate a template FOCUS conformance document.
@@ -58,10 +45,20 @@ _Released June 2025_
 
 - **Added**
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+  - Added a new **enableManagedExports** parameter to support disabling managed exports and not requiring the ability to assign the User Access Administrator role to a hub identity ([#1600](https://github.com/microsoft/finops-toolkit/issues/1600)).
+  - Added support for Alibaba Cloud FOCUS data ingestion.
+    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
 - **Fixed**
   - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+
+### [Power BI reports](power-bi/reports.md) v0.12
+
+- **Added**
+  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
+- **Changed**
+  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
