@@ -5179,7 +5179,8 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         type: 'string'
       }
       timestamp: {
-        type: 'string'      
+        type: 'string'
+      }
     }
     annotations: [
       'New ingestion'
