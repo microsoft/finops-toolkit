@@ -30,6 +30,8 @@ Deploy-FinOpsHub `
     [-Version <string>] `
     [-Preview] `
     [-StorageSku <string>] `
+    [-RemoteHubStorageUri <string>] `
+    [-RemoteHubStorageKey <string>] `
     [-Tags <object>] `
     [<CommonParameters>]
 ```
@@ -38,15 +40,17 @@ Deploy-FinOpsHub `
 
 ## Parameters
 
-| Name             | Description                                                                                                                                                                         |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`          | Required. Name of the FinOps hub instance.                                                                                                                                          |
-| `‑ResourceGroup` | Required. Name of the resource group to deploy to. It gets created if it doesn't exist.                                                                                             |
-| `‑Location`      | Required. Azure location to execute the deployment from.                                                                                                                            |
-| `‑Version`       | Optional. Version of the FinOps hub template to use. Default = "latest".                                                                                                            |
-| `‑Preview`       | Optional. Indicates that preview releases should also be included. Default = false.                                                                                                 |
-| `‑StorageSku`    | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs aren't available for Data Lake gen2 storage. Default = "Premium_LRS". |
-| `‑Tags`          | Optional. Tags for all resources.                                                                                                                                                   |
+| Name                     | Description                                                                                                                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`                  | Required. Name of the FinOps hub instance.                                                                                                                                          |
+| `‑ResourceGroup`         | Required. Name of the resource group to deploy to. It gets created if it doesn't exist.                                                                                             |
+| `‑Location`              | Required. Azure location to execute the deployment from.                                                                                                                            |
+| `‑Version`               | Optional. Version of the FinOps hub template to use. Default = "latest".                                                                                                            |
+| `‑Preview`               | Optional. Indicates that preview releases should also be included. Default = false.                                                                                                 |
+| `‑StorageSku`            | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs aren't available for Data Lake gen2 storage. Default = "Premium_LRS". |
+| `‑RemoteHubStorageUri`   | Optional. Data Lake storage endpoint from the remote hub storage account. Used for cross-tenant scenarios. Copy from the storage account Settings > Endpoints > Data Lake storage. |
+| `‑RemoteHubStorageKey`   | Optional. Storage account access key for the remote hub. Used for cross-tenant scenarios. Copy from the storage account Security + networking > Access keys > key1/2 > Key.       |
+| `‑Tags`                  | Optional. Tags for all resources.                                                                                                                                                   |
 
 <br>
 
@@ -76,6 +80,19 @@ Deploy-FinOpsHub `
 ```
 
 Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version 0.1.1 of the template. This version is required for Microsoft Online Services Agreement (MOSA) subscriptions since FOCUS exports aren't available from Cost Management. If the resource group doesn't exist, it gets created. If the hub already exists, it gets updated to version 0.1.1.
+
+### Deploy with remote hub configuration
+
+```powershell
+Deploy-FinOpsHub `
+    -Name MyRemoteHub `
+    -ResourceGroup MyRemoteHubResourceGroup `
+    -Location westus `
+    -RemoteHubStorageUri "https://centralfinooshub123.dfs.core.windows.net/" `
+    -RemoteHubStorageKey "abc123...xyz789=="
+```
+
+Deploys a FinOps hub instance named MyRemoteHub configured to send data to a remote (central) hub. The remote hub storage URI and key enable cross-tenant data collection scenarios where a central tenant aggregates cost data from multiple tenants. The RemoteHubStorageUri should be copied from the central hub's storage account Settings > Endpoints > Data Lake storage, and the RemoteHubStorageKey should be copied from Security + networking > Access keys.
 
 <br>
 
