@@ -48,8 +48,8 @@ Deploy-FinOpsHub `
 | `‑Version`               | Optional. Version of the FinOps hub template to use. Default = "latest".                                                                                                            |
 | `‑Preview`               | Optional. Indicates that preview releases should also be included. Default = false.                                                                                                 |
 | `‑StorageSku`            | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs aren't available for Data Lake gen2 storage. Default = "Premium_LRS". |
-| `‑RemoteHubStorageUri`   | Optional. Data Lake storage endpoint from the remote hub storage account. Used for cross-tenant scenarios. Copy from the storage account Settings > Endpoints > Data Lake storage. |
-| `‑RemoteHubStorageKey`   | Optional. Storage account access key for the remote hub. Used for cross-tenant scenarios. Copy from the storage account Security + networking > Access keys > key1/2 > Key.       |
+| `‑RemoteHubStorageUri`   | Optional. Data Lake storage endpoint from the remote hub storage account. Used for cross-tenant cost data collection scenarios. Example: `https://primaryhub.dfs.core.windows.net/` |
+| `‑RemoteHubStorageKey`   | Optional. Storage account access key for the remote hub. Used for cross-tenant cost data collection scenarios. Must be kept secure as it provides full storage access. |
 | `‑Tags`                  | Optional. Tags for all resources.                                                                                                                                                   |
 
 <br>

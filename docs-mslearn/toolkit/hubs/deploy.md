@@ -89,79 +89,16 @@ Public routing doesn't require configuration. If you opt for private routing, wo
 
 <br>
 
-## Optional: Configure remote hubs
+## Plan for multiple tenants and clouds
 
-Remote hubs enable cross-tenant cost data collection scenarios where a central tenant aggregates cost data from multiple tenants or subscriptions. In this setup, "satellite" FinOps hubs in different tenants send their processed data to a central "primary" hub for consolidated reporting and analysis.
+FinOps hubs support remote hub functionality for collecting cost data across multiple Azure tenants and clouds. Remote hubs enable centralized cost management for organizations with distributed billing relationships while maintaining data sovereignty during processing.
 
-### When to use remote hubs
+Remote hubs can be used for multiple tenants in the same Azure cloud or tenants in different Azure clouds. Supported clouds are:
+- Azure Commercial
+- Azure Government
+- Azure China
 
-Consider remote hubs when you have:
-
-- Multiple Azure tenants with separate billing relationships
-- A centralized FinOps team that needs visibility across multiple organizations
-- Subsidiaries or business units in separate tenants
-- Partners or customers who want to contribute cost data to a shared analysis
-
-### Architecture overview
-
-In a remote hub configuration:
-
-1. **Primary hub**: Central FinOps hub that receives and stores aggregated data from all tenants
-2. **Remote (satellite) hubs**: FinOps hubs in remote tenants that process local cost data and send it to the primary hub
-
-### Configure the primary hub
-
-1. Deploy a standard FinOps hub in your central tenant using the regular deployment process
-2. Note the storage account name (found in the resource group after deployment)
-3. Get the Data Lake storage endpoint:
-   - Navigate to the storage account in the Azure portal
-   - Select **Settings** > **Endpoints**
-   - Copy the **Data Lake storage** URL (format: `https://storageaccount.dfs.core.windows.net/`)
-4. Get the storage account access key:
-   - Navigate to **Security + networking** > **Access keys**
-   - Copy **key1** or **key2** value
-
-### Configure remote hubs
-
-When deploying remote hubs, provide the primary hub's storage details:
-
-#### [Azure portal](#tab/azure-portal)
-
-1. When deploying the FinOps hub template, navigate to the **Advanced** tab
-2. Expand **Remote hub configuration**
-3. Enter the **Remote hub storage URI** from the primary hub
-4. Enter the **Remote hub storage key** from the primary hub
-5. Complete the deployment normally
-
-#### [PowerShell](#tab/powershell)
-
-```powershell
-Deploy-FinOpsHub `
-    -Name MyRemoteHub `
-    -ResourceGroup MyRemoteHubResourceGroup `
-    -Location westus `
-    -RemoteHubStorageUri "https://primaryhubstore123.dfs.core.windows.net/" `
-    -RemoteHubStorageKey "abc123...xyz789=="
-```
-
----
-
-### Security considerations
-
-- **Version requirement**: Remote hubs support requires FinOps hub template version 0.4 or later
-- **Storage keys**: Treat storage keys as secrets. They provide full access to the storage account
-- **Network access**: Consider using private networking for both primary and remote hubs
-- **Key rotation**: Regularly rotate storage keys and update remote hub configurations
-- **Least privilege**: The storage key provides broad access; consider using Azure AD authentication when available
-
-### Data flow and processing
-
-Remote hubs process data locally and then send processed (not raw) cost data to the primary hub. This approach:
-
-- Reduces data transfer costs
-- Maintains data sovereignty for initial processing
-- Centralizes only the final, processed cost data
-- Preserves full granularity in the primary hub
+To configure remote hubs, see [Configure remote hubs](configure-remote-hubs.md).
 
 <br>
 
@@ -230,6 +167,10 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
 12. Indicate is you want public or private network routing. [Learn more](private-networking.md).
 13. If you selected private, specify the desired private network address prefix.
 14. Select the **Next** button at the bottom of the form.
+    - **Optional**: For remote hub configuration (cross-tenant scenarios), expand **Remote hub configuration** and:
+      - Enter the **Remote hub storage URI** from the primary hub
+      - Enter the **Remote hub storage key** from the primary hub
+      - For details, see [Configure remote hubs](configure-remote-hubs.md)
 15. If desired, specify more tags to add to resources.
 16. Select the **Next** button at the bottom of the form.
 17. Review the configuration summary and select the **Create** button at the bottom of the form.
