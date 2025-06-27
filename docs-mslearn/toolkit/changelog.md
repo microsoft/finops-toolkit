@@ -30,6 +30,15 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
+## v0.12
+
+### [Power BI reports](power-bi/reports.md) v0.12
+
+- **Fixed**
+  - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
+
+<br>
+
 ## v0.11
 
 _Released June 2, 2025_
