@@ -8,7 +8,7 @@
 - All data is transformed to the latest FOCUS schema using an update policy into a "*_final_vX_Y" table named after the version (for example, "1.0" = "_v1_0"). Final tables, Transform functions, and update policies are in the versioned setup files:
   - [IngestionSetup_v1_0.kql](../modules/scripts/IngestionSetup_v1_0.kql)
 - Data ingestion from previous version of hubs will remain in the versioned tables.
-- Data is read from versioned functions in the Hub database. See [HubSetup.kql](../modules/scripts/HubSetup.kql) for details.
+- Data is read from versioned functions in the Hub database. See HubSetup_vX_Y.kql in the [modules/scripts folder](../modules/scripts) for details.
 
 ## Versioning strategy
 

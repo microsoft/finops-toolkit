@@ -3,7 +3,6 @@
 
 //======================================================================================================================
 // Ingestion database
-// Used for data ingestion, normalization, and cleansing.
 // See known issues @ https://github.com/microsoft/finops-toolkit/issues/1111
 //======================================================================================================================
 
@@ -15,10 +14,10 @@
 // - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
 //======================================================================================================================
 
-// Prices_transform_v1_0 function
+// Prices_transform_v1_2 function
 .create-or-alter function
-with (docstring='DEPRECATED: All prices transformed to FOCUS 1.0. Use Prices_transform_v1_2() instead.', folder='Prices')
-Prices_transform_v1_0()
+with (docstring='Transforms Prices_raw into FOCUS 1.2.', folder='Prices')
+Prices_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
@@ -32,27 +31,19 @@ Prices_transform_v1_0()
     };
     let prices = materialize(
         Prices_raw
-        //
-        // Change real to decimal
-        | extend
-            BasePrice        = todecimal(BasePrice),
-            IncludedQuantity = todecimal(IncludedQuantity),
-            MarketPrice      = todecimal(MarketPrice),
-            TierMinimumUnits = todecimal(TierMinimumUnits),
-            UnitPrice        = todecimal(UnitPrice)
-        //
+        | extend PricingCurrency = coalesce(Currency, CurrencyCode)  // CurrencyCode last as a fallback only
         | extend x_SkuId = coalesce(SkuId, SkuID)
         | extend x_SkuMeterId = coalesce(MeterId, MeterID)
         | extend x_SkuProductId = coalesce(ProductId, ProductID)
         | extend x_SkuTerm = isoMonths(Term)
         | project-rename
+            SkuMeter = MeterName,
             x_BaseUnitPrice = BasePrice,
             x_EffectivePeriodEnd = EffectiveEndDate,
             x_EffectivePeriodStart = EffectiveStartDate,
             x_PricingUnitDescription = UnitOfMeasure,
             x_SkuIncludedQuantity = IncludedQuantity,
             x_SkuMeterCategory = MeterCategory,
-            x_SkuMeterName = MeterName,
             x_SkuMeterSubcategory = MeterSubCategory,
             x_SkuMeterType = MeterType,
             x_SkuOfferId = OfferID,
@@ -61,8 +52,8 @@ Prices_transform_v1_0()
             x_SkuRegion = MeterRegion,
             x_SkuServiceFamily = ServiceFamily,
             x_SkuTier = TierMinimumUnits
-        | extend ContractedUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', UnitPrice, todecimal(''))  // UnitPrice for savings plan is not the on-demand unit price
-        | extend ListUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', MarketPrice, todecimal(''))  // MarketPrice for savings plan is not the list price
+        | extend ContractedUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', UnitPrice, real(null))  // UnitPrice for savings plan is not the on-demand unit price
+        | extend ListUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', MarketPrice, real(null))  // MarketPrice for savings plan is not the list price
         | extend ChargeCategory = case(
             x_SkuPriceType == 'Consumption', 'Usage',
             x_SkuPriceType == 'ReservedInstance', 'Purchase',
@@ -94,16 +85,27 @@ Prices_transform_v1_0()
     | project-away ListUnitPrice1, ContractedUnitPrice1, x_BaseUnitPrice1, tmp_SavingsPlanKey
     | union ((prices | where x_SkuPriceType != 'SavingsPlan'))
     //
-    // Calculate commitment discount elgibility
+    // Set CommitmentDiscountCategory for reuse
+    | extend CommitmentDiscountCategory = case(
+        x_SkuPriceType == 'ReservedInstance', 'Usage',
+        x_SkuPriceType == 'SavingsPlan', 'Spend',
+        ''
+    )
+    //
+    // Calculate commitment discount eligibility
     // TODO: Would a join be faster?
+    // TODO: Check this to ensure it's correct
     | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance', 'Eligible', 'Not Eligible')
     | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
     //
+    // TODO: Implement x_CommitmentDiscountNormalizedRatio
+    | extend x_CommitmentDiscountNormalizedRatio = real(null)
+    //
     // Add PricingUnit and x_PricingBlockSize
     // TODO: Compare join vs. lookup perf -- | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1
-    | lookup kind=leftouter (PricingUnits | extend x_PricingBlockSize = todecimal(x_PricingBlockSize)) on x_PricingUnitDescription
+    | lookup kind=leftouter (PricingUnits) on x_PricingUnitDescription
     //
-    | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
+    | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, real(null))  // Savings plan prices are for the effective price, not the contracted price
     | extend x_EffectiveUnitPriceDiscount = ContractedUnitPrice - x_EffectiveUnitPrice
     | extend x_ContractedUnitPriceDiscount = ListUnitPrice - ContractedUnitPrice
     | extend x_TotalUnitPriceDiscount = ListUnitPrice - x_EffectiveUnitPrice
@@ -116,14 +118,17 @@ Prices_transform_v1_0()
         BillingAccountName = coalesce(BillingProfileName, BillingAccountName, x_BillingProfileId),
         BillingCurrency = coalesce(BillingCurrency, CurrencyCode, Currency),  // Currency last as a fallback only
         ChargeCategory,
-        CommitmentDiscountCategory = case(
-            x_SkuPriceType == 'ReservedInstance', 'Usage',
-            x_SkuPriceType == 'SavingsPlan', 'Spend',
-            ''
-        ),
+        CommitmentDiscountCategory,
         CommitmentDiscountType = case(
             x_SkuPriceType == 'ReservedInstance', 'Reservation',
             x_SkuPriceType == 'SavingsPlan', 'Savings plan',
+            ''
+        ),
+        CommitmentDiscountUnit = case(
+            isempty(CommitmentDiscountCategory), '',
+            CommitmentDiscountCategory == 'Spend', PricingCurrency,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == real(1), PricingUnit,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > real(1), strcat('Normalized ', PricingUnit),
             ''
         ),
         ContractedUnitPrice,
@@ -134,8 +139,10 @@ Prices_transform_v1_0()
             x_SkuPriceType == 'SavingsPlan', 'Committed',
             ''
         ),
+        PricingCurrency,
         PricingUnit,
         SkuId = coalesce(ProductId, ProductID),
+        SkuMeter,
         SkuPriceId = strcat(x_SkuProductId, '_', x_SkuId, '_', x_SkuMeterType),
         SkuPriceIdv2,
         x_BaseUnitPrice,
@@ -146,6 +153,7 @@ Prices_transform_v1_0()
         ),
         x_BillingAccountId,
         x_BillingProfileId,
+        x_CommitmentDiscountNormalizedRatio,
         x_CommitmentDiscountSpendEligibility,
         x_CommitmentDiscountUsageEligibility,
         x_ContractedUnitPriceDiscount,
@@ -157,7 +165,6 @@ Prices_transform_v1_0()
         x_EffectiveUnitPriceDiscountPercent = 1.0 * x_EffectiveUnitPriceDiscount / ContractedUnitPrice * 100,
         x_IngestionTime,
         x_PricingBlockSize,
-        x_PricingCurrency = coalesce(Currency, CurrencyCode),  // CurrencyCode last as a fallback only
         x_PricingSubcategory = case(
             x_SkuPriceType == 'Consumption' and (x_SkuIncludedQuantity > 0 or x_SkuTier > 0), 'Tiered',
             x_SkuPriceType == 'Consumption', 'Standard',
@@ -171,7 +178,6 @@ Prices_transform_v1_0()
         x_SkuIncludedQuantity,
         x_SkuMeterCategory,
         x_SkuMeterId,
-        x_SkuMeterName,
         x_SkuMeterSubcategory,
         x_SkuMeterType,
         x_SkuPriceType,
@@ -190,45 +196,47 @@ Prices_transform_v1_0()
         x_TotalUnitPriceDiscountPercent = 1.0 * x_TotalUnitPriceDiscount / ListUnitPrice * 100
 }
 
-// Prices_final_v1_0 table
-.create-merge table Prices_final_v1_0 (
+// Prices_final_v1_2 table
+.create-merge table Prices_final_v1_2 (
     BillingAccountId:                     string,
     BillingAccountName:                   string,
     BillingCurrency:                      string,
     ChargeCategory:                       string,
     CommitmentDiscountCategory:           string,
     CommitmentDiscountType:               string,
-    ContractedUnitPrice:                  decimal,
-    ListUnitPrice:                        decimal,
+    CommitmentDiscountUnit:               string,
+    ContractedUnitPrice:                  real,
+    ListUnitPrice:                        real,
     PricingCategory:                      string,
+    PricingCurrency:                      string,    // Azure
     PricingUnit:                          string,
     SkuId:                                string,
+    SkuMeter:                             string,    // Azure
     SkuPriceId:                           string,
     SkuPriceIdv2:                         string,    // Hubs add-on
-    x_BaseUnitPrice:                      decimal,   // Azure
+    x_BaseUnitPrice:                      real,      // Azure
     x_BillingAccountAgreement:            string,    // Hubs add-on
     x_BillingAccountId:                   string,    // Azure MCA
     x_BillingProfileId:                   string,    // Azure MCA
+    x_CommitmentDiscountNormalizedRatio:  real,      // Hubs add-on
     x_CommitmentDiscountSpendEligibility: string,    // Hubs add-on
     x_CommitmentDiscountUsageEligibility: string,    // Hubs add-on
-    x_ContractedUnitPriceDiscount:        decimal,   // Hubs add-on
-    x_ContractedUnitPriceDiscountPercent: decimal,   // Hubs add-on
+    x_ContractedUnitPriceDiscount:        real,      // Hubs add-on
+    x_ContractedUnitPriceDiscountPercent: real,      // Hubs add-on
     x_EffectivePeriodEnd:                 datetime,  // Azure
     x_EffectivePeriodStart:               datetime,  // Azure
-    x_EffectiveUnitPrice:                 decimal,   // Azure
-    x_EffectiveUnitPriceDiscount:         decimal,   // Hubs add-on
-    x_EffectiveUnitPriceDiscountPercent:  decimal,   // Hubs add-on
+    x_EffectiveUnitPrice:                 real,      // Azure
+    x_EffectiveUnitPriceDiscount:         real,      // Hubs add-on
+    x_EffectiveUnitPriceDiscountPercent:  real,      // Hubs add-on
     x_IngestionTime:                      datetime,  // Hubs add-on
-    x_PricingBlockSize:                   decimal,   // Hubs add-on
-    x_PricingCurrency:                    string,    // Azure
+    x_PricingBlockSize:                   real,      // Hubs add-on
     x_PricingSubcategory:                 string,    // Hubs add-on
     x_PricingUnitDescription:             string,    // Azure
     x_SkuDescription:                     string,    // Azure
     x_SkuId:                              string,    // Azure
-    x_SkuIncludedQuantity:                decimal,   // Azure EA
+    x_SkuIncludedQuantity:                real,      // Azure EA
     x_SkuMeterCategory:                   string,    // Azure
     x_SkuMeterId:                         string,    // Azure
-    x_SkuMeterName:                       string,    // Azure
     x_SkuMeterSubcategory:                string,    // Azure
     x_SkuMeterType:                       string,    // Azure
     x_SkuPriceType:                       string,    // Azure
@@ -238,22 +246,22 @@ Prices_transform_v1_0()
     x_SkuOfferId:                         string,    // Azure EA
     x_SkuPartNumber:                      string,    // Azure EA
     x_SkuTerm:                            int,       // Azure
-    x_SkuTier:                            decimal,   // Azure MCA
+    x_SkuTier:                            real,      // Azure MCA
     x_SourceName:                         string,    // Hubs add-on
     x_SourceProvider:                     string,    // Hubs add-on
     x_SourceType:                         string,    // Hubs add-on
     x_SourceVersion:                      string,    // Hubs add-on
-    x_TotalUnitPriceDiscount:             decimal,   // Hubs add-on
-    x_TotalUnitPriceDiscountPercent:      decimal    // Hubs add-on
+    x_TotalUnitPriceDiscount:             real,      // Hubs add-on
+    x_TotalUnitPriceDiscountPercent:      real       // Hubs add-on
 )
 
-// Update policy for Prices_raw -> Prices_final_v1_0
-.alter table Prices_final_v1_0 policy update
+// Update policy for Prices_raw -> Prices_final_v1_2
+.alter table Prices_final_v1_2 policy update
 ```
 [{
-    "IsEnabled": false,
+    "IsEnabled": true,
     "Source": "Prices_raw",
-    "Query": "Prices_transform_v1_0()",
+    "Query": "Prices_transform_v1_2()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -262,52 +270,29 @@ Prices_transform_v1_0()
 
 //===| Cost and usage |=================================================================================================
 // Supported versions:
-// - MS: 1.0, 1.0-preview(v1) -- See https://aka.ms/costmgmt/exports/focus
-// - AWS: 1.0                 -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
-// - GCP: Jan-Jun 2024        -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
-//                                   Links to (Aug 2024): https://services.google.com/fh/files/misc/focus_guide_v1.pdf
-//                               See also:
-//                               - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/standard-usage
-//                               - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/detailed-usage
-// - OCI: 1.0                 -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
+// - MS: 1.2-preview, 1.0, 1.0-preview(v1)
+//   https://aka.ms/costmgmt/exports/focus
+// - AWS: 1.0
+//   https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
+// - GCP: Jan-Jun 2024
+//   https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
+//   Links to (Aug 2024): https://services.google.com/fh/files/misc/focus_guide_v1.pdf
+//   See also:
+//   - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/standard-usage
+//   - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/detailed-usage
+// - OCI: 1.0                
+//   https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
 //
 // Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
 //======================================================================================================================
 
-// Costs_transform_v1_0 function
+// Costs_transform_v1_2 function
 .create-or-alter function
-with (docstring='DEPRECATED: All costs transformed to FOCUS 1.0. Use Costs_transform_v1_2() instead.', folder='Costs')
-Costs_transform_v1_0()
+with (docstring='All costs transformed to FOCUS 1.2.', folder='Costs')
+Costs_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     Costs_raw
-    //
-    // Change real to decimal
-    | extend
-        BilledCost                 = todecimal(BilledCost),
-        CommitmentDiscountQuantity = todecimal(CommitmentDiscountQuantity),
-        ConsumedQuantity           = todecimal(ConsumedQuantity),
-        ContractedCost             = todecimal(ContractedCost),
-        ContractedUnitPrice        = todecimal(ContractedUnitPrice),
-        EffectiveCost              = todecimal(EffectiveCost),
-        ListCost                   = todecimal(ListCost),
-        ListUnitPrice              = todecimal(ListUnitPrice),
-        PricingQuantity            = todecimal(PricingQuantity),
-        UsageAmount                = todecimal(UsageAmount),
-        UsageQuantity              = todecimal(UsageQuantity),
-        x_BilledCostInUsd          = todecimal(x_BilledCostInUsd),
-        x_BilledUnitPrice          = todecimal(x_BilledUnitPrice),
-        x_BillingExchangeRate      = todecimal(x_BillingExchangeRate),
-        x_ContractedCostInUsd      = todecimal(x_ContractedCostInUsd),
-        x_Cost                     = todecimal(x_Cost),
-        x_CurrencyConversionRate   = todecimal(x_CurrencyConversionRate),
-        x_EffectiveCostInUsd       = todecimal(x_EffectiveCostInUsd),
-        x_EffectiveUnitPrice       = todecimal(x_EffectiveUnitPrice),
-        x_ListCostInUsd            = todecimal(x_ListCostInUsd),
-        x_OnDemandCost             = todecimal(x_OnDemandCost),
-        x_OnDemandCostInUsd        = todecimal(x_OnDemandCostInUsd),
-        x_OnDemandUnitPrice        = todecimal(x_OnDemandUnitPrice),
-        x_PricingBlockSize         = todecimal(x_PricingBlockSize)
     //
     // Dedupe rows
     | extend x_IngestionTime = ingestion_time()
@@ -364,6 +349,9 @@ Costs_transform_v1_0()
         iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',         '')
     ))
     //
+    // Handle provider columns that moved to FOCUS
+    | extend PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency)
+    //
     // Fix columns needed in other changes
     | extend ProviderName = case(
         isnotempty(ProviderName), ProviderName,
@@ -390,7 +378,7 @@ Costs_transform_v1_0()
     )
     //
     // Fix quantities
-    | extend PricingQuantity  = case(
+    | extend PricingQuantity = case(
         PricingQuantity != 0 or (EffectiveCost == 0 and BilledCost == 0), PricingQuantity,
         PricingQuantity == 0 and isnotempty(BilledCost) and BilledCost != 0 and isnotempty(x_BilledUnitPrice) and x_BilledUnitPrice != 0, BilledCost / x_BilledUnitPrice,
         PricingQuantity == 0 and isnotempty(BilledCost) and BilledCost != 0 and isnotempty(x_BilledUnitPrice) and x_BilledUnitPrice != 0, BilledCost / x_BilledUnitPrice,
@@ -399,7 +387,7 @@ Costs_transform_v1_0()
     )
     | extend ConsumedQuantity = case(
         isnotempty(ConsumedQuantity) and ConsumedQuantity != 0, ConsumedQuantity,
-        ChargeCategory == 'Usage', PricingQuantity / coalesce(x_PricingBlockSize, decimal(1)),
+        ChargeCategory == 'Usage', PricingQuantity / coalesce(x_PricingBlockSize, real(1)),
         ConsumedQuantity
     )
     //
@@ -414,7 +402,7 @@ Costs_transform_v1_0()
     | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
     | as costsWithMissingPrices
     | join kind=leftouter (
-        Prices_final_v1_0
+        Prices_final_v1_2
         | extend tmp_ReservationPriceLookupKey = tolower(strcat(x_BillingProfileId, substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId))
         | where x_SkuPriceType == 'Consumption' and tmp_ReservationPriceLookupKey in ((costsWithMissingPrices | summarize by tmp_ReservationPriceLookupKey))
         | summarize ListUnitPrice = min(ListUnitPrice), ContractedUnitPrice = min(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
@@ -484,42 +472,70 @@ Costs_transform_v1_0()
     | union (allCosts | where not(tmp_MissingPrices))
     | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices, tmp_ReservationPriceLookupKey, tmp_ReservationPriceLookupKey1
     //
+    // Populate CapacityReservationId when not specified
+    | extend SkuPriceDetails = parse_json(SkuPriceDetails)
+    | extend x_SkuDetails = parse_json(x_SkuDetails)
+    | extend CapacityReservationId = tostring(coalesce(todynamic(CapacityReservationId), x_SkuDetails.VMCapacityReservationId, SkuPriceDetails.VMCapacityReservationId, SkuPriceDetails.x_VMCapacityReservationId))
+    //
+    // Populate x_CommitmentDiscountNormalizedRatio to support commitment discount calculations
+    | extend x_CommitmentDiscountNormalizedRatio = case(
+        // Calculate from CommitmentDiscountQuantity, if specified
+        isnotempty(CommitmentDiscountQuantity) and CommitmentDiscountQuantity != 0, CommitmentDiscountQuantity / PricingQuantity / coalesce(x_PricingBlockSize, real(1)),
+        // Not applicable
+        isempty(CommitmentDiscountStatus), real(null),
+        // Parse from SKU details if not specified explicitly
+        toreal(coalesce(x_SkuDetails.RINormalizationRatio, SkuPriceDetails.RINormalizationRatio, SkuPriceDetails.x_RINormalizationRatio, dynamic(1)))
+    )
+    | extend CommitmentDiscountQuantity = case(
+        // FOCUS 1.2
+        isnotempty(CommitmentDiscountQuantity), CommitmentDiscountQuantity,
+        // FOCUS 1.0-preview, 1.0
+        isempty(CommitmentDiscountStatus), real(null),
+        CommitmentDiscountCategory == 'Spend', EffectiveCost / coalesce(x_BillingExchangeRate, real(1)),
+        CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, real(1)) * x_CommitmentDiscountNormalizedRatio,
+        real(null)
+    )
+    //
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
     // Handle FOCUS 1.0-preview UsageQuantity/Unit
-    | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal(''))
+    | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), real(null))
     | extend ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), '')
     //
     // Convert IDs to lowercase for consistency
     | extend CommitmentDiscountId = tolower(CommitmentDiscountId)
     //
     // BUG: Remove EffectiveCost for commitment discount purchases
-    | extend EffectiveCost = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), decimal(0), EffectiveCost)
-    | extend x_EffectiveCostInUsd = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), decimal(0), x_EffectiveCostInUsd)
+    | extend EffectiveCost = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), real(0), EffectiveCost)
+    | extend x_EffectiveCostInUsd = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), real(0), x_EffectiveCostInUsd)
     //
     // Clean up resource columns
     | extend ResourceId = case(
         isnotempty(ResourceId), ResourceId,
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), CommitmentDiscountId,
-        ResourceId)
+        ResourceId
+    )
     | extend ResourceName = tolower(case(
         isnotempty(ResourceName), ResourceName,
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountName), CommitmentDiscountName,
         isnotempty(ResourceId), parse_resourceid(ResourceId).ResourceName,
-        ResourceName))
+        ResourceName
+    ))
     | extend x_ResourceType = case(
         isnotempty(x_ResourceType), x_ResourceType,
         isnotempty(ResourceId), parse_resourceid(ResourceId).x_ResourceType,
-        x_ResourceType)
+        x_ResourceType
+    )
     | extend ResourceType = case(
         // Use existing resource type display name unless it's an internal resource type ID
         isnotempty(ResourceType) and tolower(ResourceType) != tolower(x_ResourceType) and ResourceType !contains '/', ResourceType,
         // Use CommitmentDiscountType for commitment discount purchases
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
         // Look up display name from internal type
-        isnotempty(x_ResourceType), coalesce(resource_type(x_ResourceType).SingularDisplayName, ResourceType, x_ResourceType),
-        ResourceType)
+        isnotempty(x_ResourceType), coalesce(tostring(resource_type(x_ResourceType).SingularDisplayName), ResourceType, x_ResourceType),
+        ResourceType
+    )
     //
     // Sort columns and apply final transforms
     | project
@@ -531,6 +547,13 @@ Costs_transform_v1_0()
         BillingCurrency,
         BillingPeriodEnd = startofmonth(BillingPeriodEnd),
         BillingPeriodStart = startofmonth(BillingPeriodStart),
+        CapacityReservationId,
+        CapacityReservationStatus = case(
+            isnotempty(CapacityReservationStatus), CapacityReservationStatus,
+            isempty(CapacityReservationId), '',
+            tolower(x_ResourceType) == 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
+            'Used'
+        ),
         ChargeCategory = case(
             // Handle FOCUS 1.0-preview ChargeSubcategory
             ChargeSubcategory == 'Credit', 'Credit',
@@ -546,6 +569,7 @@ Costs_transform_v1_0()
         CommitmentDiscountCategory,
         CommitmentDiscountId = tolower(CommitmentDiscountId),
         CommitmentDiscountName,
+        CommitmentDiscountQuantity,
         CommitmentDiscountStatus = case(
             // Handle FOCUS 1.0-preview ChargeSubcategory
             ChargeSubcategory == 'Used Commitment', 'Used',
@@ -553,11 +577,22 @@ Costs_transform_v1_0()
             CommitmentDiscountStatus
         ),
         CommitmentDiscountType,
+        CommitmentDiscountUnit = case(
+            // FOCUS 1.2
+            isnotempty(CommitmentDiscountUnit), CommitmentDiscountUnit,
+            // FOCUS 1.0
+            isempty(CommitmentDiscountQuantity), '',
+            CommitmentDiscountCategory == 'Spend', PricingCurrency,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == real(1), ConsumedUnit,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > real(1), strcat('Normalized ', ConsumedUnit),
+            ''
+        ),
         ConsumedQuantity,
         ConsumedUnit,
         ContractedCost = coalesce(ContractedCost, x_OnDemandCost, x_Cost),
         ContractedUnitPrice = coalesce(ContractedUnitPrice, x_OnDemandUnitPrice),
         EffectiveCost,
+        InvoiceId = coalesce(InvoiceId, x_InvoiceId),
         InvoiceIssuerName,
         ListCost,
         ListUnitPrice,
@@ -567,6 +602,7 @@ Costs_transform_v1_0()
             PricingCategory == 'Commitment-Based', 'Committed',
             PricingCategory
         ),
+        PricingCurrency,
         PricingQuantity,
         PricingUnit,
         ProviderName,
@@ -580,127 +616,157 @@ Costs_transform_v1_0()
         ResourceType,
         ServiceCategory,
         ServiceName,
+        ServiceSubcategory,  // TODO: Populate ServiceSubcategory from ServiceName when missing
         SkuId,
+        SkuMeter,
+        SkuPriceDetails = case(
+            // FOCUS 1.2
+            isnotempty(SkuPriceDetails), SkuPriceDetails,
+            // FOCUS 1.0-preview, 1.0
+            parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_'))
+        ),
         SkuPriceId,
         SubAccountId,
-        SubAccountName,
-        SubAccountType,              // Azure 1.0-preview(v1)+
+        SubAccountName = iff(isempty(SubAccountId), '', SubAccountName),
+        SubAccountType,
         Tags = parse_json(Tags),
-        x_AccountId,                 // Azure 1.0-preview(v1)+
-        x_AccountName,               // Azure 1.0-preview(v1)+
-        x_AccountOwnerId,            // Azure 1.0-preview(v1)+
-        x_BilledCostInUsd,           // Azure 1.0-preview(v1)+
-        x_BilledUnitPrice,           // Azure 1.0-preview(v1)+
+        x_AccountId      = iff(x_AccountId == '-2', '', x_AccountId),
+        x_AccountName    = iff(x_AccountId == '-2', '', x_AccountName),
+        x_AccountOwnerId = iff(x_AccountId == '-2', '', x_AccountOwnerId),
+        x_AmortizationClass = case(
+            ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+            ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
+            ''
+        ),
+        x_BilledCostInUsd,
+        x_BilledUnitPrice,
         x_BillingAccountAgreement = case(
             ProviderName == 'Microsoft' and x_BillingAccountId == x_BillingProfileId, 'EA',
             ProviderName == 'Microsoft' and x_BillingAccountId != x_BillingProfileId, 'MCA',
             ProviderName
-        ),                           // Hubs add-on
-        x_BillingAccountId,          // Azure 1.0-preview(v1)+
-        x_BillingAccountName,        // Azure 1.0-preview(v1)+
-        x_BillingExchangeRate,       // Azure 1.0-preview(v1)+
-        x_BillingExchangeRateDate,   // Azure 1.0-preview(v1)+
-        x_BillingProfileId,          // Azure 1.0-preview(v1)+
-        x_BillingProfileName,        // Azure 1.0-preview(v1)+
-        x_ChargeId,                  // Azure 1.0-preview(v1) only
-        x_ContractedCostInUsd = coalesce(x_ContractedCostInUsd, x_OnDemandCostInUsd), // Azure 1.0+
-        x_CostAllocationRuleName,    // Azure 1.0-preview(v1)+
-        x_CostCategories = parse_json(x_CostCategories),  // AWS 1.0 (JSON)
-        x_CostCenter,                // Azure 1.0-preview(v1)+
-        x_Credits = parse_json(x_Credits),  // GCP Jan 2024
-        x_CostType,                  // GCP Jan 2024
-        x_CurrencyConversionRate,    // GCP Jun 2024
-        x_CustomerId,                // Azure 1.0-preview(v1)+
-        x_CustomerName,              // Azure 1.0-preview(v1)+
-        x_Discount = parse_json(x_Discount),  // AWS 1.0 (JSON)
-        x_EffectiveCostInUsd,        // Azure 1.0-preview(v1)+
-        x_EffectiveUnitPrice,        // Azure 1.0-preview(v1)+
-        x_ExportTime,                // GCP Jan 2024
-        x_IngestionTime,             // Hubs add-on
-        x_InvoiceId = coalesce(InvoiceId, x_InvoiceId),  // Azure 1.0-preview(v1)+
-        x_InvoiceIssuerId,           // Azure 1.0-preview(v1)+
-        x_InvoiceSectionId = case(   // Azure 1.0-preview(v1)+
+        ),
+        x_BillingAccountId,
+        x_BillingAccountName,
+        x_BillingExchangeRate,
+        x_BillingExchangeRateDate,
+        x_BillingItemCode,
+        x_BillingItemName,
+        x_BillingProfileId,
+        x_BillingProfileName,
+        x_ChargeId,
+        x_CommitmentDiscountNormalizedRatio,
+        x_CommitmentDiscountSpendEligibility = '',  // TODO: Add x_CommitmentDiscountSpendEligibility for Costs
+        x_CommitmentDiscountUsageEligibility = '',  // TODO: Add x_CommitmentDiscountUsageEligibility for Costs
+        x_CommodityCode,
+        x_CommodityName,
+        x_ComponentName,
+        x_ComponentType,
+        x_ContractedCostInUsd = coalesce(x_ContractedCostInUsd, x_OnDemandCostInUsd),
+        x_CostAllocationRuleName,
+        x_CostCategories = parse_json(x_CostCategories),
+        x_CostCenter,
+        x_CostType,
+        x_Credits = parse_json(x_Credits),
+        x_CurrencyConversionRate,
+        x_CustomerId,
+        x_CustomerName,
+        x_Discount = parse_json(x_Discount),
+        x_EffectiveCostInUsd,
+        x_EffectiveUnitPrice,
+        x_ExportTime,
+        x_IngestionTime,
+        x_InstanceID,
+        x_InvoiceIssuerId,
+        x_InvoiceSectionId = case(
             x_InvoiceSectionId == '-2', '',
             x_InvoiceSectionId
         ),
-        x_InvoiceSectionName = case(   // Azure 1.0-preview(v1)+
+        x_InvoiceSectionName = case(
             x_InvoiceSectionName == 'Unassigned', '',
             x_InvoiceSectionName
         ),
-        x_ListCostInUsd,             // Azure 1.0-preview(v1)+
-        x_Location,                  // GCP Jan 2024
-        x_Operation,                 // AWS 1.0
-        x_PartnerCreditApplied,      // Azure 1.0-preview(v1)+
-        x_PartnerCreditRate,         // Azure 1.0-preview(v1)+
-        x_PricingBlockSize,          // Azure 1.0-preview(v1)+
-        x_PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency),  // Azure 1.0-preview(v1)+
-        x_PricingSubcategory,        // Azure 1.0-preview(v1)+
-        x_PricingUnitDescription,    // Azure 1.0-preview(v1)+
-        x_Project,                   // GCP Jan 2024
-        x_PublisherCategory,         // Azure 1.0-preview(v1)+
-        x_PublisherId,               // Azure 1.0-preview(v1)+
-        x_ResellerId,                // Azure 1.0-preview(v1)+
-        x_ResellerName,              // Azure 1.0-preview(v1)+
-        x_ResourceGroupName = tolower(x_ResourceGroupName),  // Azure 1.0-preview(v1)+
-        x_ResourceType,              // Azure 1.0-preview(v1)+
-        x_ServiceCode,               // AWS 1.0
-        x_ServiceId,                 // GCP Jan 2024
-        x_ServicePeriodEnd,          // Azure 1.0-preview(v1)+
-        x_ServicePeriodStart,        // Azure 1.0-preview(v1)+
-        x_SkuDescription,            // Azure 1.0-preview(v1)+
-        x_SkuDetails = parse_json(x_SkuDetails),  // Azure 1.0-preview(v1)+
-        x_SkuIsCreditEligible,       // Azure 1.0-preview(v1)+
-        x_SkuMeterCategory,          // Azure 1.0-preview(v1)+
-        x_SkuMeterId,                // Azure 1.0-preview(v1)+
-        x_SkuMeterName = coalesce(SkuMeter, x_SkuMeterName),  // Azure 1.0-preview(v1)+
-        x_SkuMeterSubcategory,       // Azure 1.0-preview(v1)+
-        x_SkuOfferId,                // Azure 1.0-preview(v1)+
-        x_SkuOrderId,                // Azure 1.0-preview(v1)+
-        x_SkuOrderName,              // Azure 1.0-preview(v1)+
-        x_SkuPartNumber,             // Azure 1.0-preview(v1)+
-        x_SkuRegion,                 // Azure 1.0-preview(v1)+
-        x_SkuServiceFamily,          // Azure 1.0-preview(v1)+
-        x_SkuTerm,                   // Azure 1.0-preview(v1)+
-        x_SkuTier,                   // Azure 1.0-preview(v1)+
-        x_SourceChanges,             // Hubs add-on
-        x_SourceName,                // Hubs add-on
-        x_SourceProvider,            // Hubs add-on
-        x_SourceType,                // Hubs add-on
-        x_SourceVersion,             // Hubs add-on
-        x_UsageType                  // AWS 1.0
+        x_ListCostInUsd,
+        x_Location,
+        x_Operation,
+        x_OwnerAccountID,
+        x_PartnerCreditApplied,
+        x_PartnerCreditRate,
+        x_PricingBlockSize,
+        x_PricingSubcategory,
+        x_PricingUnitDescription = iff(x_PricingUnitDescription == 'Unassigned', '', x_PricingUnitDescription),
+        x_Project,
+        x_PublisherCategory,
+        x_PublisherId,
+        x_ResellerId,
+        x_ResellerName,
+        x_ResourceGroupName = tolower(x_ResourceGroupName),
+        x_ResourceType,
+        x_ServiceCode,
+        x_ServiceId,
+        x_ServiceModel,  // TODO: Populate from ServiceName when missing
+        x_ServicePeriodEnd,
+        x_ServicePeriodStart,
+        x_SkuDescription,
+        x_SkuDetails,
+        x_SkuIsCreditEligible,
+        x_SkuMeterCategory,
+        x_SkuMeterId,
+        x_SkuMeterSubcategory,
+        x_SkuOfferId,
+        x_SkuOrderId,
+        x_SkuOrderName,
+        x_SkuPartNumber,
+        x_SkuPlanName,
+        x_SkuRegion,
+        x_SkuServiceFamily,
+        x_SkuTerm,
+        x_SkuTier,
+        x_SourceChanges,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_SubproductName,
+        x_UsageType
 }
 
-// Costs_final_v1_0 table
-.create-merge table Costs_final_v1_0 (
+// Costs_final_v1_2 table
+.create-merge table Costs_final_v1_2 (
     AvailabilityZone:           string,
-    BilledCost:                 decimal,
+    BilledCost:                 real,
     BillingAccountId:           string,
     BillingAccountName:         string,
-    BillingAccountType:         string,    // Azure 1.0-preview(v1)+
+    BillingAccountType:         string,
     BillingCurrency:            string,
     BillingPeriodEnd:           datetime,
     BillingPeriodStart:         datetime,
+    CapacityReservationId:      string,
+    CapacityReservationStatus:  string,
     ChargeCategory:             string,
     ChargeClass:                string,
     ChargeDescription:          string,
     ChargeFrequency:            string,
     ChargePeriodEnd:            datetime,
     ChargePeriodStart:          datetime,
-    CommitmentDiscountCategory: string,    // FOCUS 1.0-preview only
+    CommitmentDiscountCategory: string,
     CommitmentDiscountId:       string,
     CommitmentDiscountName:     string,
+    CommitmentDiscountQuantity: real,
     CommitmentDiscountStatus:   string,
     CommitmentDiscountType:     string,
-    ConsumedQuantity:           decimal,
+    CommitmentDiscountUnit:     string,
+    ConsumedQuantity:           real,
     ConsumedUnit:               string,
-    ContractedCost:             decimal,
-    ContractedUnitPrice:        decimal,
-    EffectiveCost:              decimal,
+    ContractedCost:             real,
+    ContractedUnitPrice:        real,
+    EffectiveCost:              real,
+    InvoiceId:                  string,
     InvoiceIssuerName:          string,
-    ListCost:                   decimal,
-    ListUnitPrice:              decimal,
+    ListCost:                   real,
+    ListUnitPrice:              real,
     PricingCategory:            string,
-    PricingQuantity:            decimal,
+    PricingCurrency:            string,
+    PricingQuantity:            real,
     PricingUnit:                string,
     ProviderName:               string,
     PublisherName:              string,
@@ -711,7 +777,10 @@ Costs_transform_v1_0()
     ResourceType:               string,
     ServiceCategory:            string,
     ServiceName:                string,
+    ServiceSubcategory:         string,
     SkuId:                      string,
+    SkuMeter:                   string,
+    SkuPriceDetails:            dynamic,
     SkuPriceId:                 string,
     SubAccountId:               string,
     SubAccountName:             string,
@@ -720,41 +789,51 @@ Costs_transform_v1_0()
     x_AccountId:                string,    // Azure 1.0-preview(v1)+
     x_AccountName:              string,    // Azure 1.0-preview(v1)+
     x_AccountOwnerId:           string,    // Azure 1.0-preview(v1)+
-    x_BilledCostInUsd:          decimal,   // Azure 1.0-preview(v1)+
-    x_BilledUnitPrice:          decimal,   // Azure 1.0-preview(v1)+
+    x_AmortizationClass:        string,    // Azure 1.2-preview+
+    x_BilledCostInUsd:          real,      // Azure 1.0-preview(v1)+
+    x_BilledUnitPrice:          real,      // Azure 1.0-preview(v1)+
     x_BillingAccountAgreement:  string,    // Hubs add-on
     x_BillingAccountId:         string,    // Azure 1.0-preview(v1)+
     x_BillingAccountName:       string,    // Azure 1.0-preview(v1)+
-    x_BillingExchangeRate:      decimal,   // Azure 1.0-preview(v1)+
+    x_BillingExchangeRate:      real,      // Azure 1.0-preview(v1)+
     x_BillingExchangeRateDate:  datetime,  // Azure 1.0-preview(v1)+
+    x_BillingItemCode:          string,    // Alibaba 1.0
+    x_BillingItemName:          string,    // Alibaba 1.0
     x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
-    x_ContractedCostInUsd:      decimal,   // Azure 1.0+
+    x_CommitmentDiscountNormalizedRatio:  real,    // Azure 1.2-preview+
+    x_CommitmentDiscountSpendEligibility: string,  // Hubs add-on
+    x_CommitmentDiscountUsageEligibility: string,  // Hubs add-on
+    x_CommodityCode:            string,    // Alibaba 1.0
+    x_CommodityName:            string,    // Alibaba 1.0
+    x_ComponentName:            string,    // Tencent 1.0
+    x_ComponentType:            string,    // Tencent 1.0
+    x_ContractedCostInUsd:      real,      // Azure 1.0+
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           dynamic,   // AWS 1.0 (JSON)
     x_CostCenter:               string,    // Azure 1.0-preview(v1)+
-    x_Credits:                  dynamic,   // GCP Jan 2024
     x_CostType:                 string,    // GCP Jan 2024
-    x_CurrencyConversionRate:   decimal,   // GCP Jun 2024
+    x_Credits:                  dynamic,   // GCP Jan 2024
+    x_CurrencyConversionRate:   real,      // GCP Jun 2024
     x_CustomerId:               string,    // Azure 1.0-preview(v1)+
     x_CustomerName:             string,    // Azure 1.0-preview(v1)+
     x_Discount:                 dynamic,   // AWS 1.0 (JSON)
-    x_EffectiveCostInUsd:       decimal,   // Azure 1.0-preview(v1)+
-    x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
-    x_ExportTime:               datetime,  // GCP Jan 2024
+    x_EffectiveCostInUsd:       real,      // Azure 1.0-preview(v1)+
+    x_EffectiveUnitPrice:       real,      // Azure 1.0-preview(v1)+
+    x_ExportTime:               datetime,  // GCP Jan 2024 / Tencent 1.0
     x_IngestionTime:            datetime,  // Hubs add-on
-    x_InvoiceId:                string,    // Azure 1.0-preview(v1)+
+    x_InstanceID:               string,    // Alibaba 1.0
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
-    x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
+    x_ListCostInUsd:            real,      // Azure 1.0-preview(v1)+
     x_Location:                 string,    // GCP Jan 2024
     x_Operation:                string,    // AWS 1.0
+    x_OwnerAccountID:           string,    // Tencent 1.0
     x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
     x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
-    x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
-    x_PricingCurrency:          string,    // Azure 1.0-preview(v1)+
+    x_PricingBlockSize:         real,      // Azure 1.0-preview(v1)+
     x_PricingSubcategory:       string,    // Azure 1.0-preview(v1)+
     x_PricingUnitDescription:   string,    // Azure 1.0-preview(v1)+
     x_Project:                  string,    // GCP Jan 2024
@@ -766,6 +845,7 @@ Costs_transform_v1_0()
     x_ResourceType:             string,    // Azure 1.0-preview(v1)+
     x_ServiceCode:              string,    // AWS 1.0
     x_ServiceId:                string,    // GCP Jan 2024
+    x_ServiceModel:             string,    // Azure 1.2-preview+
     x_ServicePeriodEnd:         datetime,  // Azure 1.0-preview(v1)+
     x_ServicePeriodStart:       datetime,  // Azure 1.0-preview(v1)+
     x_SkuDescription:           string,    // Azure 1.0-preview(v1)+
@@ -773,12 +853,12 @@ Costs_transform_v1_0()
     x_SkuIsCreditEligible:      bool,      // Azure 1.0-preview(v1)+
     x_SkuMeterCategory:         string,    // Azure 1.0-preview(v1)+
     x_SkuMeterId:               string,    // Azure 1.0-preview(v1)+
-    x_SkuMeterName:             string,    // Azure 1.0-preview(v1)+
     x_SkuMeterSubcategory:      string,    // Azure 1.0-preview(v1)+
     x_SkuOfferId:               string,    // Azure 1.0-preview(v1)+
     x_SkuOrderId:               string,    // Azure 1.0-preview(v1)+
     x_SkuOrderName:             string,    // Azure 1.0-preview(v1)+
     x_SkuPartNumber:            string,    // Azure 1.0-preview(v1)+
+    x_SkuPlanName:              string,    // Azure 1.2-preview+
     x_SkuRegion:                string,    // Azure 1.0-preview(v1)+
     x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
     x_SkuTerm:                  int,       // Azure 1.0-preview(v1)+
@@ -788,16 +868,17 @@ Costs_transform_v1_0()
     x_SourceProvider:           string,    // Hubs add-on
     x_SourceType:               string,    // Hubs add-on
     x_SourceVersion:            string,    // Hubs add-on
+    x_SubproductName:           string,    // Tencent 1.0
     x_UsageType:                string     // AWS 1.0
 )
 
-// Update policy for Costs_raw -> Costs_final_v1_0 table
-.alter table Costs_final_v1_0 policy update
+// Update policy for Costs_raw -> Costs_final_v1_2 table
+.alter table Costs_final_v1_2 policy update
 ```
 [{
-    "IsEnabled": false,
+    "IsEnabled": true,
     "Source": "Costs_raw",
-    "Query": "Costs_transform_v1_0()",
+    "Query": "Costs_transform_v1_2()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -809,13 +890,12 @@ Costs_transform_v1_0()
 // - C360-2025-04
 //======================================================================================================================
 
-// ActualCosts_transform_v1_0 function
+// ActualCosts_transform_v1_2 function
 .create-or-alter function
-with (docstring='DEPRECATED: ActualCost exports transformed to FOCUS 1.0. Use ActualCosts_transform_v1_2() instead.', folder='Costs')
-ActualCosts_transform_v1_0()
+with (docstring='ActualCost exports transformed to FOCUS 1.2.', folder='Costs')
+ActualCosts_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
-    // TODO: Transform actual costs to FOCUS 1.0 format
     ActualCosts_raw
     | where ChargeType in ('Purchase', 'Refund') and isnotempty(ReservationId)
     //
@@ -842,9 +922,9 @@ ActualCosts_transform_v1_0()
     | join kind=leftouter (PricingUnits) on x_PricingUnitDescription
     | join kind=leftouter (Regions) on ResourceLocation
     | join kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
-    // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
-    | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceName, ServiceCategory) on x_ResourceType
-    | join kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    // TODO: Add the following in 1.2: PublisherName, x_PublisherCategory, x_Environment
+    | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceName, ServiceCategory, ServiceSubcategory, x_ServiceModel) on x_ResourceType
+    | join kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(ServiceSubcategory), take_any(x_ServiceModel) by ConsumedService = x_ConsumedService) on ConsumedService
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
@@ -870,8 +950,8 @@ ActualCosts_transform_v1_0()
             Frequency == 'OneTime', 'One-Time',
             Frequency  // "Recurring" and any fallback
         ),
-        ChargePeriodStart = Date,
         ChargePeriodEnd = Date + 1d,
+        ChargePeriodStart = Date,
         ChargeSubcategory = '',
         // TODO: CommitmentDiscount* columns need to handle savings plans
         CommitmentDiscountCategory,
@@ -896,7 +976,7 @@ ActualCosts_transform_v1_0()
         ListCost = real(null),
         ListUnitPrice = real(null),
         PricingCategory,
-        PricingCurrency = '',
+        PricingCurrency = iff(BillingAccountId == BillingProfileId, BillingCurrency, ''),
         PricingQuantity,
         PricingUnit,
         ProviderName = 'Microsoft',
@@ -909,13 +989,13 @@ ActualCosts_transform_v1_0()
         ResourceType,
         ServiceCategory,
         ServiceName,
-        ServiceSubcategory = '',
+        ServiceSubcategory,
         SkuId = '',
-        SkuMeter = '',
+        SkuMeter = MeterName,
         SkuPriceDetails = '',
         SkuPriceId = '',
         SubAccountId = strcat('/subscriptions/', SubscriptionId),
-        SubAccountName = SubscriptionName,
+        SubAccountName = iff(isempty(SubscriptionId), '', SubscriptionName),
         SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
         Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
         UsageAmount = real(null),
@@ -931,15 +1011,15 @@ ActualCosts_transform_v1_0()
         x_BillingAccountName = BillingAccountName,
         x_BillingExchangeRate = real(null),
         x_BillingExchangeRateDate = datetime(null),
-        x_BillingProfileId = BillingProfileId,
-        x_BillingProfileName = BillingProfileName,
         x_BillingItemCode = '',
         x_BillingItemName = '',
+        x_BillingProfileId = BillingProfileId,
+        x_BillingProfileName = BillingProfileName,
         x_ChargeId = '',
         x_CommodityCode = '',
         x_CommodityName = '',
-        x_ComponentName = '',
         x_ComponentType = '',
+        x_ComponentName = '',
         x_ContractedCostInUsd = real(null),
         x_Cost = real(null),
         x_CostAllocationRuleName = '',
@@ -969,7 +1049,7 @@ ActualCosts_transform_v1_0()
         x_PartnerCreditApplied = '',
         x_PartnerCreditRate = '',
         x_PricingBlockSize,
-        x_PricingCurrency = iff(BillingAccountId == BillingProfileId, BillingCurrency, ''),
+        x_PricingCurrency = '',
         x_PricingSubcategory = case(
             // TODO: Add x_SkuTier when supported by C360 -- PricingCategory == 'Standard' and isnotempty(x_SkuTier), 'Tiered',
             PricingCategory == 'Standard', 'Standard',
@@ -987,7 +1067,7 @@ ActualCosts_transform_v1_0()
         x_ResourceType,
         x_ServiceCode = '',
         x_ServiceId = '',
-        x_ServiceModel = '',
+        x_ServiceModel,
         x_ServicePeriodEnd = datetime(null),
         x_ServicePeriodStart = datetime(null),
         x_SkuDescription = Product,
@@ -1018,9 +1098,9 @@ ActualCosts_transform_v1_0()
 .alter table Costs_raw policy update
 ``` 
 [{
-    "IsEnabled": false,
+    "IsEnabled": true,
     "Source": "ActualCosts_raw",
-    "Query": "ActualCosts_transform_v1_0()",
+    "Query": "ActualCosts_transform_v1_2()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1032,13 +1112,12 @@ ActualCosts_transform_v1_0()
 // - C360-2025-04
 //======================================================================================================================
 
-// AmortizedCosts_transform_v1_0 function
+// AmortizedCosts_transform_v1_2 function
 .create-or-alter function
-with (docstring='DEPRECATED: ActualCost exports transformed to FOCUS 1.0. Use AmortizedCosts_transform_v1_2() instead.', folder='Costs')
-AmortizedCosts_transform_v1_0()
+with (docstring='ActualCost exports transformed to FOCUS 1.2.', folder='Costs')
+AmortizedCosts_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
-    // TODO: Transform actual costs to FOCUS 1.0 format
     AmortizedCosts_raw
     //
     //
@@ -1064,9 +1143,9 @@ AmortizedCosts_transform_v1_0()
     | join kind=leftouter (PricingUnits) on x_PricingUnitDescription
     | join kind=leftouter (Regions) on ResourceLocation
     | join kind=leftouter (ResourceTypes | project x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
-    // TODO: Add the following in 1.2: ServiceSubcategory, PublisherName, x_PublisherCategory, x_Environment, x_ServiceModel
-    | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceName, ServiceCategory) on x_ResourceType
-    | join kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory) by ConsumedService = x_ConsumedService) on ConsumedService
+    // TODO: Add the following in 1.2: PublisherName, x_PublisherCategory, x_Environment
+    | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceName, ServiceCategory, ServiceSubcategory, x_ServiceModel) on x_ResourceType
+    | join kind=leftouter (Services | where isnotempty(x_ConsumedService) | summarize take_any(ServiceName), take_any(ServiceCategory), take_any(ServiceSubcategory), take_any(x_ServiceModel) by ConsumedService = x_ConsumedService) on ConsumedService
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
@@ -1092,8 +1171,8 @@ AmortizedCosts_transform_v1_0()
             Frequency == 'OneTime', 'One-Time',
             Frequency  // "Recurring" and any fallback
         ),
-        ChargePeriodStart = Date,
         ChargePeriodEnd = Date + 1d,
+        ChargePeriodStart = Date,
         ChargeSubcategory = '',
         // TODO: CommitmentDiscount* columns need to handle savings plans
         CommitmentDiscountCategory,
@@ -1118,7 +1197,7 @@ AmortizedCosts_transform_v1_0()
         ListCost = real(null),
         ListUnitPrice = real(null),
         PricingCategory,
-        PricingCurrency = '',
+        PricingCurrency = iff(BillingAccountId == BillingProfileId, BillingCurrency, ''),
         PricingQuantity,
         PricingUnit,
         ProviderName = 'Microsoft',
@@ -1131,13 +1210,13 @@ AmortizedCosts_transform_v1_0()
         ResourceType,
         ServiceCategory,
         ServiceName,
-        ServiceSubcategory = '',
+        ServiceSubcategory,
         SkuId = '',
-        SkuMeter = '',
+        SkuMeter = MeterName,
         SkuPriceDetails = '',
         SkuPriceId = '',
         SubAccountId = strcat('/subscriptions/', SubscriptionId),
-        SubAccountName = SubscriptionName,
+        SubAccountName = iff(isempty(SubscriptionId), '', SubscriptionName),
         SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
         Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
         UsageAmount = real(null),
@@ -1153,15 +1232,15 @@ AmortizedCosts_transform_v1_0()
         x_BillingAccountName = BillingAccountName,
         x_BillingExchangeRate = real(null),
         x_BillingExchangeRateDate = datetime(null),
-        x_BillingProfileId = BillingProfileId,
-        x_BillingProfileName = BillingProfileName,
         x_BillingItemCode = '',
         x_BillingItemName = '',
+        x_BillingProfileId = BillingProfileId,
+        x_BillingProfileName = BillingProfileName,
         x_ChargeId = '',
         x_CommodityCode = '',
         x_CommodityName = '',
-        x_ComponentName = '',
         x_ComponentType = '',
+        x_ComponentName = '',
         x_ContractedCostInUsd = real(null),
         x_Cost = real(null),
         x_CostAllocationRuleName = '',
@@ -1191,7 +1270,7 @@ AmortizedCosts_transform_v1_0()
         x_PartnerCreditApplied = '',
         x_PartnerCreditRate = '',
         x_PricingBlockSize,
-        x_PricingCurrency = iff(BillingAccountId == BillingProfileId, BillingCurrency, ''),
+        x_PricingCurrency = '',
         x_PricingSubcategory = case(
             // TODO: Add x_SkuTier when supported by C360 -- PricingCategory == 'Standard' and isnotempty(x_SkuTier), 'Tiered',
             PricingCategory == 'Standard', 'Standard',
@@ -1209,7 +1288,7 @@ AmortizedCosts_transform_v1_0()
         x_ResourceType,
         x_ServiceCode = '',
         x_ServiceId = '',
-        x_ServiceModel = '',
+        x_ServiceModel,
         x_ServicePeriodEnd = datetime(null),
         x_ServicePeriodStart = datetime(null),
         x_SkuDescription = Product,
@@ -1240,9 +1319,9 @@ AmortizedCosts_transform_v1_0()
 .alter table Costs_raw policy update
 ``` 
 [{
-    "IsEnabled": false,
+    "IsEnabled": true,
     "Source": "AmortizedCosts_raw",
-    "Query": "AmortizedCosts_transform_v1_0()",
+    "Query": "AmortizedCosts_transform_v1_2()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1255,20 +1334,13 @@ AmortizedCosts_transform_v1_0()
 // - MS MCA reservation details: 2023-03-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-mca
 //======================================================================================================================
 
-// CommitmentDiscountUsage_transform_v1_0 function
+// CommitmentDiscountUsage_transform_v1_2 function
 .create-or-alter function
-with (docstring='DEPRECATED: All commitment discount usage transformed to FOCUS 1.0. This includes reservationdeatils_raw. Use CommitmentDiscountUsage_transform_v1_2() instead.', folder='Commitment discounts')
-CommitmentDiscountUsage_transform_v1_0()
+with (docstring='All commitment discount usage transformed to FOCUS 1.2. This includes reservationdeatils_raw.', folder='Commitment discounts')
+CommitmentDiscountUsage_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     CommitmentDiscountUsage_raw
-    //
-    // Change real to decimal
-    | extend
-        InstanceFlexibilityRatio = todecimal(InstanceFlexibilityRatio),
-        ReservedHours            = todecimal(ReservedHours),
-        TotalReservedQuantity    = todecimal(TotalReservedQuantity),
-        UsedHours                = todecimal(UsedHours)
     //
     // Set ProviderName
     | extend ProviderName = 'Microsoft'
@@ -1281,7 +1353,7 @@ CommitmentDiscountUsage_transform_v1_0()
     | extend x_ResourceGroupName = tostring(tmp_ResourceDetails.x_ResourceGroupName)
     | extend x_ResourceType      = tostring(tmp_ResourceDetails.x_ResourceType)
     | lookup kind=leftouter (ResourceTypes | distinct x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
-    | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, x_ServiceModel) on x_ResourceType
+    | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, ServiceSubcategory, x_ServiceModel) on x_ResourceType
     //
     // Sort columns and apply final transforms
     | project
@@ -1289,7 +1361,13 @@ CommitmentDiscountUsage_transform_v1_0()
         ChargePeriodStart                   = UsageDate,
         CommitmentDiscountCategory          = 'Usage',
         CommitmentDiscountId                = tolower(strcat('/providers/microsoft.capacity/reservationorders/', ReservationOrderId, '/reservations/', ReservationId)),
+        CommitmentDiscountQuantity          = UsedHours * InstanceFlexibilityRatio,
         CommitmentDiscountType              = 'Reservation',
+        CommitmentDiscountUnit              = case(
+            InstanceFlexibilityRatio == 1, 'Hours',
+            InstanceFlexibilityRatio != 1, 'Normalized Hours',
+            ''
+        ),
         ConsumedQuantity                    = UsedHours,
         ProviderName,
         ResourceId,
@@ -1297,13 +1375,13 @@ CommitmentDiscountUsage_transform_v1_0()
         ResourceType,
         ServiceCategory,
         ServiceName,
+        ServiceSubcategory,
         SubAccountId,
         x_CommitmentDiscountCommittedCount  = TotalReservedQuantity,
         x_CommitmentDiscountCommittedAmount = ReservedHours,
         // TODO: Is this needed? -- x_CommitmentDiscountKind            = Kind,
         x_CommitmentDiscountNormalizedGroup = iff(InstanceFlexibilityGroup == 'NA', '', InstanceFlexibilityGroup),
         x_CommitmentDiscountNormalizedRatio = InstanceFlexibilityRatio,
-        x_CommitmentDiscountQuantity        = UsedHours * InstanceFlexibilityRatio,
         x_IngestionTime                     = ingestion_time(),
         x_ResourceGroupName,
         x_ResourceType,
@@ -1322,26 +1400,28 @@ CommitmentDiscountUsage_transform_v1_0()
         x_SourceVersion                     = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2024-03-01', ''))
 }
 
-// CommitmentDiscountUsage_final_v1_0 table
-.create-merge table CommitmentDiscountUsage_final_v1_0 (
+// CommitmentDiscountUsage_final_v1_2 table
+.create-merge table CommitmentDiscountUsage_final_v1_2 (
     ChargePeriodEnd:                     datetime,  // Hubs add-on
     ChargePeriodStart:                   datetime,  // MS 2023-03-01
     CommitmentDiscountCategory:          string,    // Hubs add-on
     CommitmentDiscountId:                string,    // MS 2023-03-01
+    CommitmentDiscountQuantity:          real,      // MS 2023-03-01
     CommitmentDiscountType:              string,    // Hubs add-on
-    ConsumedQuantity:                    decimal,   // MS 2023-03-01
+    CommitmentDiscountUnit:              string,    // Hubs add-on
+    ConsumedQuantity:                    real,      // MS 2023-03-01
     ProviderName:                        string,    // Hubs add-on
     ResourceId:                          string,    // MS 2023-03-01
     ResourceName:                        string,    // Hubs add-on
     ResourceType:                        string,    // Hubs add-on
     ServiceCategory:                     string,    // Hubs add-on
     ServiceName:                         string,    // Hubs add-on
+    ServiceSubcategory:                  string,    // Hubs add-on
     SubAccountId:                        string,    // Hubs add-on
-    x_CommitmentDiscountCommittedCount:  decimal,   // MS 2023-03-01
-    x_CommitmentDiscountCommittedAmount: decimal,   // MS 2023-03-01
+    x_CommitmentDiscountCommittedCount:  real,      // MS 2023-03-01
+    x_CommitmentDiscountCommittedAmount: real,      // MS 2023-03-01
     x_CommitmentDiscountNormalizedGroup: string,    // MS 2023-03-01
-    x_CommitmentDiscountNormalizedRatio: decimal,   // MS 2023-03-01
-    x_CommitmentDiscountQuantity:        decimal,   // MS 2023-03-01
+    x_CommitmentDiscountNormalizedRatio: real,      // MS 2023-03-01
     x_IngestionTime:                     datetime,  // Hubs add-on
     x_ResourceGroupName:                 string,    // Hubs add-on
     x_ResourceType:                      string,    // Hubs add-on
@@ -1354,13 +1434,13 @@ CommitmentDiscountUsage_transform_v1_0()
     x_SourceVersion:                     string     // Hubs add-on
 )
 
-// Update policy for CommitmentDiscountUsage_raw -> CommitmentDiscountUsage_final_v1_0 table
-.alter table CommitmentDiscountUsage_final_v1_0 policy update
+// Update policy for CommitmentDiscountUsage_raw -> CommitmentDiscountUsage_final_v1_2 table
+.alter table CommitmentDiscountUsage_final_v1_2 policy update
 ```
 [{
-    "IsEnabled": false,
+    "IsEnabled": true,
     "Source": "CommitmentDiscountUsage_raw",
-    "Query": "CommitmentDiscountUsage_transform_v1_0()",
+    "Query": "CommitmentDiscountUsage_transform_v1_2()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1373,10 +1453,10 @@ CommitmentDiscountUsage_transform_v1_0()
 // - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
 //======================================================================================================================
 
-// Recommendations_transform_v1_0 function
+// Recommendations_transform_v1_2 function
 .create-or-alter function
-with (docstring='DEPRECATED: All recommendations transformed to FOCUS 1.0. Use Recommendations_transform_v1_2() instead.', folder='Recommendations')
-Recommendations_transform_v1_0()
+with (docstring='All recommendations transformed to FOCUS 1.2.', folder='Recommendations')
+Recommendations_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
@@ -1389,16 +1469,6 @@ Recommendations_transform_v1_0()
         ))
     };
     Recommendations_raw
-    //
-    // Change real to decimal
-    | extend
-        CostWithNoReservedInstances    = todecimal(CostWithNoReservedInstances),
-        InstanceFlexibilityRatio       = todecimal(InstanceFlexibilityRatio),
-        NetSavings                     = todecimal(NetSavings),
-        RecommendedQuantity            = todecimal(RecommendedQuantity),
-        RecommendedQuantityNormalized  = todecimal(RecommendedQuantityNormalized),
-        TotalCostWithReservedInstances = todecimal(TotalCostWithReservedInstances)
-    //
     | extend x_IngestionTime = ingestion_time()
     //
     // Set ProviderName
@@ -1410,79 +1480,99 @@ Recommendations_transform_v1_0()
     | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
     //
-    // Convert JSON cost columns to decimal
-    | extend CostWithNoReservedInstances    = case(isnotempty(CostWithNoReservedInstances),    CostWithNoReservedInstances,    isnotempty(CostWithNoReservedInstancesJson),    todecimal(extract(@'"value":([0-9\.]+)', 1, CostWithNoReservedInstancesJson)),    CostWithNoReservedInstances)
-    | extend NetSavings                     = case(isnotempty(NetSavings),                     NetSavings,                     isnotempty(NetSavingsJson),                     todecimal(extract(@'"value":([0-9\.]+)', 1, NetSavingsJson)),                     NetSavings)
-    | extend TotalCostWithReservedInstances = case(isnotempty(TotalCostWithReservedInstances), TotalCostWithReservedInstances, isnotempty(TotalCostWithReservedInstancesJson), todecimal(extract(@'"value":([0-9\.]+)', 1, TotalCostWithReservedInstancesJson)), TotalCostWithReservedInstances)
+    // Convert JSON cost columns to real
+    | extend CostWithNoReservedInstances    = case(isnotempty(CostWithNoReservedInstances),    CostWithNoReservedInstances,    isnotempty(CostWithNoReservedInstancesJson),    toreal(extract(@'"value":([0-9\.]+)', 1, CostWithNoReservedInstancesJson)),    CostWithNoReservedInstances)
+    | extend NetSavings                     = case(isnotempty(NetSavings),                     NetSavings,                     isnotempty(NetSavingsJson),                     toreal(extract(@'"value":([0-9\.]+)', 1, NetSavingsJson)),                     NetSavings)
+    | extend TotalCostWithReservedInstances = case(isnotempty(TotalCostWithReservedInstances), TotalCostWithReservedInstances, isnotempty(TotalCostWithReservedInstancesJson), toreal(extract(@'"value":([0-9\.]+)', 1, TotalCostWithReservedInstancesJson)), TotalCostWithReservedInstances)
     //
     // Build recommendation details
     | lookup kind=leftouter (Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
     | extend x_RecommendationDetails = case(
-      x_SourceType == 'ReservationRecommendations', bag_pack(
-        'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
-        'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
-        'CommitmentDiscountNormalizedSize', NormalizedSize,
-        'CommitmentDiscountResourceType', ResourceType,
-        'CommitmentDiscountScope', Scope,
-        'LookbackPeriodDuration', case(
-            LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
-            LookBackPeriod matches regex @'^[0-9]+$',           strcat('P', LookBackPeriod, 'D'),
-            ''
+        // Use incoming x_RecommendationDetails first
+        isnotempty(x_RecommendationDetails), x_RecommendationDetails,
+        // Create one for reservation recommendations if needed
+        x_SourceType == 'ReservationRecommendations', bag_pack(
+            'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
+            'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
+            'CommitmentDiscountNormalizedSize', NormalizedSize,
+            'CommitmentDiscountResourceType', ResourceType,
+            'CommitmentDiscountScope', Scope,
+            'LookbackPeriodDuration', case(
+                LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
+                LookBackPeriod matches regex @'^[0-9]+$',           strcat('P', LookBackPeriod, 'D'),
+                ''
+            ),
+            'LookbackPeriodStart', FirstUsageDate,
+            'RecommendedQuantity', RecommendedQuantity,
+            'RecommendedQuantityNormalized', RecommendedQuantityNormalized,
+            'RegionId', Location,
+            'RegionName', RegionName,
+            'SkuMeterId', MeterId,
+            'SkuPriceDetails', SkuProperties,
+            'SkuSize', coalesce(SKU, SkuName),
+            'SkuTerm', isoMonths(Term)
         ),
-        'LookbackPeriodStart', FirstUsageDate,
-        'RecommendedQuantity', RecommendedQuantity,
-        'RecommendedQuantityNormalized', RecommendedQuantityNormalized,
-        'RegionId', Location,
-        'RegionName', RegionName,
-        'SkuMeterId', MeterId,
-        'SkuPriceDetails', SkuProperties,
-        'SkuSize', coalesce(SKU, SkuName),
-        'SkuTerm', isoMonths(Term)
-      ),
-      dynamic({})
+        dynamic({})
     )
     //
-    // Sort columns and apply final transforms
-    | extend x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d)
+    // Prefer specified date, then fall back to generating a date based on reservation recommendation lookback period, then validate to ensure it's not in the future
+    | extend x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d))
     | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
+    //
     | project
-      ProviderName,
-      SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
-      x_IngestionTime,
-      x_EffectiveCostAfter = TotalCostWithReservedInstances,
-      x_EffectiveCostBefore = CostWithNoReservedInstances,
-      x_EffectiveCostSavings = NetSavings,
-      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d),
-      x_RecommendationDetails,
-      x_SourceName,
-      x_SourceProvider,
-      x_SourceType,
-      x_SourceVersion
+        ProviderName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        SubAccountId = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
+        SubAccountName,
+        x_EffectiveCostAfter = coalesce(x_EffectiveCostAfter, TotalCostWithReservedInstances),
+        x_EffectiveCostBefore = coalesce(x_EffectiveCostBefore, CostWithNoReservedInstances),
+        x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings),
+        x_IngestionTime,
+        x_RecommendationCategory,  // TODO: Set for reservation recommendations
+        x_RecommendationDate,
+        x_RecommendationDescription,
+        x_RecommendationDetails,
+        x_RecommendationId,        // TODO: Set for reservation recommendations
+        x_ResourceGroupName,
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion
 }
 
-// Recommendations_final_v1_0 table
-.create-merge table Recommendations_final_v1_0 (
-    ProviderName:            string,
-    SubAccountId:            string,
-    x_IngestionTime:         datetime,
-    x_EffectiveCostAfter:    decimal,
-    x_EffectiveCostBefore:   decimal,
-    x_EffectiveCostSavings:  decimal,
-    x_RecommendationDate:    datetime,
-    x_RecommendationDetails: dynamic,
-    x_SourceName:            string,
-    x_SourceProvider:        string,
-    x_SourceType:            string,
-    x_SourceVersion:         string
+// Recommendations_final_v1_2 table
+.create-merge table Recommendations_final_v1_2 (
+    ProviderName:                string,
+    ResourceId:                  string,
+    ResourceName:                string,
+    ResourceType:                string,
+    SubAccountId:                string,
+    SubAccountName:              string,
+    x_EffectiveCostAfter:        real,
+    x_EffectiveCostBefore:       real,
+    x_EffectiveCostSavings:      real,
+    x_IngestionTime:             datetime,
+    x_RecommendationCategory:    string,
+    x_RecommendationDate:        datetime,
+    x_RecommendationDescription: string,
+    x_RecommendationDetails:     dynamic,
+    x_RecommendationId:          string,
+    x_ResourceGroupName:         string,
+    x_SourceName:                string,
+    x_SourceProvider:            string,
+    x_SourceType:                string,
+    x_SourceVersion:             string
 )
 
-// Update policy for Recommendations_raw -> Recommendations_final_v1_0 table
-.alter table Recommendations_final_v1_0 policy update
+// Update policy for Recommendations_raw -> Recommendations_final_v1_2 table
+.alter table Recommendations_final_v1_2 policy update
 ```
 [{
-    "IsEnabled": false,
+    "IsEnabled": true,
     "Source": "Recommendations_raw",
-    "Query": "Recommendations_transform_v1_0()",
+    "Query": "Recommendations_transform_v1_2()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
@@ -1495,10 +1585,10 @@ Recommendations_transform_v1_0()
 // - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
-// Transactions_transform_v1_0 function
+// Transactions_transform_v1_2 function
 .create-or-alter function
-with (docstring='DEPRECATED: All transactions transformed to FOCUS 1.0. Use Transactions_transform_v1_2() instead.', folder='Transactions')
-Transactions_transform_v1_0()
+with (docstring='All transactions transformed to FOCUS 1.2.', folder='Transactions')
+Transactions_transform_v1_2()
 {
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
@@ -1511,13 +1601,6 @@ Transactions_transform_v1_0()
         ))
     };
     Transactions_raw
-    //
-    // Change real to decimal
-    | extend
-        Amount             = todecimal(Amount),
-        MonetaryCommitment = todecimal(MonetaryCommitment),
-        Overage            = todecimal(Overage),
-        Quantity           = todecimal(Quantity)
     //
     // Set ProviderName
     | extend ProviderName = 'Microsoft'
@@ -1535,66 +1618,66 @@ Transactions_transform_v1_0()
     //
     // Sort columns and apply final transforms
     | project
-      BilledCost = Amount,
-      BillingAccountId = case(
-        BillingProfileId startswith '/', BillingProfileId,
-        isnotempty(CurrentEnrollmentId), strcat('/providers/Microsoft.Billing/billingAccounts/', CurrentEnrollmentId),
-        isnotempty(BillingProfileId), strcat('/providers/Microsoft.Billing/billingProfiles/', BillingProfileId),
-        ''
-      ),
-      BillingAccountName = coalesce(BillingProfileName, CurrentEnrollmentId),
-      BillingCurrency = Currency,
-      BillingPeriodEnd,
-      BillingPeriodStart,
-      ChargeCategory = case(
-        EventType in ('Cancel', 'Purchase', 'Refund'), 'Purchase',
-        'Adjustment'
-      ),
-      ChargeClass = case(
-        EventType == 'Cancel', 'Cancel',  // FOCUS does not handle this scenario
-        EventType == 'Refund', 'Correction',
-        ''
-      ),
-      ChargeDescription = Description,
-      ChargeFrequency   = case(
-        BillingFrequency == 'OneTime', 'One-Time',
-        BillingFrequency == 'Recurring', 'Recurring',
-        BillingFrequency
-      ),
-      ChargePeriodStart    = EventDate,
-      PricingQuantity      = Quantity,
-      PricingUnit          = 'Reservations',
-      ProviderName,
-      RegionId             = Region,
-      RegionName           = Region,
-      SubAccountId         = iff(isempty(PurchasingSubscriptionGuid), '', strcat('/subscriptions/', PurchasingSubscriptionGuid)),
-      SubAccountName       = iff(isempty(PurchasingSubscriptionGuid), '', PurchasingSubscriptionName),
-      x_AccountName        = AccountName,
-      x_AccountOwnerId     = AccountOwnerEmail,
-      x_CostCenter         = CostCenter,
-      x_InvoiceId          = InvoiceId,
-      x_InvoiceNumber      = Invoice,
-      x_InvoiceSectionId   = InvoiceSectionId,
-      x_InvoiceSectionName = coalesce(InvoiceSectionName, DepartmentName),
-      x_IngestionTime      = ingestion_time(),
-      x_MonetaryCommitment = MonetaryCommitment,
-      x_Overage            = Overage,
-      x_PurchasingBillingAccountId = PurchasingEnrollment,
-      x_SkuOrderId         = ReservationOrderId,
-      x_SkuOrderName       = ReservationOrderName,
-      x_SkuSize            = ArmSkuName,
-      x_SkuTerm            = isoMonths(Term),
-      x_SourceName,
-      x_SourceProvider,
-      x_SourceType,
-      x_SourceVersion,
-      x_SubscriptionId  = PurchasingSubscriptionGuid,
-      x_TransactionType = EventType
+        BilledCost = Amount,
+        BillingAccountId = case(
+            BillingProfileId startswith '/', BillingProfileId,
+            isnotempty(CurrentEnrollmentId), strcat('/providers/Microsoft.Billing/billingAccounts/', CurrentEnrollmentId),
+            isnotempty(BillingProfileId), strcat('/providers/Microsoft.Billing/billingProfiles/', BillingProfileId),
+            ''
+        ),
+        BillingAccountName = coalesce(BillingProfileName, CurrentEnrollmentId),
+        BillingCurrency = Currency,
+        BillingPeriodEnd,
+        BillingPeriodStart,
+        ChargeCategory = case(
+            EventType in ('Cancel', 'Purchase', 'Refund'), 'Purchase',
+            'Adjustment'
+        ),
+        ChargeClass = case(
+            EventType == 'Cancel', 'Cancel',  // FOCUS does not handle this scenario
+            EventType == 'Refund', 'Correction',
+            ''
+        ),
+        ChargeDescription = Description,
+        ChargeFrequency   = case(
+            BillingFrequency == 'OneTime', 'One-Time',
+            BillingFrequency == 'Recurring', 'Recurring',
+            BillingFrequency
+        ),
+        ChargePeriodStart    = EventDate,
+        InvoiceId,
+        PricingQuantity      = Quantity,
+        PricingUnit          = 'Reservations',
+        ProviderName,
+        RegionId             = Region,
+        RegionName           = Region,
+        SubAccountId         = iff(isempty(PurchasingSubscriptionGuid), '', strcat('/subscriptions/', PurchasingSubscriptionGuid)),
+        SubAccountName       = iff(isempty(PurchasingSubscriptionGuid), '', PurchasingSubscriptionName),
+        x_AccountName        = AccountName,
+        x_AccountOwnerId     = AccountOwnerEmail,
+        x_CostCenter         = CostCenter,
+        x_InvoiceNumber      = Invoice,
+        x_InvoiceSectionId   = InvoiceSectionId,
+        x_InvoiceSectionName = coalesce(InvoiceSectionName, DepartmentName),
+        x_IngestionTime      = ingestion_time(),
+        x_MonetaryCommitment = MonetaryCommitment,
+        x_Overage            = Overage,
+        x_PurchasingBillingAccountId = PurchasingEnrollment,
+        x_SkuOrderId         = ReservationOrderId,
+        x_SkuOrderName       = ReservationOrderName,
+        x_SkuSize            = ArmSkuName,
+        x_SkuTerm            = isoMonths(Term),
+        x_SourceName,
+        x_SourceProvider,
+        x_SourceType,
+        x_SourceVersion,
+        x_SubscriptionId  = PurchasingSubscriptionGuid,
+        x_TransactionType = EventType
 }
 
-// Transactions_final_v1_0 table
-.create-merge table Transactions_final_v1_0 (
-    BilledCost:                   decimal,   // MS CM EA+MCA 2023-05-01
+// Transactions_final_v1_2 table
+.create-merge table Transactions_final_v1_2 (
+    BilledCost:                   real,      // MS CM EA+MCA 2023-05-01
     BillingAccountId:             string,    // MS CM EA+MCA 2023-05-01
     BillingAccountName:           string,    // MS CM EA+MCA 2023-05-01
     BillingCurrency:              string,    // MS CM EA+MCA 2023-05-01
@@ -1605,7 +1688,8 @@ Transactions_transform_v1_0()
     ChargeDescription:            string,    // MS CM EA+MCA 2023-05-01
     ChargeFrequency:              string,    // MS CM EA+MCA 2023-05-01
     ChargePeriodStart:            datetime,  // MS CM EA+MCA 2023-05-01
-    PricingQuantity:              decimal,   // MS CM EA+MCA 2023-05-01
+    InvoiceId:                    string,    // MS CM MCA 2023-05-01
+    PricingQuantity:              real,      // MS CM EA+MCA 2023-05-01
     PricingUnit:                  string,    // Hubs add-on
     ProviderName:                 string,    // Hubs add-on
     RegionId:                     string,    // MS CM EA+MCA 2023-05-01
@@ -1615,13 +1699,12 @@ Transactions_transform_v1_0()
     x_AccountName:                string,    // MS CM EA 2023-05-01
     x_AccountOwnerId:             string,    // MS CM EA 2023-05-01
     x_CostCenter:                 string,    // MS CM EA 2023-05-01
-    x_InvoiceId:                  string,    // MS CM MCA 2023-05-01
     x_InvoiceNumber:              string,    // MS CM MCA 2023-05-01
     x_InvoiceSectionId:           string,    // MS CM MCA 2023-05-01
     x_InvoiceSectionName:         string,    // MS CM MCA 2023-05-01
     x_IngestionTime:              datetime,  // Hubs add-on
-    x_MonetaryCommitment:         decimal,   // MS CM EA 2023-05-01
-    x_Overage:                    decimal,   // MS CM EA 2023-05-01
+    x_MonetaryCommitment:         real,      // MS CM EA 2023-05-01
+    x_Overage:                    real,      // MS CM EA 2023-05-01
     x_PurchasingBillingAccountId: string,    // MS CM EA 2023-05-01
     x_SkuOrderId:                 string,    // MS CM EA+MCA 2023-05-01
     x_SkuOrderName:               string,    // MS CM EA+MCA 2023-05-01
@@ -1635,13 +1718,13 @@ Transactions_transform_v1_0()
     x_TransactionType:            string     // MS CM EA+MCA 2023-05-01
 )
 
-// Update policy for Transactions_raw -> Transactions_final_v1_0 table
-.alter table Transactions_final_v1_0 policy update
+// Update policy for Transactions_raw -> Transactions_final_v1_2 table
+.alter table Transactions_final_v1_2 policy update
 ```
 [{
-    "IsEnabled": false,
+    "IsEnabled": true,
     "Source": "Transactions_raw",
-    "Query": "Transactions_transform_v1_0()",
+    "Query": "Transactions_transform_v1_2()",
     "IsTransactional": true,
     "PropagateIngestionProperties": true
 }]
