@@ -806,6 +806,33 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "JacobStruiksma",
+      "name": "Jacob Struiksma",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9788612?v=4",
+      "profile": "https://github.com/JacobStruiksma",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "adeelaz",
+      "name": "Adeel Aziz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/63263829?v=4",
+      "profile": "https://github.com/adeelaz",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "shasulin",
+      "name": "shasulin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45314814?v=4",
+      "profile": "https://github.com/shasulin",
+      "contributions": [
+        "review"
+      ]
     }
   ],
   "commitType": "docs",

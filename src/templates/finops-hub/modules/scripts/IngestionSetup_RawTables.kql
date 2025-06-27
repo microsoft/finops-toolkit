@@ -13,8 +13,11 @@
 // - C360-2025-04
 //======================================================================================================================
 
-// ActualCosts_raw table
-.create-merge table ActualCosts_raw (
+// ActualCosts_raw table (create)
+.create-merge table ActualCosts_raw ( AccountName: string )
+
+// ActualCosts_raw table (alter)
+.alter table ActualCosts_raw (
     AccountName:            string,
     AccountOwnerId:         string,
     AdditionalInfo:         string,
@@ -136,8 +139,11 @@
 // - C360-2025-04
 //======================================================================================================================
 
-// AmortizedCosts_raw table
-.create-merge table AmortizedCosts_raw (
+// AmortizedCosts_raw table (create)
+.create-merge table AmortizedCosts_raw ( AccountName: string )
+
+// AmortizedCosts_raw table (alter)
+.alter table AmortizedCosts_raw (
     AccountName:            string,
     AccountOwnerId:         string,
     AdditionalInfo:         string,
@@ -260,8 +266,11 @@
 // - MS MCA reservation details: 2023-03-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-mca
 //======================================================================================================================
 
-// CommitmentDiscountUsage_raw table
-.create-merge table CommitmentDiscountUsage_raw (
+// CommitmentDiscountUsage_raw table (create)
+.create-merge table CommitmentDiscountUsage_raw ( InstanceFlexibilityGroup: string )
+
+// CommitmentDiscountUsage_raw table (alter)
+.alter table CommitmentDiscountUsage_raw (
     InstanceFlexibilityGroup: string,
     InstanceFlexibilityRatio: decimal,
     InstanceId:               string,
@@ -319,12 +328,16 @@
 //                               - https://cloud.google.com/billing/docs/how-to/export-data-bigquery-tables/detailed-usage
 // - OCI: 1.0                 -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
 // - Tencent: 1.0             -- See https://www.tencentcloud.com/document/product/555/67495 / https://www.tencentcloud.com/document/product/555/67496
+// - Alibaba: 1.0             -- See https://www.alibabacloud.com/help/en/user-center/user-guide/export-alibaba-cloud-standard-billing-focus
 //
 // Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
 //======================================================================================================================
 
-// Costs_raw table
-.create-merge table Costs_raw (
+// Costs_raw table (create)
+.create-merge table Costs_raw ( AvailabilityZone: string )
+
+// Costs_raw table (alter)
+.alter table Costs_raw (
     AvailabilityZone:           string,    // FOCUS 0.5+
     BilledCost:                 decimal,   // FOCUS 0.5+
     BillingAccountId:           string,    // FOCUS 0.5+
@@ -396,9 +409,13 @@
     x_BillingExchangeRateDate:  datetime,  // Azure 1.0-preview(v1)+
     x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
+    x_BillingItemCode:          string,    // Alibaba 1.0+
+    x_BillingItemName:          string,    // Alibaba 1.0+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
     x_ComponentName:            string,    // Tencent 1.0+
     x_ComponentType:            string,    // Tencent 1.0+
+    x_CommodityCode:            string,    // Alibaba 1.0+
+    x_CommodityName:            string,    // Alibaba 1.0+
     x_ContractedCostInUsd:      decimal,   // Azure 1.0+
     x_Cost:                     decimal,   // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
@@ -417,6 +434,7 @@
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
+    x_InstanceID:               string,    // Alibaba 1.0+
     x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
     x_Location:                 string,    // GCP Jan 2024
     x_OnDemandCost:             decimal,   // Azure 1.0-preview(v1) only
@@ -541,10 +559,14 @@
     { "Column": "x_BillingExchangeRateDate",  "Properties": { "Field": "x_BillingExchangeRateDate" } },
     { "Column": "x_BillingProfileId",         "Properties": { "Field": "x_BillingProfileId" } },
     { "Column": "x_BillingProfileName",       "Properties": { "Field": "x_BillingProfileName" } },
+    { "Column": "x_BillingItemCode",          "Properties": { "Field": "x_BillingItemCode" } },
+    { "Column": "x_BillingItemName",          "Properties": { "Field": "x_BillingItemName" } },
     { "Column": "x_ChargeId",                 "Properties": { "Field": "x_ChargeId" } },
     { "Column": "x_ContractedCostInUsd",      "Properties": { "Field": "x_ContractedCostInUsd" } },
     { "Column": "x_ComponentName",            "Properties": { "Field": "x_ComponentName" } },
     { "Column": "x_ComponentType",            "Properties": { "Field": "x_ComponentType" } },
+    { "Column": "x_CommodityCode",            "Properties": { "Field": "x_CommodityCode" } },
+    { "Column": "x_CommodityName",            "Properties": { "Field": "x_CommodityName" } },
     { "Column": "x_Cost",                     "Properties": { "Field": "x_Cost" } },
     { "Column": "x_CostAllocationRuleName",   "Properties": { "Field": "x_CostAllocationRuleName" } },
     { "Column": "x_CostCategories",           "Properties": { "Field": "x_CostCategories" } },
@@ -562,6 +584,7 @@
     { "Column": "x_InvoiceIssuerId",          "Properties": { "Field": "x_InvoiceIssuerId" } },
     { "Column": "x_InvoiceSectionId",         "Properties": { "Field": "x_InvoiceSectionId" } },
     { "Column": "x_InvoiceSectionName",       "Properties": { "Field": "x_InvoiceSectionName" } },
+    { "Column": "x_InstanceID",               "Properties": { "Field": "x_InstanceID" } },
     { "Column": "x_ListCostInUsd",            "Properties": { "Field": "x_ListCostInUsd" } },
     { "Column": "x_Location",                 "Properties": { "Field": "x_Location" } },
     { "Column": "x_OnDemandCost",             "Properties": { "Field": "x_OnDemandCost" } },
@@ -627,8 +650,11 @@
 // - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
 //======================================================================================================================
 
-// Prices_raw table
-.create-merge table Prices_raw (
+// Prices_raw table (create)
+.create-merge table Prices_raw ( BasePrice: decimal )
+
+// Prices_raw table (alter)
+.alter table Prices_raw (
     BasePrice:          decimal,  // Azure EA + MCA
     BillingAccountId:   string,   // Azure MCA
     BillingAccountName: string,   // Azure MCA
@@ -725,8 +751,11 @@
 // - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
 //======================================================================================================================
 
-// Recommendations_raw table
-.create-merge table Recommendations_raw (
+// Recommendations_raw table (create)
+.create-merge table Recommendations_raw ( CostWithNoReservedInstances: decimal )
+
+// Recommendations_raw table (alter)
+.alter table Recommendations_raw (
     CostWithNoReservedInstances:        decimal,   // MS CM EA resv reco 2024-05-01
     CostWithNoReservedInstancesJson:    string,    // MS CM MCA resv reco 2024-05-01 -- Renamed to remove spaces and flag as JSON
     FirstUsageDate:                     datetime,  // MS CM EA/MCA resv reco 2024-05-01 -- Renamed for MCA
@@ -801,8 +830,11 @@
 // - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
-// Transactions_raw table
-.create-merge table Transactions_raw (
+// Transactions_raw table (create)
+.create-merge table Transactions_raw ( AccountName: string )
+
+// Transactions_raw table (alter)
+.alter table Transactions_raw (
     AccountName:                    string,    // MS CM EA resv trans 2023-05-01
     AccountOwnerEmail:              string,    // MS CM EA resv trans 2023-05-01
     Amount:                         decimal,   // MS CM EA+MCA resv trans 2023-05-01

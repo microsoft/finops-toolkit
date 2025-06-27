@@ -47,6 +47,7 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
 5. (Optional) If using Azure Data Explorer:
    1. The **ingestion_ExecuteETL** pipeline queues the Data Explorer ingestion pipeline when **manifest.json** files are added to the **ingestion** container.
       - If ingesting custom datasets outside of Cost Management exports, create an empty **manifest.json** file in the target ingestion folder after all other files are ready (don't add this file when files are still uploading). The **manifest.json** file isn't parsed and can be empty. The sole purpose is to indicate that all files for this ingestion job are added.
+      - If the cluster is not running, the pipeline will start it. Azure Data Explorer can take 15 minutes or more to start.
    2. The **ingestion_ETL_dataExplorer** pipeline ingests data into the `{dataset}_raw` table in the Data Explorer.
       - The dataset name is the first folder in the **ingestion** container.
       - All raw tables are in the **Ingestion** database in Data Explorer.
@@ -82,9 +83,11 @@ Supported datasets:
 
 The following datasets were accounted for in the design, but are not natively supported. To ingest these datasets, create a data pipeline (or external process) that pushes parquet files into the `ingestion/Costs/yyyy/mm/{scope-path}` folder in storage. The `{scope-path}` can be any unique path, like `aws/123` or `gcp/projects/foo`. The only requirement is to ensure each scope is in a separate folder. After copying external content, also create a **manifest.json** file to trigger Data Explorer ingestion.
 
+- Alibaba Cloud FOCUS 1.0
 - Amazon Web Services (AWS) FOCUS 1.0
 - Google Cloud Platform (GCP) FOCUS 1.0
 - Oracle Cloud Infrastructure (OCI) FOCUS 1.0
+- Tencent Cloud FOCUS 1.0
 
 Transforms:
 

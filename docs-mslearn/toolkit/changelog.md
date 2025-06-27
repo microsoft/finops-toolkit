@@ -24,6 +24,12 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) pending changes
+
+- **Added**
+  - Added support for Alibaba Cloud FOCUS data ingestion.
+    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
@@ -32,10 +38,43 @@ The following section lists features and enhancements that are currently in deve
 
 ## v0.12
 
+_Released June 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+
+- **Added**
+  - Created a script to generate a template FOCUS conformance document.
+- **Changed**
+  - Updated FOCUS documentation to align to the 1.2-preview dataset from Cost Management.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
+
+- **Added**
+  - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+- **Changed**
+  - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
+- **Fixed**
+  - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+
 ### [Power BI reports](power-bi/reports.md) v0.12
 
+- **Added**
+  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
+- **Changed**
+  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
 - **Fixed**
   - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
+
+### [PowerShell module](powershell/powershell-commands.md) v0.12
+
+- **Changed**
+  - Updated the latest API version to 2025-03-01 in all Cost Management export commands.
+  - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.11...v0.12)
 
 <br>
 

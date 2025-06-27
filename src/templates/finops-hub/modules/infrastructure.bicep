@@ -1,39 +1,36 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getHubTags, HubCoreConfig } from 'hub-types.bicep'
+import { getHubTags, HubProperties } from 'hub-types.bicep'
 
 
 //==============================================================================
 // Parameters
 //==============================================================================
 
-// @description('Required. Name of the FinOps hub instance.')
-// param hubName string
-
-@description('Required. FinOps hub configuration settings.')
-param coreConfig HubCoreConfig
+@description('Required. FinOps hub instance properties.')
+param hub HubProperties
 
 
 //==============================================================================
 // Variables
 //==============================================================================
 
-var safeHubName = replace(replace(toLower(coreConfig.hub.name), '-', ''), '_', '')
+var safeHubName = replace(replace(toLower(hub.name), '-', ''), '_', '')
 // cSpell:ignore vnet
-var vNetName = '${safeHubName}-vnet-${coreConfig.hub.location}'
-var nsgName = '${coreConfig.network.name}-nsg'
+var vNetName = '${safeHubName}-vnet-${hub.location}'
+var nsgName = '${hub.routing.networkName}-nsg'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
 var finopsHubSubnetName = 'private-endpoint-subnet'
 var scriptSubnetName = 'script-subnet'
 var dataExplorerSubnetName = 'dataExplorer-subnet'
 
-var subnets = !coreConfig.network.isPrivate ? [] : [
+var subnets = !hub.options.privateRouting ? [] : [
   {
     name: finopsHubSubnetName
     properties: {
-      addressPrefix: cidrSubnet(coreConfig.network.addressPrefix, 28, 0)
+      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -47,7 +44,7 @@ var subnets = !coreConfig.network.isPrivate ? [] : [
   {
     name: scriptSubnetName
     properties: {
-      addressPrefix: cidrSubnet(coreConfig.network.addressPrefix, 28, 1)
+      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 1)
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -69,7 +66,7 @@ var subnets = !coreConfig.network.isPrivate ? [] : [
   {
     name: dataExplorerSubnetName
     properties: {
-      addressPrefix: cidrSubnet(coreConfig.network.addressPrefix, 27, 1)
+      addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 27, 1)
       networkSecurityGroup: {
         id: nsg.id
       }
@@ -86,10 +83,10 @@ var subnets = !coreConfig.network.isPrivate ? [] : [
 // Network
 //------------------------------------------------------------------------------
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (coreConfig.network.isPrivate) {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.options.privateRouting) {
   name: nsgName
-  location: coreConfig.hub.location
-  tags: getHubTags(coreConfig, 'Microsoft.Storage/networkSecurityGroups')
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Storage/networkSecurityGroups')
   properties: {
     securityRules: [
       {
@@ -174,13 +171,13 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (coreConf
   }
 }
 
-resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (coreConfig.network.isPrivate) {
+resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.privateRouting) {
   name: vNetName
-  location: coreConfig.hub.location
-  tags: getHubTags(coreConfig, 'Microsoft.Storage/virtualNetworks')
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Storage/virtualNetworks')
   properties: {
     addressSpace: {
-      addressPrefixes: [coreConfig.network.addressPrefix]
+      addressPrefixes: [hub.options.networkAddressPrefix]
     }
     subnets: subnets
   }
@@ -203,80 +200,80 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (coreConfig.ne
 //------------------------------------------------------------------------------
 
 // Required for the Azure portal and Storage Explorer
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (coreConfig.network.isPrivate) {
-  name: coreConfig.network.dnsZones.blob.name
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+  name: string(hub.routing.dnsZones.blob.name)
   location: 'global'
-  tags: getHubTags(coreConfig, 'Microsoft.Storage/privateDnsZones')
+  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
 
   resource blobPrivateDnsZoneLink 'virtualNetworkLinks' = {
     name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
     location: 'global'
-    tags: getHubTags(coreConfig, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: coreConfig.network.id
+        id: hub.routing.networkId
       }
     }
   }
 }
 
 // Required for Power BI
-resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (coreConfig.network.isPrivate) {
-  name: coreConfig.network.dnsZones.dfs.name
+resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+  name: string(hub.routing.dnsZones.dfs.name)
   location: 'global'
-  tags: getHubTags(coreConfig, 'Microsoft.Storage/privateDnsZones')
+  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
 
   resource dfsPrivateDnsZoneLink 'virtualNetworkLinks' = {
     name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
     location: 'global'
-    tags: getHubTags(coreConfig, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: coreConfig.network.id
+        id: hub.routing.networkId
       }
     }
   }
 }
 
 // Required for Azure Data Explorer
-resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (coreConfig.network.isPrivate) {
-  name: coreConfig.network.dnsZones.queue.name
+resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+  name: string(hub.routing.dnsZones.queue.name)
   location: 'global'
-  tags: getHubTags(coreConfig, 'Microsoft.Storage/privateDnsZones')
+  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
   
   resource queuePrivateDnsZoneLink 'virtualNetworkLinks' = {
     name: '${replace(queuePrivateDnsZone.name, '.', '-')}-link'
     location: 'global'
-    tags: getHubTags(coreConfig, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: coreConfig.network.id
+        id: hub.routing.networkId
       }
     }
   }
 }
 
 // Required for Azure Data Explorer
-resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (coreConfig.network.isPrivate) {
-  name: coreConfig.network.dnsZones.table.name
+resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+  name: string(hub.routing.dnsZones.table.name)
   location: 'global'
-  tags: getHubTags(coreConfig, 'Microsoft.Storage/privateDnsZones')
+  tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
   
   resource tablePrivateDnsZoneLink 'virtualNetworkLinks' = {
     name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
     location: 'global'
-    tags: getHubTags(coreConfig, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: coreConfig.network.id
+        id: hub.routing.networkId
       }
     }
   }
@@ -286,14 +283,14 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 // Script storage
 //------------------------------------------------------------------------------
 
-resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (coreConfig.network.isPrivate) {
-  name: coreConfig.deployment.storage
-  location: coreConfig.hub.location
+resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (hub.options.privateRouting) {
+  name: string(hub.routing.scriptStorage)
+  location: hub.location
   sku: {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
-  tags: getHubTags(coreConfig, 'Microsoft.Storage/storageAccounts')
+  tags: getHubTags(hub, 'Microsoft.Storage/storageAccounts')
   properties: {
     supportsHttpsTrafficOnly: true
     allowSharedKeyAccess: true
@@ -306,7 +303,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
       defaultAction: 'Deny'
       virtualNetworkRules: [
         {
-          id: coreConfig.network.subnets.scripts
+          id: hub.routing.subnets.scripts
           action: 'Allow'
         }
       ]
@@ -314,13 +311,13 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
   }
 }
 
-resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (coreConfig.network.isPrivate) {
+resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hub.options.privateRouting) {
   name: '${scriptStorageAccount.name}-blob-ep'
-  location: coreConfig.hub.location
-  tags: getHubTags(coreConfig, 'Microsoft.Network/privateEndpoints')
+  location: hub.location
+  tags: getHubTags(hub, 'Microsoft.Network/privateEndpoints')
   properties: {
     subnet: {
-      id: coreConfig.network.subnets.storage
+      id: hub.routing.subnets.storage
     }
     privateLinkServiceConnections: [
       {
@@ -354,22 +351,22 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (co
 //==============================================================================
 
 @description('FinOps hub configuration settings.')
-output config HubCoreConfig = coreConfig
+output config HubProperties = hub
 
 @description('Resource ID of the virtual network.')
-output vNetId string = !coreConfig.network.isPrivate ? '' : vNet.id
+output vNetId string = !hub.options.privateRouting ? '' : vNet.id
 
 @description('Virtual network address prefixes.')
-output vNetAddressSpace array = !coreConfig.network.isPrivate ? [] : vNet.properties.addressSpace.addressPrefixes
+output vNetAddressSpace array = !hub.options.privateRouting ? [] : vNet.properties.addressSpace.addressPrefixes
 
 @description('Virtual network subnets.')
-output vNetSubnets array = !coreConfig.network.isPrivate ? [] : vNet.properties.subnets
+output vNetSubnets array = !hub.options.privateRouting ? [] : vNet.properties.subnets
 
 @description('Resource ID of the FinOps hub network subnet.')
-output finopsHubSubnetId string = !coreConfig.network.isPrivate ? '' : vNet::finopsHubSubnet.id
+output finopsHubSubnetId string = !hub.options.privateRouting ? '' : vNet::finopsHubSubnet.id
 
 @description('Resource ID of the script storage account network subnet.')
-output scriptSubnetId string = !coreConfig.network.isPrivate ? '' : vNet::scriptSubnet.id
+output scriptSubnetId string = !hub.options.privateRouting ? '' : vNet::scriptSubnet.id
 
 @description('Resource ID of the Data Explorer network subnet.')
-output dataExplorerSubnetId string = !coreConfig.network.isPrivate ? '' : vNet::dataExplorerSubnet.id
+output dataExplorerSubnetId string = !hub.options.privateRouting ? '' : vNet::dataExplorerSubnet.id

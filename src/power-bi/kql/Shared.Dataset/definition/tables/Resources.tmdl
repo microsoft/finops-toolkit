@@ -96,7 +96,7 @@ table Resources
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 				      #table(
-				        { "id", "name", "type", "location", "subscriptionId", "sku.name", "sku.tier", "provisioningState", "privateEndpointConnections", "encryption", "creationTime", "supportsHttpsTrafficOnly", "allowBlobPublicAccess", "minimumTlsVersion", "primaryEndpoints", "keyCreationTime", "primaryLocation", "statusOfPrimary", "networkAcls", "allowCrossTenantReplication", "allowSharedKeyAccess", "accessTier", "isHnsEnabled", "isBlueShiftAccount" },
+				        { "id", "name", "type", "tenantId", "location", "subscriptionId", "resourceGroup", "creationTime", "timeModified" },
 				        {}
 				      )
 				    else Source,
