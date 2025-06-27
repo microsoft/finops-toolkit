@@ -148,6 +148,7 @@ Deploy-FinOpsHub `
 
 ### Security considerations
 
+- **Version requirement**: Remote hubs support requires FinOps hub template version 0.4 or later
 - **Storage keys**: Treat storage keys as secrets. They provide full access to the storage account
 - **Network access**: Consider using private networking for both primary and remote hubs
 - **Key rotation**: Regularly rotate storage keys and update remote hub configurations
