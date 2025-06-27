@@ -34,13 +34,6 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### [Power BI reports](power-bi/reports.md) pending changes
-
-- **Added**
-  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
-- **Changed**
-  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
-
 <br><a name="latest"></a>
 
 ## v0.12
@@ -62,6 +55,15 @@ _Released June 2025_
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
 - **Fixed**
   - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+
+### [Power BI reports](power-bi/reports.md) v0.12
+
+- **Added**
+  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
+- **Changed**
+  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
+- **Fixed**
+  - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
 
 ### [PowerShell module](powershell/powershell-commands.md) v0.12
 
