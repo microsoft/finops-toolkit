@@ -63,6 +63,12 @@ _Released June 2025_
 - **Fixed**
   - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
 
+### [PowerShell module](powershell/powershell-commands.md) v0.12
+
+- **Changed**
+  - Updated the latest API version to 2025-03-01 in all Cost Management export commands.
+  - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
 > [!div class="nextstepaction"]
