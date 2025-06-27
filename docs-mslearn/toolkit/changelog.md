@@ -57,13 +57,27 @@ _Released June 2025_
     - Tencent extended columns: `x_ComponentName`, `x_ComponentType`, `x_ExportTime`, `x_OwnerAccountID`, `x_SubproductName`.
   - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
   - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
+  - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
 - **Changed**
   - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
+- **Fixed**
+  - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
 
 ### [Power BI reports](power-bi/reports.md) v0.12
 
+- **Added**
+  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
+  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
+- **Fixed**
+  - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
+
+### [PowerShell module](powershell/powershell-commands.md) v0.12
+
+- **Changed**
+  - Updated the latest API version to 2025-03-01 in all Cost Management export commands.
+  - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)

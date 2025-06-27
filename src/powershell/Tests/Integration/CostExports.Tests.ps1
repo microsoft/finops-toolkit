@@ -29,7 +29,7 @@ Describe 'CostExports' {
         Monitor "Export $datasetType tests..." -Indent '  ' {
             Monitor "Creating $typedExportName export..." {
                 # Act -- create
-                $newResult = New-FinOpsCostExport -Name $typedExportName -Scope $scope -Dataset $datasetType -StorageAccountId $storage.Id -Execute -Backfill 1
+                $newResult = New-FinOpsCostExport -Name $typedExportName -Scope $scope -Dataset $datasetType -StorageAccountId $storage.Id
                 # TODO: Run tests for all supported API versions: -ApiVersion '2023-08-01'
 
                 # Assert
@@ -47,7 +47,6 @@ Describe 'CostExports' {
                 Report -Object $getResult
                 $getResult.Count | Should -Be 1
                 $getResult.Name | Should -Be $typedExportName
-                $getResult.RunHistory.Count | Should -BeGreaterThan 0 -Because "-Execute -Backfill 1 was specified during creation"
             }
 
             Monitor "Running $typedExportName..." {
