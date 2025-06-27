@@ -52,8 +52,8 @@ Prices_transform_v1_2()
             x_SkuRegion = MeterRegion,
             x_SkuServiceFamily = ServiceFamily,
             x_SkuTier = TierMinimumUnits
-        | extend ContractedUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', UnitPrice, todecimal(''))  // UnitPrice for savings plan is not the on-demand unit price
-        | extend ListUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', MarketPrice, todecimal(''))  // MarketPrice for savings plan is not the list price
+        | extend ContractedUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', UnitPrice, real(null))  // UnitPrice for savings plan is not the on-demand unit price
+        | extend ListUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', MarketPrice, real(null))  // MarketPrice for savings plan is not the list price
         | extend ChargeCategory = case(
             x_SkuPriceType == 'Consumption', 'Usage',
             x_SkuPriceType == 'ReservedInstance', 'Purchase',
@@ -99,13 +99,13 @@ Prices_transform_v1_2()
     | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (spMeters), 'Eligible', 'Not Eligible')
     //
     // TODO: Implement x_CommitmentDiscountNormalizedRatio
-    | extend x_CommitmentDiscountNormalizedRatio = decimal(null)
+    | extend x_CommitmentDiscountNormalizedRatio = real(null)
     //
     // Add PricingUnit and x_PricingBlockSize
     // TODO: Compare join vs. lookup perf -- | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1
     | lookup kind=leftouter (PricingUnits) on x_PricingUnitDescription
     //
-    | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
+    | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, real(null))  // Savings plan prices are for the effective price, not the contracted price
     | extend x_EffectiveUnitPriceDiscount = ContractedUnitPrice - x_EffectiveUnitPrice
     | extend x_ContractedUnitPriceDiscount = ListUnitPrice - ContractedUnitPrice
     | extend x_TotalUnitPriceDiscount = ListUnitPrice - x_EffectiveUnitPrice
@@ -127,8 +127,8 @@ Prices_transform_v1_2()
         CommitmentDiscountUnit = case(
             isempty(CommitmentDiscountCategory), '',
             CommitmentDiscountCategory == 'Spend', PricingCurrency,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == decimal(1), PricingUnit,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > decimal(1), strcat('Normalized ', PricingUnit),
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == real(1), PricingUnit,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > real(1), strcat('Normalized ', PricingUnit),
             ''
         ),
         ContractedUnitPrice,
@@ -205,8 +205,8 @@ Prices_transform_v1_2()
     CommitmentDiscountCategory:           string,
     CommitmentDiscountType:               string,
     CommitmentDiscountUnit:               string,
-    ContractedUnitPrice:                  decimal,
-    ListUnitPrice:                        decimal,
+    ContractedUnitPrice:                  real,
+    ListUnitPrice:                        real,
     PricingCategory:                      string,
     PricingCurrency:                      string,    // Azure
     PricingUnit:                          string,
@@ -214,27 +214,27 @@ Prices_transform_v1_2()
     SkuMeter:                             string,    // Azure
     SkuPriceId:                           string,
     SkuPriceIdv2:                         string,    // Hubs add-on
-    x_BaseUnitPrice:                      decimal,   // Azure
+    x_BaseUnitPrice:                      real,      // Azure
     x_BillingAccountAgreement:            string,    // Hubs add-on
     x_BillingAccountId:                   string,    // Azure MCA
     x_BillingProfileId:                   string,    // Azure MCA
-    x_CommitmentDiscountNormalizedRatio:  decimal,   // Hubs add-on
+    x_CommitmentDiscountNormalizedRatio:  real,      // Hubs add-on
     x_CommitmentDiscountSpendEligibility: string,    // Hubs add-on
     x_CommitmentDiscountUsageEligibility: string,    // Hubs add-on
-    x_ContractedUnitPriceDiscount:        decimal,   // Hubs add-on
-    x_ContractedUnitPriceDiscountPercent: decimal,   // Hubs add-on
+    x_ContractedUnitPriceDiscount:        real,      // Hubs add-on
+    x_ContractedUnitPriceDiscountPercent: real,      // Hubs add-on
     x_EffectivePeriodEnd:                 datetime,  // Azure
     x_EffectivePeriodStart:               datetime,  // Azure
-    x_EffectiveUnitPrice:                 decimal,   // Azure
-    x_EffectiveUnitPriceDiscount:         decimal,   // Hubs add-on
-    x_EffectiveUnitPriceDiscountPercent:  decimal,   // Hubs add-on
+    x_EffectiveUnitPrice:                 real,      // Azure
+    x_EffectiveUnitPriceDiscount:         real,      // Hubs add-on
+    x_EffectiveUnitPriceDiscountPercent:  real,      // Hubs add-on
     x_IngestionTime:                      datetime,  // Hubs add-on
-    x_PricingBlockSize:                   decimal,   // Hubs add-on
+    x_PricingBlockSize:                   real,      // Hubs add-on
     x_PricingSubcategory:                 string,    // Hubs add-on
     x_PricingUnitDescription:             string,    // Azure
     x_SkuDescription:                     string,    // Azure
     x_SkuId:                              string,    // Azure
-    x_SkuIncludedQuantity:                decimal,   // Azure EA
+    x_SkuIncludedQuantity:                real,      // Azure EA
     x_SkuMeterCategory:                   string,    // Azure
     x_SkuMeterId:                         string,    // Azure
     x_SkuMeterSubcategory:                string,    // Azure
@@ -246,13 +246,13 @@ Prices_transform_v1_2()
     x_SkuOfferId:                         string,    // Azure EA
     x_SkuPartNumber:                      string,    // Azure EA
     x_SkuTerm:                            int,       // Azure
-    x_SkuTier:                            decimal,   // Azure MCA
+    x_SkuTier:                            real,      // Azure MCA
     x_SourceName:                         string,    // Hubs add-on
     x_SourceProvider:                     string,    // Hubs add-on
     x_SourceType:                         string,    // Hubs add-on
     x_SourceVersion:                      string,    // Hubs add-on
-    x_TotalUnitPriceDiscount:             decimal,   // Hubs add-on
-    x_TotalUnitPriceDiscountPercent:      decimal    // Hubs add-on
+    x_TotalUnitPriceDiscount:             real,      // Hubs add-on
+    x_TotalUnitPriceDiscountPercent:      real       // Hubs add-on
 )
 
 // Update policy for Prices_raw -> Prices_final_v1_2
@@ -387,7 +387,7 @@ Costs_transform_v1_2()
     )
     | extend ConsumedQuantity = case(
         isnotempty(ConsumedQuantity) and ConsumedQuantity != 0, ConsumedQuantity,
-        ChargeCategory == 'Usage', PricingQuantity / coalesce(x_PricingBlockSize, decimal(1)),
+        ChargeCategory == 'Usage', PricingQuantity / coalesce(x_PricingBlockSize, real(1)),
         ConsumedQuantity
     )
     //
@@ -480,35 +480,35 @@ Costs_transform_v1_2()
     // Populate x_CommitmentDiscountNormalizedRatio to support commitment discount calculations
     | extend x_CommitmentDiscountNormalizedRatio = case(
         // Calculate from CommitmentDiscountQuantity, if specified
-        isnotempty(CommitmentDiscountQuantity) and CommitmentDiscountQuantity != 0, CommitmentDiscountQuantity / PricingQuantity / coalesce(x_PricingBlockSize, decimal(1)),
+        isnotempty(CommitmentDiscountQuantity) and CommitmentDiscountQuantity != 0, CommitmentDiscountQuantity / PricingQuantity / coalesce(x_PricingBlockSize, real(1)),
         // Not applicable
-        isempty(CommitmentDiscountStatus), decimal(null),
+        isempty(CommitmentDiscountStatus), real(null),
         // Parse from SKU details if not specified explicitly
-        todecimal(coalesce(x_SkuDetails.RINormalizationRatio, SkuPriceDetails.RINormalizationRatio, SkuPriceDetails.x_RINormalizationRatio, dynamic(1)))
+        toreal(coalesce(x_SkuDetails.RINormalizationRatio, SkuPriceDetails.RINormalizationRatio, SkuPriceDetails.x_RINormalizationRatio, dynamic(1)))
     )
     | extend CommitmentDiscountQuantity = case(
         // FOCUS 1.2
         isnotempty(CommitmentDiscountQuantity), CommitmentDiscountQuantity,
         // FOCUS 1.0-preview, 1.0
-        isempty(CommitmentDiscountStatus), decimal(null),
-        CommitmentDiscountCategory == 'Spend', EffectiveCost / coalesce(x_BillingExchangeRate, decimal(1)),
-        CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, decimal(1)) * x_CommitmentDiscountNormalizedRatio,
-        decimal(null)
+        isempty(CommitmentDiscountStatus), real(null),
+        CommitmentDiscountCategory == 'Spend', EffectiveCost / coalesce(x_BillingExchangeRate, real(1)),
+        CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, real(1)) * x_CommitmentDiscountNormalizedRatio,
+        real(null)
     )
     //
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
     // Handle FOCUS 1.0-preview UsageQuantity/Unit
-    | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal(''))
+    | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), real(null))
     | extend ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), '')
     //
     // Convert IDs to lowercase for consistency
     | extend CommitmentDiscountId = tolower(CommitmentDiscountId)
     //
     // BUG: Remove EffectiveCost for commitment discount purchases
-    | extend EffectiveCost = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), decimal(0), EffectiveCost)
-    | extend x_EffectiveCostInUsd = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), decimal(0), x_EffectiveCostInUsd)
+    | extend EffectiveCost = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), real(0), EffectiveCost)
+    | extend x_EffectiveCostInUsd = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), real(0), x_EffectiveCostInUsd)
     //
     // Clean up resource columns
     | extend ResourceId = case(
@@ -583,8 +583,8 @@ Costs_transform_v1_2()
             // FOCUS 1.0
             isempty(CommitmentDiscountQuantity), '',
             CommitmentDiscountCategory == 'Spend', PricingCurrency,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == decimal(1), ConsumedUnit,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > decimal(1), strcat('Normalized ', ConsumedUnit),
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == real(1), ConsumedUnit,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > real(1), strcat('Normalized ', ConsumedUnit),
             ''
         ),
         ConsumedQuantity,
@@ -733,7 +733,7 @@ Costs_transform_v1_2()
 // Costs_final_v1_2 table
 .create-merge table Costs_final_v1_2 (
     AvailabilityZone:           string,
-    BilledCost:                 decimal,
+    BilledCost:                 real,
     BillingAccountId:           string,
     BillingAccountName:         string,
     BillingAccountType:         string,
@@ -751,22 +751,22 @@ Costs_transform_v1_2()
     CommitmentDiscountCategory: string,
     CommitmentDiscountId:       string,
     CommitmentDiscountName:     string,
-    CommitmentDiscountQuantity: decimal,
+    CommitmentDiscountQuantity: real,
     CommitmentDiscountStatus:   string,
     CommitmentDiscountType:     string,
     CommitmentDiscountUnit:     string,
-    ConsumedQuantity:           decimal,
+    ConsumedQuantity:           real,
     ConsumedUnit:               string,
-    ContractedCost:             decimal,
-    ContractedUnitPrice:        decimal,
-    EffectiveCost:              decimal,
+    ContractedCost:             real,
+    ContractedUnitPrice:        real,
+    EffectiveCost:              real,
     InvoiceId:                  string,
     InvoiceIssuerName:          string,
-    ListCost:                   decimal,
-    ListUnitPrice:              decimal,
+    ListCost:                   real,
+    ListUnitPrice:              real,
     PricingCategory:            string,
     PricingCurrency:            string,
-    PricingQuantity:            decimal,
+    PricingQuantity:            real,
     PricingUnit:                string,
     ProviderName:               string,
     PublisherName:              string,
@@ -790,50 +790,50 @@ Costs_transform_v1_2()
     x_AccountName:              string,    // Azure 1.0-preview(v1)+
     x_AccountOwnerId:           string,    // Azure 1.0-preview(v1)+
     x_AmortizationClass:        string,    // Azure 1.2-preview+
-    x_BilledCostInUsd:          decimal,   // Azure 1.0-preview(v1)+
-    x_BilledUnitPrice:          decimal,   // Azure 1.0-preview(v1)+
+    x_BilledCostInUsd:          real,      // Azure 1.0-preview(v1)+
+    x_BilledUnitPrice:          real,      // Azure 1.0-preview(v1)+
     x_BillingAccountAgreement:  string,    // Hubs add-on
     x_BillingAccountId:         string,    // Azure 1.0-preview(v1)+
     x_BillingAccountName:       string,    // Azure 1.0-preview(v1)+
-    x_BillingExchangeRate:      decimal,   // Azure 1.0-preview(v1)+
+    x_BillingExchangeRate:      real,      // Azure 1.0-preview(v1)+
     x_BillingExchangeRateDate:  datetime,  // Azure 1.0-preview(v1)+
     x_BillingItemCode:          string,    // Alibaba 1.0
     x_BillingItemName:          string,    // Alibaba 1.0
     x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
-    x_CommitmentDiscountNormalizedRatio:  decimal,  // Azure 1.2-preview+
-    x_CommitmentDiscountSpendEligibility: string,   // Hubs add-on
-    x_CommitmentDiscountUsageEligibility: string,   // Hubs add-on
+    x_CommitmentDiscountNormalizedRatio:  real,    // Azure 1.2-preview+
+    x_CommitmentDiscountSpendEligibility: string,  // Hubs add-on
+    x_CommitmentDiscountUsageEligibility: string,  // Hubs add-on
     x_CommodityCode:            string,    // Alibaba 1.0
     x_CommodityName:            string,    // Alibaba 1.0
     x_ComponentName:            string,    // Tencent 1.0
     x_ComponentType:            string,    // Tencent 1.0
-    x_ContractedCostInUsd:      decimal,   // Azure 1.0+
+    x_ContractedCostInUsd:      real,      // Azure 1.0+
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           dynamic,   // AWS 1.0 (JSON)
     x_CostCenter:               string,    // Azure 1.0-preview(v1)+
     x_CostType:                 string,    // GCP Jan 2024
     x_Credits:                  dynamic,   // GCP Jan 2024
-    x_CurrencyConversionRate:   decimal,   // GCP Jun 2024
+    x_CurrencyConversionRate:   real,      // GCP Jun 2024
     x_CustomerId:               string,    // Azure 1.0-preview(v1)+
     x_CustomerName:             string,    // Azure 1.0-preview(v1)+
     x_Discount:                 dynamic,   // AWS 1.0 (JSON)
-    x_EffectiveCostInUsd:       decimal,   // Azure 1.0-preview(v1)+
-    x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
+    x_EffectiveCostInUsd:       real,      // Azure 1.0-preview(v1)+
+    x_EffectiveUnitPrice:       real,      // Azure 1.0-preview(v1)+
     x_ExportTime:               datetime,  // GCP Jan 2024 / Tencent 1.0
     x_IngestionTime:            datetime,  // Hubs add-on
     x_InstanceID:               string,    // Alibaba 1.0
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
-    x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
+    x_ListCostInUsd:            real,      // Azure 1.0-preview(v1)+
     x_Location:                 string,    // GCP Jan 2024
     x_Operation:                string,    // AWS 1.0
     x_OwnerAccountID:           string,    // Tencent 1.0
     x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
     x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
-    x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
+    x_PricingBlockSize:         real,      // Azure 1.0-preview(v1)+
     x_PricingSubcategory:       string,    // Azure 1.0-preview(v1)+
     x_PricingUnitDescription:   string,    // Azure 1.0-preview(v1)+
     x_Project:                  string,    // GCP Jan 2024
@@ -928,7 +928,7 @@ ActualCosts_transform_v1_2()
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
-        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', decimal(0), Cost),
+        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', real(0), Cost),
         BillingAccountId = strcat('/providers/microsoft.billing/billingaccounts/', BillingAccountId, iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), '', strcat('/billingprofiles/', BillingProfileId))),
         BillingAccountName = coalesce(BillingProfileName, BillingAccountName),
         BillingAccountType = iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), 'Billing Profile', 'Billing Account'),
@@ -957,7 +957,7 @@ ActualCosts_transform_v1_2()
         CommitmentDiscountCategory,
         CommitmentDiscountId = iff(isnotempty(ReservationId), strcat('/providers/microsoft.capacity/reservationorders/', ProductOrderId, '/reservations/', ReservationId), ''),
         CommitmentDiscountName = ReservationName,
-        CommitmentDiscountQuantity = decimal(null),
+        CommitmentDiscountQuantity = real(null),
         CommitmentDiscountStatus = case(
             isempty(ReservationId), '',
             isnotempty(ReservationId) and ChargeType == 'Usage', 'Used',
@@ -970,11 +970,11 @@ ActualCosts_transform_v1_2()
         ConsumedUnit = PricingUnit,
         ContractedCost = UnitPrice * PricingQuantity,
         ContractedUnitPrice = UnitPrice,
-        EffectiveCost = iff(x_AmortizationClass == 'Principal', decimal(0), Cost),
+        EffectiveCost = iff(x_AmortizationClass == 'Principal', real(0), Cost),
         InvoiceId = '',
         InvoiceIssuerName = 'Microsoft',
-        ListCost = decimal(null),
-        ListUnitPrice = decimal(null),
+        ListCost = real(null),
+        ListUnitPrice = real(null),
         PricingCategory,
         PricingCurrency = iff(BillingAccountId == BillingProfileId, BillingCurrency, ''),
         PricingQuantity,
@@ -998,18 +998,18 @@ ActualCosts_transform_v1_2()
         SubAccountName = iff(isempty(SubscriptionId), '', SubscriptionName),
         SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
         Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
-        UsageAmount = decimal(null),
-        UsageQuantity = decimal(null),
+        UsageAmount = real(null),
+        UsageQuantity = real(null),
         UsageUnit = '',
         x_AccountId = '',
         x_AccountName = AccountName,
         x_AccountOwnerId = AccountOwnerId,
         x_AmortizationClass = '',
-        x_BilledCostInUsd = decimal(null),
-        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), UnitPrice),
+        x_BilledCostInUsd = real(null),
+        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', real(0), UnitPrice),
         x_BillingAccountId = BillingAccountId,
         x_BillingAccountName = BillingAccountName,
-        x_BillingExchangeRate = decimal(null),
+        x_BillingExchangeRate = real(null),
         x_BillingExchangeRateDate = datetime(null),
         x_BillingItemCode = '',
         x_BillingItemName = '',
@@ -1020,30 +1020,30 @@ ActualCosts_transform_v1_2()
         x_CommodityName = '',
         x_ComponentType = '',
         x_ComponentName = '',
-        x_ContractedCostInUsd = decimal(null),
-        x_Cost = decimal(null),
+        x_ContractedCostInUsd = real(null),
+        x_Cost = real(null),
         x_CostAllocationRuleName = '',
         x_CostCategories = '',
         x_CostCenter = CostCenter,
         x_CostType = '',
         x_Credits = '',
-        x_CurrencyConversionRate = decimal(null),
+        x_CurrencyConversionRate = real(null),
         x_CustomerId = '',
         x_CustomerName = '',
         x_Discount = '',
-        x_EffectiveCostInUsd = decimal(null),
-        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), EffectivePrice),
+        x_EffectiveCostInUsd = real(null),
+        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', real(0), EffectivePrice),
         x_ExportTime = datetime(null),
         x_InstanceID = '',
         x_InvoiceId = '',
         x_InvoiceIssuerId = '',
         x_InvoiceSectionId = InvoiceSectionId,
         x_InvoiceSectionName = InvoiceSection,
-        x_ListCostInUsd = decimal(null),
+        x_ListCostInUsd = real(null),
         x_Location = '',
-        x_OnDemandCost = decimal(null),
-        x_OnDemandCostInUsd = decimal(null),
-        x_OnDemandUnitPrice = decimal(null),
+        x_OnDemandCost = real(null),
+        x_OnDemandCostInUsd = real(null),
+        x_OnDemandUnitPrice = real(null),
         x_Operation = '',
         x_OwnerAccountID = '',
         x_PartnerCreditApplied = '',
@@ -1149,7 +1149,7 @@ AmortizedCosts_transform_v1_2()
     | extend CommitmentDiscountCategory = iff(isnotempty(ReservationId), 'Usage', '')  // TODO: CommitmentDiscountCategory needs to handle savings plans
     | project
         AvailabilityZone = AvailabilityZone,
-        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', decimal(0), Cost),
+        BilledCost = iff(x_AmortizationClass == 'Amortized Charge', real(0), Cost),
         BillingAccountId = strcat('/providers/microsoft.billing/billingaccounts/', BillingAccountId, iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), '', strcat('/billingprofiles/', BillingProfileId))),
         BillingAccountName = coalesce(BillingProfileName, BillingAccountName),
         BillingAccountType = iff(BillingAccountId == BillingProfileId or isempty(BillingProfileId), 'Billing Profile', 'Billing Account'),
@@ -1178,7 +1178,7 @@ AmortizedCosts_transform_v1_2()
         CommitmentDiscountCategory,
         CommitmentDiscountId = iff(isnotempty(ReservationId), strcat('/providers/microsoft.capacity/reservationorders/', ProductOrderId, '/reservations/', ReservationId), ''),
         CommitmentDiscountName = ReservationName,
-        CommitmentDiscountQuantity = decimal(null),
+        CommitmentDiscountQuantity = real(null),
         CommitmentDiscountStatus = case(
             isempty(ReservationId), '',
             isnotempty(ReservationId) and ChargeType == 'Usage', 'Used',
@@ -1191,11 +1191,11 @@ AmortizedCosts_transform_v1_2()
         ConsumedUnit = PricingUnit,
         ContractedCost = UnitPrice * PricingQuantity,
         ContractedUnitPrice = UnitPrice,
-        EffectiveCost = iff(x_AmortizationClass == 'Principal', decimal(0), Cost),
+        EffectiveCost = iff(x_AmortizationClass == 'Principal', real(0), Cost),
         InvoiceId = '',
         InvoiceIssuerName = 'Microsoft',
-        ListCost = decimal(null),
-        ListUnitPrice = decimal(null),
+        ListCost = real(null),
+        ListUnitPrice = real(null),
         PricingCategory,
         PricingCurrency = iff(BillingAccountId == BillingProfileId, BillingCurrency, ''),
         PricingQuantity,
@@ -1219,18 +1219,18 @@ AmortizedCosts_transform_v1_2()
         SubAccountName = iff(isempty(SubscriptionId), '', SubscriptionName),
         SubAccountType = iff(isempty(SubscriptionId), '', 'Subscription'),
         Tags = iff(Tags startswith '{', Tags, strcat('{', Tags, '}')),
-        UsageAmount = decimal(null),
-        UsageQuantity = decimal(null),
+        UsageAmount = real(null),
+        UsageQuantity = real(null),
         UsageUnit = '',
         x_AccountId = '',
         x_AccountName = AccountName,
         x_AccountOwnerId = AccountOwnerId,
         x_AmortizationClass = '',
-        x_BilledCostInUsd = decimal(null),
-        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), UnitPrice),
+        x_BilledCostInUsd = real(null),
+        x_BilledUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', real(0), UnitPrice),
         x_BillingAccountId = BillingAccountId,
         x_BillingAccountName = BillingAccountName,
-        x_BillingExchangeRate = decimal(null),
+        x_BillingExchangeRate = real(null),
         x_BillingExchangeRateDate = datetime(null),
         x_BillingItemCode = '',
         x_BillingItemName = '',
@@ -1241,30 +1241,30 @@ AmortizedCosts_transform_v1_2()
         x_CommodityName = '',
         x_ComponentType = '',
         x_ComponentName = '',
-        x_ContractedCostInUsd = decimal(null),
-        x_Cost = decimal(null),
+        x_ContractedCostInUsd = real(null),
+        x_Cost = real(null),
         x_CostAllocationRuleName = '',
         x_CostCategories = '',
         x_CostCenter = CostCenter,
         x_CostType = '',
         x_Credits = '',
-        x_CurrencyConversionRate = decimal(null),
+        x_CurrencyConversionRate = real(null),
         x_CustomerId = '',
         x_CustomerName = '',
         x_Discount = '',
-        x_EffectiveCostInUsd = decimal(null),
-        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', decimal(0), EffectivePrice),
+        x_EffectiveCostInUsd = real(null),
+        x_EffectiveUnitPrice = iff(ChargeType == 'Usage' and isnotempty(ReservationId) and ChargeType != 'UnusedSavingsPlan', real(0), EffectivePrice),
         x_ExportTime = datetime(null),
         x_InstanceID = '',
         x_InvoiceId = '',
         x_InvoiceIssuerId = '',
         x_InvoiceSectionId = InvoiceSectionId,
         x_InvoiceSectionName = InvoiceSection,
-        x_ListCostInUsd = decimal(null),
+        x_ListCostInUsd = real(null),
         x_Location = '',
-        x_OnDemandCost = decimal(null),
-        x_OnDemandCostInUsd = decimal(null),
-        x_OnDemandUnitPrice = decimal(null),
+        x_OnDemandCost = real(null),
+        x_OnDemandCostInUsd = real(null),
+        x_OnDemandUnitPrice = real(null),
         x_Operation = '',
         x_OwnerAccountID = '',
         x_PartnerCreditApplied = '',
@@ -1406,10 +1406,10 @@ CommitmentDiscountUsage_transform_v1_2()
     ChargePeriodStart:                   datetime,  // MS 2023-03-01
     CommitmentDiscountCategory:          string,    // Hubs add-on
     CommitmentDiscountId:                string,    // MS 2023-03-01
-    CommitmentDiscountQuantity:          decimal,   // MS 2023-03-01
+    CommitmentDiscountQuantity:          real,      // MS 2023-03-01
     CommitmentDiscountType:              string,    // Hubs add-on
     CommitmentDiscountUnit:              string,    // Hubs add-on
-    ConsumedQuantity:                    decimal,   // MS 2023-03-01
+    ConsumedQuantity:                    real,      // MS 2023-03-01
     ProviderName:                        string,    // Hubs add-on
     ResourceId:                          string,    // MS 2023-03-01
     ResourceName:                        string,    // Hubs add-on
@@ -1418,10 +1418,10 @@ CommitmentDiscountUsage_transform_v1_2()
     ServiceName:                         string,    // Hubs add-on
     ServiceSubcategory:                  string,    // Hubs add-on
     SubAccountId:                        string,    // Hubs add-on
-    x_CommitmentDiscountCommittedCount:  decimal,   // MS 2023-03-01
-    x_CommitmentDiscountCommittedAmount: decimal,   // MS 2023-03-01
+    x_CommitmentDiscountCommittedCount:  real,      // MS 2023-03-01
+    x_CommitmentDiscountCommittedAmount: real,      // MS 2023-03-01
     x_CommitmentDiscountNormalizedGroup: string,    // MS 2023-03-01
-    x_CommitmentDiscountNormalizedRatio: decimal,   // MS 2023-03-01
+    x_CommitmentDiscountNormalizedRatio: real,      // MS 2023-03-01
     x_IngestionTime:                     datetime,  // Hubs add-on
     x_ResourceGroupName:                 string,    // Hubs add-on
     x_ResourceType:                      string,    // Hubs add-on
@@ -1480,14 +1480,17 @@ Recommendations_transform_v1_2()
     | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
     //
-    // Convert JSON cost columns to decimal
-    | extend CostWithNoReservedInstances    = case(isnotempty(CostWithNoReservedInstances),    CostWithNoReservedInstances,    isnotempty(CostWithNoReservedInstancesJson),    todecimal(extract(@'"value":([0-9\.]+)', 1, CostWithNoReservedInstancesJson)),    CostWithNoReservedInstances)
-    | extend NetSavings                     = case(isnotempty(NetSavings),                     NetSavings,                     isnotempty(NetSavingsJson),                     todecimal(extract(@'"value":([0-9\.]+)', 1, NetSavingsJson)),                     NetSavings)
-    | extend TotalCostWithReservedInstances = case(isnotempty(TotalCostWithReservedInstances), TotalCostWithReservedInstances, isnotempty(TotalCostWithReservedInstancesJson), todecimal(extract(@'"value":([0-9\.]+)', 1, TotalCostWithReservedInstancesJson)), TotalCostWithReservedInstances)
+    // Convert JSON cost columns to real
+    | extend CostWithNoReservedInstances    = case(isnotempty(CostWithNoReservedInstances),    CostWithNoReservedInstances,    isnotempty(CostWithNoReservedInstancesJson),    toreal(extract(@'"value":([0-9\.]+)', 1, CostWithNoReservedInstancesJson)),    CostWithNoReservedInstances)
+    | extend NetSavings                     = case(isnotempty(NetSavings),                     NetSavings,                     isnotempty(NetSavingsJson),                     toreal(extract(@'"value":([0-9\.]+)', 1, NetSavingsJson)),                     NetSavings)
+    | extend TotalCostWithReservedInstances = case(isnotempty(TotalCostWithReservedInstances), TotalCostWithReservedInstances, isnotempty(TotalCostWithReservedInstancesJson), toreal(extract(@'"value":([0-9\.]+)', 1, TotalCostWithReservedInstancesJson)), TotalCostWithReservedInstances)
     //
     // Build recommendation details
     | lookup kind=leftouter (Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
     | extend x_RecommendationDetails = case(
+        // Use incoming x_RecommendationDetails first
+        isnotempty(x_RecommendationDetails), x_RecommendationDetails,
+        // Create one for reservation recommendations if needed
         x_SourceType == 'ReservationRecommendations', bag_pack(
             'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
             'CommitmentDiscountNormalizedRatio', InstanceFlexibilityRatio,
@@ -1512,18 +1515,27 @@ Recommendations_transform_v1_2()
         dynamic({})
     )
     //
-    // Sort columns and apply final transforms
-    | extend x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d)
+    // Prefer specified date, then fall back to generating a date based on reservation recommendation lookback period, then validate to ensure it's not in the future
+    | extend x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d))
     | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
+    //
     | project
         ProviderName,
-        SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        SubAccountId = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
+        SubAccountName,
+        x_EffectiveCostAfter = coalesce(x_EffectiveCostAfter, TotalCostWithReservedInstances),
+        x_EffectiveCostBefore = coalesce(x_EffectiveCostBefore, CostWithNoReservedInstances),
+        x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings),
         x_IngestionTime,
-        x_EffectiveCostAfter = TotalCostWithReservedInstances,
-        x_EffectiveCostBefore = CostWithNoReservedInstances,
-        x_EffectiveCostSavings = NetSavings,
-        x_RecommendationDate = FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d),
+        x_RecommendationCategory,  // TODO: Set for reservation recommendations
+        x_RecommendationDate,
+        x_RecommendationDescription,
         x_RecommendationDetails,
+        x_RecommendationId,        // TODO: Set for reservation recommendations
+        x_ResourceGroupName,
         x_SourceName,
         x_SourceProvider,
         x_SourceType,
@@ -1532,18 +1544,26 @@ Recommendations_transform_v1_2()
 
 // Recommendations_final_v1_2 table
 .create-merge table Recommendations_final_v1_2 (
-    ProviderName:            string,
-    SubAccountId:            string,
-    x_IngestionTime:         datetime,
-    x_EffectiveCostAfter:    decimal,
-    x_EffectiveCostBefore:   decimal,
-    x_EffectiveCostSavings:  decimal,
-    x_RecommendationDate:    datetime,
-    x_RecommendationDetails: dynamic,
-    x_SourceName:            string,
-    x_SourceProvider:        string,
-    x_SourceType:            string,
-    x_SourceVersion:         string
+    ProviderName:                string,
+    ResourceId:                  string,
+    ResourceName:                string,
+    ResourceType:                string,
+    SubAccountId:                string,
+    SubAccountName:              string,
+    x_EffectiveCostAfter:        real,
+    x_EffectiveCostBefore:       real,
+    x_EffectiveCostSavings:      real,
+    x_IngestionTime:             datetime,
+    x_RecommendationCategory:    string,
+    x_RecommendationDate:        datetime,
+    x_RecommendationDescription: string,
+    x_RecommendationDetails:     dynamic,
+    x_RecommendationId:          string,
+    x_ResourceGroupName:         string,
+    x_SourceName:                string,
+    x_SourceProvider:            string,
+    x_SourceType:                string,
+    x_SourceVersion:             string
 )
 
 // Update policy for Recommendations_raw -> Recommendations_final_v1_2 table
@@ -1657,7 +1677,7 @@ Transactions_transform_v1_2()
 
 // Transactions_final_v1_2 table
 .create-merge table Transactions_final_v1_2 (
-    BilledCost:                   decimal,   // MS CM EA+MCA 2023-05-01
+    BilledCost:                   real,      // MS CM EA+MCA 2023-05-01
     BillingAccountId:             string,    // MS CM EA+MCA 2023-05-01
     BillingAccountName:           string,    // MS CM EA+MCA 2023-05-01
     BillingCurrency:              string,    // MS CM EA+MCA 2023-05-01
@@ -1669,7 +1689,7 @@ Transactions_transform_v1_2()
     ChargeFrequency:              string,    // MS CM EA+MCA 2023-05-01
     ChargePeriodStart:            datetime,  // MS CM EA+MCA 2023-05-01
     InvoiceId:                    string,    // MS CM MCA 2023-05-01
-    PricingQuantity:              decimal,   // MS CM EA+MCA 2023-05-01
+    PricingQuantity:              real,      // MS CM EA+MCA 2023-05-01
     PricingUnit:                  string,    // Hubs add-on
     ProviderName:                 string,    // Hubs add-on
     RegionId:                     string,    // MS CM EA+MCA 2023-05-01
@@ -1683,8 +1703,8 @@ Transactions_transform_v1_2()
     x_InvoiceSectionId:           string,    // MS CM MCA 2023-05-01
     x_InvoiceSectionName:         string,    // MS CM MCA 2023-05-01
     x_IngestionTime:              datetime,  // Hubs add-on
-    x_MonetaryCommitment:         decimal,   // MS CM EA 2023-05-01
-    x_Overage:                    decimal,   // MS CM EA 2023-05-01
+    x_MonetaryCommitment:         real,      // MS CM EA 2023-05-01
+    x_Overage:                    real,      // MS CM EA 2023-05-01
     x_PurchasingBillingAccountId: string,    // MS CM EA 2023-05-01
     x_SkuOrderId:                 string,    // MS CM EA+MCA 2023-05-01
     x_SkuOrderName:               string,    // MS CM EA+MCA 2023-05-01

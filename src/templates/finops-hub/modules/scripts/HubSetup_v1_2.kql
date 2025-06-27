@@ -17,6 +17,13 @@ CommitmentDiscountUsage_v1_2()
     database('Ingestion').CommitmentDiscountUsage_final_v1_2
     | union (
         database('Ingestion').CommitmentDiscountUsage_final_v1_0
+        // Convert decimal to real
+        | extend
+            ConsumedQuantity                    = toreal(ConsumedQuantity),
+            x_CommitmentDiscountCommittedCount  = toreal(x_CommitmentDiscountCommittedCount),
+            x_CommitmentDiscountCommittedAmount = toreal(x_CommitmentDiscountCommittedAmount),
+            x_CommitmentDiscountNormalizedRatio = toreal(x_CommitmentDiscountNormalizedRatio)
+        // Add new columns
         | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceSubcategory) on x_ResourceType
         | extend CommitmentDiscountQuantity = ConsumedQuantity * x_CommitmentDiscountNormalizedRatio
         | extend CommitmentDiscountUnit = case(
@@ -67,11 +74,32 @@ Costs_v1_2()
     database('Ingestion').Costs_final_v1_2
     | union (
         database('Ingestion').Costs_final_v1_0
-        | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceSubcategory, x_ServiceModel) on x_ResourceType
+        // Convert decimal to real
+        | extend
+            BilledCost                          = toreal(BilledCost),
+            ConsumedQuantity                    = toreal(ConsumedQuantity),
+            ContractedCost                      = toreal(ContractedCost),
+            ContractedUnitPrice                 = toreal(ContractedUnitPrice),
+            EffectiveCost                       = toreal(EffectiveCost),
+            ListCost                            = toreal(ListCost),
+            ListUnitPrice                       = toreal(ListUnitPrice),
+            PricingQuantity                     = toreal(PricingQuantity),
+            x_BilledCostInUsd                   = toreal(x_BilledCostInUsd),
+            x_BilledUnitPrice                   = toreal(x_BilledUnitPrice),
+            x_BillingExchangeRate               = toreal(x_BillingExchangeRate),
+            x_ContractedCostInUsd               = toreal(x_ContractedCostInUsd),
+            x_CurrencyConversionRate            = toreal(x_CurrencyConversionRate),
+            x_EffectiveCostInUsd                = toreal(x_EffectiveCostInUsd),
+            x_EffectiveUnitPrice                = toreal(x_EffectiveUnitPrice),
+            x_ListCostInUsd                     = toreal(x_ListCostInUsd),
+            x_PricingBlockSize                  = toreal(x_PricingBlockSize)
+        // Rename columns
         | project-rename
             InvoiceId = x_InvoiceId,
             PricingCurrency = x_PricingCurrency,
             SkuMeter = x_SkuMeterName
+        // Add new columns
+        | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceSubcategory, x_ServiceModel) on x_ResourceType
         | extend CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
         | extend CapacityReservationStatus = case(
             isempty(CapacityReservationId), '',
@@ -80,15 +108,15 @@ Costs_v1_2()
         )
         | extend x_CommitmentDiscountNormalizedRatio = case(
             // Not applicable
-            isempty(CommitmentDiscountStatus), decimal(null),
+            isempty(CommitmentDiscountStatus), real(null),
             // Parse from SKU details if not specified explicitly
-            todecimal(coalesce(x_SkuDetails.RINormalizationRatio, dynamic(1)))
+            toreal(coalesce(x_SkuDetails.RINormalizationRatio, dynamic(1)))
         )
         | extend CommitmentDiscountQuantity = case(
-            isempty(CommitmentDiscountStatus), decimal(null),
-            CommitmentDiscountCategory == 'Spend', EffectiveCost / coalesce(x_BillingExchangeRate, decimal(1)),
-            CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, decimal(1)) * x_CommitmentDiscountNormalizedRatio,
-            decimal(null)
+            isempty(CommitmentDiscountStatus), real(null),
+            CommitmentDiscountCategory == 'Spend', EffectiveCost / coalesce(x_BillingExchangeRate, real(1)),
+            CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, real(1)) * x_CommitmentDiscountNormalizedRatio,
+            real(null)
         )
         | extend x_AmortizationClass = case(
             ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
@@ -98,8 +126,8 @@ Costs_v1_2()
         | extend CommitmentDiscountUnit = case(
             isempty(CommitmentDiscountQuantity), '',
             CommitmentDiscountCategory == 'Spend', PricingCurrency,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == decimal(1), ConsumedUnit,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > decimal(1), strcat('Normalized ', ConsumedUnit),
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == real(1), ConsumedUnit,
+            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > real(1), strcat('Normalized ', ConsumedUnit),
             ''
         )
     )
@@ -254,6 +282,22 @@ Prices_v1_2()
     database('Ingestion').Prices_final_v1_2
     | union (
         database('Ingestion').Prices_final_v1_0
+        // Convert decimal to real
+        | extend
+            ContractedUnitPrice                  = toreal(ContractedUnitPrice),
+            ListUnitPrice                        = toreal(ListUnitPrice),
+            x_BaseUnitPrice                      = toreal(x_BaseUnitPrice),
+            x_ContractedUnitPriceDiscount        = toreal(x_ContractedUnitPriceDiscount),
+            x_ContractedUnitPriceDiscountPercent = toreal(x_ContractedUnitPriceDiscountPercent),
+            x_EffectiveUnitPrice                 = toreal(x_EffectiveUnitPrice),
+            x_EffectiveUnitPriceDiscount         = toreal(x_EffectiveUnitPriceDiscount),
+            x_EffectiveUnitPriceDiscountPercent  = toreal(x_EffectiveUnitPriceDiscountPercent),
+            x_PricingBlockSize                   = toreal(x_PricingBlockSize),
+            x_SkuIncludedQuantity                = toreal(x_SkuIncludedQuantity),
+            x_SkuTier                            = toreal(x_SkuTier),
+            x_TotalUnitPriceDiscount             = toreal(x_TotalUnitPriceDiscount),
+            x_TotalUnitPriceDiscountPercent      = toreal(x_TotalUnitPriceDiscountPercent) 
+        // Rename columns
         | project-rename
             PricingCurrency = x_PricingCurrency,
             SkuMeter = x_SkuMeterName
@@ -325,6 +369,11 @@ Recommendations_v1_2()
     database('Ingestion').Recommendations_final_v1_2
     | union (
         database('Ingestion').Recommendations_final_v1_0
+        // Convert decimal to real
+        | extend
+            x_EffectiveCostAfter   = toreal(x_EffectiveCostAfter),
+            x_EffectiveCostBefore  = toreal(x_EffectiveCostBefore),
+            x_EffectiveCostSavings = toreal(x_EffectiveCostSavings)
     )
     | project
         ProviderName,
@@ -350,6 +399,13 @@ Transactions_v1_2()
     database('Ingestion').Transactions_final_v1_2
     | union (
         database('Ingestion').Transactions_final_v1_0
+        // Convert decimal to real
+        | extend
+            BilledCost           = toreal(BilledCost),
+            PricingQuantity      = toreal(PricingQuantity),
+            x_MonetaryCommitment = toreal(x_MonetaryCommitment),
+            x_Overage            = toreal(x_Overage)
+        // Rename columns
         | project-rename
             InvoiceId = x_InvoiceId
     )

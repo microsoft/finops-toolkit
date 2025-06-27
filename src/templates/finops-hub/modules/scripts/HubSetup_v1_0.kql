@@ -17,6 +17,13 @@ CommitmentDiscountUsage_v1_0()
     database('Ingestion').CommitmentDiscountUsage_final_v1_0
     | union (
         database('Ingestion').CommitmentDiscountUsage_final_v1_2
+        // Convert real to decimal
+        | extend
+            CommitmentDiscountQuantity          = todecimal(CommitmentDiscountQuantity),
+            ConsumedQuantity                    = todecimal(ConsumedQuantity),
+            x_CommitmentDiscountCommittedCount  = todecimal(x_CommitmentDiscountCommittedCount),
+            x_CommitmentDiscountCommittedAmount = todecimal(x_CommitmentDiscountCommittedAmount),
+            x_CommitmentDiscountNormalizedRatio = todecimal(x_CommitmentDiscountNormalizedRatio)
     )
     | project
         ChargePeriodEnd,
@@ -58,10 +65,33 @@ Costs_v1_0()
     database('Ingestion').Costs_final_v1_0
     | union (
         database('Ingestion').Costs_final_v1_2
+        // Convert real to decimal
+        | extend
+            BilledCost                          = todecimal(BilledCost),
+            CommitmentDiscountQuantity          = todecimal(CommitmentDiscountQuantity),
+            ConsumedQuantity                    = todecimal(ConsumedQuantity),
+            ContractedCost                      = todecimal(ContractedCost),
+            ContractedUnitPrice                 = todecimal(ContractedUnitPrice),
+            EffectiveCost                       = todecimal(EffectiveCost),
+            ListCost                            = todecimal(ListCost),
+            ListUnitPrice                       = todecimal(ListUnitPrice),
+            PricingQuantity                     = todecimal(PricingQuantity),
+            x_BilledCostInUsd                   = todecimal(x_BilledCostInUsd),
+            x_BilledUnitPrice                   = todecimal(x_BilledUnitPrice),
+            x_BillingExchangeRate               = todecimal(x_BillingExchangeRate),
+            x_CommitmentDiscountNormalizedRatio = todecimal(x_CommitmentDiscountNormalizedRatio),
+            x_ContractedCostInUsd               = todecimal(x_ContractedCostInUsd),
+            x_CurrencyConversionRate            = todecimal(x_CurrencyConversionRate),
+            x_EffectiveCostInUsd                = todecimal(x_EffectiveCostInUsd),
+            x_EffectiveUnitPrice                = todecimal(x_EffectiveUnitPrice),
+            x_ListCostInUsd                     = todecimal(x_ListCostInUsd),
+            x_PricingBlockSize                  = todecimal(x_PricingBlockSize)
+        // Rename columns
         | project-rename
             x_InvoiceId = InvoiceId,
             x_PricingCurrency = PricingCurrency,
             x_SkuMeterName = SkuMeter
+        // Generate historical x_SkuDetails format from SkuPriceDetails
         | extend x_SkuDetails = iff(isnotempty(x_SkuDetails), x_SkuDetails, parse_json(replace_regex(tostring(SkuPriceDetails), @'([\{,])"x_', @'\1"')))
     )
     | project
@@ -193,6 +223,23 @@ Prices_v1_0()
     database('Ingestion').Prices_final_v1_0
     | union (
         database('Ingestion').Prices_final_v1_2
+        // Convert real to decimal
+        | extend
+            ContractedUnitPrice                  = todecimal(ContractedUnitPrice),
+            ListUnitPrice                        = todecimal(ListUnitPrice),
+            x_BaseUnitPrice                      = todecimal(x_BaseUnitPrice),
+            x_CommitmentDiscountNormalizedRatio  = todecimal(x_CommitmentDiscountNormalizedRatio),
+            x_ContractedUnitPriceDiscount        = todecimal(x_ContractedUnitPriceDiscount),
+            x_ContractedUnitPriceDiscountPercent = todecimal(x_ContractedUnitPriceDiscountPercent),
+            x_EffectiveUnitPrice                 = todecimal(x_EffectiveUnitPrice),
+            x_EffectiveUnitPriceDiscount         = todecimal(x_EffectiveUnitPriceDiscount),
+            x_EffectiveUnitPriceDiscountPercent  = todecimal(x_EffectiveUnitPriceDiscountPercent),
+            x_PricingBlockSize                   = todecimal(x_PricingBlockSize),
+            x_SkuIncludedQuantity                = todecimal(x_SkuIncludedQuantity),
+            x_SkuTier                            = todecimal(x_SkuTier),
+            x_TotalUnitPriceDiscount             = todecimal(x_TotalUnitPriceDiscount),
+            x_TotalUnitPriceDiscountPercent      = todecimal(x_TotalUnitPriceDiscountPercent) 
+        // Rename columns
         | project-rename
             x_PricingCurrency = PricingCurrency,
             x_SkuMeterName = SkuMeter
@@ -262,6 +309,11 @@ Recommendations_v1_0()
     database('Ingestion').Recommendations_final_v1_0
     | union (
         database('Ingestion').Recommendations_final_v1_2
+        // Convert real to decimal
+        | extend
+            x_EffectiveCostAfter   = todecimal(x_EffectiveCostAfter),
+            x_EffectiveCostBefore  = todecimal(x_EffectiveCostBefore),
+            x_EffectiveCostSavings = todecimal(x_EffectiveCostSavings)
     )
     | project
         ProviderName,
@@ -287,6 +339,13 @@ Transactions_v1_0()
     database('Ingestion').Transactions_final_v1_0
     | union (
         database('Ingestion').Transactions_final_v1_2
+        // Convert real to decimal
+        | extend
+            BilledCost           = todecimal(BilledCost),
+            PricingQuantity      = todecimal(PricingQuantity),
+            x_MonetaryCommitment = todecimal(x_MonetaryCommitment),
+            x_Overage            = todecimal(x_Overage)
+        // Rename columns
         | project-rename
             x_InvoiceId = InvoiceId
     )
