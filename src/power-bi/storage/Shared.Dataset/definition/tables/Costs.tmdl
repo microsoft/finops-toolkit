@@ -140,6 +140,39 @@ table Costs
 		formatString: 0
 		lineageTag: 902eb4c9-763a-4b55-952d-5f8321aebbe2
 
+	measure x_PreviousMonthCost =
+			
+			CALCULATE(
+			    SUM('Costs'[EffectiveCost]),
+			    DATEADD(DateTable[Date], -1, MONTH)
+			)
+		lineageTag: 69436b86-197e-423d-86e3-e7d82be31f4b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure x_DeltaCost =
+			
+			SUM(Costs[EffectiveCost]) - [x_PreviousMonthCost]
+		lineageTag: 48b48745-b897-40e7-8fa5-8a0379449b76
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure x_FilteredDeltaCostDynamic = ```
+			
+			VAR MinValue = SELECTEDVALUE(MinDeltaCost[MinDeltaCost], -100000000)
+			VAR MaxValue = SELECTEDVALUE(MaxDeltaCost[MaxDeltaCost], 100000000)
+			VAR DeltaCost = [x_DeltaCost]
+			RETURN
+			    IF(
+			        DeltaCost >= MinValue && DeltaCost <= MaxValue,
+			        1,
+			        0
+			    )
+			
+			```
+		formatString: 0
+		lineageTag: 6677d1d0-c2d7-4b5e-9232-75c0da336075
+
 	column ResourceId
 		dataType: string
 		lineageTag: 62265a48-5fe0-4b5c-8440-16f5b641adc8
