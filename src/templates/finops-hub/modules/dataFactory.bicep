@@ -158,6 +158,7 @@ var storageRbacRoles = union (
     // Reader -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
     'acdd72a7-3385-48ef-bd42-f606fba81ae7'
   ],
+  // Only use User Access Administrator if managed exports are enabled for least privileged access
   !enableManagedExports ? [] : [
     // User Access Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
     '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
