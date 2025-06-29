@@ -60,6 +60,11 @@ To delete FinOps hubs 0.7 networking resources:
 
 ## Step 2: Update Fabric eventhouse
 
+This step only applies if you are using Microsoft Fabric as a primary data store. Skip this step if any of the following apply:
+
+- You are using Azure Storage as your data store.
+- You are using Azure Data Explorer as your data store.
+
 The Microsoft Fabric eventhouse database schema must be manually updated with each release. For details, see [Set up Microsoft Fabric](deploy.md#optional-set-up-microsoft-fabric).
 
 <br>
@@ -135,11 +140,50 @@ For more information, see [Configure Data Explorer dashboards](configure-dashboa
 
 Replace the use of deprecated columns and functions:
 
-| Old version | Deprecated                                  | Replacement                                         |
-| ----------- | ------------------------------------------- | --------------------------------------------------- |
-| 0.7         | `daterange()`                               | `datestring(datetime, [datetime])`                  |
-| 0.7         | `monthsago()`                               | `startofmonth(datetime, [offset])`                  |
-| 0.7         | `parse_resourceid(ResourceId).ResourceType` | `resource_type(x_ResourceType).SingularDisplayName` |
+| Introduced | Retired | Deprecated                                  | Replacement                                         |
+| ---------- | ------- | ------------------------------------------- | --------------------------------------------------- |
+| 0.7        | 0.12    | `Costs().x_InvoiceId`                       | `Costs().InvoiceId`                                 |
+| 0.7        | 0.12    | `Costs().x_PricingCurrency`                 | `Costs().PricingCurrency`                           |
+| 0.7        | 0.12    | `Costs().x_SkuMeterName`                    | `Costs().SkuMeter`                                  |
+| 0.7        | 0.12    | `Prices().x_PricingCurrency`                | `Prices().PricingCurrency`                          |
+| 0.7        | 0.12    | `Prices().x_SkuMeterName`                   | `Prices().SkuMeter`                                 |
+| 0.7        | 0.12    | `Transactions().x_InvoiceId`                | `Transactions().InvoiceId`                          |
+| 0.7        | 0.8     | `parse_resourceid(ResourceId).ResourceType` | `resource_type(x_ResourceType).SingularDisplayName` |
+| 0.7        | N/A     | `daterange()`                               | `datestring(datetime, [datetime])`                  |
+| 0.7        | N/A     | `monthsago()`                               | `startofmonth(datetime, [offset])`                  |
+
+If using unversioned functions or updating from the `v1_0` schema version, review your code for any explicit use of the `decimal` data type and replace it with `real`. As of FinOps hubs 0.12 (schema version `v1_2`), all `decimal` data types changed to `real` to improve performance. To learn more about schema versions, see [About schema versions](data-model.md#schema-version).
+
+If updating queries to use a newer schema version, use the following table to understand the changes introduced in each schema version for each managed dataset.
+
+| Dataset                 | Schema | Column                                | Notes                                           |
+| ----------------------- | ------ | ------------------------------------- | ----------------------------------------------- |
+| (All)                   | v1_2   | All `decimal` columns                 | Changed to `real`                               |
+| CommitmentDiscountUsage | v1_2   | `CommitmentDiscountQuantity`          | New custom column                               |
+| CommitmentDiscountUsage | v1_2   | `CommitmentDiscountUnit`              | New custom column                               |
+| CommitmentDiscountUsage | v1_2   | `ServiceSubcategory`                  | New custom column                               |
+| Costs                   | v1_2   | `CapacityReservationId`               | New with FOCUS 1.2                              |
+| Costs                   | v1_2   | `CapacityReservationStatus`           | New with FOCUS 1.2                              |
+| Costs                   | v1_2   | `CommitmentDiscountQuantity`          | New with FOCUS 1.2                              |
+| Costs                   | v1_2   | `CommitmentDiscountUnit`              | New with FOCUS 1.2                              |
+| Cost                    | v1_2   | `ServiceSubcategory`                  | New with FOCUS 1.2                              |
+| Cost                    | v1_2   | `SkuPriceDetails`                     | New with FOCUS 1.2; derived from `x_SkuDetails` |
+| Costs                   | v1_2   | `x_AmortizationClass`                 | New with Cost Management FOCUS 1.2-preview      |
+| Costs                   | v1_2   | `x_CommitmentDiscountNormalizedRatio` | New with Cost Management FOCUS 1.2-preview      |
+| Costs                   | v1_2   | `x_InvoiceId`                         | Renamed to `InvoiceId`                          |
+| Costs                   | v1_2   | `x_PricingCurrency`                   | Renamed to `PricingCurrency`                    |
+| Costs                   | v1_2   | `x_ServiceModel`                      | New custom column                               |
+| Costs                   | v1_2   | `x_SkuMeterName`                      | Renamed to `SkuMeter`                           |
+| Prices                  | v1_2   | `CommitmentDiscountUnit`              | New custom column                               |
+| Prices                  | v1_2   | `x_PricingCurrency`                   | Renamed to `PricingCurrency`                    |
+| Prices                  | v1_2   | `x_SkuMeterName`                      | Renamed to `SkuMeter`                           |
+| Recommendations         | v1_2   | `ResourceId`                          | New custom column                               |
+| Recommendations         | v1_2   | `ResourceName`                        | New custom column                               |
+| Recommendations         | v1_2   | `ResourceType`                        | New custom column                               |
+| Recommendations         | v1_2   | `SubAccountName`                      | New custom column                               |
+| Recommendations         | v1_2   | `x_RecommendationDetails`             | New custom column                               |
+| Recommendations         | v1_2   | `x_ResourceGroupName`                 | New custom column                               |
+| Transactions            | v1_2   | `x_InvoiceId`                         | Renamed to `InvoiceId`                          |
 
 <br>
 

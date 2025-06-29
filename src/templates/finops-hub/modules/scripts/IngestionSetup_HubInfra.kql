@@ -43,10 +43,16 @@ HubScopes()
 
 //===| Open data |======================================================================================================
 
-// PricingUnits
-.create-merge table PricingUnits (
+// PricingUnits -- Create table if it doesn't exist
+.create-merge table PricingUnits ( ignore: string )
+
+// PricingUnits -- Remove all columns
+.alter table PricingUnits ( ignore: string )
+
+// PricingUnits -- Redefine all columns to change types
+.alter table PricingUnits (
     x_PricingUnitDescription: string,
-    x_PricingBlockSize:       decimal,
+    x_PricingBlockSize:       real,
     PricingUnit:              string
 )
 

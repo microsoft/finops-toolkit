@@ -79,7 +79,7 @@ For a list of requested changes, ideas under consideration, and open questions a
 
 Supported datasets:
 
-- Microsoft FocusCost: `1.0r2`, `1.0`, `1.0-preview(v1)`
+- Microsoft FocusCost: `1.2-preview`, `1.0r2`, `1.0`, `1.0-preview(v1)`
 
 The following datasets were accounted for in the design, but are not natively supported. To ingest these datasets, create a data pipeline (or external process) that pushes parquet files into the `ingestion/Costs/yyyy/mm/{scope-path}` folder in storage. The `{scope-path}` can be any unique path, like `aws/123` or `gcp/projects/foo`. The only requirement is to ensure each scope is in a separate folder. After copying external content, also create a **manifest.json** file to trigger Data Explorer ingestion.
 
@@ -120,6 +120,18 @@ Transforms:
   - Add new `x_SourceChanges` checks for `MissingConsumedQuantity`, `MissingPricingQuantity`, and `XEffectiveUnitPriceRoundingError`.
 - v0.11+:
   - Change `BillingPeriodStart` and `BillingPeriodEnd` to be the first of the month.
+- v0.12+:
+  - Convert FOCUS 1.0-preview and 1.0 data to FOCUS 1.2.
+    - Renamed `x_InvoiceId` to `InvoiceId`.
+    - Renamed `x_PricingCurrency` to `PricingCurrency`.
+    - Renamed `x_SkuMeterName` to `SkuMeter`.
+  - Implemented the following columns when not set by Cost Management:
+    - `CapacityReservationId`
+    - `CapacityReservationStatus`
+    - `CommitmentDiscountQuantity`
+    - `CommitmentDiscountUnit`
+    - `x_CommitmentDiscountNormalizedRatio`
+  - Added `x_AmortizationClass` to filter out amortized purchases and avoid double-counting `ListCost` and `ContractedCost` for savings calculations.
 
 ### Price data transforms
 
@@ -148,6 +160,12 @@ Transforms:
   - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
 - v0.9+:
   - Lowercase `BillingAccountId` to ensure the cost join matches all rows.
+- v0.12+:
+  - Align column names to FOCUS 1.2:
+    - Renamed `x_PricingCurrency` to `PricingCurrency`.
+    - Renamed `x_SkuMeterName` to `SkuMeter`.
+  - Implemented the following columns when not set by Cost Management:
+    - `CommitmentDiscountUnit`
 
 ### Recommendation data transforms
 
@@ -157,10 +175,11 @@ Supported datasets:
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+:
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
 
 ### Transaction data transforms
 
@@ -170,10 +189,14 @@ Supported datasets:
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+:
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.12+:
+  - Align column names to FOCUS 1.2:
+    - Renamed `x_InvoiceId` to `InvoiceId`.
 
 ### Commitment discount usage data transforms
 

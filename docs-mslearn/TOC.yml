@@ -36,10 +36,6 @@
                   href: framework/understand/reporting.md
                 - name: Anomalies
                   href: framework/understand/anomalies.md
-                - name: Data analysis
-                  href: framework/understand/reporting.md
-                - name: Data ingestion
-                  href: framework/understand/ingestion.md
             - name: Quantify
               items:
                 - name: Quantify business value
@@ -60,12 +56,12 @@
                   href: framework/optimize/optimize-cloud-usage-cost.md
                 - name: Architecting for cloud
                   href: framework/optimize/architecting.md
-                - name: Workload management
+                - name: Workload optimization
                   href: framework/optimize/workloads.md
-                - name: Licensing + SaaS
-                  href: framework/optimize/licensing.md
                 - name: Rate optimization
                   href: framework/optimize/rates.md
+                - name: Licensing + SaaS
+                  href: framework/optimize/licensing.md
                 - name: Cloud sustainability
                   href: framework/optimize/sustainability.md
             - name: Manage
