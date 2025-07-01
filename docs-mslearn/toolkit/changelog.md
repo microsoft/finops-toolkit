@@ -52,14 +52,21 @@ _Released June 2025_
     - Make sure you use the 1.0 functions, like `Costs_v1_0()`, to avoid breaking changes between FOCUS versions.
     - This is **not** a breaking change if you are following the prescribed guidance of using versioned functions.
     - This change does not include Power BI and Data Explorer dashboard updates. Those are still using the `*_v1_0` functions.
-  - Added support for Alibaba and Tencent FOCUS data ingestion in the [Costs managed dataset](hubs/data-model.md#costs-managed-dataset).
-    - Alibaba extended columns: `x_BillingItemCode`, `x_BillingItemName`, `x_CommodityCode`, `x_CommodityName`, `x_InstanceID`.
-    - Tencent extended columns: `x_ComponentName`, `x_ComponentType`, `x_ExportTime`, `x_OwnerAccountID`, `x_SubproductName`.
+  - Added new columns to the [Costs managed dataset](hubs/data-model.md#costs-managed-dataset):
+    - Alibaba FOCUS extended columns: `x_BillingItemCode`, `x_BillingItemName`, `x_CommodityCode`, `x_CommodityName`, `x_InstanceID`.
+    - Tencent FOCUS extended columns: `x_ComponentName`, `x_ComponentType`, `x_ExportTime`, `x_OwnerAccountID`, `x_SubproductName`.
+    - Discount percentage columns: `x_NegotiatedDiscountPercent`, `x_CommitmentDiscountPercent`, `x_TotalDiscountPercent`.
+    - Savings columns: `x_NegotiatedDiscountSavings`, `x_CommitmentDiscountSavings`, `x_TotalSavings`.
+    - Commitment discount utilization columns: `x_CommitmentDiscountUtilizationAmount`, `x_CommitmentDiscountUtilizationPotential`.
+    - Azure Hybrid Benefit columns: `x_SkuLicenseQuantity`, `x_SkuLicenseStatus`, `x_SkuLicenseType`, `x_SkuLicenseUnit`.
+    - SKU property columns: `x_ConsumedCoreHours`, `x_SkuCoreCount`, `x_SkuInstanceType`, `x_SkuOperatingSystem`.
+    - Other columns: `x_ConsumedCoreHours`.
   - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
   - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
 - **Changed**
   - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
+  - Updated the Data Explorer dashboard to use the v1_2 schema.
 - **Fixed**
   - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
 
@@ -70,6 +77,7 @@ _Released June 2025_
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
   - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
+  - Updated the KQL reports to use the FinOps hubs v1_2 schema.
 - **Fixed**
   - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
 

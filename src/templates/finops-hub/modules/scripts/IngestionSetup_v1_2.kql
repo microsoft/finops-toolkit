@@ -23,7 +23,7 @@ Prices_transform_v1_2()
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
         toint(case(
-            duration == '', toint(''),
+            duration == '', int(null),
             duration endswith "Y", number * 12,
             duration endswith "M", number,
             -1
@@ -496,6 +496,16 @@ Costs_transform_v1_2()
         real(null)
     )
     //
+    // Commitment discount utilization
+    | extend x_CommitmentDiscountUtilizationPotential = case(
+        ChargeCategory == 'Purchase', real(0),
+        ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
+        CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
+        CommitmentDiscountCategory == 'Spend', EffectiveCost,
+        real(0)
+    )
+    | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))
+    //
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
@@ -536,6 +546,78 @@ Costs_transform_v1_2()
         isnotempty(x_ResourceType), coalesce(tostring(resource_type(x_ResourceType).SingularDisplayName), ResourceType, x_ResourceType),
         ResourceType
     )
+    //
+    // SKU properties
+    | extend x_SkuCoreCount = toint(coalesce(SkuPriceDetails.CoreCount, SkuPriceDetails.x_VCPUs, x_SkuDetails.VCPUs, SkuPriceDetails.x_VCores, x_SkuDetails.VCores, SkuPriceDetails.x_vCores, x_SkuDetails.vCores))
+    | extend x_SkuInstanceType = tostring(coalesce(SkuPriceDetails.InstanceType, SkuPriceDetails.x_ServiceType, x_SkuDetails.ServiceType, SkuPriceDetails.x_ServerSku, x_SkuDetails.ServerSku))
+    | extend x_SkuOperatingSystem = case(
+        isnotempty(SkuPriceDetails.OperatingSystem), SkuPriceDetails.OperatingSystem,
+        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Canonical', 'Linux',
+        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL', 'Windows Server',
+        x_SkuMeterSubcategory endswith ' Series Windows', 'Windows Server',
+        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType)
+    )
+    | extend x_ConsumedCoreHours = iff(ConsumedUnit == 'Hours' and isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, real(null))
+    | extend SkuPriceDetails = case(
+        // FOCUS 1.2
+        isnotempty(SkuPriceDetails), SkuPriceDetails,
+        // FOCUS 1.0-preview, 1.0
+        parse_json(replace_regex(replace_regex(replace_regex(replace_regex(replace_regex(replace_regex(tostring(x_SkuDetails)
+            // Prefix all keys with x_ first to avoid double-prefixing
+            , @'([\{,])"', @'\1"x_')
+            // CoreCount for number of CPUs/vCPUs/cores/vCores
+            , @'"x_(VCPUs|VCores|vCores)":', @'"CoreCount":')
+            // TODO: DiskMaxIops for disk I/O operations per second (IOPS)
+            // TODO: DiskSpace for disk size in GiB
+            // TODO: DiskType for the kind of disk (e.g., SSD, HDD, NVMe)
+            // TODO: GpuCount for the number of GPUs
+            // InstanceType for the resource size/SKU (e.g., ArmSkuName)
+            , @'"x_(ServerSku|ServiceType)":', @'"InstanceType":')
+            // TODO: InstanceSeries for the size family/series
+            // TODO: MemorySize for the RAM in GiB
+            // TODO: NetworkMaxIops for network I/O operations per second (IOPS)
+            // TODO: NetworkMaxThroughput for network max throughput for data transfer in Mbps
+            // OperatingSystem for the OS name
+            , @'("x_ImageType":"Canonical")', @'\1,"OperatingSystem":"Linux"')
+            , @'("x_ImageType":"Windows Server( BYOL)?")', @'\1,"OperatingSystem":"Windows Server"')
+            , @'("x_ImageType":("[^"]+"))', @'\1,"OperatingSystem":\2')
+            // TODO: Redundancy for the level of redundancy (e.g., Local, Zonal, Global)
+            // TODO: StorageClass for the tier of storage (e.g., Hot, Archive, Nearline)
+        )
+    )
+    | extend SkuPriceDetails = iff(isempty(SkuPriceDetails.OperatingSystem) and isnotempty(x_SkuOperatingSystem),
+        parse_json(replace_string(tostring(SkuPriceDetails), '}', strcat(@',"OperatingSystem":"', x_SkuOperatingSystem, '"}'))),
+        SkuPriceDetails)
+    //
+    // Azure Hybrid Benefit
+    | extend tmp_SqlAhb = tolower(coalesce(x_SkuDetails.AHB, SkuPriceDetails.x_AHB))
+    | extend x_SkuLicenseType = case(
+        ChargeCategory != 'Usage', '',
+        x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and (x_SkuMeterSubcategory contains 'Windows' or coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL'), 'Windows Server',
+        isnotempty(tmp_SqlAhb) or x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',
+        ''
+    )
+    | extend x_SkuLicenseStatus = case(
+        isempty(x_SkuLicenseType), '',
+        coalesce(SkuPriceDetails.x_ImageType, x_SkuDetails.ImageType) == 'Windows Server BYOL' or tmp_SqlAhb == 'true' or x_SkuMeterSubcategory contains 'Azure Hybrid Benefit', 'Enabled',
+        (x_SkuMeterSubcategory contains 'Windows') or tmp_SqlAhb == 'false', 'Not Enabled',
+        ''
+    )
+    | extend x_SkuLicenseQuantity = case(
+        isempty(x_SkuCoreCount) or isempty(x_SkuLicenseType), int(null),
+        x_SkuCoreCount <= 8, int(8),
+        x_SkuCoreCount > 8, x_SkuCoreCount,
+        int(null)
+    )
+    | extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')
+    //
+    // Savings
+    | extend x_CommitmentDiscountSavings = iff(isempty(ContractedCost)      or ContractedCost      == 0 or ContractedCost      - EffectiveCost         < 0.0001, real(0), ContractedCost - EffectiveCost)
+    | extend x_NegotiatedDiscountSavings = iff(isempty(ListCost)            or ListCost            == 0 or ListCost            - ContractedCost        < 0.0001, real(0), ListCost - ContractedCost)
+    | extend x_TotalSavings              = iff(isempty(ListCost)            or ListCost            == 0 or ListCost            - EffectiveCost         < 0.0001, real(0), ListCost - EffectiveCost)
+    | extend x_CommitmentDiscountPercent = iff(isempty(ContractedUnitPrice) or ContractedUnitPrice == 0 or ContractedUnitPrice - x_EffectiveUnitPrice  < 0.0001, real(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)
+    | extend x_NegotiatedDiscountPercent = iff(isempty(ListUnitPrice)       or ListUnitPrice       == 0 or ListUnitPrice       - ContractedUnitPrice   < 0.0001, real(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)
+    | extend x_TotalDiscountPercent      = iff(isempty(ListUnitPrice)       or ListUnitPrice       == 0 or ListUnitPrice       - x_EffectiveUnitPrice  < 0.0001, real(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)
     //
     // Sort columns and apply final transforms
     | project
@@ -619,12 +701,7 @@ Costs_transform_v1_2()
         ServiceSubcategory,  // TODO: Populate ServiceSubcategory from ServiceName when missing
         SkuId,
         SkuMeter,
-        SkuPriceDetails = case(
-            // FOCUS 1.2
-            isnotempty(SkuPriceDetails), SkuPriceDetails,
-            // FOCUS 1.0-preview, 1.0
-            parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_'))
-        ),
+        SkuPriceDetails,
         SkuPriceId,
         SubAccountId,
         SubAccountName = iff(isempty(SubAccountId), '', SubAccountName),
@@ -655,12 +732,17 @@ Costs_transform_v1_2()
         x_BillingProfileName,
         x_ChargeId,
         x_CommitmentDiscountNormalizedRatio,
+        x_CommitmentDiscountPercent,
+        x_CommitmentDiscountSavings,
         x_CommitmentDiscountSpendEligibility = '',  // TODO: Add x_CommitmentDiscountSpendEligibility for Costs
         x_CommitmentDiscountUsageEligibility = '',  // TODO: Add x_CommitmentDiscountUsageEligibility for Costs
+        x_CommitmentDiscountUtilizationAmount,
+        x_CommitmentDiscountUtilizationPotential,
         x_CommodityCode,
         x_CommodityName,
         x_ComponentName,
         x_ComponentType,
+        x_ConsumedCoreHours,
         x_ContractedCostInUsd = coalesce(x_ContractedCostInUsd, x_OnDemandCostInUsd),
         x_CostAllocationRuleName,
         x_CostCategories = parse_json(x_CostCategories),
@@ -687,6 +769,8 @@ Costs_transform_v1_2()
         ),
         x_ListCostInUsd,
         x_Location,
+        x_NegotiatedDiscountPercent,
+        x_NegotiatedDiscountSavings,
         x_Operation,
         x_OwnerAccountID,
         x_PartnerCreditApplied,
@@ -706,13 +790,20 @@ Costs_transform_v1_2()
         x_ServiceModel,  // TODO: Populate from ServiceName when missing
         x_ServicePeriodEnd,
         x_ServicePeriodStart,
+        x_SkuCoreCount,
         x_SkuDescription,
         x_SkuDetails,
+        x_SkuInstanceType,
         x_SkuIsCreditEligible,
+        x_SkuLicenseQuantity,
+        x_SkuLicenseStatus,
+        x_SkuLicenseType,
+        x_SkuLicenseUnit,
         x_SkuMeterCategory,
         x_SkuMeterId,
         x_SkuMeterSubcategory,
         x_SkuOfferId,
+        x_SkuOperatingSystem,
         x_SkuOrderId,
         x_SkuOrderName,
         x_SkuPartNumber,
@@ -727,6 +818,8 @@ Costs_transform_v1_2()
         x_SourceType,
         x_SourceVersion,
         x_SubproductName,
+        x_TotalDiscountPercent,
+        x_TotalSavings,
         x_UsageType
 }
 
@@ -802,13 +895,18 @@ Costs_transform_v1_2()
     x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
-    x_CommitmentDiscountNormalizedRatio:  real,    // Azure 1.2-preview+
-    x_CommitmentDiscountSpendEligibility: string,  // Hubs add-on
-    x_CommitmentDiscountUsageEligibility: string,  // Hubs add-on
+    x_CommitmentDiscountNormalizedRatio:      real,    // Azure 1.2-preview+
+    x_CommitmentDiscountPercent:              real,    // Hubs add-on
+    x_CommitmentDiscountSavings:              real,    // Hubs add-on
+    x_CommitmentDiscountSpendEligibility:     string,  // Hubs add-on
+    x_CommitmentDiscountUsageEligibility:     string,  // Hubs add-on
+    x_CommitmentDiscountUtilizationAmount:    real,    // Hubs add-on
+    x_CommitmentDiscountUtilizationPotential: real,    // Hubs add-on
     x_CommodityCode:            string,    // Alibaba 1.0
     x_CommodityName:            string,    // Alibaba 1.0
     x_ComponentName:            string,    // Tencent 1.0
     x_ComponentType:            string,    // Tencent 1.0
+    x_ConsumedCoreHours:        real,      // Hubs add-on
     x_ContractedCostInUsd:      real,      // Azure 1.0+
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           dynamic,   // AWS 1.0 (JSON)
@@ -829,6 +927,8 @@ Costs_transform_v1_2()
     x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
     x_ListCostInUsd:            real,      // Azure 1.0-preview(v1)+
     x_Location:                 string,    // GCP Jan 2024
+    x_NegotiatedDiscountPercent:real,      // Hubs add-on
+    x_NegotiatedDiscountSavings:real,      // Hubs add-on
     x_Operation:                string,    // AWS 1.0
     x_OwnerAccountID:           string,    // Tencent 1.0
     x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
@@ -848,13 +948,20 @@ Costs_transform_v1_2()
     x_ServiceModel:             string,    // Azure 1.2-preview+
     x_ServicePeriodEnd:         datetime,  // Azure 1.0-preview(v1)+
     x_ServicePeriodStart:       datetime,  // Azure 1.0-preview(v1)+
+    x_SkuCoreCount:             int,       // Hubs add-on
     x_SkuDescription:           string,    // Azure 1.0-preview(v1)+
     x_SkuDetails:               dynamic,   // Azure 1.0-preview(v1)+
+    x_SkuInstanceType:          string,    // Hubs add-on
     x_SkuIsCreditEligible:      bool,      // Azure 1.0-preview(v1)+
+    x_SkuLicenseQuantity:       int,       // Hubs add-on
+    x_SkuLicenseStatus:         string,    // Hubs add-on
+    x_SkuLicenseType:           string,    // Hubs add-on
+    x_SkuLicenseUnit:           string,    // Hubs add-on
     x_SkuMeterCategory:         string,    // Azure 1.0-preview(v1)+
     x_SkuMeterId:               string,    // Azure 1.0-preview(v1)+
     x_SkuMeterSubcategory:      string,    // Azure 1.0-preview(v1)+
     x_SkuOfferId:               string,    // Azure 1.0-preview(v1)+
+    x_SkuOperatingSystem:       string,    // Hubs add-on
     x_SkuOrderId:               string,    // Azure 1.0-preview(v1)+
     x_SkuOrderName:             string,    // Azure 1.0-preview(v1)+
     x_SkuPartNumber:            string,    // Azure 1.0-preview(v1)+
@@ -869,6 +976,8 @@ Costs_transform_v1_2()
     x_SourceType:               string,    // Hubs add-on
     x_SourceVersion:            string,    // Hubs add-on
     x_SubproductName:           string,    // Tencent 1.0
+    x_TotalDiscountPercent:     real,      // Hubs add-on
+    x_TotalSavings:             real,      // Hubs add-on
     x_UsageType:                string     // AWS 1.0
 )
 
@@ -1462,7 +1571,7 @@ Recommendations_transform_v1_2()
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
         toint(case(
-            duration == '', toint(''),
+            duration == '', int(null),
             duration endswith "Y", number * 12,
             duration endswith "M", number,
             -1
@@ -1594,7 +1703,7 @@ Transactions_transform_v1_2()
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
         toint(case(
-            duration == '', toint(''),
+            duration == '', int(null),
             duration endswith "Y", number * 12,
             duration endswith "M", number,
             -1

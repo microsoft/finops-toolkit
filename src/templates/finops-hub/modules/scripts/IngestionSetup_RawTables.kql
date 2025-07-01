@@ -850,7 +850,6 @@
     { "Column": "x_EffectiveCostAfter",               "Properties": { "Field": "x_EffectiveCostAfter" } },
     { "Column": "x_EffectiveCostBefore",              "Properties": { "Field": "x_EffectiveCostBefore" } },
     { "Column": "x_EffectiveCostSavings",             "Properties": { "Field": "x_EffectiveCostSavings" } },
-    { "Column": "x_IngestionTime",                    "Properties": { "Field": "x_IngestionTime" } },
     { "Column": "x_RecommendationCategory",           "Properties": { "Field": "x_RecommendationCategory" } },
     { "Column": "x_RecommendationDate",               "Properties": { "Field": "x_RecommendationDate" } },
     { "Column": "x_RecommendationDescription",        "Properties": { "Field": "x_RecommendationDescription" } },
