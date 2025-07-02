@@ -73,6 +73,12 @@ _Released June 2025_
 - **Fixed**
   - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
 
+### [Optimization engine](optimization-engine/overview.md) v0.12
+
+- **Fixed**
+  - Link to recommendations Power BI report in MS Learn documentation ([#1614](https://github.com/microsoft/finops-toolkit/issues/1730)).
+  - Aka.ms links to point to the latest version of documentation articles in MS Learn.
+
 ### [PowerShell module](powershell/powershell-commands.md) v0.12
 
 - **Changed**
