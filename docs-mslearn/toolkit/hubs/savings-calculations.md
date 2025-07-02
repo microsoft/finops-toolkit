@@ -134,32 +134,20 @@ If you see many zero savings values:
 
 <br>
 
-## User interface guidance
 
-When displaying savings in reports or dashboards, consider adding contextual information:
-
-### For negative savings display
-
-> **ℹ️ Note**: Savings may appear negative if the effective price is higher than the list or negotiated price. This may indicate pricing misconfigurations or unexpected billing conditions. [Learn more about savings calculations](savings-calculations.md).
-
-### For zero savings display  
-
-> **ℹ️ Note**: Savings show as zero when price data is missing or incomplete. Export price sheets or use FinOps hubs to get complete savings calculations. [Learn more about savings calculations](savings-calculations.md).
-
-<br>
 
 ## Related errors and troubleshooting
 
 Several error codes in FinOps toolkit relate to missing price data that affects savings calculations:
 
-- [`MissingListUnitPrice`](errors.md#missinglistunitprice) - List prices missing, preventing savings calculation
-- [`MissingContractedUnitPrice`](errors.md#missingcontractedunitprice) - Contracted prices missing, preventing savings calculation  
-- [`MissingListCost`](errors.md#missinglistcost) - List cost values missing
-- [`MissingContractedCost`](errors.md#missingcontractedcost) - Contracted cost values missing
-- [`ListCostLessThanContractedCost`](errors.md#listcostlessthancontractedcost) - Data quality issue causing invalid savings
-- [`ContractedCostLessThanEffectiveCost`](errors.md#contractedcostlessthaneffectivecost) - Data quality issue causing negative savings
+- [`MissingListUnitPrice`](../help/errors.md#missinglistunitprice) - List prices missing, preventing savings calculation
+- [`MissingContractedUnitPrice`](../help/errors.md#missingcontractedunitprice) - Contracted prices missing, preventing savings calculation  
+- [`MissingListCost`](../help/errors.md#missinglistcost) - List cost values missing
+- [`MissingContractedCost`](../help/errors.md#missingcontractedcost) - Contracted cost values missing
+- [`ListCostLessThanContractedCost`](../help/errors.md#listcostlessthancontractedcost) - Data quality issue causing invalid savings
+- [`ContractedCostLessThanEffectiveCost`](../help/errors.md#contractedcostlessthaneffectivecost) - Data quality issue causing negative savings
 
-For troubleshooting these issues, see [Troubleshoot common FinOps toolkit errors](errors.md).
+For troubleshooting these issues, see [Troubleshoot common FinOps toolkit errors](../help/errors.md).
 
 <br>
 
@@ -176,9 +164,9 @@ Let us know how we're doing with a quick review. We use these reviews to improve
 
 Related resources:
 
-- [Troubleshoot common FinOps toolkit errors](errors.md)
-- [Data dictionary](data-dictionary.md)
-- [Common terms](terms.md)
+- [Troubleshoot common FinOps toolkit errors](../help/errors.md)
+- [Data dictionary](../help/data-dictionary.md)
+- [Common terms](../help/terms.md)
 
 Related reports:
 
@@ -187,7 +175,7 @@ Related reports:
 
 Related solutions:
 
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps hubs](./finops-hubs-overview.md)
 - [Cost Management exports](/azure/cost-management-billing/costs/tutorial-export-acm-data)
 
 <br>
