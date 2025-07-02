@@ -50,6 +50,9 @@ A few common KPIs you fill find in this report are:
 - **Effective cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
 - **Total savings** shows how much you're saving compared to list prices.
 
+> [!NOTE]
+> Savings may appear as negative values when effective prices are higher than list prices, or as zero when price data is missing. For details on how savings are calculated and displayed, see [Understanding savings calculations](../help/savings-calculations.md).
+
 The currency must be single-select to ensure costs in different currencies aren't mixed.
 
 <br>
