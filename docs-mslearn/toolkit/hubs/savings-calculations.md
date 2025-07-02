@@ -71,11 +71,7 @@ Negative savings are displayed as negative numbers (for example, -$100) because 
 
 ### Why show zero savings for missing prices
 
-When price data is missing, there's no reliable basis for calculating savings. Showing zero ensures:
-
-- Mathematical consistency in totals and aggregations
-- No misleading information is presented
-- Clear indication that savings couldn't be determined
+When price data is missing, there's no reliable basis for calculating savings.
 
 **Example**: If list price data is missing but you paid $80 effective cost, savings show as $0 because we cannot determine if you saved money or overpaid.
 
@@ -136,16 +132,7 @@ If you see many zero savings values:
 
 
 
-## Related errors and troubleshooting
-
-Several error codes in FinOps toolkit relate to missing price data that affects savings calculations:
-
-- [`MissingListUnitPrice`](../help/errors.md#missinglistunitprice) - List prices missing, preventing savings calculation
-- [`MissingContractedUnitPrice`](../help/errors.md#missingcontractedunitprice) - Contracted prices missing, preventing savings calculation  
-- [`MissingListCost`](../help/errors.md#missinglistcost) - List cost values missing
-- [`MissingContractedCost`](../help/errors.md#missingcontractedcost) - Contracted cost values missing
-- [`ListCostLessThanContractedCost`](../help/errors.md#listcostlessthancontractedcost) - Data quality issue causing invalid savings
-- [`ContractedCostLessThanEffectiveCost`](../help/errors.md#contractedcostlessthaneffectivecost) - Data quality issue causing negative savings
+## Troubleshooting
 
 For troubleshooting these issues, see [Troubleshoot common FinOps toolkit errors](../help/errors.md).
 
