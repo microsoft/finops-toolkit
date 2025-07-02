@@ -124,6 +124,38 @@ If you see negative savings in your reports:
 3. **Validate data quality** - Confirm Cost Management data is accurate
 4. **Consider optimization** - Evaluate if commitment discounts are providing value
 
+#### Diagnostic query for negative savings
+
+Use this KQL query in Data Explorer to identify specific scenarios causing negative savings:
+
+```kusto
+Costs
+| extend EffectiveOverContracted = iff(ContractedCost < EffectiveCost, ContractedCost - EffectiveCost, decimal(0))
+| extend ContractedOverList      = iff(ListCost < ContractedCost,      ListCost - ContractedCost,      decimal(0))
+| extend EffectiveOverList       = iff(ListCost < EffectiveCost,       ListCost - EffectiveCost,       decimal(0))
+| extend scenario = case(
+    ListCost == 0 and CommitmentDiscountCategory == 'Usage' and ChargeCategory == 'Usage', 'Reservation usage missing list',
+    ListCost == 0 and CommitmentDiscountCategory == 'Usage' and ChargeCategory == 'Purchase', 'Reservation purchase missing list',
+    ListCost == 0 and CommitmentDiscountCategory == 'Spend' and ChargeCategory == 'Usage', 'Savings plan usage missing list',
+    ListCost == 0 and CommitmentDiscountCategory == 'Spend' and ChargeCategory == 'Purchase', 'Savings plan purchase missing list',
+    ListCost == 0 and ChargeCategory == 'Purchase', 'Other purchase missing list',
+    isnotempty(CommitmentDiscountStatus) and ContractedOverList == 0 and EffectiveOverContracted < 0, 'Commitment cost over contracted',
+    ListCost == 0 and BilledCost == 0 and EffectiveCost == 0 and ContractedCost > 0 and x_SourceChanges !contains 'MissingContractedCost', 'ContractedCost should be 0',
+    ListCost == 0 and ContractedCost == 0 and BilledCost > 0 and EffectiveCost > 0 and x_PublisherCategory == 'Vendor' and ChargeCategory == 'Usage', 'Marketplace usage missing list/contracted',
+    ContractedOverList < 0 and EffectiveOverContracted == 0 and x_SourceChanges !contains 'MissingListCost', 'ListCost too low',
+    ContractedUnitPrice == x_EffectiveUnitPrice and EffectiveOverContracted < 0 and x_SourceChanges !contains 'MissingContractedCost', 'ContractedCost doesn''t match price',
+    EffectiveOverContracted != 0 and abs(EffectiveOverContracted) < 0.00000001, 'Rounding error',
+    ContractedOverList != 0 and abs(ContractedOverList) < 0.00000001, 'Rounding error',
+    EffectiveOverList != 0 and abs(EffectiveOverList) < 0.00000001, 'Rounding error',
+    ContractedCost < EffectiveCost or ListCost < ContractedCost or ListCost < EffectiveCost, '',
+    EffectiveCost <= ContractedCost and ContractedCost <= ListCost, 'Good',
+    '')
+| project-reorder ListCost, ContractedCost, BilledCost, EffectiveCost, EffectiveOverList, EffectiveOverContracted, ContractedOverList, x_SourceChanges, ListUnitPrice, ContractedUnitPrice, x_BilledUnitPrice, x_EffectiveUnitPrice, CommitmentDiscountStatus, PricingQuantity, PricingUnit, x_PricingBlockSize, x_PricingUnitDescription
+| summarize count(), EffectiveOverContracted = sum(EffectiveOverContracted), ContractedOverList = sum(ContractedOverList), EffectiveOverList = sum(EffectiveOverList), Type = arraystring(make_set(x_BillingAccountAgreement)) by scenario
+```
+
+This query categorizes different scenarios that can cause negative savings and helps identify the root cause of pricing discrepancies.
+
 ### For zero savings
 
 If you see many zero savings values:
