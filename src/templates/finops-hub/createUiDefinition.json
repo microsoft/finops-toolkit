@@ -674,6 +674,51 @@
               }
             ],
             "visible": true
+          },
+          {
+            "name": "remoteHub",
+            "type": "Microsoft.Common.Section",
+            "label": "Remote hub configuration",
+            "elements": [
+              {
+                "name": "remoteHubIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Configure this hub to send data to a remote FinOps hub in another tenant or subscription. This enables cross-tenant cost management scenarios where a central tenant collects cost data from multiple tenants. Leave these fields empty if this is not a remote hub setup."
+                }
+              },
+              {
+                "name": "remoteHubStorageUri",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Remote hub storage URI",
+                "toolTip": "Data Lake storage endpoint from the remote hub storage account. Copy from the storage account Settings > Endpoints > Data Lake storage. Example: https://myremotehub.dfs.core.windows.net/",
+                "constraints": {
+                  "required": false,
+                  "regex": "^$|^https://.*\\.dfs\\.core\\.windows\\.net/?$",
+                  "validationMessage": "Must be a valid Data Lake storage endpoint URL in the format: https://storageaccount.dfs.core.windows.net/"
+                },
+                "visible": true
+              },
+              {
+                "name": "remoteHubStorageKey",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Remote hub storage key"
+                },
+                "toolTip": "Storage account access key for the remote hub. Copy from the remote hub storage account Security + networking > Access keys > key1/2 > Key.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^$|^[A-Za-z0-9+/]{86}==$",
+                  "validationMessage": "Must be a valid storage account access key (base64 encoded, ending with ==)"
+                },
+                "options": {
+                  "hideConfirmation": true
+                },
+                "visible": true
+              }
+            ],
+            "visible": true
           }
         ]
       },
@@ -716,6 +761,8 @@
       "ingestionRetentionInMonths": "[steps('retention').storage.ingestionMonths]",
       "dataExplorerRawRetentionInDays": "[steps('retention').dataExplorer.rawDays]",
       "dataExplorerFinalRetentionInMonths": "[steps('retention').dataExplorer.finalMonths]",
+      "remoteHubStorageUri": "[steps('advanced').remoteHub.remoteHubStorageUri]",
+      "remoteHubStorageKey": "[steps('advanced').remoteHub.remoteHubStorageKey]",
       "tagsByResource": "[steps('tags').tagsByResource]"
     }
   }
