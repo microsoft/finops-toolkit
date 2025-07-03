@@ -3918,15 +3918,52 @@
     ]
   },
   {
-    "resourceType": "microsoft.azurestackhci/devicepools",
-    "singularDisplayName": "Microsoft.AzureStackHCI device pool",
-    "pluralDisplayName": "Microsoft.AzureStackHCI device pools",
-    "lowerSingularDisplayName": "microsoft.azurestackhci device pool",
-    "lowerPluralDisplayName": "microsoft.azurestackhci device pools",
+    "resourceType": "microsoft.azurestackhci/clusters/updates/updateruns",
+    "singularDisplayName": "Azure Local",
+    "pluralDisplayName": "Azure Local",
+    "lowerSingularDisplayName": "Azure Local",
+    "lowerPluralDisplayName": "updates",
     "isPreview": false,
     "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/clusters/updates/updateruns.svg",
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/azlocal-update-aum-history"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.azurestackhci/clusters/updatesummaries",
+    "singularDisplayName": "Azure Local",
+    "pluralDisplayName": "Azure Local",
+    "lowerSingularDisplayName": "Azure Local",
+    "lowerPluralDisplayName": "Azure Local instances",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/clusters/updatesummaries.svg",
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/azlocal-update-aum"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.azurestackhci/devicepools",
+    "singularDisplayName": "Azure Stack",
+    "pluralDisplayName": "Azure Stack",
+    "lowerSingularDisplayName": "azure stack",
+    "lowerPluralDisplayName": "azure stack",
+    "isPreview": true,
+    "description": "Azure Stack",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/devicepools.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/azurestacklearnmore"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.azurestackhci/edgedevices",
@@ -3987,7 +4024,8 @@
         "title": "Learn more",
         "uri": "https://aka.ms/azurestacklearnmore"
       }
-    ]
+    ],
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.azurestackhci/galleryimages",
@@ -9183,36 +9221,135 @@
     "links": null
   },
   {
-    "resourceType": "microsoft.discovery/storages",
-    "singularDisplayName": "Microsoft.Discovery storage",
-    "pluralDisplayName": "Microsoft.Discovery storages",
-    "lowerSingularDisplayName": "microsoft.discovery storage",
-    "lowerPluralDisplayName": "microsoft.discovery storages",
+    "resourceType": "microsoft.discovery/agents",
+    "singularDisplayName": "Microsoft Discovery Agent",
+    "pluralDisplayName": "Microsoft Discovery Agents",
+    "lowerSingularDisplayName": "microsoft discovery agent",
+    "lowerPluralDisplayName": "microsoft discovery agents",
     "isPreview": false,
-    "description": "",
+    "description": "Create an Agent resource",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/agents.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/bookshelves",
+    "singularDisplayName": "Microsoft Discovery Bookshelf",
+    "pluralDisplayName": "Microsoft Discovery Bookshelves",
+    "lowerSingularDisplayName": "microsoft discovery bookshelf",
+    "lowerPluralDisplayName": "microsoft discovery bookshelves",
+    "isPreview": false,
+    "description": "A bookshelf resource is created to manage the knowledge bases.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/bookshelves.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/datacontainers",
+    "singularDisplayName": "Microsoft Discovery Data Container",
+    "pluralDisplayName": "Microsoft Discovery Data Containers",
+    "lowerSingularDisplayName": "microsoft discovery data container",
+    "lowerPluralDisplayName": "microsoft discovery data containers",
+    "isPreview": false,
+    "description": "Create a data container resource",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/datacontainers.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/datacontainers/dataassets",
+    "singularDisplayName": "Data asset",
+    "pluralDisplayName": "Data assets",
+    "lowerSingularDisplayName": "data asset",
+    "lowerPluralDisplayName": "data assets",
+    "isPreview": false,
+    "description": "Create a data asset resource",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/datacontainers/dataassets.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/models",
+    "singularDisplayName": "Microsoft Discovery Model",
+    "pluralDisplayName": "Microsoft Discovery Models",
+    "lowerSingularDisplayName": "microsoft discovery model",
+    "lowerPluralDisplayName": "microsoft discovery models",
+    "isPreview": false,
+    "description": "Create a model resource",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/models.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/storages",
+    "singularDisplayName": "Microsoft Discovery Storage",
+    "pluralDisplayName": "Microsoft Discovery Storages",
+    "lowerSingularDisplayName": "discovery storage",
+    "lowerPluralDisplayName": "discovery storages",
+    "isPreview": false,
+    "description": "Create a discovery storage resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/storages.svg",
     "links": null
   },
   {
     "resourceType": "microsoft.discovery/supercomputers",
-    "singularDisplayName": "Microsoft.Discovery supercomputer",
-    "pluralDisplayName": "Microsoft.Discovery supercomputers",
-    "lowerSingularDisplayName": "microsoft.discovery supercomputer",
-    "lowerPluralDisplayName": "microsoft.discovery supercomputers",
+    "singularDisplayName": "Microsoft Discovery Supercomputer",
+    "pluralDisplayName": "Microsoft Discovery Supercomputers",
+    "lowerSingularDisplayName": "microsoft discovery supercomputer",
+    "lowerPluralDisplayName": "microsoft discovery supercomputers",
     "isPreview": false,
-    "description": "",
+    "description": "Create a supercomputer resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/supercomputers.svg",
     "links": null
   },
   {
-    "resourceType": "microsoft.discovery/workspaces",
-    "singularDisplayName": "Microsoft.Discovery workspace",
-    "pluralDisplayName": "Microsoft.Discovery workspaces",
-    "lowerSingularDisplayName": "microsoft.discovery workspace",
-    "lowerPluralDisplayName": "microsoft.discovery workspaces",
+    "resourceType": "microsoft.discovery/supercomputers/nodepools",
+    "singularDisplayName": "Nodepool",
+    "pluralDisplayName": "Nodepools",
+    "lowerSingularDisplayName": "nodepool",
+    "lowerPluralDisplayName": "nodepools",
     "isPreview": false,
-    "description": "",
+    "description": "Create a nodepool resource",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/supercomputers/nodepools.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/tools",
+    "singularDisplayName": "Microsoft Discovery Tool",
+    "pluralDisplayName": "Microsoft Discovery Tools",
+    "lowerSingularDisplayName": "microsoft discovery tool",
+    "lowerPluralDisplayName": "microsoft discovery tools",
+    "isPreview": false,
+    "description": "Create a tool resource",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/tools.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/workflows",
+    "singularDisplayName": "Microsoft Discovery Workflow",
+    "pluralDisplayName": "Microsoft Discovery Workflows",
+    "lowerSingularDisplayName": "microsoft discovery workflow",
+    "lowerPluralDisplayName": "microsoft discovery workflows",
+    "isPreview": false,
+    "description": "Create a workflow resource",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/workflows.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/workspaces",
+    "singularDisplayName": "Microsoft Discovery Workspace",
+    "pluralDisplayName": "Microsoft Discovery Workspaces",
+    "lowerSingularDisplayName": "microsoft discovery workspace",
+    "lowerPluralDisplayName": "microsoft discovery workspaces",
+    "isPreview": false,
+    "description": "Create a discovery workspace resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/workspaces.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.discovery/workspaces/projects",
+    "singularDisplayName": "Microsoft Discovery Project",
+    "pluralDisplayName": "Microsoft Discovery Projects",
+    "lowerSingularDisplayName": "microsoft discovery project",
+    "lowerPluralDisplayName": "microsoft discovery projects",
+    "isPreview": false,
+    "description": "Create a project resource",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.discovery/workspaces/projects.svg",
     "links": null
   },
   {
@@ -9728,8 +9865,8 @@
   },
   {
     "resourceType": "microsoft.elastic/monitors",
-    "singularDisplayName": "Elastic",
-    "pluralDisplayName": "Elastic Cloud (Elasticsearch) – An Azure Native ISV Service",
+    "singularDisplayName": "Elastic Cloud Resource",
+    "pluralDisplayName": "Elastic Cloud (Elasticsearch)",
     "lowerSingularDisplayName": "Elastic resource",
     "lowerPluralDisplayName": "Elastic resources",
     "isPreview": false,
@@ -9737,7 +9874,7 @@
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.elastic/monitors.svg",
     "links": [
       {
-        "title": "Get started with Elastic Cloud (Elasticsearch) – An Azure Native ISV Service",
+        "title": "Get started with Elastic Cloud (Elasticsearch)",
         "uri": "https://azuremarketplace.microsoft.com/marketplace/apps/elastic.ec-azure-pp?tab=Overview"
       }
     ]
@@ -10958,6 +11095,26 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.hybridcompute/arcgatewayassociatedresources",
+    "singularDisplayName": "Arc gateway associated resource",
+    "pluralDisplayName": "Arc gateway associated resources",
+    "lowerSingularDisplayName": "arc gateway associated resource",
+    "lowerPluralDisplayName": "arc gateway associated resources",
+    "isPreview": false,
+    "description": "If you use enterprise proxies or firewalls to manage outbound traffic from your environment, the Azure Arc gateway allows you to onboard infrastructure to Azure Arc with a significantly reduced list of required endpoints.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridcompute/arcgatewayassociatedresources.svg",
+    "links": [
+      {
+        "title": "Learn more about Azure Arc",
+        "uri": "https://aka.ms/moreaboutazurearc"
+      },
+      {
+        "title": "Learn more about Arc gateway associated resources",
+        "uri": "https://aka.ms/ArcGateway-LearnMore"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.hybridcompute/arcserverwithwac",
     "singularDisplayName": "Machine - Azure Arc",
     "pluralDisplayName": "Machines - Azure Arc",
@@ -11909,6 +12066,17 @@
         "uri": "https://go.microsoft.com/fwlink/?linkid=2165730"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.insights/datacollectionrulesresources",
+    "singularDisplayName": "Data collection rule associated resource",
+    "pluralDisplayName": "Data collection rule associated resources",
+    "lowerSingularDisplayName": "data collection rule associated resource",
+    "lowerPluralDisplayName": "data collection rule associated resources",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.insights/datacollectionrulesresources.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.insights/diagnosticsettings",
@@ -12981,6 +13149,26 @@
     ]
   },
   {
+    "resourceType": "microsoft.loadtestservice/playwrightworkspaces",
+    "singularDisplayName": "Playwright Workspace",
+    "pluralDisplayName": "Playwright Workspaces",
+    "lowerSingularDisplayName": "Playwright workspace",
+    "lowerPluralDisplayName": "Playwright workspaces",
+    "isPreview": false,
+    "description": "Use Playwright workspace to run tests faster across browsers and OS platforms, and gain actionable insights from a unified reporting dashboard.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.loadtestservice/playwrightworkspaces.svg",
+    "links": [
+      {
+        "title": "Learn more about Playwright Workspaces",
+        "uri": "https://learn.microsoft.com/azure/playwright-testing/overview-what-is-microsoft-playwright-testing"
+      },
+      {
+        "title": "Documentation",
+        "uri": "https://learn.microsoft.com/azure/playwright-testing/"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.logic/businessprocesses",
     "singularDisplayName": "Business Process",
     "pluralDisplayName": "Business Process Tracking",
@@ -13033,6 +13221,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.logic/integrationserviceenvironments/managedapis.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.logic/templates",
+    "singularDisplayName": "Logic Apps Template",
+    "pluralDisplayName": "Logic Apps Templates",
+    "lowerSingularDisplayName": "logic app template",
+    "lowerPluralDisplayName": "logic apps templates",
+    "isPreview": false,
+    "description": "Browse existing Logic Apps templates",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.logic/templates.svg",
     "links": null
   },
   {
@@ -13198,6 +13397,17 @@
     ]
   },
   {
+    "resourceType": "microsoft.machinelearningservices/aistudiocreate",
+    "singularDisplayName": "Azure AI Foundry",
+    "pluralDisplayName": "Azure AI Foundry",
+    "lowerSingularDisplayName": "Azure AI Foundry",
+    "lowerPluralDisplayName": "Azure AI Foundry",
+    "isPreview": false,
+    "description": "Your platform to build generative AI solutions and custom copilots",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.machinelearningservices/aistudiocreate.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.machinelearningservices/registries",
     "singularDisplayName": "Azure Machine Learning registry",
     "pluralDisplayName": "Azure Machine Learning registries",
@@ -13242,6 +13452,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.machinelearningservices/workspacescreate",
+    "singularDisplayName": "Azure Machine Learning workspace",
+    "pluralDisplayName": "Azure Machine Learning",
+    "lowerSingularDisplayName": "workspace",
+    "lowerPluralDisplayName": "workspaces",
+    "isPreview": false,
+    "description": "Workspaces are where you manage all the models, assets, and data related to your machine learning projects. Create one now to start using Azure Machine Learning.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.machinelearningservices/workspacescreate.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.maintenance/configurationassignments",
     "singularDisplayName": "Microsoft.Maintenance configuration assignment",
     "pluralDisplayName": "Microsoft.Maintenance configuration assignments",
@@ -13270,6 +13491,17 @@
     ]
   },
   {
+    "resourceType": "microsoft.maintenance/maintenanceconfigurationsaumbladeresource",
+    "singularDisplayName": "Maintenance configuration",
+    "pluralDisplayName": "Maintenance configuration",
+    "lowerSingularDisplayName": "Maintenance configuration",
+    "lowerPluralDisplayName": "Maintenance configuration",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.maintenance/maintenanceconfigurationsaumbladeresource.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.maintenance/maintenanceconfigurationsbladeresource",
     "singularDisplayName": "Maintenance configuration",
     "pluralDisplayName": "Maintenance configuration",
@@ -13278,7 +13510,8 @@
     "isPreview": true,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.maintenance/maintenanceconfigurationsbladeresource.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.maintenance/publicmaintenanceconfigurations",
@@ -16483,7 +16716,7 @@
     "links": [
       {
         "title": "Learn more about Load balancers",
-        "uri": "https://azure.microsoft.com/services/load-balancer/"
+        "uri": "http://go.microsoft.com/fwlink/?LinkId=2275285"
       }
     ]
   },
@@ -21840,7 +22073,8 @@
     "isPreview": true,
     "description": "Start assessing your organization’s environmental emissions footprint across scope 1, scope 2, and scope 3 by creating a Project Sustainability Calculator resource.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.sustainabilityservices/calculations.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.symphony/instances",
@@ -22179,6 +22413,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.toolchainorchestrator/targets/versions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.updatemanager/updaterules",
+    "singularDisplayName": "Update Rule",
+    "pluralDisplayName": "Update Rules",
+    "lowerSingularDisplayName": "update rule",
+    "lowerPluralDisplayName": "update rules",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.updatemanager/updaterules.svg",
     "links": null
   },
   {
@@ -22630,7 +22875,8 @@
     "isPreview": false,
     "description": "Browse existing Logic Apps templates",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.web/logicappstemplate.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.web/publishingusers",
@@ -22710,10 +22956,10 @@
   },
   {
     "resourceType": "microsoft.weightsandbiases/instances",
-    "singularDisplayName": "Azure Native WeightsAndBiases Cloud Service",
-    "pluralDisplayName": "Azure Native WeightsAndBiases Cloud Service",
-    "lowerSingularDisplayName": "Azure Native WeightsAndBiases Cloud Service",
-    "lowerPluralDisplayName": "Azure Native WeightsAndBiases Cloud Service",
+    "singularDisplayName": "Azure Native Weights & Biases Cloud Service",
+    "pluralDisplayName": "Azure Native Weights & Biases Cloud Service",
+    "lowerSingularDisplayName": "Azure Native Weights & Biases Cloud Service",
+    "lowerPluralDisplayName": "Azure Native Weights & Biases Cloud Service",
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.weightsandbiases/instances.svg",
@@ -23078,6 +23324,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.workloads/workloadinstance",
+    "singularDisplayName": "My Resource",
+    "pluralDisplayName": "My Resources",
+    "lowerSingularDisplayName": "my resource",
+    "lowerPluralDisplayName": "my resources",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/workloadinstance.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.zerotrustsegmentation/segmentationmanagers",
     "singularDisplayName": "Segmentation Manager",
     "pluralDisplayName": "Segmentation Managers",
@@ -23111,7 +23368,7 @@
     "lowerSingularDisplayName": "Neon Serverless Postgres Organization",
     "lowerPluralDisplayName": "Neon Serverless Postgres Organizations",
     "isPreview": false,
-    "description": "Neon is a cloud-native Postgres solution designed for modern applications. It offers a serverless, fully managed, and scalable Postgres database with advanced features like automatic scaling, high availability, and robust security. ",
+    "description": "Neon is a cloud-native Postgres solution designed for modern applications. It offers a serverless, fully managed, and scalable Postgres database with advanced features like automatic scaling, high availability, and robust security.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/neon.postgres/organizations.svg",
     "links": [
       {
@@ -23392,7 +23649,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators/datatransferagents",
@@ -23403,7 +23661,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators/datatransferagents.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators/exclusiontemplates",
@@ -23414,7 +23673,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators/exclusiontemplates.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators/livedatamigrations",
@@ -23425,7 +23685,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators/livedatamigrations.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators/metadatamigrations",
@@ -23436,7 +23697,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators/metadatamigrations.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators/metadatatargets",
@@ -23447,7 +23709,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators/metadatatargets.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators/pathmappings",
@@ -23458,7 +23721,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators/pathmappings.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators/targets",
@@ -23469,7 +23733,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators/targets.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "wandisco.fusion/migrators/verifications",
@@ -23480,6 +23745,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/wandisco.fusion/migrators/verifications.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   }
 ]
