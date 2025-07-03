@@ -19,7 +19,7 @@ param hub HubProperties
 var safeHubName = replace(replace(toLower(hub.name), '-', ''), '_', '')
 // cSpell:ignore vnet
 var vNetName = '${safeHubName}-vnet-${hub.location}'
-var nsgName = '${hub.routing.networkName}-nsg'
+var nsgName = '${vNetName}-nsg'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
 var finopsHubSubnetName = 'private-endpoint-subnet'
@@ -213,7 +213,7 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: hub.routing.networkId
+        id: vNet.id
       }
     }
   }
@@ -233,7 +233,7 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: hub.routing.networkId
+        id: vNet.id
       }
     }
   }
@@ -253,7 +253,7 @@ resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: hub.routing.networkId
+        id: vNet.id
       }
     }
   }
@@ -273,7 +273,7 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
     properties: {
       registrationEnabled: false
       virtualNetwork: {
-        id: hub.routing.networkId
+        id: vNet.id
       }
     }
   }
@@ -303,7 +303,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
       defaultAction: 'Deny'
       virtualNetworkRules: [
         {
-          id: hub.routing.subnets.scripts
+          id: vNet::scriptSubnet.id
           action: 'Allow'
         }
       ]
@@ -317,7 +317,7 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hu
   tags: getHubTags(hub, 'Microsoft.Network/privateEndpoints')
   properties: {
     subnet: {
-      id: hub.routing.subnets.storage
+      id: vNet::finopsHubSubnet.id
     }
     privateLinkServiceConnections: [
       {
