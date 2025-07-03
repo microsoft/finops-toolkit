@@ -130,7 +130,10 @@
 ]
 ```
 
-// ActualCosts_raw retention policy
+// ActualCosts_raw retention policy (clear historical data)
+.alter-merge table ActualCosts_raw policy retention softdelete = 0d recoverability = disabled
+
+// ActualCosts_raw retention policy (set the user-defined retention period)
 .alter-merge table ActualCosts_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 // Disable ActualCosts_raw streaming ingestion (required for Fabric)
@@ -259,7 +262,10 @@
 ]
 ```
 
-// AmortizedCosts_raw retention policy
+// AmortizedCosts_raw retention policy (clear historical data)
+.alter-merge table AmortizedCosts_raw policy retention softdelete = 0d recoverability = disabled
+
+// AmortizedCosts_raw retention policy (set the user-defined retention period)
 .alter-merge table AmortizedCosts_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 // Disable AmortizedCosts_raw streaming ingestion (required for Fabric)
@@ -319,7 +325,10 @@
 ]
 ```
 
-// CommitmentDiscountUsage_raw retention policy
+// CommitmentDiscountUsage_raw retention policy (clear historical data)
+.alter-merge table CommitmentDiscountUsage_raw policy retention softdelete = 0d recoverability = disabled
+
+// CommitmentDiscountUsage_raw retention policy (set the user-defined retention period)
 .alter-merge table CommitmentDiscountUsage_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 // Disable CommitmentDiscountUsage_raw streaming ingestion (required for Fabric)
@@ -647,7 +656,10 @@
 ]
 ```
 
-// Costs_raw retention policy
+// Costs_raw retention policy (clear historical data)
+.alter-merge table Costs_raw policy retention softdelete = 0d recoverability = disabled
+
+// Costs_raw retention policy (set the user-defined retention period)
 .alter-merge table Costs_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 // Disable Costs_raw streaming ingestion (required for Fabric)
@@ -753,7 +765,10 @@
 ]
 ```
 
-// Prices_raw retention policy
+// Prices_raw retention policy (clear historical data)
+.alter-merge table Prices_raw policy retention softdelete = 0d recoverability = disabled
+
+// Prices_raw retention policy (set the user-defined retention period)
 .alter-merge table Prices_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 // Disable Prices_raw streaming ingestion (required for Fabric)
@@ -863,7 +878,10 @@
 ]
 ```
 
-// Recommendations_raw retention policy
+// Recommendations_raw retention policy (clear historical data)
+.alter-merge table Recommendations_raw policy retention softdelete = 0d recoverability = disabled
+
+// Recommendations_raw retention policy (set the user-defined retention period)
 .alter-merge table Recommendations_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 // Disable Recommendations_raw streaming ingestion (required for Fabric)
@@ -959,7 +977,10 @@
 ]
 ```
 
-// Transactions_raw retention policy
+// Transactions_raw retention policy (clear historical data)
+.alter-merge table Transactions_raw policy retention softdelete = 0d recoverability = disabled
+
+// Transactions_raw retention policy (set the user-defined retention period)
 .alter-merge table Transactions_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 // Disable Transactions_raw streaming ingestion (required for Fabric)

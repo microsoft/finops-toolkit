@@ -291,6 +291,15 @@ Prices_transform_v1_2()
 with (docstring='All costs transformed to FOCUS 1.2.', folder='Costs')
 Costs_transform_v1_2()
 {
+    let checkString = (column: string, oldValue: string, newValue: string) {
+        iff(oldValue == newValue, dynamic({}), bag_pack(column, oldValue))
+    };
+    let checkInt = (column: string, oldValue: int, newValue: int) {
+        iff(oldValue == newValue, dynamic({}), bag_pack(column, oldValue))
+    };
+    let checkReal = (column: string, oldValue: real, newValue: real) {
+        iff(oldValue == newValue, dynamic({}), bag_pack(column, oldValue))
+    };
     // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     Costs_raw
     //
@@ -324,6 +333,7 @@ Costs_transform_v1_2()
     // ))
     //
     // Identify data quality issues
+    // TODO: Remove x_SourceChanges in v1_3 (or later)
     | extend x_SourceChanges = trim_end(',', strcat(
         iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based',                 'InvalidChargeFrequency,',           ''),
         iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and EffectiveCost > 0,                                'InvalidEffectiveCost,',             ''),
@@ -352,8 +362,15 @@ Costs_transform_v1_2()
     // Handle provider columns that moved to FOCUS
     | extend PricingCurrency = coalesce(PricingCurrency, x_PricingCurrency)
     //
+    // Backup original prices/costs before the merge
+    | extend old_ContractedCost = ContractedCost
+    | extend old_ContractedUnitPrice = ContractedUnitPrice
+    | extend old_ListCost = ListCost
+    | extend old_ListUnitPrice = ListUnitPrice
+    | extend old_x_EffectiveUnitPrice = x_EffectiveUnitPrice
+    //
     // Fix columns needed in other changes
-    | extend ProviderName = case(
+    | extend old_ProviderName = ProviderName, ProviderName = case(
         isnotempty(ProviderName), ProviderName,
         isnotempty(coalesce(x_CostCategories, x_Discount, x_Operation, x_ServiceCode, x_UsageType)), 'AWS',
         isnotempty(coalesce(tostring(UsageAmount), tostring(x_Cost), x_Credits, x_CostType, tostring(x_CurrencyConversionRate), tostring(x_ExportTime), x_Project, x_ServiceId)), 'GCP',
@@ -378,14 +395,14 @@ Costs_transform_v1_2()
     )
     //
     // Fix quantities
-    | extend PricingQuantity = case(
+    | extend old_PricingQuantity = PricingQuantity, PricingQuantity = case(
         PricingQuantity != 0 or (EffectiveCost == 0 and BilledCost == 0), PricingQuantity,
         PricingQuantity == 0 and isnotempty(BilledCost) and BilledCost != 0 and isnotempty(x_BilledUnitPrice) and x_BilledUnitPrice != 0, BilledCost / x_BilledUnitPrice,
         PricingQuantity == 0 and isnotempty(BilledCost) and BilledCost != 0 and isnotempty(x_BilledUnitPrice) and x_BilledUnitPrice != 0, BilledCost / x_BilledUnitPrice,
         PricingQuantity == 0 and isnotempty(EffectiveCost) and EffectiveCost != 0 and isnotempty(x_EffectiveUnitPrice) and x_EffectiveUnitPrice != 0, EffectiveCost / x_EffectiveUnitPrice,
         PricingQuantity
     )
-    | extend ConsumedQuantity = case(
+    | extend old_ConsumedQuantity = ConsumedQuantity, ConsumedQuantity = case(
         isnotempty(ConsumedQuantity) and ConsumedQuantity != 0, ConsumedQuantity,
         ChargeCategory == 'Usage', PricingQuantity / coalesce(x_PricingBlockSize, real(1)),
         ConsumedQuantity
@@ -393,7 +410,7 @@ Costs_transform_v1_2()
     //
     // Populate missing prices -- mapping to on-demand prices requires meter ID and offer ID
     | extend tmp_MissingPrices = ProviderName == 'Microsoft'
-        and (ListUnitPrice == 0 or ContractedUnitPrice == 0)
+        and (isempty(ListUnitPrice) or isempty(ContractedUnitPrice) or ListUnitPrice == 0 or ContractedUnitPrice == 0)
         and x_EffectiveUnitPrice != 0
         and not(CommitmentDiscountCategory == 'Spend' and CommitmentDiscountStatus == 'Unused')
         and isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))
@@ -409,7 +426,6 @@ Costs_transform_v1_2()
     ) on tmp_ReservationPriceLookupKey
     //
     // Select the best price to use for each row
-    // TODO: Save values before changing -- | extend x_old_ContractedUnitPrice = ContractedUnitPrice, x_old_EffectiveUnitPrice = x_EffectiveUnitPrice, x_old_ListUnitPrice = ListUnitPrice, x_old_ListCost = ListCost, x_old_ContractedCost = ContractedCost
     | extend x_EffectiveUnitPrice = case(
         // If price is a rounding error away from the billed price, use the billed price
         isnotempty(x_BilledUnitPrice) and x_BilledUnitPrice != 0 and isnotempty(x_EffectiveUnitPrice) and x_EffectiveUnitPrice != 0 and abs(x_BilledUnitPrice - x_EffectiveUnitPrice) < 0.0001, x_BilledUnitPrice,
@@ -472,12 +488,33 @@ Costs_transform_v1_2()
     | union (allCosts | where not(tmp_MissingPrices))
     | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices, tmp_ReservationPriceLookupKey, tmp_ReservationPriceLookupKey1
     //
-    // Populate CapacityReservationId when not specified
     | extend SkuPriceDetails = parse_json(SkuPriceDetails)
+    | extend Tags = parse_json(Tags)
     | extend x_SkuDetails = parse_json(x_SkuDetails)
-    | extend CapacityReservationId = tostring(coalesce(todynamic(CapacityReservationId), x_SkuDetails.VMCapacityReservationId, SkuPriceDetails.VMCapacityReservationId, SkuPriceDetails.x_VMCapacityReservationId))
     //
-    // Populate x_CommitmentDiscountNormalizedRatio to support commitment discount calculations
+    // Handle FOCUS 1.0-preview
+    | extend old_ChargeSubcategory = ChargeSubcategory
+    | extend old_ChargeCategory = ChargeCategory, ChargeCategory = case(
+        // Handle FOCUS 1.0-preview ChargeSubcategory
+        ChargeSubcategory == 'Credit', 'Credit',
+        ChargeSubcategory == 'Refund', 'Purchase',  // We are assuming purchase refunds since we don't have data to indicate usage refunds
+        ChargeCategory
+    )
+    | extend old_ChargeClass = ChargeClass, ChargeClass = case(ChargeSubcategory == 'Refund', 'Correction', ChargeClass)
+    //
+    // Populate CapacityReservationId when not specified
+    | extend CapacityReservationId = coalesce(CapacityReservationId, tostring(coalesce(x_SkuDetails.VMCapacityReservationId, SkuPriceDetails.VMCapacityReservationId, SkuPriceDetails.x_VMCapacityReservationId)))
+    | extend old_CapacityReservationStatus = CapacityReservationStatus, CapacityReservationStatus = case(
+        isempty(CapacityReservationId), '',
+        isnotempty(CapacityReservationStatus), CapacityReservationStatus,
+        tolower(x_ResourceType) == 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
+        'Used'
+    )
+    //
+    // BUG: ChargeFrequency shows "Usage-Based" for monthly recurring savings plan purchases
+    | extend old_ChargeFrequency = ChargeFrequency, ChargeFrequency = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based' and ProviderName == 'Microsoft' and x_SourceVersion startswith '1.0', 'Recurring', ChargeFrequency)
+    //
+    // Commitment discounts
     | extend x_CommitmentDiscountNormalizedRatio = case(
         // Calculate from CommitmentDiscountQuantity, if specified
         isnotempty(CommitmentDiscountQuantity) and CommitmentDiscountQuantity != 0, CommitmentDiscountQuantity / PricingQuantity / coalesce(x_PricingBlockSize, real(1)),
@@ -486,7 +523,7 @@ Costs_transform_v1_2()
         // Parse from SKU details if not specified explicitly
         toreal(coalesce(x_SkuDetails.RINormalizationRatio, SkuPriceDetails.RINormalizationRatio, SkuPriceDetails.x_RINormalizationRatio, dynamic(1)))
     )
-    | extend CommitmentDiscountQuantity = case(
+    | extend old_CommitmentDiscountQuantity = CommitmentDiscountQuantity, CommitmentDiscountQuantity = case(
         // FOCUS 1.2
         isnotempty(CommitmentDiscountQuantity), CommitmentDiscountQuantity,
         // FOCUS 1.0-preview, 1.0
@@ -495,8 +532,24 @@ Costs_transform_v1_2()
         CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, real(1)) * x_CommitmentDiscountNormalizedRatio,
         real(null)
     )
-    //
-    // Commitment discount utilization
+    | extend old_CommitmentDiscountUnit = CommitmentDiscountUnit, CommitmentDiscountUnit = case(
+        // FOCUS 1.2
+        isnotempty(CommitmentDiscountUnit), CommitmentDiscountUnit,
+        // FOCUS 1.0
+        isempty(CommitmentDiscountQuantity), '',
+        CommitmentDiscountCategory == 'Spend', PricingCurrency,
+        CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == real(1), ConsumedUnit,
+        CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > real(1), strcat('Normalized ', ConsumedUnit),
+        ''
+    )
+    | extend old_CommitmentDiscountStatus = CommitmentDiscountStatus, CommitmentDiscountStatus = case(
+        // FOCUS 1.0+
+        isnotempty(CommitmentDiscountStatus), CommitmentDiscountStatus,
+        // FOCUS 1.0-preview
+        ChargeSubcategory == 'Used Commitment', 'Used',
+        ChargeSubcategory == 'Unused Commitment', 'Unused',
+        ''
+    )
     | extend x_CommitmentDiscountUtilizationPotential = case(
         ChargeCategory == 'Purchase', real(0),
         ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
@@ -506,38 +559,57 @@ Costs_transform_v1_2()
     )
     | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))
     //
+    // Pricing
+    | extend old_x_AmortizationClass = x_AmortizationClass, x_AmortizationClass = case(
+        // FOCUS 1.2
+        isnotempty(x_AmortizationClass), x_AmortizationClass,
+        // FOCUS 1.0-preview+
+        ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+        ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
+        ''
+    )
+    | extend old_PricingCategory = PricingCategory, PricingCategory = case(
+        // FOCUS 1.0+
+        isnotempty(PricingCategory), PricingCategory,
+        // FOCUS 1.0-preview
+        PricingCategory == 'On-Demand', 'Standard',
+        PricingCategory == 'Commitment-Based', 'Committed',
+        ''
+    )
+    //
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
     // Handle FOCUS 1.0-preview UsageQuantity/Unit
     | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), real(null))
-    | extend ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), '')
+    | extend old_ConsumedUnit = ConsumedUnit, ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), '')
     //
     // Convert IDs to lowercase for consistency
+    | extend BillingAccountId = tolower(BillingAccountId)
     | extend CommitmentDiscountId = tolower(CommitmentDiscountId)
     //
     // BUG: Remove EffectiveCost for commitment discount purchases
-    | extend EffectiveCost = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), real(0), EffectiveCost)
-    | extend x_EffectiveCostInUsd = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), real(0), x_EffectiveCostInUsd)
+    | extend old_EffectiveCost = EffectiveCost, EffectiveCost = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), real(0), EffectiveCost)
+    | extend old_x_EffectiveCostInUsd = x_EffectiveCostInUsd, x_EffectiveCostInUsd = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), real(0), x_EffectiveCostInUsd)
     //
     // Clean up resource columns
-    | extend ResourceId = case(
+    | extend old_ResourceId = ResourceId, ResourceId = case(
         isnotempty(ResourceId), ResourceId,
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), CommitmentDiscountId,
         ResourceId
     )
-    | extend ResourceName = tolower(case(
+    | extend old_ResourceName = ResourceName, ResourceName = tolower(case(
         isnotempty(ResourceName), ResourceName,
         ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountName), CommitmentDiscountName,
         isnotempty(ResourceId), parse_resourceid(ResourceId).ResourceName,
         ResourceName
     ))
-    | extend x_ResourceType = case(
+    | extend old_x_ResourceType = x_ResourceType, x_ResourceType = case(
         isnotempty(x_ResourceType), x_ResourceType,
         isnotempty(ResourceId), parse_resourceid(ResourceId).x_ResourceType,
         x_ResourceType
     )
-    | extend ResourceType = case(
+    | extend old_ResourceType = ResourceType, ResourceType = case(
         // Use existing resource type display name unless it's an internal resource type ID
         isnotempty(ResourceType) and tolower(ResourceType) != tolower(x_ResourceType) and ResourceType !contains '/', ResourceType,
         // Use CommitmentDiscountType for commitment discount purchases
@@ -546,6 +618,14 @@ Costs_transform_v1_2()
         isnotempty(x_ResourceType), coalesce(tostring(resource_type(x_ResourceType).SingularDisplayName), ResourceType, x_ResourceType),
         ResourceType
     )
+    //
+    // Handle missing values
+    | extend old_PublisherName = PublisherName, PublisherName = case(PublisherName == 'Microsoft Corporation', 'Microsoft', isnotempty(PublisherName), PublisherName, x_PublisherCategory == 'Cloud Provider', ProviderName, '')
+    //
+    // Handle FOCUS 1.0-preview Region column
+    | extend old_Region = Region
+    | extend old_RegionId = RegionId, RegionId = coalesce(RegionId, iff(ProviderName == 'Microsoft', replace_string(tolower(Region), ' ', ''), Region))
+    | extend RegionName = coalesce(RegionName, Region)
     //
     // SKU properties
     | extend x_SkuCoreCount = toint(coalesce(SkuPriceDetails.CoreCount, SkuPriceDetails.x_VCPUs, x_SkuDetails.VCPUs, SkuPriceDetails.x_VCores, x_SkuDetails.VCores, SkuPriceDetails.x_vCores, x_SkuDetails.vCores))
@@ -619,56 +699,35 @@ Costs_transform_v1_2()
     | extend x_NegotiatedDiscountPercent = iff(isempty(ListUnitPrice)       or ListUnitPrice       == 0 or ListUnitPrice       - ContractedUnitPrice   < 0.0001, real(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)
     | extend x_TotalDiscountPercent      = iff(isempty(ListUnitPrice)       or ListUnitPrice       == 0 or ListUnitPrice       - x_EffectiveUnitPrice  < 0.0001, real(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)
     //
+    // Minor fixes
+    | extend old_BillingPeriodEnd = BillingPeriodEnd, BillingPeriodEnd = startofmonth(BillingPeriodEnd)
+    | extend old_BillingPeriodStart = BillingPeriodStart, BillingPeriodStart = startofmonth(BillingPeriodStart)
+    //
     // Sort columns and apply final transforms
     | project
         AvailabilityZone,
         BilledCost,
-        BillingAccountId = tolower(BillingAccountId),
+        BillingAccountId,
         BillingAccountName,
         BillingAccountType,
         BillingCurrency,
-        BillingPeriodEnd = startofmonth(BillingPeriodEnd),
-        BillingPeriodStart = startofmonth(BillingPeriodStart),
+        BillingPeriodEnd,
+        BillingPeriodStart,
         CapacityReservationId,
-        CapacityReservationStatus = case(
-            isnotempty(CapacityReservationStatus), CapacityReservationStatus,
-            isempty(CapacityReservationId), '',
-            tolower(x_ResourceType) == 'microsoft.compute/capacityreservationgroups/capacityreservations', 'Unused',
-            'Used'
-        ),
-        ChargeCategory = case(
-            // Handle FOCUS 1.0-preview ChargeSubcategory
-            ChargeSubcategory == 'Credit', 'Credit',
-            ChargeSubcategory == 'Refund', 'Purchase',  // We are assuming purchase refunds since we don't have data to indicate usage refunds
-            ChargeCategory
-        ),
-        ChargeClass = case(ChargeSubcategory == 'Refund', 'Correction', ChargeClass),
+        CapacityReservationStatus,
+        ChargeCategory,
+        ChargeClass,
         ChargeDescription,
-        // BUG: ChargeFrequency shows "Usage-Based" for monthly recurring savings plan purchases
-        ChargeFrequency = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based' and ProviderName == 'Microsoft' and x_SourceVersion startswith '1.0', 'Recurring', ChargeFrequency),
+        ChargeFrequency,
         ChargePeriodEnd,
         ChargePeriodStart,
         CommitmentDiscountCategory,
-        CommitmentDiscountId = tolower(CommitmentDiscountId),
+        CommitmentDiscountId,
         CommitmentDiscountName,
         CommitmentDiscountQuantity,
-        CommitmentDiscountStatus = case(
-            // Handle FOCUS 1.0-preview ChargeSubcategory
-            ChargeSubcategory == 'Used Commitment', 'Used',
-            ChargeSubcategory == 'Unused Commitment', 'Unused',
-            CommitmentDiscountStatus
-        ),
+        CommitmentDiscountStatus,
         CommitmentDiscountType,
-        CommitmentDiscountUnit = case(
-            // FOCUS 1.2
-            isnotempty(CommitmentDiscountUnit), CommitmentDiscountUnit,
-            // FOCUS 1.0
-            isempty(CommitmentDiscountQuantity), '',
-            CommitmentDiscountCategory == 'Spend', PricingCurrency,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio == real(1), ConsumedUnit,
-            CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > real(1), strcat('Normalized ', ConsumedUnit),
-            ''
-        ),
+        CommitmentDiscountUnit,
         ConsumedQuantity,
         ConsumedUnit,
         ContractedCost = coalesce(ContractedCost, x_OnDemandCost, x_Cost),
@@ -678,21 +737,14 @@ Costs_transform_v1_2()
         InvoiceIssuerName,
         ListCost,
         ListUnitPrice,
-        PricingCategory = case(
-            // Handle FOCUS 1.0-preview PricingCategory values
-            PricingCategory == 'On-Demand', 'Standard',
-            PricingCategory == 'Commitment-Based', 'Committed',
-            PricingCategory
-        ),
+        PricingCategory,
         PricingCurrency,
         PricingQuantity,
         PricingUnit,
         ProviderName,
-        // Handle missing PublisherName values
-        PublisherName = case(PublisherName == 'Microsoft Corporation', 'Microsoft', isnotempty(PublisherName), PublisherName, x_PublisherCategory == 'Cloud Provider', ProviderName, ''),
-        // Handle FOCUS 1.0-preview Region column
-        RegionId = coalesce(RegionId, iff(ProviderName == 'Microsoft', replace_string(tolower(Region), ' ', ''), Region)),
-        RegionName = coalesce(RegionName, Region),
+        PublisherName,
+        RegionId,
+        RegionName,
         ResourceId,
         ResourceName,
         ResourceType,
@@ -706,15 +758,11 @@ Costs_transform_v1_2()
         SubAccountId,
         SubAccountName = iff(isempty(SubAccountId), '', SubAccountName),
         SubAccountType,
-        Tags = parse_json(Tags),
+        Tags,
         x_AccountId      = iff(x_AccountId == '-2', '', x_AccountId),
         x_AccountName    = iff(x_AccountId == '-2', '', x_AccountName),
         x_AccountOwnerId = iff(x_AccountId == '-2', '', x_AccountOwnerId),
-        x_AmortizationClass = case(
-            ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
-            ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
-            ''
-        ),
+        x_AmortizationClass,
         x_BilledCostInUsd,
         x_BilledUnitPrice,
         x_BillingAccountAgreement = case(
@@ -816,6 +864,38 @@ Costs_transform_v1_2()
         x_SourceName,
         x_SourceProvider,
         x_SourceType,
+        x_SourceValues = bag_merge(
+            checkString('BillingPeriodEnd',           old_BillingPeriodEnd,           BillingPeriodEnd),
+            checkString('BillingPeriodStart',         old_BillingPeriodStart,         BillingPeriodStart),
+            checkString('CapacityReservationStatus',  old_CapacityReservationStatus,  CapacityReservationStatus),
+            checkString('ChargeCategory',             old_ChargeCategory,             ChargeCategory),
+            checkString('ChargeClass',                old_ChargeClass,                ChargeClass),
+            checkString('ChargeSubcategory',          old_ChargeSubcategory,          ''),  // Not included in final schema; use empty string
+            checkString('ChargeFrequency',            old_ChargeFrequency,            ChargeFrequency),
+            checkReal('CommitmentDiscountQuantity',   old_CommitmentDiscountQuantity, CommitmentDiscountQuantity),
+            checkString('CommitmentDiscountUnit',     old_CommitmentDiscountUnit,     CommitmentDiscountUnit),
+            checkString('CommitmentDiscountStatus',   old_CommitmentDiscountStatus,   CommitmentDiscountStatus),
+            checkReal('ConsumedQuantity',             old_ConsumedQuantity,           ConsumedQuantity),
+            checkString('ConsumedUnit',               old_ConsumedUnit,               ConsumedUnit),
+            checkReal('ContractedCost',               old_ContractedCost,             ContractedCost),
+            checkReal('ContractedUnitPrice',          old_ContractedUnitPrice,        ContractedUnitPrice),
+            checkReal('EffectiveCost',                old_EffectiveCost,              EffectiveCost),
+            checkReal('ListCost',                     old_ListCost,                   ListCost),
+            checkReal('ListUnitPrice',                old_ListUnitPrice,              ListUnitPrice),
+            checkString('PricingCategory',            old_PricingCategory,            PricingCategory),
+            checkReal('PricingQuantity',              old_PricingQuantity,            PricingQuantity),
+            checkString('ProviderName',               old_ProviderName,               ProviderName),
+            checkString('PublisherName',              old_PublisherName,              PublisherName),
+            checkString('Region',                     old_Region,                     ''),  // Not included in final schema; use empty string
+            checkString('RegionId',                   old_RegionId,                   RegionId),
+            checkString('ResourceId',                 old_ResourceId,                 ResourceId),
+            checkString('ResourceName',               old_ResourceName,               ResourceName),
+            checkString('ResourceType',               old_ResourceType,               ResourceType),
+            checkString('x_AmortizationClass',        old_x_AmortizationClass,        x_AmortizationClass),
+            checkReal('x_EffectiveCostInUsd',         old_x_EffectiveCostInUsd,       x_EffectiveCostInUsd),
+            checkReal('x_EffectiveUnitPrice',         old_x_EffectiveUnitPrice,       x_EffectiveUnitPrice),
+            checkString('x_ResourceType',             old_x_ResourceType,             x_ResourceType)
+        ),
         x_SourceVersion,
         x_SubproductName,
         x_TotalDiscountPercent,
@@ -974,6 +1054,7 @@ Costs_transform_v1_2()
     x_SourceName:               string,    // Hubs add-on
     x_SourceProvider:           string,    // Hubs add-on
     x_SourceType:               string,    // Hubs add-on
+    x_SourceValues:             dynamic,   // Hubs add-on
     x_SourceVersion:            string,    // Hubs add-on
     x_SubproductName:           string,    // Tencent 1.0
     x_TotalDiscountPercent:     real,      // Hubs add-on
