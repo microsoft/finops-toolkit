@@ -85,6 +85,41 @@ _Released June 2025_
   - Updated the latest API version to 2025-03-01 in all Cost Management export commands.
   - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
 
+### [Open data](open-data.md) v0.12
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 9 new Microsoft.Discovery resource types.
+  - Added the following resource types:
+    - microsoft.azurestackhci/clusters/updates/updateruns
+    - microsoft.azurestackhci/clusters/updatesummaries
+    - microsoft.hybridcompute/arcgatewayassociatedresources
+    - microsoft.insights/datacollectionrulesresources
+    - microsoft.loadtestservice/playwrightworkspaces
+    - microsoft.logic/templates
+    - microsoft.machinelearningservices/aistudiocreate
+    - microsoft.machinelearningservices/workspacescreate
+    - microsoft.maintenance/maintenanceconfigurationsaumbladeresource
+    - microsoft.updatemanager/updaterules
+    - microsoft.workloads/workloadinstance
+- **Changed**
+  - Updated the following resource types:
+    - microsoft.azurestackhci/devicepools
+    - microsoft.discovery/storages
+    - microsoft.discovery/supercomputers
+    - microsoft.discovery/workspaces
+    - microsoft.elastic/monitors
+    - microsoft.network/loadbalancers
+    - microsoft.weightsandbiases/instances
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the following resource types to their respective services:
+    - microsoft.durabletask/schedulers
+    - microsoft.edge/contexts
+
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
 > [!div class="nextstepaction"]
