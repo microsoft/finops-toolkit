@@ -64,6 +64,9 @@ _Released June 2025_
   - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
   - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+  - Added a new **enableManagedExports** parameter to support disabling managed exports and not requiring the ability to assign the User Access Administrator role to a hub identity ([#1600](https://github.com/microsoft/finops-toolkit/issues/1600)).
+  - Added support for Alibaba Cloud FOCUS data ingestion.
+    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
 - **Changed**
   - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
   - Updated the Data Explorer dashboard to use the v1_2 schema.
