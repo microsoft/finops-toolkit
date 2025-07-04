@@ -1,0 +1,47 @@
+advisorresources
+| where type == 'microsoft.advisor/recommendations'
+| where properties.category == 'Cost'
+| extend 
+    solution = tostring(properties.shortDescription.solution)
+| where solution == "Right-size or shutdown underutilized virtual machines"
+| extend
+    x_RecommendationSolution = tostring(properties.extendedProperties.recommendationMessage),
+    x_RecommendationId = id,
+    x_ResourceGroupName = tolower(resourceGroup),
+    SubAccountId = subscriptionId,
+    x_RecommendationCategory = tostring(properties.category),
+    x_RecommendationImpact = tostring(properties.impact),
+    x_RecommendationProvider = 'Azure.Advisor',
+    x_RecommendationTypeId = tostring(properties.recommendationTypeId),
+    x_RecommendationControl = 'Right-size',
+    rawMaturity = tostring(properties.extendedProperties.maturityLevel),
+    x_RecommendationDescription = tostring(properties.shortDescription.problem),
+    ResourceId = tolower(properties.resourceMetadata.resourceId),
+    x_ResourceType = tolower(properties.impactedField),
+    ResourceName = tolower(properties.impactedValue),
+    x_RecommendationDate = tostring(properties.lastUpdated),
+    annualSavingsAmount = tostring(properties.extendedProperties.annualSavingsAmount),
+    MaxCpuP95 = tostring(properties.extendedProperties.MaxCpuP95)
+| extend     x_RecommendationMaturityLevel = iif(isnotempty(rawMaturity), rawMaturity, "GA")
+| extend 
+    x_RecommendationDetails = strcat(
+        "Annual Savings: ", annualSavingsAmount, " ", tostring(properties.extendedProperties.savingsCurrency),
+        "; Max CPU P95: ", MaxCpuP95
+    )
+| project 
+    x_RecommendationId,
+    x_ResourceGroupName,
+    SubAccountId,
+    x_RecommendationCategory,
+    x_RecommendationImpact,
+    x_RecommendationProvider,
+    x_RecommendationTypeId,
+    x_RecommendationControl,
+    x_RecommendationMaturityLevel,
+    x_RecommendationDescription,
+    x_RecommendationSolution,
+    ResourceId,
+    x_ResourceType,
+    ResourceName,
+    x_RecommendationDetails,
+    x_RecommendationDate

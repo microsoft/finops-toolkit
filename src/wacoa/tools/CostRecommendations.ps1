@@ -8,14 +8,12 @@
     Author: arclares
 #>
 
-# Define script parameters
 param (
     [string]$subscriptionIds,
     [string]$resourceGroupName,
     [switch]$Verbose
 )
 
-# Function to download the latest script versions from GitHub
 function Update-Scripts {
     param (
         [Parameter(Mandatory = $true)]
@@ -29,41 +27,35 @@ function Update-Scripts {
     )
     
     try {
-        # Get the current script path
         $mainScriptPath = $PSCommandPath 
         if (-not $mainScriptPath) { 
             Write-Host "FATAL: Could not determine the script's own path using \$PSCommandPath. Update cannot proceed." -ForegroundColor Red
-            return $false # Indicate failure
+            return $false
         }
         $mainScriptDir = Split-Path -Parent $mainScriptPath
         $prerequisitesScriptPath = Join-Path $mainScriptDir "CostRecommendations-Prerequisites.ps1"
         
         Write-Host "Downloading latest script versions..." -ForegroundColor Cyan
         
-        # Download the main script
         $tempMainScriptPath = Join-Path $env:TEMP "CostRecommendations.ps1.new"
         Invoke-WebRequest -Uri $MainScriptUrl -OutFile $tempMainScriptPath -ErrorAction Stop
         
-        # Download the prerequisites script
         $tempPrerequisitesScriptPath = Join-Path $env:TEMP "CostRecommendations-Prerequisites.ps1.new"
         Invoke-WebRequest -Uri $PrerequisitesScriptUrl -OutFile $tempPrerequisitesScriptPath -ErrorAction Stop
         
-        # Replace the current scripts with the new ones
         Copy-Item -Path $tempMainScriptPath -Destination $mainScriptPath -Force
         Copy-Item -Path $tempPrerequisitesScriptPath -Destination $prerequisitesScriptPath -Force
         
-        # Clean up temporary files
         Remove-Item -Path $tempMainScriptPath -Force -ErrorAction SilentlyContinue
         Remove-Item -Path $tempPrerequisitesScriptPath -Force -ErrorAction SilentlyContinue
         
         Write-Host "Scripts updated successfully!" -ForegroundColor Green
         
-        # Ask if the user wants to restart the script with the new version
         $restart = Read-Host "Do you want to restart the script with the new version? (Yes/No or Y/N)"
         if ($restart -eq "yes" -or $restart -eq "y") {
             Write-Host "Restarting script..." -ForegroundColor Cyan
-            & $mainScriptPath # This will use the newly downloaded script
-            exit
+            & $mainScriptPath
+            return $true
         }
         
         return $true
@@ -74,13 +66,10 @@ function Update-Scripts {
     }
 }
 
-# Function to load settings from JSON file
 function Load-Settings {
     $settingsPath = Join-Path $PSScriptRoot "settings.json"
     
-    # Check if settings file exists
     if (-not (Test-Path -Path $settingsPath)) {
-        # Create default settings
         $defaultSettings = @{
             scriptVersion = "2.0"
             repositoryUrls = @{
@@ -101,12 +90,10 @@ function Load-Settings {
             }
         }
         
-        # Save default settings
         $defaultSettings | ConvertTo-Json -Depth 10 | Set-Content -Path $settingsPath
         return $defaultSettings
     }
     
-    # Load settings from file
     try {
         $settings = Get-Content -Path $settingsPath -Raw | ConvertFrom-Json
         return $settings
@@ -117,23 +104,55 @@ function Load-Settings {
     }
 }
 
-# Function to process KQL files
 function Process-KQLFiles {
     param (
         [string]$BasePath,
         [object]$ScopeObject
     )
 
-    $kqlFiles = Get-ChildItem -Path $BasePath -Recurse -Filter *.kql -ErrorAction Stop
-    Write-Log -Message "Found $($kqlFiles.Count) KQL recommendation files." -Level "INFO"
-    Write-Host "`nFound $($kqlFiles.Count) KQL recommendation files." -ForegroundColor Cyan
+    # Get all KQL files initially
+    $allKqlFiles = Get-ChildItem -Path $BasePath -Recurse -Filter *.kql -ErrorAction Stop
+
+    # Define the specific reservation recommendation files
+    $oneYearKqlFileName = 'be9223ef-ba16-43ce-9f99-2ed3e2ad155c.kql'
+    $threeYearKqlFileName = 'd40c22a2-2b9d-4445-b137-7905403b2908.kql'
+    $reservationKqlFiles = @($oneYearKqlFileName, $threeYearKqlFileName)
+
+    # Separate the general KQL files from the specific reservation ones
+    $kqlFiles = $allKqlFiles | Where-Object { $reservationKqlFiles -notcontains $_.Name }
+    
+    # Check if either of the reservation recommendation files exists before prompting the user
+    $oneYearFile = $allKqlFiles | Where-Object { $_.Name -eq $oneYearKqlFileName }
+    $threeYearFile = $allKqlFiles | Where-Object { $_.Name -eq $threeYearKqlFileName }
+
+    if ($oneYearFile -or $threeYearFile) {
+        while ($true) {
+            Write-Host "`nAdvisor Reservation Recommendations:" -ForegroundColor Cyan
+            $termChoice = Read-Host "Do you want to see recommendations for a [1]-year or [3]-year term? (Enter 1 or 3)"
+            if ($termChoice -eq '1' -and $oneYearFile) {
+                $kqlFiles += $oneYearFile
+                Write-Log -Message "User selected 1-year term. Adding 1-year Advisor KQL file to processing list." -Level "INFO"
+                break
+            }
+            elseif ($termChoice -eq '3' -and $threeYearFile) {
+                $kqlFiles += $threeYearFile
+                Write-Log -Message "User selected 3-year term. Adding 3-year Advisor KQL file to processing list." -Level "INFO"
+                break
+            }
+            else {
+                Write-Host "Invalid input or the selected KQL file does not exist. Please enter '1' or '3'." -ForegroundColor Red
+            }
+        }
+    }
+
+    Write-Log -Message "Found $($kqlFiles.Count) KQL recommendation files to process." -Level "INFO"
+    Write-Host "`nFound $($kqlFiles.Count) KQL recommendation files to process." -ForegroundColor Cyan
 
     $allResources = @()
     $queryErrors = @()
 
     $kqlFilterStringForParallel = ""
 
-    # Build the KQL filter based on scope type
     if (-not $ScopeObject) {
         Write-Log -Message "Process-KQLFiles: ScopeObject parameter is null or empty. No specific KQL scope filter will be applied." -Level "WARNING"
     }
@@ -161,7 +180,6 @@ function Process-KQLFiles {
         Write-Log -Message "KQL Processing: Unrecognized scope type or empty individual scopes. No filter will be applied." -Level "WARNING"
     }
 
-    # Parallel processing of KQL files
     $results = $kqlFiles | ForEach-Object -Parallel {
         $file = $_
         $filterToApply = $using:kqlFilterStringForParallel
@@ -239,17 +257,14 @@ function Process-KQLFiles {
     }
 }
 
-# Function to process CustomCost folder YAML files without ARG validation
 function Process-CustomCostRecommendations {
     param (
         [string]$BasePath 
     )
 
-    # Define possible CustomCost folder paths
     $customCostPath = Join-Path $BasePath "CustomCost"
     $nestedCustomCostPath = Join-Path $BasePath "azure-resources\CustomCost"
 
-    # Check if CustomCost folder exists at either location
     $foundPath = $null
     if (Test-Path -Path $customCostPath) {
         $foundPath = $customCostPath
@@ -264,7 +279,6 @@ function Process-CustomCostRecommendations {
         return @()
     }
 
-    # Find all YAML files in the CustomCost folder
     $yamlFiles = Get-ChildItem -Path $foundPath -Filter *.yaml -ErrorAction Stop
     if ($yamlFiles.Count -eq 0) {
         Write-Log -Message "No YAML files found in CustomCost folder." -Level "WARNING"
@@ -274,15 +288,12 @@ function Process-CustomCostRecommendations {
     Write-Log -Message "Found $($yamlFiles.Count) YAML files in CustomCost folder." -Level "INFO"
     Write-Host "Found $($yamlFiles.Count) YAML files in CustomCost folder." -ForegroundColor Cyan
 
-    # Initialize an array to store CustomCost recommendations
     $customCostData = @()
 
     foreach ($file in $yamlFiles) {
         try {
-            # Read the YAML file content
             $yamlContent = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop
 
-            # Convert YAML to PowerShell object(s)
             try {
                  $yamlObject = $yamlContent | ConvertFrom-Yaml
                  $customCostData += $yamlObject
@@ -301,7 +312,6 @@ function Process-CustomCostRecommendations {
     return $customCostData
 }
 
-# Function to process YAML files and append them to the Excel file
 function Manual-Validations {
     param (
         [string]$BasePath, 
@@ -310,15 +320,12 @@ function Manual-Validations {
     )
 
     try {
-
         $customCostRecommendations = Process-CustomCostRecommendations -BasePath $BasePath
         Write-Log -Message "Found $($customCostRecommendations.Count) CustomCost recommendations." -Level "INFO"
 
-        # Import the YAML files (excluding CustomCost folder)
         $yamlFiles = Get-ChildItem -Path $BasePath -Recurse -Exclude "CustomCost" -Filter *.yaml -ErrorAction Stop
         Write-Log -Message "Found $($yamlFiles.Count) YAML files for validation." -Level "INFO"
 
-        # Extract unique resource types from YAML files
         $uniqueResourceTypes = @()
         $yamlFiles | ForEach-Object -Parallel {
             $file = $_
@@ -354,17 +361,14 @@ function Manual-Validations {
             }
         }
 
-        # Remove duplicates and sort
         $uniqueResourceTypes = $uniqueResourceTypes | Sort-Object -Unique
 
         Write-Host "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -ForegroundColor Cyan
         Write-Log -Message "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -Level "INFO"
 
-        # Construct the resource type filter
         $resourceTypeConditions = $uniqueResourceTypes | ForEach-Object { "type == '$_'" }
         $resourceTypeFilter = $resourceTypeConditions -join ' or '
 
-        # Build ARG query with scope filter
         $query = "resources | where $resourceTypeFilter"
         
         if ($ScopeObject.ScopeType -eq "CustomList" -and $ScopeObject.IndividualScopes -and $ScopeObject.IndividualScopes.Count -gt 0) {
@@ -404,10 +408,8 @@ function Manual-Validations {
         Write-Host "Resource types found in scope: $($resourceTypesInScope.type -join ', ')" -ForegroundColor Cyan
         Write-Log -Message "Resource types found in scope: $($resourceTypesInScope.type -join ', ')" -Level "INFO"
 
-        # Initialize an array to store relevant YAML data
         $yamlData = @()
 
-        # Process each YAML file
         $yamlFiles | ForEach-Object -Parallel {
             $file = $_
             $resourceTypesInScope = $using:resourceTypesInScope
@@ -449,10 +451,8 @@ function Manual-Validations {
             }
         }
 
-        # Combine validated recommendations with CustomCost recommendations
         $combinedData = $yamlData + $customCostRecommendations
 
-        # Convert YAML data to a format suitable for Excel
         $excelData = $combinedData | ForEach-Object {
             [PSCustomObject]@{
                 Description                 = $_.description
@@ -472,7 +472,6 @@ function Manual-Validations {
             }
         }
 
-        # Append YAML data to the Excel file
         if ($excelData.Count -gt 0) {
             Write-Log -Message "Appending $($excelData.Count) manual recommendations to the Excel file." -Level "INFO"
             $excelData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Manual Recommendations' -AutoSize -TableName 'ManualRecommendations' -TableStyle $script:settings.defaultSettings.excelTableStyle
@@ -487,7 +486,6 @@ function Manual-Validations {
     }
 }
 
-# Function to export Assessment results to Excel
 function Export-ResultsToExcel {
     param (
         [array]$AllResources,
@@ -495,11 +493,9 @@ function Export-ResultsToExcel {
         [string]$ExcelFilePath
     )
 
-    # Export KQL results to Excel
     $AllResources | Export-Excel -Path $ExcelFilePath -WorksheetName 'Recommendations' -AutoSize -TableName 'Table1' -TableStyle $script:settings.defaultSettings.excelTableStyle
     Write-Log -Message "Results exported to Excel file: $ExcelFilePath" -Level "INFO"
 
-    # Add assessment data if provided
     if ($AssessmentFilePath) {
         try {
             $assessmentData = Get-Content -Path $AssessmentFilePath | Select-Object -Skip 11 | ConvertFrom-Csv -ErrorAction Stop
@@ -512,7 +508,6 @@ function Export-ResultsToExcel {
     }
 }
 
-# Main script execution
 function Start-CostRecommendations {
     param (
         [string]$subscriptionIds,
@@ -521,13 +516,10 @@ function Start-CostRecommendations {
     )
 
     try {
-        # Load settings
         $script:settings = Load-Settings
         
-        # Define log file path
         $script:logFile = Join-Path $PSScriptRoot ('ACORL-Log-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.log')
         
-        # Check if prerequisites script exists
         $prerequisitesScriptPath = Join-Path $PSScriptRoot "CostRecommendations-Prerequisites.ps1"
         if (-not (Test-Path -Path $prerequisitesScriptPath)) {
             Write-Host "Prerequisites script not found. Attempting to download..." -ForegroundColor Yellow 
@@ -538,7 +530,7 @@ function Start-CostRecommendations {
 
             if (-not (Test-Path -Path $prerequisitesScriptPath)) {
                 Write-Host "ERROR: Prerequisites script '$prerequisitesScriptPath' still not found after download attempt. The script cannot continue." -ForegroundColor Red
-                return # Exit Start-CostRecommendations
+                return
             }
             Write-Host "Prerequisites script downloaded successfully." -ForegroundColor Green
 
@@ -556,14 +548,10 @@ function Start-CostRecommendations {
             throw "Prerequisites loading failed." 
         }
 
-        
-        # Start Log Message with Version
         Write-Log -Message "Starting script execution (Version $($script:settings.scriptVersion))." -Level "INFO"
         
-        # Perform Version Check
         Check-ScriptVersion -CurrentVersion $script:settings.scriptVersion -RemoteVersionUrl $script:settings.repositoryUrls.versionFile
         
-        # Check PowerShell Version
         if ($PSVersionTable.PSVersion.Major -lt 7) {
             Write-Host "This script requires PowerShell 7 or later. Please upgrade to PowerShell 7." -ForegroundColor Red
             Write-Host "Download PowerShell 7 from: https://aka.ms/powershell-release" -ForegroundColor Yellow
@@ -577,42 +565,33 @@ function Start-CostRecommendations {
         Set-Location -Path $workingFolderPath
         Write-Log -Message "Set working directory to: $workingFolderPath" -Level "INFO"
         
-        # Create temp directory paths
         $tempBaseDir = Join-Path $workingFolderPath $script:settings.paths.tempDir
         $tempDir = Join-Path $workingFolderPath $script:settings.paths.resourcesDir
         
-        # Download and extract the zip file if the folder doesn't exist
         if (-not (Test-Path -Path $tempDir -PathType Container)) {
             Write-Log -Message "Downloading and extracting zip file to $tempDir." -Level "INFO"
-            # Ensure base Temp folder exists
             if (-not (Test-Path -Path $tempBaseDir -PathType Container)) {
                 New-Item -Path $tempBaseDir -ItemType Directory -ErrorAction Stop | Out-Null
             }
-            # Pass the base temp dir as destination, assuming zip extracts into 'azure-resources' folder
             Download-GitHubFolder -RepoUrl $script:settings.repositoryUrls.resourcesZip -Destination $tempBaseDir
         }
         else {
             Write-Log -Message "Folder '$tempDir' already exists. Skipping download." -Level "INFO"
         }
         
-        # Prompt to include Well-Architected Cost Optimization assessment
         $includeAssessment = Read-Host "Would you like to include the results of a Well-Architected Cost Optimization assessment? (Yes/No or Y/N)"
         $assessmentFilePath = $null
         if ($includeAssessment -eq "yes" -or $includeAssessment -eq "y") {
-            # Open file browser dialog to select the assessment file
             $assessmentFilePath = Get-FilePath
             if (-not $assessmentFilePath) {
                 Write-Log -Message "No file selected. Skipping Well-Architected Cost Optimization assessment." -Level "WARNING"
             }
         }
         
-        # Prompt for scope selection
         $scope = Get-Scope
         
-        # Define the Excel file path
         $ExcelFilePath = Join-Path $PSScriptRoot ('ACORL-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.xlsx')
         
-        # Process YAML files and append to the Excel file
         $runManualChecks = Read-Host "Would you like to run manual checks? (Yes/No or Y/N)"
         if ($runManualChecks -eq "yes" -or $runManualChecks -eq "y") {
             Write-Log -Message "Running manual checks." -Level "INFO"
@@ -622,10 +601,8 @@ function Start-CostRecommendations {
             Write-Log -Message "Skipping manual checks as per user request." -Level "INFO"
         }
         
-        # Process KQL files
         $results = Process-KQLFiles -BasePath $tempDir -ScopeObject $scope
         
-        # Summarize recommendations by priority and resourceType
         $summary = $results.AllResources | Group-Object -Property @{
             Expression = {
                 "$($_.x_RecommendationPriority) | $($_.x_ResourceType)"
@@ -642,11 +619,9 @@ function Start-CostRecommendations {
             }
         } | Sort-Object Priority, ResourceType
         
-        # Display the summary
         Write-Host "`nRecommendations Summary:" -ForegroundColor Cyan
         $summary | Format-Table -AutoSize
         
-        # Display Query Errors
         if ($results.QueryErrors.Count -gt 0) {
             Write-Host "`nThe following query errors occurred:" -ForegroundColor Red
             foreach ($error in $results.QueryErrors) {
@@ -655,13 +630,11 @@ function Start-CostRecommendations {
             }
         }
         
-        # Export KQL results to Excel
         if ($results.AllResources.Count -gt 0) {
             Export-ResultsToExcel -AllResources $results.AllResources -AssessmentFilePath $assessmentFilePath -ExcelFilePath $ExcelFilePath
         }
         else {
             Write-Log -Message "No KQL resources found to export." -Level "WARNING"
-            # Check if Assessment file was provided, if so, create the Excel file just for that
             if($assessmentFilePath -and (Test-Path $assessmentFilePath)){
                 Write-Log -Message "Exporting only Well-Architected Assessment as no KQL results were found." -Level "INFO"
                 Export-ResultsToExcel -AllResources @() -AssessmentFilePath $assessmentFilePath -ExcelFilePath $ExcelFilePath
@@ -672,6 +645,11 @@ function Start-CostRecommendations {
         Write-Host "`nScript execution finished." -ForegroundColor Green
         Write-Host "Results file: $ExcelFilePath" -ForegroundColor Green
         Write-Host "Log file: $script:logFile" -ForegroundColor Green
+
+        if (($env:ACC_ENV -eq 'AzureCloudShell') -or ($env:CLOUD_SHELL -eq 'true')) {
+            Write-Host "`nTo download the Excel report from Cloud Shell, use the 'Download' button in the toolbar and enter the full path:" -ForegroundColor Cyan
+            Write-Host $ExcelFilePath -ForegroundColor White
+        }
     }
     catch {
         if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
@@ -682,7 +660,6 @@ function Start-CostRecommendations {
         Write-Host "An error occurred: $($_.Exception.Message)" -ForegroundColor Red
     }
     finally {
-        # Similar check for Write-Log in finally block
         if (Get-Command Write-Log -ErrorAction SilentlyContinue) {
             Write-Log -Message "Script execution finished run." -Level "INFO"
         } else {
@@ -691,8 +668,6 @@ function Start-CostRecommendations {
     }
 }
 
-# Check if script is being run directly or dot-sourced
 if ($MyInvocation.InvocationName -ne '.') {
-    # Script is being run directly, so execute the main function
     Start-CostRecommendations -subscriptionIds $subscriptionIds -resourceGroupName $resourceGroupName -Verbose:$Verbose
 }
