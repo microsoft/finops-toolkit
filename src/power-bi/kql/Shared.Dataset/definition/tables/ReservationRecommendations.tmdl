@@ -226,7 +226,7 @@ table ReservationRecommendations
 				let
 				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
 				
-				    Recommendations_v1_0
+				    Recommendations_v1_2
 				    | where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'
 				    | extend RegionId = tostring(x_RecommendationDetails.RegionId)
 				    | extend RegionName = tostring(x_RecommendationDetails.RegionName)

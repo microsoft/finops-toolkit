@@ -125,6 +125,11 @@ Transforms:
     - Renamed `x_InvoiceId` to `InvoiceId`.
     - Renamed `x_PricingCurrency` to `PricingCurrency`.
     - Renamed `x_SkuMeterName` to `SkuMeter`.
+    - Transformed `x_SkuDetails` into `SkuPriceDetails`:
+      - Added `CoreCount` key for the number of cores for the SKU based on `x_SkuDetails.VCPUs`, `x_SkuDetails.VCores`, and `x_SkuDetails.vCores`.
+      - Added `InstanceType` key for the SKU size based on `x_SkuDetails.ServiceType` and `x_SkuDetails.ServerSku`.
+      - Added `OperatingSystem` key for the VM operating system based on `x_SkuDetails.ImageType`.
+      - Prefixed all other keys with `x_`.
   - Implemented the following columns when not set by Cost Management:
     - `CapacityReservationId`
     - `CapacityReservationStatus`
@@ -132,6 +137,22 @@ Transforms:
     - `CommitmentDiscountUnit`
     - `x_CommitmentDiscountNormalizedRatio`
   - Added `x_AmortizationClass` to filter out amortized purchases and avoid double-counting `ListCost` and `ContractedCost` for savings calculations.
+  - Added `x_CommitmentDiscountUtilizationPotential` and `x_CommitmentDiscountUtilizationAmount` for calculating commitment discount utilization.
+  - Added `x_SkuCoreCount` and `x_ConsumedCoreHours` for the number of cores and core hours for the SKU based on `x_SkuDetails.VCPUs`, `x_SkuDetails.VCores`, and `x_SkuDetails.vCores`.
+  - Added `x_SkuInstanceType` for the SKU size based on `x_SkuDetails.ServiceType` and `x_SkuDetails.ServerSku`.
+  - Added `x_SkuOperatingSystem` for the VM operating system based on `x_SkuDetails.ImageType`.
+  - Added Azure Hybrid Benefit columns:
+    - `x_SkuLicenseQuantity`
+    - `x_SkuLicenseStatus`
+    - `x_SkuLicenseType`
+    - `x_SkuLicenseUnit`
+  - Added discount and savings columns:
+    - `x_NegotiatedDiscountSavings`
+    - `x_CommitmentDiscountSavings`
+    - `x_TotalSavings`
+    - `x_NegotiatedDiscountPercent`
+    - `x_CommitmentDiscountPercent`
+    - `x_TotalDiscountPercent`
 
 ### Price data transforms
 
