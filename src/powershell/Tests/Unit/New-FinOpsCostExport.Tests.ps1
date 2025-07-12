@@ -212,7 +212,7 @@ InModuleScope 'FinOpsToolkit' {
         Describe 'Storage Path Handling' {
             It 'Should use scope as default storage path without colons' {
                 # Arrange
-                $scopeWithColons = "/providers/Microsoft.Management/managementGroups/corp:division"
+                $scopeWithColons = "/providers/Microsoft.Billing/billingAccounts/123:456"
                 $paramsWithColons = @{
                     Name             = $exportName
                     Scope            = $scopeWithColons
@@ -224,13 +224,13 @@ InModuleScope 'FinOpsToolkit' {
                 
                 # Assert
                 Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
-                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq "/providers/Microsoft.Management/managementGroups/corp-division"
+                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq ($scopeWithColons -replace ':','-')
                 }
             }
 
             It 'Should not modify explicit storage path with colons' {
                 # Arrange
-                $scopeWithColons = "/providers/Microsoft.Management/managementGroups/corp:division"
+                $scopeWithColons = "/providers/Microsoft.Billing/billingAccounts/123:456"
                 $explicitPathWithColons = "my:custom:path"
                 $paramsWithExplicitPath = @{
                     Name             = $exportName
