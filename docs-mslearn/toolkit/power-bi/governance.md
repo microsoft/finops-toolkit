@@ -35,7 +35,7 @@ The Governance report is new and still being fleshed out. We will continue to ex
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Policy%20and%20governance%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Policy%20and%20governance%20report%3F/surveyId/FTK0.11/bladeName/PowerBI.Governance/featureName/Documentation)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Policy%20and%20governance%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Policy%20and%20governance%20report%3F/surveyId/FTK0.12/bladeName/PowerBI.Governance/featureName/Documentation)
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
