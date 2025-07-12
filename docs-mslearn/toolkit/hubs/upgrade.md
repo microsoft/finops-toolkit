@@ -101,7 +101,7 @@ If you enable Azure Data Explorer or Microsoft Fabric, you need to reingest hist
 
 ## Step 6: Update Power BI reports
 
-While Power BI reports are designed to work with the corresponding FinOps hub instance, most releases don't require an update to Power BI reports. Updating Power BI reports is required for FinOps hubs 0.6 or earlier. For more information, see the [compatibility guide](compatibility.md).
+While Power BI reports are designed to work with the corresponding FinOps hub instance, most releases don't require an update to Power BI reports. If updating from FinOps hubs 0.6 or earlier, you must also update Power BI reports. Power BI reports from 0.12 and later require FinOps hubs 0.12 or later. For more information, see the [compatibility guide](compatibility.md).
 
 To update Power BI reports:
 
@@ -127,7 +127,14 @@ For more information, see [Set up Power BI reports](../power-bi/setup.md).
 
 ## Step 7: Update the Data Explorer dashboard
 
-The Data Explorer dashboard was introduced with Data Explorer support in 0.7 and also works with Microsoft Fabric since 0.10. All versions of the dashboard work with all versions of FinOps hubs since 0.7. To upgrade the dashboard, replace the existing dashboard with the latest dashboard template.
+The Data Explorer dashboard was introduced with Data Explorer support in 0.7 and also works with Microsoft Fabric since 0.10. Generally, the dashboard does not need to be updated once deployed unless you want to take advantage of new features. To upgrade the dashboard, replace the existing dashboard with the latest dashboard template.
+
+Each version of the dashboard is configured to work with a specific FinOps hub schema version (v1_0 or v1_2). Schema versions ensure backwards compatibility across FOCUS dataset versions from different providers. Older dashboard versions will continue to work after upgrading to the latest version of FinOps hubs, but newer dashboard versions may not work with older FinOps hub versions. The following table outlines the supported combinations.
+
+| Dashboard version | FinOps hubs schema | FinOps hubs version |
+|-------------------|--------------------|---------------------|
+| 0.12+             | v1_2               | 0.12+               |
+| 0.7-0.11          | v1_0               | 0.7+                |
 
 > [!div class="nextstepaction"]
 > [Download dashboard](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json)
