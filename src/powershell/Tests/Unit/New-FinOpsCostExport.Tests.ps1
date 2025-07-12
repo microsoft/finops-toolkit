@@ -208,5 +208,63 @@ InModuleScope 'FinOpsToolkit' {
                 }
             }
         }
+
+        Describe 'Storage Path Handling' {
+            It 'Should use scope as default storage path without colons' {
+                # Arrange
+                $scopeWithColons = "/providers/Microsoft.Management/managementGroups/corp:division"
+                $paramsWithColons = @{
+                    Name             = $exportName
+                    Scope            = $scopeWithColons
+                    StorageAccountId = "$scope/resourceGroups/foo/providers/Microsoft.Storage/storageAccounts/bar"
+                }
+                
+                # Act
+                New-FinOpsCostExport @paramsWithColons
+                
+                # Assert
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq "/providers/Microsoft.Management/managementGroups/corp-division"
+                }
+            }
+
+            It 'Should not modify explicit storage path with colons' {
+                # Arrange
+                $scopeWithColons = "/providers/Microsoft.Management/managementGroups/corp:division"
+                $explicitPathWithColons = "my:custom:path"
+                $paramsWithExplicitPath = @{
+                    Name             = $exportName
+                    Scope            = $scopeWithColons
+                    StorageAccountId = "$scope/resourceGroups/foo/providers/Microsoft.Storage/storageAccounts/bar"
+                    StoragePath      = $explicitPathWithColons
+                }
+                
+                # Act
+                New-FinOpsCostExport @paramsWithExplicitPath
+                
+                # Assert
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq $explicitPathWithColons
+                }
+            }
+
+            It 'Should handle scope without colons normally' {
+                # Arrange
+                $scopeWithoutColons = "/subscriptions/12345678-1234-1234-1234-123456789012"
+                $paramsWithoutColons = @{
+                    Name             = $exportName
+                    Scope            = $scopeWithoutColons
+                    StorageAccountId = "$scope/resourceGroups/foo/providers/Microsoft.Storage/storageAccounts/bar"
+                }
+                
+                # Act
+                New-FinOpsCostExport @paramsWithoutColons
+                
+                # Assert
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq $scopeWithoutColons
+                }
+            }
+        }
     }
 }
