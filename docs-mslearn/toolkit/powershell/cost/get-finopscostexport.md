@@ -3,7 +3,7 @@ title: Get-FinOpsCostExport command
 description: Get a list of Cost Management exports for a given scope using the Get-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 06/21/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,7 +18,8 @@ The **Get-FinOpsCostExport** command gets a list of Cost Management exports for 
 
 This command was tested with the following API versions:
 
-- 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+- 2025-03-01 (default) – GA version for FocusCost and other datasets.
+- 2023-07-01-preview
 - 2023-08-01
 - 2023-03-01
 
@@ -31,6 +32,7 @@ Get-FinOpsCostExport `
     [-Name <string>] `
     [-Scope <string>] `
     [-DataSet <string>] `
+    [-DataSetVersion <string>] `
     [-StorageAccountId <string>] `
     [-StorageContainer <string>] `
     [-RunHistory] `
@@ -41,15 +43,16 @@ Get-FinOpsCostExport `
 
 ## Parameters
 
-| Name                | Description                                                                                                         |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`             | Optional. Name of the export. Supports wildcards.                                                                   |
-| `‑Scope`            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.  |
-| `‑DataSet`          | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost". Default = null (all exports). |
-| `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                      |
-| `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
-| `‑RunHistory`       | Optional. Indicates whether the run history should be expanded. Default = false.                                    |
-| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.            |
+| Name                | Description                                                                                                                                                                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`             | Optional. Name of the export. Supports wildcards.                                                                                                                                                                             |
+| `‑Scope`            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.                                                                                                            |
+| `‑DataSet`          | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = null (all exports). |
+| `‑DataSetVersion`   | Optional. Schema version of the dataset to export. Default = null (all exports).                                                                                                                                              |
+| `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                                                                                                                                |
+| `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).                                                                                                                         |
+| `‑RunHistory`       | Optional. Indicates whether the run history should be expanded. Default = false.                                                                                                                                              |
+| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2025-03-01.                                                                                                                              |
 
 <br>
 
@@ -169,7 +172,7 @@ Gets all exports within the subscription scope for a container matching wildcard
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK0.10/bladeName/PowerShell/featureName/CostManagement.GetExport)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK0.11/bladeName/PowerShell/featureName/CostManagement.GetExport)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

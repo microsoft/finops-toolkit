@@ -1,9 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { HubAppProperties } from 'hub-types.bicep'
+
+
 //==============================================================================
 // Parameters
 //==============================================================================
+
+@description('Required. Temporary app placeholder for the deployments module.')
+param app HubAppProperties
 
 @description('Required. Name of the FinOps hub instance.')
 param hubName string
@@ -56,15 +62,12 @@ param tags object = {}
 
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
+ 
+@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
+param enableManagedExports bool = true
 
 @description('Required. Enable public access.')
 param enablePublicAccess bool
-
-@description('Required. The name of the storage account used for deployment scripts. Required when using private endpoints and uploading files or creating an identity.')
-param scriptStorageAccountName string
-
-@description('Required. Resource ID of the virtual network for running deployment scripts. Required when using private endpoints and uploading files.')
-param scriptSubnetId string
 
 //------------------------------------------------------------------------------
 // Variables
@@ -138,16 +141,33 @@ var allHubTriggers = [
 
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
-  '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
+  // Data Factory contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
+  // Used to start/stop triggers and delete old pipelines/triggers
+  '673868aa-7521-48a0-acc6-0f60742d39f5'
 ]
 
 // Roles for ADF to manage data in storage
 // Does not include roles assignments needed against the export scope
-var storageRbacRoles = [
-  '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
-  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
-  'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
-  '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
+var storageRbacRoles = union (
+  [
+    // Storage Account Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
+    // Used to move files from the msexports to ingestion container
+    '17d1049b-9a84-46fb-8f53-869881c3d3ab'
+    // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+    'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+    // Reader -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
+    'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+  ],
+  // Only use User Access Administrator if managed exports are enabled for least privileged access
+  !enableManagedExports ? [] : [
+    // User Access Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
+    '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
+  ]
+)
+
+// Roles for ADF to to start check ADX cluster and to start cluster if stopped
+var adxRbacRoles = [
+  'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor permissions on the cluster
 ]
 
 //==============================================================================
@@ -168,6 +188,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = if (!empty(remoteHubStorageUri)) {
   name: keyVaultName
 }
+
+// Get ADX cluster instance
+resource dataExplorerCluster 'Microsoft.Kusto/clusters@2023-08-15' existing = if (deployDataExplorer) {
+  name: dataExplorerName
+}  
 
 // cSpell:ignore azuretimezones
 module azuretimezones 'azuretimezones.bicep' = {
@@ -344,6 +369,17 @@ resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssi
   }
 }]
 
+// Grant ADF identity access to manage ADX cluster
+resource factoryIdentityDataExplorerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in adxRbacRoles: {
+  name: guid(dataExplorerCluster.id, role, dataFactory.id)
+  scope: dataExplorerCluster
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+    principalId: dataFactory.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
 //------------------------------------------------------------------------------
 // Delete old triggers and pipelines
 //------------------------------------------------------------------------------
@@ -352,12 +388,11 @@ module deleteOldResources 'hub-deploymentScript.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_ADF.DeleteOldResources'
   dependsOn: [
     triggerManagerRoleAssignments
+    stopTriggers
   ]
   params: {
-    location: location
+    app: app
     identityName: triggerManagerIdentity.name
-    tags: tags
-    tagsByResource: tagsByResource
     scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
     environmentVariables: [
       {
@@ -373,10 +408,6 @@ module deleteOldResources 'hub-deploymentScript.bicep' = {
         value: dataFactory.name
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 
@@ -390,10 +421,8 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
     triggerManagerRoleAssignments
   ]
   params: {
-    location: location
+    app: app
     identityName: triggerManagerIdentity.name
-    tags: tags
-    tagsByResource: tagsByResource
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     arguments: '-Stop'
     environmentVariables: [
@@ -414,10 +443,6 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
         value: join(allHubTriggers, '|')
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 
@@ -860,7 +885,7 @@ module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = if (deployData
   }
 }
 
-module trigger_SettingsUpdated 'hub-event-trigger.bicep' = {
+module trigger_SettingsUpdated 'hub-event-trigger.bicep' = if (enableManagedExports) {
   name: 'Microsoft.FinOpsHubs.Core_SettingsUpdatedTrigger'
   dependsOn: [
     stopTriggers
@@ -880,7 +905,7 @@ module trigger_SettingsUpdated 'hub-event-trigger.bicep' = {
   }
 }
 
-resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (enableManagedExports) {
   name: dailyTriggerName
   parent: dataFactory
   dependsOn: [
@@ -910,7 +935,7 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
   }
 }
 
-resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (enableManagedExports) {
   name: monthlyTriggerName
   parent: dataFactory
   dependsOn: [
@@ -1435,7 +1460,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
 // config_StartBackfillProcess pipeline
 //------------------------------------------------------------------------------
 @description('Runs the backfill job for each month based on retention settings.')
-resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_StartBackfillProcess'
   parent: dataFactory
   properties: {
@@ -1698,7 +1723,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
 // Triggered by config_StartBackfillProcess pipeline
 //------------------------------------------------------------------------------
 @description('Creates and triggers exports for all defined scopes for the specified date range.')
-resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_RunBackfillJob'
   parent: dataFactory
   properties: {
@@ -1946,7 +1971,7 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
 // Triggered by config_DailySchedule/MonthlySchedule triggers
 //------------------------------------------------------------------------------
 @description('Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExportJobs pipeline.')
-resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_StartExportProcess'
   parent: dataFactory
   properties: {
@@ -2188,7 +2213,7 @@ resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@
 // Triggered by pipeline_StartExportProcess pipeline
 //------------------------------------------------------------------------------
 @description('Runs the specified Cost Management exports.')
-resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_RunExportJobs'
   parent: dataFactory
   dependsOn: [
@@ -2286,7 +2311,7 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
 // Triggered by config_SettingsUpdated trigger
 //------------------------------------------------------------------------------
 @description('Creates Cost Management exports for supported scopes.')
-resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_ConfigureExports'
   parent: dataFactory
   properties: {
@@ -4936,7 +4961,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
             ]
           }
           {
-            activity: 'Set Ingestion Timestamp'
+            activity: 'Data Explorer validation'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -5027,6 +5052,130 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           ]
         }
       }
+          {
+        name: 'Data Explorer validation'
+        description: 'If Data Explorer is stopped, start it'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Set Ingestion Timestamp'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(${deployDataExplorer}, true)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Start ADX Cluster'
+              type: 'WebActivity'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'POST'
+                url: {
+                  value: '${environment().resourceManager}${dataExplorerCluster.id}/start?api-version=2024-04-13'
+                  type: 'Expression'
+                }
+                body: '{}'
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: environment().resourceManager
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Error ADX Start'
+              type: 'Fail'
+              dependsOn: [
+                {
+                  activity: 'Start ADX Cluster After Error'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value:'@concat(\'Failed to start the Data Explorer instance. Message: \', activity(\'Start ADX Cluster After Error\').output.error.message)'
+                  type: 'Expression'
+                }
+                errorCode: {
+                  value: '@activity(\'Start ADX Cluster After Error\').output.error.code'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Wait ADX Provision State'
+              type: 'Wait'
+              dependsOn: [
+                {
+                  activity: 'Start ADX Cluster'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                waitTimeInSeconds: 600
+              }
+            }
+            {
+              name: 'Start ADX Cluster After Error'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Wait ADX Provision State'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'POST'
+                url: {
+                  value: '${environment().resourceManager}${dataExplorerCluster.id}/start?api-version=2024-04-13'
+                  type: 'Expression'
+                  body: '{}'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: environment().resourceManager
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
     ]
     parameters: {
       folderPath: {
@@ -5060,13 +5209,11 @@ module startTriggers 'hub-deploymentScript.bicep' = {
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule
+    deleteOldResources
   ]
   params: {
-    location: location
-    tags: tags
-    tagsByResource: tagsByResource
+    app: app
     identityName: triggerManagerIdentity.name
-
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     environmentVariables: [
       {
@@ -5090,10 +5237,6 @@ module startTriggers 'hub-deploymentScript.bicep' = {
         value: join([ pipeline_InitializeHub.name ], '|')
       }
     ]
-
-    enablePublicAccess: enablePublicAccess
-    scriptStorageAccountName: scriptStorageAccountName
-    scriptSubnetId: scriptSubnetId
   }
 }
 

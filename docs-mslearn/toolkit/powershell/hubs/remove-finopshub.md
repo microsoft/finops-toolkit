@@ -43,8 +43,8 @@ Remove-FinOpsHub `
 | --------------------- | ----------------------------------------------------------------------------------------------- |
 | `‑Name`               | Required. Name of the FinOps hub instance.                                                      |
 | `‑InputObject`        | Required when specifying InputObject. Expected object is the output of Get-FinOpsHub.           |
-| `‑ResourceGroup`      | Optional when specifying Name. Resource Group Name for the FinOps Hub.                          |
-| `‑KeepStorageAccount` | Optional. Indicates that the storage account associated with the FinOps Hub should be retained. |
+| `‑ResourceGroup`      | Optional when specifying Name. Resource Group Name for the FinOps hub.                          |
+| `‑KeepStorageAccount` | Optional. Indicates that the storage account associated with the FinOps hub should be retained. |
 
 <br>
 
@@ -61,7 +61,7 @@ Remove-FinOpsHub `
     -KeepStorageAccount
 ```
 
-Deletes a FinOps Hub named MyHub and deletes all associated resource except the storage account.
+Deletes a FinOps hub named MyHub and deletes all associated resource except the storage account.
 
 <br>
 
@@ -70,7 +70,7 @@ Deletes a FinOps Hub named MyHub and deletes all associated resource except the 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK0.10/bladeName/PowerShell/featureName/Hubs.RemoveHub)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK0.11/bladeName/PowerShell/featureName/Hubs.RemoveHub)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

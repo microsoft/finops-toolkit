@@ -78,12 +78,12 @@ Before enabling private access, review the networking details on this page to un
 
 When private access is selected, your FinOps hub instance includes a virtual network to ensure communication between its various components remain private.
 
-- The virtual network should be a **/26** (64 IP addresses) in size. This setting enables the minimum required subnet sizes for Container Services (used during deployments for running scripts) and Data Explorer.
-- The IP range can be set at the time of deployment and defaults to **10.20.30.0/26**.
+- The virtual network can be any subnet size from **/8** to **/26**, with a minimum of **/26** (64 IP addresses) required. The default is **/26** to conserve IP addresses while providing the minimum required subnet sizes for Container Services (used during deployments for running scripts) and Data Explorer.
+- The IP range can be set at the time of deployment and defaults to **10.20.30.0/26**. Choose a larger subnet (like **/24** or smaller) if you need additional address space for services such as Power BI VNet Data Gateway.
 
 If necessary, you can create the virtual network, subnets, and optionally peer it with your hub network before deploying FinOps hubs if you follow these requirements:
 
-- The virtual network should be a **/26** (64 IP addresses in size).
+- The virtual network should be a minimum of **/26** in size (64 IP addresses) but can be any size up to **/8** (16,777,216 IP addresses).
 - The name should be `<HubName>-vNet`.
 - The virtual network must be divided into three subnets with the service delegations as specified:
   - **private-endpoint-subnet** (**/28**) – no service delegations configured; hosts private endpoints for storage and key vault.
@@ -153,7 +153,7 @@ This network topology follows the Hub-Spoke network architecture guidance outlin
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.10/bladeName/Hubs/featureName/PrivateNetworking)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.11/bladeName/Hubs/featureName/PrivateNetworking)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

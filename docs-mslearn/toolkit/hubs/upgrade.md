@@ -12,11 +12,11 @@ ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Upgrading FinOps hubs
+# Upgrade a FinOps hubs instance
 
-This article helps you upgrade an existing FinOps hub instance to the latest version to use new capabilities.
+This tutorial helps you upgrade an existing FinOps hub instance to the latest version to use new capabilities.
 
-Upgrading a FinOps hub instance is usually the same as the initial setup. However, depending on what version you're moving from or to, you might have specific steps that are needed. Use the following sections to move from one version to another. If you have any questions, [start a discussion](https://aka.ms/discuss).
+Upgrading a FinOps hub instance is usually the same as the initial setup where you deploy the FinOps hub template and then update Power BI reports and Data Explorer dashboards. However, depending on what version you're moving from or to, extra steps may be needed. Use the following steps to upgrade your FinOps hub instance. If you have any questions, [start a discussion](https://aka.ms/discuss).
 
 <br>
 
@@ -31,217 +31,159 @@ Before you upgrade, make sure you know what version you're currently running. Yo
 3. Find the **settings.json** row and select the **⋯** menu on the right side of the page, then **View/edit**.
 4. Look for the **version** property.
 
-<br>
+If you're using FinOps hubs older than 0.2, it's simplest to deploy a new instance. The steps in this tutorial don't account for differences leading up to 0.2. To deploy a new instance, see [Create a FinOps hub instance](deploy.md).
 
-## Upgrading 0.0.1
-
-FinOps hubs `0.0.1` was the initial release and was intentionally scoped down in capabilities to get something out that we could start to collect feedback on. This release was intended for supporting amortized cost only but it didn't make any assumptions about the data, which means you could connect it to any export type or account type. Power BI reports in `0.0.1` only worked with Enterprise Agreement (EA) accounts. Refer to the following subsections if you have another account type.
-
-Use the following sections to determine the best steps to upgrade your hub instance.
-
-### MOSA and Microsoft internal subscriptions for 0.0.1
-
-Microsoft Online Services Agreement (MOSA, also called pay-as-you-go) and Microsoft internal subscriptions aren't supported in FinOps hubs `0.2` or later. You can use Power BI reports from the `0.1.1` release or the FinOps toolkit PowerShell module `0.1.1`, but there's no need to upgrade your hub instance. Changes were internal or only apply to initial onboarding. Contact support about transitioning to a Microsoft Customer Agreement account.
-
-> [!div class="nextstepaction"]
-> [Download 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1)
-
-[Install PowerShell](../powershell/powershell-commands.md#install-the-module)
-
-### EA and MCA accounts for 0.0.1
-
-If you have an Enterprise Agreement (EA) or Microsoft Customer Agreement (MCA) account, upgrade to `0.2` which uses the new [FOCUS](../../focus/what-is-focus.md) cost data format and covers both billed (actual) and amortized costs with 30% less data size (and storage costs). It's the baseline for all future updates.
-
-[See 0.2 upgrade instructions](#ea-and-mca-accounts-for-01x) &nbsp; [View changes](../changelog.md#v01)
+For a list of changes since your release, refer to the [changelog](../changelog.md).
 
 <br>
 
-## Upgrading 0.1.x
+## Step 1: Delete unused resources (0.7)
 
-FinOps hubs received small internal updates in `0.1` and `0.1.1`.
+This step only applies when upgrading from FinOps hubs 0.7 and targeting a deployment with public network access. Skip this step if any of the following apply:
 
-Use the following sections to determine the best steps to upgrade your hub instance.
+- Upgrading from FinOps hubs 0.6 or earlier.
+- Upgrading from FinOps hubs 0.7 and using private network routing.
+- Upgrading from FinOps hubs 0.8 or later.
 
-### MOSA and Microsoft internal subscriptions for 0.1.x
+FinOps hubs 0.8 introduced architectural changes to how networking resources were deployed. Networking resources must be deleted before upgrading from 0.7 to 0.8 or later. If you're moving from 0.6 or earlier to 0.8 or later, you can skip this step. The instructions assume your FinOps hub instance is the only thing in the resource group and there are no other networking resources. Don't delete resources that aren't related to FinOps hubs.
 
-Microsoft Online Services Agreement (MOSA, also called pay-as-you-go) and Microsoft internal subscriptions aren't supported in FinOps hubs `0.2` or later. You can use Power BI reports from the `0.1.1` release or the FinOps toolkit PowerShell module `0.1.1`, but there's no need to upgrade your hub instance. Contact support about transitioning to a Microsoft Customer Agreement account.
+To delete FinOps hubs 0.7 networking resources:
+
+1. Open the FinOps hub resource group in the Azure portal.
+2. Delete all private endpoints within the resource group.
+3. Delete all private Domain Name System (DNS) zones within the resource group.
+4. Delete the virtual network. If errors are encountered:
+   - Confirm no private endpoints or DNS zones remain.
+   - Check the connected devices tab and remove any lingering resources to ensure the virtual network isn't in use.
+
+<br>
+
+## Step 2: Update Fabric eventhouse
+
+This step only applies if you are using Microsoft Fabric as a primary data store. Skip this step if any of the following apply:
+
+- You are using Azure Storage as your data store.
+- You are using Azure Data Explorer as your data store.
+
+The Microsoft Fabric eventhouse database schema must be manually updated with each release. For details, see [Set up Microsoft Fabric](deploy.md#optional-set-up-microsoft-fabric).
+
+<br>
+
+## Step 3: Deploy the FinOps hub template
+
+Upgrading a FinOps hub instance requires redeploying the latest version of the template. Deploying the template creates new resources and updates existing resources as needed. To ensure the existing instance is updated, make sure to specify the same hub name and Data Explorer cluster name or Fabric eventhouse query URI.
 
 > [!div class="nextstepaction"]
-> [Download 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1)
+> [Deploy](deploy.md#deploy-the-finops-hub-template)
 
-[Install PowerShell](../powershell/powershell-commands.md#install-the-module)
+<br>
 
-### EA and MCA accounts for 0.1.x
+## Step 4: Update Cost Management exports (0.2-4)
 
-FinOps hubs `0.2` and later use the [FOCUS](../../focus/what-is-focus.md) cost data format which covers both billed (actual) and amortized costs. FOCUS allows viewing EA and MCA data together and is 30% smaller than actual + amortized datasets combined, which reduces your (storage costs). For more information, see [FOCUS benefits](../../focus/what-is-focus.md#benefits).
+This step only applies if upgrading from FinOps hubs 0.4 or earlier and using manual exports. Skip this step if upgrading from FinOps hubs 0.5 or later or using managed exports.
+
+FinOps toolkit 0.5 reports replaced the Cost Management connector with reservation recommendation exports. When you update to 0.5 reports, you need to create new reservation recommendation exports in Cost Management.
+
+<br>
+
+## Step 5: Remove duplicate data (0.2-6)
+
+This step only applies if upgrading from FinOps hubs 0.6 or earlier. Skip this step if upgrading from FinOps hubs 0.7 or later.
+
+FinOps hubs 0.6 and 0.7 changed the folder path for data stored in the **ingestion** container, which means older Power BI reports don't work with FinOps hubs 0.7 and later. New Power BI reports are backwards compatible and support old folder paths. You don't need to re-export data for storage reports. However, since FinOps hubs 0.6 and 0.7 use new folder paths, you may see duplicate data for the current month. To avoid the duplication, delete the current month's data from the old path in the **ingestion** container to avoid it being double-counted.
+
+If you enable Azure Data Explorer or Microsoft Fabric, you need to reingest historical data to add it to Data Explorer. This ingestion requirement also applies to data brought in from other systems or clouds.
 
 > [!IMPORTANT]
-> Cost Management has a limitation with the new exports that limits them to the last 13 months. If you need data older than 13 months, contact support to request support for historical data. The following details are based on this current limitation (as of January 2024).
+> If you re-export historical data in 0.7 or later that was previously exported in an earlier release, older data isn't removed. Delete the older data in the **ingestion** container to avoid inaccurate numbers due to duplicated data. FinOps hubs 0.7 moves all content into a folder based on the dataset type: **CommitmentDiscountUsage**, **Costs**, **Prices**, **Recommendations**, or **Transactions**. Any other folders can be safely removed. Once removed, run historical data backfill as needed.
 
-Before you upgrade, consider the following questions:
+<br>
 
-1. How much data do you have in your hub instance?
-   - If you have less than 13 months of data, we recommend you delete the data and re-export it using the FOCUS dataset.
-   - If you have more than 13 months of data, you can keep the data in your storage account, but the new Power BI reports don't recognize it. You can continue to use the current Power BI reports.
-2. Did you modify the Power BI reports?
-   - If you modified the reports, you need to reapply your changes to the new reports. For more information, see [How to update existing reports to FOCUS](../../focus/mapping.md).
-   - If you need your customized reports to continue to run while you upgrade, deploy a second instance of FinOps hubs using a different storage account to avoid data processing errors.
+## Step 6: Update Power BI reports
 
-Based on the preceding considerations, use the following steps to upgrade your hub instance from `0.1.x` to `0.3`:
+While Power BI reports are designed to work with the corresponding FinOps hub instance, most releases don't require an update to Power BI reports. Updating Power BI reports is required for FinOps hubs 0.6 or earlier. For more information, see the [compatibility guide](compatibility.md).
 
-1. Delete any amortized cost exports pointing to your hub instance.
-2. If desired, delete the historical amortized cost data to keep storage costs down.
-3. Deploy FinOps hubs `0.3` and create new FOCUS exports using the [Create a new hub](./finops-hubs-overview.md#create-a-new-hub) instructions.
-4. Backfill historical data using the FOCUS export.
+To update Power BI reports:
+
+1. Download the latest templates:
+   - [Kusto Query Language (KQL) reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip) for Data Explorer or Microsoft Fabric.
+   - [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip) for storage only deployments.
+2. Extract and open the desired report template in Power BI Desktop.
+3. Specify report parameters as needed and load each report.
+   - 0.9 deprecated FOCUS 1.0 preview support. To use existing FOCUS 1.0 preview data, enable the **Deprecated: Perform Extra Query Optimizations** parameter.
+4. Reapply any customizations to the new report noting the following changes:
+   - 0.4 changed the following columns to align with FOCUS 1.0:
+     - ChargeCategory is `Purchase` for refunds instead of `Adjustment`.
+     - ChargeClass (new) is `Correction` for refunds.
+     - CommitmentDiscountStatus (new) replaces ChargeSubcategory for commitment discount usage.
+     - RegionId and RegionName replaced Region.
+   - To avoid manually applying customizations in future updates, consider contributing customizations into the FinOps toolkit.
+5. Publish reports to a Fabric workspace.
+6. Repeat 2-5 for each report.
+
+For more information, see [Set up Power BI reports](../power-bi/setup.md).
+
+<br>
+
+## Step 7: Update the Data Explorer dashboard
+
+The Data Explorer dashboard was introduced with Data Explorer support in 0.7 and also works with Microsoft Fabric since 0.10. All versions of the dashboard work with all versions of FinOps hubs since 0.7. To upgrade the dashboard, replace the existing dashboard with the latest dashboard template.
 
 > [!div class="nextstepaction"]
-> [Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3)
+> [Download dashboard](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json)
 
-[View changes](../changelog.md#v02)
-
-<br>
-
-## Upgrading 0.2
-
-Upgrading FinOps hubs 0.2 to 0.3 is as simple as redeploying the template and optionally update to the 0.3 Power BI reports. There are no breaking changes, so Power BI reports from 0.2 should work with 0.3 and vice-versa.
-
-> [!div class="nextstepaction"]
-> [Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3)
-
-[View changes](../changelog.md#v03)
+For more information, see [Configure Data Explorer dashboards](configure-dashboards.md).
 
 <br>
 
-## Upgrading 0.3
+## Step 8: Update custom KQL queries
 
-Upgrading FinOps hubs 0.3 to 0.4 is as simple as redeploying the template and optionally update to the 0.4 Power BI reports. There are no breaking changes, so Power BI reports from 0.3 should work with 0.4 and vice-versa.
+Replace the use of deprecated columns and functions:
 
-FinOps hubs 0.4 aligns with FOCUS 1.0, so note the changes to the following columns:
+| Introduced | Retired | Deprecated                                  | Replacement                                         |
+| ---------- | ------- | ------------------------------------------- | --------------------------------------------------- |
+| 0.7        | 0.12    | `Costs().x_InvoiceId`                       | `Costs().InvoiceId`                                 |
+| 0.7        | 0.12    | `Costs().x_PricingCurrency`                 | `Costs().PricingCurrency`                           |
+| 0.7        | 0.12    | `Costs().x_SkuMeterName`                    | `Costs().SkuMeter`                                  |
+| 0.7        | 0.12    | `Prices().x_PricingCurrency`                | `Prices().PricingCurrency`                          |
+| 0.7        | 0.12    | `Prices().x_SkuMeterName`                   | `Prices().SkuMeter`                                 |
+| 0.7        | 0.12    | `Transactions().x_InvoiceId`                | `Transactions().InvoiceId`                          |
+| 0.7        | 0.8     | `parse_resourceid(ResourceId).ResourceType` | `resource_type(x_ResourceType).SingularDisplayName` |
+| 0.7        | N/A     | `daterange()`                               | `datestring(datetime, [datetime])`                  |
+| 0.7        | N/A     | `monthsago()`                               | `startofmonth(datetime, [offset])`                  |
 
-- ChargeCategory is `Purchase` for refunds instead of `Adjustment`.
-- ChargeClass (new) is `Correction` for refunds.
-- CommitmentDiscountStatus (new) replaces ChargeSubcategory for commitment discount usage.
-- RegionId and RegionName replaced Region.
+If using unversioned functions or updating from the `v1_0` schema version, review your code for any explicit use of the `decimal` data type and replace it with `real`. As of FinOps hubs 0.12 (schema version `v1_2`), all `decimal` data types changed to `real` to improve performance. To learn more about schema versions, see [About schema versions](data-model.md#schema-version).
 
-Reports work with both FOCUS 1.0 and FOCUS 1.0 preview exports, so there's no need to change exports in order to use the new reports. The reports themselves update the schema to meet FOCUS 1.0 requirements.
+If updating queries to use a newer schema version, use the following table to understand the changes introduced in each schema version for each managed dataset.
 
-> [!div class="nextstepaction"]
-> [Download 0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4)
-
-[View changes](../changelog.md#v04)
-
-<br>
-
-## Upgrading 0.4
-
-Upgrading FinOps hubs 0.4 to 0.5 is as simple as redeploying the template and optionally update to the 0.5 Power BI reports. There are no breaking changes in FinOps hubs, so Power BI reports from 0.4 should work with 0.5 and vice-versa. There are however changes in Power BI reports that must be accounted for if updating to 0.5 reports.
-
-FinOps toolkit 0.5 reports replaced the Cost Management connector with reservation recommendation exports. When you update to 0.5 reports, you need to create new reservation recommendation exports in Cost Management. Then, configure 0.5 reports with a **Hub Storage URL** pointing to the traditional FinOps hub URL. And, configure the 0.5 reports with a separate **Export Storage URL** that points to where reservation recommendations were exported.
-
-If you exported reservation recommendations to the **msexports** container of your hub storage account, use that. If you chose not to export reservation recommendations, set the **Export Storage URL** to the same FinOps hub URL. If you leave one of the URLs empty, the report doesn't refresh in the Power BI service and you get a "dynamic query" error. Placing the same URL in both parameters should work around this limitation.
-
-> [!div class="nextstepaction"]
-> [Download 0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5)
-
-[View changes](../changelog.md#v05)
-
-<br>
-
-## Upgrading 0.5
-
-Upgrading FinOps hubs 0.5 to 0.6 involves redeploying the template, removing the previously ingested data for the current month, and updating Power BI reports. FinOps hubs 0.6 changed the folder paths for data stored in the **ingestion** container, which means older Power BI reports don't work with data exported with FinOps hubs 0.6. Conversely, 0.6 Power BI reports _do_ work with older FinOps hubs versions, so previously exported data works without re-exporting it. The only caveat is that, you must delete the current month's data from the old path in the **ingestion** container to avoid it being double-counted.
-
-> [!IMPORTANT]
-> If you re-export historical data in 0.6 that was previously exported in an earlier release, older data is not removed. Delete the older data in the **ingestion** container to avoid inaccurate numbers due to duplicated data. FinOps hubs 0.6 moves all content into a folder based on the dataset type: **focuscost**, **pricesheet**, **reservationdetails**, **reservationrecommendations**, or **reservationtransactions**. Any other folders can be safely removed. Once removed, run historical data backfill as needed.
-
-<br>
-
-> [!div class="nextstepaction"]
-> [Download 0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6)
-
-[View changes](../changelog.md#v06)
-
-<br>
-
-## Upgrading 0.6
-
-Upgrading FinOps hubs 0.6 to 0.7 involves redeploying the template, removing the previously ingested data for the current month, and updating Power BI reports. FinOps hubs 0.7 changed the folder paths for data stored in the **ingestion** container, which means older Power BI reports don't work with data exported with FinOps hubs 0.7. Conversely, 0.7 Power BI reports _do_ work with older FinOps hubs versions, so previously exported data works without re-exporting it. The only caveat is that, you must delete the current month's data from the old path in the **ingestion** container to avoid it being double-counted.
-
-If you enable Azure Data Explorer, you need to reingest historical data to add it to Data Explorer. This ingestion requirement also applies to data brought in from other systems or clouds.
-
-> [!IMPORTANT]
-> If you re-export historical data in 0.7 that was previously exported in an earlier release, older data is not removed. Delete the older data in the **ingestion** container to avoid inaccurate numbers due to duplicated data. FinOps hubs 0.7 moves all content into a folder based on the dataset type: **CommitmentDiscountUsage**, **Costs**, **Prices**, **Recommendations**, or **Transactions**. Any other folders can be safely removed. Once removed, run historical data backfill as needed.
-
-<br>
-
-> [!div class="nextstepaction"]
-> [Download 0.7](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7)
-
-[View changes](../changelog.md#v07)
-
-<br>
-
-## Upgrading 0.7
-
-<!-- cSpell:ignore resourceid -->
-
-FinOps hubs 0.8 introduced architectural changes to how networking resources were deployed. Networking resources must be deleted before upgrading from 0.7 to 0.8 or later. If you are moving from 0.6 or earlier to 0.8 or later, you can skip this step. The instructions assume your FinOps hub instance is the only thing in the resource group and there are no other networking resources. Do not delete resources that are not related to FinOps hubs.
-
-To upgrade FinOps hubs 0.7 to 0.8:
-
-1. Delete FinOps hubs 0.7 networking resources:
-   1. Open the FinOps hub resource group in the Azure portal.
-   2. Delete all private endpoints within the resource group.
-   3. Delete all private DNS zones within the resource group.
-   4. Delete the virtual network.  If errors are encountered:
-      - Confirm no private endpoints or DNS zones remain.
-      - Check the connected devices tab and remove any lingering resources to ensure the virtual network is not in use.
-2. Redeploy the template by using the **same inputs** from the previous deployment:
-   - Subscription
-   - Resource group
-   - Location
-   - Hub name
-   - Data Explorer cluster name (recommended when monitoring over $100K in total spend)
-   - Data Explorer SKU (if a cluster name is specified)
-3. Verify that the Data Factory triggers are all started.
-4. Update Power BI reports.
-5. If using Data Explorer, replace use of `parse_resourceid(ResourceId).ResourceType` with `resource_type(x_ResourceType).SingularDisplayName`.
-   - The `ResourceType` property in `parse_resourceid(ResourceId)` is deprecated in 0.8 and will be removed in 0.9 or later.
-
-> [!div class="nextstepaction"]
-> [Download 0.8](https://github.com/microsoft/finops-toolkit/releases/tag/v0.8)
-
-[View changes](../changelog.md#v08)
-
-<br>
-
-## Upgrading 0.8
-
-To upgrade FinOps hubs 0.8 to 0.9:
-
-1. Redeploy the template.
-2. Update [Power BI reports](../power-bi/reports.md).
-3. Update the [Data Explorer dashboard](configure-dashboards.md).
-
-> [!div class="nextstepaction"]
-> [Download 0.9](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
-
-[View changes](../changelog.md#v09)
-
-<br>
-
-## Upgrading 0.9
-
-To upgrade FinOps hubs 0.9 to 0.10:
-
-1. Redeploy the template.
-2. Update [Power BI reports](../power-bi/reports.md).
-3. Update the [Data Explorer dashboard](configure-dashboards.md).
-
-> [!div class="nextstepaction"]
-> [Download 0.9](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
-
-[View changes](../changelog.md#v09)
+| Dataset                 | Schema | Column                                | Notes                                           |
+| ----------------------- | ------ | ------------------------------------- | ----------------------------------------------- |
+| (All)                   | v1_2   | All `decimal` columns                 | Changed to `real`                               |
+| CommitmentDiscountUsage | v1_2   | `CommitmentDiscountQuantity`          | New custom column                               |
+| CommitmentDiscountUsage | v1_2   | `CommitmentDiscountUnit`              | New custom column                               |
+| CommitmentDiscountUsage | v1_2   | `ServiceSubcategory`                  | New custom column                               |
+| Costs                   | v1_2   | `CapacityReservationId`               | New with FOCUS 1.2                              |
+| Costs                   | v1_2   | `CapacityReservationStatus`           | New with FOCUS 1.2                              |
+| Costs                   | v1_2   | `CommitmentDiscountQuantity`          | New with FOCUS 1.2                              |
+| Costs                   | v1_2   | `CommitmentDiscountUnit`              | New with FOCUS 1.2                              |
+| Cost                    | v1_2   | `ServiceSubcategory`                  | New with FOCUS 1.2                              |
+| Cost                    | v1_2   | `SkuPriceDetails`                     | New with FOCUS 1.2; derived from `x_SkuDetails` |
+| Costs                   | v1_2   | `x_AmortizationClass`                 | New with Cost Management FOCUS 1.2-preview      |
+| Costs                   | v1_2   | `x_CommitmentDiscountNormalizedRatio` | New with Cost Management FOCUS 1.2-preview      |
+| Costs                   | v1_2   | `x_InvoiceId`                         | Renamed to `InvoiceId`                          |
+| Costs                   | v1_2   | `x_PricingCurrency`                   | Renamed to `PricingCurrency`                    |
+| Costs                   | v1_2   | `x_ServiceModel`                      | New custom column                               |
+| Costs                   | v1_2   | `x_SkuMeterName`                      | Renamed to `SkuMeter`                           |
+| Prices                  | v1_2   | `CommitmentDiscountUnit`              | New custom column                               |
+| Prices                  | v1_2   | `x_PricingCurrency`                   | Renamed to `PricingCurrency`                    |
+| Prices                  | v1_2   | `x_SkuMeterName`                      | Renamed to `SkuMeter`                           |
+| Recommendations         | v1_2   | `ResourceId`                          | New custom column                               |
+| Recommendations         | v1_2   | `ResourceName`                        | New custom column                               |
+| Recommendations         | v1_2   | `ResourceType`                        | New custom column                               |
+| Recommendations         | v1_2   | `SubAccountName`                      | New custom column                               |
+| Recommendations         | v1_2   | `x_RecommendationDetails`             | New custom column                               |
+| Recommendations         | v1_2   | `x_ResourceGroupName`                 | New custom column                               |
+| Transactions            | v1_2   | `x_InvoiceId`                         | Renamed to `InvoiceId`                          |
 
 <br>
 
@@ -250,7 +192,7 @@ To upgrade FinOps hubs 0.9 to 0.10:
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.10/bladeName/Hubs/featureName/Upgrade)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.11/bladeName/Hubs/featureName/Upgrade)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

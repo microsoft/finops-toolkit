@@ -3,6 +3,7 @@ model Model
 	defaultPowerBIDataSourceVersion: powerBI_V3
 	sourceQueryCulture: en-US
 	dataAccessOptions
+		fastCombine
 		legacyRedirects
 		returnErrorValuesAsNull
 
@@ -28,9 +29,9 @@ queryGroup 'Open data'
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBIDesktopVersion = 2.143.403.0 (25.05)+98b007a6419223060d4fee8c6e55a7efc9090b04
+annotation PBIDesktopVersion = 2.144.655.0 (25.06)+114ed9e0eb4b96aa01002b329ec03e276ce380b1
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","Default Granularity","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","Costs","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","Prices","Experimental: Add Missing Prices","Deprecated: Perform Extra Query Optimizations","HubScopes","HubSettings","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","ReservationDetails","ReservationTransactions","Remove Duplicate Resource IDs"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","Number of Months","Default Granularity","ftk_DatetimeToJulianDate","ftk_DemoFilter","ftk_ImpalaToJulianDate","ftk_Metadata","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","ftk_Storage","Costs","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","Prices","Experimental: Add Missing Prices","Deprecated: Perform Extra Query Optimizations","HubScopes","HubSettings","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","ReservationDetails","ReservationTransactions","Remove Duplicate Resource IDs","VirtualMachinesDisks"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -61,6 +62,7 @@ ref table 'Compliance calculation'
 ref table PricingUnits
 ref table ReservationRecommendations
 ref table Disks
+ref table VirtualMachinesDisks
 
 ref cultureInfo en-US
 

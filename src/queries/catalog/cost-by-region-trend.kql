@@ -1,0 +1,22 @@
+// ============================================================================
+// Query: Cost by Region (Custom Date Range)
+// Description:
+//   Returns total effective cost by region for a custom date range.
+//   Useful for regional cost breakdowns and optimization.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
+// Output:
+//   Each row represents a region with its total effective cost for the period.
+// Usage:
+//   Use this query to analyze and optimize regional Azure spend.
+// Last Tested: 2025-05-17
+// =========================================================================
+
+let startDate = startofmonth(ago(30d)); // Set default as needed
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| summarize EffectiveCost = sum(EffectiveCost) by RegionName
+| order by EffectiveCost desc

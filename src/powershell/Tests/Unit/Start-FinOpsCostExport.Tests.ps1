@@ -78,8 +78,8 @@ Describe 'Start-FinOpsCostExport' {
         $params = @{
             Name      = $exportName
             Scope     = $scope
-            StartDate = (Get-Date)
-            EndDate   = (Get-Date).AddDays(1)
+            StartDate = (Get-Date).AddDays(-7)
+            EndDate   = (Get-Date).AddDays(-2)
         }
 
         # Act
@@ -95,6 +95,7 @@ Describe 'Start-FinOpsCostExport' {
         # Arrange
         Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { $mockExport }
         Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { @{ Success = $true } }
+        $today = (Get-Date).ToUniversalTime().Date
         $startOfMonth = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC)
         $params = @{
             Name     = $exportName
@@ -106,6 +107,12 @@ Describe 'Start-FinOpsCostExport' {
         $success = Start-FinOpsCostExport @params
 
         # Assert
+        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times ($params.Backfill + 1)
+        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+            $startDate = $startOfMonth.ToUniversalTime().Date
+            $body.timePeriod.from -eq $startDate.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") `
+                -and $body.timePeriod.to -eq $today.AddDays(-1).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        }
         foreach ($i in 1..($params.Backfill))
         {
             Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
@@ -138,15 +145,16 @@ Describe 'Start-FinOpsCostExport' {
         # Arrange
         Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { $mockExport }
         Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { @{ Success = $true } }
-        
+
         # Set up dates for current month
         $today = (Get-Date).ToUniversalTime().Date
-        $firstDayOfCurrentMonth = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC)
+        $firstDayOfCurrentMonth = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).ToUniversalTime().Date
         $lastDayOfCurrentMonth = $firstDayOfCurrentMonth.AddMonths(1).AddDays(-1)
-        
+
         # If testing in the last day of the month, this test might not be relevant
         # So we'll only run it if the last day of month is in the future
-        if ($lastDayOfCurrentMonth -gt $today) {
+        if ($lastDayOfCurrentMonth -gt $today)
+        {
             $params = @{
                 Name      = $exportName
                 Scope     = $scope
@@ -159,10 +167,10 @@ Describe 'Start-FinOpsCostExport' {
 
             # Assert
             Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 `
-                -ParameterFilter { 
-                    $body.timePeriod.from -eq $firstDayOfCurrentMonth.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") -and 
-                    $body.timePeriod.to -eq $today.AddDays(-1).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") 
-                }
+                -ParameterFilter {
+                $body.timePeriod.from -eq $firstDayOfCurrentMonth.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") -and
+                $body.timePeriod.to -eq $today.AddDays(-1).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+            }
             $success | Should -Be $true
         }
     }
@@ -171,27 +179,30 @@ Describe 'Start-FinOpsCostExport' {
         # Arrange
         Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { $mockExport }
         Mock -ModuleName FinOpsToolkit -CommandName 'Write-Progress' {}
-        
+
         # Mock Invoke-Rest to return throttled on first call, then success on second call
         $script:callCounter = 0
         Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' {
             $script:callCounter++
-            if ($script:callCounter -eq 1) {
-                return @{ 
-                    Success = $false 
+            if ($script:callCounter -eq 1)
+            {
+                return @{
+                    Success   = $false
                     Throttled = $true
                 }
-            } else {
-                return @{ 
-                    Success = $true 
+            }
+            else
+            {
+                return @{
+                    Success   = $true
                     Throttled = $false
                 }
             }
         }
-        
+
         # Force sleep to return immediately to speed up test
         Mock -ModuleName FinOpsToolkit -CommandName 'Start-Sleep' {}
-        
+
         $params = @{
             Name     = $exportName
             Scope    = $scope
