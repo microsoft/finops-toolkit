@@ -577,6 +577,16 @@ Costs_transform_v1_2()
         ''
     )
     //
+    // Commitment discount utilization
+    | extend x_CommitmentDiscountUtilizationPotential = case(
+        ChargeCategory == 'Purchase', real(0),
+        ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
+        CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
+        CommitmentDiscountCategory == 'Spend', EffectiveCost,
+        real(0)
+    )
+    | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))
+    //
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
     //

@@ -99,7 +99,7 @@ Transforms:
   - Update `ProviderName` and `PublisherName` when not specified.
   - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
   - Populate missing `ListCost`, `ListUnitPrice`, `ContractedCost`, and `ContractedUnitPrice` values based on the price sheet.
-    - This process requires prices to be exported before the cost. Prices being missing for the first day of the month if costs are ingested before pries are available for the month.
+    - This process requires prices to be exported before the cost. Prices being missing for the first day of the month if costs are ingested before prices are available for the month.
   - Fix `ContractedCost` when set incorrectly due to a bug in Cost Management.
   - Lowercase `ResourceName` and `x_ResourceGroupName` to address casing consistency issues that break grouping and filtering.
   - Add `x_BillingAccountAgreement` based on the account type.

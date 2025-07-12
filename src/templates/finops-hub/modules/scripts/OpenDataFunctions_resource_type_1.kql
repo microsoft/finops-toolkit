@@ -342,7 +342,9 @@ _resource_type_1(id: string) {
         ,"microsoft.azurestack/registrations/customersubscriptions": { "SingularDisplayName": "Microsoft.AzureStack registrations customer subscription" }
         ,"microsoft.azurestack/registrations/products": { "SingularDisplayName": "Microsoft.AzureStack registrations product" }
         ,"microsoft.azurestackhci/clusters": { "SingularDisplayName": "Azure Local" }
-        ,"microsoft.azurestackhci/devicepools": { "SingularDisplayName": "Microsoft.AzureStackHCI device pool" }
+        ,"microsoft.azurestackhci/clusters/updates/updateruns": { "SingularDisplayName": "Azure Local" }
+        ,"microsoft.azurestackhci/clusters/updatesummaries": { "SingularDisplayName": "Azure Local" }
+        ,"microsoft.azurestackhci/devicepools": { "SingularDisplayName": "Azure Stack" }
         ,"microsoft.azurestackhci/edgedevices": { "SingularDisplayName": "Microsoft.AzureStackHCI edge device" }
         ,"microsoft.azurestackhci/edgedevices/jobs": { "SingularDisplayName": "Microsoft.AzureStackHCI edge devices job" }
         ,"microsoft.azurestackhci/edgemachines": { "SingularDisplayName": "Microsoft.AzureStackHCI edge machine" }
@@ -503,7 +505,5 @@ _resource_type_1(id: string) {
         ,"microsoft.classicnetwork/networksecuritygroups": { "SingularDisplayName": "Network security group (classic)" }
         ,"microsoft.classicnetwork/reservedips": { "SingularDisplayName": "Reserved IP address (classic)" }
         ,"microsoft.classicnetwork/virtualnetworks": { "SingularDisplayName": "Virtual network (classic)" }
-        ,"microsoft.classicstorage/storageaccounts": { "SingularDisplayName": "Storage account (classic)" }
-        ,"microsoft.classicstorage/storageaccounts/disks": { "SingularDisplayName": "Disk (classic)" }
     })[tolower(id)]
 }

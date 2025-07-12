@@ -44,8 +44,7 @@ When you first start managing cost in the cloud, you use the native tools availa
 
 If you're migrating on-premises infrastructure to the cloud, you might also be interested in:
 
-- **TCO Calculator**: Allows you to estimate the cost savings achievable by migrating your application workloads to Microsoft Cloud.  
-- **Azure Migrate**: Discover, migrate, and modernize on-premises infrastructure.
+- **Azure Migrate**: Discover, migrate, and modernize on-premises infrastructure. Estimate the cost savings achievable by migrating your application to Microsoft Cloud.
 
 As you dig deeper into optimization and governance, you start to use:
 

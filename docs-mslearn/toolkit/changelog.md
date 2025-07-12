@@ -66,6 +66,9 @@ _Released June 2025_
   - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
   - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+  - Added a new **enableManagedExports** parameter to support disabling managed exports and not requiring the ability to assign the User Access Administrator role to a hub identity ([#1600](https://github.com/microsoft/finops-toolkit/issues/1600)).
+  - Added support for Alibaba Cloud FOCUS data ingestion.
+    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
 - **Changed**
   - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
   - Updated the Data Explorer dashboard to use the v1_2 schema.
@@ -83,11 +86,52 @@ _Released June 2025_
 - **Fixed**
   - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
 
+### [Optimization engine](optimization-engine/overview.md) v0.12
+
+- **Fixed**
+  - Link to recommendations Power BI report in MS Learn documentation ([#1614](https://github.com/microsoft/finops-toolkit/issues/1730)).
+  - Aka.ms links to point to the latest version of documentation articles in MS Learn.
+
 ### [PowerShell module](powershell/powershell-commands.md) v0.12
 
 - **Changed**
   - Updated the latest API version to 2025-03-01 in all Cost Management export commands.
   - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
+
+### [Open data](open-data.md) v0.12
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 9 new Microsoft.Discovery resource types.
+  - Added the following resource types:
+    - microsoft.azurestackhci/clusters/updates/updateruns
+    - microsoft.azurestackhci/clusters/updatesummaries
+    - microsoft.hybridcompute/arcgatewayassociatedresources
+    - microsoft.insights/datacollectionrulesresources
+    - microsoft.loadtestservice/playwrightworkspaces
+    - microsoft.logic/templates
+    - microsoft.machinelearningservices/aistudiocreate
+    - microsoft.machinelearningservices/workspacescreate
+    - microsoft.maintenance/maintenanceconfigurationsaumbladeresource
+    - microsoft.updatemanager/updaterules
+    - microsoft.workloads/workloadinstance
+- **Changed**
+  - Updated the following resource types:
+    - microsoft.azurestackhci/devicepools
+    - microsoft.discovery/storages
+    - microsoft.discovery/supercomputers
+    - microsoft.discovery/workspaces
+    - microsoft.elastic/monitors
+    - microsoft.network/loadbalancers
+    - microsoft.weightsandbiases/instances
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the following resource types to their respective services:
+    - microsoft.durabletask/schedulers
+    - microsoft.edge/contexts
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)

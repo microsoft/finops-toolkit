@@ -5,11 +5,24 @@
 with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')
 _resource_type_3(id: string) {
     dynamic({
-        "microsoft.insights/autoscalesettings": { "SingularDisplayName": "Microsoft.Insights autoscalesetting" }
+        "microsoft.hybridnetwork/vendors": { "SingularDisplayName": "Azure Network Function Manager ? vendor" }
+        ,"microsoft.hybridonboarding/extensionmanagers": { "SingularDisplayName": "Microsoft.HybridOnboarding extension manager" }
+        ,"microsoft.impact/connectors": { "SingularDisplayName": "Impact Reporting Connector" }
+        ,"microsoft.impact/impactcategories": { "SingularDisplayName": "Microsoft.Impact impact category" }
+        ,"microsoft.impact/topologyimpacts": { "SingularDisplayName": "Microsoft.Impact topology impact" }
+        ,"microsoft.impact/workloadimpacts": { "SingularDisplayName": "Microsoft.Impact workload impact" }
+        ,"microsoft.impact/workloadimpacts/insights": { "SingularDisplayName": "Microsoft.Impact workload impacts insight" }
+        ,"microsoft.importexport/jobs": { "SingularDisplayName": "Microsoft.ImportExport job" }
+        ,"microsoft.insights/actiongroups": { "SingularDisplayName": "Action group" }
+        ,"microsoft.insights/activitylogalerts": { "SingularDisplayName": "Activity log alert rule" }
+        ,"microsoft.insights/alertrules": { "SingularDisplayName": "Microsoft.Insights alertrule" }
+        ,"microsoft.insights/alertrules/incidents": { "SingularDisplayName": "Microsoft.insights alertrules incident" }
+        ,"microsoft.insights/autoscalesettings": { "SingularDisplayName": "Microsoft.Insights autoscalesetting" }
         ,"microsoft.insights/components": { "SingularDisplayName": "Application Insights app" }
         ,"microsoft.insights/datacollectionendpoints": { "SingularDisplayName": "Data collection endpoint" }
         ,"microsoft.insights/datacollectionruleassociations": { "SingularDisplayName": "Microsoft.Insights data collection rule association" }
         ,"microsoft.insights/datacollectionrules": { "SingularDisplayName": "Data collection rule" }
+        ,"microsoft.insights/datacollectionrulesresources": { "SingularDisplayName": "Data collection rule associated resource" }
         ,"microsoft.insights/diagnosticsettings": { "SingularDisplayName": "Diagnostic settings" }
         ,"microsoft.insights/diagnosticsettingscategories": { "SingularDisplayName": "Microsoft.Insights diagnostic settings category" }
         ,"microsoft.insights/guestdiagnosticsettings": { "SingularDisplayName": "Microsoft.insights guest diagnostic setting" }
@@ -98,11 +111,13 @@ _resource_type_3(id: string) {
         ,"microsoft.loadtestservice/loadtestmappings": { "SingularDisplayName": "Microsoft.LoadTestService load test mapping" }
         ,"microsoft.loadtestservice/loadtestprofilemappings": { "SingularDisplayName": "Microsoft.LoadTestService load test profile mapping" }
         ,"microsoft.loadtestservice/loadtests": { "SingularDisplayName": "Azure Load Testing" }
+        ,"microsoft.loadtestservice/playwrightworkspaces": { "SingularDisplayName": "Playwright Workspace" }
         ,"microsoft.logic/businessprocesses": { "SingularDisplayName": "Business Process" }
         ,"microsoft.logic/integrationaccounts": { "SingularDisplayName": "Logic app integration account" }
         ,"microsoft.logic/integrationserviceenvironments": { "SingularDisplayName": "Integration Service Environment" }
         ,"microsoft.logic/integrationserviceenvironments/health": { "SingularDisplayName": "Microsoft.Logic integration service environments health" }
         ,"microsoft.logic/integrationserviceenvironments/managedapis": { "SingularDisplayName": "Managed Connector" }
+        ,"microsoft.logic/templates": { "SingularDisplayName": "Logic Apps Template" }
         ,"microsoft.logic/workflows": { "SingularDisplayName": "Logic app" }
         ,"microsoft.logz/monitors": { "SingularDisplayName": "Logz.io" }
         ,"microsoft.logz/monitors/accounts": { "SingularDisplayName": "Logz sub account" }
@@ -116,12 +131,15 @@ _resource_type_3(id: string) {
         ,"microsoft.machinelearningexperimentation/accounts/workspaces": { "SingularDisplayName": "Microsoft.MachineLearningExperimentation accounts workspace" }
         ,"microsoft.machinelearningexperimentation/accounts/workspaces/projects": { "SingularDisplayName": "Microsoft.MachineLearningExperimentation accounts workspaces project" }
         ,"microsoft.machinelearningservices/aistudio": { "SingularDisplayName": "Azure AI Foundry" }
+        ,"microsoft.machinelearningservices/aistudiocreate": { "SingularDisplayName": "Azure AI Foundry" }
         ,"microsoft.machinelearningservices/registries": { "SingularDisplayName": "Azure Machine Learning registry" }
         ,"microsoft.machinelearningservices/workspaces": { "SingularDisplayName": "Azure Machine Learning workspace" }
         ,"microsoft.machinelearningservices/workspaces/onlineendpoints": { "SingularDisplayName": "Machine learning online endpoint" }
         ,"microsoft.machinelearningservices/workspaces/onlineendpoints/deployments": { "SingularDisplayName": "Machine learning online deployment" }
+        ,"microsoft.machinelearningservices/workspacescreate": { "SingularDisplayName": "Azure Machine Learning workspace" }
         ,"microsoft.maintenance/configurationassignments": { "SingularDisplayName": "Microsoft.Maintenance configuration assignment" }
         ,"microsoft.maintenance/maintenanceconfigurations": { "SingularDisplayName": "Maintenance Configuration" }
+        ,"microsoft.maintenance/maintenanceconfigurationsaumbladeresource": { "SingularDisplayName": "Maintenance configuration" }
         ,"microsoft.maintenance/maintenanceconfigurationsbladeresource": { "SingularDisplayName": "Maintenance configuration" }
         ,"microsoft.maintenance/publicmaintenanceconfigurations": { "SingularDisplayName": "Microsoft.Maintenance public maintenance configuration" }
         ,"microsoft.managedidentity/identities": { "SingularDisplayName": "Microsoft.ManagedIdentity identity" }
@@ -487,23 +505,5 @@ _resource_type_3(id: string) {
         ,"microsoft.notificationhubs/namespaces": { "SingularDisplayName": "Notification Hub Namespace" }
         ,"microsoft.notificationhubs/namespaces/notificationhubs": { "SingularDisplayName": "Notification Hub" }
         ,"microsoft.objectstore/osnamespaces": { "SingularDisplayName": "Microsoft.ObjectStore os namespace" }
-        ,"microsoft.offazure/hypervsites": { "SingularDisplayName": "Microsoft.OffAzure hyperv site" }
-        ,"microsoft.offazure/hypervsites/clusters": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites cluster" }
-        ,"microsoft.offazure/hypervsites/hosts": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites host" }
-        ,"microsoft.offazure/hypervsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites job" }
-        ,"microsoft.offazure/hypervsites/machines": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites machine" }
-        ,"microsoft.offazure/hypervsites/machines/softwareinventories": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites machines software inventory" }
-        ,"microsoft.offazure/hypervsites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites operations statu" }
-        ,"microsoft.offazure/hypervsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites run as account" }
-        ,"microsoft.offazure/importsites": { "SingularDisplayName": "Microsoft.OffAzure import site" }
-        ,"microsoft.offazure/importsites/deletejobs": { "SingularDisplayName": "Microsoft.OffAzure import sites delete job" }
-        ,"microsoft.offazure/importsites/exportjobs": { "SingularDisplayName": "Microsoft.OffAzure import sites export job" }
-        ,"microsoft.offazure/importsites/importjobs": { "SingularDisplayName": "Microsoft.OffAzure import sites import job" }
-        ,"microsoft.offazure/importsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure import sites job" }
-        ,"microsoft.offazure/importsites/machines": { "SingularDisplayName": "Microsoft.OffAzure import sites machine" }
-        ,"microsoft.offazure/mastersites": { "SingularDisplayName": "Microsoft.OffAzure master site" }
-        ,"microsoft.offazure/mastersites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure master sites operations statu" }
-        ,"microsoft.offazure/mastersites/privateendpointconnections": { "SingularDisplayName": "Microsoft.OffAzure master sites private endpoint connection" }
-        ,"microsoft.offazure/mastersites/privatelinkresources": { "SingularDisplayName": "Microsoft.OffAzure master sites private link resource" }
     })[tolower(id)]
 }

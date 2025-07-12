@@ -5,7 +5,25 @@
 with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')
 _resource_type_4(id: string) {
     dynamic({
-        "microsoft.offazure/mastersites/sqlsites": { "SingularDisplayName": "Microsoft.OffAzure master sites sql site" }
+        "microsoft.offazure/hypervsites": { "SingularDisplayName": "Microsoft.OffAzure hyperv site" }
+        ,"microsoft.offazure/hypervsites/clusters": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites cluster" }
+        ,"microsoft.offazure/hypervsites/hosts": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites host" }
+        ,"microsoft.offazure/hypervsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites job" }
+        ,"microsoft.offazure/hypervsites/machines": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites machine" }
+        ,"microsoft.offazure/hypervsites/machines/softwareinventories": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites machines software inventory" }
+        ,"microsoft.offazure/hypervsites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites operations statu" }
+        ,"microsoft.offazure/hypervsites/runasaccounts": { "SingularDisplayName": "Microsoft.OffAzure hyperv sites run as account" }
+        ,"microsoft.offazure/importsites": { "SingularDisplayName": "Microsoft.OffAzure import site" }
+        ,"microsoft.offazure/importsites/deletejobs": { "SingularDisplayName": "Microsoft.OffAzure import sites delete job" }
+        ,"microsoft.offazure/importsites/exportjobs": { "SingularDisplayName": "Microsoft.OffAzure import sites export job" }
+        ,"microsoft.offazure/importsites/importjobs": { "SingularDisplayName": "Microsoft.OffAzure import sites import job" }
+        ,"microsoft.offazure/importsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure import sites job" }
+        ,"microsoft.offazure/importsites/machines": { "SingularDisplayName": "Microsoft.OffAzure import sites machine" }
+        ,"microsoft.offazure/mastersites": { "SingularDisplayName": "Microsoft.OffAzure master site" }
+        ,"microsoft.offazure/mastersites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure master sites operations statu" }
+        ,"microsoft.offazure/mastersites/privateendpointconnections": { "SingularDisplayName": "Microsoft.OffAzure master sites private endpoint connection" }
+        ,"microsoft.offazure/mastersites/privatelinkresources": { "SingularDisplayName": "Microsoft.OffAzure master sites private link resource" }
+        ,"microsoft.offazure/mastersites/sqlsites": { "SingularDisplayName": "Microsoft.OffAzure master sites sql site" }
         ,"microsoft.offazure/mastersites/sqlsites/discoverysitedatasources": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites discovery site data source" }
         ,"microsoft.offazure/mastersites/sqlsites/jobs": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites job" }
         ,"microsoft.offazure/mastersites/sqlsites/operationsstatus": { "SingularDisplayName": "Microsoft.OffAzure master sites sql sites operations statu" }
@@ -386,6 +404,7 @@ _resource_type_4(id: string) {
         ,"microsoft.toolchainorchestrator/solutions/versions": { "SingularDisplayName": "Microsoft.ToolchainOrchestrator solutions version" }
         ,"microsoft.toolchainorchestrator/targets": { "SingularDisplayName": "Microsoft.ToolchainOrchestrator target" }
         ,"microsoft.toolchainorchestrator/targets/versions": { "SingularDisplayName": "Microsoft.ToolchainOrchestrator targets version" }
+        ,"microsoft.updatemanager/updaterules": { "SingularDisplayName": "Update Rule" }
         ,"microsoft.usagebilling/accounts": { "SingularDisplayName": "Microsoft.UsageBilling account" }
         ,"microsoft.usagebilling/accounts/dataexports": { "SingularDisplayName": "Microsoft.UsageBilling accounts data export" }
         ,"microsoft.usagebilling/accounts/inputs": { "SingularDisplayName": "Microsoft.UsageBilling accounts input" }
@@ -431,7 +450,7 @@ _resource_type_4(id: string) {
         ,"microsoft.web/sites/slots": { "SingularDisplayName": "App Service deployment slot" }
         ,"microsoft.web/sourcecontrols": { "SingularDisplayName": "Microsoft.Web sourcecontrol" }
         ,"microsoft.web/staticsites": { "SingularDisplayName": "Static Web App" }
-        ,"microsoft.weightsandbiases/instances": { "SingularDisplayName": "Azure Native WeightsAndBiases Cloud Service" }
+        ,"microsoft.weightsandbiases/instances": { "SingularDisplayName": "Azure Native Weights & Biases Cloud Service" }
         ,"microsoft.whiteboxcadlprovider/whiteboxresources": { "SingularDisplayName": "Microsoft.WhiteBoxCadlProvider white box resource" }
         ,"microsoft.windows365/cloudpcdelegatedmsis": { "SingularDisplayName": "Microsoft.Windows365 cloud pc delegated msi" }
         ,"microsoft.windowsesu/multipleactivationkeys": { "SingularDisplayName": "Microsoft.WindowsESU multiple activation key" }
@@ -464,6 +483,7 @@ _resource_type_4(id: string) {
         ,"microsoft.workloads/sapvirtualinstances/databaseinstances": { "SingularDisplayName": "Database for SAP solutions" }
         ,"microsoft.workloads/virtualinstances": { "SingularDisplayName": "Microsoft.Workloads virtual instance" }
         ,"microsoft.workloads/virtualinstances/components": { "SingularDisplayName": "Microsoft.Workloads virtual instances component" }
+        ,"microsoft.workloads/workloadinstance": { "SingularDisplayName": "My Resource" }
         ,"microsoft.zerotrustsegmentation/segmentationmanagers": { "SingularDisplayName": "Segmentation Manager" }
         ,"mongodb.atlas/organizations": { "SingularDisplayName": "MongoDB Atlas Organization" }
         ,"neon.postgres/organizations": { "SingularDisplayName": "Neon Serverless Postgres Organization" }
@@ -485,18 +505,5 @@ _resource_type_4(id: string) {
         ,"purestorage.block/reservations": { "SingularDisplayName": "Azure Native Pure Storage Cloud Service" }
         ,"purestorage.block/storagepools": { "SingularDisplayName": "Storage pool" }
         ,"purestorage.block/storagepools/avsstoragecontainers": { "SingularDisplayName": "PureStorage.Block storage pools avs storage container" }
-        ,"qumulo.qaas/storages": { "SingularDisplayName": "Qumulo.QaaS storage" }
-        ,"qumulo.storage/filesystems": { "SingularDisplayName": "Azure Native Qumulo Scalable File Service" }
-        ,"solarwinds.observability/organizations": { "SingularDisplayName": "SolarWinds Observability" }
-        ,"splitio.experimentation/experimentationworkspaces": { "SingularDisplayName": "Split Experimentation Workspace" }
-        ,"wandisco.fusion/migrators": { "SingularDisplayName": "LiveData Migrator" }
-        ,"wandisco.fusion/migrators/datatransferagents": { "SingularDisplayName": "Data Transfer Agent" }
-        ,"wandisco.fusion/migrators/exclusiontemplates": { "SingularDisplayName": "Exclusion" }
-        ,"wandisco.fusion/migrators/livedatamigrations": { "SingularDisplayName": "Migration" }
-        ,"wandisco.fusion/migrators/metadatamigrations": { "SingularDisplayName": "Metadata Migration" }
-        ,"wandisco.fusion/migrators/metadatatargets": { "SingularDisplayName": "Metadata Target" }
-        ,"wandisco.fusion/migrators/pathmappings": { "SingularDisplayName": "Path Mapping" }
-        ,"wandisco.fusion/migrators/targets": { "SingularDisplayName": "Target" }
-        ,"wandisco.fusion/migrators/verifications": { "SingularDisplayName": "Verification" }
     })[tolower(id)]
 }
