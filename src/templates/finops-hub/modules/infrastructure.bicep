@@ -16,9 +16,6 @@ param hub HubProperties
 // Variables
 //==============================================================================
 
-var safeHubName = replace(replace(toLower(hub.name), '-', ''), '_', '')
-// cSpell:ignore vnet
-var vNetName = '${safeHubName}-vnet-${hub.location}'
 var nsgName = '${hub.routing.networkName}-nsg'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
@@ -172,7 +169,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.opti
 }
 
 resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.privateRouting) {
-  name: vNetName
+  name: hub.routing.networkName
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Storage/virtualNetworks')
   properties: {
@@ -202,6 +199,9 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 // Required for the Azure portal and Storage Explorer
 resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
   name: string(hub.routing.dnsZones.blob.name)
+  dependsOn: [
+    vNet
+  ]
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
@@ -222,6 +222,9 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
 // Required for Power BI
 resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
   name: string(hub.routing.dnsZones.dfs.name)
+  dependsOn: [
+    vNet
+  ]
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
@@ -242,6 +245,9 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
 // Required for Azure Data Explorer
 resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
   name: string(hub.routing.dnsZones.queue.name)
+  dependsOn: [
+    vNet
+  ]
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
@@ -262,6 +268,9 @@ resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 // Required for Azure Data Explorer
 resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
   name: string(hub.routing.dnsZones.table.name)
+  dependsOn: [
+    vNet
+  ]
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
@@ -285,6 +294,9 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 
 resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (hub.options.privateRouting) {
   name: string(hub.routing.scriptStorage)
+  dependsOn: [
+    vNet::scriptSubnet
+  ]
   location: hub.location
   sku: {
     name: 'Standard_LRS'
@@ -313,6 +325,9 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
 
 resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hub.options.privateRouting) {
   name: '${scriptStorageAccount.name}-blob-ep'
+  dependsOn: [
+    vNet::scriptSubnet
+  ]
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Network/privateEndpoints')
   properties: {
