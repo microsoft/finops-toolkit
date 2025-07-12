@@ -18,8 +18,7 @@ param hub HubProperties
 
 var safeHubName = replace(replace(toLower(hub.name), '-', ''), '_', '')
 // cSpell:ignore vnet
-var vNetName = '${safeHubName}-vnet-${hub.location}'
-var nsgName = '${vNetName}-nsg'
+var nsgName = '${hub.routing.networkName}-nsg'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
 var finopsHubSubnetName = 'private-endpoint-subnet'
@@ -303,7 +302,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
       defaultAction: 'Deny'
       virtualNetworkRules: [
         {
-          id: vNet::scriptSubnet.id
+          id: hub.routing.subnets.scripts
           action: 'Allow'
         }
       ]
@@ -315,9 +314,12 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hu
   name: '${scriptStorageAccount.name}-blob-ep'
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Network/privateEndpoints')
+  dependsOn: [
+    vNet::scriptSubnet
+  ]
   properties: {
     subnet: {
-      id: vNet::finopsHubSubnet.id
+      id: hub.routing.subnets.storage
     }
     privateLinkServiceConnections: [
       {
