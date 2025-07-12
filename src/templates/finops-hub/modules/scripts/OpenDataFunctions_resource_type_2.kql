@@ -5,7 +5,9 @@
 with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')
 _resource_type_2(id: string) {
     dynamic({
-        "microsoft.classicstorage/storageaccounts/osimages": { "SingularDisplayName": "OS image (classic)" }
+        "microsoft.classicstorage/storageaccounts": { "SingularDisplayName": "Storage account (classic)" }
+        ,"microsoft.classicstorage/storageaccounts/disks": { "SingularDisplayName": "Disk (classic)" }
+        ,"microsoft.classicstorage/storageaccounts/osimages": { "SingularDisplayName": "OS image (classic)" }
         ,"microsoft.classicstorage/storageaccounts/vmimages": { "SingularDisplayName": "VM image (classic)" }
         ,"microsoft.cleanroom/cleanrooms": { "SingularDisplayName": "Microsoft.CleanRoom cleanroom" }
         ,"microsoft.cleanroom/collaborations": { "SingularDisplayName": "Microsoft.CleanRoom collaboration" }
@@ -283,9 +285,18 @@ _resource_type_2(id: string) {
         ,"microsoft.devtunnels/tunnelplans": { "SingularDisplayName": "Dev Tunnels Domain" }
         ,"microsoft.diagnostics/apollo": { "SingularDisplayName": "Microsoft.Diagnostics apollo" }
         ,"microsoft.digitaltwins/digitaltwinsinstances": { "SingularDisplayName": "Azure Digital Twins" }
-        ,"microsoft.discovery/storages": { "SingularDisplayName": "Microsoft.Discovery storage" }
-        ,"microsoft.discovery/supercomputers": { "SingularDisplayName": "Microsoft.Discovery supercomputer" }
-        ,"microsoft.discovery/workspaces": { "SingularDisplayName": "Microsoft.Discovery workspace" }
+        ,"microsoft.discovery/agents": { "SingularDisplayName": "Microsoft Discovery Agent" }
+        ,"microsoft.discovery/bookshelves": { "SingularDisplayName": "Microsoft Discovery Bookshelf" }
+        ,"microsoft.discovery/datacontainers": { "SingularDisplayName": "Microsoft Discovery Data Container" }
+        ,"microsoft.discovery/datacontainers/dataassets": { "SingularDisplayName": "Data asset" }
+        ,"microsoft.discovery/models": { "SingularDisplayName": "Microsoft Discovery Model" }
+        ,"microsoft.discovery/storages": { "SingularDisplayName": "Microsoft Discovery Storage" }
+        ,"microsoft.discovery/supercomputers": { "SingularDisplayName": "Microsoft Discovery Supercomputer" }
+        ,"microsoft.discovery/supercomputers/nodepools": { "SingularDisplayName": "Nodepool" }
+        ,"microsoft.discovery/tools": { "SingularDisplayName": "Microsoft Discovery Tool" }
+        ,"microsoft.discovery/workflows": { "SingularDisplayName": "Microsoft Discovery Workflow" }
+        ,"microsoft.discovery/workspaces": { "SingularDisplayName": "Microsoft Discovery Workspace" }
+        ,"microsoft.discovery/workspaces/projects": { "SingularDisplayName": "Microsoft Discovery Project" }
         ,"microsoft.documentdb/cassandraclusters": { "SingularDisplayName": "Azure Managed Instance for Apache Cassandra" }
         ,"microsoft.documentdb/databaseaccounts": { "SingularDisplayName": "Cosmos DB account" }
         ,"microsoft.documentdb/fleets": { "SingularDisplayName": "Azure Cosmos DB Fleet" }
@@ -327,7 +338,7 @@ _resource_type_2(id: string) {
         ,"microsoft.education/labs/joinrequests": { "SingularDisplayName": "Microsoft.Education labs join request" }
         ,"microsoft.education/labs/students": { "SingularDisplayName": "Microsoft.Education labs student" }
         ,"microsoft.education/studentlabs": { "SingularDisplayName": "Microsoft.Education student lab" }
-        ,"microsoft.elastic/monitors": { "SingularDisplayName": "Elastic" }
+        ,"microsoft.elastic/monitors": { "SingularDisplayName": "Elastic Cloud Resource" }
         ,"microsoft.elasticsan/elasticsans": { "SingularDisplayName": "Elastic SAN" }
         ,"microsoft.energydataplatform/energyservices": { "SingularDisplayName": "Microsoft.EnergyDataPlatform energy service" }
         ,"microsoft.enterpriseknowledgegraph/services": { "SingularDisplayName": "Microsoft.EnterpriseKnowledgeGraph service" }
@@ -432,6 +443,7 @@ _resource_type_2(id: string) {
         ,"microsoft.hpcworkbench/instances/consortiums": { "SingularDisplayName": "Microsoft.HpcWorkbench instances consortium" }
         ,"microsoft.hybridcloud/cloudconnections": { "SingularDisplayName": "Microsoft.HybridCloud cloud connection" }
         ,"microsoft.hybridcloud/cloudconnectors": { "SingularDisplayName": "Microsoft.HybridCloud cloud connector" }
+        ,"microsoft.hybridcompute/arcgatewayassociatedresources": { "SingularDisplayName": "Arc gateway associated resource" }
         ,"microsoft.hybridcompute/arcserverwithwac": { "SingularDisplayName": "Machine - Azure Arc" }
         ,"microsoft.hybridcompute/gateways": { "SingularDisplayName": "Arc gateway" }
         ,"microsoft.hybridcompute/licenses": { "SingularDisplayName": "Extended Security Updates - Windows Server 2012/R2" }
@@ -493,17 +505,5 @@ _resource_type_2(id: string) {
         ,"microsoft.hybridnetwork/servicemanagementcontainers/updatespecifications/rollouts/statuses": { "SingularDisplayName": "Microsoft.HybridNetwork service management containers update specifications rollouts statuse" }
         ,"microsoft.hybridnetwork/sitenetworkservices": { "SingularDisplayName": "Site Network Service" }
         ,"microsoft.hybridnetwork/sites": { "SingularDisplayName": "Site" }
-        ,"microsoft.hybridnetwork/vendors": { "SingularDisplayName": "Azure Network Function Manager ? vendor" }
-        ,"microsoft.hybridonboarding/extensionmanagers": { "SingularDisplayName": "Microsoft.HybridOnboarding extension manager" }
-        ,"microsoft.impact/connectors": { "SingularDisplayName": "Impact Reporting Connector" }
-        ,"microsoft.impact/impactcategories": { "SingularDisplayName": "Microsoft.Impact impact category" }
-        ,"microsoft.impact/topologyimpacts": { "SingularDisplayName": "Microsoft.Impact topology impact" }
-        ,"microsoft.impact/workloadimpacts": { "SingularDisplayName": "Microsoft.Impact workload impact" }
-        ,"microsoft.impact/workloadimpacts/insights": { "SingularDisplayName": "Microsoft.Impact workload impacts insight" }
-        ,"microsoft.importexport/jobs": { "SingularDisplayName": "Microsoft.ImportExport job" }
-        ,"microsoft.insights/actiongroups": { "SingularDisplayName": "Action group" }
-        ,"microsoft.insights/activitylogalerts": { "SingularDisplayName": "Activity log alert rule" }
-        ,"microsoft.insights/alertrules": { "SingularDisplayName": "Microsoft.Insights alertrule" }
-        ,"microsoft.insights/alertrules/incidents": { "SingularDisplayName": "Microsoft.insights alertrules incident" }
     })[tolower(id)]
 }

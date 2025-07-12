@@ -1,44 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { HubCoreConfig } from 'hub-types.bicep'
+import { HubProperties } from 'hub-types.bicep'
 
 
 //==============================================================================
 // Parameters
 //==============================================================================
 
+@description('Required. FinOps hub instance properties.')
+param hub HubProperties
+
 @description('Required. Create and store a key for a remote storage account.')
 @secure()
 param remoteStorageKey string
-
-//------------------------------------------------------------------------------
-// Temporary parameters that should be removed in the future
-//------------------------------------------------------------------------------
-
-// TODO: Pull deployment config from the cloud
-@description('Required. FinOps hub coreConfig.')
-param coreConfig HubCoreConfig
-
-
-//==============================================================================
-// Variables
-//==============================================================================
-
-// None
 
 
 //==============================================================================
 // Resources
 //==============================================================================
 
-//------------------------------------------------------------------------------
 // App registration
-//------------------------------------------------------------------------------
-
 module appRegistration 'hub-app.bicep' = {
   name: 'Microsoft.FinOpsHubs.RemoteHub_Register'
   params: {
+    hub: hub
     publisher: 'Microsoft FinOps hubs'
     namespace: 'Microsoft.FinOpsHubs'
     appName: 'RemoteHub'
@@ -49,20 +35,15 @@ module appRegistration 'hub-app.bicep' = {
       'KeyVault'
       'Storage'
     ]
-
-    coreConfig: coreConfig
   }
 }
 
-//------------------------------------------------------------------------------
 // Key Vault secret
-//------------------------------------------------------------------------------
-
 module keyVault_secret 'hub-vault.bicep' = {
   name: 'keyVault_secret'
   params: {
-    vaultName: appRegistration.outputs.config.publisher.keyVault
-    secretName: '${toLower(appRegistration.outputs.config.hub.name)}-storage-key'
+    vaultName: appRegistration.outputs.app.keyVault
+    secretName: '${toLower(appRegistration.outputs.app.hub.name)}-storage-key'
     secretValue: remoteStorageKey
     secretExpirationInSeconds: 1702648632
     secretNotBeforeInSeconds: 10000
@@ -74,4 +55,5 @@ module keyVault_secret 'hub-vault.bicep' = {
 // Outputs
 //==============================================================================
 
-// None
+@description('Name of the Key Vault instance.')
+output keyVaultName string = appRegistration.outputs.app.keyVault

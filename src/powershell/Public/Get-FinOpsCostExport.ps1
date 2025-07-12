@@ -9,7 +9,8 @@
     The Get-FinOpsCostExport command gets a list of Cost Management exports for a given scope.
 
     This command has been tested with the following API versions:
-    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2025-03-01 (default) – GA version for FocusCost and other datasets.
+    - 2023-07-01-preview
     - 2023-08-01
 
     .PARAMETER Name
@@ -34,7 +35,7 @@
     Optional. Indicates whether the run history should be expanded. Default = false.
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.
+    Optional. API version to use when calling the Cost Management exports API. Default = 2025-03-01.
 
     .EXAMPLE
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
@@ -62,7 +63,7 @@
     Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2023-07-01-preview"
+    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2025-03-01"
 
     Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
 
@@ -106,7 +107,7 @@ function Get-FinOpsCostExport
 
         [Parameter()]
         [string]
-        $ApiVersion = '2023-07-01-preview'
+        $ApiVersion = '2025-03-01'
     )
 
     $context = Get-AzContext
