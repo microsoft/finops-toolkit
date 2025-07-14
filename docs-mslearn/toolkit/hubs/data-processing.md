@@ -153,6 +153,7 @@ Transforms:
     - `x_NegotiatedDiscountPercent`
     - `x_CommitmentDiscountPercent`
     - `x_TotalDiscountPercent`
+  - Added `x_SourceValues` to track data changes during ingestion.
 
 ### Price data transforms
 

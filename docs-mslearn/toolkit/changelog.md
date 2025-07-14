@@ -59,8 +59,10 @@ _Released June 2025_
     - Savings columns: `x_NegotiatedDiscountSavings`, `x_CommitmentDiscountSavings`, `x_TotalSavings`.
     - Commitment discount utilization columns: `x_CommitmentDiscountUtilizationAmount`, `x_CommitmentDiscountUtilizationPotential`.
     - Azure Hybrid Benefit columns: `x_SkuLicenseQuantity`, `x_SkuLicenseStatus`, `x_SkuLicenseType`, `x_SkuLicenseUnit`.
-    - SKU property columns: `x_ConsumedCoreHours`, `x_SkuCoreCount`, `x_SkuInstanceType`, `x_SkuOperatingSystem`.
-    - Other columns: `x_ConsumedCoreHours`.
+    - SKU property columns: `x_SkuCoreCount`, `x_SkuInstanceType`, `x_SkuOperatingSystem`.
+    - `x_ConsumedCoreHours` to track total core hours for the charge by multiplying `ConsumedQuantity` by `x_SkuCoreCount`.
+    - `x_SourceValues` to track data changes during FinOps toolkit data ingestion.
+    - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
   - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
   - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).

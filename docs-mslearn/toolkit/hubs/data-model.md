@@ -376,6 +376,7 @@ Columns in the **Costs** managed dataset include:
 | x_SourceName                             | String    | Source: Hubs add-on.                                   |
 | x_SourceProvider                         | String    | Source: Hubs add-on.                                   |
 | x_SourceType                             | String    | Source: Hubs add-on.                                   |
+| x_SourceValues                           | Dynamic   | Source: Hubs add-on.                                   |
 | x_SourceVersion                          | String    | Source: Hubs add-on.                                   |
 | x_TotalDiscountPercent                   | String    | Source: Hubs add-on.                                   |
 | x_TotalSavings                           | String    | Source: Hubs add-on.                                   |

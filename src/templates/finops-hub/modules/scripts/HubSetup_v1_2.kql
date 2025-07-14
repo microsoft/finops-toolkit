@@ -350,6 +350,7 @@ Costs_v1_2()
         x_SourceName,
         x_SourceProvider,
         x_SourceType,
+        x_SourceValues,
         x_SourceVersion,
         x_SubproductName,
         x_TotalDiscountPercent,
