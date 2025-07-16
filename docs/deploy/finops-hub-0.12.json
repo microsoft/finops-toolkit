@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "18315897041545664077"
+      "templateHash": "207881575873837585"
     }
   },
   "parameters": {
@@ -313,7 +313,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.177.2456",
-              "templateHash": "13235622521897544434"
+              "templateHash": "3207192639704421819"
             }
           },
           "definitions": {
@@ -10358,7 +10358,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.177.2456",
-                      "templateHash": "13425117133398487896"
+                      "templateHash": "2980352694795040257"
                     }
                   },
                   "definitions": {
@@ -11053,6 +11053,7 @@
                         "name": "factoryIdentityDataExplorerRoleAssignments",
                         "count": "[length(variables('adxRbacRoles'))]"
                       },
+                      "condition": "[variables('deployDataExplorer')]",
                       "type": "Microsoft.Authorization/roleAssignments",
                       "apiVersion": "2022-04-01",
                       "scope": "[format('Microsoft.Kusto/clusters/{0}', parameters('dataExplorerName'))]",
