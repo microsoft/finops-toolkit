@@ -40,12 +40,12 @@ These calculations depend on having accurate price data for:
 
 ### When negative savings occur
 
-**Negative savings are displayed when the effective price paid is higher than the list price or negotiated price.** This indicates the resource cost more than standard pricing, which can happen due to:
+**Negative savings are displayed when the effective price paid is higher than the list price or contracted (negotiated) price.** This indicates the resource cost more than standard pricing, which can happen due to:
 
 - Pricing misconfigurations
 - Unusual billing conditions
 - Data quality issues in Cost Management
-- Commitment discounts that provide less savings than negotiated rates
+- Commitment discounts that provide less savings than negotiated discounts
 
 ### Why show negative savings
 
@@ -82,7 +82,7 @@ When price data is missing, there's no reliable basis for calculating savings.
 The following table shows how different price scenarios are handled:
 
 | List Price | Effective Price | Savings Displayed | Explanation |
-|------------|-----------------|-------------------|-------------|
+|-----------:|----------------:|------------------:|-------------|
 | 100        | 100             | 0                 | No discount applied |
 | 100        | 80              | 20                | Standard savings of $20 |
 | 100        | 120             | -20               | Negative savings - overpaid by $20 |
@@ -162,8 +162,6 @@ If you see many zero savings values:
 
 <br>
 
-
-
 ## Troubleshooting
 
 For troubleshooting these issues, see [Troubleshoot common FinOps toolkit errors](../help/errors.md).
@@ -175,26 +173,15 @@ For troubleshooting these issues, see [Troubleshoot common FinOps toolkit errors
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20savings%20calculations%20in%20FinOps%20toolkit%20reports%3F/cvaQuestion/How%20valuable%20is%20the%20savings%20calculations%20documentation%3F/surveyId/FTK0.11/bladeName/Toolkit/featureName/Help.SavingsCalculations)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20savings%20calculations%20in%20FinOps%20toolkit%20reports%3F/cvaQuestion/How%20valuable%20is%20the%20savings%20calculations%20documentation%3F/surveyId/FTK0.12/bladeName/Hubs/featureName/SavingsCalculations)
 
 <br>
 
 ## Related content
 
-Related resources:
-
 - [Troubleshoot common FinOps toolkit errors](../help/errors.md)
 - [Data dictionary](../help/data-dictionary.md)
 - [Common terms](../help/terms.md)
-
-Related reports:
-
-- [Rate optimization report](../power-bi/rate-optimization.md)
-- [Cost summary report](../power-bi/cost-summary.md)
-
-Related solutions:
-
-- [FinOps hubs](./finops-hubs-overview.md)
-- [Cost Management exports](/azure/cost-management-billing/costs/tutorial-export-acm-data)
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
 
 <br>
