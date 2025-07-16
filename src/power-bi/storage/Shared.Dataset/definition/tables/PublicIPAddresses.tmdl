@@ -17,78 +17,6 @@ table PublicIPAddresses
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: 1c2e1fc0-e06c-412c-869e-1d331ad8124f
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: e66cea86-1d7d-451b-a563-77527fa7a040
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: f50f28b2-0509-4b8e-b65f-1dee90ad40e0
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: 659c2554-62a2-4789-9e4e-a08a80b56402
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: 413653d8-db89-4907-aa49-edb840bce4ae
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: 856cbcf9-1bb5-4522-92cb-cf481423a37b
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: d55896cd-835b-47f3-947c-16e5d2eadeab
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 52a19f62-b4a6-4e96-b7c5-615759029dcb
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: 4740149e-b926-4ab6-b486-680691496a95
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.provisioningState'
 		dataType: string
 		lineageTag: 552b63bf-51c6-487b-94ba-9811897d6668
@@ -150,46 +78,6 @@ table PublicIPAddresses
 		lineageTag: c6048a40-80ce-40bf-85c2-5020bd678dee
 		summarizeBy: none
 		sourceColumn: properties.ipTags
-
-		annotation SummarizationSetBy = Automatic
-
-	column tags
-		dataType: string
-		lineageTag: 80bcdb91-6e88-445e-8363-2e4c2df501cc
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 588b89cc-2124-424c-9f2f-0dfebe0aec5a
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 5e273fd8-51e0-450f-b97d-868411e2b66b
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 74c227cb-8a90-41c5-8457-bd3b0ebaae99
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: 046aa356-4713-4552-b6ca-6094909a58fd
-		summarizeBy: none
-		sourceColumn: properties
 
 		annotation SummarizationSetBy = Automatic
 

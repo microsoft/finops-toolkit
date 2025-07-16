@@ -269,7 +269,7 @@ table NetworkSecurityGroups
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 							#table(
-								{ "id", "name", "properties.resourceGuid", "properties.securityRules", "properties.securityRules.name", "properties.securityRules.id", "properties.securityRules.properties.destinationAddressPrefix", "properties.securityRules.properties.sourceAddressPrefix", "properties.securityRules.properties.destinationPortRange", "properties.securityRules.properties.sourcePortRange", "properties.securityRules.properties.protocol", "properties.securityRules.properties.direction", "properties.securityRules.properties.priority", "properties.securityRules.properties.access" },
+								{ "id", "name", "location", "resourceGroup", "properties.resourceGuid", "properties.securityRules", "properties.securityRules.name", "properties.securityRules.id", "properties.securityRules.properties.destinationAddressPrefix", "properties.securityRules.properties.sourceAddressPrefix", "properties.securityRules.properties.destinationPortRange", "properties.securityRules.properties.sourcePortRange", "properties.securityRules.properties.protocol", "properties.securityRules.properties.direction", "properties.securityRules.properties.priority", "properties.securityRules.properties.access" },
 								{}
 							)
 				    else Source
