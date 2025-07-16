@@ -17,7 +17,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in July 2025<span class="ftk-version">v0.12</span></h3>
+    <h3>What's new in July 2025<span class="ftk-version">v12</span></h3>
     <p>
         July introduces support for FOCUS 1.2, autostart in FinOps hubs, a new page in the Cost summary Power BI report, and various small fixes, improvements, and documentation updates across the board.
     </p>

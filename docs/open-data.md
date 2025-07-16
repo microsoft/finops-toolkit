@@ -20,7 +20,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
 FinOps toolkit open data is used to transform Cost Management actual and amortized data into FOCUS. Use the same mappings to clean your FinOps datasets.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in July 2025<span class="ftk-version">v0.12</span></h3>
+    <h3>What's new in July 2025<span class="ftk-version">v12</span></h3>
     <p>
         In July, open data added 20 new and 7 updated resource types and 2 new service mappings.
     </p>
