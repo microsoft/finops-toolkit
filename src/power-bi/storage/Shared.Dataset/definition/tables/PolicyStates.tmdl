@@ -32,78 +32,6 @@ table PolicyStates
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: 296452d0-4293-4beb-99e0-7c8a21b4a361
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: 43d677e1-f401-4b5c-921a-d579d4237a77
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: e5c9d963-f9db-4757-9c33-e24b8d24ea76
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: b720b39d-cf51-43f2-bef4-513f8395820a
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: 61af56aa-a434-4bda-aeb0-81e9d0beca9a
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: 97907a6a-8f80-4d94-91d0-556633f1a4de
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: 5d9f1b25-abb9-4734-8a18-76d1ecbadc0c
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 61f92f73-d86b-435e-a291-769f735087e3
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: 84e225fa-b931-4ae9-a9f6-4a1eb252fef3
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.policyAssignmentParameters'
 		dataType: string
 		lineageTag: 783fc75e-393f-420a-b8ee-2646799d9089
@@ -293,46 +221,6 @@ table PolicyStates
 		lineageTag: b29f486c-994e-4218-8b7f-d4b4421a54b8
 		summarizeBy: none
 		sourceColumn: properties.stateDetails
-
-		annotation SummarizationSetBy = Automatic
-
-	column tags
-		dataType: string
-		lineageTag: 7a49e86e-b0bf-4067-9282-763f2d44bebc
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 019f7b22-25f4-4146-b752-13053d03ed96
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 5947cd38-8f2a-4334-a5a7-5d01bb43d51e
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 5b099162-3582-46bd-902b-95529385e58c
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: da64eecc-5703-4249-bd94-d5b831c98757
-		summarizeBy: none
-		sourceColumn: properties
 
 		annotation SummarizationSetBy = Automatic
 

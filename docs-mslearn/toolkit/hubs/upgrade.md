@@ -101,7 +101,7 @@ If you enable Azure Data Explorer or Microsoft Fabric, you need to reingest hist
 
 ## Step 6: Update Power BI reports
 
-While Power BI reports are designed to work with the corresponding FinOps hub instance, most releases don't require an update to Power BI reports. Updating Power BI reports is required for FinOps hubs 0.6 or earlier. For more information, see the [compatibility guide](compatibility.md).
+While Power BI reports are designed to work with the corresponding FinOps hub instance, most releases don't require an update to Power BI reports. If updating from FinOps hubs 0.6 or earlier, you must also update Power BI reports. Power BI reports from v12 and later require FinOps hubs v12 or later. For more information, see the [compatibility guide](compatibility.md).
 
 To update Power BI reports:
 
@@ -127,7 +127,14 @@ For more information, see [Set up Power BI reports](../power-bi/setup.md).
 
 ## Step 7: Update the Data Explorer dashboard
 
-The Data Explorer dashboard was introduced with Data Explorer support in 0.7 and also works with Microsoft Fabric since 0.10. All versions of the dashboard work with all versions of FinOps hubs since 0.7. To upgrade the dashboard, replace the existing dashboard with the latest dashboard template.
+The Data Explorer dashboard was introduced with Data Explorer support in 0.7 and also works with Microsoft Fabric since 0.10. Generally, the dashboard does not need to be updated once deployed unless you want to take advantage of new features. To upgrade the dashboard, replace the existing dashboard with the latest dashboard template.
+
+Each version of the dashboard is configured to work with a specific FinOps hub schema version (v1_0 or v1_2). Schema versions ensure backwards compatibility across FOCUS dataset versions from different providers. Older dashboard versions will continue to work after upgrading to the latest version of FinOps hubs, but newer dashboard versions may not work with older FinOps hub versions. The following table outlines the supported combinations.
+
+| Dashboard version | FinOps hubs schema | FinOps hubs version |
+|-------------------|--------------------|---------------------|
+| 12+               | v1_2               | 12+                 |
+| 0.7-0.11          | v1_0               | 0.7+                |
 
 > [!div class="nextstepaction"]
 > [Download dashboard](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json)
@@ -142,17 +149,17 @@ Replace the use of deprecated columns and functions:
 
 | Introduced | Retired | Deprecated                                  | Replacement                                         |
 | ---------- | ------- | ------------------------------------------- | --------------------------------------------------- |
-| 0.7        | 0.12    | `Costs().x_InvoiceId`                       | `Costs().InvoiceId`                                 |
-| 0.7        | 0.12    | `Costs().x_PricingCurrency`                 | `Costs().PricingCurrency`                           |
-| 0.7        | 0.12    | `Costs().x_SkuMeterName`                    | `Costs().SkuMeter`                                  |
-| 0.7        | 0.12    | `Prices().x_PricingCurrency`                | `Prices().PricingCurrency`                          |
-| 0.7        | 0.12    | `Prices().x_SkuMeterName`                   | `Prices().SkuMeter`                                 |
-| 0.7        | 0.12    | `Transactions().x_InvoiceId`                | `Transactions().InvoiceId`                          |
+| 0.7        | 12      | `Costs().x_InvoiceId`                       | `Costs().InvoiceId`                                 |
+| 0.7        | 12      | `Costs().x_PricingCurrency`                 | `Costs().PricingCurrency`                           |
+| 0.7        | 12      | `Costs().x_SkuMeterName`                    | `Costs().SkuMeter`                                  |
+| 0.7        | 12      | `Prices().x_PricingCurrency`                | `Prices().PricingCurrency`                          |
+| 0.7        | 12      | `Prices().x_SkuMeterName`                   | `Prices().SkuMeter`                                 |
+| 0.7        | 12      | `Transactions().x_InvoiceId`                | `Transactions().InvoiceId`                          |
 | 0.7        | 0.8     | `parse_resourceid(ResourceId).ResourceType` | `resource_type(x_ResourceType).SingularDisplayName` |
 | 0.7        | N/A     | `daterange()`                               | `datestring(datetime, [datetime])`                  |
 | 0.7        | N/A     | `monthsago()`                               | `startofmonth(datetime, [offset])`                  |
 
-If using unversioned functions or updating from the `v1_0` schema version, review your code for any explicit use of the `decimal` data type and replace it with `real`. As of FinOps hubs 0.12 (schema version `v1_2`), all `decimal` data types changed to `real` to improve performance. To learn more about schema versions, see [About schema versions](data-model.md#schema-version).
+If using unversioned functions or updating from the `v1_0` schema version, review your code for any explicit use of the `decimal` data type and replace it with `real`. As of FinOps hubs v12 (schema version `v1_2`), all `decimal` data types changed to `real` to improve performance. To learn more about schema versions, see [About schema versions](data-model.md#schema-version).
 
 If updating queries to use a newer schema version, use the following table to understand the changes introduced in each schema version for each managed dataset.
 
@@ -192,7 +199,7 @@ If updating queries to use a newer schema version, use the following table to un
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.11/bladeName/Hubs/featureName/Upgrade)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/Upgrade)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

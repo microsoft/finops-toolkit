@@ -17,78 +17,6 @@ table VirtualMachines
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: c1f1826b-ec65-4454-85b5-a9608023b7c0
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: 2eb7032a-6d0d-4451-898e-879c5f920271
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: c5d56e46-717a-4805-8335-f8f484911e2d
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: fb708cfd-f964-48f6-940e-25f701ade205
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: 762718ba-a32d-438e-a57f-ffe009f61db8
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: 5e2fe227-1bd7-4cb6-8a22-1f787a8833a3
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: b240b168-1c98-4bff-bb8f-fae14f3e6869
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 87441a66-5602-455f-91ca-81e2745138f0
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: 759ea6be-70df-4491-8002-ff8099db1738
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
 	column provisioningState
 		dataType: string
 		lineageTag: f8c7e75f-672b-438c-bf36-d638b2f32fa7
@@ -377,46 +305,6 @@ table VirtualMachines
 
 		annotation SummarizationSetBy = Automatic
 
-	column tags
-		dataType: string
-		lineageTag: b2e67076-1777-4242-909e-69cb17d2e132
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 33acb080-037b-4ac2-a634-7d6ce12bbf1b
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 427f6ba3-edbc-42ef-b1e3-f3ccac9d62b5
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 41562289-8d10-49f5-befd-b80af1aba395
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: 135b6756-9f20-45a2-9ef6-6325dd00a1db
-		summarizeBy: none
-		sourceColumn: properties
-
-		annotation SummarizationSetBy = Automatic
-
 	column networkProfile
 		dataType: string
 		lineageTag: 1d17fabc-ac29-4729-bec9-7dd7d2563157
@@ -545,6 +433,22 @@ table VirtualMachines
 
 		annotation SummarizationSetBy = Automatic
 
+	column location
+		dataType: string
+		lineageTag: 3d3b7faf-7dbb-4cb2-b29a-4bb60cfb8c9c
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: 71c32f19-f5ec-4c9c-a2e3-3f7c20d7f9e8
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
 	partition VirtualMachines = m
 		mode: import
 		queryGroup: 'Resource Graph'
@@ -619,7 +523,7 @@ table VirtualMachines
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 				      #table(
-				        { "id", "name", "provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType", "osProfile.computerName", "osProfile.requireGuestProvisionSignal", "osProfile.allowExtensionOperations", "osProfile.adminUsername", "osProfile.secrets", "osProfile.linuxConfiguration", "osProfile.windowsConfiguration", "networkInterfaces", "networkInterfaces.properties", "networkInterfaces.id", "networkInterfaces.properties.deleteOption", "storageProfile.imageReference", "storageProfile.dataDisks", "storageProfile.osDisk", "storageProfile.imageReference.publisher", "storageProfile.imageReference.sku", "storageProfile.imageReference.version", "storageProfile.imageReference.exactVersion", "storageProfile.imageReference.offer", "storageProfile.dataDisks.name", "storageProfile.dataDisks.createOption", "storageProfile.dataDisks.deleteOption", "storageProfile.dataDisks.managedDisk", "storageProfile.dataDisks.caching", "storageProfile.dataDisks.toBeDetached", "storageProfile.dataDisks.writeAcceleratorEnabled", "storageProfile.dataDisks.lun", "storageProfile.dataDisks.managedDisk.id", "storageProfile.osDisk.name", "storageProfile.osDisk.createOption", "storageProfile.osDisk.osType", "storageProfile.osDisk.deleteOption", "storageProfile.osDisk.managedDisk", "storageProfile.osDisk.caching", "storageProfile.osDisk.managedDisk.id", "hardwareProfile.vmSize", "diagnosticsProfile.bootDiagnostics", "diagnosticsProfile.bootDiagnostics.enabled", "diagnosticsProfile.bootDiagnostics.storageUri", "instanceView", "powerState", "powerState.displayStatus" },
+				        { "id", "name", "location", "resourceGroup", "provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType", "osProfile.computerName", "osProfile.requireGuestProvisionSignal", "osProfile.allowExtensionOperations", "osProfile.adminUsername", "osProfile.secrets", "osProfile.linuxConfiguration", "osProfile.windowsConfiguration", "networkInterfaces", "networkInterfaces.properties", "networkInterfaces.id", "networkInterfaces.properties.deleteOption", "storageProfile.imageReference", "storageProfile.dataDisks", "storageProfile.osDisk", "storageProfile.imageReference.publisher", "storageProfile.imageReference.sku", "storageProfile.imageReference.version", "storageProfile.imageReference.exactVersion", "storageProfile.imageReference.offer", "storageProfile.dataDisks.name", "storageProfile.dataDisks.createOption", "storageProfile.dataDisks.deleteOption", "storageProfile.dataDisks.managedDisk", "storageProfile.dataDisks.caching", "storageProfile.dataDisks.toBeDetached", "storageProfile.dataDisks.writeAcceleratorEnabled", "storageProfile.dataDisks.lun", "storageProfile.dataDisks.managedDisk.id", "storageProfile.osDisk.name", "storageProfile.osDisk.createOption", "storageProfile.osDisk.osType", "storageProfile.osDisk.deleteOption", "storageProfile.osDisk.managedDisk", "storageProfile.osDisk.caching", "storageProfile.osDisk.managedDisk.id", "hardwareProfile.vmSize", "diagnosticsProfile.bootDiagnostics", "diagnosticsProfile.bootDiagnostics.enabled", "diagnosticsProfile.bootDiagnostics.storageUri", "instanceView", "powerState", "powerState.displayStatus" },
 				        {}
 				      )
 				    else Source
