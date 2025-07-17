@@ -731,7 +731,7 @@
       "fabricQueryUri": "[basics('fabric').fabricQueryUri]",
       "fabricCapacity": "[basics('fabric').fabricCapacity]",
       "enableInfrastructureEncryption": "[steps('advanced').storage.enableInfrastructureEncryption]",
-      "enableManagedExports": "[steps('advanced').networking.enableManagedExports]",
+      "enableManagedExports": "[steps('advanced').managedExports.enableManagedExports]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
