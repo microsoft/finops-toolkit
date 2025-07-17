@@ -58,6 +58,7 @@ _Released June 2025_
   - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
   - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+  - Document [how savings are calcultated](hubs/savings-calculations.md) and how to troubleshoot negative savings.
 - **Changed**
   - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
 - **Fixed**
