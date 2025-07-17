@@ -40,6 +40,9 @@ param remoteHubStorageUri string = ''
 @description('Optional. Storage account key for remote storage account.')
 @secure()
 param remoteHubStorageKey string = ''
+ 
+@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
+param enableManagedExports bool = true
 
 // cSpell:ignore eventhouse
 @description('Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).')
@@ -371,6 +374,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerIngestionCapacity: safeDataExplorerIngestionCapacity
     dataExplorerUri: safeDataExplorerUri
     dataExplorerId: safeDataExplorerId
+    enableManagedExports: enableManagedExports
     enablePublicAccess: enablePublicAccess
 
     // TODO: Move to remoteHub.bicep

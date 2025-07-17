@@ -265,7 +265,7 @@ function New-FinOpsCostExport
             # Default storage path to scope ID
             if ([System.String]::IsNullOrEmpty($StoragePath))
             {
-                $StoragePath = $Scope
+                $StoragePath = $Scope -replace ':', '-'
             }
 
             $props = @{

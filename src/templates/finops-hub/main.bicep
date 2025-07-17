@@ -32,6 +32,9 @@ param remoteHubStorageUri string = ''
 @description('Optional. Storage account key to use when pushing data to a remote hub.')
 @secure()
 param remoteHubStorageKey string = ''
+ 
+@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
+param enableManagedExports bool = true
 
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
@@ -160,6 +163,7 @@ module hub 'modules/hub.bicep' = {
     // eventGridLocation: eventGridLocation
     storageSku: storageSku
     enableInfrastructureEncryption: enableInfrastructureEncryption
+    enableManagedExports: enableManagedExports
     dataExplorerName: dataExplorerName
     dataExplorerSku: dataExplorerSku
     dataExplorerCapacity: dataExplorerCapacity

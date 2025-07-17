@@ -17,78 +17,6 @@ table NetworkInterfaces
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: 30277976-2075-47bf-88d6-316004a703ef
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: e19c378f-5a30-4891-94a5-9433d5063a05
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: 129a13b3-51f2-4efa-92ac-83ec9da54ac3
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: 859d2a47-f779-4202-8342-d4e9868d8577
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: 87326b2b-3574-4489-a376-efb4a97c6f1c
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: 33e52a92-a847-4919-a23a-4c93a0932e1c
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: dd7f082f-7e83-4270-af76-194e5c1feb8e
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 3e15e566-bff8-4a36-91ec-e506030024ec
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: 7627e490-3357-4dd3-9c87-dd788bba3447
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.provisioningState'
 		dataType: string
 		lineageTag: a914b230-a579-49f5-8d62-30f53d413472
@@ -313,46 +241,6 @@ table NetworkInterfaces
 
 		annotation SummarizationSetBy = Automatic
 
-	column tags
-		dataType: string
-		lineageTag: cc6805a2-9531-49b5-96ed-35f7c18cc7ee
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 6d99fdf1-5301-4413-b799-668280d8e5b1
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: f6053c64-a2a2-432f-a449-8838e8b587ac
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: ad7aa309-2b05-442e-b919-32029e0770ff
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: 073e38fe-ab5b-489f-a6e6-ff6744cf4e09
-		summarizeBy: none
-		sourceColumn: properties
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.networkSecurityGroup'
 		dataType: string
 		lineageTag: 8ff1ceae-7275-4140-97ff-2b5966d113ee
@@ -390,6 +278,22 @@ table NetworkInterfaces
 		lineageTag: 0481ca01-dae9-474b-8233-501ab1bfe9ef
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.properties.publicIPAddress
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 35f54cb8-f055-4a0c-a6d8-cb01f12f208a
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: a9f30217-df47-45f3-9392-92af1949fae6
+		summarizeBy: none
+		sourceColumn: resourceGroup
 
 		annotation SummarizationSetBy = Automatic
 
@@ -442,7 +346,7 @@ table NetworkInterfaces
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 							#table(
-								{ "id", "name", "properties.provisioningState", "properties.resourceGuid", "properties.enableAcceleratedNetworking", "properties.disableTcpStateTracking", "properties.vnetEncryptionSupported", "properties.networkSecurityGroup", "properties.ipConfigurations", "properties.enableIPForwarding", "properties.tapConfigurations", "properties.hostedWorkloads", "properties.allowPort25Out", "properties.auxiliaryMode", "properties.dnsSettings", "properties.auxiliarySku", "properties.macAddress", "properties.nicType", "properties.primary", "properties.virtualMachine", "properties.virtualMachine.id", "properties.ipConfigurations.type", "properties.ipConfigurations.name", "properties.ipConfigurations.properties", "properties.ipConfigurations.id", "properties.ipConfigurations.etag", "properties.ipConfigurations.properties.provisioningState", "properties.ipConfigurations.properties.privateIPAddressVersion", "properties.ipConfigurations.properties.privateIPAllocationMethod", "properties.ipConfigurations.properties.subnet", "properties.ipConfigurations.properties.privateIPAddress", "properties.ipConfigurations.properties.primary", "properties.ipConfigurations.properties.publicIPAddress", "properties.ipConfigurations.properties.publicIPAddress.id", "properties.networkSecurityGroup.id" },
+								{ "id", "name", "location", "resourceGroup", "properties.provisioningState", "properties.resourceGuid", "properties.enableAcceleratedNetworking", "properties.disableTcpStateTracking", "properties.vnetEncryptionSupported", "properties.networkSecurityGroup", "properties.ipConfigurations", "properties.enableIPForwarding", "properties.tapConfigurations", "properties.hostedWorkloads", "properties.allowPort25Out", "properties.auxiliaryMode", "properties.dnsSettings", "properties.auxiliarySku", "properties.macAddress", "properties.nicType", "properties.primary", "properties.virtualMachine", "properties.virtualMachine.id", "properties.ipConfigurations.type", "properties.ipConfigurations.name", "properties.ipConfigurations.properties", "properties.ipConfigurations.id", "properties.ipConfigurations.etag", "properties.ipConfigurations.properties.provisioningState", "properties.ipConfigurations.properties.privateIPAddressVersion", "properties.ipConfigurations.properties.privateIPAllocationMethod", "properties.ipConfigurations.properties.subnet", "properties.ipConfigurations.properties.privateIPAddress", "properties.ipConfigurations.properties.primary", "properties.ipConfigurations.properties.publicIPAddress", "properties.ipConfigurations.properties.publicIPAddress.id", "properties.networkSecurityGroup.id" },
 								{}
 							)
 				    else Source

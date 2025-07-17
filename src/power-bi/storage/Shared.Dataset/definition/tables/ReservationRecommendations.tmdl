@@ -151,14 +151,6 @@ table ReservationRecommendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_SkuSize
-		dataType: string
-		lineageTag: 2bcdb12b-5e95-4f50-9c87-1f05f6dce3cb
-		summarizeBy: none
-		sourceColumn: x_SkuSize
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_SkuTermLabel
 		dataType: string
 		lineageTag: db39890b-583d-41ab-9795-de32274627dd
@@ -229,6 +221,22 @@ table ReservationRecommendations
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RecommendedQuantityNormlized
+		dataType: string
+		lineageTag: 0d0708d7-e478-40b1-9659-4c26df698c3d
+		summarizeBy: none
+		sourceColumn: RecommendedQuantityNormlized
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuInstanceType
+		dataType: string
+		lineageTag: e1824773-15df-4083-86bf-886ab04b977b
+		summarizeBy: none
+		sourceColumn: x_SkuInstanceType
+
+		annotation SummarizationSetBy = Automatic
 
 	partition ReservationRecommendations = m
 		mode: import
@@ -306,7 +314,7 @@ table ReservationRecommendations
 				    Add = Table.RemoveColumns(
 				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
 				            "x_LookbackPeriodLabel",     each [LookBackPeriod] & (if Text.Contains([LookBackPeriod], "Days") then "" else " Days")),
-				            "x_SkuSize",                 each if [SKU] <> null then [SKU] else [SkuName]),
+				            "x_SkuInstanceType",         each if [SKU] <> null then [SKU] else [SkuName]),
 				            "x_CommitmentDiscountKey",   each [x_CommitmentDiscountNormalizedSize] & [x_SkuMeterId]),
 				            "x_CommitmentDiscountScope", each if [tmp_CommitmentDiscountScope] = "Single" then "Subscription" else [tmp_CommitmentDiscountScope]),
 				            "x_SkuTermLabel",

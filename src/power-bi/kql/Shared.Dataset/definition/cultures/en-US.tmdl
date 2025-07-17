@@ -33889,19 +33889,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "RegionName"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Region": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.subaccountnameunique": {
 			      "Definition": {
@@ -33961,19 +33949,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "EffectiveCostRunningTotal"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Cost": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_skumetercategory": {
 			      "Definition": {
@@ -33984,16 +33960,6 @@ cultureInfo en-US
 			      },
 			      "State": "Generated",
 			      "Terms": [
-			        {
-			          "Category": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
 			        {
 			          "Meter category": {
 			            "State": "Suggested",
@@ -34026,16 +33992,6 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "Resource group": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "ResourceGroup": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -34125,19 +34081,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_EffectiveCostPerResource"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Cost / resource": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costdetails.x_effectiveunitprice": {
 			      "Definition": {
@@ -34341,16 +34285,6 @@ cultureInfo en-US
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "ChargeMonth": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
 			          "Month": {
 			            "State": "Suggested",
 			            "Source": {
@@ -34482,15 +34416,6 @@ cultureInfo en-US
 			      },
 			      "State": "Generated"
 			    },
-			    "costdetails.x_skutype": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "x_SkuType"
-			        }
-			      },
-			      "State": "Generated"
-			    },
 			    "reservationrecomendations.termlabel": {
 			      "Definition": {
 			        "Binding": {
@@ -34561,19 +34486,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_SkuMeterSubcategory"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Subcategory": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "reservationrecommendations.regionname": {
 			      "Definition": {
@@ -34627,19 +34540,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_TotalSavingsRunningTotal"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Total savings": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_negotiateddiscountsavingsrunningtotal": {
 			      "Definition": {
@@ -34648,19 +34549,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_NegotiatedDiscountSavingsRunningTotal"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Negotiated savings": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_commitmentdiscountsavingsrunningtotal": {
 			      "Definition": {
@@ -34669,19 +34558,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_CommitmentDiscountSavingsRunningTotal"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Commitment savings": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "costs.x_commitmentutilization": {
 			      "Definition": {
@@ -34746,16 +34623,6 @@ cultureInfo en-US
 			      },
 			      "State": "Generated",
 			      "Terms": [
-			        {
-			          "Effective savings rate": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
 			        {
 			          "Effective Savings Rate (ESR)": {
 			            "State": "Suggested",
@@ -35009,7 +34876,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "BillingPeriodStart"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Billing period": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "costs.x_pricingunitdescription": {
 			      "Definition": {
@@ -35018,7 +34897,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_PricingUnitDescription"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Unit of measure": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "costs.x_billedunitprice": {
 			      "Definition": {
@@ -35027,7 +34918,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_BilledUnitPrice"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Price": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "costs.x_billingprofilename": {
 			      "Definition": {
@@ -35036,7 +34939,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_BillingProfileName"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Billing profile / Enrollment": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "costs.x_invoicesectionname": {
 			      "Definition": {
@@ -35045,7 +34960,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_InvoiceSectionName"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Invoice section": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "costs.x_skuservicefamily": {
 			      "Definition": {
@@ -35054,7 +34981,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "x_SkuServiceFamily"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Service family": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "vmdisks.name": {
 			      "Definition": {
@@ -35092,26 +35031,17 @@ cultureInfo en-US
 			      },
 			      "State": "Generated"
 			    },
-			    "costs.x_invoiceid": {
+			    "costs.invoiceid": {
 			      "Definition": {
 			        "Binding": {
 			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "x_InvoiceId"
-			        }
-			      },
-			      "State": "Generated"
-			    },
-			    "costs.x_skumetername": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Costs",
-			          "ConceptualProperty": "x_SkuMeterName"
+			          "ConceptualProperty": "InvoiceId"
 			        }
 			      },
 			      "State": "Generated",
 			      "Terms": [
 			        {
-			          "Meter": {
+			          "Invoice ID": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

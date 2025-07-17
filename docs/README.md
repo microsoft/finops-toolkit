@@ -17,9 +17,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in May 2025<span class="ftk-version">v0.11</span></h3>
+    <h3>What's new in July 2025<span class="ftk-version">v12</span></h3>
     <p>
-        May introduces GitHub Copilot support for FinOps hubs, a new Invoicing and chargeback Power BI report, Usage analysis page in the Cost summary report, FinOps hubs data quality improvements, and various small fixes, improvements, and documentation updates across the board.
+        July introduces support for FOCUS 1.2, autostart in FinOps hubs, a new page in the Cost summary Power BI report, and various small fixes, improvements, and documentation updates across the board.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

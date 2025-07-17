@@ -369,7 +369,7 @@ table SqlDatabases
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 				      #table(
-				        { "id", "name", "sku.name", "sku.tier", "sku.capacity", "sku.family", "properties.status", "properties.requestedBackupStorageRedundancy", "properties.currentBackupStorageRedundancy", "properties.requestedServiceObjectiveName", "properties.currentServiceObjectiveName", "properties.maintenanceConfigurationId", "properties.defaultSecondaryLocation", "properties.isInfraEncryptionEnabled", "properties.earliestRestoreDate", "properties.zoneRedundant", "properties.availabilityZone", "properties.catalogCollation", "properties.creationDate", "properties.collation", "properties.licenseType", "properties.maxSizeBytes", "properties.isLedgerOn", "properties.databaseId", "properties.currentSku", "properties.readScale", "properties.maxLogSizeBytes" },
+				        { "id", "name", "sku.name", "sku.tier", "sku.capacity", "sku.family", "location", "resourceGroup", "properties.status", "properties.requestedBackupStorageRedundancy", "properties.currentBackupStorageRedundancy", "properties.requestedServiceObjectiveName", "properties.currentServiceObjectiveName", "properties.maintenanceConfigurationId", "properties.defaultSecondaryLocation", "properties.isInfraEncryptionEnabled", "properties.earliestRestoreDate", "properties.zoneRedundant", "properties.availabilityZone", "properties.catalogCollation", "properties.creationDate", "properties.collation", "properties.licenseType", "properties.maxSizeBytes", "properties.isLedgerOn", "properties.databaseId", "properties.currentSku", "properties.readScale", "properties.maxLogSizeBytes" },
 				        {}
 				      )
 				    else Source,

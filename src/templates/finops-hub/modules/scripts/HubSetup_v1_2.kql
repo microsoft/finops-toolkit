@@ -118,11 +118,6 @@ Costs_v1_2()
             CommitmentDiscountCategory == 'Usage' and isnotempty(x_CommitmentDiscountNormalizedRatio), PricingQuantity / coalesce(x_PricingBlockSize, real(1)) * x_CommitmentDiscountNormalizedRatio,
             real(null)
         )
-        | extend x_AmortizationClass = case(
-            ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
-            ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
-            ''
-        )
         | extend CommitmentDiscountUnit = case(
             isempty(CommitmentDiscountQuantity), '',
             CommitmentDiscountCategory == 'Spend', PricingCurrency,
@@ -130,6 +125,79 @@ Costs_v1_2()
             CommitmentDiscountCategory == 'Usage' and x_CommitmentDiscountNormalizedRatio > real(1), strcat('Normalized ', ConsumedUnit),
             ''
         )
+        | extend x_AmortizationClass = case(
+            ChargeCategory == 'Purchase' and (tolower(ResourceId) contains '/microsoft.capacity/reservationorders/' or tolower(ResourceId) contains '/microsoft.billingbenefits/savingsplanorders/'), 'Principal',
+            ChargeCategory == 'Usage' and isnotempty(CommitmentDiscountId) and isnotempty(CommitmentDiscountStatus), 'Amortized Charge',
+            ''
+        )
+        // Hubs add-ons
+        | extend x_CommitmentDiscountUtilizationPotential = case(
+            ChargeCategory == 'Purchase', real(0),
+            ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), EffectiveCost,
+            CommitmentDiscountCategory == 'Usage', ConsumedQuantity,
+            CommitmentDiscountCategory == 'Spend', EffectiveCost,
+            real(0)
+        )
+        | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, real(0))
+        | extend x_SkuCoreCount = toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.VCores, x_SkuDetails.vCores))
+        | extend x_SkuInstanceType = tostring(coalesce(x_SkuDetails.ServiceType, x_SkuDetails.ServerSku))
+        | extend x_SkuOperatingSystem = case(
+            x_SkuDetails.ImageType == 'Canonical', 'Linux',
+            x_SkuDetails.ImageType == 'Windows Server BYOL', 'Windows Server',
+            x_SkuMeterSubcategory endswith ' Series Windows', 'Windows Server',
+            x_SkuDetails.ImageType
+        )
+        | extend x_ConsumedCoreHours = iff(ConsumedUnit == 'Hours' and isnotempty(x_SkuCoreCount), x_SkuCoreCount * ConsumedQuantity, real(null))
+        | extend tmp_SqlAhb = tolower(x_SkuDetails.AHB)
+        | extend x_SkuLicenseType = case(
+            x_SkuDetails.ImageType contains 'Windows Server BYOL', 'Windows Server',
+            x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',
+            ''
+        )
+        | extend x_SkuLicenseStatus = case(
+            isnotempty(x_SkuLicenseType) or tmp_SqlAhb == 'true' or (x_SkuMeterSubcategory contains 'Azure Hybrid Benefit'), 'Enabled',
+            (x_SkuMeterSubcategory contains 'Windows') or tmp_SqlAhb == 'false', 'Not enabled',
+            ''
+        )
+        | extend x_SkuLicenseQuantity = case(
+            isempty(x_SkuCoreCount), int(null),
+            x_SkuCoreCount <= 8, int(8),
+            x_SkuCoreCount > 8, x_SkuCoreCount,
+            int(null)
+        )
+        | extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')
+        | extend x_CommitmentDiscountSavings = iff(ContractedCost < EffectiveCost,  real(0), ContractedCost - EffectiveCost)
+        | extend x_NegotiatedDiscountSavings = iff(ListCost       < ContractedCost, real(0), ListCost - ContractedCost)
+        | extend x_TotalSavings              = iff(ListCost       < EffectiveCost,  real(0), ListCost - EffectiveCost)
+        | extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0,        real(0), (ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice)
+        | extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,              real(0), (ListUnitPrice - ContractedUnitPrice) / ListUnitPrice)
+        | extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,              real(0), (ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice)
+        // SkuPriceDetails conversion -- Must be after hubs add-ons
+        | extend SkuPriceDetails = parse_json(replace_regex(replace_regex(replace_regex(replace_regex(replace_regex(replace_regex(tostring(x_SkuDetails)
+            // Prefix all keys with x_ first to avoid double-prefixing
+            , @'([\{,])"', @'\1"x_')
+            // CoreCount for number of CPUs/vCPUs/cores/vCores
+            , @'"x_(VCPUs|VCores|vCores)":', @'"CoreCount":')
+            // TODO: DiskMaxIops for disk I/O operations per second (IOPS)
+            // TODO: DiskSpace for disk size in GiB
+            // TODO: DiskType for the kind of disk (e.g., SSD, HDD, NVMe)
+            // TODO: GpuCount for the number of GPUs
+            // InstanceType for the resource size/SKU (e.g., ArmSkuName)
+            , @'"x_(ServerSku|ServiceType)":', @'"InstanceType":')
+            // TODO: InstanceSeries for the size family/series
+            // TODO: MemorySize for the RAM in GiB
+            // TODO: NetworkMaxIops for network I/O operations per second (IOPS)
+            // TODO: NetworkMaxThroughput for network max throughput for data transfer in Mbps
+            // OperatingSystem for the OS name
+            , @'("x_ImageType":"Canonical")', @'\1,"OperatingSystem":"Linux"')
+            , @'("x_ImageType":"Windows Server( BYOL)?")', @'\1,"OperatingSystem":"Windows Server"')
+            , @'("x_ImageType":("[^"]+"))', @'\1,"OperatingSystem":\2')
+            // TODO: Redundancy for the level of redundancy (e.g., Local, Zonal, Global)
+            // TODO: StorageClass for the tier of storage (e.g., Hot, Archive, Nearline)
+        )
+        | extend SkuPriceDetails = iff(isempty(SkuPriceDetails.OperatingSystem) and isnotempty(x_SkuOperatingSystem),
+            parse_json(replace_string(tostring(SkuPriceDetails), '}', strcat(@',"OperatingSystem":"', x_SkuOperatingSystem, '"}'))),
+            SkuPriceDetails)
     )
     | extend SkuPriceDetails = iff(isnotempty(SkuPriceDetails), SkuPriceDetails, parse_json(replace_regex(tostring(x_SkuDetails), @'([\{,])"', @'\1"x_')))
     | project
@@ -204,12 +272,17 @@ Costs_v1_2()
         x_BillingProfileName,
         x_ChargeId,
         x_CommitmentDiscountNormalizedRatio,
+        x_CommitmentDiscountPercent,
+        x_CommitmentDiscountSavings,
         x_CommitmentDiscountSpendEligibility,
         x_CommitmentDiscountUsageEligibility,
+        x_CommitmentDiscountUtilizationAmount,
+        x_CommitmentDiscountUtilizationPotential,
         x_CommodityCode,
         x_CommodityName,
         x_ComponentName,
         x_ComponentType,
+        x_ConsumedCoreHours,
         x_ContractedCostInUsd,
         x_CostAllocationRuleName,
         x_CostCategories,
@@ -230,6 +303,8 @@ Costs_v1_2()
         x_InvoiceSectionName,
         x_ListCostInUsd,
         x_Location,
+        x_NegotiatedDiscountPercent,
+        x_NegotiatedDiscountSavings,
         x_Operation,
         x_OwnerAccountID,
         x_PartnerCreditApplied,
@@ -249,13 +324,20 @@ Costs_v1_2()
         x_ServiceModel,
         x_ServicePeriodEnd,
         x_ServicePeriodStart,
+        x_SkuCoreCount,
         x_SkuDescription,
         x_SkuDetails,
+        x_SkuInstanceType,
         x_SkuIsCreditEligible,
+        x_SkuLicenseQuantity,
+        x_SkuLicenseStatus,
+        x_SkuLicenseType,
+        x_SkuLicenseUnit,
         x_SkuMeterCategory,
         x_SkuMeterId,
         x_SkuMeterSubcategory,
         x_SkuOfferId,
+        x_SkuOperatingSystem,
         x_SkuOrderId,
         x_SkuOrderName,
         x_SkuPartNumber,
@@ -268,8 +350,11 @@ Costs_v1_2()
         x_SourceName,
         x_SourceProvider,
         x_SourceType,
+        x_SourceValues,
         x_SourceVersion,
         x_SubproductName,
+        x_TotalDiscountPercent,
+        x_TotalSavings,
         x_UsageType
 }
 

@@ -288,6 +288,7 @@ module ingestion_OpenDataInternalScripts 'hub-database.bicep' = {
       OpenDataFunctions_resource_type_2: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql')
       OpenDataFunctions_resource_type_3: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql')
       OpenDataFunctions_resource_type_4: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql')
+      OpenDataFunctions_resource_type_5: loadTextContent('scripts/OpenDataFunctions_resource_type_5.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
