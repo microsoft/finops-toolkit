@@ -330,6 +330,8 @@ As of FinOps toolkit 0.7, support for older FOCUS versions has been deprecated t
 
 **Mitigation**: Confirm the `ListUnitPrice` in the cost data matches what's in the price data. If the list price is correct, file a support request with the Cost Management team to confirm both the `ListUnitPrice` and `ContractedUnitPrice` are correct and explain why the price after negotiated discounts would be higher than public, retail rates.
 
+For details on how data quality issues affect savings calculations, see [Understanding savings calculations](../hubs/savings-calculations.md).
+
 <br>
 
 ## ManifestReadFailed
@@ -431,6 +433,8 @@ This error code is shown in the `x_SourceChanges` column when `ContractedUnitPri
 
 To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
 
+For details on how missing prices affect savings calculations, see [Understanding savings calculations](../hubs/savings-calculations.md).
+
 <br>
 
 ## MissingListCost
@@ -454,6 +458,8 @@ This error code is shown in the `x_SourceChanges` column when `ListUnitPrice` is
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings aren't available for these records.
 
 To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+For details on how missing prices affect savings calculations, see [Understanding savings calculations](../hubs/savings-calculations.md).
 
 <br>
 

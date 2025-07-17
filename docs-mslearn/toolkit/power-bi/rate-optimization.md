@@ -100,6 +100,9 @@ The table shows cost, savings, and ESR per month with a breakdown by billing acc
 > [!IMPORTANT]
 > Microsoft Cost Management does not include the list and contracted prices for all accounts. To calculate accurate and complete savings, you will need to export prices. If using storage reports, enable the "Experimental: Populate Missing Prices" parameter in each report. If using KQL reports, missing prices will be populated automatically when prices are exported.
 
+> [!NOTE]
+> Savings may appear as negative values when effective prices are higher than list prices, or as zero when price data is missing. For details on how savings are calculated and displayed, see [Understanding savings calculations](../hubs/savings-calculations.md).
+
 :::image type="content" source="./media/rate-optimization/total-savings.png" border="true" alt-text="Screenshot of the Total savings page that shows cost savings from negotiated and commitment discounts." lightbox="./media/rate-optimization/total-savings.png" :::
 
 <br>

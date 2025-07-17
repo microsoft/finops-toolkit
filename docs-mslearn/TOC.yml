@@ -138,6 +138,8 @@
           href: toolkit/hubs/configure-dashboards.md
         - name: Configure AI agents
           href: toolkit/hubs/configure-ai.md
+        - name: Savings calculations
+          href: toolkit/hubs/savings-calculations.md          
         - name: Deployment template
           href: toolkit/hubs/template.md
         - name: Data model
