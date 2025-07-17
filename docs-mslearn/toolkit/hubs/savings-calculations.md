@@ -86,15 +86,16 @@ The following table shows how different price scenarios are handled:
 
 ## Impact on totals and aggregations
 
-When negative savings are included in aggregated totals:
-- Totals reflect the actual sum of all items (including negative values).
-- Overall savings may be lower than expected due to negative contributions.
-- This provides an accurate view of your total cost optimization impact.
+When you see negative savings in aggregated totals:
+
+- Some rows may be missing ListCost or ContractedCost.
+- Effective cost may be higher than your contracted cost for some commitment discounts.
 
 When prices are missing and zero savings are shown:
+
 - Totals will be lower than the complete savings picture.
 - This is expected behavior and indicates incomplete price data.
-- Consider exporting price sheets to get complete savings calculations.
+- Consider exporting the price sheet and re-ingesting costs for more complete savings calculations.
 
 <br>
 
