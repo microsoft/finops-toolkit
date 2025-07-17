@@ -38,16 +38,12 @@ These calculations depend on having accurate price data for:
 
 ## Negative savings behavior
 
-### When negative savings occur
-
 **Negative savings are displayed when the effective price paid is higher than the list price or contracted (negotiated) price.** This indicates the resource cost more than standard pricing, which can happen due to:
 
 - Pricing misconfigurations
 - Unusual billing conditions
 - Data quality issues in Cost Management
 - Commitment discounts that provide less savings than negotiated discounts
-
-### Why show negative savings
 
 Negative savings are displayed as negative numbers (for example, -$100) because they reflect the reality of your cost data. Hiding or zeroing these values would:
 
@@ -60,8 +56,6 @@ Negative savings are displayed as negative numbers (for example, -$100) because 
 <br>
 
 ## Zero savings behavior
-
-### When zero savings occur
 
 **Zero savings are displayed when no reliable price comparison can be made.** This happens when:
 
@@ -93,14 +87,10 @@ The following table shows how different price scenarios are handled:
 
 ## Impact on totals and aggregations
 
-### Including negative savings in totals
-
 When negative savings are included in aggregated totals:
 - Totals reflect the actual sum of all items (including negative values)
 - Overall savings may be lower than expected due to negative contributions
 - This provides an accurate view of your total cost optimization impact
-
-### Including zero savings in totals
 
 When prices are missing and zero savings are shown:
 - Totals will be lower than the complete savings picture
@@ -111,16 +101,12 @@ When prices are missing and zero savings are shown:
 
 ## Interpreting your results
 
-### For negative savings
-
 If you see negative savings in your reports:
 
 1. **Investigate the cause** - Check for pricing misconfigurations or billing issues
 2. **Review commitment utilization** - Ensure you're not paying for unused commitments
 3. **Validate data quality** - Confirm Cost Management data is accurate
 4. **Consider optimization** - Evaluate if commitment discounts are providing value
-
-#### Diagnostic query for negative savings
 
 Use this KQL query in Data Explorer to identify specific scenarios causing negative savings:
 
@@ -152,8 +138,6 @@ Costs
 
 This query categorizes different scenarios that can cause negative savings and helps identify the root cause of pricing discrepancies.
 
-### For zero savings
-
 If you see many zero savings values:
 
 1. **Export price data** - Use Cost Management price sheet exports to populate missing prices
@@ -162,18 +146,12 @@ If you see many zero savings values:
 
 <br>
 
-## Troubleshooting
-
-For troubleshooting these issues, see [Troubleshoot common FinOps toolkit errors](../help/errors.md).
-
-<br>
-
 ## Give feedback
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20savings%20calculations%20in%20FinOps%20toolkit%20reports%3F/cvaQuestion/How%20valuable%20is%20the%20savings%20calculations%20documentation%3F/surveyId/FTK0.12/bladeName/Hubs/featureName/SavingsCalculations)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20savings%20calculations%20in%20FinOps%20toolkit%20reports%3F/cvaQuestion/How%20valuable%20is%20the%20savings%20calculations%20documentation%3F/surveyId/FTK/bladeName/Hubs/featureName/SavingsCalculations)
 
 <br>
 
