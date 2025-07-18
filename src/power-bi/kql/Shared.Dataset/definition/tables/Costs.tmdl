@@ -1945,10 +1945,10 @@ table Costs
 				                else if Trim_spaces_from_tags                       then "parse_json(replace_string(keys, ' ', ''))"
 				                else "keys"
 				            ) & "
-				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(_, " ", "") & " = iff(array_index_of(cleankeys, tolower('" & _ & "')) < 0, '', tostring(Tags[tostring(keys[toint(array_index_of(cleankeys, tolower('" & _ & "')))])]))"), ", ") & "
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", "") & " = iff(array_index_of(cleankeys, tolower('" & _ & "')) < 0, '', tostring(Tags[tostring(keys[toint(array_index_of(cleankeys, tolower('" & _ & "')))])]))"), ", ") & "
 				            | project-away keys, cleankeys"
 				        ) else ("
-				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(_, " ", "") & " = tostring(Tags['" & _ & "'])"), ", ")
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", "") & " = tostring(Tags['" & _ & "'])"), ", ")
 				        )
 				    ) else "") & "
 				    //
