@@ -102,6 +102,319 @@ a[target='_blank']:hover::after {
   }
 }
 
+// Power BI Onboarding Wizard Styles
+.ftk-wizard {
+  border: 1px solid #6f4bb2;
+  border-radius: 8px;
+  margin: 2rem 0;
+  
+  .ftk-wizard-header {
+    background: linear-gradient(135deg, #6f4bb2, #8b6ec7);
+    color: white;
+    padding: 2rem;
+    border-radius: 8px 8px 0 0;
+    text-align: center;
+    
+    h3 {
+      margin: 0 0 0.5rem 0;
+      color: white;
+    }
+    
+    p {
+      margin: 0 0 1.5rem 0;
+      opacity: 0.9;
+    }
+  }
+  
+  .ftk-wizard-toggle {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    
+    button {
+      min-width: 180px;
+      
+      &.btn-primary {
+        background-color: white;
+        color: #6f4bb2;
+        border-color: white;
+        
+        &:hover {
+          background-color: #f8f9fa;
+          color: #6f4bb2;
+        }
+      }
+    }
+  }
+  
+  .ftk-wizard-content {
+    padding: 2rem;
+  }
+  
+  .ftk-wizard-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    
+    .ftk-progress-bar {
+      flex: 1;
+      height: 8px;
+      background-color: #e9ecef;
+      border-radius: 4px;
+      margin-right: 1rem;
+      overflow: hidden;
+      
+      .ftk-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6f4bb2, #8b6ec7);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+    }
+    
+    .ftk-progress-text {
+      font-size: 0.875rem;
+      color: #6c757d;
+      white-space: nowrap;
+    }
+  }
+  
+  .ftk-wizard-step {
+    display: none;
+    
+    &.ftk-active {
+      display: block;
+    }
+    
+    h4 {
+      margin-top: 0;
+      color: #6f4bb2;
+    }
+  }
+  
+  .ftk-wizard-options {
+    margin: 1.5rem 0;
+    
+    .ftk-option {
+      display: block;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      
+      input[type="radio"] {
+        display: none;
+      }
+      
+      .ftk-option-content {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.5rem;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          border-color: #6f4bb2;
+          background-color: #6f4bb211;
+        }
+        
+        strong {
+          display: block;
+          margin-bottom: 0.5rem;
+          color: #495057;
+        }
+        
+        p {
+          margin: 0;
+          color: #6c757d;
+          font-size: 0.875rem;
+        }
+      }
+      
+      input:checked + .ftk-option-content {
+        border-color: #6f4bb2;
+        background-color: #6f4bb233;
+        
+        strong {
+          color: #6f4bb2;
+        }
+      }
+    }
+  }
+  
+  .ftk-recommendation {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 1px solid #28a745;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    
+    h5 {
+      margin: 0 0 0.5rem 0;
+      color: #155724;
+    }
+    
+    p {
+      margin: 0;
+      color: #155724;
+    }
+  }
+  
+  .ftk-setup-checklist {
+    margin: 1.5rem 0;
+    
+    h6 {
+      margin-bottom: 1rem;
+      color: #495057;
+    }
+    
+    .ftk-checklist {
+      label {
+        display: block;
+        margin-bottom: 1.5rem;
+        
+        input[type="checkbox"] {
+          margin-right: 0.5rem;
+        }
+        
+        > span {
+          font-weight: 500;
+        }
+      }
+      
+      .ftk-help {
+        margin-top: 0.5rem;
+        padding-left: 1.5rem;
+        
+        .btn-sm {
+          font-size: 0.75rem;
+          padding: 0.25rem 0.5rem;
+          margin-right: 0.5rem;
+        }
+        
+        .ftk-details {
+          margin-top: 0.5rem;
+          
+          summary {
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #6f4bb2;
+          }
+          
+          p {
+            margin: 0.5rem 0 0 0;
+            font-size: 0.875rem;
+            color: #6c757d;
+            padding-left: 1rem;
+          }
+        }
+      }
+    }
+  }
+  
+  .ftk-download-section, .ftk-connection-guide {
+    .ftk-download-help, .ftk-auth-guide {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e9ecef;
+      
+      h6 {
+        color: #495057;
+        margin-bottom: 1rem;
+      }
+      
+      ol, ul {
+        font-size: 0.875rem;
+        color: #6c757d;
+        
+        li {
+          margin-bottom: 0.5rem;
+        }
+      }
+      
+      code {
+        background-color: #f8f9fa;
+        color: #e83e8c;
+        padding: 0.125rem 0.25rem;
+        border-radius: 3px;
+        font-size: 0.75rem;
+      }
+    }
+  }
+  
+  .ftk-parameter {
+    margin-bottom: 1.5rem;
+    
+    strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #6f4bb2;
+    }
+    
+    p {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.875rem;
+      color: #6c757d;
+    }
+    
+    code {
+      display: block;
+      background-color: #f8f9fa;
+      color: #e83e8c;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+  }
+  
+  .ftk-success {
+    background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+    border: 1px solid #17a2b8;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    text-align: center;
+    
+    h5 {
+      margin: 0 0 0.5rem 0;
+      color: #0c5460;
+    }
+    
+    p {
+      margin: 0 0 1rem 0;
+      color: #0c5460;
+    }
+  }
+  
+  .ftk-wizard-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+    
+    .ftk-back {
+      margin-right: auto;
+    }
+    
+    .ftk-next, .ftk-restart {
+      margin-left: auto;
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+  
+  .ftk-advanced-links {
+    h4 {
+      margin-top: 0;
+      color: #6f4bb2;
+    }
+  }
+}
+
 .ftk-instructions {
   .ftk-step {
     .ftk-accordion {
