@@ -158,12 +158,6 @@ Creates a new daily export called **Daily-MTD** with StartDate = DateTime.Now an
 
 <br>
 
-## Use with Power BI reports
-
-After creating a cost export, you can connect the exported data to Power BI reports using the FinOps toolkit. For detailed setup instructions, storage account requirements, and guidance on which Power BI template to use, see [How to set up Power BI reports](../../power-bi/setup.md).
-
-<br>
-
 ## Give feedback
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
