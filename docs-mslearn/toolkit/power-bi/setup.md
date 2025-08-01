@@ -84,7 +84,9 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
      - If connecting directly to Cost Management exports in storage:
        1. Open the desired storage account in the Azure portal.
        2. Select **Settings** > **Endpoints** in the menu.
-       3. Copy the **Data Lake Storage** URL.
+       3. Copy the **Data Lake Storage** URL (not the Blob service URL).
+          > [!IMPORTANT]
+          > Make sure to use the Data Lake Storage endpoint (contains `.dfs.core.windows.net`), not the Blob service endpoint (contains `.blob.core.windows.net`). Power BI storage reports require the DFS endpoint to function properly.
        4. Append the container and export path, if applicable.
    - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, the report will include all data in storage.
    - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, the report will include all data in storage.
@@ -193,7 +195,7 @@ If using exports or FinOps hubs, you use the Azure Data Lake Storage Gen2 connec
    - If using raw exports, copy the URL from the storage account:
      1. Open the desired storage account in the Azure portal.
      2. Select **Settings** > **Endpoints** in the menu.
-     3. Copy the **Data Lake Storage** URL.
+     3. Copy the **Data Lake Storage** URL (not the Blob service URL).
      4. Append the container and export path, if applicable.
 5. Select **OK**.
    > [!WARNING]

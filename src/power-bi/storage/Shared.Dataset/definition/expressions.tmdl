@@ -1,4 +1,4 @@
-/// Name of the Azure DataLake Gen2 storage account to pull data from.
+/// URL for the Azure Data Lake Storage Gen2 account with your data. Must use the DFS endpoint (.dfs.core.windows.net), not the Blob endpoint (.blob.core.windows.net).
 expression 'Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
@@ -32,6 +32,7 @@ expression '▶️  START HERE' = ```
 				    StorageCheck = 
 				        if StorageUrl = "" or StorageUrl = null then {"✖ Invalid", "Storage URL not specified."}
 				        else if Text.StartsWith(StorageUrl, "https://") = false then {"✖ Invalid", "Storage URL must be a valid HTTPS path."} 
+				        else if Text.Contains(StorageUrl, ".blob.core.windows.net") then {"✖ Invalid", "Storage URL must use the Data Lake Storage (DFS) endpoint, not the Blob endpoint. Replace '.blob.core.windows.net' with '.dfs.core.windows.net' in your URL. Find the correct URL in your storage account under Settings > Endpoints > Data Lake Storage."}
 				        else if (StorageUrlSegmentCount = 4 and Text.Lower(StorageUrlSegments{3}) = "ingestion") or (StorageUrlSegmentCount = 7 and Text.Lower(StorageUrlSegments{5}) = "Files" and Text.Lower(StorageUrlSegments{6}) = "ingestion") then (
 				            {"✔️ Specified", "Will use FinOps hub storage: " & Text.Split(StorageUrl, "."){0} & "."}
 				            // TODO: Consider validating the hub version
@@ -88,7 +89,7 @@ expression '▶️  START HERE' = ```
 				        [ Instructions = "        If using exports:", Value = "", Status = "", Message = "" ],
 				        [ Instructions = "        ➖ Go to your storage account", Value = "", Status = "", Message = "" ],
 				        [ Instructions = "        ➖ Open Endpoints", Value = "", Status = "", Message = "" ],
-				        [ Instructions = "        ➖ Copy the 'Data Lake Storage' value", Value = "", Status = "", Message = "" ],
+				        [ Instructions = "        ➖ Copy the 'Data Lake Storage' value (NOT Blob service)", Value = "", Status = "", Message = "" ],
 				        [ Instructions = "        ➖ Optionally add a container or file path", Value = "", Status = "", Message = "" ],
 				        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
 				        [ Instructions = "② Optional: Set the desired date range", Value = DateValue, Status = DateCheck{0}, Message = DateCheck{1} ],

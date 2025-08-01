@@ -714,6 +714,28 @@ Applicable versions: **0.1 - 0.1.1** (fixed in **0.2**)
 
 <br>
 
+## Power BI: We cannot convert the value null to type Table
+
+<sup>Severity: Critical</sup>
+
+This error most commonly occurs when connecting Power BI storage reports to a storage account using the Blob endpoint instead of the required Data Lake Storage (DFS) endpoint.
+
+**Mitigation**: Update your Storage URL parameter to use the Data Lake Storage endpoint:
+
+1. Change `.blob.core.windows.net` to `.dfs.core.windows.net` in your Storage URL.
+2. If using the Azure portal:
+   - Open your storage account
+   - Select **Settings** > **Endpoints**
+   - Copy the **Data Lake Storage** URL (not the Blob service URL)
+
+For example:
+- ❌ Incorrect: `https://mystorageaccount.blob.core.windows.net/container`
+- ✅ Correct: `https://mystorageaccount.dfs.core.windows.net/container`
+
+If you're still experiencing issues after using the correct endpoint, see [FinOps hubs: We can't convert the value null to type Table](#finops-hubs-we-cant-convert-the-value-null-to-type-table) for additional troubleshooting steps.
+
+<br>
+
 ## FinOps hubs: We can't convert the value null to type Table
 
 This error typically indicates that data wasn't ingested into the **ingestion** container.
