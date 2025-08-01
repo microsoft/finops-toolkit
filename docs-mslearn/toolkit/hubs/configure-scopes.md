@@ -16,7 +16,7 @@ ms.reviewer: micflan
 
 Connect FinOps hubs to your billing accounts and subscriptions by configuring Cost Management exports manually or granting FinOps hubs access to manage exports for you.
 
-FinOps hubs use Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you.
+FinOps hubs use Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you. For information about identifying your billing account and scope IDs, see [Find your billing account and scope IDs](#find-your-billing-account-and-scope-ids).
 
 <br>
 
@@ -30,6 +30,48 @@ This walkthrough will trigger the following indirect costs:
 
 - Cost Management exports do not have a direct cost, but push data to storage, which does incur cost for the number of GB stored.
 - When exports complete, Data Factory pipelines start to process the data, which incurs cost for the time the pipelines are running.
+
+<br>
+
+## Find your billing account and scope IDs
+
+Before configuring exports, you need to identify the billing account and scope IDs you want to monitor. The specific ID format depends on your billing account type.
+
+### Enterprise Agreement (EA) accounts
+
+For EA accounts, you need your enrollment number (billing account ID):
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+2. Search for and select **Cost Management + Billing**.
+3. Select **Billing scopes** from the left menu.
+4. Select your billing account.
+5. On the **Overview** page, copy the **Billing account ID** (enrollment number).
+   - Use this format for billing account scope: `/providers/Microsoft.Billing/billingAccounts/{enrollment-number}`
+   - For departments, append the department ID: `/providers/Microsoft.Billing/billingAccounts/{enrollment-number}/departments/{department-id}`
+
+### Microsoft Customer Agreement (MCA) accounts
+
+For MCA accounts, you need your billing profile ID:
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+2. Search for and select **Cost Management + Billing**.
+3. Select **Billing scopes** from the left menu.
+4. Select your billing account, then select the billing profile you want to monitor.
+5. On the billing profile **Overview** page, copy the **Billing profile ID**.
+   - Use this format: `/providers/Microsoft.Billing/billingAccounts/{billing-account-id}/billingProfiles/{billing-profile-id}`
+
+### Subscriptions and resource groups
+
+For subscriptions and resource groups:
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+2. Search for and select **Subscriptions**.
+3. Select the subscription you want to monitor.
+4. On the **Overview** page, copy the **Subscription ID**.
+   - For subscription scope: `/subscriptions/{subscription-id}`
+   - For resource group scope: `/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}`
+
+For more information about finding your billing account and scope information, see [View all your billing accounts in Azure portal](/azure/cost-management-billing/manage/view-all-accounts).
 
 <br>
 
@@ -71,6 +113,7 @@ For the most seamless experience, we recommend [allowing FinOps hubs to manage e
 If you can't grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
 
 1. Determine the scope for your data export.
+   - For information about finding your billing account and scope IDs, see [Find your billing account and scope IDs](#find-your-billing-account-and-scope-ids).
    - We recommend exporting from either an **EA billing account** or **MCA billing profile** scope to access additional datasets, including price sheets and reservation recommendations.
    - Price sheet exports are required to populate missing prices and costs.
    - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
