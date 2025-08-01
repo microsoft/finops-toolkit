@@ -3,7 +3,7 @@ title: Start-FinOpsCostExport command
 description: Initiate a Cost Management export run for the most recent period using the Start-FinOpsCostExport command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/29/2025
+ms.date: 06/21/2025
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -18,8 +18,9 @@ The **Start-FinOpsCostExport** command runs a Cost Management export for the mos
 
 This command was tested with the following API versions:
 
-- **2023-07-01-preview (default)** – Enables FocusCost and other datasets.
-- **2023-08-01**
+- 2025-03-01 (default) – GA version for FocusCost and other datasets.
+- 2023-07-01-preview
+- 2023-08-01
 
 <br>
 
@@ -46,7 +47,7 @@ Start-FinOpsCostExport `
 | `‑StartDate`  | Optional. Day to start pulling the data for. If not set, the export uses the dates defined in the export configuration.                                                                                             |
 | `‑EndDate`    | Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate uses the last day of the month. If not set and -StartDate isn't set, the export uses the dates defined in the export configuration. |
 | `‑Backfill`   | Optional. Number of months to export the data for. Make note of throttling (429) errors. It only runs once. Failed exports aren't reattempted. Default = 0.                                                         |
-| `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.                                                                                                            |
+| `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.                                                                                                                    |
 
 <br>
 
@@ -85,7 +86,7 @@ Runs an export called 'CostExport' for the previous 12 months on the 5678 billin
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK0.11/bladeName/PowerShell/featureName/CostManagement.StartExport)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20the%20FinOps%20toolkit%20PowerShell%20module%3F/cvaQuestion/How%20valuable%20are%20the%20FinOps%20toolkit%20PowerShell%20module%3F/surveyId/FTK/bladeName/PowerShell/featureName/CostManagement.StartExport)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

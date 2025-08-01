@@ -17,78 +17,6 @@ table PolicyAssignments
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: 2b822050-6e77-4075-bb0f-f2d6cf69f24c
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: 547923f6-9b9b-42ee-a3fe-60febb512248
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: dab047e3-031a-4d30-a307-f887aaf4d632
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: 9227d34e-58ec-4453-876c-fd3963258fa8
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: eb28befe-6be2-42a5-a00d-b864d26892f5
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: 55fc6fe4-f166-486d-a8a2-4681e867ed05
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: 694e09fa-ece5-451a-9915-b4d14746953b
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 095b39f5-352f-42b7-b3ad-4270ab061250
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: 1d318e16-2d1e-42bf-b48e-0eee499be0f5
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.policyDefinitionId'
 		dataType: string
 		lineageTag: 36991dc9-f91b-42b4-9748-be127108cfde
@@ -281,14 +209,6 @@ table PolicyAssignments
 
 		annotation SummarizationSetBy = Automatic
 
-	column tags
-		dataType: string
-		lineageTag: a09bfa5d-31cb-42e3-8acf-b275f1d31393
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'identity.userAssignedIdentities'
 		dataType: string
 		lineageTag: 8586946a-0e29-4772-b707-275f248a986b
@@ -318,38 +238,6 @@ table PolicyAssignments
 		lineageTag: ab440e5d-da40-4376-8be6-ddae6a99cb27
 		summarizeBy: none
 		sourceColumn: identity.type
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 3028b297-6696-4610-a7be-adcf9265888b
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 6bd96e6f-436a-478f-ba19-304ce558d978
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: e31bdaa0-3d60-4d4c-aec2-37ee6ec589f8
-		summarizeBy: none
-		sourceColumn: properties
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: a2bd224c-258b-4291-8968-412ce16ba365
-		summarizeBy: none
-		sourceColumn: identity
 
 		annotation SummarizationSetBy = Automatic
 
@@ -405,7 +293,7 @@ table PolicyAssignments
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 							#table(
-								{ "id", "name", "properties.policyDefinitionId", "properties.effectiveDefinitionVersion", "properties.latestDefinitionVersion", "properties.nonComplianceMessages", "properties.definitionVersion", "properties.resourceSelectors", "properties.enforcementMode", "properties.assignmentType", "properties.description", "properties.displayName", "properties.parameters", "properties.notScopes", "properties.overrides", "properties.metadata", "properties.scope", "properties.metadata.createdOn", "properties.metadata.createdBy", "properties.metadata.assignedBy", "properties.metadata.parameterScopes", "properties.metadata.updatedOn", "properties.metadata.updatedBy", "properties.metadata.category", "properties.metadata.managedByResourceId", "properties.metadata.securityCenter", "properties.metadata.excludedOutOfTheBoxStandards", "identity.userAssignedIdentities", "identity.principalId", "identity.tenantId", "identity.type", "properties.notScopes" },
+								{ "id", "name", "properties.policyDefinitionId", "properties.effectiveDefinitionVersion", "properties.latestDefinitionVersion", "properties.nonComplianceMessages", "properties.definitionVersion", "properties.resourceSelectors", "properties.enforcementMode", "properties.assignmentType", "properties.description", "properties.displayName", "properties.parameters", "properties.notScopes", "properties.overrides", "properties.metadata", "properties.scope", "properties.metadata.createdOn", "properties.metadata.createdBy", "properties.metadata.assignedBy", "properties.metadata.parameterScopes", "properties.metadata.updatedOn", "properties.metadata.updatedBy", "properties.metadata.category", "properties.metadata.managedByResourceId", "properties.metadata.securityCenter", "properties.metadata.excludedOutOfTheBoxStandards", "identity.userAssignedIdentities", "identity.principalId", "identity.tenantId", "identity.type" },
 								{}
 							)
 				    else Source

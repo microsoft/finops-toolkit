@@ -74,6 +74,17 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - We recommend exporting from either an **EA billing account** or **MCA billing profile** scope to access additional datasets, including price sheets and reservation recommendations.
    - Price sheet exports are required to populate missing prices and costs.
    - Reservation recommendation exports are used on the Rate optimization Reservation recommendations page.
+   
+   > [!IMPORTANT]
+   > **Microsoft Customer Agreement (MCA) scope requirements**
+   > 
+   > For MCA contracts, certain datasets are **only available at the billing profile level**, not at the billing account level:
+   > - Price sheet data
+   > - Reservation recommendations 
+   > - Reservation details
+   > 
+   > You must use the billing profile scope (`/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###`) for these exports. This is a Cost Management limitation.
+   
    - We recommend creating daily exports for each export type supported at your chosen billing scope:
       - Enterprise Agreement billing account: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
       - Microsoft Customer Agreement billing profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
@@ -314,7 +325,7 @@ If it's the first time you're using the FinOps toolkit PowerShell module, refer 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.11/bladeName/Hubs/featureName/ConfigureScopes)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/ConfigureScopes)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

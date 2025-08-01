@@ -330,6 +330,8 @@ As of FinOps toolkit 0.7, support for older FOCUS versions has been deprecated t
 
 **Mitigation**: Confirm the `ListUnitPrice` in the cost data matches what's in the price data. If the list price is correct, file a support request with the Cost Management team to confirm both the `ListUnitPrice` and `ContractedUnitPrice` are correct and explain why the price after negotiated discounts would be higher than public, retail rates.
 
+For details on how data quality issues affect savings calculations, see [Understanding savings calculations](../hubs/savings-calculations.md).
+
 <br>
 
 ## ManifestReadFailed
@@ -431,6 +433,8 @@ This error code is shown in the `x_SourceChanges` column when `ContractedUnitPri
 
 To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
 
+For details on how missing prices affect savings calculations, see [Understanding savings calculations](../hubs/savings-calculations.md).
+
 <br>
 
 ## MissingListCost
@@ -454,6 +458,8 @@ This error code is shown in the `x_SourceChanges` column when `ListUnitPrice` is
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings aren't available for these records.
 
 To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+For details on how missing prices affect savings calculations, see [Understanding savings calculations](../hubs/savings-calculations.md).
 
 <br>
 
@@ -731,7 +737,7 @@ If you're facing an error not listed above or need more help, file a [support re
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.11/bladeName/Toolkit/featureName/Help.DataDictionary)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Help.DataDictionary)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

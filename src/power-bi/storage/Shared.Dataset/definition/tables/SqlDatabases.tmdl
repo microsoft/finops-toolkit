@@ -17,62 +17,6 @@ table SqlDatabases
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: 2f845801-82a4-4a1d-baee-4e00cc5d9fe9
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: 9f91fdb8-e2ca-48c2-8f1b-d2c5947cd214
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: e5be51cd-a91e-444e-be6d-853d13754106
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: a6dd3004-5b67-45c1-a819-f31cc1bf0712
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: 84645a55-1f21-4fa6-b2bb-377d9558ac8e
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: 6bb6f3b4-e77d-416e-a914-d0cf2f35c63d
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: 119ad678-6f92-49f1-8e0b-0e5e267a15f7
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'sku.name'
 		dataType: string
 		lineageTag: 1be92f30-01fc-4f24-b3f1-7f6321288452
@@ -102,14 +46,6 @@ table SqlDatabases
 		lineageTag: dc9ae49c-72fb-4f17-8dc5-274874adf4d3
 		summarizeBy: none
 		sourceColumn: sku.family
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: 56dffce6-500b-4cea-849b-5446195aea77
-		summarizeBy: none
-		sourceColumn: plan
 
 		annotation SummarizationSetBy = Automatic
 
@@ -282,51 +218,19 @@ table SqlDatabases
 
 		annotation SummarizationSetBy = Automatic
 
-	column tags
+	column location
 		dataType: string
-		lineageTag: c47eec27-9dd9-4f75-8711-1bb7db4ed44f
+		lineageTag: 36ba9f05-8be1-420f-9b8e-66588e69fb4c
 		summarizeBy: none
-		sourceColumn: tags
+		sourceColumn: location
 
 		annotation SummarizationSetBy = Automatic
 
-	column identity
+	column resourceGroup
 		dataType: string
-		lineageTag: ce93bb70-63a4-454c-b152-467c0a99f759
+		lineageTag: 2c7600e3-4a24-4d08-8829-2e3161a35ce8
 		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 96e50542-0c55-48b1-ab1a-5be6947e4497
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: 6c1b0c87-9514-446a-b056-09b9df624a4e
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: 52f51c91-4d10-4e18-bfc8-17b89180f1a3
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column properties
-		dataType: string
-		lineageTag: 7b1ec500-24c1-4b63-b630-d6b6a81cd83e
-		summarizeBy: none
-		sourceColumn: properties
+		sourceColumn: resourceGroup
 
 		annotation SummarizationSetBy = Automatic
 
@@ -369,7 +273,7 @@ table SqlDatabases
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 				      #table(
-				        { "id", "name", "sku.name", "sku.tier", "sku.capacity", "sku.family", "properties.status", "properties.requestedBackupStorageRedundancy", "properties.currentBackupStorageRedundancy", "properties.requestedServiceObjectiveName", "properties.currentServiceObjectiveName", "properties.maintenanceConfigurationId", "properties.defaultSecondaryLocation", "properties.isInfraEncryptionEnabled", "properties.earliestRestoreDate", "properties.zoneRedundant", "properties.availabilityZone", "properties.catalogCollation", "properties.creationDate", "properties.collation", "properties.licenseType", "properties.maxSizeBytes", "properties.isLedgerOn", "properties.databaseId", "properties.currentSku", "properties.readScale", "properties.maxLogSizeBytes" },
+				        { "id", "name", "sku.name", "sku.tier", "sku.capacity", "sku.family", "location", "resourceGroup", "properties.status", "properties.requestedBackupStorageRedundancy", "properties.currentBackupStorageRedundancy", "properties.requestedServiceObjectiveName", "properties.currentServiceObjectiveName", "properties.maintenanceConfigurationId", "properties.defaultSecondaryLocation", "properties.isInfraEncryptionEnabled", "properties.earliestRestoreDate", "properties.zoneRedundant", "properties.availabilityZone", "properties.catalogCollation", "properties.creationDate", "properties.collation", "properties.licenseType", "properties.maxSizeBytes", "properties.isLedgerOn", "properties.databaseId", "properties.currentSku", "properties.readScale", "properties.maxLogSizeBytes" },
 				        {}
 				      )
 				    else Source,

@@ -24,49 +24,116 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) pending changes
-
-- **Added**
-  - Added support for Alibaba Cloud FOCUS data ingestion.
-    - Added extended columns: `x_CommodityCode`, `x_CommodityName`, `x_BillingItemCode`, `x_BillingItemName`, `x_InstanceID`.
-
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### [Power BI reports](power-bi/reports.md) pending changes
-
-- **Added**
-  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services and resource groups for exec level view.
-- **Changed**
-  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
-
 <br><a name="latest"></a>
 
-## v0.12
+## v12
 
-_Released June 2025_
+_Released July 16, 2025_
 
-### [Implementing FinOps guide](../implementing-finops-guide.md) v0.11
+### [Implementing FinOps guide](../implementing-finops-guide.md) v12
 
 - **Added**
   - Created a script to generate a template FOCUS conformance document.
 - **Changed**
   - Updated FOCUS documentation to align to the 1.2-preview dataset from Cost Management.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) v0.12
+### [FinOps hubs](hubs/finops-hubs-overview.md) v12
 
 - **Added**
+  - Added full support for FOCUS 1.2 in Azure Data Explorer and Microsoft Fabric across [all managed datasets](hubs/data-model.md#managed-datasets-in-finops-hubs).
+    - This adds support for ingesting the Cost Management 1.2-preview FOCUS dataset version.
+    - When FOCUS 1.0 or 1.0-preview data is ingested, it will be converted to FOCUS 1.2. Historical data will remain in the `*_final_v1_0` tables.
+    - All unversioned Hub database functions, like `Costs()`, will include added and removed columns.
+    - New versioned Hub database functions, like `Costs_v1_2()`, were added based on the FOCUS 1.2 schema changes.
+    - Make sure you use the 1.0 functions, like `Costs_v1_0()`, to avoid breaking changes between FOCUS versions.
+    - This is **not** a breaking change if you are following the prescribed guidance of using versioned functions.
+    - This change does not include Power BI and Data Explorer dashboard updates. Those are still using the `*_v1_0` functions.
+  - Added new columns to the [Costs managed dataset](hubs/data-model.md#costs-managed-dataset):
+    - Alibaba FOCUS extended columns: `x_BillingItemCode`, `x_BillingItemName`, `x_CommodityCode`, `x_CommodityName`, `x_InstanceID`.
+    - Tencent FOCUS extended columns: `x_ComponentName`, `x_ComponentType`, `x_ExportTime`, `x_OwnerAccountID`, `x_SubproductName`.
+    - Discount percentage columns: `x_NegotiatedDiscountPercent`, `x_CommitmentDiscountPercent`, `x_TotalDiscountPercent`.
+    - Savings columns: `x_NegotiatedDiscountSavings`, `x_CommitmentDiscountSavings`, `x_TotalSavings`.
+    - Commitment discount utilization columns: `x_CommitmentDiscountUtilizationAmount`, `x_CommitmentDiscountUtilizationPotential`.
+    - Azure Hybrid Benefit columns: `x_SkuLicenseQuantity`, `x_SkuLicenseStatus`, `x_SkuLicenseType`, `x_SkuLicenseUnit`.
+    - SKU property columns: `x_SkuCoreCount`, `x_SkuInstanceType`, `x_SkuOperatingSystem`.
+    - `x_ConsumedCoreHours` to track total core hours for the charge by multiplying `ConsumedQuantity` by `x_SkuCoreCount`.
+    - `x_SourceValues` to track data changes during FinOps toolkit data ingestion.
+    - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+  - Changed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+  - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
+  - Added a new **enableManagedExports** parameter to support disabling managed exports and not requiring the ability to assign the User Access Administrator role to a hub identity ([#1600](https://github.com/microsoft/finops-toolkit/issues/1600)).
+  - Document [how savings are calcultated](hubs/savings-calculations.md) and how to troubleshoot negative savings.
+- **Changed**
+  - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
+  - Updated the Data Explorer dashboard to use the v1_2 schema.
+
+### [Power BI reports](power-bi/reports.md) v12
+
+- **Added**
+  - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services, and resource groups for exec level view.
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
+  - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
+  - Updated the KQL reports to use the FinOps hubs v1_2 schema.
 - **Fixed**
-  - Fixed VNet CIDR validation to accept any subnet size from /8 to /26 (minimum /26 required) instead of restricting to only /24, /25, or /26, providing more flexibility for different deployment scenarios ([#1668](https://github.com/microsoft/finops-toolkit/issues/1668)).
+  - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
+
+### [Optimization engine](optimization-engine/overview.md) v12
+
+- **Fixed**
+  - Link to recommendations Power BI report in MS Learn documentation ([#1614](https://github.com/microsoft/finops-toolkit/issues/1730)).
+  - Aka.ms links to point to the latest version of documentation articles in MS Learn.
+
+### [PowerShell module](powershell/powershell-commands.md) v12
+
+- **Changed**
+  - Updated the latest API version to 2025-03-01 in all Cost Management export commands.
+  - Updated the default FOCUS export version to "1.2-preview" in the [New-FinOpsCostExport command](powershell/cost/new-finopscostexport.md).
+
+### [Open data](open-data.md) v12
+
+**[Resource types](open-data.md#resource-types)**
+
+- **Added**
+  - Added 9 new Microsoft.Discovery resource types.
+  - Added the following resource types:
+    - microsoft.azurestackhci/clusters/updates/updateruns
+    - microsoft.azurestackhci/clusters/updatesummaries
+    - microsoft.hybridcompute/arcgatewayassociatedresources
+    - microsoft.insights/datacollectionrulesresources
+    - microsoft.loadtestservice/playwrightworkspaces
+    - microsoft.logic/templates
+    - microsoft.machinelearningservices/aistudiocreate
+    - microsoft.machinelearningservices/workspacescreate
+    - microsoft.maintenance/maintenanceconfigurationsaumbladeresource
+    - microsoft.updatemanager/updaterules
+    - microsoft.workloads/workloadinstance
+- **Changed**
+  - Updated the following resource types:
+    - microsoft.azurestackhci/devicepools
+    - microsoft.discovery/storages
+    - microsoft.discovery/supercomputers
+    - microsoft.discovery/workspaces
+    - microsoft.elastic/monitors
+    - microsoft.network/loadbalancers
+    - microsoft.weightsandbiases/instances
+
+**[Services](open-data.md#services)**
+
+- **Added**
+  - Mapped the following resource types to their respective services:
+    - microsoft.durabletask/schedulers
+    - microsoft.edge/contexts
 
 > [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.12)
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v12)
 > [!div class="nextstepaction"]
-> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.11...v0.12)
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.11...v12)
 
 <br>
 
@@ -1740,7 +1807,7 @@ _Released May 27, 2023_
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK0.11/bladeName/Toolkit/featureName/Changelog)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Changelog)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

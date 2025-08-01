@@ -623,6 +623,28 @@
             "visible": true
           },
           {
+            "name": "managedExports",
+            "type": "Microsoft.Common.Section",
+            "label": "Managed exports",
+            "elements": [
+              {
+                "name": "managedExportsIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Managed exports allow your FinOps hub instance to create and run Cost Management exports on your behalf using a schedule you define. This feature is not supported for Microsoft Customer Agreement (MCA) billing profiles."
+                }
+              },
+              {
+                "name": "enableManagedExports",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable managed exports",
+                "toolTip": "Creating exports in Cost Management requires the User Access Administrator role. You must have access to grant User Access Administrator to your FinOps hub to enable managed exports."
+              }
+            ],
+            "visible": true
+          },
+          {
             "name": "networking",
             "type": "Microsoft.Common.Section",
             "label": "Networking",
@@ -754,6 +776,7 @@
       "fabricQueryUri": "[basics('fabric').fabricQueryUri]",
       "fabricCapacity": "[basics('fabric').fabricCapacity]",
       "enableInfrastructureEncryption": "[steps('advanced').storage.enableInfrastructureEncryption]",
+      "enableManagedExports": "[steps('advanced').managedExports.enableManagedExports]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",

@@ -28,7 +28,7 @@ The **Rate optimization report** summarizes existing and potential savings from 
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/surveyId/FTK0.11/bladeName/PowerBI.RateOptimization/featureName/Documentation)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/surveyId/FTK/bladeName/PowerBI.RateOptimization/featureName/Documentation)
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
@@ -99,6 +99,9 @@ The table shows cost, savings, and ESR per month with a breakdown by billing acc
 
 > [!IMPORTANT]
 > Microsoft Cost Management does not include the list and contracted prices for all accounts. To calculate accurate and complete savings, you will need to export prices. If using storage reports, enable the "Experimental: Populate Missing Prices" parameter in each report. If using KQL reports, missing prices will be populated automatically when prices are exported.
+
+> [!NOTE]
+> Savings may appear as negative values when effective prices are higher than list prices, or as zero when price data is missing. For details on how savings are calculated and displayed, see [Understanding savings calculations](../hubs/savings-calculations.md).
 
 :::image type="content" source="./media/rate-optimization/total-savings.png" border="true" alt-text="Screenshot of the Total savings page that shows cost savings from negotiated and commitment discounts." lightbox="./media/rate-optimization/total-savings.png" :::
 

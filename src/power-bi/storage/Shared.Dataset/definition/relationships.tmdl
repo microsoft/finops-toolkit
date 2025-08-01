@@ -9,11 +9,6 @@ relationship 52d8acfd-e4eb-fdfe-9d4f-9eae3f716ab4
 	fromColumn: NetworkInterfaces.'properties.ipConfigurations.properties.publicIPAddress.id'
 	toColumn: PublicIPAddresses.id
 
-relationship c8a2b782-448d-e933-0cee-5a6387245222
-	crossFilteringBehavior: bothDirections
-	fromColumn: PolicyStates.subscriptionId
-	toColumn: Subscriptions.subscriptionId
-
 relationship ff6ac972-2c35-c20d-b9d4-84c273cc9b5f
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
@@ -78,16 +73,6 @@ relationship AutoDetected_19cbab3d-1150-45a4-9258-ca0b47ba687d
 	fromColumn: AdvisorRecommendations.subscriptionId
 	toColumn: Subscriptions.subscriptionId
 
-relationship AutoDetected_8af1c026-78c9-4c32-ba5d-c90a60061c83
-	fromColumn: VirtualMachinesDisks.subscriptionId
-	toColumn: Subscriptions.subscriptionId
-
-relationship 6fd3a8f2-806c-c31c-48fc-fd3779d51a20
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: VirtualMachines.id
-	toColumn: VirtualMachinesDisks.managedBy
-
 relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
 	fromColumn: StorageData.Scope
 	toColumn: HubScopes.Scope
@@ -112,4 +97,14 @@ relationship c0c15128-2725-100f-2945-f99368d742f6
 	toCardinality: many
 	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
 	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+
+relationship AutoDetected_8af1c026-78c9-4c32-ba5d-c90a60061c83
+	fromColumn: VirtualMachinesDisks.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship 6fd3a8f2-806c-c31c-48fc-fd3779d51a20
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: VirtualMachines.id
+	toColumn: VirtualMachinesDisks.managedBy
 

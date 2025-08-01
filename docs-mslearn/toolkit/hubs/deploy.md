@@ -270,6 +270,9 @@ You can ingest data from Microsoft Cost Management by creating exports manually 
 
 The following command is part of the FinOps toolkit PowerShell module. To install the module, see [Install the FinOps toolkit PowerShell module](../powershell/powershell-commands.md#install-the-module).
 
+> [!NOTE]
+> The examples below are shown in the recommended order for setting up exports. Always create price exports before cost exports to ensure accurate savings calculations.
+
 ```powershell
 # Prices (required to populate missing prices)
 # Only supported for EA billing accounts and MCA billing profiles
@@ -358,6 +361,16 @@ To ingest data from other data providers that support FOCUS, such as Amazon Web 
 
 FinOps hubs don't automatically backfill data. To populate historical data, run historical data exports from the original data provider, including any custom data pipelines used to publish data into the **ingestion** storage container.
 
+> [!IMPORTANT]
+> **Backfill order matters for accurate savings calculations**
+> 
+> Always export price data before cost data when backfilling historical information. This ensures that:
+> - Reserved Instance (RI) and savings plan benefits are correctly calculated in historical reports
+> - Missing price information doesn't cause incomplete savings analysis
+> - Data Explorer reports show accurate cost optimization opportunities across all time periods
+>
+> If you've already exported cost data before price data, rerun the **ingestion_ExecuteETL** pipeline for each affected month after price data is available.
+
 For Microsoft Cost Management:
 
 <!-- markdownlint-disable-next-line -->
@@ -365,34 +378,90 @@ For Microsoft Cost Management:
 
 1. From the Azure portal, open [Cost Management](https://aka.ms/costmgmt).
 2. Select the desired scope from the scope picker towards the top of the page.
+   > [!NOTE]
+   > **For Microsoft Customer Agreement (MCA) contracts**: Price sheet, reservation recommendations, and reservation details exports must be configured at the **billing profile level**, not the billing account level. This is a Cost Management limitation, not a FinOps hubs requirement.
 3. In the menu on the left, select **Reporting + analytics** > **Exports**.
-4. Select the desired export in the list of exports.
+4. **Backfill in the correct order**: Start with price sheet exports, then proceed to other data types.
+   1. **First**: Export price sheet data (if available at your scope)
+   2. **Second**: Export cost and usage data
+   3. **Third**: Export reservation and recommendation data (if needed)
+5. Select the desired export in the list of exports.
    - Always export prices before costs to ensure they're available to populate missing prices in the cost and usage dataset.
    - If costs are exported first, rerun the **ingestion_ExecuteETL** pipeline for the month's cost data to populate the missing prices.
-5. Select **Export selected dates** and specify the desired month. Always export the full  month.
-6. Repeat step 5 for all desired months.
+6. Select **Export selected dates** and specify the desired month. Always export the full  month.
+7. Repeat step 6 for all desired months.
    - Cost Management only supports exporting up to the last 12 months from the Azure portal.
    - Consider using PowerShell to export beyond the last 12 months.
-7. Repeat steps 4-6 for each export.
-8. Repeat steps 2-7 for each scope.
+8. Repeat steps 5-7 for each export, maintaining the order specified in step 4.
+9. Repeat steps 2-8 for each scope.
 
 <!-- markdownlint-disable-next-line -->
 ### [PowerShell](#tab/powershell)
 
 The following command is part of the FinOps toolkit PowerShell module. To install the module, see [Install the FinOps toolkit PowerShell module](../powershell/powershell-commands.md#install-the-module).
 
-Run the following command for price exports first, then other datasets.
+> [!IMPORTANT]
+> **For Microsoft Customer Agreement (MCA) contracts**: Use the billing profile scope (`/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###`) rather than the billing account scope for price sheet, reservation, and recommendation exports.
 
+**Export data in the following order to ensure accurate savings calculations:**
+
+1. **First - Price sheet data** (if available at your scope):
 ```powershell
 Start-FinOpsCostExport `
     -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
-    -Name '{export-name}' `
+    -Name 'finops-hub-prices' `
+    -Dataset PriceSheet `
+    -Backfill 13 # or desired number of months
+```
+
+2. **Second - Cost and usage data**:
+```powershell
+Start-FinOpsCostExport `
+    -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
+    -Name 'finops-hub-costs' `
+    -Dataset FocusCost `
+    -Backfill 13 # or desired number of months
+```
+
+3. **Third - Reservation and recommendation data** (if needed):
+```powershell
+# Reservation recommendations
+Start-FinOpsCostExport `
+    -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
+    -Name 'finops-hub-reservations' `
+    -Dataset ReservationRecommendations `
+    -Backfill 13 # or desired number of months
+
+# Reservation details  
+Start-FinOpsCostExport `
+    -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
+    -Name 'finops-hub-reservation-details' `
+    -Dataset ReservationDetails `
     -Backfill 13 # or desired number of months
 ```
 
 For other parameters, see [Start-FinOpsCostExport](../powershell/cost/Start-FinOpsCostExport.md).
 
 ---
+
+### Troubleshooting backfill order issues
+
+If you've already exported cost data before price data and notice missing savings calculations (particularly for Reserved Instances and savings plans):
+
+1. **Verify the issue**: Check your Data Explorer reports for missing or incomplete savings data in historical months.
+
+2. **Export missing price data**: Run price sheet exports for the affected months using the methods above.
+
+3. **Reprocess cost data**: After price data is available, manually trigger the **ingestion_ExecuteETL** pipeline for each affected month:
+   - Navigate to your FinOps hub Data Factory instance in the Azure portal
+   - Go to **Author & Monitor** > **Pipelines**
+   - Find and run the **ingestion_ExecuteETL** pipeline
+   - The pipeline will reprocess the cost data and apply the newly available price information
+
+4. **Verify the fix**: Check your reports again to confirm that savings calculations now appear correctly for historical data.
+
+> [!TIP]
+> To avoid this issue in the future, always follow the recommended export order: prices first, then costs, then other datasets.
 
 <br>
 
@@ -483,7 +552,7 @@ If your issue isn't resolved with the troubleshooting guide, see [Get support fo
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.11/bladeName/Hubs/featureName/Deploy)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/Deploy)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 

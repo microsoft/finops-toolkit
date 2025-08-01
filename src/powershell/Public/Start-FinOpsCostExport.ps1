@@ -9,7 +9,8 @@
     The Start-FinOpsCostExport command runs a Cost Management export for the most recent period using the Run API.
 
     This command has been tested with the following API versions:
-    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2025-03-01 (default) – Enables FocusCost and other datasets.
+    - 2023-07-01-preview
     - 2023-08-01
     - 2023-03-01
 
@@ -29,7 +30,7 @@
     Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0.
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.
 
     .EXAMPLE
     Start-FinopsCostExport -Name 'CostExport'
@@ -77,7 +78,7 @@ function Start-FinOpsCostExport
 
         [Parameter()]
         [string]
-        $ApiVersion = '2023-07-01-preview'
+        $ApiVersion = '2025-03-01'
     )
 
     $export = Get-FinOpsCostExport -Name $Name -Scope $Scope
@@ -196,7 +197,7 @@ function Start-FinOpsCostExport
         }
         else
         {
-            Write-Verbose "Export failed to execute"
+            Write-Error "Export failed to execute: ($($response.Content.error.code)) $($response.Content.error.message)"
         }
 
         # If export throttled, wait 60 seconds and try again

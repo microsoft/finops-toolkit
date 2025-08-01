@@ -12,6 +12,10 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
 - **Zero lint errors**: Resolve all lint errors before suggesting changes
 - **Test coverage**: Ensure changes don't break existing functionality
 - **Microsoft standards**: Follow Microsoft style guide and development practices
+- **Document changes**: Always document changes in the [changelog](../docs-mslearn/toolkit/changelog.md)
+  - Changelog entries must be under the correct tool and version (e.g., FinOps hubs v12)
+  - Check the current version in [package.json](../package.json)
+  - Remove `-dev` from the version, if included
 
 ### Code style guidelines
 

@@ -20,7 +20,7 @@ This article explains reporting options available within Azure optimization engi
 
 ## Power BI recommendations report
 
-AOE includes a [Power BI report](reports.md) for visualizing recommendations. To use it, you have first to change the data source connection to the SQL Database you deployed with the AOE. In the Power BI top menu, select **Transform Data** > **Data source settings**.
+AOE includes a [Power BI report](https://aka.ms/AzureOptimizationEngine/powerbi) for visualizing recommendations. To use it, you have first to change the data source connection to the SQL Database you deployed with the AOE. In the Power BI top menu, select **Transform Data** > **Data source settings**.
 
 :::image type="content" source="./media/reports/power-bi-transform-data-menu.png" border="true" alt-text="Screenshot showing navigation to the Data source settings menu item." lightbox="./media/reports/power-bi-transform-data-menu.png":::
 

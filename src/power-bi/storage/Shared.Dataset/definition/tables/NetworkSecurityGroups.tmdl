@@ -17,78 +17,6 @@ table NetworkSecurityGroups
 
 		annotation SummarizationSetBy = Automatic
 
-	column type
-		dataType: string
-		lineageTag: 5f4b1e88-2765-4e77-adb4-cfc36d46993a
-		summarizeBy: none
-		sourceColumn: type
-
-		annotation SummarizationSetBy = Automatic
-
-	column tenantId
-		dataType: string
-		lineageTag: 72c91362-41b8-4bc4-8c8a-203ed8678806
-		summarizeBy: none
-		sourceColumn: tenantId
-
-		annotation SummarizationSetBy = Automatic
-
-	column kind
-		dataType: string
-		lineageTag: 54ccea47-564a-482a-811a-a087edbe78c6
-		summarizeBy: none
-		sourceColumn: kind
-
-		annotation SummarizationSetBy = Automatic
-
-	column location
-		dataType: string
-		lineageTag: 8043bb49-8a98-4a22-85be-655e135f6f79
-		summarizeBy: none
-		sourceColumn: location
-
-		annotation SummarizationSetBy = Automatic
-
-	column resourceGroup
-		dataType: string
-		lineageTag: 1099ad85-7cc4-4dd6-9a20-ee04cf0187db
-		summarizeBy: none
-		sourceColumn: resourceGroup
-
-		annotation SummarizationSetBy = Automatic
-
-	column subscriptionId
-		dataType: string
-		lineageTag: 0e6a56c5-6e87-498a-ba54-d0eee60d4494
-		summarizeBy: none
-		sourceColumn: subscriptionId
-
-		annotation SummarizationSetBy = Automatic
-
-	column managedBy
-		dataType: string
-		lineageTag: b6c809eb-78b5-4c85-9126-92c3b404242d
-		summarizeBy: none
-		sourceColumn: managedBy
-
-		annotation SummarizationSetBy = Automatic
-
-	column sku
-		dataType: string
-		lineageTag: d97c5705-4579-4d8d-be6a-17261fd6ff0e
-		summarizeBy: none
-		sourceColumn: sku
-
-		annotation SummarizationSetBy = Automatic
-
-	column plan
-		dataType: string
-		lineageTag: b8c418c7-6526-4106-8541-8c529b94f33d
-		summarizeBy: none
-		sourceColumn: plan
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.resourceGuid'
 		dataType: string
 		lineageTag: eff5cb67-bada-4826-adc8-4b2a10f81ddc
@@ -177,38 +105,6 @@ table NetworkSecurityGroups
 
 		annotation SummarizationSetBy = Automatic
 
-	column tags
-		dataType: string
-		lineageTag: 3a4b6011-036a-43b2-b00a-0dde8213c493
-		summarizeBy: none
-		sourceColumn: tags
-
-		annotation SummarizationSetBy = Automatic
-
-	column identity
-		dataType: string
-		lineageTag: 2850f8aa-e401-404a-accb-70ea7e7f411d
-		summarizeBy: none
-		sourceColumn: identity
-
-		annotation SummarizationSetBy = Automatic
-
-	column zones
-		dataType: string
-		lineageTag: 6bc69d6e-9632-4bd0-b190-3ce481d89224
-		summarizeBy: none
-		sourceColumn: zones
-
-		annotation SummarizationSetBy = Automatic
-
-	column extendedLocation
-		dataType: string
-		lineageTag: b339f020-364d-4510-b227-7715a48353fa
-		summarizeBy: none
-		sourceColumn: extendedLocation
-
-		annotation SummarizationSetBy = Automatic
-
 	column isWarning = ```
 			IF('NetworkSecurityGroups'[properties.securityRules.properties.access]="Allow",
 			        SWITCH(
@@ -225,19 +121,27 @@ table NetworkSecurityGroups
 
 		annotation SummarizationSetBy = Automatic
 
-	column properties
-		dataType: string
-		lineageTag: 2c418807-334f-402c-8ca7-c396b7d32d00
-		summarizeBy: none
-		sourceColumn: properties
-
-		annotation SummarizationSetBy = Automatic
-
 	column 'properties.securityRules'
 		dataType: string
 		lineageTag: 49da77d4-1ae6-486d-8e0a-e05c49d44e91
 		summarizeBy: none
 		sourceColumn: properties.securityRules
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 0df42dd6-3aa2-44f3-a2ad-b8556165582c
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: ee71f894-1abf-4b2a-8b79-1e7e73cc0db5
+		summarizeBy: none
+		sourceColumn: resourceGroup
 
 		annotation SummarizationSetBy = Automatic
 
@@ -269,7 +173,7 @@ table NetworkSecurityGroups
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 							#table(
-								{ "id", "name", "properties.resourceGuid", "properties.securityRules", "properties.securityRules.name", "properties.securityRules.id", "properties.securityRules.properties.destinationAddressPrefix", "properties.securityRules.properties.sourceAddressPrefix", "properties.securityRules.properties.destinationPortRange", "properties.securityRules.properties.sourcePortRange", "properties.securityRules.properties.protocol", "properties.securityRules.properties.direction", "properties.securityRules.properties.priority", "properties.securityRules.properties.access" },
+								{ "id", "name", "location", "resourceGroup", "properties.resourceGuid", "properties.securityRules", "properties.securityRules.name", "properties.securityRules.id", "properties.securityRules.properties.destinationAddressPrefix", "properties.securityRules.properties.sourceAddressPrefix", "properties.securityRules.properties.destinationPortRange", "properties.securityRules.properties.sourcePortRange", "properties.securityRules.properties.protocol", "properties.securityRules.properties.direction", "properties.securityRules.properties.priority", "properties.securityRules.properties.access" },
 								{}
 							)
 				    else Source

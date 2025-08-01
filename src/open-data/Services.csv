@@ -4,11 +4,11 @@ ConsumedService,ResourceType,ServiceName,ServiceCategory,ServiceSubcategory,Publ
 api center,microsoft.apicenter/service,API Center,Integration,API Management,Microsoft,Cloud Provider,Cloud,PaaS
 api management,microsoft.apimanagement/gateways,API Management,Integration,API Management,Microsoft,Cloud Provider,Cloud,PaaS
 api management,microsoft.apimanagement/service,API Management,Integration,API Management,Microsoft,Cloud Provider,Cloud,PaaS
-azure app service,microsoft.web/sites,Azure App Service,Web,Application Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 appservices,microsoft.security/pricings,Azure App Service,Web,Application Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 australiacentral,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 australiaeast,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 australiasoutheast,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
+azure app service,microsoft.web/sites,Azure App Service,Web,Application Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 bastion scale units,microsoft.network/bastionhosts,Azure Bastion,Networking,Network Security,Microsoft,Cloud Provider,Cloud,PaaS
 brazilsouth,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 canadacentral,microsoft.sql/locations,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
@@ -141,6 +141,7 @@ microsoft.documentdb,microsoft.documentdb/databaseaccounts,Cosmos DB,Databases,N
 microsoft.documentdb,microsoft.documentdb/mongocluster,Cosmos DB,Databases,NoSQL Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.documentdb,microsoft.documentdb/mongoclusters,Cosmos DB,Databases,NoSQL Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.domainregistration,microsoft.domainregistration/domains,Azure App Service,Web,Application Platforms,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.durabletask,microsoft.durabletask/schedulers,Functions,Compute,Serverless Compute,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.dynamics365fraudprotection,microsoft.dynamics365fraudprotection/instances,Dynamics 365 Fraud Protection,Security,Threat Detection and Response,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.easm,microsoft.easm/workspaces,Microsoft Defender for Cloud,Security,Security Posture Management,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.edgeorder,microsoft.edgeorder/orderitems,Azure Stack Edge,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Cloud,IaaS
@@ -155,6 +156,7 @@ microsoft.eventgrid,microsoft.communication/communicationservices,Azure Communic
 microsoft.eventgrid,microsoft.containerregistry/registries,Azure Container Registry,Compute,Containers,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.containerservice/managedclusters,Azure Kubernetes Service,Compute,Containers,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.devices/iothubs,Azure IoT Hub,Internet of Things,IoT Platforms,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.eventgrid,microsoft.edge/contexts,Microsoft Edge Enterprise,Business Applications,Productivity and Collaboration,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.eventgrid,microsoft.eventgrid/domains,Event Grid,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.eventgrid/extensiontopics,Event Grid,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.eventgrid/namespaces,Event Grid,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS

@@ -79,7 +79,7 @@ For a list of requested changes, ideas under consideration, and open questions a
 
 Supported datasets:
 
-- Microsoft FocusCost: `1.0r2`, `1.0`, `1.0-preview(v1)`
+- Microsoft FocusCost: `1.2-preview`, `1.0r2`, `1.0`, `1.0-preview(v1)`
 
 The following datasets were accounted for in the design, but are not natively supported. To ingest these datasets, create a data pipeline (or external process) that pushes parquet files into the `ingestion/Costs/yyyy/mm/{scope-path}` folder in storage. The `{scope-path}` can be any unique path, like `aws/123` or `gcp/projects/foo`. The only requirement is to ensure each scope is in a separate folder. After copying external content, also create a **manifest.json** file to trigger Data Explorer ingestion.
 
@@ -99,7 +99,7 @@ Transforms:
   - Update `ProviderName` and `PublisherName` when not specified.
   - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
   - Populate missing `ListCost`, `ListUnitPrice`, `ContractedCost`, and `ContractedUnitPrice` values based on the price sheet.
-    - This process requires prices to be exported before the cost. Prices being missing for the first day of the month if costs are ingested before pries are available for the month.
+    - This process requires prices to be exported before the cost. Prices being missing for the first day of the month if costs are ingested before prices are available for the month.
   - Fix `ContractedCost` when set incorrectly due to a bug in Cost Management.
   - Lowercase `ResourceName` and `x_ResourceGroupName` to address casing consistency issues that break grouping and filtering.
   - Add `x_BillingAccountAgreement` based on the account type.
@@ -120,6 +120,40 @@ Transforms:
   - Add new `x_SourceChanges` checks for `MissingConsumedQuantity`, `MissingPricingQuantity`, and `XEffectiveUnitPriceRoundingError`.
 - v0.11+:
   - Change `BillingPeriodStart` and `BillingPeriodEnd` to be the first of the month.
+- v12+:
+  - Convert FOCUS 1.0-preview and 1.0 data to FOCUS 1.2.
+    - Renamed `x_InvoiceId` to `InvoiceId`.
+    - Renamed `x_PricingCurrency` to `PricingCurrency`.
+    - Renamed `x_SkuMeterName` to `SkuMeter`.
+    - Transformed `x_SkuDetails` into `SkuPriceDetails`:
+      - Added `CoreCount` key for the number of cores for the SKU based on `x_SkuDetails.VCPUs`, `x_SkuDetails.VCores`, and `x_SkuDetails.vCores`.
+      - Added `InstanceType` key for the SKU size based on `x_SkuDetails.ServiceType` and `x_SkuDetails.ServerSku`.
+      - Added `OperatingSystem` key for the VM operating system based on `x_SkuDetails.ImageType`.
+      - Prefixed all other keys with `x_`.
+  - Implemented the following columns when not set by Cost Management:
+    - `CapacityReservationId`
+    - `CapacityReservationStatus`
+    - `CommitmentDiscountQuantity`
+    - `CommitmentDiscountUnit`
+    - `x_CommitmentDiscountNormalizedRatio`
+  - Added `x_AmortizationClass` to filter out amortized purchases and avoid double-counting `ListCost` and `ContractedCost` for savings calculations.
+  - Added `x_CommitmentDiscountUtilizationPotential` and `x_CommitmentDiscountUtilizationAmount` for calculating commitment discount utilization.
+  - Added `x_SkuCoreCount` and `x_ConsumedCoreHours` for the number of cores and core hours for the SKU based on `x_SkuDetails.VCPUs`, `x_SkuDetails.VCores`, and `x_SkuDetails.vCores`.
+  - Added `x_SkuInstanceType` for the SKU size based on `x_SkuDetails.ServiceType` and `x_SkuDetails.ServerSku`.
+  - Added `x_SkuOperatingSystem` for the VM operating system based on `x_SkuDetails.ImageType`.
+  - Added Azure Hybrid Benefit columns:
+    - `x_SkuLicenseQuantity`
+    - `x_SkuLicenseStatus`
+    - `x_SkuLicenseType`
+    - `x_SkuLicenseUnit`
+  - Added discount and savings columns:
+    - `x_NegotiatedDiscountSavings`
+    - `x_CommitmentDiscountSavings`
+    - `x_TotalSavings`
+    - `x_NegotiatedDiscountPercent`
+    - `x_CommitmentDiscountPercent`
+    - `x_TotalDiscountPercent`
+  - Added `x_SourceValues` to track data changes during ingestion.
 
 ### Price data transforms
 
@@ -148,6 +182,12 @@ Transforms:
   - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
 - v0.9+:
   - Lowercase `BillingAccountId` to ensure the cost join matches all rows.
+- v12+:
+  - Align column names to FOCUS 1.2:
+    - Renamed `x_PricingCurrency` to `PricingCurrency`.
+    - Renamed `x_SkuMeterName` to `SkuMeter`.
+  - Implemented the following columns when not set by Cost Management:
+    - `CommitmentDiscountUnit`
 
 ### Recommendation data transforms
 
@@ -157,10 +197,11 @@ Supported datasets:
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+:
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
 
 ### Transaction data transforms
 
@@ -170,10 +211,14 @@ Supported datasets:
 
 Transforms:
 
-1. Align column names to FOCUS 1.0.
-   - Includes enforcing EA and MCA column name consistency.
-   - Doesn't change the underlying values, which may differ across EA and MCA.
-2. Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v0.7+:
+  - Align column names to FOCUS 1.0.
+    - Includes enforcing EA and MCA column name consistency.
+    - Doesn't change the underlying values, which may differ across EA and MCA.
+  - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+- v12+:
+  - Align column names to FOCUS 1.2:
+    - Renamed `x_InvoiceId` to `InvoiceId`.
 
 ### Commitment discount usage data transforms
 
@@ -604,7 +649,7 @@ The following steps outline the process for exporting and processing cost data u
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
 > [!div class="nextstepaction"]
-> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK0.11/bladeName/Hubs/featureName/DataProcessing)
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/DataProcessing)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
