@@ -29,6 +29,10 @@ Install-Module -Name Az.Accounts
 Install-Module -Name Az.Resources
 ```
 
+For deploying FinOps hubs using PowerShell commands like Deploy-FinOpsHub, you also need to install Azure Bicep:
+
+- [Install Azure Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install)
+
 To install the FinOps toolkit module, run the following command in either Azure Cloud Shell or a PowerShell client:
 
 ```powershell

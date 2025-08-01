@@ -37,7 +37,7 @@ In this tutorial, you learn how to create a new or update an existing FinOps hub
   - MCA billing scopes: Contributor on the billing account, billing profile, or invoice section.
   - MPA billing scopes: Contributor on the billing account, billing profile, or customer.
 - Optional: Access to Power BI or a Microsoft Fabric workspace with Contributor or Member permissions to create resources and publish reports.
-- Optional: PowerShell 7 or Azure Cloud Shell with the [FinOps toolkit PowerShell module](../powershell/powershell-commands.md) installed and imported.
+- Optional: PowerShell 7 or Azure Cloud Shell with the [FinOps toolkit PowerShell module](../powershell/powershell-commands.md) installed and imported, and Azure Bicep CLI installed ([installation guide](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install)).
 
 More permissions are covered as part of the tutorial.
 
@@ -162,6 +162,9 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
 ### [PowerShell](#tab/powershell)
 
 The following command is part of the FinOps toolkit PowerShell module. To install the module, see [Install the FinOps toolkit PowerShell module](../powershell/powershell-commands.md#install-the-module).
+
+> [!IMPORTANT]
+> PowerShell deployment requires Azure Bicep CLI to be installed and available in PATH. See [Install Azure Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install) for installation instructions.
 
 ```powershell
 # Deploying to Azure Data Explorer
