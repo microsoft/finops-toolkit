@@ -95,7 +95,7 @@ Configure FinOps hubs or Cost Management exports with KQL or storage reports. Fo
 - Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
 - Reservation transactions
 
-For more information, see [How to setup Power BI](setup.md#set-up-your-first-report).
+For more information, see [How to setup Power BI](setup.md#set-up-your-first-report). After publishing reports to the Power BI service, see [Configure scheduled refresh](setup.md#configure-scheduled-refresh-in-power-bi-service) to automatically update your data.
 
 <br>
 
