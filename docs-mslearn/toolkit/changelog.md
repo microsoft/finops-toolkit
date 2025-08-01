@@ -28,6 +28,13 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### Documentation improvements
+
+- **Enhanced** [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
+  - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
+  - Cross-cloud data ingestion through FOCUS format support
+  - Extensible platform capabilities for custom data sources
+
 <br><a name="latest"></a>
 
 ## v12
@@ -68,10 +75,6 @@ _Released July 16, 2025_
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
   - Added a new **enableManagedExports** parameter to support disabling managed exports and not requiring the ability to assign the User Access Administrator role to a hub identity ([#1600](https://github.com/microsoft/finops-toolkit/issues/1600)).
   - Document [how savings are calcultated](hubs/savings-calculations.md) and how to troubleshoot negative savings.
-  - **Enhanced** [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
-    - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
-    - Cross-cloud data ingestion through FOCUS format support
-    - Extensible platform capabilities for custom data sources
 - **Changed**
   - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
   - Updated the Data Explorer dashboard to use the v1_2 schema.
