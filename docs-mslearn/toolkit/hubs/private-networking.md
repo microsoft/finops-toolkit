@@ -113,6 +113,17 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
      3. Virtual network and network security groups (NSGs)
    - Be cautious when deleting resources manually - ensure they're not being used by other systems
 
+5. **Remove Azure Data Factory managed integration runtime** (optional):
+   - When private networking was enabled, Azure Data Factory may have created a managed integration runtime for secure data processing
+   - While leaving the managed integration runtime won't break functionality, it does carry ongoing costs
+   - To remove the managed integration runtime:
+     1. Navigate to your Azure Data Factory instance in the Azure portal
+     2. Go to **Manage** > **Integration runtimes**
+     3. Identify any managed integration runtimes that were created for private networking (typically named with your hub instance)
+     4. Stop and delete the managed integration runtime if it's no longer needed
+     5. Verify that your data pipelines continue to work with the public integration runtime
+   - Only remove managed integration runtimes that were specifically created for the FinOps hub private networking setup
+
 > [!NOTE]
 > After removing private networking, your FinOps hub data will be accessible over the internet, though still protected by role-based access control (RBAC) and transport layer security (TLS). Review your organization's security policies to ensure this meets your requirements.
 >
