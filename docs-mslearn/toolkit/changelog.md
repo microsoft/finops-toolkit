@@ -46,8 +46,6 @@ _Released July 16, 2025_
 - **Changed**
   - Updated FOCUS documentation to align to the 1.2-preview dataset from Cost Management.
 
-### Documentation v12
-
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v12
 
 - **Added**

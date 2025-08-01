@@ -56,59 +56,13 @@ Azure Synapse Analytics is an enterprise data warehouse solution that combines b
 
 ### Getting started with Synapse
 
-1. **Create a Synapse workspace**
-   - Deploy Azure Synapse Analytics in your Azure subscription
-   - Configure networking and security settings
-
-2. **Mount Data Lake Storage**
-   - Create external data sources pointing to your FinOps data
-   - Set up linked services for authentication
-
-3. **Create external tables**
-   - Define external tables to query data directly from Data Lake Storage
-   - Use partitioned views for performance optimization
-
-4. **Build data pipelines**
-   - Create ETL pipelines to process and transform FinOps data
-   - Schedule regular data processing jobs
-
-### Synapse SQL example
-
-```sql
--- Create external data source
-CREATE EXTERNAL DATA SOURCE FinOpsDataLake
-WITH (
-    LOCATION = 'abfss://container@storage.dfs.core.windows.net/finops-data',
-    CREDENTIAL = ManagedIdentity
-);
-
--- Create external table
-CREATE EXTERNAL TABLE dbo.CostData (
-    Date DATE,
-    SubscriptionId NVARCHAR(100),
-    ResourceGroup NVARCHAR(100),
-    ServiceName NVARCHAR(100),
-    EffectiveCost DECIMAL(18,2)
-)
-WITH (
-    LOCATION = 'costs/',
-    DATA_SOURCE = FinOpsDataLake,
-    FILE_FORMAT = ParquetFileFormat
-);
-
--- Query cost trends
-SELECT 
-    Date,
-    ServiceName,
-    SUM(EffectiveCost) as TotalCost
-FROM dbo.CostData
-WHERE Date >= DATEADD(month, -3, GETDATE())
-GROUP BY Date, ServiceName
-ORDER BY Date, TotalCost DESC;
-```
+Azure Synapse Analytics provides comprehensive documentation for connecting to and querying data in Data Lake Storage.
 
 > [!div class="nextstepaction"]
-> [Learn about Synapse partitioned views](https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/create-use-views#partitioned-views)
+> [Query data in Azure Data Lake Storage with Synapse SQL](https://learn.microsoft.com/azure/synapse-analytics/sql/query-data-storage)
+
+> [!div class="nextstepaction"]
+> [Create external tables in Synapse SQL](https://learn.microsoft.com/azure/synapse-analytics/sql/create-external-table-as-select)
 
 <br>
 
@@ -126,55 +80,13 @@ Azure Databricks is a unified analytics platform that provides collaborative Apa
 
 ### Getting started with Databricks
 
-1. **Create a Databricks workspace**
-   - Deploy Azure Databricks in your Azure subscription
-   - Configure cluster policies and security settings
+Azure Databricks provides comprehensive documentation for connecting to and analyzing data in Data Lake Storage.
 
-2. **Mount Data Lake Storage**
-   - Configure mount points to access FinOps data
-   - Set up service principal authentication
+> [!div class="nextstepaction"]
+> [Connect to Azure Data Lake Storage from Databricks](https://learn.microsoft.com/azure/databricks/storage/azure-storage)
 
-3. **Create notebooks**
-   - Develop analytics notebooks using Python, R, Scala, or SQL
-   - Build cost optimization models and scenarios
-
-### Databricks example
-
-```python
-# Mount Data Lake Storage
-dbutils.fs.mount(
-    source = "abfss://container@storage.dfs.core.windows.net/finops-data",
-    mount_point = "/mnt/finops-data",
-    extra_configs = {
-        "fs.azure.account.auth.type.storage.oauth2.client.endpoint": "https://login.microsoftonline.com/tenant-id/oauth2/token"
-    }
-)
-
-# Load and analyze FinOps data
-from pyspark.sql import functions as F
-
-# Read cost data
-cost_df = spark.read.format("delta").load("/mnt/finops-data/costs/")
-
-# Analyze spending patterns
-monthly_trends = cost_df.groupBy(
-    F.year("date").alias("year"),
-    F.month("date").alias("month"),
-    "service_name"
-).agg(F.sum("effective_cost").alias("total_cost"))
-
-# Build cost forecasting model
-from pyspark.ml.feature import VectorAssembler
-from pyspark.ml.regression import LinearRegression
-
-# Prepare features for ML model
-assembler = VectorAssembler(inputCols=["month", "historical_avg"], outputCol="features")
-model_data = assembler.transform(monthly_trends)
-
-# Train linear regression model
-lr = LinearRegression(featuresCol="features", labelCol="total_cost")
-model = lr.fit(model_data)
-```
+> [!div class="nextstepaction"]
+> [Machine learning with Databricks](https://learn.microsoft.com/azure/databricks/machine-learning/)
 
 <br>
 
@@ -210,38 +122,15 @@ Data Lake Storage provides REST APIs and SDKs that enable you to build custom ap
 - **Real-time monitoring**: Build custom monitoring and alerting solutions
 - **API access**: Programmatic access to FinOps data for any application
 
-### SDK examples
+### Getting started with custom applications
 
-```python
-# Python SDK example
-from azure.storage.filedatalake import DataLakeServiceClient
+Azure Data Lake Storage provides comprehensive SDKs and REST APIs for building custom applications.
 
-# Initialize client
-service_client = DataLakeServiceClient(
-    account_url="https://storage.dfs.core.windows.net",
-    credential=credential
-)
+> [!div class="nextstepaction"]
+> [Azure Data Lake Storage REST API](https://learn.microsoft.com/rest/api/storageservices/data-lake-storage-gen2)
 
-# List files
-file_system_client = service_client.get_file_system_client("finops-data")
-paths = file_system_client.get_paths(path="costs/")
-
-for path in paths:
-    print(f"File: {path.name}")
-```
-
-```csharp
-// C# SDK example
-using Azure.Storage.Files.DataLake;
-
-// Initialize client
-var service = new DataLakeServiceClient(connectionString);
-var fileSystem = service.GetFileSystemClient("finops-data");
-
-// Read file contents
-var fileClient = fileSystem.GetFileClient("costs/2024/01/costs.parquet");
-var response = await fileClient.ReadAsync();
-```
+> [!div class="nextstepaction"]
+> [Azure Data Lake Storage client libraries](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet)
 
 <br>
 
