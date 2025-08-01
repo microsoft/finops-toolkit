@@ -24,61 +24,10 @@ This article covers the primary tools and services that can connect to Data Lake
 
 Azure Data Explorer is a fast, highly scalable data exploration service for log and telemetry data that provides powerful analytics capabilities for your FinOps data.
 
-### Benefits for FinOps
-
-- **Real-time analytics**: Query large volumes of cost and usage data with sub-second response times
-- **Kusto Query Language (KQL)**: Powerful query language optimized for time-series data
-- **Built-in dashboards**: Native dashboard capabilities with rich visualizations
-- **Scalable ingestion**: Handle high-volume data ingestion from multiple sources
-- **Cost optimization**: Pay only for the compute and storage you use
-
-### Getting started with ADX
-
-If you're using [FinOps hubs](hubs/finops-hubs-overview.md), Azure Data Explorer is automatically configured with:
-
-- Pre-built data ingestion pipelines
-- Optimized data models for FinOps analytics
-- Sample dashboards and queries
-- Automated data processing and transformation
-
-For manual setup:
-
-1. **Create an Azure Data Explorer cluster**
-   - Navigate to the Azure portal and create a new Azure Data Explorer cluster
-   - Choose appropriate compute tier based on your data volume and query requirements
-
-2. **Create a database**
-   - Create a database within your cluster to store FinOps data
-   - Configure retention policies based on your data retention requirements
-
-3. **Set up data ingestion**
-   - Use Azure Data Factory or native ingestion methods to load data from Data Lake Storage
-   - Configure data mappings and transformations as needed
-
-4. **Create dashboards**
-   - Build custom dashboards using the Azure Data Explorer web UI
-   - Share dashboards with stakeholders across your organization
-
-### Sample KQL queries
-
-```kusto
-// Top 10 services by cost in the last 30 days
-Costs()
-| where TimeStamp >= ago(30d)
-| summarize TotalCost = sum(EffectiveCost) by ServiceName
-| top 10 by TotalCost desc
-```
-
-```kusto
-// Cost trend over time by subscription
-Costs()
-| where TimeStamp >= ago(90d)
-| summarize DailyCost = sum(EffectiveCost) by bin(TimeStamp, 1d), SubAccountName
-| render timechart
-```
+If you're using [FinOps hubs](hubs/finops-hubs-overview.md), Azure Data Explorer is automatically configured with pre-built data ingestion pipelines, optimized data models, sample dashboards and queries, and automated data processing.
 
 > [!div class="nextstepaction"]
-> [Configure ADX dashboards](hubs/configure-dashboards.md)
+> [Configure Data Explorer dashboards](hubs/configure-dashboards.md)
 
 <br>
 
@@ -86,49 +35,7 @@ Costs()
 
 Microsoft Fabric is an all-in-one analytics solution that combines data integration, data engineering, data warehousing, data science, real-time analytics, and business intelligence into a unified platform.
 
-### Benefits for FinOps
-
-- **Unified analytics platform**: Single platform for all analytics needs
-- **OneLake storage**: Centralized data lake with automatic optimization
-- **AI and machine learning**: Built-in AI capabilities for advanced insights
-- **Power BI integration**: Seamless integration with Power BI for visualization
-- **Real-time insights**: Support for streaming and real-time analytics
-
-### Getting started with Fabric
-
-1. **Create a Fabric workspace**
-   - Set up a Microsoft Fabric workspace in your organization
-   - Configure appropriate licensing and capacity
-
-2. **Create shortcuts to Data Lake Storage**
-   - Use Fabric shortcuts to reference your FinOps data without copying
-   - Configure authentication and access permissions
-
-3. **Set up data processing**
-   - Use Fabric pipelines for data transformation and enrichment
-   - Create data models optimized for your reporting needs
-
-4. **Build analytics solutions**
-   - Create notebooks for advanced analytics and machine learning
-   - Build real-time dashboards and reports
-
-### Fabric integration example
-
-```python
-# Example: Load FinOps data in a Fabric notebook
-import pandas as pd
-from pyspark.sql import SparkSession
-
-# Initialize Spark session
-spark = SparkSession.builder.appName("FinOpsAnalytics").getOrCreate()
-
-# Load data from Data Lake Storage
-df = spark.read.format("delta").load("abfss://container@storage.dfs.core.windows.net/finops-data/")
-
-# Analyze cost trends
-daily_costs = df.groupBy("date").sum("effective_cost").orderBy("date")
-daily_costs.show()
-```
+Fabric provides a unified analytics platform with OneLake storage, AI and machine learning capabilities, seamless Power BI integration, and support for real-time insights.
 
 > [!div class="nextstepaction"]
 > [Create a Fabric workspace for FinOps](../fabric/create-fabric-workspace-finops.md)
