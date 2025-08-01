@@ -18,12 +18,6 @@ The **Deploy-FinOpsHub** command either creates a new or updates an existing Fin
 
 Deploy-FinOpsHub calls [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDeployment.md) before deploying the template.
 
-## Prerequisites
-
-- PowerShell 7 with Azure PowerShell modules (Az.Accounts and Az.Resources)
-- Azure Bicep CLI installed and available in PATH ([installation guide](https://learn.microsoft.com/azure/azure-resource-manager/bicep/install))
-- Authenticated Azure session (Connect-AzAccount)
-
 <br>
 
 ## Syntax

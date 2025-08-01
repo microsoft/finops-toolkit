@@ -73,16 +73,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">2️⃣&nbsp; Install Azure Bicep</button>
-        <div>Azure Bicep is required for deploying FinOps hubs using PowerShell commands like Deploy-FinOpsHub.</div>
-        <div>
-            <p>
-                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/azure/azure-resource-manager/bicep/install">Install Azure Bicep</a>
-            </p>
-        </div>
-    </div>
-    <div class="ftk-step">
-        <button class="ftk-accordion">3️⃣&nbsp; Install modules and sign in</button>
+        <button class="ftk-accordion">2️⃣&nbsp; Install modules and sign in</button>
         <div class="language-powershell highlighter-rouge">
             <div class="highlight">
                 <pre class="highlight"><code><span class="n">Install-Module</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">Az.Accounts</span><span class="w">
@@ -95,7 +86,7 @@ The FinOps toolkit PowerShell module helps you automate and scale common Cost Ma
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">4️⃣&nbsp; Run your commands</button>
+        <button class="ftk-accordion">3️⃣&nbsp; Run your commands</button>
         <div>You're now ready to run FinOps toolkit commands. Browse available commands and examples to build your scripts.</div>
         <div>
             <p>
