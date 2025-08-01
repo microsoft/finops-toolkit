@@ -42,7 +42,9 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
      - On the **Overview** page, under **Properties**, confirm **Access tier** is set to **Hot**.
        - If not, select the link and change the access tier to "Hot".
        - Other access tiers have not been tested and are not recommended due to the performance impact.
-2. Configure Cost Management exports for any data you would like to include in reports, including:
+2. Configure Cost Management exports for any data you would like to include in reports.
+   
+   You can create exports manually in the Azure portal or programmatically using the [`New-FinOpsCostExport`](../powershell/cost/new-finopscostexport.md) PowerShell command. Include the following datasets:
 
    | Dataset                     | Version          | Notes                                                                                                                           |
    | --------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |

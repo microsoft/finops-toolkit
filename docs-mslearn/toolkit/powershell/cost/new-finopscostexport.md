@@ -160,36 +160,7 @@ Creates a new daily export called **Daily-MTD** with StartDate = DateTime.Now an
 
 ## Use with Power BI reports
 
-After creating a cost export, you can connect the exported data to Power BI reports using the FinOps toolkit Power BI templates.
-
-### Storage account requirements
-
-To use the exported data with FinOps toolkit Power BI reports, your storage account must meet these requirements:
-
-- **Performance tier**: Premium (required for Power BI connectivity)
-- **Account type**: Block blobs  
-- **Hierarchical namespace**: Enabled (Azure Data Lake Storage Gen2)
-- **Access tier**: Hot (recommended for performance)
-
-If your storage account doesn't meet these requirements, the Power BI storage reports won't be able to connect to your data. You can check these settings in the Azure portal under your storage account's **Overview** and **Properties** sections.
-
-### Which Power BI template to use
-
-For cost exports created with `New-FinOpsCostExport`, use the **storage reports** from the FinOps toolkit:
-
-1. **Download**: Get the [storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip) package
-2. **Choose a report**: Start with the **Cost summary** report (`CostSummary.storage.pbip`) for a general overview of your costs
-3. **Connect your data**: Follow the [Power BI setup guide](../../power-bi/setup.md) to connect the report to your storage account
-
-### Available reports
-
-- **Cost summary** – Overview of costs with common breakdowns  
-- **Rate optimization** – Review savings from commitment discounts
-- **Invoicing and chargeback** – Facilitate invoice reconciliation and chargeback
-- **Workload optimization** – Identify resource efficiency opportunities
-- **Policy and governance** – Review governance posture and compliance
-
-For detailed setup instructions and troubleshooting, see [How to set up Power BI reports](../../power-bi/setup.md).
+After creating a cost export, you can connect the exported data to Power BI reports using the FinOps toolkit. For detailed setup instructions, storage account requirements, and guidance on which Power BI template to use, see [How to set up Power BI reports](../../power-bi/setup.md).
 
 <br>
 
