@@ -106,11 +106,21 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
    - Verify that Azure Data Factory pipelines continue to run successfully
 
 4. **Clean up networking resources** (optional):
-   - Once you've confirmed the hub is working correctly with public access, you can delete the virtual network and associated resources to stop incurring networking costs
+   - Once you've confirmed the hub is working correctly with public access, you can delete the networking resources to stop incurring networking costs
+   - Delete resources in the following order to avoid dependency conflicts:
+     1. Private endpoints
+     2. Private DNS zones
+     3. Virtual network and network security groups (NSGs)
    - Be cautious when deleting resources manually - ensure they're not being used by other systems
 
 > [!NOTE]
 > After removing private networking, your FinOps hub data will be accessible over the internet, though still protected by role-based access control (RBAC) and transport layer security (TLS). Review your organization's security policies to ensure this meets your requirements.
+>
+> **Security recommendations:**
+> - Check the security settings on storage accounts and Azure Data Explorer clusters to ensure they align with your security requirements
+> - Consider using network security groups (NSGs) or firewall rules to restrict access to well-known IP addresses such as your corporate firewall, VPN endpoints, or specific office locations
+> - Review and configure storage account network access rules to limit access from trusted networks if needed
+> - Verify that Azure Data Explorer cluster network settings are properly configured for your access requirements
 
 <br>
 
