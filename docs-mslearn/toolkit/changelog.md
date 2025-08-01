@@ -28,6 +28,12 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### [Power BI reports](power-bi/reports.md)
+
+- **Added**
+  - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
+  - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
+
 <br><a name="latest"></a>
 
 ## v12
