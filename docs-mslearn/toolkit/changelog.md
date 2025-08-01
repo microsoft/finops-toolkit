@@ -24,6 +24,13 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### Documentation improvements
+
+- **Enhanced** [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
+  - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
+  - Cross-cloud data ingestion through FOCUS format support
+  - Extensible platform capabilities for custom data sources
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
