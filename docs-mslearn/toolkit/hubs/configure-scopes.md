@@ -31,6 +31,9 @@ FinOps hubs are designed to handle multiple scopes and even data from multiple c
 > [!TIP]
 > When configuring multiple scopes, ensure each scope has a unique directory path in your exports to avoid data conflicts. See the [Settings.json scope examples](#settingsjson-scope-examples) section for detailed configuration guidance.
 
+> [!WARNING]
+> Avoid configuring overlapping export scopes as this leads to duplicate cost data. For example, if you configure both an enrollment-level export and a subscription-level export for the same subscription, costs for that subscription will be duplicated in your hub. Always ensure your export scopes are mutually exclusive.
+
 <br>
 
 ## Prerequisites
@@ -376,34 +379,6 @@ If you're looking for something specific, vote for an existing or create a new i
 
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
-
-## Extending to other clouds
-
-FinOps hubs support the [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org), which is a cloud-agnostic billing data format. This enables you to ingest cost data from multiple cloud providers beyond Azure:
-
-### Supported cloud providers
-
-- **Azure**: Native support through Cost Management exports
-- **AWS**: Through FOCUS-formatted data exports  
-- **Google Cloud**: Through FOCUS-formatted data exports
-- **Other providers**: Any cloud provider that can export FOCUS-formatted data
-
-### Implementation approaches
-
-1. **Direct FOCUS data ingestion**: If your cloud provider supports FOCUS format exports, you can configure direct ingestion into FinOps hubs storage containers.
-
-2. **Data transformation**: Convert proprietary billing formats to FOCUS format before ingesting into FinOps hubs.
-
-3. **Custom connectors**: Develop custom data pipelines to extract, transform, and load data from other sources.
-
-### Getting started with multi-cloud
-
-1. Ensure your other cloud providers can export data in FOCUS format
-2. Configure separate storage paths for each cloud provider
-3. Set up data ingestion pipelines for non-Azure sources
-4. Verify data consistency and alignment across providers
-
-For detailed guidance on multi-cloud implementations, see the [FinOps hubs extensibility documentation](finops-hubs-overview.md#extensible-platform) and the [FOCUS specification](https://focus.finops.org).
 
 <br>
 
