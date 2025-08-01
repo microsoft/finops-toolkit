@@ -74,6 +74,46 @@ Before enabling private access, review the networking details on this page to un
 
 <br>
 
+## Removing private networking
+
+If you need to reduce costs or simplify your FinOps hub deployment, you can remove private networking and switch back to public access. This change will:
+
+- Remove the virtual network and associated networking costs
+- Disable private endpoints and DNS zones
+- Configure storage, Data Explorer, and Key Vault to use public access
+- Switch Azure Data Factory back to the public integration runtime
+
+> [!WARNING]
+> Removing private networking is a significant change that will affect how you access your FinOps hub. Ensure all stakeholders understand the security implications before proceeding.
+
+### Steps to remove private networking
+
+1. **Plan the transition**:
+   - Identify all users and systems currently accessing the hub via private networking
+   - Coordinate with your network administrators about the change
+   - Schedule maintenance window as the hub will be temporarily inaccessible during the transition
+
+2. **Update the FinOps hub deployment**:
+   - Navigate to your FinOps hub resource group in the Azure portal
+   - Locate the deployment template or redeploy using the original template
+   - Set **Access** to **Public** on the **Advanced** tab
+   - Review all other settings to ensure they remain as desired
+   - Deploy the updated configuration
+
+3. **Verify the changes**:
+   - Confirm that storage accounts, Data Explorer, and Key Vault are accessible via public endpoints
+   - Test data access from Power BI and other connected systems
+   - Verify that Azure Data Factory pipelines continue to run successfully
+
+4. **Clean up networking resources** (optional):
+   - Once you've confirmed the hub is working correctly with public access, you can delete the virtual network and associated resources to stop incurring networking costs
+   - Be cautious when deleting resources manually - ensure they're not being used by other systems
+
+> [!NOTE]
+> After removing private networking, your FinOps hub data will be accessible over the internet, though still protected by role-based access control (RBAC) and transport layer security (TLS). Review your organization's security policies to ensure this meets your requirements.
+
+<br>
+
 ## FinOps hub virtual network
 
 When private access is selected, your FinOps hub instance includes a virtual network to ensure communication between its various components remain private.
