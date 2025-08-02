@@ -718,7 +718,7 @@ Applicable versions: **0.1 - 0.1.1** (fixed in **0.2**)
 
 <sup>Severity: Critical</sup>
 
-This error most commonly occurs when connecting Power BI storage reports to a storage account using the Blob endpoint instead of the required Data Lake Storage (DFS) endpoint.
+This error can occur when connecting Power BI storage reports to a storage account using the Blob endpoint instead of the required Data Lake Storage (DFS) endpoint.
 
 **Mitigation**: Update your Storage URL parameter to use the Data Lake Storage endpoint:
 
