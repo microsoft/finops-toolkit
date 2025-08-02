@@ -82,6 +82,7 @@ _Released July 16, 2025_
   - Updated the KQL reports to use the FinOps hubs v1_2 schema.
 - **Fixed**
   - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
+  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
 
 ### [Optimization engine](optimization-engine/overview.md) v12
 
