@@ -30,6 +30,17 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
+## v13
+
+_Planned release_
+
+### [Power BI reports](power-bi/reports.md) v13
+
+- **Fixed**
+  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
+
+<br>
+
 ## v12
 
 _Released July 16, 2025_
@@ -82,7 +93,6 @@ _Released July 16, 2025_
   - Updated the KQL reports to use the FinOps hubs v1_2 schema.
 - **Fixed**
   - Correctly detect the hub version in the [Data ingestion report](power-bi/data-ingestion.md).
-  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
 
 ### [Optimization engine](optimization-engine/overview.md) v12
 
