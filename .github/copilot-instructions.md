@@ -16,6 +16,13 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
   - Changelog entries must be under the correct tool and version (e.g., FinOps hubs v12)
   - Check the current version in [package.json](../package.json)
   - Remove `-dev` from the version, if included
+  - For releases, include download and changelog links at the end of each release section using the format:
+    ```markdown
+    > [!div class="nextstepaction"]
+    > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/vX)
+    > [!div class="nextstepaction"]
+    > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/vX-1...vX)
+    ```
 
 ### Code style guidelines
 

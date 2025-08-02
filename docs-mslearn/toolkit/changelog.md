@@ -32,12 +32,17 @@ The following section lists features and enhancements that are currently in deve
 
 ## v13
 
-_Planned release_
+_Released August 2025_
 
 ### [Power BI reports](power-bi/reports.md) v13
 
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
 
 <br>
 
