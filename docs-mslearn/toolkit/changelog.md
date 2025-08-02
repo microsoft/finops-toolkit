@@ -30,12 +30,16 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+<br><a name="latest"></a>
+
+## v13
+
 - **Enhanced** [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
   - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
   - Cross-cloud data ingestion through FOCUS format support
   - Extensible platform capabilities for custom data sources
 
-<br><a name="latest"></a>
+<br>
 
 ## v12
 

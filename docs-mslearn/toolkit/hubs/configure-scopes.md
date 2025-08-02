@@ -32,7 +32,7 @@ FinOps hubs are designed to handle multiple scopes and even data from multiple c
 > When configuring multiple scopes, ensure each scope has a unique directory path in your exports to avoid data conflicts. See the [Settings.json scope examples](#settingsjson-scope-examples) section for detailed configuration guidance.
 
 > [!WARNING]
-> Avoid configuring overlapping export scopes as this leads to duplicate cost data. For example, if you configure both an enrollment-level export and a subscription-level export for the same subscription, costs for that subscription will be duplicated in your hub. Always ensure your export scopes are mutually exclusive.
+> Avoid configuring overlapping export scopes as this leads to duplicate cost data. For example, if you configure both a billing account-level export and a subscription-level export for the same subscription, costs for that subscription will be duplicated in your hub. Always ensure your export scopes are mutually exclusive.
 
 <br>
 
