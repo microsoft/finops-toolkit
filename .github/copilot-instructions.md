@@ -13,9 +13,12 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
 - **Test coverage**: Ensure changes don't break existing functionality
 - **Microsoft standards**: Follow Microsoft style guide and development practices
 - **Document changes**: Always document changes in the [changelog](../docs-mslearn/toolkit/changelog.md)
-  - Changelog entries must be under the correct tool and version (e.g., FinOps hubs v12)
-  - Check the current version in [package.json](../package.json)
-  - Remove `-dev` from the version, if included
+  - **Every change must have a changelog entry** - no exceptions for bug fixes, features, or improvements
+  - **Document in the next release section**, not the last release:
+    - Check the current version in [package.json](../package.json) (e.g., if version is "12.0.0", document changes under v13)
+    - Remove `-dev` from the version number when determining the next release
+    - Create the next version section if it doesn't exist yet
+  - Changelog entries must be under the correct tool and version (e.g., FinOps hubs v13)
   - For releases, include download and changelog links at the end of each release section using the format:
     ```markdown
     > [!div class="nextstepaction"]
