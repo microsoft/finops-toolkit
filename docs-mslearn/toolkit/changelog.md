@@ -28,16 +28,27 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### Documentation improvements
+
+
+### [Power BI reports](power-bi/reports.md) v13
+
+- **Fixed**
+  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v13
+
+- **Changed**
+  - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
+    - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
+    - Cross-cloud data ingestion through FOCUS format support
+
 <br><a name="latest"></a>
 
 ## v13
 
 _Released August 2025_
 
-### [Power BI reports](power-bi/reports.md) v13
-
-- **Fixed**
-  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
