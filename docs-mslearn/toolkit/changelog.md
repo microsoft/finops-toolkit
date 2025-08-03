@@ -36,6 +36,25 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
+## v13
+
+_Released August 2025_
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v13
+
+- **Changed**
+  - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
+    - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
+    - Cross-cloud data ingestion through FOCUS format support
+    - Extensible platform capabilities for custom data sources
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
+
+<br>
+
 ## v12
 
 _Released July 16, 2025_

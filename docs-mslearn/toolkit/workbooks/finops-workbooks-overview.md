@@ -27,13 +27,16 @@ This template includes the following workbooks:
 
 1. To deploy and use the workbook, confirm you have the following least-privileged roles:
 
-   - **Workbook Contributor** allows you to deploy the workbook.
-   - **Reader** view all of the workbook tabs.
+   - **Contributor** or a role with both `Microsoft.Resources/deployments/validate/action` and `Microsoft.Resources/deployments/write` permissions is required for ARM template deployments.
+   - [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) on the target resource group allows you to edit and save the workbook after deployment.
+   - [Reader](/azure/role-based-access-control/built-in-roles#reader) is required on all subscriptions you will monitor to access resource information.
 
    > [!NOTE]
-   > If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs.
+   > If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs. You can download the workbook JSON files from the FinOps workbooks download in the [latest release](https://aka.ms/ftk/latest).
 
-2. Deploy the **finops-workbooks** template.
+2. Deploy the **finops-workbooks** template using one of the following methods:
+
+   **Option 1:** Deploy using ARM template (requires Microsoft.Resources/deployments permissions, Workbook Contributor, and Reader)
 
    <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true" /></a>
    &nbsp;
@@ -42,6 +45,15 @@ This template includes the following workbooks:
    &nbsp;
    <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure China" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true" /></a>
    -->
+
+   **Option 2:** Import JSON files directly (works with Reader access)
+   
+   1. Download FinOps workbooks from the [latest release](https://aka.ms/ftk/latest).
+   2. Navigate to [Azure Monitor Workbooks](https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks) in the Azure portal
+   3. Click on **+ New** and select **Advanced editory**
+   4. Copy the text from the desired workbook.json from the downloaded ZIP file, paste it into the editor, and select **Apply**.
+   5. Select **Done editing** to view the workbook.
+   6. Repeat steps 3-5 for each workbook.
 
 <br>
 
