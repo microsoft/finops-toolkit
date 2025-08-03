@@ -30,11 +30,11 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
-<br><a name="latest"></a>
 
-## v13
+### [Power BI reports](power-bi/reports.md) v13
 
-_Released August 2025_
+- **Fixed**
+  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
@@ -42,7 +42,13 @@ _Released August 2025_
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
     - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
     - Cross-cloud data ingestion through FOCUS format support
-    - Extensible platform capabilities for custom data sources
+
+<br><a name="latest"></a>
+
+## v13
+
+_Released August 2025_
+
 
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
