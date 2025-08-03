@@ -17,7 +17,23 @@ ms.reviewer: micflan
 
 Connect FinOps hubs to your billing accounts and subscriptions by configuring Cost Management exports manually or granting FinOps hubs access to manage exports for you.
 
-FinOps hubs use Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you. For information about identifying your billing account and scope IDs, see [Find your billing account and scope IDs](#find-your-billing-account-and-scope-ids).
+FinOps hubs use Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. **You can configure multiple billing accounts, subscriptions, and even data from other cloud providers** within a single FinOps hub instance. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you.
+
+<br>
+
+## Multi-scope and multi-cloud capabilities
+
+FinOps hubs are designed to handle multiple scopes and even data from multiple cloud providers:
+
+- **Multiple Azure scopes**: You can configure a single FinOps hub to monitor multiple EA billing accounts, MCA billing profiles, subscriptions, and resource groups simultaneously.
+- **Cross-cloud support**: FinOps hubs support the [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org), which enables ingestion of cost data from other cloud providers like AWS, Google Cloud, and others.
+- **Extensible platform**: The open architecture allows you to extend FinOps hubs to ingest custom data sources beyond standard cloud billing data.
+
+> [!TIP]
+> When configuring multiple scopes, ensure each scope has a unique directory path in your exports to avoid data conflicts. See the [Settings.json scope examples](#settingsjson-scope-examples) section for detailed configuration guidance.
+
+> [!WARNING]
+> Avoid configuring overlapping export scopes as this leads to duplicate cost data. For example, if you configure both a billing account-level export and a subscription-level export for the same subscription, costs for that subscription will be duplicated in your hub. Always ensure your export scopes are mutually exclusive.
 
 <br>
 
@@ -168,7 +184,10 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how large your account is.
    - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range with either the `-Backfill` parameter or specific start and end dates.
-6. Repeat steps 1-4 for each scope you want to monitor.
+6. **Repeat steps 1-5 for each additional scope you want to monitor** (multiple billing accounts, subscriptions, etc.).
+
+> [!IMPORTANT]
+> **Configuring multiple scopes**: When setting up multiple scopes, ensure each has a unique directory path to prevent data conflicts. You can monitor multiple EA billing accounts, MCA billing profiles, subscriptions, and resource groups within a single FinOps hub instance.
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
 
@@ -325,7 +344,36 @@ Managed exports use a managed identity (MI) to configure the exports automatical
       "scope": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
     },
     {
-      "scope": "subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f"
+      "scope": "/subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f"
+    }
+  ]
+  ```
+
+- Multiple EA billing accounts
+
+  ```json
+  "scopes": [
+    {
+      "scope": "/providers/Microsoft.Billing/billingAccounts/1234567"
+    },
+    {
+      "scope": "/providers/Microsoft.Billing/billingAccounts/7654321"
+    }
+  ]
+  ```
+
+- Mixed scopes (EA billing account and subscriptions)
+
+  ```json
+  "scopes": [
+    {
+      "scope": "/providers/Microsoft.Billing/billingAccounts/1234567"
+    },
+    {
+      "scope": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
+    },
+    {
+      "scope": "/subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f"
     }
   ]
   ```
@@ -375,6 +423,8 @@ If you're looking for something specific, vote for an existing or create a new i
 
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+
+<br>
 
 ## Related content
 
