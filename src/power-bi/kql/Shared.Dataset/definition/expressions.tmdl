@@ -1,4 +1,4 @@
-/// Name of the Azure DataLake Gen2 storage account to pull data from.
+/// URL for the Azure Data Lake Storage Gen2 account with your data. Must use the DFS endpoint (.dfs.core.windows.net), not the Blob endpoint (.blob.core.windows.net).
 expression 'Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
