@@ -24,6 +24,11 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [Power BI reports](power-bi/reports.md)
+
+- **Added**
+  - Added comprehensive documentation for [configuring scheduled refresh in Power BI service](power-bi/setup.md#configure-scheduled-refresh-in-power-bi-service) including step-by-step instructions and guidance on when refresh is needed for different data sources.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
@@ -76,7 +81,6 @@ _Released July 16, 2025_
 
 - **Added**
   - Added a new exec summary page to the [Cost Summary report](power-bi/cost-summary.md) that shows top subscriptions, services, and resource groups for exec level view.
-  - Added comprehensive documentation for [configuring scheduled refresh in Power BI service](power-bi/setup.md#configure-scheduled-refresh-in-power-bi-service) including step-by-step instructions and guidance on when refresh is needed for different data sources.
 - **Changed**
   - Added an invoice ID filter to the [Microsoft Customer Agreement (MCA) invoice recon page](power-bi/invoicing.md#invoice-recon-mca) in the Invoicing and chargeback report.
   - Renamed the Summary page to Running total in the [Cost Summary report](power-bi/cost-summary.md).
