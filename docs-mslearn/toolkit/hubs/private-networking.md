@@ -94,11 +94,24 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
    - Schedule maintenance window as the hub will be temporarily inaccessible during the transition
 
 2. **Update the FinOps hub deployment**:
+   
+   You have two options to redeploy your FinOps hub with public access:
+   
+   **Option 1: Redeploy from existing deployment**
    - Navigate to your FinOps hub resource group in the Azure portal
-   - Locate the deployment template or redeploy using the original template
-   - Set **Access** to **Public** on the **Advanced** tab
+   - Go to the **Deployments** tab on the resource group
+   - Find and open the original FinOps hub deployment
+   - Click **Redeploy**
+   - On the **Advanced** tab, set **Access** to **Public**
    - Review all other settings to ensure they remain as desired
    - Deploy the updated configuration
+   
+   **Option 2: Deploy latest toolkit version**
+   - Install the latest current version of the FinOps toolkit
+   - Use the same resource group name, hub name, and Data Explorer cluster name as your existing deployment
+   - These values can be obtained from the original deployment template or the config.json file in your hub storage account
+   - On the **Advanced** tab, set **Access** to **Public**
+   - Deploy with the same configuration to update your existing hub
 
 3. **Verify the changes**:
    - Confirm that storage accounts, Data Explorer, and Key Vault are accessible via public endpoints
