@@ -57,7 +57,7 @@ Starting with well-defined requirements that are aligned across teams helps set 
 ## Getting started
 
 - If you're migrating on-premises infrastructure to the cloud:
-  - Use [Azure Migrate](https://azure.microsoft.com/products/azure-migrate) to automate the discovering and migration of your on-premises workloads and get an estimate comparison of on-premises vs. Azure costs.
+  - Use [Azure Migrate](https://azure.microsoft.com/products/azure-migrate) to discover and assess your on-premises workloads for migration to Azure.
 - If you're estimating changes to an existing workload, review the [Forecasting](./forecasting.md) capability.
 - If you're building a new solution, start with the [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator) to estimate costs based on projected usage patterns.
   > Within the pricing calculator, custom scenarios can be analyzed by generating estimates and configuring resources to match specific parameters. Cost savings such as reservations, savings plans, and Azure Hybrid Benefit can also be evaluated. Sign in to save estimates based on your enterprise pricing.

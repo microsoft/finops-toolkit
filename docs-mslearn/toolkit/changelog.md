@@ -30,6 +30,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+- **Updated** FinOps framework documentation to remove references to TCO-style cost comparison functionality due to Azure TCO calculator retirement scheduled for August 31, 2025.
+
 
 ### [Power BI reports](power-bi/reports.md) v13
 

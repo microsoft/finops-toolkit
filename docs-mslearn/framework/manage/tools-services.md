@@ -44,7 +44,7 @@ When you first start managing cost in the cloud, you use the native tools availa
 
 If you're migrating on-premises infrastructure to the cloud, you might also be interested in:
 
-- **Azure Migrate**: Discover, migrate, and modernize on-premises infrastructure. Estimate the cost savings achievable by migrating your application to Microsoft Cloud.
+- **Azure Migrate**: Discover, migrate, and modernize on-premises infrastructure.
 
 As you dig deeper into optimization and governance, you start to use:
 
