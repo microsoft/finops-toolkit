@@ -74,6 +74,80 @@ Before enabling private access, review the networking details on this page to un
 
 <br>
 
+## Removing private networking
+
+If you need to reduce costs or simplify your FinOps hub deployment, you can remove private networking and switch back to public access. This change will:
+
+- Remove the virtual network and associated networking costs
+- Disable private endpoints and DNS zones
+- Configure storage, Data Explorer, and Key Vault to use public access
+- Switch Azure Data Factory back to the public integration runtime
+
+> [!WARNING]
+> Removing private networking is a significant change that will affect how you access your FinOps hub. Ensure all stakeholders understand the security implications before proceeding.
+
+### Steps to remove private networking
+
+1. **Plan the transition**:
+   - Identify all users and systems currently accessing the hub via private networking
+   - Coordinate with your network administrators about the change
+   - Schedule maintenance window as the hub will be temporarily inaccessible during the transition
+
+2. **Update the FinOps hub deployment**:
+   
+   You have two options to redeploy your FinOps hub with public access:
+   
+   **Option 1: Redeploy from existing deployment**
+   - Navigate to your FinOps hub resource group in the Azure portal
+   - Go to the **Deployments** tab on the resource group
+   - Find and open the original FinOps hub deployment
+   - Click **Redeploy**
+   - On the **Advanced** tab, set **Access** to **Public**
+   - Review all other settings to ensure they remain as desired
+   - Deploy the updated configuration
+   
+   **Option 2: Deploy latest toolkit version**
+   - Install the latest current version of the FinOps toolkit
+   - Use the same resource group name, hub name, and Data Explorer cluster name as your existing deployment
+   - These values can be obtained from the original deployment template or the config.json file in your hub storage account
+   - On the **Advanced** tab, set **Access** to **Public**
+   - Deploy with the same configuration to update your existing hub
+
+3. **Verify the changes**:
+   - Confirm that storage accounts, Data Explorer, and Key Vault are accessible via public endpoints
+   - Test data access from Power BI and other connected systems
+   - Verify that Azure Data Factory pipelines continue to run successfully
+
+4. **Clean up networking resources** (optional):
+   - Once you've confirmed the hub is working correctly with public access, you can delete the networking resources to stop incurring networking costs
+   - Delete resources in the following order to avoid dependency conflicts:
+     1. Private endpoints
+     2. Private DNS zones
+     3. Virtual network and network security groups (NSGs)
+   - Be cautious when deleting resources manually - ensure they're not being used by other systems
+
+5. **Remove Azure Data Factory managed integration runtime** (optional):
+   - When private networking was enabled, Azure Data Factory may have created a managed integration runtime for secure data processing
+   - While leaving the managed integration runtime won't break functionality, it does carry ongoing costs
+   - To remove the managed integration runtime:
+     1. Navigate to your Azure Data Factory instance in the Azure portal
+     2. Go to **Manage** > **Integration runtimes**
+     3. Identify any managed integration runtimes that were created for private networking (typically named with your hub instance)
+     4. Stop and delete the managed integration runtime if it's no longer needed
+     5. Verify that your data pipelines continue to work with the public integration runtime
+   - Only remove managed integration runtimes that were specifically created for the FinOps hub private networking setup
+
+> [!NOTE]
+> After removing private networking, your FinOps hub data will be accessible over the internet, though still protected by role-based access control (RBAC) and transport layer security (TLS). Review your organization's security policies to ensure this meets your requirements.
+>
+> **Security recommendations:**
+> - Check the security settings on storage accounts and Azure Data Explorer clusters to ensure they align with your security requirements
+> - Consider using network security groups (NSGs) or firewall rules to restrict access to well-known IP addresses such as your corporate firewall, VPN endpoints, or specific office locations
+> - Review and configure storage account network access rules to limit access from trusted networks if needed
+> - Verify that Azure Data Explorer cluster network settings are properly configured for your access requirements
+
+<br>
+
 ## FinOps hub virtual network
 
 When private access is selected, your FinOps hub instance includes a virtual network to ensure communication between its various components remain private.
