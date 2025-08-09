@@ -110,7 +110,7 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   }
   properties: {
     ...privateEndpointDeploymentProperties
-    azPowerShellVersion: '9.0'
+    azPowerShellVersion: '11.0'
     retentionInterval: 'PT1H'
     cleanupPreference: 'OnSuccess'
     scriptContent: scriptContent

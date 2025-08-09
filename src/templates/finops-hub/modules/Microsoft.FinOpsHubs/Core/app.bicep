@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { HubProperties } from 'hub-types.bicep'
+import { finOpsToolkitVersion, HubAppProperties } from '../../fx/hub-types.bicep'
 
 
 //==============================================================================
 // Parameters
 //==============================================================================
 
-@description('Required. FinOps hub instance to deploy the app to.')
-param hub HubProperties
+@description('Required. FinOps hub app getting deployed.')
+param app HubAppProperties
 
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array
@@ -29,20 +29,12 @@ param rawRetentionInDays int = 0
 param finalRetentionInMonths int = 13
 
 
-//------------------------------------------------------------------------------
-// Temporary parameters that should be removed in the future
-//------------------------------------------------------------------------------
-
-// TODO: Consider moving telemetryString generation to hub-types.bicep
-@description('Optional. Custom string with additional metadata to log. Must an alphanumeric string without spaces or special characters except for underscores and dashes. Namespace + appName + telemetryString must be 50 characters or less - additional characters will be trimmed.')
-param telemetryString string = ''
-
-
 //==============================================================================
 // Variables
 //==============================================================================
 
-var app = appRegistration.outputs.app
+var CONFIG = 'config'
+var INGESTION = 'ingestion'
 
 
 //==============================================================================
@@ -50,54 +42,57 @@ var app = appRegistration.outputs.app
 //==============================================================================
 
 // Register app
-module appRegistration 'hub-app.bicep' = {
+module appRegistration '../../fx/hub-app.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Register'
   params: {
-    hub: hub
-    publisher: 'Microsoft FinOps hubs'
-    namespace: 'Microsoft.FinOpsHubs'
-    appName: 'Core'
-    displayName: 'FinOps hub core'
-    appVersion: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
+    app: app
+    version: finOpsToolkitVersion
     features: [
       'DataFactory'
       'Storage'
     ]
-    telemetryString: telemetryString
+  }
+}
+
+module infrastructure 'infrastructure.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_Infrastructure'
+  params: {
+    hub: app.hub    
   }
 }
 
 // Create config container
-module configContainer 'hub-storage.bicep' = {
+module configContainer '../../fx/hub-storage.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.ConfigContainer'
   params: {
     app: app
-    container: 'config'
+    container: CONFIG
     forceCreateBlobManagerIdentity: true
   }
 }
 
 // Create ingestion container
-module ingestionContainer 'hub-storage.bicep' = {
+module ingestionContainer '../../fx/hub-storage.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.IngestionContainer'
   params: {
     app: app
-    container: 'ingestion'
+    container: INGESTION
   }
 }
 
 // Create/update Settings.json
-module uploadSettings 'hub-deploymentScript.bicep' = {
+module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.UpdateSettings'
   params: {
     app: app
     identityName: configContainer.outputs.identityName
     scriptName: '${app.storage}_uploadSettings'
+    scriptContent: loadTextContent('Copy-FileToAzureBlob.ps1')
     environmentVariables: [
       {
         // cSpell:ignore ftkver
         name: 'ftkVersion'
-        value: loadTextContent('./ftkver.txt')
+        value: finOpsToolkitVersion
       }
       {
         name: 'scopes'
@@ -128,7 +123,102 @@ module uploadSettings 'hub-deploymentScript.bicep' = {
         value: 'config'
       }
     ]
-    scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
+  }
+}
+
+// Data Factory
+resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
+  name: app.dataFactory
+
+  // Config dataset
+  resource dataset_config 'datasets' = {
+    name: CONFIG
+    properties: {
+      linkedServiceName: {
+        referenceName: app.storage
+        type: 'LinkedServiceReference'
+      }
+      type: 'Json'
+      typeProperties: {
+        location: {
+          type: 'AzureBlobFSLocation'
+          fileName: {
+            value: '@{dataset().fileName}'
+            type: 'Expression'
+          }
+          folderPath: {
+            value: '@{dataset().folderPath}'
+            type: 'Expression'
+          }
+        }
+      }
+      parameters: {
+        fileName: {
+          type: 'String'
+          defaultValue: 'settings.json'
+        }
+        folderPath: {
+          type: 'String'
+          defaultValue: CONFIG
+        }
+      }
+    }
+  }
+
+  resource dataset_ingestion 'datasets' = {
+    name: INGESTION
+    properties: {
+      annotations: []
+      parameters: {
+        blobPath: {
+          type: 'String'
+        }
+      }
+      type: 'Parquet'
+      typeProperties: {
+        location: {
+          type: 'AzureBlobFSLocation'
+          fileName: {
+            value: '@{dataset().blobPath}'
+            type: 'Expression'
+          }
+          fileSystem: INGESTION
+        }
+      }
+      linkedServiceName: {
+        parameters: {}
+        referenceName: app.storage
+        type: 'LinkedServiceReference'
+      }
+    }
+  }
+
+  resource dataset_ingestion_files 'datasets' = {
+    name: '${INGESTION}_files'
+    properties: {
+      annotations: []
+      parameters: {
+        folderPath: {
+          type: 'String'
+        }
+      }
+      type: 'Parquet'
+      typeProperties: {
+        location: {
+          type: 'AzureBlobFSLocation'
+          fileSystem: INGESTION
+          folderPath: {
+            value: '@dataset().folderPath'
+            type: 'Expression'
+          }
+        }
+      }
+      linkedServiceName: {
+        parameters: {}
+        referenceName: app.storage
+        type: 'LinkedServiceReference'
+      }
+    }
   }
 }
 
@@ -145,18 +235,8 @@ output dataFactoryName string = app.dataFactory
 @description('Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data.')
 output storageAccountName string = app.storage
 
-@description('The name of the container used for configuration settings.')
-output configContainer string = configContainer.outputs.containerName
-
-@description('The name of the container used for normalized data ingestion.')
-output ingestionContainer string = ingestionContainer.outputs.containerName
-
 @description('URL to use when connecting custom Power BI reports to your data.')
-output storageUrlForPowerBI string = 'https://${app.storage}.dfs.${environment().suffixes.storage}/${ingestionContainer.outputs.containerName}'
+output storageUrlForPowerBI string = 'https://${app.storage}.dfs.${environment().suffixes.storage}/${INGESTION}'
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output principalId string = appRegistration.outputs.principalId
-
-// TODO: Remove this output
-@description('Tags for the FinOps hub publisher.')
-output publisherTags object = app.publisher.tags
+output principalId string = dataFactory.identity.principalId

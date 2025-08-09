@@ -1,4 +1,23 @@
 {
+  "[bicep]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-azuretools.vscode-bicep"
+  },
+  "[json]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[powerquery]": {
+    "editor.formatOnSave": false
+  },
+  "[powershell]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-vscode.powershell"
+  },
   "cSpell.words": [
     "ADLS",
     "architecting",
@@ -51,10 +70,15 @@
     "Unhide",
     "westus"
   ],
-  "markdown.preview.typographer": false,
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
   "markdown.extension.italic.indicator": "_",
   "markdown.extension.toc.levels": "2..2",
   "markdown.extension.toc.orderedList": false,
+  "markdown.preview.typographer": false,
   "markdown.updateLinksOnFileMove.enabled": "prompt",
   "markdownlint.config": {
     "line-length": false,
@@ -70,9 +94,13 @@
   "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
   "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
   "powershell.codeFormatting.whitespaceInsideBrace": true,
-  "[powerquery]": {
-    "editor.formatOnSave": false
-  },
   "powerquery.general.experimental": false,
-  "editor.detectIndentation": false
+  "terminal.integrated.defaultProfile.osx": "pwsh",
+  "terminal.integrated.profiles.osx": {
+    "pwsh": {
+      "path": "pwsh",
+      "args": ["-NoLogo"]
+    }
+  },
+  "workbench.editor.enablePreview": false
 }

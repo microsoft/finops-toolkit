@@ -173,7 +173,7 @@ function Write-KqlWrapperFunction($Function, $Parts)
     Write-Output "}"
 }
 
-$hubsDir = "$PSScriptRoot/../templates/finops-hub/modules/scripts"
+$hubsDir = "$PSScriptRoot/../templates/finops-hub/modules/Microsoft.FinOpsHubs/Analytics/scripts"
 $psDir = "$PSScriptRoot/../powershell"
 $srcDir = "$PSScriptRoot/../open-data"
 $svgDir = "$PSScriptRoot/../../docs/svg"

@@ -32,6 +32,7 @@ type IdNameObject = { id: string, name: string }
     table: 'Resource ID and name for the table storage DNS zone.'
   }
   subnets: {
+    dataExplorer: 'Resource ID of the subnet for the Data Explorer instance.'
     dataFactory: 'Resource ID of the subnet for Data Factory instances.'
     keyVault: 'Resource ID of the subnet for Key Vault instances.'
     scripts: 'Resource ID of the subnet for deployment script storage.'
@@ -49,6 +50,7 @@ type HubRoutingProperties = {
     table: IdNameObject
   }
   subnets: {
+    dataExplorer: string
     dataFactory: string
     keyVault: string
     scripts: string
@@ -110,34 +112,26 @@ type HubProperties = {
 @export()
 @description('FinOps hub app configuration settings.')
 @metadata({
-  name: 'Short name of the FinOps hub app (not including the publisher namespace).'
-  displayName: 'Display name of the FinOps hub app.'
-  tags: 'Tags to apply to all FinOps hub resources for this FinOps hub app.'
-  publisher: {
-    name: 'Fully-qualified namespace of the FinOps hub app publisher.'
-    displayName: 'Display name of the FinOps hub app publisher.'
-    suffix: 'Unique suffix used for publisher resources.'
-    tags: 'Tags to apply to all FinOps hub resources for this FinOps hub app publisher.'
-  }
-  hub: 'FinOps hub instance the app is deployed to.'
+  id: 'Fully-qualified name of the publisher and app, separated by a dot.'
+  name: 'Short name of the FinOps hub app. Last segment of the app ID.'
+  publisher: 'Fully-qualified namespace of the FinOps hub app publisher.'
+  suffix: 'Unique suffix used for publisher resources.'
+  tags: 'Tags to apply to all FinOps hub resources for this FinOps hub app publisher. Tags are not specific to the app since resources are shared.'
   dataFactory: 'Name of the Data Factory instance for this publisher.'
   keyVault: 'Name of the KeyVault instance for this publisher.'
   storage: 'Name of the storage account for this publisher.'
+  hub: 'FinOps hub instance the app is deployed to.'
 })
 type HubAppProperties = {
+  id: string
   name: string
-  displayName: string
+  publisher: string
+  suffix: string
   tags: object
-  publisher: {
-    name: string
-    displayName: string
-    suffix: string
-    tags: object
-  }
-  hub: HubProperties
   dataFactory: string
   keyVault: string
   storage: string
+  hub: HubProperties
 }
 
 @export()
@@ -149,8 +143,9 @@ type HubAppFeature = 'DataFactory' | 'KeyVault' | 'Storage'
 // Variables
 //==============================================================================
 
+@export()
 @description('Version of the FinOps toolkit.')
-var finOpsToolkitVersion = loadTextContent('ftkver.txt')  // cSpell:ignore ftkver
+var finOpsToolkitVersion = loadTextContent('../ftkver.txt')  // cSpell:ignore ftkver
 
 
 //==============================================================================
@@ -221,10 +216,11 @@ func newHubInternal(
       table: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('table')
     }
     subnets: {
-      dataFactory: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      keyVault:    enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      scripts:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
-      storage:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      dataExplorer: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'dataExplorer-subnet')!
+      dataFactory:  enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      keyVault:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      scripts:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
+      storage:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
     }
   }
   core: {
@@ -268,56 +264,48 @@ func newHub(
 // Internal function to create a new FinOps hub configuration object that includes extra parameters that are reused within the function.
 func newAppInternal(
   hub HubProperties,
-  publisherName string,
-  publisherDisplayName string,
-  publisherSuffix string,
-  publisherTags object,
-  appName string,
-  appDisplayName string,
-  version string,
+  id string,
+  name string,
+  publisher string,
+  suffix string,
 ) HubAppProperties => {
-  name: appName
-  displayName: appDisplayName
-  tags: union(hub.tags, publisherTags, {
-    'ftk-hubapp': appName  // cSpell:ignore hubapp
-    'ftk-hubapp-version': version
-  })
-  publisher: {
-    name: publisherName
-    displayName: publisherDisplayName
-    suffix: publisherSuffix
-    tags: union(hub.tags, publisherTags)
-  }
+  id: id
+  name: name
+  publisher: publisher
+  suffix: suffix
+  tags: union(
+    hub.tags,
+    { 'ftk-hubapp-publisher': publisher }  // publisherTags
+    // TODO: How do we want to handle app-specific tags?
+    // {
+    //   'ftk-hubapp': appName  // cSpell:ignore hubapp
+    //   'ftk-hubapp-version': version
+    // }
+  )
   hub: hub
 
   // Globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
-  dataFactory: replace('${take('${replace(hub.name, '_', '-')}-engine', 63 - length(publisherSuffix) - 1)}-${publisherSuffix}', '--', '-')
+  dataFactory: replace('${take('${replace(hub.name, '_', '-')}-engine', 63 - length(suffix) - 1)}-${suffix}', '--', '-')
 
   // Globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
-  keyVault: replace('${take('${replace(hub.name, '_', '-')}-vault', 24 - length(publisherSuffix) - 1)}-${publisherSuffix}', '--', '-')
+  keyVault: replace('${take('${replace(hub.name, '_', '-')}-vault', 24 - length(suffix) - 1)}-${suffix}', '--', '-')
 
   // Globally unique storage account name: 3-24 chars; lowercase letters/numbers only
-  storage: '${take(safeStorageName(hub.name), 24 - length(publisherSuffix))}${publisherSuffix}'
+  storage: '${take(safeStorageName(hub.name), 24 - length(suffix))}${suffix}'
 }
 
 @export()
 @description('Creates a new FinOps hub app configuration object.')
 func newApp(
   hub HubProperties,
-  publisherDisplayName string,
-  publisherName string,
-  appPartialName string,
-  appDisplayName string,
-  version string,
+  publisher string,
+  app string,
 ) HubAppProperties => newAppInternal(
   hub,
-  publisherName,
-  publisherDisplayName,
-  !hub.options.publisherIsolation || publisherName == 'Microsoft.FinOpsHubs' ? hub.core.suffix : uniqueString(publisherName),  // publisherSuffix
-  { 'ftk-hubapp-publisher': publisherName },  // publisherTags
-  '${publisherName}.${appPartialName}',  // appName
-  appDisplayName,
-  version
+  '${publisher}.${app}',  // id
+  app,
+  publisher,
+  !hub.options.publisherIsolation || publisher == 'Microsoft.FinOpsHubs' ? hub.core.suffix : uniqueString(publisher)  // publisher suffix
 )
 
 @export()
@@ -329,14 +317,21 @@ func getHubTags(hub HubProperties, resourceType string) object => union(
 
 @export()
 @description('Returns a tags dictionary that includes tags for the FinOps hub app publisher.')
-func getPublisherTags(app HubAppProperties, resourceType string) object => union(
-  app.hub.options.publisherIsolation ? app.publisher.tags : app.hub.tags,
+func getAppPublisherTags(app HubAppProperties, resourceType string) object => union(
+  app.hub.options.publisherIsolation ? app.tags : app.hub.tags,
   app.hub.tagsByResource[?resourceType] ?? {}
 )
 
+
+//------------------------------------------------------------------------------
+// Private routing
+//------------------------------------------------------------------------------
+
 @export()
-@description('Returns a tags dictionary that includes tags for the FinOps hub app.')
-func getAppTags(app HubAppProperties, resourceType string, forceAppTags bool?) object => union(
-  app.hub.options.publisherIsolation || (forceAppTags ?? false) ? app.tags : app.hub.tags,
-  app.hub.tagsByResource[?resourceType] ?? {}
-)
+@description('Returns an object that represents the properties needed to enable private routing for linked services. Use property expansion (`...value`) to apply to a linkedServices resource.')
+func privateRoutingForLinkedServices(hub HubProperties) object => hub.options.privateRouting ? {} : {
+    connectVia: {
+    referenceName: 'default'
+    type: 'IntegrationRuntimeReference'
+  }
+}

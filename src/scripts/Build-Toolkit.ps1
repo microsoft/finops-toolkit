@@ -59,7 +59,7 @@ function Build-MainBicep($dir)
 {
     Write-Host "  Generating parameters..."
     bicep build "$dir/main.bicep" --outfile "$dir/azuredeploy.json"
-    bicep generate-params "$dir/main.bicep" --outfile "$dir/azuredeploy.json"
+    bicep generate-params "$dir/main.bicep" --outfile "$dir/azuredeploy.parameters.json"
     $paramFilePath = "$dir/azuredeploy.parameters.json"
     $params = Get-Content $paramFilePath -Raw | ConvertFrom-Json
     $params.parameters.psobject.Properties `

@@ -14,7 +14,9 @@ if (-not $Stop)
 }
 
 # Loop thru triggers
-$env:Triggers.Split('|') `
+Get-AzDataFactoryV2Trigger `
+    -ResourceGroupName $env:DataFactoryResourceGroup `
+    -DataFactoryName $env:DataFactoryName `
 | ForEach-Object {
     $trigger = $_
     if ($Stop)

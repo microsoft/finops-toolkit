@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getHubTags, newApp, newHub } from 'hub-types.bicep'
+import { getHubTags, newApp, newHub } from 'fx/hub-types.bicep'
 
 
 //==============================================================================
@@ -185,45 +185,8 @@ var hub = newHub(
   enableDefaultTelemetry
 )
 
-// Do not reference these deployments directly or indirectly to avoid a DeploymentNotFound error
 var useFabric = !empty(fabricQueryUri)
-var deployDataExplorer = !useFabric && !empty(dataExplorerName)
-var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clusterName
-var safeDataExplorerUri = useFabric ? fabricQueryUri : (!deployDataExplorer ? '' : dataExplorer.outputs.clusterUri)
-var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
-var safeDataExplorerIngestionDb = useFabric ? 'Ingestion' : (!deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName)
-var safeDataExplorerIngestionCapacity = useFabric ? fabricCapacityUnits : (!deployDataExplorer ? 1 : dataExplorer.outputs.clusterIngestionCapacity)
-var safeDataExplorerPrincipalId = !deployDataExplorer ? '' : dataExplorer.outputs.principalId
-var safeVnetId = enablePublicAccess ? '' : infrastructure.outputs.vNetId
-var safeDataExplorerSubnetId = enablePublicAccess ? '' : infrastructure.outputs.dataExplorerSubnetId
-// var safeFinopsHubSubnetId = enablePublicAccess ? '' : infrastructure.outputs.finopsHubSubnetId
-// var safeScriptSubnetId = enablePublicAccess ? '' : infrastructure.outputs.scriptSubnetId
-
-// cSpell:ignore eventgrid
-// var eventGridName = 'finops-hub-eventgrid-${config.hub.suffix}'
-
-// var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
-// var eventGridSuffix = '-${config.hub.suffix}'
-// var eventGridName = replace(
-//   '${take(eventGridPrefix, 50 - length(eventGridSuffix))}${eventGridSuffix}',
-//   '--',
-//   '-'
-// )
-
-// EventGrid Contributor role
-// var eventGridContributorRoleId = '1e241071-0855-49ea-94dc-649edcd759de'
-
-// cSpell:ignore israelcentral, uaenorth, italynorth, switzerlandnorth, mexicocentral, southcentralus, polandcentral, swedencentral, spaincentral, francecentral, usdodeast, usdodcentral
-// Find a fallback region for EventGrid
-// var eventGridLocationFallback = {
-//   israelcentral: 'uaenorth'
-//   italynorth: 'switzerlandnorth'
-//   mexicocentral: 'southcentralus'
-//   polandcentral: 'swedencentral'
-//   spaincentral: 'francecentral'
-//   usdodeast: 'usdodcentral'
-// }
-// var finalEventGridLocation = eventGridLocation != null && !empty(eventGridLocation) ? eventGridLocation : (eventGridLocationFallback[?location] ?? location)
+var useAzureDataExplorer = !useFabric && !empty(dataExplorerName)  // Prefer Fabric over Azure Data Explorer
 
 // The last segment of the GUID in the telemetryId (40b) is used to identify this module
 // Remaining characters identify settings; must be <= 12 chars -- Example: (guid)_RLXD##x1000P
@@ -236,11 +199,11 @@ var telemetryString = join([
   // F = Fabric enabled
   !useFabric ? '' : 'F${fabricCapacityUnits}'
   // X = ADX enabled + D (dev) or S (standard) SKU
-  !deployDataExplorer ? '' : 'X${substring(dataExplorerSku, 0, 1)}'
+  !useAzureDataExplorer ? '' : 'X${substring(dataExplorerSku, 0, 1)}'
   // Number of cores in the VM size
-  !deployDataExplorer ? '' : replace(replace(replace(replace(replace(replace(replace(replace(split(split(dataExplorerSku, 'Standard_')[1], '_')[0], 'C', ''), 'D', ''), 'E', ''), 'L', ''), 'a', ''), 'd', ''), 'i', ''), 's', '')
+  !useAzureDataExplorer ? '' : replace(replace(replace(replace(replace(replace(replace(replace(split(split(dataExplorerSku, 'Standard_')[1], '_')[0], 'C', ''), 'D', ''), 'E', ''), 'L', ''), 'a', ''), 'd', ''), 'i', ''), 's', '')
   // Number of nodes in the cluster
-  !deployDataExplorer || dataExplorerCapacity == 1 ? '' : 'x${dataExplorerCapacity}'
+  !useAzureDataExplorer || dataExplorerCapacity == 1 ? '' : 'x${dataExplorerCapacity}'
   // P = private endpoints enabled
   enablePublicAccess ? '' : 'P'
 ], '')
@@ -274,29 +237,13 @@ resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefa
 }
 
 //------------------------------------------------------------------------------
-// Base resources needed for hub apps
-//------------------------------------------------------------------------------
-
-// TODO: Can this be merged into core.bicep?
-module infrastructure 'infrastructure.bicep' = {
-  name: 'Microsoft.FinOpsHubs.Infrastructure'
-  params: {
-    hub: hub    
-  }
-}
-
-//------------------------------------------------------------------------------
 // Hub core app
 //------------------------------------------------------------------------------
 
-module core 'core.bicep' = {
+module core 'Microsoft.FinOpsHubs/Core/app.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core'
-  dependsOn: [
-    infrastructure
-  ]
   params: {
-    hub: hub
-    telemetryString: telemetryString
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'Core')
     scopesToMonitor: scopesToMonitor
     msexportRetentionInDays: exportRetentionInDays  // cSpell:ignore msexport
     ingestionRetentionInMonths: ingestionRetentionInMonths
@@ -306,16 +253,23 @@ module core 'core.bicep' = {
 }
 
 //------------------------------------------------------------------------------
-// ADLSv2 storage account for staging and archive
+// Cost Management
 //------------------------------------------------------------------------------
 
-module cmExports 'cm-exports.bicep' = {
+module cmExports 'Microsoft.CostManagement/Exports/app.bicep' = {
   name: 'Microsoft.CostManagement.Exports'
   dependsOn: [
     core
   ]
   params: {
-    hub: hub
+    app: newApp(hub, 'Microsoft.CostManagement', 'Exports')
+  }
+}
+
+module cmManagedExports 'Microsoft.CostManagement/ManagedExports/app.bicep' = if (enableManagedExports) {
+  name: 'Microsoft.CostManagement.ManagedExports'
+  params: {
+    app: newApp(hub, 'Microsoft.CostManagement', 'Exports')
   }
 }
 
@@ -323,63 +277,18 @@ module cmExports 'cm-exports.bicep' = {
 // Data Explorer for analytics
 //------------------------------------------------------------------------------
 
-module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
-  name: 'dataExplorer'
+module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useAzureDataExplorer) {
+  name: 'Microsoft.FinOpsHubs.Analytics'
+  dependsOn: [
+    core
+  ]
   params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'Analytics')
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity
-    // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
-    location: location
-    tags: hub.tags
-    tagsByResource: tagsByResource
-    dataFactoryName: core.outputs.dataFactoryName
     rawRetentionInDays: dataExplorerRawRetentionInDays
-    virtualNetworkId: safeVnetId  // cSpell:ignore vnet
-    privateEndpointSubnetId: safeDataExplorerSubnetId
-    enablePublicAccess: enablePublicAccess
-    storageAccountName: core.outputs.storageAccountName
-  }
-}
-
-//------------------------------------------------------------------------------
-// Data Factory and pipelines
-//------------------------------------------------------------------------------
-
-module dataFactoryResources 'dataFactory.bicep' = {
-  name: 'dataFactoryResources'
-  params: {
-    // TODO: Split dataFactory.bicep into its separate apps
-    app: newApp(
-      hub,
-      'Microsoft FinOps hubs',
-      'Microsoft.FinOpsHubs',
-      'DataFactory',
-      'FinOps hub engine',
-      loadTextContent('ftkver.txt')
-    )
-
-    hubName: hubName
-    dataFactoryName: core.outputs.dataFactoryName
-    location: location
-    tags: core.outputs.publisherTags
-    tagsByResource: tagsByResource
-    storageAccountName: core.outputs.storageAccountName
-    exportContainerName: cmExports.outputs.exportContainer
-    configContainerName: core.outputs.configContainer
-    ingestionContainerName: core.outputs.ingestionContainer
-    dataExplorerName: safeDataExplorerName
-    dataExplorerPrincipalId: safeDataExplorerPrincipalId
-    dataExplorerIngestionDatabase: safeDataExplorerIngestionDb
-    dataExplorerIngestionCapacity: safeDataExplorerIngestionCapacity
-    dataExplorerUri: safeDataExplorerUri
-    dataExplorerId: safeDataExplorerId
-    enableManagedExports: enableManagedExports
-    enablePublicAccess: enablePublicAccess
-
-    // TODO: Move to remoteHub.bicep
-    keyVaultName: empty(remoteHubStorageKey) ? '' : remoteHub.outputs.keyVaultName
-    remoteHubStorageUri: remoteHubStorageUri
+    // TODO: Figure out why this is breaking upgrades -- clusterTrustedExternalTenants: dataExplorerTrustedExternalTenants
   }
 }
 
@@ -387,13 +296,18 @@ module dataFactoryResources 'dataFactory.bicep' = {
 // Remote hub app
 //------------------------------------------------------------------------------
 
-module remoteHub 'remoteHub.bicep' = if (!empty(remoteHubStorageKey)) {
+module remoteHub 'Microsoft.FinOpsHubs/RemoteHub/app.bicep' = if (!empty(remoteHubStorageKey)) {
   name: 'Microsoft.FinOpsHubs.RemoteHub'
+  dependsOn: [
+    core
+  ]
   params: {
-    hub: hub
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'RemoteHub')
     remoteStorageKey: remoteHubStorageKey
+    remoteHubStorageUri: remoteHubStorageUri
   }
 }
+
 
 //==============================================================================
 // Outputs
@@ -418,16 +332,20 @@ output storageAccountName string = core.outputs.storageAccountName
 output storageUrlForPowerBI string = core.outputs.storageUrlForPowerBI
 
 @description('The resource ID of the Data Explorer cluster.')
-output clusterId string = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
+#disable-next-line BCP318 // Null safety warning for conditional resource access
+output clusterId string = !useAzureDataExplorer ? '' : analytics.outputs.clusterId
 
 @description('The URI of the Data Explorer cluster.')
-output clusterUri string = useFabric ? fabricQueryUri : (!deployDataExplorer ? '' : dataExplorer.outputs.clusterUri)
+#disable-next-line BCP318 // Null safety warning for conditional resource access
+output clusterUri string = useFabric ? fabricQueryUri : (!useAzureDataExplorer ? '' : analytics.outputs.clusterUri)
 
 @description('The name of the Data Explorer database used for ingesting data.')
-output ingestionDbName string = useFabric ? 'Ingestion' : (!deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName)
+#disable-next-line BCP318 // Null safety warning for conditional resource access
+output ingestionDbName string = useFabric ? 'Ingestion' : (!useAzureDataExplorer ? '' : analytics.outputs.ingestionDbName)
 
 @description('The name of the Data Explorer database used for querying data.')
-output hubDbName string = useFabric ? 'Hub' : (!deployDataExplorer ? '' : dataExplorer.outputs.hubDbName)
+#disable-next-line BCP318 // Null safety warning for conditional resource access
+output hubDbName string = useFabric ? 'Hub' : (!useAzureDataExplorer ? '' : analytics.outputs.hubDbName)
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
 output managedIdentityId string = core.outputs.principalId
