@@ -40,7 +40,7 @@ param remoteHubStorageUri string = ''
 @description('Optional. Storage account key for remote storage account.')
 @secure()
 param remoteHubStorageKey string = ''
- 
+
 @description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
@@ -72,7 +72,7 @@ param dataExplorerName string = ''
   'Standard_DS13_v2+2TB_PS'
   'Standard_DS14_v2+3TB_PS'
   'Standard_DS14_v2+4TB_PS'
-  'Standard_E2a_v4'            // 2 CPU, 14GB RAM, 78GB cache, $220/mo
+  'Standard_E2a_v4'             // 2 CPU, 14GB RAM, 78GB cache, $220/mo
   'Standard_E2ads_v5'
   'Standard_E2d_v4'
   'Standard_E2d_v5'
@@ -268,6 +268,9 @@ module cmExports 'Microsoft.CostManagement/Exports/app.bicep' = {
 
 module cmManagedExports 'Microsoft.CostManagement/ManagedExports/app.bicep' = if (enableManagedExports) {
   name: 'Microsoft.CostManagement.ManagedExports'
+  dependsOn: [
+    cmExports
+  ]
   params: {
     app: newApp(hub, 'Microsoft.CostManagement', 'Exports')
   }

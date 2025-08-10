@@ -3,7 +3,6 @@
 
 import { finOpsToolkitVersion, HubAppProperties } from '../../fx/hub-types.bicep'
 
-
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -28,7 +27,6 @@ param rawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param finalRetentionInMonths int = 13
 
-
 //==============================================================================
 // Variables
 //==============================================================================
@@ -36,14 +34,24 @@ param finalRetentionInMonths int = 13
 var CONFIG = 'config'
 var INGESTION = 'ingestion'
 
-
 //==============================================================================
 // Resources
 //==============================================================================
 
+// Networking infrastructure
+module infrastructure 'infrastructure.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_Infrastructure'
+  params: {
+    hub: app.hub
+  }
+}
+
 // Register app
 module appRegistration '../../fx/hub-app.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Register'
+  dependsOn: [
+    infrastructure
+  ]
   params: {
     app: app
     version: finOpsToolkitVersion
@@ -54,16 +62,12 @@ module appRegistration '../../fx/hub-app.bicep' = {
   }
 }
 
-module infrastructure 'infrastructure.bicep' = {
-  name: 'Microsoft.FinOpsHubs.Core_Infrastructure'
-  params: {
-    hub: app.hub    
-  }
-}
-
 // Create config container
 module configContainer '../../fx/hub-storage.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.ConfigContainer'
+  dependsOn: [
+    appRegistration
+  ]
   params: {
     app: app
     container: CONFIG
@@ -74,6 +78,9 @@ module configContainer '../../fx/hub-storage.bicep' = {
 // Create ingestion container
 module ingestionContainer '../../fx/hub-storage.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.IngestionContainer'
+  dependsOn: [
+    appRegistration
+  ]
   params: {
     app: app
     container: INGESTION
@@ -83,6 +90,9 @@ module ingestionContainer '../../fx/hub-storage.bicep' = {
 // Create/update Settings.json
 module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_Storage.UpdateSettings'
+  dependsOn: [
+    appRegistration
+  ]
   params: {
     app: app
     identityName: configContainer.outputs.identityName
@@ -129,6 +139,9 @@ module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
 // Data Factory
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: app.dataFactory
+  dependsOn: [
+    appRegistration
+  ]
 
   // Config dataset
   resource dataset_config 'datasets' = {
@@ -159,7 +172,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         folderPath: {
           type: 'String'
-          defaultValue: CONFIG
+          defaultValue: configContainer.outputs.containerName
         }
       }
     }
@@ -182,7 +195,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
             value: '@{dataset().blobPath}'
             type: 'Expression'
           }
-          fileSystem: INGESTION
+          fileSystem: ingestionContainer.outputs.containerName
         }
       }
       linkedServiceName: {
@@ -206,7 +219,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       typeProperties: {
         location: {
           type: 'AzureBlobFSLocation'
-          fileSystem: INGESTION
+          fileSystem: ingestionContainer.outputs.containerName
           folderPath: {
             value: '@dataset().folderPath'
             type: 'Expression'
@@ -221,7 +234,6 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
     }
   }
 }
-
 
 //==============================================================================
 // Outputs

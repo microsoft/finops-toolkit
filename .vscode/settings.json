@@ -1,7 +1,7 @@
 {
   "[bicep]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "ms-azuretools.vscode-bicep"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[json]": {
     "editor.formatOnSave": true,
