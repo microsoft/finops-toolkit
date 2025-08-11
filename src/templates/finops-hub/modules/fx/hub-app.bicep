@@ -177,20 +177,20 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = if (usesData
         computeProperties: {
           location: app.hub.location
           dataFlowProperties: {
-              computeType: 'General'
-              coreCount: 8
-              timeToLive: 10
-              cleanup: false
-              customProperties: []
+            computeType: 'General'
+            coreCount: 8
+            timeToLive: 10
+            cleanup: false
+            customProperties: []
           }
           copyComputeScaleProperties: {
-              dataIntegrationUnit: 16
-              timeToLive: 30
+            dataIntegrationUnit: 16
+            timeToLive: 30
           }
           pipelineExternalComputeScaleProperties: {
-              timeToLive: 30
-              numberOfPipelineNodes: 1
-              numberOfExternalNodes: 1
+            timeToLive: 30
+            numberOfPipelineNodes: 1
+            numberOfExternalNodes: 1
           }
         }
       }
@@ -200,7 +200,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = if (usesData
   // cSpell:ignore linkedservices
   resource linkedService_keyVault 'linkedservices' = if (usesKeyVault) {
     name: keyVault.name
-    dependsOn: app.hub.options.privateRouting ? [] : [managedIntegrationRuntime]
+    dependsOn: app.hub.options.privateRouting ? [managedIntegrationRuntime] : []
     properties: {
       annotations: []
       parameters: {}
@@ -208,16 +208,18 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = if (usesData
       typeProperties: {
         baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
       }
-      connectVia: app.hub.options.privateRouting ? null : {
-        referenceName: managedIntegrationRuntime.name
-        type: 'IntegrationRuntimeReference'
-      }
+      connectVia: app.hub.options.privateRouting
+        ? {
+            referenceName: managedIntegrationRuntime.name
+            type: 'IntegrationRuntimeReference'
+          }
+        : null
     }
   }
 
   resource linkedService_storageAccount 'linkedservices' = if (usesStorage) {
     name: storageAccount.name
-    dependsOn: app.hub.options.privateRouting ? [] : [managedIntegrationRuntime]
+    dependsOn: app.hub.options.privateRouting ? [managedIntegrationRuntime] : []
     properties: {
       annotations: []
       parameters: {}
@@ -225,10 +227,12 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = if (usesData
       typeProperties: {
         url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
       }
-      connectVia: app.hub.options.privateRouting ? null : {
-        referenceName: managedIntegrationRuntime.name
-        type: 'IntegrationRuntimeReference'
-      }
+      connectVia: app.hub.options.privateRouting
+        ? {
+            referenceName: managedIntegrationRuntime.name
+            type: 'IntegrationRuntimeReference'
+          }
+        : null
     }
   }
 }
@@ -278,16 +282,18 @@ module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (u
 //------------------------------------------------------------------------------
 
 // Grant ADF identity access to storage
-resource storageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in factoryStorageRoles: {
-  name: guid(storageAccount.id, role, dataFactory.id)
-  scope: storageAccount
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access
-    principalId: dataFactory.identity.principalId
-    principalType: 'ServicePrincipal'
+resource storageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for role in factoryStorageRoles: {
+    name: guid(storageAccount.id, role, dataFactory.id)
+    scope: storageAccount
+    properties: {
+      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+      #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access
+      principalId: dataFactory.identity.principalId
+      principalType: 'ServicePrincipal'
+    }
   }
-}]
+]
 
 //------------------------------------------------------------------------------
 // Stop triggers and delete old resources
@@ -300,21 +306,23 @@ resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentitie
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
 }
 
-resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: if (usesDataFactory) {
-  name: guid(dataFactory.id, role, triggerManagerIdentity.id)
-  scope: dataFactory
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access
-    principalId: triggerManagerIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
+resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for role in autoStartRbacRoles: if (usesDataFactory) {
+    name: guid(dataFactory.id, role, triggerManagerIdentity.id)
+    scope: dataFactory
+    properties: {
+      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+      #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access
+      principalId: triggerManagerIdentity.properties.principalId
+      principalType: 'ServicePrincipal'
+    }
   }
-}]
+]
 
 // Delete old triggers and pipelines
 // TODO: Move this to a separate module
 module deleteOldResources 'hub-deploymentScript.bicep' = {
-  name: 'Microsoft.FinOpsHubs.Core_ADF.DeleteOldResources'
+  name: '${app.publisher}.${app.name}_ADF.DeleteOldResources'
   dependsOn: [
     triggerManagerRoleAssignments
     stopTriggers
@@ -343,7 +351,7 @@ module deleteOldResources 'hub-deploymentScript.bicep' = {
 
 // Stop all triggers before deploying triggers
 module stopTriggers 'hub-deploymentScript.bicep' = {
-  name: 'Microsoft.FinOpsHubs.Core_ADF.StopTriggers'
+  name: '${app.publisher}.${app.name}_ADF.StopTriggers'
   dependsOn: [
     triggerManagerRoleAssignments
   ]
@@ -418,7 +426,7 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (uses
         name: 'blobLink'
         properties: {
           #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
-        privateLinkServiceId: storageAccount.id
+          privateLinkServiceId: storageAccount.id
           groupIds: ['blob']
         }
       }
@@ -457,7 +465,7 @@ resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesS
         name: 'dfsLink'
         properties: {
           #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
-        privateLinkServiceId: storageAccount.id
+          privateLinkServiceId: storageAccount.id
           groupIds: ['dfs']
         }
       }
@@ -506,7 +514,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
       defaultAction: app.hub.options.privateRouting ? 'Deny' : 'Allow'
     }
   }
-  
+
   resource keyVault_accessPolicies 'accessPolicies' = {
     name: 'add'
     properties: {
@@ -520,7 +528,7 @@ resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' =
   location: 'global'
   tags: getAppPublisherTags(app, 'Microsoft.Network/privateDnsZones')
   properties: {}
-  
+
   resource keyVaultPrivateDnsZoneLink 'virtualNetworkLinks@2024-06-01' = {
     name: '${replace(keyVaultPrivateDnsZone.name, '.', '-')}-link'
     location: 'global'
@@ -565,8 +573,8 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (
           }
         }
       ]
-	  }
-	}
+    }
+  }
 }
 
 

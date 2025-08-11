@@ -329,9 +329,9 @@ func getAppPublisherTags(app HubAppProperties, resourceType string) object => un
 
 @export()
 @description('Returns an object that represents the properties needed to enable private routing for linked services. Use property expansion (`...value`) to apply to a linkedServices resource.')
-func privateRoutingForLinkedServices(hub HubProperties) object => hub.options.privateRouting ? {} : {
-    connectVia: {
+func privateRoutingForLinkedServices(hub HubProperties) object => hub.options.privateRouting ? {
+  connectVia: {
     referenceName: 'default'
     type: 'IntegrationRuntimeReference'
   }
-}
+} : {}
