@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-Param(
+param(
     [switch] $Stop
 )
 
@@ -14,11 +14,14 @@ if (-not $Stop)
 }
 
 # Loop thru triggers
-Get-AzDataFactoryV2Trigger `
+$triggers = Get-AzDataFactoryV2Trigger `
     -ResourceGroupName $env:DataFactoryResourceGroup `
-    -DataFactoryName $env:DataFactoryName `
-| ForEach-Object {
-    $trigger = $_
+    -DataFactoryName $env:DataFactoryName
+
+Write-Output "Found $($triggers.Length) trigger(s)"
+
+$triggers | ForEach-Object {
+    $trigger = $_.Name
     if ($Stop)
     {
         Write-Output "Stopping trigger $trigger..."
