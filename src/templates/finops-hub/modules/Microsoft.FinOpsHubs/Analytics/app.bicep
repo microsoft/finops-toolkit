@@ -123,9 +123,9 @@ var INGESTION = 'ingestion'
 var INGESTION_DB = 'Ingestion'
 var INGESTION_ID_SEPARATOR = '__'
 
- var ftkReleaseUri = endsWith(finOpsToolkitVersion, '-dev')
-   ? 'https://github.com/microsoft/finops-toolkit/releases/latest/download'
-   : 'https://github.com/microsoft/finops-toolkit/releases/download/v${finOpsToolkitVersion}'
+var ftkReleaseUri = endsWith(finOpsToolkitVersion, '-dev')
+  ? 'https://github.com/microsoft/finops-toolkit/releases/latest/download'
+  : 'https://github.com/microsoft/finops-toolkit/releases/download/v${finOpsToolkitVersion}'
 
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
@@ -201,7 +201,13 @@ var ingestionCapacity = {
   Standard_L32s_v3: 32
 }
 
-var dataExplorerIngestionCapacity = useFabric ? fabricCapacityUnits : (!useAzure ? 1 : ingestionCapacity[?clusterSku] ?? 1)
+var dataExplorerIngestionCapacity = useFabric
+  ? fabricCapacityUnits
+  : (!useAzure ? 1 : ingestionCapacity[?clusterSku] ?? 1)
+
+// WORKAROUND: Direct property access fails on cluster updates due to ARM bug
+// See: https://github.com/Azure/azure-resource-manager-templates/issues/[issue-number]
+var dataExplorerUri = useFabric ? fabricQueryUri : 'https://${cluster.name}.${app.hub.location}.kusto.windows.net'
 
 //==============================================================================
 // Resources
@@ -296,15 +302,16 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = if (useAzure) {
 }
 
 module ingestion_OpenDataInternalScripts '../../fx/hub-database.bicep' = if (useAzure) {
-  name: 'ingestion_OpenDataInternalScripts'
+  name: 'Microsoft.FinOpsHubs.Analytics_ADX.IngestionOpenDataInternal'
   params: {
     clusterName: cluster.name
-    databaseName: INGESTION
+    databaseName: cluster::ingestionDb.name
     scripts: {
       OpenDataFunctions_resource_type_1: loadTextContent('scripts/OpenDataFunctions_resource_type_1.kql')
       OpenDataFunctions_resource_type_2: loadTextContent('scripts/OpenDataFunctions_resource_type_2.kql')
       OpenDataFunctions_resource_type_3: loadTextContent('scripts/OpenDataFunctions_resource_type_3.kql')
       OpenDataFunctions_resource_type_4: loadTextContent('scripts/OpenDataFunctions_resource_type_4.kql')
+      OpenDataFunctions_resource_type_5: loadTextContent('scripts/OpenDataFunctions_resource_type_5.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
@@ -312,13 +319,13 @@ module ingestion_OpenDataInternalScripts '../../fx/hub-database.bicep' = if (use
 }
 
 module ingestion_InitScripts '../../fx/hub-database.bicep' = if (useAzure) {
-  name: 'ingestion_InitScripts'
+  name: 'Microsoft.FinOpsHubs.Analytics_ADX.IngestionInit'
   dependsOn: [
     ingestion_OpenDataInternalScripts
   ]
   params: {
     clusterName: cluster.name
-    databaseName: INGESTION
+    databaseName: cluster::ingestionDb.name
     scripts: {
       openData: loadTextContent('scripts/OpenDataFunctions.kql')
       common: loadTextContent('scripts/Common.kql')
@@ -331,15 +338,16 @@ module ingestion_InitScripts '../../fx/hub-database.bicep' = if (useAzure) {
 }
 
 module ingestion_VersionedScripts '../../fx/hub-database.bicep' = if (useAzure) {
-  name: 'ingestion_VersionedScripts'
+  name: 'Microsoft.FinOpsHubs.Analytics_ADX.IngestionVersioned'
   dependsOn: [
     ingestion_InitScripts
   ]
   params: {
     clusterName: cluster.name
-    databaseName: INGESTION
+    databaseName: cluster::ingestionDb.name
     scripts: {
       v1_0: loadTextContent('scripts/IngestionSetup_v1_0.kql')
+      v1_2: loadTextContent('scripts/IngestionSetup_v1_2.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
@@ -347,7 +355,7 @@ module ingestion_VersionedScripts '../../fx/hub-database.bicep' = if (useAzure) 
 }
 
 module hub_InitScripts '../../fx/hub-database.bicep' = {
-  name: 'hub_InitScripts'
+  name: 'Microsoft.FinOpsHubs.Analytics_ADX.HubInit'
   dependsOn: [
     ingestion_InitScripts
   ]
@@ -364,7 +372,7 @@ module hub_InitScripts '../../fx/hub-database.bicep' = {
 }
 
 module hub_VersionedScripts '../../fx/hub-database.bicep' = {
-  name: 'hub_VersionedScripts'
+  name: 'Microsoft.FinOpsHubs.Analytics_ADX.HubVersioned'
   dependsOn: [
     ingestion_VersionedScripts
     hub_InitScripts
@@ -382,7 +390,7 @@ module hub_VersionedScripts '../../fx/hub-database.bicep' = {
 }
 
 module hub_LatestScripts '../../fx/hub-database.bicep' = {
-  name: 'hub_LatestScripts'
+  name: 'Microsoft.FinOpsHubs.Analytics_ADX.HubLatest'
   dependsOn: [
     hub_VersionedScripts
   ]
@@ -396,7 +404,7 @@ module hub_LatestScripts '../../fx/hub-database.bicep' = {
     forceUpdateTag: forceUpdateTag
   }
 }
-    
+
 // Authorize Kusto Cluster to read storage
 resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (useAzure) {
   name: guid(cluster.name, subscription().id, 'Storage Blob Data Contributor')
@@ -536,7 +544,7 @@ module approveDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bice
 }
 
 // ADX/Fabric linked service
-resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (useAzure || useFabric) {
   name: HUB_DATA_EXPLORER
   parent: dataFactory
   properties: {
@@ -544,12 +552,11 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
     parameters: {
       database: {
         type: 'String'
-        defaultValue: INGESTION
+        defaultValue: INGESTION_DB
       }
     }
     typeProperties: {
-      #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
-      endpoint: useFabric ? fabricQueryUri : cluster.properties.uri
+      endpoint: dataExplorerUri
       database: '@{linkedService().database}'
       tenant: dataFactory.identity.tenantId
       servicePrincipalId: dataFactory.identity.principalId
@@ -593,7 +600,7 @@ resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-
     parameters: {
       database: {
         type: 'String'
-        defaultValue: INGESTION
+        defaultValue: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
       }
       table: { type: 'String' }
     }
@@ -810,7 +817,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                 referenceName: linkedService_dataExplorer.name
                 type: 'LinkedServiceReference'
                 parameters: {
-                  database: INGESTION_DB
+                  database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                 }
               }
             }
@@ -879,7 +886,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     typeProperties: {
                       command: {
                         // Do not attempt to set the ingestion policy if using Fabric; use a simple query as a placeholder
-                        value: useFabric 
+                        value: useFabric
                           ? '.show database ${INGESTION_DB} policy managed_identity'
                           #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
                           : '.alter-merge database ${INGESTION_DB} policy managed_identity "[ { \'ObjectId\' : \'${cluster.identity.principalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
@@ -891,7 +898,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -926,7 +933,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -958,7 +965,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -989,7 +996,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -1020,7 +1027,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -1051,7 +1058,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -1111,7 +1118,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
           {
             activity: 'Until Capacity Is Available'
             dependencyConditions: [
-                'Failed'
+              'Failed'
             ]
           }
         ]
@@ -1155,8 +1162,6 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
         name: 'Read Hub Config'
         description: 'Read the hub config to determine how long data should be retained.'
         type: 'Lookup'
-        dependsOn: [
-        ]
         policy: {
           timeout: '0.12:00:00'
           retry: 0
@@ -1324,7 +1329,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -1359,7 +1364,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -1394,7 +1399,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       referenceName: linkedService_dataExplorer.name
                       type: 'LinkedServiceReference'
                       parameters: {
-                        database: INGESTION_DB
+                        database: INGESTION_DB  // Do not use dynamic reference since that won't work with Fabric
                       }
                     }
                   }
@@ -1597,25 +1602,25 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
     concurrency: 1
     activities: [
       { // Wait
-            name: 'Wait'
-            description: 'Files may not be available immediately after being created.'
-            type: 'Wait'
-            dependsOn: []
-            userProperties: []
-            typeProperties: {
-              waitTimeInSeconds: 60
-            }
+        name: 'Wait'
+        description: 'Files may not be available immediately after being created.'
+        type: 'Wait'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          waitTimeInSeconds: 60
+        }
       }
       { // Set Container Folder Path
         name: 'Set Container Folder Path'
         type: 'SetVariable'
         dependsOn: [
-            {
-                activity: 'Wait'
-                dependencyConditions: [
-                  'Succeeded'
-                ]
-              }
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
         ]
         policy: {
           secureOutput: false
@@ -1698,12 +1703,12 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         name: 'Set Ingestion Timestamp'
         type: 'SetVariable'
         dependsOn: [
-            {
-                activity: 'Wait'
-                dependencyConditions: [
-                  'Succeeded'
-                ]
-            }
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
         ]
         policy: {
           secureOutput: false
@@ -1859,15 +1864,13 @@ output principalId string = cluster.identity.principalId
 output clusterName string = cluster.name
 
 @description('The URI of the cluster.')
-#disable-next-line BCP318 // Null safety warning for conditional resource access
-output clusterUri string = cluster.properties.uri
+output clusterUri string = dataExplorerUri
 
 @description('The name of the database for data ingestion.')
-output ingestionDbName string = INGESTION
+output ingestionDbName string = INGESTION_DB  // Don't use cluster DB reference since that won't work for Fabric
 
 @description('The name of the database for queries.')
-#disable-next-line BCP318 // Null safety warning for conditional resource access
-output hubDbName string = cluster::hubDb.name
+output hubDbName string = HUB_DB  // Don't use cluster DB reference since that won't work for Fabric
 
 @description('Max ingestion capacity of the cluster.')
 output clusterIngestionCapacity int = dataExplorerIngestionCapacity

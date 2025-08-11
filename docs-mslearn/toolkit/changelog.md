@@ -13,7 +13,7 @@ ms.reviewer: micflan
 
 <!-- cSpell:ignore nextstepaction -->
 <!-- markdownlint-disable MD036 -->
-<!-- markdownlint-disable-next-line MD025 -->
+<!-- markdownlint-disable MD025 -->
 
 # FinOps toolkit changelog
 

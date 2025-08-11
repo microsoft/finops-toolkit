@@ -3,6 +3,7 @@
 
 import { finOpsToolkitVersion, HubAppProperties } from '../../fx/hub-types.bicep'
 
+
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -27,12 +28,14 @@ param rawRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param finalRetentionInMonths int = 13
 
+
 //==============================================================================
 // Variables
 //==============================================================================
 
 var CONFIG = 'config'
 var INGESTION = 'ingestion'
+
 
 //==============================================================================
 // Resources

@@ -344,11 +344,11 @@ output clusterUri string = useFabric ? fabricQueryUri : (!useAzureDataExplorer ?
 
 @description('The name of the Data Explorer database used for ingesting data.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output ingestionDbName string = useFabric ? 'Ingestion' : (!useAzureDataExplorer ? '' : analytics.outputs.ingestionDbName)
+output ingestionDbName string = useFabric || useAzureDataExplorer ? analytics.outputs.ingestionDbName : ''
 
 @description('The name of the Data Explorer database used for querying data.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output hubDbName string = useFabric ? 'Hub' : (!useAzureDataExplorer ? '' : analytics.outputs.hubDbName)
+output hubDbName string = useFabric || useAzureDataExplorer ? analytics.outputs.hubDbName : ''
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
 output managedIdentityId string = core.outputs.principalId
