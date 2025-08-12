@@ -115,7 +115,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       parameters: {
         fileName: {
           type: 'String'
-        defaultValue: 'manifest.json'
+          defaultValue: 'manifest.json'
         }
         folderPath: {
           type: 'String'

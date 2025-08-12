@@ -328,7 +328,7 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
   params: {
     app: app
     identityName: triggerManagerIdentity.name
-    scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
+    scriptContent: loadTextContent('./scripts/Init-DataFactory.ps1')
     arguments: '-Stop'
     environmentVariables: [
       {

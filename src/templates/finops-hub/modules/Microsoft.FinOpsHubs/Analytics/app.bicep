@@ -1846,6 +1846,21 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
   }
 }
 
+// Run initialization pipeline after everything is deployed
+module runInitializationPipeline '../../fx/hub-initialize.bicep' = if (useAzure || useFabric) {
+  name: 'Microsoft.FinOpsHubs.Analytics_InitializeHub'
+  params: {
+    app: app
+    dataFactoryInstances: [
+      app.dataFactory
+    ]
+    identityName: appRegistration.outputs.triggerManagerIdentityName
+    startPipelines: [
+      pipeline_InitializeHub.name
+    ]
+  }
+}
+
 
 //==============================================================================
 // Outputs

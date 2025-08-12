@@ -340,7 +340,7 @@ module deleteOldResources 'fx/hub-deploymentScript.bicep' = {
 }
 
 // Start all ADF triggers
-module startTriggers 'fx/hub-startTriggers.bicep' = {
+module startTriggers 'fx/hub-initialize.bicep' = {
   name: 'Microsoft.FinOpsHubs.StartTriggers'
   params: {
     app: core.outputs.app
@@ -349,6 +349,7 @@ module startTriggers 'fx/hub-startTriggers.bicep' = {
       cmExports.outputs.app.dataFactory  // Microsoft.CostManagement
     ]
     identityName: core.outputs.triggerManagerIdentityName
+    startAllTriggers: true
   }
 }
 
