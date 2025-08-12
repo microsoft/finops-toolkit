@@ -244,6 +244,9 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 
 // TODO: Review the use of these outputs and deprecate the ones that aren't needed, remove them in 3 months
 
+@description('Properties of the hub app.')
+output app HubAppProperties = app
+
 @description('Name of the Data Factory.')
 output dataFactoryName string = app.dataFactory
 
@@ -255,3 +258,6 @@ output storageUrlForPowerBI string = 'https://${app.storage}.dfs.${environment()
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
 output principalId string = dataFactory.identity.principalId
+
+@description('Name of the managed identity used to create and stop ADF triggers.')
+output triggerManagerIdentityName string = appRegistration.outputs.triggerManagerIdentityName

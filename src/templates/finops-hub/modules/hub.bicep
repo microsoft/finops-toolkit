@@ -272,7 +272,7 @@ module cmManagedExports 'Microsoft.CostManagement/ManagedExports/app.bicep' = if
     cmExports
   ]
   params: {
-    app: newApp(hub, 'Microsoft.CostManagement', 'Exports')
+    app: newApp(hub, 'Microsoft.CostManagement', 'ManagedExports')
   }
 }
 
@@ -311,6 +311,46 @@ module remoteHub 'Microsoft.FinOpsHubs/RemoteHub/app.bicep' = if (!empty(remoteH
   }
 }
 
+//------------------------------------------------------------------------------
+// Final touches
+//------------------------------------------------------------------------------
+
+// Delete old triggers and pipelines
+module deleteOldResources 'fx/hub-deploymentScript.bicep' = {
+  name: 'Microsoft.FinOpsHubs.DeleteOldResources'
+  params: {
+    app: core.outputs.app
+    identityName: core.outputs.triggerManagerIdentityName
+    scriptContent: loadTextContent('fx/scripts/Remove-OldResources.ps1')
+    environmentVariables: [
+      {
+        name: 'DataFactorySubscriptionId'
+        value: subscription().id
+      }
+      {
+        name: 'DataFactoryResourceGroup'
+        value: resourceGroup().name
+      }
+      {
+        name: 'DataFactoryName'
+        value: core.outputs.app.dataFactory
+      }
+    ]
+  }
+}
+
+// Start all ADF triggers
+module startTriggers 'fx/hub-startTriggers.bicep' = {
+  name: 'Microsoft.FinOpsHubs.StartTriggers'
+  params: {
+    app: core.outputs.app
+    dataFactoryInstances: [
+      core.outputs.app.dataFactory       // Microsoft.FinOpsHubs
+      cmExports.outputs.app.dataFactory  // Microsoft.CostManagement
+    ]
+    identityName: core.outputs.triggerManagerIdentityName
+  }
+}
 
 //==============================================================================
 // Outputs

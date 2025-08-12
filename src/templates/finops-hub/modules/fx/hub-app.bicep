@@ -319,36 +319,6 @@ resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@
   }
 ]
 
-// Delete old triggers and pipelines
-// TODO: Move this to a separate module
-module deleteOldResources 'hub-deploymentScript.bicep' = {
-  name: '${app.publisher}.${app.name}_ADF.DeleteOldResources'
-  dependsOn: [
-    triggerManagerRoleAssignments
-    stopTriggers
-  ]
-  params: {
-    app: app
-    identityName: triggerManagerIdentity.name
-    scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
-    environmentVariables: [
-      {
-        name: 'DataFactorySubscriptionId'
-        value: subscription().id
-      }
-      {
-        name: 'DataFactoryResourceGroup'
-        value: resourceGroup().name
-      }
-      {
-        name: 'DataFactoryName'
-        #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
-        value: dataFactory.name
-      }
-    ]
-  }
-}
-
 // Stop all triggers before deploying triggers
 module stopTriggers 'hub-deploymentScript.bicep' = {
   name: '${app.publisher}.${app.name}_ADF.StopTriggers'
@@ -597,3 +567,6 @@ output storageAccountId string = storageAccount.id
 @description('Principal ID for the managed identity used by Data Factory.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output principalId string = dataFactory.identity.principalId
+
+@description('Name of the managed identity used to create and stop ADF triggers.')
+output triggerManagerIdentityName string = triggerManagerIdentity.name

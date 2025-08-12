@@ -1701,6 +1701,9 @@ module trigger_ExportManifestAdded '../../fx/hub-eventTrigger.bicep' = {
 // Outputs
 //==============================================================================
 
+@description('Properties of the hub app.')
+output app HubAppProperties = app
+
 @description('Name of the container used for Cost Management exports.')
 output exportContainer string = exportContainer.outputs.containerName
 
