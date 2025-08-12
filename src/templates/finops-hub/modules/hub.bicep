@@ -280,13 +280,15 @@ module cmManagedExports 'Microsoft.CostManagement/ManagedExports/app.bicep' = if
 // Data Explorer for analytics
 //------------------------------------------------------------------------------
 
-module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useAzureDataExplorer) {
+module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || useAzureDataExplorer) {
   name: 'Microsoft.FinOpsHubs.Analytics'
   dependsOn: [
     core
   ]
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Analytics')
+    fabricQueryUri: fabricQueryUri
+    fabricCapacityUnits: fabricCapacityUnits
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity

@@ -354,7 +354,7 @@ module ingestion_VersionedScripts '../../fx/hub-database.bicep' = if (useAzure) 
   }
 }
 
-module hub_InitScripts '../../fx/hub-database.bicep' = {
+module hub_InitScripts '../../fx/hub-database.bicep' = if (useAzure) {
   name: 'Microsoft.FinOpsHubs.Analytics_ADX.HubInit'
   dependsOn: [
     ingestion_InitScripts
@@ -371,7 +371,7 @@ module hub_InitScripts '../../fx/hub-database.bicep' = {
   }
 }
 
-module hub_VersionedScripts '../../fx/hub-database.bicep' = {
+module hub_VersionedScripts '../../fx/hub-database.bicep' = if (useAzure) {
   name: 'Microsoft.FinOpsHubs.Analytics_ADX.HubVersioned'
   dependsOn: [
     ingestion_VersionedScripts
@@ -389,7 +389,7 @@ module hub_VersionedScripts '../../fx/hub-database.bicep' = {
   }
 }
 
-module hub_LatestScripts '../../fx/hub-database.bicep' = {
+module hub_LatestScripts '../../fx/hub-database.bicep' = if (useAzure) {
   name: 'Microsoft.FinOpsHubs.Analytics_ADX.HubLatest'
   dependsOn: [
     hub_VersionedScripts
@@ -1868,15 +1868,15 @@ module runInitializationPipeline '../../fx/hub-initialize.bicep' = if (useAzure 
 
 @description('The resource ID of the cluster.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output clusterId string = cluster.id
+output clusterId string = useFabric ? '' : cluster.id
 
 @description('The ID of the cluster system assigned managed identity.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output principalId string = cluster.identity.principalId
+output principalId string = useFabric ? '' : cluster.identity.principalId
 
 @description('The name of the cluster.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output clusterName string = cluster.name
+output clusterName string = useFabric ? '' : cluster.name
 
 @description('The URI of the cluster.')
 output clusterUri string = dataExplorerUri
