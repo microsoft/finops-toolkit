@@ -157,6 +157,15 @@ function Copy-TemplateFiles()
 
         Write-Verbose ("Compressing $srcPath to $zip" -replace (Get-Item $relDir).FullName, '.')
         Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
+        
+        # Create unversioned copy for specific templates that need stable download links
+        if ($templateName -eq "finops-hub-copilot")
+        {
+            $unversionedZip = Join-Path (Get-Item $relDir) "$templateName.zip"
+            Write-Verbose ("Creating unversioned copy: $unversionedZip" -replace (Get-Item $relDir).FullName, '.')
+            Copy-Item $zip $unversionedZip -Force
+        }
+        
         return $zip
     }
 }
