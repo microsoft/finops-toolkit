@@ -257,7 +257,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 
 //  Kusto cluster
 resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = if (useAzure) {
-  name: clusterName
+  name: replace(clusterName, '_', '-')
   location: app.hub.location
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.Kusto/clusters'] ?? {})
   sku: {
