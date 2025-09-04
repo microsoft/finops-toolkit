@@ -29,6 +29,11 @@ The following section lists features and enhancements that are currently in deve
 - **Added**
   - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
 
+### [Optimization engine](optimization-engine/overview.md)
+
+- **Fixed**
+  - Reservations-related workbooks fixed by replacing Instance Size Flexibility ratios CSV vanity URL with actual one to work around Log Analytics externaldata limitation ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
