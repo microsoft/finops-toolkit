@@ -40,12 +40,13 @@ param environmentVariables EnvironmentVariable[] = []
 var privateEndpointDeploymentRoles = !app.hub.options.privateRouting ? [] : [
   '69566ab7-960f-475b-8e7c-b3118f30c6bd' // Storage File Data Privileged Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor
 ]
+var containerGroupName = replace(replace(replace(scriptName, '/', '-'), '.', '-'), '_', '-')
 var privateEndpointDeploymentProperties = !app.hub.options.privateRouting ? {} : {
   storageAccountSettings: {
     storageAccountName: app.hub.routing.scriptStorage ?? ''
   }
   containerSettings: {
-    containerGroupName: '${app.hub.routing.scriptStorage}cg'
+    containerGroupName: length(containerGroupName) > 63 ? substring(containerGroupName, 0, 62) : containerGroupName
     subnetIds: [
       {
         id: app.hub.routing.subnets.scripts ?? ''

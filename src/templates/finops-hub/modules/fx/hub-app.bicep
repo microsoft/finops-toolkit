@@ -242,6 +242,7 @@ module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (use
   name: 'GetKeyVaultPrivateEndpointConnections'
   dependsOn: [
     dataFactory::managedVirtualNetwork::keyVaultManagedPrivateEndpoint
+    getStoragePrivateEndpointConnections  // Queue Key Vault private endpoints after storage since we can only run one deployment at a time with private endpoints
   ]
   params: {
     keyVaultName: keyVault.name
@@ -262,6 +263,7 @@ module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (usesD
   name: 'GetStoragePrivateEndpointConnections'
   dependsOn: [
     dataFactory::managedVirtualNetwork::storageManagedPrivateEndpoint
+    stopTriggers  // Queue storage private endpoints after triggers are stopped since we can only run one deployment at a time with private endpoints
   ]
   params: {
     storageAccountName: storageAccount.name
@@ -323,6 +325,8 @@ resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@
 module stopTriggers 'hub-deploymentScript.bicep' = {
   name: '${app.publisher}.${app.name}_ADF.StopTriggers'
   dependsOn: [
+    // TODO: Do we need to make this optional only if private endpoints are enabled and telemetry is enabled? Will it fail when telemetry is disabled?
+    appTelemetry  // Ensure the telemetry deployment is run before stopping triggers since we can only run one deployment at a time with private endpoints
     triggerManagerRoleAssignments
   ]
   params: {

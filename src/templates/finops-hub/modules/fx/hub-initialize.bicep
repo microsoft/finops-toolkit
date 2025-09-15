@@ -38,7 +38,7 @@ var uniqueInstances = union(filter(dataFactoryInstances, adf => !empty(adf)), []
 // Initialize Data Factory instances (start triggers and/or run pipelines)
 module initialize 'hub-deploymentScript.bicep' = [
   for adf in uniqueInstances: {
-    name: substring('Microsoft.FinOpsHubs.Init_${adf}', 0, 64)
+    name: length('Microsoft.FinOpsHubs.Init_${adf}') <= 64 ? 'Microsoft.FinOpsHubs.Init_${adf}' : substring('Microsoft.FinOpsHubs.Init_${adf}', 0, 64)
     params: {
       app: app
       identityName: identityName

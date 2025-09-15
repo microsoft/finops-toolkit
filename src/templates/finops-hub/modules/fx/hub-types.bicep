@@ -145,7 +145,7 @@ type HubAppFeature = 'DataFactory' | 'KeyVault' | 'Storage'
 
 @export()
 @description('Version of the FinOps toolkit.')
-var finOpsToolkitVersion = loadTextContent('../ftkver.txt')  // cSpell:ignore ftkver
+var finOpsToolkitVersion = loadTextContent('ftkver.txt')  // cSpell:ignore ftkver
 
 
 //==============================================================================
@@ -331,7 +331,7 @@ func getAppPublisherTags(app HubAppProperties, resourceType string) object => un
 @description('Returns an object that represents the properties needed to enable private routing for linked services. Use property expansion (`...value`) to apply to a linkedServices resource.')
 func privateRoutingForLinkedServices(hub HubProperties) object => hub.options.privateRouting ? {
   connectVia: {
-    referenceName: 'default'
+    referenceName: 'ManagedIntegrationRuntime'
     type: 'IntegrationRuntimeReference'
   }
 } : {}

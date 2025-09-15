@@ -228,7 +228,7 @@ resource telemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefa
       metadata: {
         _generator: {
           name: 'FinOps toolkit'
-          version: loadTextContent('ftkver.txt') // cSpell:ignore ftkver
+          version: loadTextContent('fx/ftkver.txt') // cSpell:ignore ftkver
         }
       }
       resources: []
@@ -282,7 +282,12 @@ module cmManagedExports 'Microsoft.CostManagement/ManagedExports/app.bicep' = if
 
 module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || useAzureDataExplorer) {
   name: 'Microsoft.FinOpsHubs.Analytics'
-  dependsOn: [
+  dependsOn: hub.options.privateRouting ? [
+    core
+    // When private endpoints are enabled, we need to explicitly block on anything that uses deployment scripts to guarantee only one deployment script runs at a time
+    cmExports
+    deleteOldResources
+  ] : [
     core
   ]
   params: {

@@ -53,6 +53,9 @@ module appRegistration '../../fx/hub-app.bicep' = {
 // Upload schema files
 module schemaFiles '../../fx/hub-storage.bicep' = {
   name: 'Microsoft.CostManagement.Exports_Storage.SchemaFiles'
+  dependsOn: [
+    appRegistration
+  ]
   params: {
     app: app
     container: 'config'
@@ -79,6 +82,9 @@ module schemaFiles '../../fx/hub-storage.bicep' = {
 // Create msexports container
 module exportContainer '../../fx/hub-storage.bicep' = {
   name: 'Microsoft.CostManagement.Exports_Storage.ExportContainer'
+  dependsOn: [
+    appRegistration
+  ]
   params: {
     app: app
     container: MSEXPORTS
@@ -91,6 +97,9 @@ module exportContainer '../../fx/hub-storage.bicep' = {
 
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: app.dataFactory
+  dependsOn: [
+    appRegistration
+  ]
   
   // cSpell:ignore linkedservices
   resource linkedService_storageAccount 'linkedservices' existing = {

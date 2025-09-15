@@ -233,22 +233,37 @@ module appRegistration '../../fx/hub-app.bicep' = {
 // Get data factory instance
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: app.dataFactory
+  dependsOn: [
+    appRegistration
+  ]
 }
 
 resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
   name: 'privatelink.blob.${environment().suffixes.storage}'
+  dependsOn: [
+    appRegistration
+  ]
 }
 
 resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
   name: 'privatelink.queue.${environment().suffixes.storage}'
+  dependsOn: [
+    appRegistration
+  ]
 }
 
 resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
   name: 'privatelink.table.${environment().suffixes.storage}'
+  dependsOn: [
+    appRegistration
+  ]
 }
 
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: app.storage
+  dependsOn: [
+    appRegistration
+  ]
 }
 
 //------------------------------------------------------------------------------
@@ -258,6 +273,9 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 //  Kusto cluster
 resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = if (useAzure) {
   name: replace(clusterName, '_', '-')
+  dependsOn: [
+    appRegistration
+  ]
   location: app.hub.location
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.Kusto/clusters'] ?? {})
   sku: {
@@ -516,8 +534,7 @@ resource dataFactoryVNet 'Microsoft.DataFactory/factories/managedVirtualNetworks
       #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
       privateLinkResourceId: cluster.id
       fqdns: [
-        #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
-        cluster.properties.uri
+        'https://${replace(clusterName, '_', '-')}.${app.hub.location}.kusto.windows.net'
       ]
     }
   }
