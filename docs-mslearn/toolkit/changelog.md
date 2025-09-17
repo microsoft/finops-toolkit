@@ -35,6 +35,9 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+- **Changed**
+  - Updated FOCUS converter documentation to include newly added fields in FOCUS 1.2-preview specification, including ServiceSubcategory, renamed columns (InvoiceId, PricingCurrency, SkuMeter), and new extended columns (x_AmortizationClass, x_ServiceModel).
+
 
 ### [Power BI reports](power-bi/reports.md) v13
 
