@@ -83,11 +83,6 @@ Apply the following logic to all of the rows:
 | SubAccountType             | `Subscription`                                                                                     | None                                                                                                                                                                                                                                                                                      |
 | Tags                       | Tags                                                                                               | Wrap in `{` and `}` if needed.                                                                                                                                                                                                                                                            |
 
-_Extended columns (x_) specific to FOCUS 1.2:_
-
-| x_AmortizationClass        | Not available                                                                                      | Indicates how a row relates to amortization. Set to "Principal" for commitment discount purchases/refunds, "Amortized Charge" for usage, null otherwise. New in FOCUS 1.2.                                                                                                              |
-| x_ServiceModel             | Not available                                                                                      | Indicates service model type: IaaS, PaaS, or SaaS based on what aspects of the service are managed by the provider. New in FOCUS 1.2.                                                                                                                                                   |
-
 _¹ Quantity in Cost Management is the consumed (usage) quantity._
 
 _² While RegionName is a direct mapping of ResourceLocation, Cost Management and FinOps toolkit reports do additional data cleansing to ensure consistency in values based on the [Regions data file](../toolkit/open-data.md#regions)._
@@ -98,10 +93,8 @@ _² While RegionName is a direct mapping of ResourceLocation, Cost Management an
 - `ServiceSubcategory` (new column)
 - `SkuMeter` (promoted from x_SkuMeterName)
 - `SkuPriceDetails` (new column, will eventually replace x_SkuDetails)
-- `x_AmortizationClass` (new extended column)
-- `x_ServiceModel` (new extended column)
 
-The deprecated `x_SkuMeterName` column is replaced by the promoted `SkuMeter` column in FOCUS 1.2.
+The `x_SkuMeterName` column was renamed to `SkuMeter` in FOCUS 1.2.
 
 <br>
 
