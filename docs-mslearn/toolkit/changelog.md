@@ -29,6 +29,11 @@ The following section lists features and enhancements that are currently in deve
 - **Added**
   - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
 
+### [Optimization engine](optimization-engine/overview.md)
+
+- **Fixed**
+  - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
