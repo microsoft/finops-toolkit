@@ -12,6 +12,7 @@ import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices
 param app HubAppProperties
 
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
+@maxLength(22)
 param clusterName string = ''
 
 // https://learn.microsoft.com/azure/templates/microsoft.kusto/clusters?pivots=deployment-language-bicep#azuresku
