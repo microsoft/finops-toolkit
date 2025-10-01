@@ -833,6 +833,15 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "mpritchard2",
+      "name": "Mike Pritchard",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20865962?v=4",
+      "profile": "https://github.com/mpritchard2",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",
