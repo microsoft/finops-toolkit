@@ -196,23 +196,19 @@ V5\Delivery Artifacts\Well-Architected Cost Optimization Assessment Executive Su
     ```powershell
     .\generateCostPPT.ps1 -InputPath "C:\Data\AzureRecommendations.xlsx" -PowerPointPath "C:\Presentations\OriginalPresentation.pptx"
     ```
-    ## **Troubleshooting**
 
-### **Error: Exception calling "Load" with "1" argument(s): "The file is not a valid Package file. If the file is encrypted, please supply the password in the constructor."**
+## Troubleshooting
 
-If you encounter the error:
+### Error: Exception calling "Load" with "1" argument(s): "The file is not a valid Package file..."
 
-Follow these steps:
+This error occurs when the PowerPoint (`.pptx`) or Excel (`.xlsx`) file is encrypted or marked as confidential.
 
-1. **Check if the file is encrypted:**
-   - This error occurs when the PowerPoint (`.pptx`) or Excel (`.xlsx`) file is encrypted or marked as confidential.
-   
-2. **Change the file sensitivity:**
-   - If the file is marked as "Confidential", change its sensitivity to "General".
-   - For PowerPoint (`.pptx`) or Excel (`.xlsx`) files, follow these steps:
-     1. Open the file in Microsoft Office.
-     2. Go to "File" -> "Info".
-     3. Under "Properties", change the file's sensitivity to "General".
-   
-3. **Recreate the file:**
-   - If the error persists, recreate the file, ensuring it is not configured with security restrictions or encryption.
+**Resolution steps:**
+
+1. **Change file sensitivity:**
+   - Open the file in Microsoft Office
+   - Go to File → Info
+   - Under "Properties", change the file's sensitivity from "Confidential" to "General"
+
+2. **If the error persists:**
+   - Recreate the file without security restrictions or encryption
