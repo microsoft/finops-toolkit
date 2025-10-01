@@ -209,6 +209,7 @@ Whether you're looking for a little assistance or are interested in contributing
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/adeelaz"><img src="https://avatars.githubusercontent.com/u/63263829?v=4?s=100" width="100px;" alt="Adeel Aziz"/><br /><sub><b>Adeel Aziz</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=adeelaz" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/shasulin"><img src="https://avatars.githubusercontent.com/u/45314814?v=4?s=100" width="100px;" alt="shasulin"/><br /><sub><b>shasulin</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Ashasulin" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/mpritchard2"><img src="https://avatars.githubusercontent.com/u/20865962?v=4?s=100" width="100px;" alt="Mike Pritchard"/><br /><sub><b>Mike Pritchard</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=mpritchard2" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
