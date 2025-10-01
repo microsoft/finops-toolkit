@@ -224,7 +224,7 @@ $baseQuery = @"
     | summarize MaxIOPSMetric = max(todouble(MetricValue_s)) by ResourceId
     | join kind=inner (
         $disksTableName
-        | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium'
+        | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium' and SKU_s !contains "V2"
         | extend DiskTier_s = strcat(DiskTier_s, ' ', tostring(split(SKU_s, '_')[1]))
         | project ResourceId=InstanceId_s, DiskName_s, ResourceGroup = ResourceGroupName_s, SubscriptionId = SubscriptionGuid_g, Cloud_s, TenantGuid_g, Tags_s, MaxIOPSDisk=toint(DiskIOPS_s), DiskSizeGB_s, SKU_s, DiskTier_s, DiskType_s
     ) on ResourceId
@@ -237,7 +237,7 @@ $baseQuery = @"
         | summarize MaxMBsMetric = max(todouble(MetricValue_s)/1024/1024) by ResourceId
         | join kind=inner (
             $disksTableName
-            | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium'
+            | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium' and SKU_s !contains "V2"
             | extend DiskTier_s = strcat(DiskTier_s, ' ', tostring(split(SKU_s, '_')[1]))
             | project ResourceId=InstanceId_s, DiskName_s, ResourceGroup = ResourceGroupName_s, SubscriptionId = SubscriptionGuid_g, Cloud_s, TenantGuid_g, Tags_s, MaxMBsDisk=toint(DiskThroughput_s), DiskSizeGB_s, SKU_s, DiskTier_s, DiskType_s
         ) on ResourceId
