@@ -79,16 +79,21 @@ if (-not($newBaseTimeStr)) {
     $newBaseTimeStr = $baseTimeStr
 }
 else {
+    $minAllowedTime = [DateTimeOffset]::UtcNow.AddHours(-1)
+    $newBaseTime = $null
+
     try {
-        $newBaseTimeStr += "Z"
-        $newBaseTime = [DateTime]::Parse($newBaseTimeStr)
+        $newBaseTime = [DateTimeOffset]::Parse($newBaseTimeStr + "Z")
     }
     catch {
         throw "$newBaseTimeStr is an invalid base time. Use the following format: YYYY-MM-dd HH:mm:ss. For example: 1977-09-08 06:14:15"
     }
-    if ($newBaseTime -lt (Get-Date).ToUniversalTime().AddHours(-1)) {
-        throw "$newBaseTimeStr is an invalid base time. It can't be sooner than $((Get-Date).ToUniversalTime().AddHours(-1).ToString('u'))"
+
+    if ($newBaseTime -lt $minAllowedTime) {
+        throw "$($newBaseTime.ToString('u')) is an invalid base time. It can't be sooner than $($minAllowedTime.ToString('u'))"
     }
+    
+    $newBaseTimeStr = $newBaseTime.ToString("yyyy-MM-dd HH:mm:ss") + "Z"
 }
 
 $baseTimeUtc = [DateTime]::Parse($newBaseTimeStr).ToUniversalTime()
