@@ -79,7 +79,7 @@ if (-not($newBaseTimeStr)) {
     $newBaseTimeStr = $baseTimeStr
 }
 else {
-    $minAllowedTime = [DateTimeOffset]::UtcNow.AddHours(-1)
+    $minAllowedTime = [DateTimeOffset]::UtcNow.AddHours(1)
     $newBaseTime = $null
 
     try {
@@ -90,7 +90,7 @@ else {
     }
 
     if ($newBaseTime -lt $minAllowedTime) {
-        throw "$($newBaseTime.ToString('u')) is an invalid base time. It can't be sooner than $($minAllowedTime.ToString('u'))"
+        throw "$($newBaseTime.ToString('u')) is an invalid base time. It must be at least 1 hour in the future (after $($minAllowedTime.ToString('u')))"
     }
     
     $newBaseTimeStr = $newBaseTime.ToString("yyyy-MM-dd HH:mm:ss") + "Z"
