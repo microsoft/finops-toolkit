@@ -139,7 +139,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (use
   properties: {
     ...storageInfrastructureEncryptionProperties
     supportsHttpsTrafficOnly: true
-    allowSharedKeyAccess: true
+    allowSharedKeyAccess: false
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
