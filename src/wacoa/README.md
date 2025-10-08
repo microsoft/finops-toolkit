@@ -196,3 +196,19 @@ V5\Delivery Artifacts\Well-Architected Cost Optimization Assessment Executive Su
     ```powershell
     .\generateCostPPT.ps1 -InputPath "C:\Data\AzureRecommendations.xlsx" -PowerPointPath "C:\Presentations\OriginalPresentation.pptx"
     ```
+
+## Troubleshooting
+
+### Error: Exception calling "Load" with "1" argument(s): "The file is not a valid Package file..."
+
+This error occurs when the PowerPoint (`.pptx`) or Excel (`.xlsx`) file is encrypted or marked as confidential.
+
+**Resolution steps:**
+
+1. **Change file sensitivity:**
+   - Open the file in Microsoft Office
+   - Go to File → Info
+   - Under "Properties", change the file's sensitivity from "Confidential" to "General"
+
+2. **If the error persists:**
+   - Recreate the file without security restrictions or encryption
