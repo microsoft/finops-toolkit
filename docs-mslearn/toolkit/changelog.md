@@ -48,10 +48,15 @@ The following section lists features and enhancements that are currently in deve
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
+- **Added**
+  - Added GitHub Copilot instructions template for FinOps hubs that can be downloaded and used with VS Code to connect to and query FinOps hub instances using AI ([#issue-number](https://github.com/microsoft/finops-toolkit/issues/issue-number)).
 - **Changed**
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
     - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
     - Cross-cloud data ingestion through FOCUS format support
+- **Fixed**
+  - Fixed broken download link for GitHub Copilot instructions in [Configure AI agents documentation](hubs/configure-ai.md) by adding the finops-hub-copilot template to the build and packaging process.
+  - Added clarifying notes in [Configure AI agents documentation](hubs/configure-ai.md) to explain that vscode:// protocol handler links only work when VS Code is installed locally.
 
 <br><a name="latest"></a>
 
