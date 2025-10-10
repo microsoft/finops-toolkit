@@ -101,7 +101,14 @@ function Copy-TemplateFiles()
         $buildConfig = $null
         if (Test-Path $srcConfigPath)
         {
-            $buildConfig = Get-Content $srcConfigPath -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json -Depth 10 -ErrorAction SilentlyContinue
+            try
+            {
+                $buildConfig = Get-Content $srcConfigPath -Raw -ErrorAction Stop | ConvertFrom-Json -Depth 10 -ErrorAction Stop
+            }
+            catch
+            {
+                Write-Verbose "Warning: Failed to parse .build.config for $templateName. Using default settings."
+            }
         }
         $zipWithoutVersion = $buildConfig.zipWithoutVersion -eq $true
         
