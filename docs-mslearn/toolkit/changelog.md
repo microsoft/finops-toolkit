@@ -40,6 +40,9 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+- **Fixed**
+  - Fixed broken download link for [GitHub Copilot instructions for FinOps hubs](hubs/configure-ai.md#configure-github-copilot-in-vs-code) by ensuring the finops-hub-copilot.zip file is created during the package process.
+
 
 ### [Power BI reports](power-bi/reports.md) v13
 

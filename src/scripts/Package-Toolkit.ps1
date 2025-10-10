@@ -157,6 +157,16 @@ function Copy-TemplateFiles()
 
         Write-Verbose ("Compressing $srcPath to $zip" -replace (Get-Item $relDir).FullName, '.')
         Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
+        
+        # Create a version-less copy for templates without azuredeploy.json (e.g., finops-hub-copilot)
+        # This enables /releases/latest/download/<template-name>.zip URLs
+        if (-not (Test-Path "$srcPath/azuredeploy.json"))
+        {
+            $versionlessZip = Join-Path (Get-Item $relDir) "$templateName.zip"
+            Write-Verbose ("Creating version-less copy: $versionlessZip" -replace (Get-Item $relDir).FullName, '.')
+            Copy-Item $zip $versionlessZip -Force
+        }
+        
         return $zip
     }
 }
