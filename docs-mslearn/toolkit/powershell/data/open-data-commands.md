@@ -21,6 +21,7 @@ The FinOps toolkit open data PowerShell commands help you integrate datasets int
 ## Commands
 
 - [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
+- [Get-FinOpsRecommendationType](Get-FinOpsRecommendationType.md) – Gets metadata for Azure Advisor recommendation types.
 - [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
 - [Get-FinOpsResourceType](Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
 - [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
