@@ -98,7 +98,11 @@ function Copy-TemplateFiles()
         
         # Read build config to check for zipWithoutVersion option
         $srcConfigPath = "$PSScriptRoot/../templates/$templateName/.build.config"
-        $buildConfig = Get-Content $srcConfigPath -ErrorAction SilentlyContinue | ConvertFrom-Json -Depth 10
+        $buildConfig = $null
+        if (Test-Path $srcConfigPath)
+        {
+            $buildConfig = Get-Content $srcConfigPath -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json -Depth 10 -ErrorAction SilentlyContinue
+        }
         $zipWithoutVersion = $buildConfig.zipWithoutVersion -eq $true
         
         # Create ZIP filename with or without version
