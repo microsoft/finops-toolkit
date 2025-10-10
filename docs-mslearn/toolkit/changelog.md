@@ -40,6 +40,11 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+- **Added**
+  - Added comprehensive troubleshooting guidance for [ErrorCodeNotString](help/errors.md#errorcodenotstring) error that occurs when Azure Data Factory Fail activities cannot evaluate dynamic expressions.
+  - Enhanced [DataExplorerPostIngestionDropFailed](help/errors.md#dataexplorerpostingestiondropfailed) error documentation with detailed troubleshooting steps, common scenarios, and links to Microsoft Learn resources.
+  - Enhanced [DataExplorerPreIngestionDropFailed](help/errors.md#dataexplorerpreingestiondropfailed) error documentation with troubleshooting guidance and cross-references.
+
 
 ### [Power BI reports](power-bi/reports.md) v13
 
