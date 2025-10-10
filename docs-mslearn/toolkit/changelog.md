@@ -40,6 +40,10 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+- **Added**
+  - Added detailed mitigation guidance for [Azure Resource Graph payload size limit errors](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) with step-by-step instructions for filtering by subscription, tags, and removing columns.
+  - Added "Known limitations" section to [Governance report](power-bi/governance.md) and [Workload optimization report](power-bi/workload-optimization.md) documentation explaining Azure Resource Graph payload limits and when to use filtering.
+
 
 ### [Power BI reports](power-bi/reports.md) v13
 
