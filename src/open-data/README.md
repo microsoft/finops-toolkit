@@ -162,6 +162,46 @@ If you run into any issues with the script that gets the data, you can look at e
 
 <br>
 
+## 📋 Recommendation types
+
+<sup>
+    📅 Updated: Oct 10, 2025<br>
+    ➡️ Source: Azure Advisor Recommendation Metadata API + MicrosoftDocs/SelfHelpContent repo<br>
+</sup>
+
+<br>
+
+The [RecommendationTypes.csv](./RecommendationTypes.csv) file contains metadata about Azure Advisor recommendation types. This data provides context for recommendations to help organize and describe them in reports and dashboards.
+
+The data is sourced from two locations:
+
+1. **Azure Advisor Recommendation Metadata API** - Provides recommendation type IDs and display names
+2. **MicrosoftDocs/SelfHelpContent repo** (private, FTE-only) - Provides additional metadata like category, impact, service name, resource type, and learn more links
+
+To update the recommendation metadata from the API:
+
+```powershell
+# Authenticate to Azure
+Connect-AzAccount
+
+# Run the script to fetch metadata
+./src/scripts/Get-AdvisorRecommendationTypes.ps1
+```
+
+The script retrieves the basic metadata (ID and DisplayName) from the Azure Advisor API. Additional columns should be manually populated or sourced from the SelfHelpContent repository.
+
+**Columns:**
+
+- **RecommendationTypeId** - Unique GUID identifier for the recommendation type
+- **Category** - Recommendation category (Cost, Performance, HighAvailability, OperationalExcellence, Security)
+- **Impact** - Impact level (High, Medium, Low)
+- **ServiceName** - Azure service name
+- **ResourceType** - Azure resource type (lowercase)
+- **DisplayName** - Human-readable description of the recommendation
+- **LearnMoreLink** - URL to documentation for more information
+
+<br>
+
 ## 🎛️ Services
 
 <sup>

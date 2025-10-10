@@ -113,6 +113,32 @@ Convert resource type values to lowercase before mapping. This helps reduce dupl
 
 <br>
 
+## Recommendation types
+
+Azure Advisor provides recommendations to help you optimize your Azure deployments. The Recommendation types file includes metadata about each recommendation type to help you organize and provide additional context in your reports and dashboards.
+
+Sample data:
+
+<!-- cSpell:disable -->
+
+| RecommendationTypeId                 | Category              | Impact | ServiceName                | ResourceType                              | DisplayName                                                                                                         | LearnMoreLink                                                                                                                       |
+| ------------------------------------ | --------------------- | ------ | -------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| a06456ed-afb7-4d16-86fd-0054e25268ed | Performance           | Medium | Virtual Machines           | microsoft.compute/virtualmachines         | Enable Accelerated Networking to improve network performance and latency                                            | https://docs.microsoft.com/azure/virtual-network/create-vm-accelerated-networking-cli#enable-accelerated-networking-on-existing-vms |
+| 9c0c3708-17f6-4108-9aff-f0e052c3cd41 | OperationalExcellence | Low    | Azure App Service          | microsoft.subscriptions/subscriptions     | Eliminate replica staging environments and ship new versions and features with zero downtime using deployment slots | https://docs.microsoft.com/azure/app-service/deploy-staging-slots                                                                   |
+| a205074f-8049-48b3-903f-556f5e530ae3 | Cost                  | High   | ReservedInstances          | microsoft.subscriptions/subscriptions     | Buy reserved instance                                                                                               | https://aka.ms/rirecommendations                                                                                                    |
+| 94aea435-ef39-493f-a547-8408092c22a7 | Cost                  | High   | Virtual Machine Scale Sets | microsoft.compute/virtualmachinescalesets | Shut down or resize your virtual machine scale sets                                                                 | https://aka.ms/aa_lowusagerec_vmss_learnmore                                                                                        |
+| afdf4c1a-e46b-4817-a5d6-4b9909f58e2a | Cost                  | Low    | Azure Synapse Analytics    | microsoft.synapse/workspaces              | Consider enabling automatic pause feature on spark compute                                                          | https://aka.ms/EnableSynapseSparkComputeAutoPauseGuidance                                                                           |
+| ed651749-cd37-4fd5-9897-01b416926745 | HighAvailability      | Medium | Site Recovery              | microsoft.compute/virtualmachines         | Enable virtual machine replication                                                                                  | https://aka.ms/azure-site-recovery-dr-azure-vms                                                                                     |
+
+<!-- cSpell:enable -->
+
+Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/RecommendationTypes.csv)
+
+<br>
+
 ## Services
 
 In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. It's roughly the same as `ServiceName` in [FOCUS](../focus/what-is-focus.md). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService` and `ResourceType` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
