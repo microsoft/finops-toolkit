@@ -45,6 +45,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
+  - Fixed missing `CapacityReservationId` and `CapacityReservationStatus` columns in storage-based Power BI templates ([#1839](https://github.com/microsoft/finops-toolkit/issues/1839)).
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
