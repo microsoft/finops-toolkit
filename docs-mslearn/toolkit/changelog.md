@@ -40,6 +40,10 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+- **Added**
+  - New troubleshooting guide for [reservation savings calculations](hubs/troubleshooting-reservation-savings.md) to help diagnose and resolve zero savings issues.
+  - Enhanced error documentation for MissingContractedCost and MissingListCost with references to the troubleshooting guide.
+
 
 ### [Power BI reports](power-bi/reports.md) v13
 
