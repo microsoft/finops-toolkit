@@ -40,6 +40,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+- **Fixed**
+  - Fixed broken FinOps ebook link in the Implementing FinOps guide to point to the correct Azure resource page.
 
 ### [Power BI reports](power-bi/reports.md) v13
 
