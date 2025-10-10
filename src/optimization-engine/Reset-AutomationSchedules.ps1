@@ -75,28 +75,29 @@ else {
 }
 
 $newBaseTimeStr = Read-Host "Please, enter a new base time for the *weekly* schedules in UTC (YYYY-MM-dd HH:mm:ss). If you want to keep the current one, just press ENTER"
+$baseTimeOffset = $null
 if (-not($newBaseTimeStr)) {
     $newBaseTimeStr = $baseTimeStr
+    $baseTimeOffset = [DateTimeOffset]::Parse($newBaseTimeStr)
 }
 else {
     $minAllowedTime = [DateTimeOffset]::UtcNow.AddHours(1)
-    $newBaseTime = $null
 
     try {
-        $newBaseTime = [DateTimeOffset]::Parse($newBaseTimeStr + "Z")
+        $baseTimeOffset = [DateTimeOffset]::Parse($newBaseTimeStr + "Z")
     }
     catch {
         throw "$newBaseTimeStr is an invalid base time. Use the following format: YYYY-MM-dd HH:mm:ss. For example: 1977-09-08 06:14:15"
     }
 
-    if ($newBaseTime -lt $minAllowedTime) {
-        throw "$($newBaseTime.ToString('u')) is an invalid base time. It must be at least 1 hour in the future (after $($minAllowedTime.ToString('u')))"
+    if ($baseTimeOffset -lt $minAllowedTime) {
+        throw "$($baseTimeOffset.ToString('u')) is an invalid base time. It must be at least 1 hour in the future (after $($minAllowedTime.ToString('u')))"
     }
-    
-    $newBaseTimeStr = $newBaseTime.ToString("yyyy-MM-dd HH:mm:ss") + "Z"
+
+    $newBaseTimeStr = $baseTimeOffset.ToString("yyyy-MM-dd HH:mm:ss") + "Z"
 }
 
-$baseTimeUtc = [DateTime]::Parse($newBaseTimeStr).ToUniversalTime()
+$baseTimeUtc = $baseTimeOffset.UtcDateTime
 
 if ($newBaseTimeStr -ne $baseTimeStr) {
     Write-Host "Updating current base schedule to every $($baseTimeUtc.DayOfWeek) at $($baseTimeUtc.TimeOfDay.ToString()) UTC..." -ForegroundColor Green
