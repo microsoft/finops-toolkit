@@ -256,6 +256,8 @@
               href: toolkit/powershell/data/open-data-commands.md
             - name: Get-FinOpsPricingUnit
               href: toolkit/powershell/data/get-finopspricingunit.md
+            - name: Get-FinOpsRecommendationType
+              href: toolkit/powershell/data/get-finopsrecommendationtype.md
             - name: Get-FinOpsRegion
               href: toolkit/powershell/data/get-finopsregion.md
             - name: Get-FinOpsResourceType
