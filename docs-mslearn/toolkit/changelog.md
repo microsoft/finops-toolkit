@@ -45,6 +45,7 @@ The following section lists features and enhancements that are currently in deve
 
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
+  - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data when set to 3 months ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
