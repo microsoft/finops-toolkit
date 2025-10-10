@@ -41,6 +41,11 @@ The following section lists features and enhancements that are currently in deve
 ### Documentation improvements
 
 
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md)
+
+- **Fixed**
+  - Excluded Dev/Test subscriptions from Azure Hybrid Benefit reports to align with licensing requirements. Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions ([#1855](https://github.com/microsoft/finops-toolkit/issues/1855)).
+
 ### [Power BI reports](power-bi/reports.md) v13
 
 - **Fixed**
