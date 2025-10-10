@@ -107,7 +107,7 @@ function Copy-TemplateFiles()
             }
             catch
             {
-                Write-Verbose "Warning: Failed to parse .build.config for $templateName. Using default settings."
+                Write-Verbose "Warning: Failed to parse .build.config for $templateName. Using default settings. Error: $($_.Exception.Message)"
             }
         }
         $zipWithoutVersion = $buildConfig.zipWithoutVersion -eq $true
