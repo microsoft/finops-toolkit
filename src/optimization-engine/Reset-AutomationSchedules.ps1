@@ -75,7 +75,6 @@ else {
 }
 
 $newBaseTimeStr = Read-Host "Please, enter a new base time for the *weekly* schedules in UTC (YYYY-MM-dd HH:mm:ss). If you want to keep the current one, just press ENTER"
-$baseTimeOffset = $null
 if (-not($newBaseTimeStr)) {
     $newBaseTimeStr = $baseTimeStr
     $baseTimeOffset = [DateTimeOffset]::Parse($newBaseTimeStr)
