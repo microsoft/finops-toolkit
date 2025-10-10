@@ -40,6 +40,9 @@ The following section lists features and enhancements that are currently in deve
 
 ### Documentation improvements
 
+- **Added**
+  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
+
 
 ### [Power BI reports](power-bi/reports.md) v13
 

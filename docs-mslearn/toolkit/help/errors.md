@@ -125,7 +125,91 @@ This error message is not related to the FinOps toolkit.
 
 Data Explorer ingestion failed. The new data will not be available for reporting.
 
-**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_ExecuteETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+### Common error: SEM0080 assert() has failed with message 'Ingestion Failed'
+
+If you see the following semantic error in the Azure Data Factory pipeline:
+
+> _Semantic error: Relop semantic error: SEM0080: assert() has failed with message: 'Ingestion Failed'_
+
+This error indicates that the Data Explorer `.ingest` command detected errors during the ingestion process. The ingestion command includes an assertion check (`assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")`) that verifies the `HasErrors` column in the command results. When `HasErrors` is `true`, the assertion fails and triggers this error.
+
+**Common root causes**:
+
+1. **Schema mismatch**: The parquet file schema doesn't match the ingestion mapping reference for the target table. This is the most common cause.
+   - Columns in the parquet file may have different names or data types than expected
+   - The ingestion mapping (e.g., `<table>_mapping`) may be outdated or incorrect
+   - New columns were added to the export schema that aren't in the mapping
+
+2. **Corrupted or invalid parquet files**: The source file may be malformed, corrupted, or not a valid parquet file.
+
+3. **Missing or incorrect ingestion mapping**: The referenced mapping (e.g., `Costs_raw_mapping`) doesn't exist or has incorrect column definitions.
+
+4. **Data type conversion errors**: Data in the parquet file can't be converted to the target column types defined in the table schema.
+
+5. **File access issues**: Data Explorer can't access the parquet file in storage due to permissions or network issues.
+
+**Mitigation steps**:
+
+1. **Check ingestion failures in Data Explorer**:
+   - Connect to your Data Explorer cluster/database
+   - Run the following query to see detailed error information:
+     ```kusto
+     .show ingestion failures
+     | where FailedOn > ago(4h) and Database == "<YourDatabaseName>"
+     | project FailedOn, Table, IngestionSourcePath, ErrorCode, Details
+     ```
+   - Review the `Details` column for specific error messages about schema mismatches or data issues
+
+2. **Verify the ingestion mapping exists and is correct**:
+   - Run this query in Data Explorer to check if the mapping exists:
+     ```kusto
+     .show table <TableName> ingestion mappings
+     ```
+   - If the mapping is missing, it needs to be recreated. Check the FinOps hub deployment logs for mapping creation errors.
+   - If the mapping exists, verify it matches the expected schema for your data source
+
+3. **Check for schema changes**:
+   - If you recently updated Cost Management exports or changed export versions (e.g., from FOCUS 1.0 to 1.2), the schema may have changed
+   - Verify the export dataset version in the manifest.json file in the msexports container
+   - Confirm FinOps hubs supports the dataset version - see [supported datasets](../hubs/data-processing.md#datasets)
+
+4. **Inspect the parquet file**:
+   - Download the problematic parquet file from the ingestion container (path is in the error message)
+   - Use a parquet viewer tool or Azure Storage Explorer to inspect the file structure
+   - Verify the file is valid parquet format and contains data
+
+5. **Check Data Explorer diagnostics**:
+   - In the Azure portal, navigate to your Data Explorer cluster
+   - Go to **Monitoring** > **Diagnostic settings**
+   - Enable `FailedIngestion` diagnostic logs if not already enabled
+   - Review logs in Log Analytics for detailed error information
+
+6. **Redeploy FinOps hubs if mappings are missing**:
+   - If ingestion mappings are missing or corrupted, redeploy FinOps hubs to recreate them
+   - This will recreate all tables, mappings, and functions without data loss
+
+7. **Review Azure Data Explorer metrics**:
+   - Check the **Ingestion result** metric in Azure Monitor
+   - Filter by status to see success vs failure rates
+   - See [Monitor queued ingestion](https://learn.microsoft.com/azure/data-explorer/monitor-queued-ingestion) for more details
+
+8. **Rerun ingestion after fixing the issue**:
+   - After resolving the root cause, rerun the `ingestion_ExecuteETL` pipeline
+   - Specify the folder path from the error message as the parameter
+   - Monitor the pipeline execution to confirm successful ingestion
+
+**Additional resources**:
+
+- [Azure Data Explorer ingestion error codes](https://learn.microsoft.com/azure/data-explorer/error-codes)
+- [Ingestion behavior of invalid data](https://learn.microsoft.com/azure/data-explorer/ingest-invalid-data)
+- [Data Explorer ingestion overview](https://learn.microsoft.com/azure/data-explorer/ingest-data-overview)
+- [Kusto ingestion failures command](https://learn.microsoft.com/kusto/management/ingestion-failures)
+
+If you continue to experience this error after following these steps, please [report the issue](https://aka.ms/ftk/ideas) with the following information:
+- Complete error message from the ADF pipeline
+- Output from the `.show ingestion failures` query
+- Dataset type and version from the manifest.json file
+- FinOps hubs version
 
 <br>
 
