@@ -507,9 +507,60 @@ This error means that you have more resources than are supported in an unfiltere
 
 **Mitigation**: If you experience this error, there are several options:
 
-- Remove columns that are not necessary for your needs.
-- Filter the query to return fewer resources based on what's most important for you (e.g., subscriptions, tags).
-- Disable the query so it doesn't block other queries from running.
+### Option 1: Filter by subscription
+
+Modify the Azure Resource Graph queries to filter by specific subscriptions:
+
+1. Open Power BI Desktop and select **Transform data** from the ribbon.
+2. In the **Queries** pane on the left, expand the **Resource Graph** folder.
+3. Select the query that's failing (e.g., **NetworkSecurityGroups**, **Resources**).
+4. In the query editor, find the `query = "` section in the formula bar.
+5. Add a filter clause to the query. For example, to filter by subscription:
+
+   ```kusto
+   | where subscriptionId in~ ('subscription-id-1', 'subscription-id-2')
+   ```
+
+   Add this line after the `resources` line and before any `| extend` clauses.
+
+6. Select **Close & Apply** to save changes.
+
+### Option 2: Filter by tags
+
+If your resources use tags to organize by environment, cost center, or other criteria, you can filter by tags:
+
+1. Follow steps 1-4 from Option 1.
+2. Add a tag filter to the query:
+
+   ```kusto
+   | where tags.Environment in~ ('Production', 'Staging')
+   ```
+
+   Or filter by multiple tag conditions:
+
+   ```kusto
+   | where tags.CostCenter == '12345' and tags.Environment =~ 'Production'
+   ```
+
+### Option 3: Remove unnecessary columns
+
+Reduce the payload size by removing columns you don't need:
+
+1. Open the query in Power Query Editor (steps 1-3 from Option 1).
+2. In the query text, remove column names from the `extend` or `project` statements that you don't need for your analysis.
+3. Be careful not to remove columns that are used in report visuals or relationships.
+
+### Option 4: Disable problematic queries
+
+If a specific query consistently fails and isn't critical to your needs:
+
+1. In Power Query Editor, right-click the failing query in the **Queries** pane.
+2. Uncheck **Enable load** to prevent the query from loading data.
+3. The query will remain in the report but won't execute during refresh.
+
+For more information about Azure Resource Graph limits and pagination, see:
+- [Working with large Azure resource data sets](/azure/governance/resource-graph/concepts/work-with-data)
+- [Troubleshoot errors using Azure Resource Graph](/azure/governance/resource-graph/troubleshoot/general)
 
 <br>
 
