@@ -9,6 +9,7 @@ On this page:
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
 - [🧪 Test-PowerShell](#-test-powershell)
+- [🔍 Test-ArmTemplate](#-test-armtemplate)
 - [🏷️ Get-Version](#️-get-version)
 - [🏷️ Update-Version](#️-update-version)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
@@ -243,6 +244,43 @@ Examples:
 
   ```powershell
   ./Test-PowerShell -RunFailed
+  ```
+
+<br>
+
+## 🔍 Test-ArmTemplate
+
+[Test-ArmTemplate.ps1](./Test-ArmTemplate.ps1) validates ARM templates for deployment issues and best practices, using multiple validation tools:
+
+- PSRule.Rules.Azure for best practices validation
+- ARM-TTK (ARM Template Test Toolkit) for template quality checks
+- Azure CLI for deployment validation without actually deploying
+
+| Parameter         | Description                                                                      |
+| ----------------- | -------------------------------------------------------------------------------- |
+| `‑TemplatePath`   | Optional. Path to the ARM template to validate. If not specified, all templates in the release directory will be validated. |
+| `‑SkipPSRule`     | Optional. Skip PSRule.Rules.Azure validation. Default = false.                    |
+| `‑SkipArmTtk`     | Optional. Skip ARM-TTK validation. Default = false.                               |
+| `‑SkipAzValidate` | Optional. Skip Azure CLI validation. Default = false.                             |
+
+Examples:
+
+- Validate all ARM templates:
+
+  ```powershell
+  ./Test-ArmTemplate
+  ```
+
+- Validate a specific template:
+
+  ```powershell
+  ./Test-ArmTemplate -TemplatePath "release/finops-hub/azuredeploy.json"
+  ```
+
+- Skip specific validation methods:
+
+  ```powershell
+  ./Test-ArmTemplate -SkipArmTtk -SkipAzValidate
   ```
 
 <br>
