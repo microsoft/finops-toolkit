@@ -42,6 +42,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
+- **Added**
+  - Added [troubleshooting guide for Enterprise Agreement enrollment 403 errors](hubs/troubleshooting/ea-enrollment-403-errors.md) to help resolve common permission and configuration issues when assigning enrollment reader roles ([#1754](https://github.com/microsoft/finops-toolkit/issues/1754)).
 - **Changed**
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
