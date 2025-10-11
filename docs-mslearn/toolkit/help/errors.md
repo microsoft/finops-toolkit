@@ -135,18 +135,23 @@ This error indicates that the Data Explorer `.ingest` command detected errors du
 
 **Common root causes**:
 
-1. **Schema mismatch**: The parquet file schema doesn't match the ingestion mapping reference for the target table. This is the most common cause.
+1. **Empty parquet file**: The parquet file contains no data rows. This is the most common cause.
+   - Cost Management export generated an empty file (no data for the time period)
+   - ETL pipeline created an empty parquet file during transformation
+   - File was created but data write operation failed
+
+2. **Schema mismatch**: The parquet file schema doesn't match the ingestion mapping reference for the target table.
    - Columns in the parquet file may have different names or data types than expected
    - The ingestion mapping (e.g., `<table>_mapping`) may be outdated or incorrect
    - New columns were added to the export schema that aren't in the mapping
 
-2. **Corrupted or invalid parquet files**: The source file may be malformed, corrupted, or not a valid parquet file.
+3. **Corrupted or invalid parquet files**: The source file may be malformed, corrupted, or not a valid parquet file.
 
-3. **Missing or incorrect ingestion mapping**: The referenced mapping (e.g., `Costs_raw_mapping`) doesn't exist or has incorrect column definitions.
+4. **Missing or incorrect ingestion mapping**: The referenced mapping (e.g., `Costs_raw_mapping`) doesn't exist or has incorrect column definitions.
 
-4. **Data type conversion errors**: Data in the parquet file can't be converted to the target column types defined in the table schema.
+5. **Data type conversion errors**: Data in the parquet file can't be converted to the target column types defined in the table schema.
 
-5. **File access issues**: Data Explorer can't access the parquet file in storage due to permissions or network issues.
+6. **File access issues**: Data Explorer can't access the parquet file in storage due to permissions or network issues.
 
 **Mitigation steps**:
 
@@ -158,9 +163,17 @@ This error indicates that the Data Explorer `.ingest` command detected errors du
      | where FailedOn > ago(4h) and Database == "<YourDatabaseName>"
      | project FailedOn, Table, IngestionSourcePath, ErrorCode, Details
      ```
-   - Review the `Details` column for specific error messages about schema mismatches or data issues
+   - Review the `Details` column for specific error messages about empty files, schema mismatches, or data issues
+   - Look for error codes like `BadRequest_NoRecordsOrWrongFormat` which indicates an empty file
 
-2. **Verify the ingestion mapping exists and is correct**:
+2. **Check if the parquet file is empty**:
+   - Download the problematic parquet file from the ingestion container (path is in the error message)
+   - Use a parquet viewer tool or Azure Storage Explorer to inspect the file
+   - Check the file size - if it's very small (< 1KB), it's likely empty
+   - Verify the file contains data rows
+   - **If empty**: This is expected behavior when there's no data for the time period. The file can be safely deleted from the ingestion container. Cost Management may export empty files for months with no usage.
+
+3. **Verify the ingestion mapping exists and is correct**:
    - Run this query in Data Explorer to check if the mapping exists:
      ```kusto
      .show table <TableName> ingestion mappings
@@ -168,15 +181,10 @@ This error indicates that the Data Explorer `.ingest` command detected errors du
    - If the mapping is missing, it needs to be recreated. Check the FinOps hub deployment logs for mapping creation errors.
    - If the mapping exists, verify it matches the expected schema for your data source
 
-3. **Check for schema changes**:
+4. **Check for schema changes**:
    - If you recently updated Cost Management exports or changed export versions (e.g., from FOCUS 1.0 to 1.2), the schema may have changed
    - Verify the export dataset version in the manifest.json file in the msexports container
    - Confirm FinOps hubs supports the dataset version - see [supported datasets](../hubs/data-processing.md#datasets)
-
-4. **Inspect the parquet file**:
-   - Download the problematic parquet file from the ingestion container (path is in the error message)
-   - Use a parquet viewer tool or Azure Storage Explorer to inspect the file structure
-   - Verify the file is valid parquet format and contains data
 
 5. **Check Data Explorer diagnostics**:
    - In the Azure portal, navigate to your Data Explorer cluster
@@ -197,6 +205,7 @@ This error indicates that the Data Explorer `.ingest` command detected errors du
    - After resolving the root cause, rerun the `ingestion_ExecuteETL` pipeline
    - Specify the folder path from the error message as the parameter
    - Monitor the pipeline execution to confirm successful ingestion
+   - Note: Empty files do not need to be reingested - they can be safely ignored
 
 **Additional resources**:
 
