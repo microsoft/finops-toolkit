@@ -18,6 +18,20 @@ The FinOps toolkit Power BI reports provide a great starting point for your FinO
 
 FinOps toolkit reports support several ways to connect to your cost data. We generally recommend starting with Cost Management exports, which support up to $2-5 million in monthly spend. If you experience data refresh timeouts or need to report on data across multiple directories or tenants, use [FinOps hubs](../hubs/finops-hubs-overview.md). It's a data pipeline solution that optimizes data and offers more functionality. For more information about choosing the right backend, see [Help me choose](help-me-choose.md).
 
+## Datasets and compatible tools
+
+The following table shows the different datasets available and which reports and tools can access them:
+
+| Dataset | Description | Compatible reports and tools | Notes |
+|---------|-------------|------------------------------|-------|
+| Cost Management exports | Raw cost and usage data exported to Azure Data Lake Storage Gen2 | • Power BI storage reports<br>• Custom Power BI reports<br>• Direct storage access | Recommended for accounts with less than $2M monthly spend |
+| FinOps hubs + Data Explorer (ADX) | Cost data processed and stored in Azure Data Explorer clusters | • Power BI KQL reports<br>• Data Explorer dashboards<br>• Azure Monitor workbooks<br>• Direct KQL queries<br>• Custom applications via Kusto API | Recommended for accounts with more than $100K total spend |
+| FinOps hubs + Microsoft Fabric RTI | Cost data processed and stored in Microsoft Fabric Real-Time Intelligence | • Power BI KQL reports<br>• Fabric Real-Time dashboards<br>• Direct KQL queries<br>• Custom applications via Kusto API | Best performance and capabilities option |
+| Microsoft Fabric OneLake | Raw exports stored in Microsoft Fabric OneLake | • Custom Fabric notebooks<br>• Custom Power BI reports<br>• Fabric data pipelines | For organizations already using Microsoft Fabric |
+| Cost Management connector | Direct Power BI connection to Cost Management APIs | • Cost Management connector Power BI reports | Deprecated - not recommended for new implementations |
+
+Each dataset offers different capabilities and is optimized for different use cases. For detailed guidance on choosing the right option, see [Help me choose](help-me-choose.md).
+
 Support for the [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management) is available for backwards compatibility, but isn't recommended. The Microsoft Cost Management team is no longer updating the Cost Management connector and instead recommends exporting data. Use following information to connect and customize FinOps toolkit and other Power BI reports.
 
 <br>
@@ -42,7 +56,9 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
      - On the **Overview** page, under **Properties**, confirm **Access tier** is set to **Hot**.
        - If not, select the link and change the access tier to "Hot".
        - Other access tiers have not been tested and are not recommended due to the performance impact.
-2. Configure Cost Management exports for any data you would like to include in reports, including:
+2. Configure Cost Management exports for any data you would like to include in reports.
+   
+   You can create exports manually in the Azure portal or programmatically using the [`New-FinOpsCostExport`](../powershell/cost/new-finopscostexport.md) PowerShell command. Include the following datasets:
 
    | Dataset                     | Version          | Notes                                                                                                                           |
    | --------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -84,7 +100,9 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
      - If connecting directly to Cost Management exports in storage:
        1. Open the desired storage account in the Azure portal.
        2. Select **Settings** > **Endpoints** in the menu.
-       3. Copy the **Data Lake Storage** URL.
+       3. Copy the **Data Lake Storage** URL (not the Blob service URL).
+          > [!IMPORTANT]
+          > Make sure to use the Data Lake Storage endpoint (contains `.dfs.core.windows.net`), not the Blob service endpoint (contains `.blob.core.windows.net`). Power BI storage reports require the DFS endpoint to function properly.
        4. Append the container and export path, if applicable.
    - **Number of Months** &ndash; Optional number of closed months you would like to report on if you want to always show a specific number of recent months. If not specified, the report will include all data in storage.
    - **RangeStart** / **RangeEnd** &ndash; Optional date range you would like to limit to. If not specified, the report will include all data in storage.
@@ -193,7 +211,7 @@ If using exports or FinOps hubs, you use the Azure Data Lake Storage Gen2 connec
    - If using raw exports, copy the URL from the storage account:
      1. Open the desired storage account in the Azure portal.
      2. Select **Settings** > **Endpoints** in the menu.
-     3. Copy the **Data Lake Storage** URL.
+     3. Copy the **Data Lake Storage** URL (not the Blob service URL).
      4. Append the container and export path, if applicable.
 5. Select **OK**.
    > [!WARNING]

@@ -24,16 +24,51 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### Documentation
+### [FinOps hubs](hubs/finops-hubs-overview.md)
 
 - **Added**
-  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
+  - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
+
+### [Optimization engine](optimization-engine/overview.md)
+
+- **Fixed**
+  - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
 
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### Documentation improvements
+
+- **Added**
+  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
+
+
+### [Power BI reports](power-bi/reports.md) v13
+
+- **Fixed**
+  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v13
+
+- **Changed**
+  - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
+    - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
+    - Cross-cloud data ingestion through FOCUS format support
+
 <br><a name="latest"></a>
+
+## v13
+
+_Released August 2025_
+
+
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
+
+<br>
 
 ## v12
 

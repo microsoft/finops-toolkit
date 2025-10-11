@@ -1642,7 +1642,7 @@ table Costs
 						Table.ReplaceErrorValues(Table.AddColumn(FTK, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
 						"tmp_Tags",
 						PromotedTags,
-						List.Transform(PromotedTags, each "tag_" & Text.Replace(_, " ", ""))
+						List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", ""))
 					),
 				
 					// AHB columns
