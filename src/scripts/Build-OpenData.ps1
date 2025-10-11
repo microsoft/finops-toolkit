@@ -6,7 +6,7 @@
     Creates open data files and compiles contents into corresponding PowerShell functions.
 
     .PARAMETER Name
-    Name of the data to build. Allowed = PricingUnits, Regions, ResourceTypes, Services. Default = * (all).
+    Name of the data to build. Allowed = PricingUnits, Regions, RecommendationTypes, ResourceTypes, Services. Default = * (all).
 
     .PARAMETER Json
     Indicates that JSON files should be generated. Only applies to resource types. Default = false, if -PowerShell is not specified.
@@ -37,6 +37,11 @@
     ./Build-OpenData -PowerShell -Test
 
     Step 3: Generates PowerShell commands and run tests for all datasets.
+
+    .EXAMPLE
+    ./Build-OpenData RecommendationTypes
+
+    Generates a private Get-OpenDataRecommendationType PowerShell function from the contents of open-data/RecommendationTypes.csv.
 
     .EXAMPLE
     ./Build-OpenData Services

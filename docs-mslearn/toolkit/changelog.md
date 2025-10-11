@@ -41,6 +41,11 @@ The following section lists features and enhancements that are currently in deve
 ### Documentation improvements
 
 
+### [Open data](open-data.md) v13
+
+- **Added**
+  - Added [RecommendationTypes.csv](open-data.md#recommendation-types) open data file with Azure Advisor recommendation type metadata including recommendation IDs, categories, impact levels, service names, and learn more links.
+
 ### [Power BI reports](power-bi/reports.md) v13
 
 - **Fixed**
