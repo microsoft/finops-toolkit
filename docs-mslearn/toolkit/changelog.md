@@ -50,6 +50,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
+  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
+
 
 <br><a name="latest"></a>
 
