@@ -43,6 +43,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Power BI reports](power-bi/reports.md) v13
 
+- **Added**
+  - Created [community reports repository](power-bi/community.md) for community-contributed Power BI reports, similar to Azure Quickstart Templates. The repository enables the FinOps community to share specialized reports for specific use cases while maintaining clear differentiation from official toolkit reports.
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
 
