@@ -48,6 +48,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
+- **Added**
+  - Added [troubleshooting guide for Enterprise Agreement enrollment 403 errors](hubs/troubleshooting/ea-enrollment-403-errors.md) to help resolve common permission and configuration issues when assigning enrollment reader roles ([#1754](https://github.com/microsoft/finops-toolkit/issues/1754)).
 - **Changed**
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
     - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
