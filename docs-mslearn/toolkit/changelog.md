@@ -64,6 +64,11 @@ _Released August 2025_
 
 > [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
 
+### [Implementing FinOps guide](../implementing-finops-guide.md) v13
+
+- **Changed**
+  - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
+
 <br>
 
 ## v12
