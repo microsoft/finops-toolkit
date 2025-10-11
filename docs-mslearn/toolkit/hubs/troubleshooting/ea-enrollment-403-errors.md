@@ -1,8 +1,8 @@
 ---
 title: Troubleshooting Enterprise Agreement enrollment 403 errors
 description: Learn how to resolve HTTP 403 (Forbidden) errors when assigning Enterprise Agreement enrollment reader permissions to service principals for FinOps hubs.
-author: flanakin
-ms.author: micflan
+author: msbrett
+ms.author: brettwil
 ms.date: 10/11/2025
 ms.topic: troubleshooting
 ms.service: finops
