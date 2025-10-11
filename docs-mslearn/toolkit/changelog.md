@@ -33,11 +33,18 @@ The following section lists features and enhancements that are currently in deve
 ### [Optimization engine](optimization-engine/overview.md)
 
 - **Fixed**
+  - Reservations-related workbooks fixed by replacing Instance Size Flexibility ratios CSV vanity URL with actual one to work around Log Analytics externaldata limitation ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
   - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
 
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
+
+### [Power BI reports](power-bi/reports.md)
+
+- **Added**
+  - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
+  - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
 
 ### Documentation improvements
 
@@ -67,6 +74,11 @@ _Released August 2025_
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
 
 > [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v13
+
+- **Changed**
+  - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
 
 <br>
 
