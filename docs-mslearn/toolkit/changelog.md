@@ -24,6 +24,14 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### Development tools v13
+
+- **Added**
+  - Added ARM template validation infrastructure with GitHub Actions workflow and PowerShell script ([#1606](https://github.com/microsoft/finops-toolkit/issues/1606)).
+    - New `Test-ArmTemplate.ps1` script for local ARM template validation with PSRule, ARM-TTK, and Azure CLI.
+    - New GitHub Actions workflow for automated ARM template validation in CI/CD (currently manual trigger only, phased rollout planned).
+    - Supports strict and lenient validation modes for different development scenarios.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
