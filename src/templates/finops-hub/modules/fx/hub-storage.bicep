@@ -3,7 +3,6 @@
 
 import { HubAppProperties } from 'hub-types.bicep'
 
-
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -20,14 +19,12 @@ param files object = {}
 @description('Optional. Indicates whether to create the blob manager user assigned identity even if files are not being uploaded. Default: false.')
 param forceCreateBlobManagerIdentity bool = false
 
-
 //==============================================================================
 // Variables
 //==============================================================================
 
 var fileCount = length(items(files))
 var hasFiles = fileCount > 0
-
 
 //==============================================================================
 // Resources
@@ -36,7 +33,7 @@ var hasFiles = fileCount > 0
 // Get storage account instance
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: app.storage
-  
+
   resource blobService 'blobServices@2022-09-01' existing = {
     name: 'default'
 
@@ -63,7 +60,7 @@ module identity 'hub-identity.bicep' = if (hasFiles || forceCreateBlobManagerIde
       // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
       // Used by deployment scripts to write data to blob storage
       'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
-      
+
       // Storage File Data Privileged Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor
       // https://learn.microsoft.com/azure/azure-resource-manager/templates/deployment-script-template#use-existing-storage-account
       '69566ab7-960f-475b-8e7c-b3118f30c6bd'
@@ -76,6 +73,7 @@ module uploadFiles 'hub-deploymentScript.bicep' = if (hasFiles) {
   name: '${deployment().name}.Upload'
   params: {
     app: app
+    #disable-next-line BCP318 // Null safety warning for conditional resource access
     identityName: identity.outputs.name
     environmentVariables: [
       {
@@ -95,7 +93,6 @@ module uploadFiles 'hub-deploymentScript.bicep' = if (hasFiles) {
   }
 }
 
-
 //==============================================================================
 // Outputs
 //==============================================================================
@@ -107,10 +104,13 @@ output containerName string = storageAccount::blobService::targetContainer.name
 output filesUploaded int = fileCount
 
 @description('Resource ID of the user assigned identity used to upload files. Will be empty if no files are uploaded or forceCreateBlobManagerIdentity is false.')
+#disable-next-line BCP318 // Null safety warning for conditional resource access
 output identityId string = hasFiles || forceCreateBlobManagerIdentity ? identity.outputs.id : ''
 
 @description('Name of the user assigned identity used to upload files. Will be empty if no files are uploaded or forceCreateBlobManagerIdentity is false.')
+#disable-next-line BCP318 // Null safety warning for conditional resource access
 output identityName string = hasFiles || forceCreateBlobManagerIdentity ? identity.outputs.name : ''
 
 @description('Principal ID of the user assigned identity used to upload files. Will be empty if no files are uploaded or forceCreateBlobManagerIdentity is false.')
+#disable-next-line BCP318 // Null safety warning for conditional resource access
 output identityPrincipalId string = hasFiles || forceCreateBlobManagerIdentity ? identity.outputs.principalId : ''
