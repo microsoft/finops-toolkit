@@ -54,6 +54,9 @@ configuration:
                   - not:
                       isActivitySender:
                         user: aromano2
+                  # VS Code settings and PowerShell scripts only
+                  - filesMatchPattern:
+                      pattern: ^(\.vscode/.*\.json|(\.build|src\/scripts)\/.*\.ps[dm]?1)$
                 then:
                   - requestReview:
                       reviewer: aromano2
@@ -72,6 +75,45 @@ configuration:
             then:
               - addLabel:
                   label: 'Tool: FinOps guide'
+              # Jared
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: caddyg
+                  # Framework capabilities only
+                  - filesMatchPattern:
+                      pattern: ^(docs\/_docs|docs-mslearn)\/framework/.*
+                then:
+                  - requestReview:
+                      reviewer: caddyg
+                  - assignTo:
+                      user: caddyg
+              # Kevin
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: kevindlr
+                  # Framework capabilities only
+                  - filesMatchPattern:
+                      pattern: ^(docs\/_docs|docs-mslearn)\/framework/.*
+                then:
+                  - requestReview:
+                      reviewer: kevindlr
+                  - assignTo:
+                      user: kevindlr
+              # Nicolas
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: nteyan
+                  # Best practice library only
+                  - filesMatchPattern:
+                      pattern: ^(docs\/_docs|docs-mslearn)\/best-practices/.*
+                then:
+                  - requestReview:
+                      reviewer: nteyan
+                  - assignTo:
+                      user: nteyan
           # bicep
           - if:
               - filesMatchPattern:
@@ -79,12 +121,32 @@ configuration:
             then:
               - addLabel:
                   label: 'Skill: Deployment'
+              # Zach
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: fallenhoot
+                then:
+                  - requestReview:
+                      reviewer: fallenhoot
+                  - assignTo:
+                      user: fallenhoot
           - if:
               - filesMatchPattern:
                   pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/bicep-registry\/.*
             then:
               - addLabel:
                   label: 'Tool: Bicep Registry'
+              # Zach
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: fallenhoot
+                then:
+                  - requestReview:
+                      reviewer: fallenhoot
+                  - assignTo:
+                      user: fallenhoot
           # hubs
           - if:
               - or:
@@ -105,13 +167,63 @@ configuration:
                       reviewer: msbrett
                   - assignTo:
                       user: msbrett
+              # Helder
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: helderpinto
+                then:
+                  - requestReview:
+                      reviewer: helderpinto
+                  - assignTo:
+                      user: helderpinto
+              # Robel
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: ro100e
+                then:
+                  - requestReview:
+                      reviewer: ro100e
+                  - assignTo:
+                      user: ro100e
+              # Roland
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: rolandkrummenacher
+                then:
+                  - requestReview:
+                      reviewer: rolandkrummenacher
+                  - assignTo:
+                      user: rolandkrummenacher
+          # kql
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^.*\.kql$
+                  - filesMatchPattern:
+                      pattern: ^src\/templates\/finops-hub\/modules\/dataExplorer\.bicep$
+            then:
+              - addLabel:
+                  label: 'Skill: KQL'
+              # Brad
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: bwatts64
+                then:
+                  - requestReview:
+                      reviewer: bwatts64
+                  - assignTo:
+                      user: bwatts64
           # open data
           - if:
               - or:
                   - filesMatchPattern:
                       pattern: ^docs\/_reporting\/data\/.*
                   - filesMatchPattern:
-                      pattern: ^docs-mslearn\/toolkit\/open-data\/.*
+                      pattern: ^docs-mslearn\/toolkit\/open-data.md$
                   - filesMatchPattern:
                       pattern: ^src\/open-data\/.*
             then:
@@ -120,10 +232,20 @@ configuration:
           # power-bi
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs\/_reporting|src)\/power-bi\/.*
+                  pattern: ^(docs\/_reporting|docs-mslearn\/toolkit|src)\/power-bi\/.*
             then:
               - addLabel:
                   label: 'Tool: Power BI'
+              # Chris
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: chris-bowman
+                then:
+                  - requestReview:
+                      reviewer: chris-bowman
+                  - assignTo:
+                      user: chris-bowman
           # powershell
           - if:
               - filesMatchPattern:
@@ -195,6 +317,64 @@ configuration:
             then:
               - addLabel:
                   label: 'Skill: Deployment'
+              # Divyadeep
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: didayal-msft
+                then:
+                  - requestReview:
+                      reviewer: didayal-msft
+                  - assignTo:
+                      user: didayal-msft
+              # Sacha
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: springstone
+                then:
+                  - requestReview:
+                      reviewer: springstone
+                  - assignTo:
+                      user: springstone
+          # web
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^src\/web\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Web app'
+              # Ivan
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: ivanmtta
+                then:
+                  - requestReview:
+                      reviewer: ivanmtta
+                  - assignTo:
+                      user: ivanmtta
+              # Jamel
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: jamelachahbar
+                then:
+                  - requestReview:
+                      reviewer: jamelachahbar
+                  - assignTo:
+                      user: jamelachahbar
+              # Orthodoxos
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: akiskips
+                then:
+                  - requestReview:
+                      reviewer: akiskips
+                  - assignTo:
+                      user: akiskips
           # workbooks
           - if:
               - or:

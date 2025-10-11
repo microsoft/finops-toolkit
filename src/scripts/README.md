@@ -66,7 +66,7 @@ Examples:
 
 ## 🌐 Build-OpenData
 
-[Build-OpenData.ps1](./Build-OpenData.ps1) generates data files and PowerShell commands for all open data. PowerShell commands are private and not shared externally today. They must be manually checked in and the script only needs to be run when datasets are added or updated. These are meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData.
+[Build-OpenData.ps1](./Build-OpenData.ps1) generates data files, PowerShell commands, and FinOps hubs KQL functions for open data. PowerShell commands are private and not shared externally today &ndash; they're meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData. FinOps hubs KQL functions are available from the hub Ingestion database. File updates must be manually checked in and the script only needs to be run when datasets are added or updated.
 
 Examples:
 
@@ -88,13 +88,21 @@ Examples:
   ./Build-OpenData -Data
   ```
 
+- Build FinOps hubs KQL functions only:
+
+  ```powershell
+  ./Build-OpenData -Hubs
+  ```
+
+  After running this script, if new open data KQL files are created, you will need to also update dataExplorer.bicep to include them in the Data Explorer deployment.
+
 - Build data files and PowerShell functions:
 
   ```powershell
   ./Build-OpenData -All
   ```
 
-- Run tests after the build completes:
+- Run PowerShell tests after the build completes:
 
   ```powershell
   ./Build-OpenData -Test
@@ -274,13 +282,13 @@ Example:
 
 Examples:
 
-- Increments the major version number (e.g., `1.0` to `2.0`).
+- Increments the major version number (for example, `1.0` to `2.0`).
 
   ```powershell
   ./Update-Version -Major
   ```
 
-- Increments the prerelease version number with an "alpha" preview label (e.g., `1.0` to `1.0.1-alpha`).
+- Increments the prerelease version number with an "alpha" preview label (for example, `1.0` to `1.0.1-alpha`).
 
   ```powershell
   ./Update-Version -Prerelease -Label "alpha"
@@ -290,20 +298,35 @@ Examples:
 
 ## 🚚 Publish-Toolkit
 
-[Publish-Toolkit.ps1](./Publish-Toolkit.ps1) publishes a template to the Azure Quickstart Templates repository.
+[Publish-Toolkit.ps1](./Publish-Toolkit.ps1) publishes a toolkit template, module, or documentation to its destination repo.
 
-| Parameter      | Description                                                                                              |
-| -------------- | -------------------------------------------------------------------------------------------------------- |
-| `‑Template`    | Required. Name of the template or module to deploy.                                                      |
-| `‑Destination` | Required. Path to the local clone of the Azure Quickstart Templates repository.                          |
-| `‑Build`       | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`. |
-| `‑Branch`      | Optional. Indicates whether to commit the changes to a new branch in the Git repo. Default = `false`.    |
+| Parameter         | Description                                                                                                             |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `‑Template`       | Name of the template or module to publish. Default = * (all templates).                                                 |
+| `‑QuickstartRepo` | Optional. Name of the folder where the Azure Quickstart Templates repo is cloned. Default = azure-quickstart-templates. |
+| `‑RegistryRepo`   | Optional. Name of the folder where the Bicep Registry repo is cloned. Default = bicep-registry-modules.                 |
+| `‑Build`          | Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.                    |
+| `‑Branch`         | Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Default = false.           |
 
-Example:
+Examples:
 
-```powershell
-./Publish-Toolkit "finops-hub" "../../../aqt" -Build -Branch
-```
+- Builds and publishes the FinOps hub template to the Azure Quickstart Templates repo, commits changes, and pushes to the fork to prepare for a PR.
+  
+  ```powershell
+  ./Publish-Toolkit "finops-hub" -Build -Commit
+  ```
+
+- Builds and publishes the resource group scheduled action module to the Bicep Registry repo locally but does not commit.
+  
+  ```powershell
+  ./Publish-Toolkit "resourcegroup-scheduled-action" -Build
+  ```
+
+- Publishes documentation to the Microsoft Learn repo locally but does not commit.
+  
+  ```powershell
+  ./Publish-Toolkit "docs"
+  ```
 
 <br>
 

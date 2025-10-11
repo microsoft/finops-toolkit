@@ -1,0 +1,33 @@
+table HubScopes
+	lineageTag: 6dfeb4ff-e902-435e-abed-2109389c66e3
+
+	column Scope
+		dataType: string
+		lineageTag: c7ee3a4b-0df9-47c3-9acb-ac9fdb5d536d
+		summarizeBy: none
+		sourceColumn: Scope
+
+		annotation SummarizationSetBy = Automatic
+
+	partition HubScopes = m
+		mode: import
+		queryGroup: Storage
+		source =
+				let
+					ADLS = if #"Storage URL" = "" or #"Storage URL" = null or Text.EndsWith(#"Storage URL", "/ingestion") = false then null else AzureStorage.DataLake(#"Storage URL" & "/../config"),
+				
+					Settings =       if ADLS = null then null else Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
+					Scopes =         if ADLS = null then null else Settings[scopes],
+					ToTable =        if ADLS = null then null else try Table.FromList(Scopes, Splitter.SplitByNothing(), {"Scope"}, null, ExtraValues.Ignore) otherwise #table({"Scope"}, {}),
+					AppendQueries =  if ADLS = null then null else Table.Combine({ToTable, StorageData}),
+					RemoveTestData = if ADLS = null then null else Table.SelectRows(AppendQueries, each [Scope] <> null and [Scope] <> "" and [Scope] <> "/foo"),
+					Scope =          if ADLS = null then null else Table.SelectColumns(RemoveTestData, {"Scope"}),
+					Lowercase =      if ADLS = null then null else Table.TransformColumns(Scope, {{"Scope", each try Text.Lower(_[scope]) otherwise Text.Lower(_)}}),
+					Distinct =       if ADLS = null then null else Table.Distinct(Lowercase)
+				in
+					Distinct
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

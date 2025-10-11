@@ -1,0 +1,249 @@
+table NetworkSecurityGroups
+	lineageTag: 7d98f967-9180-4a4f-958a-89256520af0f
+
+	column id
+		dataType: string
+		lineageTag: f482c1e4-d36d-47dd-ab46-ab41d9e651ae
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: dbe15cec-f5b3-4c38-8688-b1dc486c42d9
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceGuid'
+		dataType: string
+		lineageTag: eff5cb67-bada-4826-adc8-4b2a10f81ddc
+		summarizeBy: none
+		sourceColumn: properties.resourceGuid
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.destinationAddressPrefix'
+		dataType: string
+		lineageTag: 2f249b57-c790-4687-82a1-d805f75f3f83
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.destinationAddressPrefix
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.sourceAddressPrefix'
+		dataType: string
+		lineageTag: 04bad4dd-667f-4ff3-bde1-ad99b1b40d31
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.sourceAddressPrefix
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.destinationPortRange'
+		dataType: string
+		lineageTag: b2ca87a4-a342-493b-8a4e-8ae9b48755d0
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.destinationPortRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.sourcePortRange'
+		dataType: string
+		lineageTag: 77d6b680-9a1e-4e7f-8af8-13278f52c156
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.sourcePortRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.protocol'
+		dataType: string
+		lineageTag: 398c4c53-0c7b-4f52-a06a-e798d9df7416
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.protocol
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.direction'
+		dataType: string
+		lineageTag: 399c736a-57aa-4c0e-8892-865e1cef7484
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.direction
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.priority'
+		dataType: string
+		lineageTag: 437e410b-fa04-49ee-b33e-00abf7a5435d
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.priority
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.access'
+		dataType: string
+		lineageTag: 5033a598-4e4b-4394-9085-3affe314aa9a
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.access
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.name'
+		dataType: string
+		lineageTag: 4c100028-a36b-4531-84fc-6b39ea2e005d
+		summarizeBy: none
+		sourceColumn: properties.securityRules.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.id'
+		dataType: string
+		lineageTag: 710fb1a1-0b44-45c5-8e6b-e55ef2788b53
+		summarizeBy: none
+		sourceColumn: properties.securityRules.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column isWarning = ```
+			IF('NetworkSecurityGroups'[properties.securityRules.properties.access]="Allow",
+			        SWITCH(
+			            'NetworkSecurityGroups'[properties.securityRules.properties.destinationPortRange],
+			            "80", "True",
+			            "22", "True",
+			            "3389", "True",
+			            "False"
+			    ), "False" 
+			)
+			```
+		lineageTag: 5fb590a3-057d-487e-af26-3e6686be93fe
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules'
+		dataType: string
+		lineageTag: 49da77d4-1ae6-486d-8e0a-e05c49d44e91
+		summarizeBy: none
+		sourceColumn: properties.securityRules
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 0df42dd6-3aa2-44f3-a2ad-b8556165582c
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: ee71f894-1abf-4b2a-8b79-1e7e73cc0db5
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	partition NetworkSecurityGroups = m
+		mode: import
+		queryGroup: 'Resource Graph'
+		source =
+				let
+				  query = "
+				    resources
+				    | where type =~ 'microsoft.network/networksecuritygroups'
+				    | extend
+				      ['properties.resourceGuid'] = properties.resourceGuid,
+				      ['properties.securityRules'] = properties.securityRules
+				    | mv-expand ['properties.securityRules']
+				    | extend
+				      ['properties.securityRules.name'] = properties.securityRules.name,
+				      ['properties.securityRules.id'] = properties.securityRules.id,
+				      ['properties.securityRules.properties.destinationAddressPrefix'] = properties.securityRules.properties.destinationAddressPrefix,
+				      ['properties.securityRules.properties.sourceAddressPrefix'] = properties.securityRules.properties.sourceAddressPrefix,
+				      ['properties.securityRules.properties.destinationPortRange'] = properties.securityRules.properties.destinationPortRange,
+				      ['properties.securityRules.properties.sourcePortRange'] = properties.securityRules.properties.sourcePortRange,
+				      ['properties.securityRules.properties.protocol'] = properties.securityRules.properties.protocol,
+				      ['properties.securityRules.properties.direction'] = properties.securityRules.properties.direction,
+				      ['properties.securityRules.properties.priority'] = properties.securityRules.properties.priority,
+				      ['properties.securityRules.properties.access'] = properties.securityRules.properties.access
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "location", "resourceGroup", "properties.resourceGuid", "properties.securityRules", "properties.securityRules.name", "properties.securityRules.id", "properties.securityRules.properties.destinationAddressPrefix", "properties.securityRules.properties.sourceAddressPrefix", "properties.securityRules.properties.destinationPortRange", "properties.securityRules.properties.sourcePortRange", "properties.securityRules.properties.protocol", "properties.securityRules.properties.direction", "properties.securityRules.properties.priority", "properties.securityRules.properties.access" },
+								{}
+							)
+				    else Source
+				in
+				  NullHandling
+				
+				
+				// Full query
+				// resources
+				// | where type =~ 'microsoft.network/networksecuritygroups'
+				// | extend
+				//   ['properties.provisioningState'] = properties.provisioningState,
+				//   ['properties.networkInterfaces'] = properties.networkInterfaces,
+				//   ['properties.resourceGuid'] = properties.resourceGuid,
+				//   ['properties.defaultSecurityRules'] = properties.defaultSecurityRules,
+				//   ['properties.securityRules'] = properties.securityRules
+				// | mv-expand ['properties.networkInterfaces']
+				// | extend
+				//   ['properties.networkInterfaces.id'] = properties.networkInterfaces.id
+				// | mv-expand ['properties.defaultSecurityRules']
+				// | extend
+				//   ['properties.defaultSecurityRules.type'] = properties.defaultSecurityRules.type,
+				//   ['properties.defaultSecurityRules.properties'] = properties.defaultSecurityRules.properties,
+				//   ['properties.defaultSecurityRules.name'] = properties.defaultSecurityRules.name,
+				//   ['properties.defaultSecurityRules.id'] = properties.defaultSecurityRules.id,
+				//   ['properties.defaultSecurityRules.etag'] = properties.defaultSecurityRules.etag,
+				//   ['properties.defaultSecurityRules.properties.provisioningState'] = properties.defaultSecurityRules.properties.provisioningState,
+				//   ['properties.defaultSecurityRules.properties.destinationAddressPrefixes'] = properties.defaultSecurityRules.properties.destinationAddressPrefixes,
+				//   ['properties.defaultSecurityRules.properties.destinationAddressPrefix'] = properties.defaultSecurityRules.properties.destinationAddressPrefix,
+				//   ['properties.defaultSecurityRules.properties.destinationPortRanges'] = properties.defaultSecurityRules.properties.destinationPortRanges,
+				//   ['properties.defaultSecurityRules.properties.sourceAddressPrefixes'] = properties.defaultSecurityRules.properties.sourceAddressPrefixes,
+				//   ['properties.defaultSecurityRules.properties.sourceAddressPrefix'] = properties.defaultSecurityRules.properties.sourceAddressPrefix,
+				//   ['properties.defaultSecurityRules.properties.destinationPortRange'] = properties.defaultSecurityRules.properties.destinationPortRange,
+				//   ['properties.defaultSecurityRules.properties.sourcePortRanges'] = properties.defaultSecurityRules.properties.sourcePortRanges,
+				//   ['properties.defaultSecurityRules.properties.sourcePortRange'] = properties.defaultSecurityRules.properties.sourcePortRange,
+				//   ['properties.defaultSecurityRules.properties.description'] = properties.defaultSecurityRules.properties.description,
+				//   ['properties.defaultSecurityRules.properties.protocol'] = properties.defaultSecurityRules.properties.protocol,
+				//   ['properties.defaultSecurityRules.properties.direction'] = properties.defaultSecurityRules.properties.direction,
+				//   ['properties.defaultSecurityRules.properties.priority'] = properties.defaultSecurityRules.properties.priority,
+				//   ['properties.defaultSecurityRules.properties.access'] = properties.defaultSecurityRules.properties.access
+				// | mv-expand ['properties.defaultSecurityRules.properties.destinationAddressPrefixes']
+				// | mv-expand ['properties.defaultSecurityRules.properties.destinationPortRanges']
+				// | mv-expand ['properties.defaultSecurityRules.properties.sourceAddressPrefixes']
+				// | mv-expand ['properties.defaultSecurityRules.properties.sourcePortRanges']
+				// | mv-expand ['properties.securityRules']
+				// | extend
+				//   ['properties.securityRules.type'] = properties.securityRules.type,
+				//   ['properties.securityRules.properties'] = properties.securityRules.properties,
+				//   ['properties.securityRules.name'] = properties.securityRules.name,
+				//   ['properties.securityRules.id'] = properties.securityRules.id,
+				//   ['properties.securityRules.etag'] = properties.securityRules.etag,
+				//   ['properties.securityRules.properties.provisioningState'] = properties.securityRules.properties.provisioningState,
+				//   ['properties.securityRules.properties.destinationAddressPrefixes'] = properties.securityRules.properties.destinationAddressPrefixes,
+				//   ['properties.securityRules.properties.destinationAddressPrefix'] = properties.securityRules.properties.destinationAddressPrefix,
+				//   ['properties.securityRules.properties.destinationPortRanges'] = properties.securityRules.properties.destinationPortRanges,
+				//   ['properties.securityRules.properties.sourceAddressPrefixes'] = properties.securityRules.properties.sourceAddressPrefixes,
+				//   ['properties.securityRules.properties.sourceAddressPrefix'] = properties.securityRules.properties.sourceAddressPrefix,
+				//   ['properties.securityRules.properties.destinationPortRange'] = properties.securityRules.properties.destinationPortRange,
+				//   ['properties.securityRules.properties.sourcePortRanges'] = properties.securityRules.properties.sourcePortRanges,
+				//   ['properties.securityRules.properties.sourcePortRange'] = properties.securityRules.properties.sourcePortRange,
+				//   ['properties.securityRules.properties.protocol'] = properties.securityRules.properties.protocol,
+				//   ['properties.securityRules.properties.direction'] = properties.securityRules.properties.direction,
+				//   ['properties.securityRules.properties.priority'] = properties.securityRules.properties.priority,
+				//   ['properties.securityRules.properties.access'] = properties.securityRules.properties.access
+				// | mv-expand ['properties.securityRules.properties.destinationAddressPrefixes']
+				// | mv-expand ['properties.securityRules.properties.destinationPortRanges']
+				// | mv-expand ['properties.securityRules.properties.sourceAddressPrefixes']
+				// | mv-expand ['properties.securityRules.properties.sourcePortRanges']
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

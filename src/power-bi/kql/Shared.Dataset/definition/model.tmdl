@@ -1,0 +1,69 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		fastCombine
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup '🛠️ Setup'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup Storage
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup Functions
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 'Resource Graph'
+
+	annotation PBI_QueryGroupOrder = 4
+
+queryGroup 'Open data'
+
+	annotation PBI_QueryGroupOrder = 5
+
+queryGroup 'Data Explorer'
+
+	annotation PBI_QueryGroupOrder = 2
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBIDesktopVersion = 2.145.631.0 (25.07)+1ed159554998284d639865c27a66d9a92f405cd2
+
+annotation PBI_QueryOrder = ["▶️  START HERE","Cluster URL","Storage URL","Number of Months","Default Granularity","Remove Duplicate Resource IDs","ftk_DemoFilter","Costs","HubScopes","HubSettings","InstanceSizeFlexibility","PricingUnits","Regions","ResourceTypes","StorageData","StorageErrors","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Resources","SqlDatabases","Subscriptions","VirtualMachines","ReservationRecommendations","VirtualMachinesDisks"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table HubSettings
+ref table HubScopes
+ref table StorageData
+ref table StorageErrors
+ref table InstanceSizeFlexibility
+ref table AdvisorRecommendations
+ref table Resources
+ref table ManagementGroups
+ref table Subscriptions
+ref table ResourceTypes
+ref table Regions
+ref table VirtualMachines
+ref table Disks
+ref table NetworkInterfaces
+ref table PublicIPAddresses
+ref table AdvisorReservationRecommendations
+ref table NetworkSecurityGroups
+ref table PolicyAssignments
+ref table PolicyStates
+ref table SqlDatabases
+ref table 'Compliance calculation'
+ref table PricingUnits
+ref table Costs
+ref table ReservationRecommendations
+ref table VirtualMachinesDisks
+
+ref cultureInfo en-US
+

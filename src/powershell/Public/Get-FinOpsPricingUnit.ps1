@@ -12,7 +12,7 @@
     Optional. The distinct unit for the pricing unit without block pricing. Accepts wildcards. Default = * (all).
 
     .PARAMETER BlockSize
-    Optional. The number of units for block pricing (e.g., 100 for "100 Hours"). Default = null (all).
+    Optional. The number of units for block pricing (for example, 100 for "100 Hours"). Default = null (all).
 
     .DESCRIPTION
     The Get-FinOpsPricingUnit command returns a pricing unit (aka unit of measure) with the singular, distinct unit based on applicable block pricing rules, and the pricing block size.
@@ -32,7 +32,7 @@
 #>
 function Get-FinOpsPricingUnit()
 {
-    Param(
+    param(
         [Parameter(Position = 0, ValueFromPipeline = $true)]
         [Alias("PricingUnit")]
         [string]
@@ -48,18 +48,22 @@ function Get-FinOpsPricingUnit()
         [double]
         $BlockSize
     )
-    return Get-OpenDataPricingUnit `
-    | Where-Object {
-        $_.UnitOfMeasure -like $UnitOfMeasure `
-            -and $_.DistinctUnits -like $DistinctUnits `
-            -and ($null -eq $BlockSize -or $BlockSize -le 0 -or $_.PricingBlockSize -eq $BlockSize)
-    } `
-    | ForEach-Object {
-        [PSCustomObject]@{
-            DistinctUnits    = $_.DistinctUnits
-            PricingBlockSize = $_.PricingBlockSize
-            PricingUnit      = $_.UnitOfMeasure
-        }
-    } `
-    | Select-Object -Property * -Unique
+
+    process
+    {
+        return Get-OpenDataPricingUnit `
+        | Where-Object {
+            $_.UnitOfMeasure -like $UnitOfMeasure `
+                -and $_.DistinctUnits -like $DistinctUnits `
+                -and ($null -eq $BlockSize -or $BlockSize -le 0 -or $_.PricingBlockSize -eq $BlockSize)
+        } `
+        | ForEach-Object {
+            [PSCustomObject]@{
+                DistinctUnits    = $_.DistinctUnits
+                PricingBlockSize = $_.PricingBlockSize
+                PricingUnit      = $_.UnitOfMeasure
+            }
+        } `
+        | Select-Object -Property * -Unique
+    }
 }

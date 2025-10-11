@@ -217,7 +217,7 @@
       "ColumnName": "ServiceName",
       "DataType": "String",
       "StringEncoding": "UTF-8",
-      "Description": "An offering that can be purchased from a provider (e.g., cloud virtual machine, SaaS database, professional services from a systems integrator)."
+      "Description": "An offering that can be purchased from a provider (for example, cloud virtual machine, SaaS database, professional services from a systems integrator)."
     },
     {
       "ColumnName": "SkuId",
@@ -447,7 +447,7 @@
       "ColumnName": "x_ResourceGroupName",
       "DataType": "String",
       "StringEncoding": "UTF-8",
-      "Description": "Grouping of resources that make up an application or set of resources that share the same lifecycle (e.g., created and deleted together)."
+      "Description": "Grouping of resources that make up an application or set of resources that share the same lifecycle (for example, created and deleted together)."
     },
     {
       "ColumnName": "x_ResourceType",

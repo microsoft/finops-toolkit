@@ -40,7 +40,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -66,12 +66,12 @@ $ARGPageSize = 1000
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -79,7 +79,7 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -97,9 +97,9 @@ $cloudSuffix = ""
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
     $cloudSuffix = $externalCloudEnvironment.ToLower() + "-"
-    $cloudEnvironment = $externalCloudEnvironment   
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 $tenantId = (Get-AzContext).Tenant.Id
@@ -131,13 +131,13 @@ Write-Output "Querying for ARM VM properties"
 
 $argQuery = @"
     resources
-    | where type =~ 'Microsoft.Compute/virtualMachines' 
-    | extend dataDiskCount = array_length(properties.storageProfile.dataDisks), nicCount = array_length(properties.networkProfile.networkInterfaces) 
+    | where type =~ 'Microsoft.Compute/virtualMachines'
+    | extend dataDiskCount = array_length(properties.storageProfile.dataDisks), nicCount = array_length(properties.networkProfile.networkInterfaces)
     | extend usesManagedDisks = iif(isnull(properties.storageProfile.osDisk.managedDisk), 'false', 'true')
     | extend availabilitySetId = tostring(properties.availabilitySet.id)
     | extend bootDiagnosticsEnabled = tostring(properties.diagnosticsProfile.bootDiagnostics.enabled)
     | extend bootDiagnosticsStorageAccount = split(split(properties.diagnosticsProfile.bootDiagnostics.storageUri, '/')[2],'.')[0]
-    | extend powerState = tostring(properties.extended.instanceView.powerState.code) 
+    | extend powerState = tostring(properties.extended.instanceView.powerState.code)
     | extend imagePublisher = iif(isnotempty(properties.storageProfile.imageReference.publisher),tostring(properties.storageProfile.imageReference.publisher),'Custom')
     | extend imageOffer = iif(isnotempty(properties.storageProfile.imageReference.offer),tostring(properties.storageProfile.imageReference.offer),tostring(properties.storageProfile.imageReference.id))
     | extend imageSku = tostring(properties.storageProfile.imageReference.sku)
@@ -178,8 +178,8 @@ Write-Output "Querying for Classic VM properties"
 
 $argQuery = @"
     resources
-    | where type =~ 'Microsoft.ClassicCompute/virtualMachines' 
-    | extend dataDiskCount = iif(isnotnull(properties.storageProfile.dataDisks), array_length(properties.storageProfile.dataDisks), 0), nicCount = iif(isnotnull(properties.networkProfile.virtualNetwork.networkInterfaces), array_length(properties.networkProfile.virtualNetwork.networkInterfaces) + 1, 1) 
+    | where type =~ 'Microsoft.ClassicCompute/virtualMachines'
+    | extend dataDiskCount = iif(isnotnull(properties.storageProfile.dataDisks), array_length(properties.storageProfile.dataDisks), 0), nicCount = iif(isnotnull(properties.networkProfile.virtualNetwork.networkInterfaces), array_length(properties.networkProfile.virtualNetwork.networkInterfaces) + 1, 1)
 	| extend usesManagedDisks = 'false'
 	| extend availabilitySetId = tostring(properties.hardwareProfile.availabilitySet)
 	| extend bootDiagnosticsEnabled = tostring(properties.debugProfile.bootDiagnosticsEnabled)
@@ -210,7 +210,7 @@ do
 } while ($resultsCount -eq $ARGPageSize)
 
 <#
-    Merging ARM + Classic VMs, enriching VM size details and building CSV entries 
+    Merging ARM + Classic VMs, enriching VM size details and building CSV entries
 #>
 
 $datetime = (Get-Date).ToUniversalTime()
@@ -262,7 +262,7 @@ foreach ($vm in $armVmsTotal)
         OSVersion = $vm.osVersion
         Tags = $vm.tags
     }
-    
+
     $allvms += $logentry
 }
 
@@ -310,7 +310,7 @@ foreach ($vm in $classicVmsTotal)
         OSVersion = $vm.osVersion
         Tags = $null
     }
-    
+
     $allvms += $logentry
 }
 
@@ -337,4 +337,4 @@ Write-Output "[$now] Uploaded $csvBlobName to Blob Storage..."
 Remove-Item -Path $csvExportPath -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Removed $csvExportPath from local disk..."    
+Write-Output "[$now] Removed $csvExportPath from local disk..."

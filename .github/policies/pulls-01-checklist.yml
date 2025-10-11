@@ -84,7 +84,7 @@ configuration:
                     pattern: ^docs\/_resources\/changelog.md$
             then:
               - addLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
               - addReply:
                   # spell-checker:enable
                   reply: '@${issueAuthor}, thanks for the PR. It looks like you forgot to indicate whether the changelog was updated as part of the PR. Please edit the PR to select (x) the appropriate items in the checklist. This PR will be blocked until one of the values is selected.'
@@ -102,7 +102,7 @@ configuration:
                     pattern: '[ ] ❎ Log not needed'
             then:
               - addLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
               - addReply:
                   # spell-checker:enable
                   reply: '@${issueAuthor}, I noticed you updated the changelog, but did not mark it off in the PR checklist. Please update the checklist to confirm if the changelog was updated for this PR.'
@@ -114,7 +114,7 @@ configuration:
                   pattern: '[x] ➡️ Will add log in a future PR'
             then:
               - addLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
               - addReply:
                   # spell-checker:enable
                   reply: '@${issueAuthor}, I noticed you said you would update the changelog in a future PR, but this PR is going into the dev branch. All dev branch PRs must have changelog entries to be ready for the next release. Either update the PR to target a feature branch or add a changelog entry to this PR.'
@@ -127,7 +127,7 @@ configuration:
                   pattern: '[x] ➡️ Will add log in a future PR'
             then:
               - removeLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
           - if:
               - or:
                   - bodyContains:
@@ -136,7 +136,7 @@ configuration:
                       pattern: '[x] ❎ Log not needed'
             then:
               - removeLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
           # docs
           - if:
               - bodyContains:
@@ -154,7 +154,7 @@ configuration:
                     pattern: .*\.md$
             then:
               - addLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
               - addReply:
                   # spell-checker:enable
                   reply: '@${issueAuthor}, thanks for the PR. It looks like you forgot to indicate whether the documentation was updated as part of the PR. Please edit the PR to select (x) the appropriate items in the checklist. This PR will be blocked until one of the values is selected.'
@@ -174,7 +174,7 @@ configuration:
                     pattern: '[ ] ❎ Docs not needed'
             then:
               - addLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
               - addReply:
                   # spell-checker:enable
                   reply: '@${issueAuthor}, I noticed you updated markdown files, but did not indicate that documentation was updated in the PR checklist. Please update the checklist to confirm if documentation was updated for this PR.'
@@ -186,7 +186,7 @@ configuration:
                   pattern: '[x] ➡️ Will add docs in a future PR'
             then:
               - addLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
               - addReply:
                   # spell-checker:enable
                   reply: '@${issueAuthor}, I noticed you said you would update documentation in a future PR, but this PR is going into the dev branch. All dev branch PRs must have applicable documentation updated to be ready for the next release. Either update the PR to target a feature branch or update the documentation in this PR.'
@@ -199,7 +199,7 @@ configuration:
                   pattern: '[x] ➡️ Will add docs in a future PR'
             then:
               - removeLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
           - if:
               - or:
                   - bodyContains:
@@ -210,6 +210,6 @@ configuration:
                       pattern: '[x] ❎ Docs not needed'
             then:
               - removeLabel:
-                  label: 'Needs: Documentation'
+                  label: 'Needs: Documentation 📝'
 onFailure:
 onSuccess:

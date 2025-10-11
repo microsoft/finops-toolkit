@@ -1,9 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { HubAppProperties } from 'hub-types.bicep'
+
+
 //==============================================================================
 // Parameters
 //==============================================================================
+
+@description('Required. Temporary app placeholder for the deployments module.')
+param app HubAppProperties
 
 @description('Required. Name of the FinOps hub instance.')
 param hubName string
@@ -26,6 +32,25 @@ param ingestionContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param configContainerName string
 
+@description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+param dataExplorerName string = ''
+
+@description('Optional. Resource ID of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+param dataExplorerId string = ''
+
+@description('Optional. ID of the Azure Data Explorer cluster system assigned managed identity, if applicable.')
+param dataExplorerPrincipalId string = ''
+
+// cSpell:ignore eventhouse
+@description('Optional. URI of the Azure Data Explorer cluster or Microsoft Fabric eventhouse query endpoint to use for advanced analytics, if applicable.')
+param dataExplorerUri string = ''
+
+@description('Optional. Name of the Azure Data Explorer ingestion database. Default: "ingestion".')
+param dataExplorerIngestionDatabase string = 'Ingestion'
+
+@description('Optional. Azure Data Explorer ingestion capacity or Microsoft Fabric capacity units. Increase for non-dev/trial SKUs. Default: 1')
+param dataExplorerIngestionCapacity int = 1
+
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
 
@@ -37,17 +62,45 @@ param tags object = {}
 
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
+ 
+@description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
+param enableManagedExports bool = true
+
+@description('Required. Enable public access.')
+param enablePublicAccess bool
 
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
 
 var focusSchemaVersion = '1.0'
+var exportSchemaVersion = '2023-05-01'
+var reservationDetailsSchemaVersion = '2023-03-01'
+// cSpell:ignore ftkver
 var ftkVersion = loadTextContent('ftkver.txt')
+var ftkReleaseUri = endsWith(ftkVersion, '-dev')
+  ? 'https://github.com/microsoft/finops-toolkit/releases/latest/download'
+  : 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}'
 var exportApiVersion = '2023-07-01-preview'
+var hubDataExplorerName = 'hubDataExplorer'
 
+// cSpell:ignore timeframe
 // Function to generate the body for a Cost Management export
 func getExportBody(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
+
+func getExportBodyV2(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string, recommendationScope string, recommendationLookbackPeriod string, resourceType string) string => /*
+  */ toLower(datasetType) == 'focuscost' ? /*
+  */ '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-costdetails\'))}", "name": "@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-costdetails\'))}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }' /*
+  */ : toLower(datasetType) == 'reservationdetails' ? /*
+  */ '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-${toLower(datasetType)}\'))}", "name": "@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-${toLower(datasetType)}\'))}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }' /*
+  */ : (toLower(datasetType) == 'pricesheet') || (toLower(datasetType) == 'reservationtransactions') ? /*
+  */ '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }}, "timeframe": "${isMonthly ? 'TheCurrentMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-${toLower(datasetType)}\'))}", "name": "@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-${toLower(datasetType)}\'))}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }' /*
+  */ : toLower(datasetType) == 'reservationrecommendations' ? /*
+  */ '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [ { "name": "reservationScope", "value": "${recommendationScope}" }, { "name": "resourceType", "value": "${resourceType}" }, { "name": "lookBackPeriod", "value": "${recommendationLookbackPeriod}" }] }}, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-costdetails\'))}", "name": "@{toLower(concat(variables(\'finOpsHub\'), \'-${ isMonthly ? 'monthly' : 'daily'}-costdetails\'))}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }' /*
+  */ : 'undefined'
+
+var deployDataExplorer = !empty(dataExplorerId)
+var useFabric = !deployDataExplorer && !empty(dataExplorerUri)
 
 var datasetPropsDefault = {
     location: {
@@ -66,16 +119,21 @@ var datasetPropsDefault = {
 var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
+// cSpell:ignore vnet
 var managedVnetName = 'default'
-var managedIntegrationRuntimeName = 'AutoResolveIntegrationRuntime'
+
+// Separator used to separate ingestion ID from file name for ingested files
+var ingestionIdFileNameSeparator = '__'
 
 // All hub triggers (used to auto-start)
-var fileAddedExportTriggerName = '${safeExportContainerName}_FileAdded'
+var exportManifestAddedTriggerName = '${safeExportContainerName}_ManifestAdded'
+var ingestionManifestAddedTriggerName = '${safeIngestionContainerName}_ManifestAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
-  fileAddedExportTriggerName
+  exportManifestAddedTriggerName
+  ingestionManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
   monthlyTriggerName
@@ -83,17 +141,33 @@ var allHubTriggers = [
 
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
-  '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
-  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor
+  // Data Factory contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
+  // Used to start/stop triggers and delete old pipelines/triggers
+  '673868aa-7521-48a0-acc6-0f60742d39f5'
 ]
 
-// Storage roles needed for ADF to create CM exports and process the output
+// Roles for ADF to manage data in storage
 // Does not include roles assignments needed against the export scope
-var storageRbacRoles = [
-  '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
-  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
-  'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
-  '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
+var storageRbacRoles = union (
+  [
+    // Storage Account Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
+    // Used to move files from the msexports to ingestion container
+    '17d1049b-9a84-46fb-8f53-869881c3d3ab'
+    // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+    'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+    // Reader -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader
+    'acdd72a7-3385-48ef-bd42-f606fba81ae7'
+  ],
+  // Only use User Access Administrator if managed exports are enabled for least privileged access
+  !enableManagedExports ? [] : [
+    // User Access Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
+    '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
+  ]
+)
+
+// Roles for ADF to to start check ADX cluster and to start cluster if stopped
+var adxRbacRoles = [
+  'b24988ac-6180-42a0-ab88-20f7382dd24c' // Contributor permissions on the cluster
 ]
 
 //==============================================================================
@@ -111,10 +185,16 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 }
 
 // Get keyvault instance
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = if (!empty(remoteHubStorageUri)) {
   name: keyVaultName
 }
 
+// Get ADX cluster instance
+resource dataExplorerCluster 'Microsoft.Kusto/clusters@2023-08-15' existing = if (deployDataExplorer) {
+  name: dataExplorerName
+}  
+
+// cSpell:ignore azuretimezones
 module azuretimezones 'azuretimezones.bicep' = {
   name: 'azuretimezones'
   params: {
@@ -122,14 +202,14 @@ module azuretimezones 'azuretimezones.bicep' = {
   }
 }
 
-resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNetworks@2018-06-01' = {
+resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNetworks@2018-06-01' = if (!enablePublicAccess) {
   name: managedVnetName
   parent: dataFactory
   properties: {}
 }
 
-resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = {
-  name: managedIntegrationRuntimeName
+resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = if (!enablePublicAccess) {
+  name: 'ManagedIntegrationRuntime'
   parent: dataFactory
   properties: {
     type: 'Managed'
@@ -139,7 +219,23 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
     }
     typeProperties: {
       computeProperties: {
-        location: 'AutoResolve'
+        location: location
+        dataFlowProperties: {
+            computeType: 'General'
+            coreCount: 8
+            timeToLive: 10
+            cleanup: false
+            customProperties: []
+        }
+        copyComputeScaleProperties: {
+            dataIntegrationUnit: 16
+            timeToLive: 30
+        }
+        pipelineExternalComputeScaleProperties: {
+            timeToLive: 30
+            numberOfPipelineNodes: 1
+            numberOfExternalNodes: 1
+        }
       }
     }
   }
@@ -148,12 +244,9 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
   ]
 }
 
-resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (!enablePublicAccess) {
   name: storageAccount.name
   parent: managedVirtualNetwork
-  dependsOn: [
-    identityRoleAssignments
-  ]
   properties: {
     name: storageAccount.name
     groupId: 'dfs'
@@ -164,7 +257,7 @@ resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedV
   }
 }
 
-module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
+module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'GetStoragePrivateEndpointConnections'
   dependsOn: [
     storageManagedPrivateEndpoint
@@ -174,23 +267,17 @@ module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
   }
 }
 
-module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
+module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'ApproveStoragePrivateEndpointConnections'
-  dependsOn: [
-    getStoragePrivateEndpointConnections
-  ]
   params: {
     storageAccountName: storageAccount.name
     privateEndpointConnections: getStoragePrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
 
-resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (!empty(remoteHubStorageUri) && !enablePublicAccess) {
   name: keyVault.name
   parent: managedVirtualNetwork
-  dependsOn: [
-    identityRoleAssignments
-  ]
   properties: {
     name: keyVault.name
     groupId: 'vault'
@@ -201,7 +288,7 @@ resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managed
   }
 }
 
-module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!empty(remoteHubStorageUri) && !enablePublicAccess) {
   name: 'GetKeyVaultPrivateEndpointConnections'
   dependsOn: [
     keyVaultManagedPrivateEndpoint
@@ -211,14 +298,42 @@ module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
   }
 }
 
-module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!empty(remoteHubStorageUri) && !enablePublicAccess) {
   name: 'ApproveKeyVaultPrivateEndpointConnections'
-  dependsOn: [
-    getKeyVaultPrivateEndpointConnections
-  ]
   params: {
     keyVaultName: keyVault.name
     privateEndpointConnections: getKeyVaultPrivateEndpointConnections.outputs.privateEndpointConnections
+  }
+}
+
+resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (deployDataExplorer && !enablePublicAccess) {
+  name: hubDataExplorerName
+  parent: managedVirtualNetwork
+  properties: {
+    name: hubDataExplorerName
+    groupId: 'cluster'
+    privateLinkResourceId: dataExplorerId
+    fqdns: [
+      dataExplorerUri
+    ]
+  }
+}
+
+module getDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer && !enablePublicAccess) {
+  name: 'GetDataExplorerPrivateEndpointConnections'
+  dependsOn: [
+    dataExplorerManagedPrivateEndpoint
+  ]
+  params: {
+    dataExplorerName: dataExplorerName
+  }
+}
+
+module approveDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer && !enablePublicAccess) {
+  name: 'ApproveDataExplorerPrivateEndpointConnections'
+  params: {
+    dataExplorerName: dataExplorerName
+    privateEndpointConnections: getDataExplorerPrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
 
@@ -227,26 +342,37 @@ module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
 //------------------------------------------------------------------------------
 
 // Create managed identity to start/stop triggers
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${dataFactory.name}_triggerManager'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
 }
 
-resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
-  name: guid(dataFactory.id, role, identity.id)
+resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
+  name: guid(dataFactory.id, role, triggerManagerIdentity.id)
   scope: dataFactory
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: identity.properties.principalId
+    principalId: triggerManagerIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }]
 
-// Create managed identity to manage exports in cost management
-resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
+// Grant ADF identity access to manage data in storage
+resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
   name: guid(storageAccount.id, role, dataFactory.id)
   scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+    principalId: dataFactory.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
+// Grant ADF identity access to manage ADX cluster
+resource factoryIdentityDataExplorerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in adxRbacRoles: if (deployDataExplorer) {
+  name: guid(dataExplorerCluster.id, role, dataFactory.id)
+  scope: dataExplorerCluster
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: dataFactory.identity.principalId
@@ -258,25 +384,15 @@ resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignment
 // Delete old triggers and pipelines
 //------------------------------------------------------------------------------
 
-resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_deleteOldResources'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module deleteOldResources 'hub-deploymentScript.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_ADF.DeleteOldResources'
   dependsOn: [
-    identityRoleAssignments
+    triggerManagerRoleAssignments
+    stopTriggers
   ]
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
-  properties: {
-    azPowerShellVersion: '8.0'
-    retentionInterval: 'PT1H'
-    cleanupPreference: 'OnSuccess'
+  params: {
+    app: app
+    identityName: triggerManagerIdentity.name
     scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
     environmentVariables: [
       {
@@ -299,24 +415,14 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 // Stop all triggers before deploying
 //------------------------------------------------------------------------------
 
-resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_stopTriggers'
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module stopTriggers 'hub-deploymentScript.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_ADF.StopTriggers'
   dependsOn: [
-    identityRoleAssignments
+    triggerManagerRoleAssignments
   ]
-  tags: tags
-  properties: {
-    azPowerShellVersion: '8.0'
-    retentionInterval: 'PT1H'
-    cleanupPreference: 'OnSuccess'
+  params: {
+    app: app
+    identityName: triggerManagerIdentity.name
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     arguments: '-Stop'
     environmentVariables: [
@@ -344,9 +450,12 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 // Linked services
 //------------------------------------------------------------------------------
 
-resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+// cSpell:ignore linkedservices
+// TODO: Move to the hub-app module
+resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: keyVault.name
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -354,12 +463,18 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
     typeProperties: {
       baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
+    connectVia: enablePublicAccess ? null : {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
+    }
   }
 }
 
+// TODO: Move to the hub-app module
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: storageAccount.name
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -367,7 +482,32 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
     }
-    connectVia: {
+    connectVia: enablePublicAccess ? null : {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
+    }
+  }
+}
+
+resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (deployDataExplorer || useFabric) {
+  name: hubDataExplorerName
+  parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
+  properties: {
+    type: 'AzureDataExplorer'
+    parameters: {
+      database: {
+        type: 'String'
+        defaultValue: dataExplorerIngestionDatabase
+      }
+    }
+    typeProperties: {
+      endpoint: dataExplorerUri
+      database: '@{linkedService().database}'
+      tenant: dataFactory.identity.tenantId
+      servicePrincipalId: dataFactory.identity.principalId
+    }
+    connectVia: enablePublicAccess ? null : {
       referenceName: managedIntegrationRuntime.name
       type: 'IntegrationRuntimeReference'
     }
@@ -377,6 +517,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
 resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: 'remoteHubStorage'
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -391,6 +532,34 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
         }
         secretName: '${toLower(hubName)}-storage-key'
       }
+    }
+    connectVia: enablePublicAccess ? null : {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
+    }
+  }
+}
+
+resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+  name: 'ftkRepo'
+  parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
+  properties: {
+    parameters: {
+      filePath: {
+        type: 'string'
+      }
+    }
+    annotations: []
+    type: 'HttpServer'
+    typeProperties: {
+      url: '@concat(\'https://github.com/microsoft/finops-toolkit/\', linkedService().filePath)'
+      enableServerCertificateValidation: true
+      authenticationType: 'Anonymous'
+    }
+    connectVia: enablePublicAccess ? null : {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
     }
   }
 }
@@ -603,74 +772,140 @@ resource dataset_ingestion_files 'Microsoft.DataFactory/factories/datasets@2018-
   }
 }
 
+resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-01' = if (deployDataExplorer || useFabric) {
+  name: hubDataExplorerName
+  parent: dataFactory
+  properties: {
+    type: 'AzureDataExplorerTable'
+    linkedServiceName: {
+      parameters: {
+        database: '@dataset().database'
+      }
+      referenceName: linkedService_dataExplorer.name
+      type: 'LinkedServiceReference'
+    }
+    parameters: {
+      database: {
+        type: 'String'
+        defaultValue: dataExplorerIngestionDatabase
+      }
+      table: { type: 'String' }
+    }
+    typeProperties: {
+      table: {
+        value: '@dataset().table'
+        type: 'Expression'
+      }
+    }
+  }
+}
+
+resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
+  name: 'ftkReleaseFile'
+  parent: dataFactory
+  properties: {
+    linkedServiceName: {
+      referenceName: linkedService_ftkRepo.name
+      type: 'LinkedServiceReference'
+    }
+    parameters: {
+      fileName: {
+        type: 'string'
+      }
+      version: {
+        type: 'string'
+        defaultValue: ftkVersion
+      }
+    }
+    annotations: []
+    type: 'DelimitedText'
+    typeProperties: {
+      location: {
+        type: 'HttpServerLocation'
+        relativeUrl: {
+          value: '@concat(\'releases/download/v\', dataset().version, \'/\', dataset().fileName)'
+          type: 'Expression'
+        }
+      }
+      columnDelimiter: ','
+      escapeChar: '\\'
+      firstRowAsHeader: true
+      quoteChar: '"'
+    }
+    schema: []
+  }
+}
+
 //------------------------------------------------------------------------------
 // Triggers
 //------------------------------------------------------------------------------
 
-// Create trigger
-resource trigger_FileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: fileAddedExportTriggerName
-  parent: dataFactory
+// TODO: Create apps_PublishEvent pipeline { event, properties }
+
+module trigger_ExportManifestAdded 'hub-event-trigger.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_ExportManifestAddedTrigger'
   dependsOn: [
     stopTriggers
   ]
-  properties: {
-    annotations: []
-    pipelines: [
-      {
-        pipelineReference: {
-          referenceName: pipeline_ExecuteETL.name
-          type: 'PipelineReference'
-        }
-        parameters: {
-          folderPath: '@triggerBody().folderPath'
-          fileName: '@triggerBody().fileName'
-        }
-      }
-    ]
-    type: 'BlobEventsTrigger'
-    typeProperties: {
-      blobPathBeginsWith: '/${exportContainerName}/blobs/'
-      blobPathEndsWith: 'manifest.json'
-      ignoreEmptyBlobs: true
-      scope: storageAccount.id
-      events: [
-        'Microsoft.Storage.BlobCreated'
-      ]
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: exportManifestAddedTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.CostManagement.Exports.ManifestAdded'
+    pipelineName: pipeline_ExecuteExportsETL.name
+    pipelineParameters: {
+      folderPath: '@triggerBody().folderPath'
+      fileName: '@triggerBody().fileName'
     }
+    
+    storageAccountName: storageAccount.name
+    storageContainer: exportContainerName
+    storagePathEndsWith: 'manifest.json'
   }
 }
 
-resource trigger_SettingsUpdated 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: updateConfigTriggerName
-  parent: dataFactory
+module trigger_IngestionManifestAdded 'hub-event-trigger.bicep' = if (deployDataExplorer || useFabric) {
+  name: 'Microsoft.FinOpsHubs.Core_IngestionManifestAddedTrigger'
   dependsOn: [
     stopTriggers
   ]
-  properties: {
-    annotations: []
-    pipelines: [
-      {
-        pipelineReference: {
-          referenceName: pipeline_ConfigureExports.name
-          type: 'PipelineReference'
-        }
-      }
-    ]
-    type: 'BlobEventsTrigger'
-    typeProperties: {
-      blobPathBeginsWith: '/${configContainerName}/blobs/'
-      blobPathEndsWith: 'settings.json'
-      ignoreEmptyBlobs: true
-      scope: storageAccount.id
-      events: [
-        'Microsoft.Storage.BlobCreated'
-      ]
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: ingestionManifestAddedTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.IngestionManifestAdded'
+    pipelineName: pipeline_ExecuteIngestionETL.name
+    pipelineParameters: {
+      folderPath: '@triggerBody().folderPath'
     }
+    
+    storageAccountName: storageAccount.name
+    storageContainer: ingestionContainerName
+    storagePathEndsWith: 'manifest.json'
   }
 }
 
-resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+module trigger_SettingsUpdated 'hub-event-trigger.bicep' = if (enableManagedExports) {
+  name: 'Microsoft.FinOpsHubs.Core_SettingsUpdatedTrigger'
+  dependsOn: [
+    stopTriggers
+  ]
+  params: {
+    dataFactoryName: dataFactory.name
+    triggerName: updateConfigTriggerName
+
+    // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.SettingsUpdated'
+    pipelineName: pipeline_ConfigureExports.name
+    pipelineParameters: {}
+    
+    storageAccountName: storageAccount.name
+    storageContainer: configContainerName
+    // TODO: Change this to startswith
+    storagePathEndsWith: 'settings.json'
+  }
+}
+
+resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (enableManagedExports) {
   name: dailyTriggerName
   parent: dataFactory
   dependsOn: [
@@ -700,7 +935,7 @@ resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06
   }
 }
 
-resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (enableManagedExports) {
   name: monthlyTriggerName
   parent: dataFactory
   dependsOn: [
@@ -727,6 +962,7 @@ resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-
         timeZone: azuretimezones.outputs.Timezone
         schedule: {
           monthDays: [
+            2
             5
             19
           ]
@@ -741,15 +977,495 @@ resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
+// config_InitializeHub pipeline
+//------------------------------------------------------------------------------
+@description('Initializes the hub instance based on the configuration settings.')
+resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer || useFabric) {
+  name: '${safeConfigContainerName}_InitializeHub'
+  parent: dataFactory
+  properties: {
+    activities: [
+      { // Get Config
+        name: 'Get Config'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.00:05:00'
+          retry: 2
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+          }
+        }
+      }
+      { // Set Version
+        name: 'Set Version'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'version'
+          value: {
+            value: '@activity(\'Get Config\').output.firstRow.version'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set Scopes
+        name: 'Set Scopes'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'scopes'
+          value: {
+            value: '@string(activity(\'Get Config\').output.firstRow.scopes)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set Retention
+        name: 'Set Retention'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'retention'
+          value: {
+            value: '@string(activity(\'Get Config\').output.firstRow.retention)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Until Capacity Is Available
+        name: 'Until Capacity Is Available'
+        type: 'Until'
+        dependsOn: [
+          {
+            activity: 'Set Version'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Set Scopes'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Set Retention'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(variables(\'tryAgain\'), false)'
+            type: 'Expression'
+          }
+          activities: [
+            { // Confirm Ingestion Capacity
+              name: 'Confirm Ingestion Capacity'
+              type: 'AzureDataExplorerCommand'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                // cSpell:ignore Ingestions
+                command: '.show capacity | where Resource == \'Ingestions\' | project Remaining'
+                commandTimeout: '00:20:00'
+              }
+              linkedServiceName: {
+                referenceName: linkedService_dataExplorer.name
+                type: 'LinkedServiceReference'
+                parameters: {
+                  database: dataExplorerIngestionDatabase
+                }
+              }
+            }
+            { // If Has Capacity
+              name: 'If Has Capacity'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Confirm Ingestion Capacity'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@or(equals(activity(\'Confirm Ingestion Capacity\').output.count, 0), greater(activity(\'Confirm Ingestion Capacity\').output.value[0].Remaining, 0))'
+                  type: 'Expression'
+                }
+                ifFalseActivities: [
+                  { // Wait for Ingestion
+                    name: 'Wait for Ingestion'
+                    type: 'Wait'
+                    dependsOn: []
+                    userProperties: []
+                    typeProperties: {
+                      waitTimeInSeconds: 15
+                    }
+                  }
+                  { // Try Again
+                    name: 'Try Again'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Wait for Ingestion'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: true
+                    }
+                  }
+                ]
+                ifTrueActivities: [
+                  { // Save ingestion policy in ADX
+                    name: 'Set ingestion policy in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: []
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: {
+                        // Do not attempt to set the ingestion policy if using Fabric; use a simple query as a placeholder
+                        value: useFabric 
+                          ? '.show database ${dataExplorerIngestionDatabase} policy managed_identity'
+                          : '.alter-merge database ${dataExplorerIngestionDatabase} policy managed_identity "[ { \'ObjectId\' : \'${dataExplorerPrincipalId}\', \'AllowedUsages\' : \'NativeIngestion\' }]"'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Save Hub Settings in ADX
+                    name: 'Save Hub Settings in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Set ingestion policy in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: {
+                        // cSpell:ignore isnull, isnotempty
+                        value: '@concat(\'.append HubSettingsLog <| print version="\', variables(\'version\'), \'",scopes=dynamic(\', variables(\'scopes\'), \'),retention=dynamic(\', variables(\'retention\'), \') | extend scopes = iff(isnull(scopes[0]), pack_array(scopes), scopes) | mv-apply scopeObj = scopes on (where isnotempty(scopeObj.scope) | summarize scopes = make_set(scopeObj.scope))\')'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Update PricingUnits in ADX
+                    name: 'Update PricingUnits in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Save Hub Settings in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      // cSpell:ignore externaldata
+                      command: '.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription: string, AccountTypes: string, x_PricingBlockSize: decimal, PricingUnit: string)[@"${ftkReleaseUri}/PricingUnits.csv"] with (format="csv", ignoreFirstRecord=true) | project-away AccountTypes'
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Update Regions in ADX
+                    name: 'Update Regions in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update PricingUnits in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace Regions <| externaldata(ResourceLocation: string, RegionId: string, RegionName: string)[@"${ftkReleaseUri}/Regions.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Update ResourceTypes in ADX
+                    name: 'Update ResourceTypes in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update Regions in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace ResourceTypes <| externaldata(x_ResourceType: string, SingularDisplayName: string, PluralDisplayName: string, LowerSingularDisplayName: string, LowerPluralDisplayName: string, IsPreview: bool, Description: string, IconUri: string, Links: string)[@"${ftkReleaseUri}/ResourceTypes.csv"] with (format="csv", ignoreFirstRecord=true) | project-away Links'
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Update Services in ADX
+                    name: 'Update Services in ADX'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Update ResourceTypes in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: '.set-or-replace Services <| externaldata(x_ConsumedService: string, x_ResourceType: string, ServiceName: string, ServiceCategory: string, ServiceSubcategory: string, PublisherName: string, x_PublisherCategory: string, x_Environment: string, x_ServiceModel: string)[@"${ftkReleaseUri}/Services.csv"] with (format="csv", ignoreFirstRecord=true)'
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Ingestion Complete
+                    name: 'Ingestion Complete'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Update Services in ADX'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                ]
+              }
+            }
+            { // Abort On Error
+              name: 'Abort On Error'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'If Has Capacity'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'tryAgain'
+                value: false
+              }
+            }
+          ]
+          timeout: '0.02:00:00'
+        }
+      }
+      { // Timeout Error
+        name: 'Timeout Error'
+        type: 'Fail'
+        dependsOn: [
+          {
+            activity: 'Until Capacity Is Available'
+            dependencyConditions: [
+                'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          message: 'Data Explorer ingestion timed out after 2 hours while waiting for available capacity. Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.'
+          errorCode: 'DataExplorerIngestionTimeout'
+        }
+      }
+    ]
+    concurrency: 1
+    variables: {
+      version: {
+        type: 'String'
+      }
+      scopes: {
+        type: 'String'
+      }
+      retention: {
+        type: 'String'
+      }
+      tryAgain: {
+        type: 'Boolean'
+        defaultValue: true
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 // config_StartBackfillProcess pipeline
 //------------------------------------------------------------------------------
 @description('Runs the backfill job for each month based on retention settings.')
-resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_StartBackfillProcess'
   parent: dataFactory
   properties: {
     activities: [
-      {
+      { // Get Config
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -789,7 +1505,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      {
+      { // Set backfill end date
         name: 'Set backfill end date'
         type: 'SetVariable'
         dependsOn: [
@@ -809,7 +1525,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      {
+      { // Set backfill start date
         name: 'Set backfill start date'
         type: 'SetVariable'
         dependsOn: [
@@ -829,7 +1545,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      {
+      { // Set export start date
         name: 'Set export start date'
         type: 'SetVariable'
         dependsOn: [
@@ -849,7 +1565,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      {
+      { // Set export end date
         name: 'Set export end date'
         type: 'SetVariable'
         dependsOn: [
@@ -869,7 +1585,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
           }
         }
       }
-      {
+      { // Every Month
         name: 'Every Month'
         type: 'Until'
         dependsOn: [
@@ -957,7 +1673,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
               }
             }
           ]
-          timeout: '0.12:00:00'
+          timeout: '0.02:00:00'
         }
       }
     ]
@@ -1007,7 +1723,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
 // Triggered by config_StartBackfillProcess pipeline
 //------------------------------------------------------------------------------
 @description('Creates and triggers exports for all defined scopes for the specified date range.')
-resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_RunBackfillJob'
   parent: dataFactory
   properties: {
@@ -1160,6 +1876,7 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
               typeProperties: {
                 variableName: 'exportName'
                 value: {
+                  // cSpell:ignore costdetails
                   value: '@toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))'
                   type: 'Expression'
                 }
@@ -1191,7 +1908,7 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
                 }
                 method: 'POST'
                 headers: {
-                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
+                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'
                   'Content-Type': 'application/json'
                   ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                 }
@@ -1254,7 +1971,7 @@ resource pipeline_RunBackfillJob 'Microsoft.DataFactory/factories/pipelines@2018
 // Triggered by config_DailySchedule/MonthlySchedule triggers
 //------------------------------------------------------------------------------
 @description('Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExportJobs pipeline.')
-resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_StartExportProcess'
   parent: dataFactory
   properties: {
@@ -1496,7 +2213,7 @@ resource pipeline_StartExportProcess 'Microsoft.DataFactory/factories/pipelines@
 // Triggered by pipeline_StartExportProcess pipeline
 //------------------------------------------------------------------------------
 @description('Runs the specified Cost Management exports.')
-resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_RunExportJobs'
   parent: dataFactory
   dependsOn: [
@@ -1523,7 +2240,7 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
               userProperties: []
               typeProperties: {
                 expression: {
-                  value: '@and(equals(toLower(item().properties.schedule.recurrence), toLower(pipeline().parameters.Recurrence)),startswith(toLower(item().name), toLower(variables(\'hubName\'))))'
+                  value: '@and( startswith(toLower(item().name), toLower(variables(\'hubName\'))), and(contains(string(item().properties.schedule), \'recurrence\'), equals(toLower(item().properties.schedule.recurrence), toLower(pipeline().parameters.Recurrence))))'
                   type: 'Expression'
                 }
                 ifTrueActivities: [
@@ -1540,15 +2257,16 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
                     }
                     userProperties: []
                     typeProperties: {
+                      method: 'POST'
                       url: {
                         value: '@{replace(toLower(concat(variables(\'resourceManagementUri\'),item().id)), \'com//\', \'com/\')}/run?api-version=${exportApiVersion}'
                         type: 'Expression'
                       }
-                      method: 'POST'
                       headers: {
                         'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs@${ftkVersion}'
                         ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                       }
+                      body: ' '
                       authentication: {
                         type: 'MSI'
                         resource: {
@@ -1592,8 +2310,8 @@ resource pipeline_RunExportJobs 'Microsoft.DataFactory/factories/pipelines@2018-
 // config_ConfigureExports pipeline
 // Triggered by config_SettingsUpdated trigger
 //------------------------------------------------------------------------------
-@description('Creates Cost Management exports for all scopes.')
-resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+@description('Creates Cost Management exports for supported scopes.')
+resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (enableManagedExports) {
   name: '${safeConfigContainerName}_ConfigureExports'
   parent: dataFactory
   properties: {
@@ -1735,46 +2453,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
           isSequential: true
           activities: [
-            { // 'Create or update open month focus export'
-              name: 'Create or update open month focus export'
-              type: 'WebActivity'
-              dependsOn: [
-                {
-                  activity: 'Set open month focus export name'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:05:00'
-                retry: 2
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                url: {
-                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=${exportApiVersion}'
-                  type: 'Expression'
-                }
-                method: 'PUT'
-                body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
-                  type: 'Expression'
-                }
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@variables(\'ResourceManagementUri\')'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-            { // 'Set open month focus export name'
-              name: 'Set open month focus export name'
+            {
+              name: 'Set Export Type'
               type: 'SetVariable'
               dependsOn: []
               policy: {
@@ -1783,73 +2463,422 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
               }
               userProperties: []
               typeProperties: {
-                variableName: 'exportName'
+                variableName: 'exportScopeType'
                 value: {
-                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-daily-costdetails\'))'
+                  value: '@if(contains(toLower(item().scope), \'providers/microsoft.billing/billingaccounts\'), if(contains(toLower(item().scope), \':\'), \'mca\', \'ea\'), if(contains(toLower(item().scope), \'subscriptions/\'), \'subscription\', \'undefined\'))'
                   type: 'Expression'
                 }
               }
             }
-            { // 'Create or update closed month focus export'
-              name: 'Create or update closed month focus export'
-              type: 'WebActivity'
+            {
+              name: 'Switch Export Type'
+              type: 'Switch'
               dependsOn: [
                 {
-                  activity: 'Set closed month focus export name'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
+                  activity: 'Set Export Type'
+                  dependencyConditions: [ 'Succeeded' ]
                 }
               ]
-              policy: {
-                timeout: '0.00:05:00'
-                retry: 2
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
               userProperties: []
               typeProperties: {
-                url: {
-                  value: '@{variables(\'ResourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=${exportApiVersion}'
+                on: {
+                  value: '@toLower(variables(\'exportScopeType\'))'
                   type: 'Expression'
                 }
-                method: 'PUT'
-                body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
-                  type: 'Expression'
-                }
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@variables(\'ResourceManagementUri\')'
-                    type: 'Expression'
+                cases: [
+                  { // EA
+                    value: 'ea'
+                    activities: [
+                      { // 'EA open month focus export'
+                        name: 'EA open month focus export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-costdetails\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA closed month focus export'
+                        name: 'EA closed month focus export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA open month focus export'
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA monthly pricesheet export'
+                        name: 'EA monthly pricesheet export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA closed month focus export'
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-pricesheet\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'Pricesheet', exportSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.Prices@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      {
+                        name: 'Trigger EA monthly pricesheet export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA monthly pricesheet export'
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 0
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          method: 'POST'
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-pricesheet\'))}/run?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.Prices@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          body: ' '
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA daily reservation details export'
+                        name: 'EA daily reservation details export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA monthly pricesheet export'
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-reservationdetails\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'ReservationDetails', reservationDetailsSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationDetails@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA daily reservation transactions export'
+                        name: 'EA daily reservation transactions export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA daily reservation details export'
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-reservationtransactions\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'ReservationTransactions', exportSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationTransactions@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'EA daily recommendations shared last30day virtualmachines export'
+                        name: 'EA daily shared 30day virtualmachines'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'EA daily reservation transactions export'
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-recommendations-shared-last30days-virtualmachines\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'ReservationRecommendations', exportSchemaVersion, false, 'CSV', 'None', 'true', 'CreateNewReport', 'Shared', 'Last30Days', 'VirtualMachines')
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationRecommendations.VM.Shared.30d@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                    ]
                   }
-                }
-              }
-            }
-            { // 'Set closed month focus export name'
-              name: 'Set closed month focus export name'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'Create or update open month focus export'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'exportName'
-                value: {
-                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))'
-                  type: 'Expression'
-                }
+                  { // subscription
+                    value: 'subscription'
+                    activities: [
+                      { // 'Subscription open month focus export'
+                        name: 'Subscription open month focus export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-costdetails\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                      { // 'Subscription closed month focus export'
+                        name: 'Subscription closed month focus export'
+                        type: 'WebActivity'
+                        dependsOn: [
+                          {
+                            activity: 'Subscription open month focus export'
+                            dependencyConditions: [ 'Succeeded' ]
+                          }
+                        ]
+                        policy: {
+                          timeout: '0.00:05:00'
+                          retry: 2
+                          retryIntervalInSeconds: 30
+                          secureOutput: false
+                          secureInput: false
+                        }
+                        userProperties: []
+                        typeProperties: {
+                          url: {
+                            value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))}?api-version=${exportApiVersion}'
+                            type: 'Expression'
+                          }
+                          method: 'PUT'
+                          body: {
+                            value: getExportBodyV2(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                            type: 'Expression'
+                          }
+                          headers: {
+                            'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${ftkVersion}'
+                            ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                          }
+                          authentication: {
+                            type: 'MSI'
+                            resource: {
+                              value: '@variables(\'resourceManagementUri\')'
+                              type: 'Expression'
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                  { // MCA
+                    value: 'mca'
+                    activities: [
+                      {
+                        name: 'Export Type Unsupported Error'
+                        type: 'Fail'
+                        dependsOn: []
+                        userProperties: []
+                        typeProperties: {
+                          message: {
+                            value: '@concat(\'MCA agreements are not supported for managed exports :\',variables(\'exportScope\'))'
+                            type: 'Expression'
+                          }
+                          errorCode: 'ExportTypeUnsupported'
+                        }
+                      }
+                    ]
+                  }
+                ]
+                defaultActivities: [
+                  {
+                    name: 'Export Type Not Defined Error'
+                    type: 'Fail'
+                    dependsOn: []
+                    userProperties: []
+                    typeProperties: {
+                      message: {
+                        value: '@concat(\'Unable to determine the export scope type for :\',variables(\'exportScope\'))'
+                        type: 'Expression'
+                      }
+                      errorCode: 'ExportTypeNotDefined'
+                    }
+                  }
+                ]
               }
             }
           ]
@@ -1865,6 +2894,9 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
         type: 'String'
       }
       exportScope: {
+        type: 'String'
+      }
+      exportScopeType: {
         type: 'String'
       }
       storageAccountId: {
@@ -1893,16 +2925,17 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
 
 //------------------------------------------------------------------------------
 // msexports_ExecuteETL pipeline
-// Triggered by msexports_FileAdded trigger
+// Triggered by msexports_ManifestAdded trigger
 //------------------------------------------------------------------------------
 @description('Queues the msexports_ETL_ingestion pipeline.')
-resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: '${safeExportContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
     activities: [
       { // Wait
         name: 'Wait'
+        description: 'Files may not be available immediately after being created.'
         type: 'Wait'
         dependsOn: []
         userProperties: []
@@ -1956,8 +2989,33 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Set Dataset Type
-        name: 'Set Dataset Type'
+      { // Set Has No Rows
+        name: 'Set Has No Rows'
+        description: 'Check the row count '
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Read Manifest'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'hasNoRows'
+          value: {
+            value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set Export Dataset Type
+        name: 'Set Export Dataset Type'
         description: 'Save the dataset type from the export manifest.'
         type: 'SetVariable'
         dependsOn: [
@@ -1974,9 +3032,9 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         }
         userProperties: []
         typeProperties: {
-          variableName: 'datasetType'
+          variableName: 'exportDatasetType'
           value: {
-            value: '@toLower(activity(\'Read Manifest\').output.firstRow.exportConfig.type)'
+            value: '@activity(\'Read Manifest\').output.firstRow.exportConfig.type'
             type: 'Expression'
           }
         }
@@ -1987,7 +3045,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         type: 'SetVariable'
         dependsOn: [
           {
-            activity: 'Set Dataset Type'
+            activity: 'Set Export Dataset Type'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -2001,13 +3059,14 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         typeProperties: {
           variableName: 'mcaColumnToCheck'
           value: {
-            value: '@if(contains(createArray(\'pricesheet\', \'reservationtransactions\'), variables(\'datasetType\')), \'BillingProfileId\', if(equals(variables(\'datasetType\'), \'reservationrecommendations\'), \'Net Savings\', null))'
+            // cSpell:ignore pricesheet, reservationtransactions, reservationrecommendations
+            value: '@if(contains(createArray(\'pricesheet\', \'reservationtransactions\'), toLower(variables(\'exportDatasetType\'))), \'BillingProfileId\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationrecommendations\'), \'Net Savings\', null))'
             type: 'Expression'
           }
         }
       }
-      { // Set Dataset Version
-        name: 'Set Dataset Version'
+      { // Set Export Dataset Version
+        name: 'Set Export Dataset Version'
         description: 'Save the dataset version from the export manifest.'
         type: 'SetVariable'
         dependsOn: [
@@ -2024,7 +3083,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         }
         userProperties: []
         typeProperties: {
-          variableName: 'datasetVersion'
+          variableName: 'exportDatasetVersion'
           value: {
             value: '@activity(\'Read Manifest\').output.firstRow.exportConfig.dataVersion'
             type: 'Expression'
@@ -2033,9 +3092,15 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
       }
       { // Detect Channel
         name: 'Detect Channel'
-        description: 'Determines what channel this dataset is from. Switch statement handles the different file types if the mcaColumnToCheck variable is set.'
+        description: 'Determines what channel this export is from. Switch statement handles the different file types if the mcaColumnToCheck variable is set.'
         type: 'Switch'
         dependsOn: [
+          {
+            activity: 'Set Has No Rows'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
           {
             activity: 'Set MCA Column'
             dependencyConditions: [
@@ -2043,7 +3108,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
             ]
           }
           {
-            activity: 'Set Dataset Version'
+            activity: 'Set Export Dataset Version'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -2052,11 +3117,11 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         userProperties: []
         typeProperties: {
           on: {
-            value: '@if(empty(variables(\'mcaColumnToCheck\')), \'ignore\', last(array(split(activity(\'Read Manifest\').output.firstRow.blobs[0].blobName, \'.\'))))'
+            value: '@if(or(empty(variables(\'mcaColumnToCheck\')), variables(\'hasNoRows\')), \'ignore\', last(array(split(activity(\'Read Manifest\').output.firstRow.blobs[0].blobName, \'.\'))))'
             type: 'Expression'
           }
           cases: [
-            {
+            { // csv
               value: 'csv'
               activities: [
                 {
@@ -2115,14 +3180,14 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
                   typeProperties: {
                     variableName: 'schemaFile'
                     value: {
-                      value: '@toLower(concat(variables(\'datasetType\'), \'_\', variables(\'datasetVersion\'), if(contains(activity(\'Check for MCA Column in CSV\').output.firstRow, variables(\'mcaColumnToCheck\')), \'_mca\', \'_ea\'), \'.json\'))'
+                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(and(contains(activity(\'Check for MCA Column in CSV\').output, \'firstRow\'), contains(activity(\'Check for MCA Column in CSV\').output.firstRow, variables(\'mcaColumnToCheck\'))), \'_mca\', \'_ea\'), \'.json\'))'
                       type: 'Expression'
                     }
                   }
                 }
               ]
             }
-            {
+            { // gz
               value: 'gz'
               activities: [
                 {
@@ -2181,14 +3246,14 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
                   typeProperties: {
                     variableName: 'schemaFile'
                     value: {
-                      value: '@toLower(concat(variables(\'datasetType\'), \'_\', variables(\'datasetVersion\'), if(contains(activity(\'Check for MCA Column in Gzip CSV\').output.firstRow, variables(\'mcaColumnToCheck\')), \'_mca\', \'_ea\'), \'.json\'))'
+                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(and(contains(activity(\'Check for MCA Column in Gzip CSV\').output, \'firstRow\'), contains(activity(\'Check for MCA Column in Gzip CSV\').output.firstRow, variables(\'mcaColumnToCheck\'))), \'_mca\', \'_ea\'), \'.json\'))'
                       type: 'Expression'
                     }
                   }
                 }
               ]
             }
-            {
+            { // parquet
               value: 'parquet'
               activities: [
                 {
@@ -2247,7 +3312,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
                   typeProperties: {
                     variableName: 'schemaFile'
                     value: {
-                      value: '@toLower(concat(variables(\'datasetType\'), \'_\', variables(\'datasetVersion\'), if(contains(activity(\'Check for MCA Column in Parquet\').output.firstRow, variables(\'mcaColumnToCheck\')), \'_mca\', \'_ea\'), \'.json\'))'
+                      value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), if(and(contains(activity(\'Check for MCA Column in Parquet\').output, \'firstRow\'), contains(activity(\'Check for MCA Column in Parquet\').output.firstRow, variables(\'mcaColumnToCheck\'))), \'_mca\', \'_ea\'), \'.json\'))'
                       type: 'Expression'
                     }
                   }
@@ -2268,7 +3333,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
               typeProperties: {
                 variableName: 'schemaFile'
                 value: {
-                  value: '@toLower(concat(variables(\'datasetType\'), \'_\', variables(\'datasetVersion\'), \'.json\'))'
+                  value: '@toLower(concat(variables(\'exportDatasetType\'), \'_\', variables(\'exportDatasetVersion\'), \'.json\'))'
                   type: 'Expression'
                 }
               }
@@ -2335,7 +3400,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
             dependencyConditions: ['Failed']
           }
           {
-            activity: 'Set Dataset Type'
+            activity: 'Set Export Dataset Type'
             dependencyConditions: ['Failed']
           }
           {
@@ -2347,7 +3412,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
             dependencyConditions: ['Failed']
           }
           {
-            activity: 'Set Dataset Version'
+            activity: 'Set Export Dataset Version'
             dependencyConditions: ['Failed']
           }
           {
@@ -2431,10 +3496,64 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         userProperties: []
         typeProperties: {
           message: {
-            value: '@concat(\'The \', variables(\'schemaFile\'), \' schema mapping file was not found. Please confirm version \', variables(\'datasetVersion\'), \' of the \', variables(\'datasetType\'), \' dataset is supported by this version of FinOps hubs. You may need to upgrade to a newer release. To add support for another dataset, you can create a custom mapping file.\')'
+            value: '@concat(\'The \', variables(\'schemaFile\'), \' schema mapping file was not found. Please confirm version \', variables(\'exportDatasetVersion\'), \' of the \', variables(\'exportDatasetType\'), \' dataset is supported by this version of FinOps hubs. You may need to upgrade to a newer release. To add support for another dataset, you can create a custom mapping file.\')'
             type: 'Expression'
           }
           errorCode: 'SchemaNotFound'
+        }
+      }
+      { // Set Hub Dataset
+        name: 'Set Hub Dataset'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Export Dataset Type'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'hubDataset'
+          value: {
+            value: '@if(equals(toLower(variables(\'exportDatasetType\')), \'focuscost\'), \'Costs\', if(equals(toLower(variables(\'exportDatasetType\')), \'pricesheet\'), \'Prices\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationdetails\'), \'CommitmentDiscountUsage\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationrecommendations\'), \'Recommendations\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationtransactions\'), \'Transactions\', if(equals(toLower(variables(\'exportDatasetType\')), \'actualcost\'), \'ActualCosts\', if(equals(toLower(variables(\'exportDatasetType\')), \'amortizedcost\'), \'AmortizedCosts\', toLower(variables(\'exportDatasetType\')))))))))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set Destination Folder
+        name: 'Set Destination Folder'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Check Schema'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Set Hub Dataset'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'destinationFolder'
+          value: {
+            value: '@replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',toLower(variables(\'scope\')), if(equals(variables(\'hubDataset\'), \'Recommendations\'), activity(\'Read Manifest\').output.firstRow.exportConfig.exportName, \'\')),\'//\',\'/\')'
+            type: 'Expression'
+          }
         }
       }
       { // For Each Blob
@@ -2443,7 +3562,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         type: 'ForEach'
         dependsOn: [
           {
-            activity: 'Check Schema'
+            activity: 'Set Destination Folder'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -2452,14 +3571,15 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Read Manifest\').output.firstRow.blobs'
+            value: '@if(variables(\'hasNoRows\'), json(\'[]\'), activity(\'Read Manifest\').output.firstRow.blobs)'
             type: 'Expression'
           }
+          batchCount: enablePublicAccess ? 30 : 4 // so we don't overload the managed runtime
           isSequential: false
           activities: [
             { // Execute
               name: 'Execute'
-              description: 'Run the ETL pipeline.'
+              description: 'Run the ingestion ETL pipeline.'
               type: 'ExecutePipeline'
               dependsOn: []
               policy: {
@@ -2478,19 +3598,27 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
                     type: 'Expression'
                   }
                   destinationFolder: {
-                    value: '@toLower(replace(concat(variables(\'datasetType\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',variables(\'scope\')),\'//\',\'/\'))'
+                    value: '@variables(\'destinationFolder\')'
                     type: 'Expression'
                   }
                   destinationFile: {
-                    value: '@concat(activity(\'Read Manifest\').output.firstRow.runInfo.runId, \'__\', last(array(split(replace(replace(item().blobName, \'.gz\', \'\'), \'.csv\', \'.parquet\'), \'/\'))))'
+                    value: '@last(array(split(replace(replace(item().blobName, \'.gz\', \'\'), \'.csv\', \'.parquet\'), \'/\')))'
                     type: 'Expression'
                   }
-                  keepFilePrefix: {
-                    value: '@concat(activity(\'Read Manifest\').output.firstRow.runInfo.runId, \'__\')'
+                  ingestionId: {
+                    value: '@activity(\'Read Manifest\').output.firstRow.runInfo.runId'
                     type: 'Expression'
                   }
                   schemaFile: {
                     value: '@variables(\'schemaFile\')'
+                    type: 'Expression'
+                  }
+                  exportDatasetType: {
+                    value: '@variables(\'exportDatasetType\')'
+                    type: 'Expression'
+                  }
+                  exportDatasetVersion: {
+                    value: '@variables(\'exportDatasetVersion\')'
                     type: 'Expression'
                   }
                 }
@@ -2498,6 +3626,76 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
             }
           ]
         }
+      }
+      { // Copy Manifest
+        name: 'Copy Manifest'
+        description: 'Copy the manifest to the ingestion container to trigger ADX ingestion'
+        type: 'Copy'
+        dependsOn: [
+          {
+            activity: 'For Each Blob'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          sink: {
+            type: 'JsonSink'
+            storeSettings: {
+              type: 'AzureBlobFSWriteSettings'
+            }
+            formatSettings: {
+              type: 'JsonWriteSettings'
+            }
+          }
+          enableStaging: false
+        }
+        inputs: [
+          {
+            referenceName: dataset_manifest.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'manifest.json'
+              folderPath: {
+                value: '@pipeline().parameters.folderPath'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+        outputs: [
+          {
+            referenceName: dataset_manifest.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'manifest.json'
+              folderPath: {
+                value: '@concat(\'${ingestionContainerName}/\', variables(\'destinationFolder\'))'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
       }
     ]
     parameters: {
@@ -2509,13 +3707,22 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
       }
     }
     variables: {
-      datasetType: {
-        type: 'String'
-      }
-      datasetVersion: {
-        type: 'String'
-      }
       date: {
+        type: 'String'
+      }
+      destinationFolder: {
+        type: 'String'
+      }
+      exportDatasetType: {
+        type: 'String'
+      }
+      exportDatasetVersion: {
+        type: 'String'
+      }
+      hasNoRows: {
+        type: 'Boolean'
+      }
+      hubDataset: {
         type: 'String'
       }
       mcaColumnToCheck: {
@@ -2528,7 +3735,9 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         type: 'String'
       }
     }
-    annotations: []
+    annotations: [
+      'New export'
+    ]
   }
 }
 
@@ -2542,6 +3751,64 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
+      { // Get Existing Parquet Files
+        name: 'Get Existing Parquet Files'
+        description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
+        type: 'GetMetadata'
+        dependsOn: []
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          dataset: {
+            referenceName: dataset_ingestion_files.name
+            type: 'DatasetReference'
+            parameters: {
+              folderPath: '@pipeline().parameters.destinationFolder'
+            }
+          }
+          fieldList: [
+            'childItems'
+          ]
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            enablePartitionDiscovery: false
+          }
+          formatSettings: {
+            type: 'ParquetReadSettings'
+          }
+        }
+      }
+      { // Filter Out Current Exports
+        name: 'Filter Out Current Exports'
+        description: 'Remove existing files from the current export so those files do not get deleted.'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Get Existing Parquet Files'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            type: 'Expression'
+          }
+          condition: {
+            // cSpell:ignore endswith
+            value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, concat(pipeline().parameters.ingestionId, \'${ingestionIdFileNameSeparator}\'))))'
+            type: 'Expression'
+          }
+        }
+      }
       { // Load Schema Mappings
         name: 'Load Schema Mappings'
         description: 'Get schema mapping file to use for the CSV to parquet conversion.'
@@ -2600,10 +3867,9 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           errorCode: 'SchemaLoadFailed'
         }
       }
-      { // Convert to Parquet
-        name: 'Convert to Parquet'
-        description: 'Convert CSV to parquet and move the file to the ${ingestionContainerName} container.'
-        type: 'Switch'
+      { // Set Additional Columns
+        name: 'Set Additional Columns'
+        type: 'SetVariable'
         dependsOn: [
           {
             activity: 'Load Schema Mappings'
@@ -2612,304 +3878,15 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             ]
           }
         ]
-        userProperties: []
-        typeProperties: {
-          on: {
-            value: '@last(array(split(pipeline().parameters.blobPath, \'.\')))'
-            type: 'Expression'
-          }
-          cases: [
-            {
-              value: 'csv'
-              activities: [
-                {
-                  name: 'Convert CSV File'
-                  type: 'Copy'
-                  dependsOn: []
-                  policy: {
-                    timeout: '0.00:10:00'
-                    retry: 0
-                    retryIntervalInSeconds: 30
-                    secureOutput: false
-                    secureInput: false
-                  }
-                  userProperties: []
-                  typeProperties: {
-                    source: {
-                      type: 'DelimitedTextSource'
-                      additionalColumns: {
-                        type: 'Expression'
-                        value: '@activity(\'Load Schema Mappings\').output.firstRow.additionalColumns'
-                      }
-                      storeSettings: {
-                        type: 'AzureBlobFSReadSettings'
-                        recursive: true
-                        enablePartitionDiscovery: false
-                      }
-                      formatSettings: {
-                        type: 'DelimitedTextReadSettings'
-                      }
-                    }
-                    sink: {
-                      type: 'ParquetSink'
-                      storeSettings: {
-                        type: 'AzureBlobFSWriteSettings'
-                      }
-                      formatSettings: {
-                        type: 'ParquetWriteSettings'
-                        fileExtension: '.parquet'
-                      }
-                    }
-                    enableStaging: false
-                    parallelCopies: 1
-                    validateDataConsistency: false
-                    translator: {
-                      value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-                      type: 'Expression'
-                    }
-                  }
-                  inputs: [
-                    {
-                      referenceName: dataset_msexports.name
-                      type: 'DatasetReference'
-                      parameters: {
-                        blobPath: {
-                          value: '@pipeline().parameters.blobPath'
-                          type: 'Expression'
-                        }
-                      }
-                    }
-                  ]
-                  outputs: [
-                    {
-                      referenceName: dataset_ingestion.name
-                      type: 'DatasetReference'
-                      parameters: {
-                        blobPath: {
-                          value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.destinationFile)'
-                          type: 'Expression'
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-            {
-              value: 'gz'
-              activities: [
-                {
-                  name: 'Convert GZip CSV File'
-                  type: 'Copy'
-                  dependsOn: []
-                  policy: {
-                    timeout: '0.00:10:00'
-                    retry: 0
-                    retryIntervalInSeconds: 30
-                    secureOutput: false
-                    secureInput: false
-                  }
-                  userProperties: []
-                  typeProperties: {
-                    source: {
-                      type: 'DelimitedTextSource'
-                      additionalColumns: {
-                        type: 'Expression'
-                        value: '@activity(\'Load Schema Mappings\').output.firstRow.additionalColumns'
-                      }
-                      storeSettings: {
-                        type: 'AzureBlobFSReadSettings'
-                        recursive: true
-                        enablePartitionDiscovery: false
-                      }
-                      formatSettings: {
-                        type: 'DelimitedTextReadSettings'
-                      }
-                    }
-                    sink: {
-                      type: 'ParquetSink'
-                      storeSettings: {
-                        type: 'AzureBlobFSWriteSettings'
-                      }
-                      formatSettings: {
-                        type: 'ParquetWriteSettings'
-                        fileExtension: '.parquet'
-                      }
-                    }
-                    enableStaging: false
-                    parallelCopies: 1
-                    validateDataConsistency: false
-                    translator: {
-                      value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-                      type: 'Expression'
-                    }
-                  }
-                  inputs: [
-                    {
-                      referenceName: dataset_msexports_gzip.name
-                      type: 'DatasetReference'
-                      parameters: {
-                        blobPath: {
-                          value: '@pipeline().parameters.blobPath'
-                          type: 'Expression'
-                        }
-                      }
-                    }
-                  ]
-                  outputs: [
-                    {
-                      referenceName: dataset_ingestion.name
-                      type: 'DatasetReference'
-                      parameters: {
-                        blobPath: {
-                          value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.destinationFile)'
-                          type: 'Expression'
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-            {
-              value: 'parquet'
-              activities: [
-                {
-                  name: 'Move Parquet File'
-                  type: 'Copy'
-                  dependsOn: []
-                  policy: {
-                    timeout: '0.00:05:00'
-                    retry: 0
-                    retryIntervalInSeconds: 30
-                    secureOutput: false
-                    secureInput: false
-                  }
-                  userProperties: []
-                  typeProperties: {
-                    source: {
-                      type: 'ParquetSource'
-                      storeSettings: {
-                        type: 'AzureBlobFSReadSettings'
-                        recursive: true
-                        enablePartitionDiscovery: false
-                      }
-                      formatSettings: {
-                        type: 'ParquetReadSettings'
-                      }
-                    }
-                    sink: {
-                      type: 'ParquetSink'
-                      storeSettings: {
-                        type: 'AzureBlobFSWriteSettings'
-                      }
-                      formatSettings: {
-                        type: 'ParquetWriteSettings'
-                        fileExtension: '.parquet'
-                      }
-                    }
-                    enableStaging: false
-                    parallelCopies: 1
-                    validateDataConsistency: false
-                  }
-                  inputs: [
-                    {
-                      referenceName: dataset_msexports_parquet.name
-                      type: 'DatasetReference'
-                      parameters: {
-                        blobPath: {
-                          value: '@pipeline().parameters.blobPath'
-                          type: 'Expression'
-                        }
-                      }
-                    }
-                  ]
-                  outputs: [
-                    {
-                      referenceName: dataset_ingestion.name
-                      type: 'DatasetReference'
-                      parameters: {
-                        blobPath: {
-                          value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.destinationFile)'
-                          type: 'Expression'
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-          defaultActivities: [
-            {
-              name: 'Unsupported File Type'
-              type: 'Fail'
-              dependsOn: []
-              userProperties: []
-              typeProperties: {
-                message: {
-                  value: '@concat(\'Unable to ingest the specified export file because the file type is not supported. File: \', pipeline().parameters.blobPath)'
-                  type: 'Expression'
-                }
-                errorCode: 'UnsupportedExportFileType'
-              }
-            }
-          ]
-        }
-      }
-      { // Get Existing Parquet Files
-        name: 'Get Existing Parquet Files'
-        description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
-        type: 'GetMetadata'
-        dependsOn: []
         policy: {
-          timeout: '0.12:00:00'
-          retry: 0
-          retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
         }
         userProperties: []
         typeProperties: {
-          dataset: {
-            referenceName: dataset_ingestion_files.name
-            type: 'DatasetReference'
-            parameters: {
-              folderPath: '@pipeline().parameters.destinationFolder'
-            }
-          }
-          fieldList: [
-            'childItems'
-          ]
-          storeSettings: {
-            type: 'AzureBlobFSReadSettings'
-            enablePartitionDiscovery: false
-          }
-          formatSettings: {
-            type: 'ParquetReadSettings'
-          }
-        }
-      }
-      { // Filter Out Current Exports
-        name: 'Filter Out Current Exports'
-        description: 'Remove existing files from the current export so those files do not get deleted.'
-        type: 'Filter'
-        dependsOn: [
-          {
-            activity: 'Get Existing Parquet Files'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          items: {
-            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
-            type: 'Expression'
-          }
-          condition: {
-            value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, pipeline().parameters.keepFilePrefix)))'
+          variableName: 'additionalColumns'
+          value: {
+            value: '@intersection(array(json(concat(\'[{"name":"x_SourceProvider","value":"Microsoft"},{"name":"x_SourceName","value":"Cost Management"},{"name":"x_SourceType","value":"\', pipeline().parameters.exportDatasetVersion, \'"},{"name":"x_SourceVersion","value":"\', pipeline().parameters.exportDatasetVersion, \'"}\'))), activity(\'Load Schema Mappings\').output.firstRow.additionalColumns)'
             type: 'Expression'
           }
         }
@@ -2969,6 +3946,296 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                   recursive: false
                   enablePartitionDiscovery: false
                 }
+              }
+            }
+          ]
+        }
+      }
+      { // Set Destination Path
+        name: 'Set Destination Path'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'destinationPath'
+          value: {
+            value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.ingestionId, \'${ingestionIdFileNameSeparator}\', pipeline().parameters.destinationFile)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Convert to Parquet
+        name: 'Convert to Parquet'
+        description: 'Convert CSV to parquet and move the file to the ${ingestionContainerName} container.'
+        type: 'Switch'
+        dependsOn: [
+          {
+            activity: 'Set Destination Path'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Load Schema Mappings'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Set Additional Columns'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          on: {
+            value: '@last(array(split(pipeline().parameters.blobPath, \'.\')))'
+            type: 'Expression'
+          }
+          cases: [
+            { // CSV
+              value: 'csv'
+              activities: [
+                { // Convert CSV File
+                  name: 'Convert CSV File'
+                  type: 'Copy'
+                  dependsOn: []
+                  policy: {
+                    timeout: '0.00:10:00'
+                    retry: 0
+                    retryIntervalInSeconds: 30
+                    secureOutput: false
+                    secureInput: false
+                  }
+                  userProperties: []
+                  typeProperties: {
+                    source: {
+                      type: 'DelimitedTextSource'
+                      additionalColumns: {
+                        value: '@variables(\'additionalColumns\')'
+                        type: 'Expression'
+                      }
+                      storeSettings: {
+                        type: 'AzureBlobFSReadSettings'
+                        recursive: true
+                        enablePartitionDiscovery: false
+                      }
+                      formatSettings: {
+                        type: 'DelimitedTextReadSettings'
+                      }
+                    }
+                    sink: {
+                      type: 'ParquetSink'
+                      storeSettings: {
+                        type: 'AzureBlobFSWriteSettings'
+                      }
+                      formatSettings: {
+                        type: 'ParquetWriteSettings'
+                        fileExtension: '.parquet'
+                      }
+                    }
+                    enableStaging: false
+                    parallelCopies: 1
+                    validateDataConsistency: false
+                    translator: {
+                      value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+                      type: 'Expression'
+                    }
+                  }
+                  inputs: [
+                    {
+                      referenceName: dataset_msexports.name
+                      type: 'DatasetReference'
+                      parameters: {
+                        blobPath: {
+                          value: '@pipeline().parameters.blobPath'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  ]
+                  outputs: [
+                    {
+                      referenceName: dataset_ingestion.name
+                      type: 'DatasetReference'
+                      parameters: {
+                        blobPath: {
+                          value: '@variables(\'destinationPath\')'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            { // GZ
+              value: 'gz'
+              activities: [
+                { // Convert GZip CSV File
+                  name: 'Convert GZip CSV File'
+                  type: 'Copy'
+                  dependsOn: []
+                  policy: {
+                    timeout: '0.00:10:00'
+                    retry: 0
+                    retryIntervalInSeconds: 30
+                    secureOutput: false
+                    secureInput: false
+                  }
+                  userProperties: []
+                  typeProperties: {
+                    source: {
+                      type: 'DelimitedTextSource'
+                      additionalColumns: {
+                        value: '@variables(\'additionalColumns\')'
+                        type: 'Expression'
+                      }
+                      storeSettings: {
+                        type: 'AzureBlobFSReadSettings'
+                        recursive: true
+                        enablePartitionDiscovery: false
+                      }
+                      formatSettings: {
+                        type: 'DelimitedTextReadSettings'
+                      }
+                    }
+                    sink: {
+                      type: 'ParquetSink'
+                      storeSettings: {
+                        type: 'AzureBlobFSWriteSettings'
+                      }
+                      formatSettings: {
+                        type: 'ParquetWriteSettings'
+                        fileExtension: '.parquet'
+                      }
+                    }
+                    enableStaging: false
+                    parallelCopies: 1
+                    validateDataConsistency: false
+                    translator: {
+                      value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+                      type: 'Expression'
+                    }
+                  }
+                  inputs: [
+                    {
+                      referenceName: dataset_msexports_gzip.name
+                      type: 'DatasetReference'
+                      parameters: {
+                        blobPath: {
+                          value: '@pipeline().parameters.blobPath'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  ]
+                  outputs: [
+                    {
+                      referenceName: dataset_ingestion.name
+                      type: 'DatasetReference'
+                      parameters: {
+                        blobPath: {
+                          value: '@variables(\'destinationPath\')'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            { // Parquet
+              value: 'parquet'
+              activities: [
+                { // Move Parquet File
+                  name: 'Move Parquet File'
+                  type: 'Copy'
+                  dependsOn: []
+                  policy: {
+                    timeout: '0.00:05:00'
+                    retry: 0
+                    retryIntervalInSeconds: 30
+                    secureOutput: false
+                    secureInput: false
+                  }
+                  userProperties: []
+                  typeProperties: {
+                    source: {
+                      type: 'ParquetSource'
+                      additionalColumns: {
+                        value: '@variables(\'additionalColumns\')'
+                        type: 'Expression'
+                      }
+                      storeSettings: {
+                        type: 'AzureBlobFSReadSettings'
+                        recursive: true
+                        enablePartitionDiscovery: false
+                      }
+                      formatSettings: {
+                        type: 'ParquetReadSettings'
+                      }
+                    }
+                    sink: {
+                      type: 'ParquetSink'
+                      storeSettings: {
+                        type: 'AzureBlobFSWriteSettings'
+                      }
+                      formatSettings: {
+                        type: 'ParquetWriteSettings'
+                        fileExtension: '.parquet'
+                      }
+                    }
+                    enableStaging: false
+                    parallelCopies: 1
+                    validateDataConsistency: false
+                  }
+                  inputs: [
+                    {
+                      referenceName: dataset_msexports_parquet.name
+                      type: 'DatasetReference'
+                      parameters: {
+                        blobPath: {
+                          value: '@pipeline().parameters.blobPath'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  ]
+                  outputs: [
+                    {
+                      referenceName: dataset_ingestion.name
+                      type: 'DatasetReference'
+                      parameters: {
+                        blobPath: {
+                          value: '@variables(\'destinationPath\')'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+          defaultActivities: [
+            { // Error: UnsupportedFileType
+              name: 'Unsupported File Type'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@concat(\'Unable to ingest the specified export file because the file type is not supported. File: \', pipeline().parameters.blobPath)'
+                  type: 'Expression'
+                }
+                errorCode: 'UnsupportedExportFileType'
               }
             }
           ]
@@ -3080,15 +4347,24 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       destinationFolder: {
         type: 'string'
       }
-      keepFilePrefix: {
+      ingestionId: {
         type: 'string'
       }
       schemaFile: {
         type: 'string'
       }
+      exportDatasetType: {
+        type: 'string'
+      }
+      exportDatasetVersion: {
+        type: 'string'
+      }
     }
     variables: {
-      destinationFile: {
+      additionalColumns: {
+        type: 'Array'
+      }
+      destinationPath: {
         type: 'String'
       }
     }
@@ -3097,32 +4373,847 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
 }
 
 //------------------------------------------------------------------------------
+// ingestion_ETL_dataExplorer pipeline
+// Triggered by ingestion_ExecuteETL
+//------------------------------------------------------------------------------
+@description('Ingests parquet data into an Azure Data Explorer cluster.')
+resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer || useFabric) {
+  name: '${safeIngestionContainerName}_ETL_dataExplorer'
+  parent: dataFactory
+  properties: {
+    activities: [
+      { // Read Hub Config
+        name: 'Read Hub Config'
+        description: 'Read the hub config to determine how long data should be retained.'
+        type: 'Lookup'
+        dependsOn: [
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: false
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'settings.json'
+              folderPath: configContainerName
+            }
+          }
+        }
+      }
+      { // Set Final Retention Months
+        name: 'Set Final Retention Months'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Read Hub Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'finalRetentionMonths'
+          value: {
+            value: '@coalesce(activity(\'Read Hub Config\').output.firstRow.retention.final.months, 999)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Until Capacity Is Available
+        name: 'Until Capacity Is Available'
+        type: 'Until'
+        dependsOn: [
+          {
+            activity: 'Set Final Retention Months'
+            dependencyConditions: [
+              'Completed'
+              'Skipped'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(variables(\'tryAgain\'), false)'
+            type: 'Expression'
+          }
+          activities: [
+            { // Confirm Ingestion Capacity
+              name: 'Confirm Ingestion Capacity'
+              type: 'AzureDataExplorerCommand'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                command: '.show capacity | where Resource == \'Ingestions\' | project Remaining'
+                commandTimeout: '00:20:00'
+              }
+              linkedServiceName: {
+                referenceName: linkedService_dataExplorer.name
+                type: 'LinkedServiceReference'
+              }
+            }
+            { // If Has Capacity
+              name: 'If Has Capacity'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Confirm Ingestion Capacity'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@or(equals(activity(\'Confirm Ingestion Capacity\').output.count, 0), greater(activity(\'Confirm Ingestion Capacity\').output.value[0].Remaining, 0))'
+                  type: 'Expression'
+                }
+                ifFalseActivities: [
+                  { // Wait for Ingestion
+                    name: 'Wait for Ingestion'
+                    type: 'Wait'
+                    dependsOn: []
+                    userProperties: []
+                    typeProperties: {
+                      waitTimeInSeconds: 15
+                    }
+                  }
+                  { // Try Again
+                    name: 'Try Again'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Wait for Ingestion'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: true
+                    }
+                  }
+                ]
+                ifTrueActivities: [
+                  { // Pre-Ingest Cleanup
+                    name: 'Pre-Ingest Cleanup'
+                    description: 'Cost Management exports include all month-to-date data from the previous export run. To ensure data is not double-reported, it must be dropped from the raw table before ingestion completes. Remove previous ingestions into the raw table for the month and any previous runs of the current ingestion month file in any table.'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: []
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    typeProperties: {
+                      command: {
+                        value: '@concat(\'.drop extents <| .show extents | where (TableName == "\', pipeline().parameters.table, \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'") or (Tags has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'")\')'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Ingest Data
+                    name: 'Ingest Data'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Pre-Ingest Cleanup'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 3
+                      retryIntervalInSeconds: 120
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: {
+                        // cSpell:ignore abfss, toscalar
+                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("abfss://${ingestionContainerName}@${storageAccount.name}.dfs.${environment().suffixes.storage}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \';${useFabric ? 'impersonate' : 'managed_identity=system'}") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"); print Success = assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")\')'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '01:00:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Post-Ingest Cleanup
+                    name: 'Post-Ingest Cleanup'
+                    description: 'Cost Management exports include all month-to-date data from the previous export run. To ensure data is not double-reported, it must be dropped after ingestion completes. Remove the current ingestion month file from raw and any old ingestions for the month from the final table.'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Ingest Data'
+                        dependencyConditions: [
+                          'Completed'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    typeProperties: {
+                      command: {
+                        // cSpell:ignore startofmonth, strcat, todatetime
+                        value: '@concat(\'.drop extents <| .show extents | extend isOldFinalData = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'") | extend isPastFinalRetention = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and todatetime(substring(strcat(replace_string(extract("drop-by:[A-Za-z]+/(\\\\d{4}/\\\\d{2}(/\\\\d{2})?)", 1, Tags), "/", "-"), "-01"), 0, 10)) < datetime_add("month", -\', if(lessOrEquals(variables(\'finalRetentionMonths\'), 0), 0, variables(\'finalRetentionMonths\')), \', startofmonth(now()))) | where isOldFinalData or isPastFinalRetention\')'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Ingestion Complete
+                    name: 'Ingestion Complete'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Post-Ingest Cleanup'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                  { // Abort On Ingestion Error
+                    name: 'Abort On Ingestion Error'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Ingest Data'
+                        dependencyConditions: [
+                          'Failed'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                  { // Error: DataExplorerIngestionFailed
+                    name: 'Ingestion Failed Error'
+                    type: 'Fail'
+                    dependsOn: [
+                      {
+                        activity: 'Abort On Ingestion Error'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    userProperties: []
+                    typeProperties: {
+                      message: {
+                        value: '@concat(\'Data Explorer ingestion into the \', pipeline().parameters.table, \' table failed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalFileName, \'. Error: \', if(greater(length(activity(\'Ingest Data\').output.errors), 0), activity(\'Ingest Data\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Ingest Data\').output.errors), 0), activity(\'Ingest Data\').output.errors[0].Code, \'None\'), \')\')'
+                        type: 'Expression'
+                      }
+                      errorCode: 'DataExplorerIngestionFailed'
+                    }
+                  }
+                  { // Abort On Pre-Ingest Drop Error
+                    name: 'Abort On Pre-Ingest Drop Error'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Pre-Ingest Cleanup'
+                        dependencyConditions: [
+                          'Failed'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                  { // Error: DataExplorerPreIngestionDropFailed
+                    name: 'Pre-Ingest Drop Failed Error'
+                    type: 'Fail'
+                    dependsOn: [
+                      {
+                        activity: 'Abort On Pre-Ingest Drop Error'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    userProperties: []
+                    typeProperties: {
+                      message: {
+                        value: '@concat(\'Data Explorer pre-ingestion cleanup (drop extents from raw table) for the \', pipeline().parameters.table, \' table failed. Ingestion was not completed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalFileName, \'. Error: \', if(greater(length(activity(\'Pre-Ingest Cleanup\').output.errors), 0), activity(\'Pre-Ingest Cleanup\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Pre-Ingest Cleanup\').output.errors), 0), activity(\'Pre-Ingest Cleanup\').output.errors[0].Code, \'None\'), \')\')'
+                        type: 'Expression'
+                      }
+                      errorCode: 'DataExplorerPreIngestionDropFailed'
+                    }
+                  }
+                  { // Abort On Post-Ingest Drop Error
+                    name: 'Abort On Post-Ingest Drop Error'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Post-Ingest Cleanup'
+                        dependencyConditions: [
+                          'Failed'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                  { // Error: DataExplorerPostIngestionDropFailed
+                    name: 'Post-Ingest Drop Failed Error'
+                    type: 'Fail'
+                    dependsOn: [
+                      {
+                        activity: 'Abort On Post-Ingest Drop Error'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    userProperties: []
+                    typeProperties: {
+                      message: {
+                        value: '@concat(\'Data Explorer post-ingestion cleanup (drop extents from final tables) for the \', replace(pipeline().parameters.table, \'_raw\', \'_final_*\'), \' table failed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalFileName, \'. Error: \', if(greater(length(activity(\'Post-Ingest Cleanup\').output.errors), 0), activity(\'Post-Ingest Cleanup\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Post-Ingest Cleanup\').output.errors), 0), activity(\'Post-Ingest Cleanup\').output.errors[0].Code, \'None\'), \')\')'
+                        type: 'Expression'
+                      }
+                      errorCode: 'DataExplorerPostIngestionDropFailed'
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+          timeout: '0.02:00:00'
+        }
+      }
+    ]
+    parameters: {
+      folderPath: {
+        type: 'string'
+      }
+      fileName: {
+        type: 'string'
+      }
+      originalFileName: {
+        type: 'string'
+      }
+      ingestionId: {
+        type: 'string'
+      }
+      table: {
+        type: 'string'
+      }
+    }
+    variables: {
+      tryAgain: {
+        type: 'Boolean'
+        defaultValue: true
+      }
+      logRetentionDays: {
+        type: 'Integer'
+        defaultValue: 0
+      }
+      finalRetentionMonths: {
+        type: 'Integer'
+        defaultValue: 999
+      }
+    }
+    annotations: []
+  }
+}
+
+//------------------------------------------------------------------------------
+// ingestion_ExecuteETL pipeline
+// Triggered by ingestion_ManifestAdded trigger
+//------------------------------------------------------------------------------
+@description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits.')
+resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer || useFabric) {
+  name: '${safeIngestionContainerName}_ExecuteETL'
+  parent: dataFactory
+  properties: {
+    concurrency: 1
+    activities: [
+      { // Wait
+            name: 'Wait'
+            description: 'Files may not be available immediately after being created.'
+            type: 'Wait'
+            dependsOn: []
+            userProperties: []
+            typeProperties: {
+              waitTimeInSeconds: 60
+            }
+      }
+      { // Set Container Folder Path
+        name: 'Set Container Folder Path'
+        type: 'SetVariable'
+        dependsOn: [
+            {
+                activity: 'Wait'
+                dependencyConditions: [
+                  'Succeeded'
+                ]
+              }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'containerFolderPath'
+          value: {
+            value: '@join(skip(array(split(pipeline().parameters.folderPath, \'/\')), 1), \'/\')'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Get Existing Parquet Files
+        name: 'Get Existing Parquet Files'
+        description: 'Get the previously ingested files so we can get file paths.'
+        type: 'GetMetadata'
+        dependsOn: [
+          {
+            activity: 'Set Container Folder Path'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          dataset: {
+            referenceName: dataset_ingestion_files.name
+            type: 'DatasetReference'
+            parameters: {
+              folderPath: '@variables(\'containerFolderPath\')'
+            }
+          }
+          fieldList: [
+            'childItems'
+          ]
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            enablePartitionDiscovery: false
+          }
+          formatSettings: {
+            type: 'ParquetReadSettings'
+          }
+        }
+      }
+      { // Filter Out Folders and manifest files
+        name: 'Filter Out Folders'
+        description: 'Remove any folders or manifest files.'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Get Existing Parquet Files'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            type: 'Expression'
+          }
+          condition: {
+            value: '@and(equals(item().type, \'File\'), not(contains(toLower(item().name), \'manifest.json\')))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set Ingestion Timestamp
+        name: 'Set Ingestion Timestamp'
+        type: 'SetVariable'
+        dependsOn: [
+            {
+                activity: 'Wait'
+                dependencyConditions: [
+                  'Succeeded'
+                ]
+            }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'timestamp'
+          value: {
+            value: '@utcNow()'
+            type: 'Expression'
+          }
+        }
+      }
+      { // For Each Old File
+        name: 'For Each Old File'
+        description: 'Loop thru each of the existing files.'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Filter Out Folders'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Data Explorer validation'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          batchCount: dataExplorerIngestionCapacity // Concurrency limit
+          items: {
+            value: '@activity(\'Filter Out Folders\').output.Value'
+            type: 'Expression'
+          }
+          activities: [
+            { // Execute
+              name: 'Execute'
+              description: 'Run the ADX ETL pipeline.'
+              type: 'ExecutePipeline'
+              dependsOn: []
+              policy: {
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                pipeline: {
+                  referenceName: pipeline_ToDataExplorer.name
+                  type: 'PipelineReference'
+                }
+                waitOnCompletion: true
+                parameters: {
+                  folderPath: {
+                    value: '@variables(\'containerFolderPath\')'
+                    type: 'Expression'
+                  }
+                  fileName: {
+                    value: '@item().name'
+                    type: 'Expression'
+                  }
+                  originalFileName: {
+                    value: '@last(array(split(item().name, \'${ingestionIdFileNameSeparator}\')))'
+                    type: 'Expression'
+                  }
+                  ingestionId: {
+                    value: '@concat(first(array(split(item().name, \'${ingestionIdFileNameSeparator}\'))), \'_\', variables(\'timestamp\'))'
+                    type: 'Expression'
+                  }
+                  table: {
+                    value: '@concat(first(array(split(variables(\'containerFolderPath\'), \'/\'))), \'_raw\')'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // If No Files
+        name: 'If No Files'
+        description: 'If there are no files found, fail the pipeline.'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Filter Out Folders'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(length(activity(\'Filter Out Folders\').output.Value), 0)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            { // Error: IngestionFilesNotFound
+              name: 'Files Not Found'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@concat(\'Unable to locate parquet files to ingest from the \', pipeline().parameters.folderPath, \' path. Please confirm the folder path is the full path, including the "ingestion" container and not starting with or ending with a slash ("/").\')'
+                  type: 'Expression'
+                }
+                errorCode: 'IngestionFilesNotFound'
+              }
+            }
+          ]
+        }
+      }
+          {
+        name: 'Data Explorer validation'
+        description: 'If Data Explorer is stopped, start it'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Set Ingestion Timestamp'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(${deployDataExplorer}, true)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Start ADX Cluster'
+              type: 'WebActivity'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'POST'
+                url: {
+                  value: '${environment().resourceManager}${dataExplorerCluster.id}/start?api-version=2024-04-13'
+                  type: 'Expression'
+                }
+                body: '{}'
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: environment().resourceManager
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Error ADX Start'
+              type: 'Fail'
+              dependsOn: [
+                {
+                  activity: 'Start ADX Cluster After Error'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value:'@concat(\'Failed to start the Data Explorer instance. Message: \', activity(\'Start ADX Cluster After Error\').output.error.message)'
+                  type: 'Expression'
+                }
+                errorCode: {
+                  value: '@activity(\'Start ADX Cluster After Error\').output.error.code'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Wait ADX Provision State'
+              type: 'Wait'
+              dependsOn: [
+                {
+                  activity: 'Start ADX Cluster'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                waitTimeInSeconds: 600
+              }
+            }
+            {
+              name: 'Start ADX Cluster After Error'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Wait ADX Provision State'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                method: 'POST'
+                url: {
+                  value: '${environment().resourceManager}${dataExplorerCluster.id}/start?api-version=2024-04-13'
+                  type: 'Expression'
+                  body: '{}'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: environment().resourceManager
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+    parameters: {
+      folderPath: {
+        type: 'string'
+      }
+    }
+    variables: {
+      containerFolderPath: {
+        type: 'string'
+      }
+      timestamp: {
+        type: 'string'
+      }
+    }
+    annotations: [
+      'New ingestion'
+    ]
+  }
+}
+
+//------------------------------------------------------------------------------
 // Start all triggers
 //------------------------------------------------------------------------------
 
-resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_startTriggers'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module startTriggers 'hub-deploymentScript.bicep' = {
+  name: 'Microsoft.FinOpsHubs.Core_ADF.StartTriggers'
   dependsOn: [
-    identityRoleAssignments
-    trigger_FileAdded
+    triggerManagerRoleAssignments
+    trigger_ExportManifestAdded
+    trigger_IngestionManifestAdded
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule
+    deleteOldResources
   ]
-  properties: {
-    azPowerShellVersion: '8.0'
-    retentionInterval: 'PT1H'
-    cleanupPreference: 'OnSuccess'
+  params: {
+    app: app
+    identityName: triggerManagerIdentity.name
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     environmentVariables: [
       {
@@ -3140,6 +5231,10 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       {
         name: 'Triggers'
         value: join(allHubTriggers, '|')
+      }
+      {
+        name: 'Pipelines'
+        value: join([ pipeline_InitializeHub.name ], '|')
       }
     ]
   }

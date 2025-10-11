@@ -14,7 +14,7 @@ On this page:
 AOE runs mostly on top of Azure Automation and Log Analytics. The diagram below depicts the architectural components. For a more detailed description, please
 read [this blog post](https://aka.ms/AzureOptimizationEngine/rightsizeblogpt1).
 
-![Azure Optimization Engine architecture](../../docs/assets/images/aoe/architecture.jpg "Azure Optimization Engine architecture")
+![Azure Optimization Engine architecture](images/aoe/architecture.jpg "Azure Optimization Engine architecture")
 
 ## 📋 Requirements
 

@@ -1,0 +1,1981 @@
+table Costs
+	lineageTag: 060a7ef2-7297-4743-9916-bc3cb53dbdcb
+
+	measure EffectiveCostRunningTotal =
+			
+			CALCULATE(
+				SUM('Costs'[EffectiveCost]),
+				FILTER(
+					ALLSELECTED('Costs'[ChargePeriodStart]),
+					ISONORAFTER(DATEVALUE('Costs'[ChargePeriodStart]), DATEVALUE(MAX('Costs'[ChargePeriodStart])), DESC)
+				)
+			)
+		formatString: #,0.00
+		lineageTag: 9d94450e-97c1-49a4-a87b-7e6399d9dfc4
+
+		extendedProperty MeasureTemplate =
+				{
+				  "daxTemplateName": "RunningTotal",
+				  "version": 0
+				}
+
+		changedProperty = FormatString
+
+	measure x_CommitmentDiscountUtilization = IFERROR(SUM([x_CommitmentDiscountUtilizationAmount]) / SUM([x_CommitmentDiscountUtilizationPotential]), "")
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 0c6b50f5-b0d1-4638-83b8-6fa8ceb39ede
+
+		changedProperty = FormatString
+
+	measure EffectiveCostVariance =
+			
+			VARX.P(
+				KEEPFILTERS(VALUES(Costs[ChargePeriodStart])),
+				CALCULATE(SUM([EffectiveCost]))
+			)
+		formatString: #,0.00
+		lineageTag: e7a16003-35ee-4024-8a5e-94e071aeaf0c
+
+		extendedProperty MeasureTemplate =
+				{
+				  "daxTemplateName": "VariancePerCategory",
+				  "version": 0
+				}
+
+		changedProperty = FormatString
+
+	measure ChargePeriod = FORMAT(MIN([ChargePeriodStart]), IF(AND(FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(UTCTODAY(), "yyyy"), FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "yyyy")), "Mmm dd", "Mmm dd, yyyy")) & IF(FORMAT(MIN([ChargePeriodStart]), "Mmm dd, yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "Mmm dd, yyyy"), "", "-" & FORMAT(MAX([ChargePeriodEnd]), IF(AND(FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(UTCTODAY(), "yyyy"), FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "yyyy")), "Mmm dd", "Mmm dd, yyyy")))
+		lineageTag: e2fc22d0-4f7f-479f-b751-3de08d8ec892
+
+	measure BillingPeriod = FORMAT(MIN([BillingPeriodStart]), "Mmm") & IF(FORMAT(MIN([BillingPeriodStart]), "Mmm yyyy") = FORMAT(MAX([BillingPeriodEnd])-1, "Mmm yyyy"), FORMAT(MIN([BillingPeriodStart]), " yyyy"), "-" & FORMAT(MAX([BillingPeriodEnd])-1, "Mmm yyyy"))
+		lineageTag: aba7700d-40b5-4f19-8830-c8151c234a8c
+
+	measure x_TotalSavingsRunningTotal =
+			
+			CALCULATE(
+				SUM('Costs'[x_TotalSavings]),
+				FILTER(
+					ALLSELECTED('Costs'[ChargePeriodStart]),
+					ISONORAFTER(DATEVALUE('Costs'[ChargePeriodStart]), DATEVALUE(MAX('Costs'[ChargePeriodStart])), DESC)
+				)
+			)
+		formatString: #,0.00
+		lineageTag: 5b5450f4-95c7-4e04-aca7-f19a55b329a7
+
+	measure x_CommitmentDiscountSavingsRunningTotal =
+			
+			CALCULATE(
+				SUM('Costs'[x_CommitmentDiscountSavings]),
+				FILTER(
+					ALLSELECTED('Costs'[ChargePeriodStart]),
+					ISONORAFTER(DATEVALUE('Costs'[ChargePeriodStart]), DATEVALUE(MAX('Costs'[ChargePeriodStart])), DESC)
+				)
+			)
+		formatString: #,0.00
+		lineageTag: 13e19756-e89f-4eb3-a938-dc01519ad9fc
+
+	measure x_NegotiatedDiscountSavingsRunningTotal =
+			
+			CALCULATE(
+				SUM('Costs'[x_NegotiatedDiscountSavings]),
+				FILTER(
+					ALLSELECTED('Costs'[ChargePeriodStart]),
+					ISONORAFTER(DATEVALUE('Costs'[ChargePeriodStart]), DATEVALUE(MAX('Costs'[ChargePeriodStart])), DESC)
+				)
+			)
+		formatString: #,0.00
+		lineageTag: 694d154e-c226-4519-bbad-3a8aea6b1c17
+
+	measure x_EffectiveCostPerResource = SUM(Costs[EffectiveCost]) / COUNTROWS(VALUES(Costs[ResourceId]))
+		lineageTag: 4934350c-8257-4040-a3a0-dec37fae3fff
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure x_EffectiveSavingsRate = IFERROR(SUMX(FILTER(Costs, Costs[x_AmortizationClass] <> "Principal"), Costs[x_TotalSavings]) / SUMX(FILTER(Costs, Costs[x_AmortizationClass] <> "Principal"), Costs[ListCost]), "")
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 72a33a20-17f6-4216-b831-4af6cc0eb052
+
+	measure x_CommitmentDiscountMeterCategory =
+			
+			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
+			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterCategory]), AND(NOT ISBLANK(Costs[x_SkuMeterCategory]), Costs[x_SkuMeterCategory] <> "")), Costs[x_SkuMeterCategory], ", ")
+			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
+		lineageTag: 6f7fb3cd-1a13-49a4-be44-5ee60d78a19b
+
+	measure x_CommitmentDiscountMeterSubcategory =
+			
+			VAR ComputeCondition = AND(SELECTEDVALUE(Costs[ProviderName]) = "Microsoft", SELECTEDVALUE(Costs[CommitmentDiscountCategory]) = "Spend")
+			VAR ConcatenatedValues = CONCATENATEX(FILTER(VALUES(Costs[x_SkuMeterSubcategory]), AND(NOT ISBLANK(Costs[x_SkuMeterSubcategory]), Costs[x_SkuMeterSubcategory] <> "")), Costs[x_SkuMeterSubcategory], ", ")
+			RETURN IF(ComputeCondition, "Compute", ConcatenatedValues)
+		lineageTag: ac79fd49-6124-47a6-8538-0d4cc28df316
+
+	measure x_SkuCoreCountMeasure = ```
+			
+			SUMX(
+			    SUMMARIZE(
+			        Costs,
+			        Costs[ResourceId], 
+			        "DistinctCoreCount", MAX(Costs[x_SkuCoreCount])
+			    ),
+			    [DistinctCoreCount]
+			)
+			```
+		formatString: 0
+		lineageTag: b59442f6-aae1-4ae1-ae4a-96cf06f4390a
+
+	measure x_SkuLicenseQuantityMeasure = ```
+			
+			SUMX(
+			    SUMMARIZE(
+			        Costs,
+			        Costs[ResourceId], 
+			        "DistinctCoreCount", MAX(Costs[x_SkuLicenseQuantity])
+			    ),
+			    [DistinctCoreCount]
+			)
+			```
+		formatString: 0
+		lineageTag: 0bcd47b4-9910-4f43-8efe-a6fb9a3b940d
+
+	column AvailabilityZone
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: e5485098-84ca-47fd-ba5e-df3bd38128ba
+		summarizeBy: none
+		sourceColumn: AvailabilityZone
+
+		annotation SummarizationSetBy = Automatic
+
+	column BilledCost
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: ac661802-c9ae-4729-bb8e-1c9847298728
+		summarizeBy: sum
+		sourceColumn: BilledCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BillingAccountId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 4b471755-61bc-474c-9b53-881bb32f5728
+		summarizeBy: none
+		sourceColumn: BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingAccountName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 47de4766-ced1-40f9-ac16-f49b5b4cc102
+		summarizeBy: none
+		sourceColumn: BillingAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingAccountType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 06bf2d34-ccc0-40f4-82b6-a676faba44b1
+		summarizeBy: none
+		sourceColumn: BillingAccountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingCurrency
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: e68de4b3-f40b-4eed-91ac-0337cf0b1b65
+		summarizeBy: none
+		sourceColumn: BillingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingPeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: be61d8ab-3975-4366-b393-708ab4743403
+		summarizeBy: none
+		sourceColumn: BillingPeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingPeriodStart
+		dataType: dateTime
+		formatString: Mmm yyyy
+		sourceProviderType: datetimeoffset
+		lineageTag: 831b36ac-173c-4384-91c2-9c53a057055c
+		summarizeBy: none
+		sourceColumn: BillingPeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column ChargeCategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 669cea79-1e27-46c1-a88f-0ad859cee094
+		summarizeBy: none
+		sourceColumn: ChargeCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeClass
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 76f2b62a-ad35-4219-96f9-b2b08a8bad8a
+		summarizeBy: none
+		sourceColumn: ChargeClass
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeDescription
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: b0d9a145-d158-4b3d-98b2-afda16171ba2
+		summarizeBy: none
+		sourceColumn: ChargeDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeFrequency
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 4f2c2c26-e9a1-4d49-a25a-899b78c7c460
+		summarizeBy: none
+		sourceColumn: ChargeFrequency
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: 0d353195-2c13-4b43-ab97-8f691c508997
+		summarizeBy: none
+		sourceColumn: ChargePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargePeriodStart
+		dataType: dateTime
+		formatString: Mmm d, yyyy
+		sourceProviderType: datetimeoffset
+		lineageTag: 015b4c1a-f072-4c68-8f1b-d5e10c54b97e
+		summarizeBy: none
+		sourceColumn: ChargePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column CommitmentDiscountCategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 25b86c9c-6880-43ae-99d1-0b5829f2e4f2
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 4f98ec0e-3911-48ee-b8cd-3704149346cf
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6c6f3e9f-71e5-4261-8103-91ba310c7e62
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountStatus
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 055311b9-0357-4c4f-9fa5-dc1db1e36f02
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: db7e59b9-15b2-427f-846a-4843c89a340c
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ConsumedQuantity
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: b831564c-900c-47bf-8add-cace8b608e5b
+		summarizeBy: sum
+		sourceColumn: ConsumedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ConsumedUnit
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: ff093a7f-f980-42f6-b064-a83c6c110f8e
+		summarizeBy: none
+		sourceColumn: ConsumedUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractedCost
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 009c96ef-a6dd-4c39-9ed1-8e6a1959a127
+		summarizeBy: sum
+		sourceColumn: ContractedCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ContractedUnitPrice
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 9b73dc17-a46e-4e2f-a35a-38e8df95ce5e
+		summarizeBy: sum
+		sourceColumn: ContractedUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column EffectiveCost
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 98d8e433-676b-42a2-b109-1a7ba422136b
+		summarizeBy: sum
+		sourceColumn: EffectiveCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column InvoiceIssuerName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 9a60acaa-b155-4d85-9488-427692d747a1
+		summarizeBy: none
+		sourceColumn: InvoiceIssuerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ListCost
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 6369c4d1-5e68-4dc5-a09d-c7154faeeaee
+		summarizeBy: sum
+		sourceColumn: ListCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ListUnitPrice
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: ee43bf1e-9c1a-4f7e-9cee-20a19771ee15
+		summarizeBy: sum
+		sourceColumn: ListUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PricingCategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: b8177938-349b-4dfa-ba84-a2972a5c8650
+		summarizeBy: none
+		sourceColumn: PricingCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column PricingQuantity
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 2813f679-1de8-46c2-a074-128049166233
+		summarizeBy: sum
+		sourceColumn: PricingQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PricingUnit
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: db07d767-b160-4cd5-900c-c3842090cf93
+		summarizeBy: none
+		sourceColumn: PricingUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProviderName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: b225eb7a-4057-4e18-b658-5e1d7f59b55a
+		summarizeBy: none
+		sourceColumn: ProviderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column PublisherName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f7280fe8-41f2-40c4-af0b-d410d8f7efce
+		summarizeBy: none
+		sourceColumn: PublisherName
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 09ccd99f-cbb0-4a74-a770-3f7e34339b83
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6757c798-5e59-4806-91e9-0efe42dd9c10
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 62265a48-5fe0-4b5c-8440-16f5b641adc8
+		summarizeBy: distinctCount
+		sourceColumn: ResourceId
+
+		annotation SummarizationSetBy = User
+
+	column ResourceName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 863f225b-8ec9-44df-b569-0f0f77255cc8
+		summarizeBy: none
+		sourceColumn: ResourceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 4b1b4346-4490-43b3-a3d7-9a4483051e61
+		summarizeBy: distinctCount
+		sourceColumn: ResourceType
+
+		annotation SummarizationSetBy = User
+
+	column ServiceCategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 5294a046-228e-457b-a4c1-e9a117c267ff
+		summarizeBy: none
+		sourceColumn: ServiceCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 226f5f3a-3a41-45fd-afb7-e4d6d25680b5
+		summarizeBy: none
+		sourceColumn: ServiceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 48d4ba14-112e-4911-bd83-25081b17a47b
+		summarizeBy: none
+		sourceColumn: SkuId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuPriceId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: eb717992-47eb-48a3-8f1e-046c6172fcfa
+		summarizeBy: none
+		sourceColumn: SkuPriceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: cbdca833-983d-45f1-8fc3-0b84bcaeae42
+		summarizeBy: none
+		sourceColumn: SubAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: ca4afa22-076e-4ac2-a8ed-b63e76d9cc87
+		summarizeBy: none
+		sourceColumn: SubAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 70509ab4-64ef-4964-813f-a3478a775758
+		summarizeBy: none
+		sourceColumn: SubAccountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_AccountId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: d7e21d4e-8c48-4a35-a56a-c9f1815f3284
+		summarizeBy: none
+		sourceColumn: x_AccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_AccountName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 7a930962-95d9-4055-8a81-0a8a57643b6c
+		summarizeBy: none
+		sourceColumn: x_AccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_AccountOwnerId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 65d6a389-c91d-49b0-8255-27216e9273d1
+		summarizeBy: none
+		sourceColumn: x_AccountOwnerId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BilledCostInUsd
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: ce568580-31d9-49d1-8947-8c0419bcc75d
+		summarizeBy: sum
+		sourceColumn: x_BilledCostInUsd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_BilledUnitPrice
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 2cc5d2ee-9370-45b6-b1b6-61604964c9a2
+		summarizeBy: sum
+		sourceColumn: x_BilledUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_BillingAccountAgreement
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f6bfa0f8-4a76-4801-b6df-8b2aa0556dbb
+		summarizeBy: none
+		sourceColumn: x_BillingAccountAgreement
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: be0b9732-adbd-47ef-8513-6e799498cd49
+		summarizeBy: none
+		sourceColumn: x_BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: aaa730da-a9a5-4f09-a5b6-803f362909fc
+		summarizeBy: none
+		sourceColumn: x_BillingAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingExchangeRate
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 6c9a16fc-35d9-4502-a879-e4a0303cbf17
+		summarizeBy: sum
+		sourceColumn: x_BillingExchangeRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_BillingExchangeRateDate
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: 2893d668-3829-47cf-a552-46d23df290c5
+		summarizeBy: none
+		sourceColumn: x_BillingExchangeRateDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingProfileId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 108e35f9-08a6-4a37-ac3a-6c99acf20b07
+		summarizeBy: none
+		sourceColumn: x_BillingProfileId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingProfileName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: bb693d7e-cdfc-4201-8371-3db195ae0ddd
+		summarizeBy: none
+		sourceColumn: x_BillingProfileName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ChargeId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 92be5463-6955-4e51-b6a9-c8af2216f9a2
+		summarizeBy: none
+		sourceColumn: x_ChargeId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ContractedCostInUsd
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: bcf15125-0795-4be7-9224-85074a19b80f
+		summarizeBy: sum
+		sourceColumn: x_ContractedCostInUsd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CostAllocationRuleName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 44d67af4-3ffa-402e-b05b-322bdbeda341
+		summarizeBy: none
+		sourceColumn: x_CostAllocationRuleName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CostCategories
+		dataType: string
+		lineageTag: 7ebd5a4f-14c8-4695-82ba-bda901ac9a76
+		summarizeBy: none
+		sourceColumn: x_CostCategories
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CostCenter
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 91fc4ad4-41fb-4d21-b3b4-d2ab23c44bcc
+		summarizeBy: none
+		sourceColumn: x_CostCenter
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_Credits
+		dataType: string
+		lineageTag: 1600ccd5-1046-4537-b929-4b359cd49447
+		summarizeBy: none
+		sourceColumn: x_Credits
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CostType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 24173071-59af-4645-8b6c-5a82a7d5cad5
+		summarizeBy: none
+		sourceColumn: x_CostType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CurrencyConversionRate
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 26a85031-a2d3-4513-b22b-e59107d1d6ff
+		summarizeBy: sum
+		sourceColumn: x_CurrencyConversionRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CustomerId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 598857ac-e478-4d99-942a-3bd044f4f1f2
+		summarizeBy: none
+		sourceColumn: x_CustomerId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CustomerName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 4094cb10-6617-4562-b115-cd65f49e6588
+		summarizeBy: none
+		sourceColumn: x_CustomerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_Discount
+		dataType: string
+		lineageTag: 69067d9b-e57a-4917-8436-aecd14175ba5
+		summarizeBy: none
+		sourceColumn: x_Discount
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_EffectiveCostInUsd
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 1b6b0a5e-b667-43a4-b245-b382d39c2e6a
+		summarizeBy: sum
+		sourceColumn: x_EffectiveCostInUsd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_EffectiveUnitPrice
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 96cfe463-17ed-4714-9e4f-1051da992751
+		summarizeBy: sum
+		sourceColumn: x_EffectiveUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_ExportTime
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: b889151e-7440-4ac8-9999-60f84c5eff60
+		summarizeBy: none
+		sourceColumn: x_ExportTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_IngestionTime
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: 167fd208-9abc-418c-a1b3-7ee98cfbfcc0
+		summarizeBy: none
+		sourceColumn: x_IngestionTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_InvoiceIssuerId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 05f12d75-3c4b-4054-96b6-311d1d1b0187
+		summarizeBy: none
+		sourceColumn: x_InvoiceIssuerId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_InvoiceSectionId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 863c64c4-abc6-455d-8075-49af4ba61240
+		summarizeBy: none
+		sourceColumn: x_InvoiceSectionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_InvoiceSectionName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 69b31b96-26af-43a3-ad69-caa8bc5ed3b6
+		summarizeBy: none
+		sourceColumn: x_InvoiceSectionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ListCostInUsd
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 3b424ba3-06ed-4960-9d4b-317beda16c1f
+		summarizeBy: sum
+		sourceColumn: x_ListCostInUsd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_Location
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 9c0dfdb3-265e-4511-a741-4f9378681e59
+		summarizeBy: none
+		sourceColumn: x_Location
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_Operation
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f7a6ae86-c4c4-4219-b0e8-4f10ae3ebcac
+		summarizeBy: none
+		sourceColumn: x_Operation
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PartnerCreditApplied
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2b361646-50a8-4d1f-b95b-111541032ab7
+		summarizeBy: none
+		sourceColumn: x_PartnerCreditApplied
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PartnerCreditRate
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 75e78962-cbcf-4ac8-b524-cd42347cc8a7
+		summarizeBy: none
+		sourceColumn: x_PartnerCreditRate
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingBlockSize
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: a0640089-3f5b-4a95-9a27-cd307fe35ae4
+		summarizeBy: sum
+		sourceColumn: x_PricingBlockSize
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_PricingSubcategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 5f454c6e-f6e7-4958-b045-83ac4d288235
+		summarizeBy: none
+		sourceColumn: x_PricingSubcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingUnitDescription
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: d75267d9-e4be-43fe-a567-5a231fcfed04
+		summarizeBy: none
+		sourceColumn: x_PricingUnitDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_Project
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: abebcd63-9d53-4a7f-af6e-addfa6df5475
+		summarizeBy: none
+		sourceColumn: x_Project
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PublisherCategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 11f296bf-7fba-4424-aca2-efeacea6181b
+		summarizeBy: none
+		sourceColumn: x_PublisherCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PublisherId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 40c0dfdd-67b8-4ac2-a87a-9c5c56ee9526
+		summarizeBy: none
+		sourceColumn: x_PublisherId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResellerId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 30fe4a4f-066e-4200-be49-3741ad95093b
+		summarizeBy: none
+		sourceColumn: x_ResellerId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResellerName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 766b6a0b-a955-4935-aa05-af89574a0da7
+		summarizeBy: none
+		sourceColumn: x_ResellerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceGroupName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 1b6b1f77-edc0-4961-b031-a0d0f6ae16f1
+		summarizeBy: none
+		sourceColumn: x_ResourceGroupName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 276ea2f2-4eb8-40a8-b628-10b602ae500f
+		summarizeBy: none
+		sourceColumn: x_ResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ServiceCode
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 84857738-a780-4e04-96dc-dc6abf59c6a3
+		summarizeBy: none
+		sourceColumn: x_ServiceCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ServiceId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 240fba2f-4481-49c3-bf1b-038d6baf1634
+		summarizeBy: none
+		sourceColumn: x_ServiceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ServicePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: 2e4d1a2f-aa85-405e-965e-d58485709fc0
+		summarizeBy: none
+		sourceColumn: x_ServicePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ServicePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: 69d1680a-4d98-429c-a88b-32ef173a94e5
+		summarizeBy: none
+		sourceColumn: x_ServicePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuDescription
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6242e8e9-26aa-4750-9982-989271ae7c4c
+		summarizeBy: none
+		sourceColumn: x_SkuDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuDetails
+		dataType: string
+		lineageTag: feb6bbe1-7c52-4bda-88e5-9448dc088883
+		summarizeBy: none
+		sourceColumn: x_SkuDetails
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuIsCreditEligible
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		sourceProviderType: bit
+		lineageTag: 7fc9812d-c523-4d21-bad0-5b99e59e8dc7
+		summarizeBy: none
+		sourceColumn: x_SkuIsCreditEligible
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterCategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: b27bd6bf-19c4-46c7-a7aa-74422241e744
+		summarizeBy: none
+		sourceColumn: x_SkuMeterCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 439c93e5-f6e4-4b98-a03c-1f866b51a7e6
+		summarizeBy: none
+		sourceColumn: x_SkuMeterId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterSubcategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 916d5b33-96c5-4677-969a-c2cdb4a9175a
+		summarizeBy: none
+		sourceColumn: x_SkuMeterSubcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOfferId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f4d138d9-2af9-4431-bf27-16ca7d9db348
+		summarizeBy: none
+		sourceColumn: x_SkuOfferId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOrderId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 5f7743a5-0af3-42e8-b2b4-dce095733b0c
+		summarizeBy: none
+		sourceColumn: x_SkuOrderId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOrderName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: e44ca2f8-f05e-492a-87e1-b8049f3553fc
+		summarizeBy: none
+		sourceColumn: x_SkuOrderName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuPartNumber
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 7c4a46a5-7362-4714-a535-bb5d4d594e7b
+		summarizeBy: none
+		sourceColumn: x_SkuPartNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuRegion
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 4921b0aa-19c8-45d0-a0d7-349e8eb12022
+		summarizeBy: none
+		sourceColumn: x_SkuRegion
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuServiceFamily
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 3ad5471f-7e2a-459d-9ea3-ca6d71996a9e
+		summarizeBy: none
+		sourceColumn: x_SkuServiceFamily
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTerm
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 88eda475-e159-4b0b-a443-c6f8bfa23b72
+		summarizeBy: sum
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTier
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 93308aba-d49f-4176-8128-5a8c4b890339
+		summarizeBy: none
+		sourceColumn: x_SkuTier
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceChanges
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: a4435a0f-a472-4469-be00-bd732eedae86
+		summarizeBy: none
+		sourceColumn: x_SourceChanges
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 0387c1f6-458b-4708-9ca8-766998dbc20c
+		summarizeBy: none
+		sourceColumn: x_SourceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceProvider
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 04b545d2-72a4-4bd8-8215-bc0312204eca
+		summarizeBy: none
+		sourceColumn: x_SourceProvider
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: c7a6d25c-80b2-446d-9b34-40ee8bfdee19
+		summarizeBy: none
+		sourceColumn: x_SourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceVersion
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 924c96ad-5ddb-45aa-a320-a32dd4631214
+		summarizeBy: none
+		sourceColumn: x_SourceVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_UsageType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: c2bd7887-04c9-48cc-8a83-68bdbe52cc63
+		summarizeBy: none
+		sourceColumn: x_UsageType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuCoreCount
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 8976ed5f-83e6-4e39-a558-20b6987aa542
+		summarizeBy: sum
+		sourceColumn: x_SkuCoreCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ConsumedCoreHours
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: abcb0621-31c2-4d91-85ca-1ad8e329520a
+		summarizeBy: sum
+		sourceColumn: x_ConsumedCoreHours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_SkuLicenseStatus
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 86d87994-b011-4838-a8e9-97ddb856d6fa
+		summarizeBy: none
+		sourceColumn: x_SkuLicenseStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuLicenseType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 8ffed8a1-774a-4bad-907a-ecbd66f90b31
+		summarizeBy: none
+		sourceColumn: x_SkuLicenseType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuLicenseQuantity
+		dataType: int64
+		formatString: 0
+		sourceProviderType: bigint
+		lineageTag: 65dc94ba-474a-4414-a34e-ef20b93c27f4
+		summarizeBy: sum
+		sourceColumn: x_SkuLicenseQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuLicenseUnit
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: a4e49ee4-fbd9-4c5d-9716-1bb938e759a4
+		summarizeBy: none
+		sourceColumn: x_SkuLicenseUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountKey
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2a8675bb-895b-4fef-beb8-7d095da65a79
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ToolkitTool
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 279487bf-f1e0-40d2-816a-9f66a2966cfa
+		summarizeBy: none
+		sourceColumn: x_ToolkitTool
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ToolkitVersion
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 48194cad-1734-41c4-b4aa-d408b99b8952
+		summarizeBy: none
+		sourceColumn: x_ToolkitVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: e1ceea2e-1e2e-4452-970b-bc33e4f3d62f
+		summarizeBy: none
+		sourceColumn: x_ResourceParentId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: a214b70e-3e17-4a9d-992b-4ee21fb5ecfb
+		summarizeBy: none
+		sourceColumn: x_ResourceParentName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: c11b2369-9c93-4e52-af29-badaefbf787b
+		summarizeBy: none
+		sourceColumn: x_ResourceParentType
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountNameUnique
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: fab2c83c-a0da-40d2-aeaf-3f147d997db8
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountNameUnique
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceNameUnique
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2f597d4c-4e4c-46ff-bf5c-451758ac5988
+		summarizeBy: none
+		sourceColumn: ResourceNameUnique
+
+		annotation SummarizationSetBy = Automatic
+
+	column SubAccountNameUnique
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 075b0376-91cf-4627-8408-7231aa14294c
+		summarizeBy: none
+		sourceColumn: SubAccountNameUnique
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ChargeMonth
+		dataType: dateTime
+		formatString: Mmm yyyy
+		sourceProviderType: datetimeoffset
+		lineageTag: b9a52b0d-b4c9-4317-942f-82099c8b5549
+		summarizeBy: none
+		sourceColumn: x_ChargeMonth
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_CommitmentDiscountSavings
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: ca46edf9-4d06-4139-98f2-a8eab97902e9
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountUtilizationAmount
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 121b140f-0137-42d5-8682-26093ca56801
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountUtilizationAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountUtilizationPotential
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 8fe2c672-ba37-4072-aab9-60350af0bc19
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountUtilizationPotential
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_NegotiatedDiscountSavings
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 5b0f5e62-d637-419a-80f2-cbe2ccd3468f
+		summarizeBy: sum
+		sourceColumn: x_NegotiatedDiscountSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_ResourceGroupNameUnique
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 8998d466-48f5-4f38-befa-ff5058fb71ff
+		summarizeBy: none
+		sourceColumn: x_ResourceGroupNameUnique
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuUsageType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6ba53853-7904-4e3b-ab9f-b4f9644eea1a
+		summarizeBy: none
+		sourceColumn: x_SkuUsageType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_TotalSavings
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 32f5be98-f7c7-465a-aa70-e65d6352e7d1
+		summarizeBy: sum
+		sourceColumn: x_TotalSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_ReportingDate
+		dataType: dateTime
+		formatString: Mmm yyyy
+		sourceProviderType: datetimeoffset
+		lineageTag: c822c239-0bf5-4a4f-9ad6-bf39995745c2
+		summarizeBy: none
+		sourceColumn: x_ReportingDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_SkuTermLabel
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 364cd520-ba1e-4744-aa83-b4a8434ee130
+		summarizeBy: none
+		sourceColumn: x_SkuTermLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tags
+		dataType: string
+		lineageTag: 418bfc95-fe13-4dfe-8a39-e82b59e6a61a
+		summarizeBy: none
+		sourceColumn: Tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountPercent
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		sourceProviderType: decimal
+		lineageTag: 6e8d875c-31a6-4d3c-bce0-a0b2b636bc6b
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountPercent
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_NegotiatedDiscountPercent
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		sourceProviderType: decimal
+		lineageTag: 3c6f9220-5748-4082-b15c-51f589827a9f
+		summarizeBy: sum
+		sourceColumn: x_NegotiatedDiscountPercent
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_TotalDiscountPercent
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		sourceProviderType: decimal
+		lineageTag: 72920dc6-4141-449d-be83-28d5a282f9fc
+		summarizeBy: sum
+		sourceColumn: x_TotalDiscountPercent
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_FreeReason
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: ae4d18e7-7ce7-453a-b5ae-6f33d44459fa
+		summarizeBy: none
+		sourceColumn: x_FreeReason
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceTop1K
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		sourceProviderType: bit
+		lineageTag: 689a2501-051f-4494-946f-51c62a99c694
+		summarizeBy: none
+		sourceColumn: x_ResourceTop1K
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Application
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: dd7d82a7-1ceb-461f-9718-8330492bbef5
+		summarizeBy: none
+		sourceColumn: tag_Application
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_BusinessUnit
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 864f2ab6-bdad-4111-9ced-927a47c26930
+		summarizeBy: none
+		sourceColumn: tag_BusinessUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_CostCenter
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 362fc2e6-62d4-4e61-9deb-1b92b7eb8bd4
+		summarizeBy: none
+		sourceColumn: tag_CostCenter
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Department
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 623ebb4d-2e15-44ef-b86b-90bff4c4b4ba
+		summarizeBy: none
+		sourceColumn: tag_Department
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Division
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2838ecfe-4b85-4afd-a21c-82c111cf5ad0
+		summarizeBy: none
+		sourceColumn: tag_Division
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Env
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 62df6e5c-c8ee-47eb-8aa7-df7587ea6fb1
+		summarizeBy: none
+		sourceColumn: tag_Env
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Owner
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2212d8aa-b1a2-46e9-81b5-c54703826408
+		summarizeBy: none
+		sourceColumn: tag_Owner
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Product
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 86a2a731-1d82-4914-8907-9416e1abe7ea
+		summarizeBy: none
+		sourceColumn: tag_Product
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Project
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6a65d0be-c483-42c9-bf6b-3769759dabfb
+		summarizeBy: none
+		sourceColumn: tag_Project
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Purpose
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 9182534f-fb65-4792-9b86-243be3913998
+		summarizeBy: none
+		sourceColumn: tag_Purpose
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Service
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: d8388dba-15b7-4017-8411-6a7aee288fe2
+		summarizeBy: none
+		sourceColumn: tag_Service
+
+		annotation SummarizationSetBy = Automatic
+
+	column CapacityReservationId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 8a9ac46c-5eff-4d90-bf57-e665c257c0e1
+		summarizeBy: none
+		sourceColumn: CapacityReservationId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CapacityReservationStatus
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2f33baf6-93bd-4661-94c3-8a260b025332
+		summarizeBy: none
+		sourceColumn: CapacityReservationStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountQuantity
+		dataType: double
+		sourceProviderType: double
+		lineageTag: 17beb1fb-ee77-49b4-9b88-e321358e27fb
+		summarizeBy: sum
+		sourceColumn: CommitmentDiscountQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CommitmentDiscountUnit
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6628ad27-3ff4-4541-947a-b78d57cd3df8
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column InvoiceId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: e62c5643-af1f-4b8e-9cd6-e7a49848aba4
+		summarizeBy: none
+		sourceColumn: InvoiceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column PricingCurrency
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 060ecd68-1402-47f6-a5b5-02d34c6c4230
+		summarizeBy: none
+		sourceColumn: PricingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	column ServiceSubcategory
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: a27a200f-ac41-4cda-b021-bcb515ff053c
+		summarizeBy: none
+		sourceColumn: ServiceSubcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuMeter
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: a4fa904f-e1cc-43a0-9a8c-55d0b256f5a0
+		summarizeBy: none
+		sourceColumn: SkuMeter
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuPriceDetails
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 691ae241-2acf-48ce-a5f3-0e079a85d5b0
+		summarizeBy: none
+		sourceColumn: SkuPriceDetails
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_AmortizationClass
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6e358dfc-d533-4f6c-9a93-27e543d69e01
+		summarizeBy: none
+		sourceColumn: x_AmortizationClass
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingItemCode
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 818bcdb8-b424-4d50-9c50-30347ee2168d
+		summarizeBy: none
+		sourceColumn: x_BillingItemCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingItemName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 920d86e9-e331-420c-94a7-0a804d4ae0fa
+		summarizeBy: none
+		sourceColumn: x_BillingItemName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountNormalizedRatio
+		dataType: double
+		sourceProviderType: double
+		lineageTag: 63272392-5032-4a7d-9768-abd68fff26ce
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountNormalizedRatio
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountSpendEligibility
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2e31d511-acc2-416d-8243-174c8d64fd40
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountSpendEligibility
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountUsageEligibility
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 5cbe3034-cd02-4952-adaa-992b3bb4a487
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountUsageEligibility
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommodityCode
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 83a01d02-15f6-4161-a585-d9486e005f49
+		summarizeBy: none
+		sourceColumn: x_CommodityCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommodityName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: edc09954-cb52-406e-bec0-3b8fd056efec
+		summarizeBy: none
+		sourceColumn: x_CommodityName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ComponentName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: d3ce66dc-b609-4173-ae08-294f283cae5f
+		summarizeBy: none
+		sourceColumn: x_ComponentName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ComponentType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f7d4f51b-cc1d-4334-bd89-7485f831a83e
+		summarizeBy: none
+		sourceColumn: x_ComponentType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_InstanceID
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 82fff847-1333-46d2-ac37-40625eb351cc
+		summarizeBy: none
+		sourceColumn: x_InstanceID
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_OwnerAccountID
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: b7912676-a8e8-4213-9add-43487b09ba6c
+		summarizeBy: none
+		sourceColumn: x_OwnerAccountID
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ServiceModel
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 4dc75c60-55bc-46bf-8baf-5c5ea6299db7
+		summarizeBy: none
+		sourceColumn: x_ServiceModel
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuInstanceType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 34616157-7ddc-4ed4-8bda-0afea596e583
+		summarizeBy: none
+		sourceColumn: x_SkuInstanceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuLicenseUnusedQuantity
+		dataType: int64
+		formatString: 0
+		sourceProviderType: bigint
+		lineageTag: 995a7d26-99a5-45aa-a9bc-bd54f7728fc2
+		summarizeBy: sum
+		sourceColumn: x_SkuLicenseUnusedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuOperatingSystem
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f9c8bda7-00c1-4ff2-a1e6-786450011063
+		summarizeBy: none
+		sourceColumn: x_SkuOperatingSystem
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuPlanName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: a9a7da59-d055-454e-a22d-701fd1b1f31b
+		summarizeBy: none
+		sourceColumn: x_SkuPlanName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SubproductName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: a844a974-9811-490e-8acc-aa7714135537
+		summarizeBy: none
+		sourceColumn: x_SubproductName
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Service Hierarchy'
+		lineageTag: 039a7b6d-f19d-4a79-91b3-a05fbc778704
+
+		level ServiceCategory
+			lineageTag: 66f92779-1a4c-4f01-88ed-66192f5598fd
+			column: ServiceCategory
+
+		level ServiceName
+			lineageTag: 4cf55410-b191-4865-a39d-58dc6415e4ae
+			column: ServiceName
+
+		level ResourceType
+			lineageTag: 48f006c2-0abc-4638-a82e-a49e3abfd302
+			column: ResourceType
+
+	partition Costs = m
+		mode: directQuery
+		queryGroup: 'Data Explorer'
+		source =
+				let
+				    // Customize the following settings to tune how tags are handled
+				
+				        // Set the tags you want to promote as 'tag_*' columns in this array
+				        PromotedTags = {"Application", "BusinessUnit", "CostCenter", "Department", "Division", "Env", "Owner", "Product", "Project", "Purpose", "Service"},
+				
+				        // This option matches tag keys that may have different case (for example, 'env' and 'ENV')
+				        // NOTE: This option slows down the query significantly. Disable it if tag queries are failing.
+				        Handle_mixed_case_tags = true,
+				
+				        // This option removes any unwanted spaces before or after the tag key
+				        // NOTE: This option slows down the query significantly. Disable it if tag queries are failing.
+				        Trim_spaces_from_tags = true,
+				
+				    // Init report parameters
+				    lookback = Text.From(if #"Number of Months" = "" or #"Number of Months" = null then 999 else #"Number of Months"),
+				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
+				
+				
+				    Costs_v1_2
+				    //
+				    // Apply summarization settings
+				    | where ChargePeriodStart >= monthsago(" & lookback & ")
+				    | as filteredCosts
+					| extend x_ChargeMonth = startofmonth(ChargePeriodStart)
+					| extend x_ReportingDate = " & (if (#"Default Granularity" = "Monthly") then "x_ChargeMonth" else "startofday(ChargePeriodStart)") & "
+				    //
+				    // SKU details
+				    | extend x_SkuUsageType = tostring(coalesce(SkuPriceDetails.x_UsageType, x_SkuDetails.UsageType))
+				    | extend x_SkuLicenseUnusedQuantity = x_SkuLicenseQuantity - x_SkuCoreCount
+				    //
+				    // Commitment discounts
+				    | extend x_CommitmentDiscountKey = iff(isempty(x_SkuInstanceType), '', strcat(x_SkuInstanceType, x_SkuMeterId))
+				    | extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
+				    //
+				    // CSP partners
+				    // x_PartnerBilledCredit = iff(x_PartnerCreditApplied, BilledCost * x_PartnerCreditRate, todouble(0))
+				    // x_PartnerEffectiveCredit = iff(x_PartnerCreditApplied, EffectiveCost * x_PartnerCreditRate, todouble(0))
+				    //
+				    // Toolkit
+				    | extend x_ToolkitTool = tostring(Tags['ftk-tool'])
+				    | extend x_ToolkitVersion = tostring(Tags['ftk-version'])
+				    | extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])
+				    | extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)
+				    | extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)
+				    | extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)
+				    //
+				    // TODO: Only add differentiators when the name is not unique
+				    | extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))
+				    | extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))
+				    | extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))
+				    | extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))
+				    //
+				    // Explain why cost is 0
+				    | extend x_FreeReason = case(
+				        BilledCost != 0.0 or EffectiveCost != 0.0, '',
+				        PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),
+				        x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(
+				            x_SkuDescription contains 'Trial', 'Trial',
+				            x_SkuDescription contains 'Preview', 'Preview',
+				            'Other'
+				        ),
+				        x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(
+				            PricingQuantity > 0.0, 'Low Usage',
+				            PricingQuantity == 0.0, 'No Usage',
+				            'Unknown Negative Quantity'
+				        ),
+				        'Unknown'
+				    )
+				    //" & (if List.Count(PromotedTags) > 0 then (
+				        if Handle_mixed_case_tags or Trim_spaces_from_tags then ("
+				            | extend keys = bag_keys(Tags)
+				            | extend cleankeys = " & (
+				                if Handle_mixed_case_tags and Trim_spaces_from_tags then "parse_json(replace_string(tolower(keys), ' ', ''))"
+				                else if Handle_mixed_case_tags                      then "parse_json(tolower(keys))"
+				                else if Trim_spaces_from_tags                       then "parse_json(replace_string(keys, ' ', ''))"
+				                else "keys"
+				            ) & "
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", "") & " = iff(array_index_of(cleankeys, tolower('" & _ & "')) < 0, '', tostring(Tags[tostring(keys[toint(array_index_of(cleankeys, tolower('" & _ & "')))])]))"), ", ") & "
+				            | project-away keys, cleankeys"
+				        ) else ("
+				            | extend " & Text.Combine(List.Transform(PromotedTags, each "tag_" & Text.Replace(Text.Replace(_, ":", "_"), " ", "") & " = tostring(Tags['" & _ & "'])"), ", ")
+				        )
+				    ) else "") & "
+				    //
+				    | extend SkuPriceDetails = tostring(SkuPriceDetails)
+				    | extend Tags = tostring(Tags)
+				    | extend x_SkuDetails = tostring(x_SkuDetails)
+				    //
+				    | extend x_ResourceTop1K = ChargeCategory != 'Usage' or isempty(ResourceId) or ResourceId in (
+				        filteredCosts
+				        | where isnotempty(ResourceId) and ChargeCategory == 'Usage'
+				        | summarize sum(EffectiveCost) by ResourceId
+				        | order by sum_EffectiveCost desc
+				        | limit 1000
+				        | distinct ResourceId
+				    )
+				    //
+				    | project-away tmp_ResourceParent
+				
+				
+				    ", [MaxRows=null, MaxSize=null, NoTruncate=null, AdditionalSetStatements=null]),
+				
+				    // Sort columns alphabetically
+				    Output = Table.ReorderColumns(Source, List.Sort(Table.ColumnNames(Source)))
+				in
+				    Output
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

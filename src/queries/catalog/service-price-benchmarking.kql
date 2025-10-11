@@ -1,0 +1,55 @@
+// ============================================================================
+// Query: Last N Month Price Benchmarking by Service
+// Description:
+//   Returns list price, contracted price, effective price, negotiated savings (amount and percent), commitment savings (amount and percent), and total savings (amount and percent) by service for the last N months (default: 1).
+//   Useful for benchmarking Azure service pricing and identifying savings opportunities.
+// Author: FinOps Toolkit Team
+// Parameters:
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
+// Output:
+//   Each row represents a service with cost and savings metrics for the period.
+// Usage:
+//   Use this query to compare negotiated, commitment, and total savings by service for cost optimization and reporting.
+// Last Tested: 2025-05-17
+// =========================================================================
+
+// Last N Month Price Benchmarking by Service (Custom Date Range)
+// Returns list price, contracted price, effective price, negotiated savings (%), commitment savings (%), and total savings (%) by service for the specified date range.
+// Parameters: startDate, endDate
+// Author: FinOps Toolkit Team
+// Last Tested: 2025-05-17
+//
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| extend 
+    x_CommitmentDiscountSavings = iif(ContractedCost == 0.0, 0.0, toreal(ContractedCost - EffectiveCost)),
+    x_NegotiatedDiscountSavings = iif(ListCost == 0.0, 0.0, toreal(ListCost - ContractedCost)),
+    x_TotalSavings = iif(ListCost == 0.0, 0.0, toreal(ListCost - EffectiveCost)),
+    x_CommitmentDiscountPercent = iif(ContractedCost == 0.0, 0.0, toreal(ContractedCost - EffectiveCost) * 100.0 / toreal(ContractedCost)),
+    x_NegotiatedDiscountPercent = iif(ListCost == 0.0, 0.0, toreal(ListCost - ContractedCost) * 100.0 / toreal(ListCost)),
+    x_TotalDiscountPercent = iif(ListCost == 0.0, 0.0, toreal(ListCost - EffectiveCost) * 100.0 / toreal(ListCost))
+| summarize 
+    ListCost = sum(toreal(ListCost)), 
+    ContractedCost = sum(toreal(ContractedCost)), 
+    EffectiveCost = sum(toreal(EffectiveCost)),
+    CommitmentSavings = sum(x_CommitmentDiscountSavings), 
+    NegotiatedSavings = sum(x_NegotiatedDiscountSavings), 
+    TotalSavings = sum(x_TotalSavings),
+    CommitmentSavingsPct = avg(x_CommitmentDiscountPercent), 
+    NegotiatedSavingsPct = avg(x_NegotiatedDiscountPercent), 
+    TotalSavingsPct = avg(x_TotalDiscountPercent)
+    by ServiceName
+| project 
+    ServiceName, 
+    ListCost = round(ListCost, 0), 
+    ContractedCost = round(ContractedCost, 0), 
+    EffectiveCost = round(EffectiveCost, 0), 
+    NegotiatedSavings = round(NegotiatedSavings, 0),
+    CommitmentSavings = round(CommitmentSavings, 0), 
+    TotalSavings = round(TotalSavings, 0), 
+    NegotiatedSavingsPct = round(NegotiatedSavingsPct, 0), 
+    CommitmentSavingsPct = round(CommitmentSavingsPct, 0), 
+    TotalSavingsPct = round(TotalSavingsPct, 0)

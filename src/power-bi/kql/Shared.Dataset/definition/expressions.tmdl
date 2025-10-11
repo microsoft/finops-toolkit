@@ -1,0 +1,147 @@
+/// URL for the Azure Data Lake Storage Gen2 account with your data. Must use the DFS endpoint (.dfs.core.windows.net), not the Blob endpoint (.blob.core.windows.net).
+expression 'Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navigation
+
+expression '▶️  START HERE' = ```
+		let
+				    // Cluster
+				    ClusterUrl = #"Cluster URL",
+				    ClusterUrlSegments = if ClusterUrl <> null then Text.Split(Text.Trim(ClusterUrl, "/"), "/") else {},
+				    ClusterUrlSegmentCount = List.Count(ClusterUrlSegments),
+				    ClusterCheck = 
+				        if ClusterUrl = "" or ClusterUrl = null then {"✖ Invalid", "Cluster URL not specified."}
+				        else if (ClusterUrlSegmentCount = 1 or ClusterUrlSegmentCount = 3) then {"✔️ Specified", "Will use cluster: " & ClusterUrl & "."}
+				        else {"✖️ Invalid", "Unable to validate to the specified cluster: " & ClusterUrl & "."},
+				
+				    // Incremental refresh
+				    DateEnd = null,
+				    DateStart = null,
+				    DateMonths = #"Number of Months",
+				    DateStartEffective = if DateStart <> null and DateStart <> "" then DateStart else Date.AddMonths(if DateEnd <> null and DateEnd <> "" then DateEnd else Date.AddMonths(Date.StartOfMonth(DateTime.LocalNow()), 1), -DateMonths+1),
+				    _formatDate = (d) => try DateTime.ToText(d, [Format="MMM d, yyyy"]) otherwise d,
+				    DateStartFormat = 
+				        if (DateStart = null or DateStart = "") and (DateMonths = null or DateMonths < 1) then "*"
+				        else if (DateStart = null or DateStart = "") and DateMonths <> null and DateMonths >= 1 then _formatDate(DateStartEffective)
+				        else _formatDate(DateStart),
+				    DateEndFormat = if DateEnd = null or DateEnd = "" then "*" else _formatDate(DateEnd),
+				    DateValue = 
+				        if DateStartFormat = "*" and DateEndFormat = "*" then "(no dates)" else DateStartFormat & " - " & DateEndFormat,
+				    DateCheck =
+				        // TODO: Catch when DateEnd and DateMonths create a start date in the future
+				        if DateValue = "(no dates)"   then {"⚠️ Warning", "Will pull all data. May fail if over $2-5M."}
+				        else if DateStart <> null and DateStart <> "" and DateEndFormat = "*" then {"⚠️ Warning", "Will pull all data after start date. May fail if over $2-5M."}
+				        else if (DateStart = null or DateStart = "")  and DateEndFormat = "*" then {"✔️ Specified", "Will pull data for the last " & (if DateMonths = 1 then "1 month" else (Text.From(DateMonths) & " months")) & "."}
+				        else if DateStartFormat = "*" then {"⚠️ Warning", "Will pull all data before end date. May fail if over $2-5M."}
+				        else if DateStart <> null and DateStart <> "" and DateStart > DateEnd then {"✖ Invalid", "The start date must be before the end date."}
+				        else if DateStart <> null and DateStart <> "" and DateStart < DateEnd then try {"✔️ Specified", "Will pull data for " & Number.ToText(Duration.Days(DateEnd - DateStart)) & " days."} otherwise {"✖ Invalid", "Unable to parse dates: " & DateStart & " - " & DateEnd & "."}
+				        else if DateStart = null and DateMonths <> null and DateMonths < 1 then {"✖ Invalid", "The number of months must be more 1 or more (empty for all)."}
+				        else if DateStart = null and DateMonths <> null and DateMonths > 0 then try {"✔️ Specified", "Will pull data for " & Number.ToText(Duration.Days(DateEnd - DateStartEffective)) & " days."} otherwise {"✖ Invalid", "Unable to parse dates: " & DateStartEffective & " - " & DateEnd & "."}
+				        else {"✖ Invalid", "Unable to confirm dates: " & (if DateStart = null then "(null)" else ("'"&Text.From(DateStart)&"'")) & " - " & (if DateEnd = null then "(null)" else ("'"&Text.From(DateEnd)&"'")) & " or # of months: " & (if DateMonths = null then "(null)" else ("'"&Text.From(DateMonths)&"'")) & "."},
+				
+				    MainChecks = Table.InsertRows(#table({"Instructions", "Value", "Status", "Message"}, {}), 0, {
+		                [ Instructions = "① Set the cluster URL on the left", Value = ClusterUrl, Status = ClusterCheck{0}, Message = ClusterCheck{1} ],
+		                [ Instructions = "        ➖ Go to your hub resource group", Value = "", Status = "", Message = "" ],
+		                [ Instructions = "        ➖ Open Deployments > `hub` > Outputs", Value = "", Status = "", Message = "" ],
+		                [ Instructions = "        ➖ Copy the 'clusterUri' value", Value = "", Status = "", Message = "" ],
+		                [ Instructions = "        ", Value = "", Status = "", Message = "" ],
+		                [ Instructions = "② Optional: Set the desired date range", Value = DateValue, Status = DateCheck{0}, Message = DateCheck{1} ],
+				        [ Instructions = "        ", Value = "", Status = "", Message = "" ]
+				    })
+				in
+				    MainChecks
+		```
+	lineageTag: 6cfe80b8-1c4b-4c11-9916-43fc98b49dac
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+
+/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
+expression 'Number of Months' = 13 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Number
+
+/// Generates a KQL filter to be used in Resource Graph queries to filter out test data.
+expression ftk_DemoFilter =
+		() =>
+		    if List.Contains(
+		        {
+		            "demohubupzaljui2bxfm",
+		            "hubdssjcx4ai7tjs",
+		            "kustohubbngtbihvy5t4a"
+		        }, Text.SplitAny(#"Storage URL", "/."){2})
+		    then "| where subscriptionId in ('51f73f67-1f29-4120-863e-dd315f743fc1', '586f1d47-9dd9-43d5-b196-6e28f8405ff8', '64e355d7-997c-491d-b0c1-8414dccfcf42', '736af2bf-9fcb-4145-a19b-5b30b2b8949d', '73c0021f-a37d-433f-8baa-7450cb54eea6', '9ec51cfd-5ca7-4d76-8101-dd0a4abc5674', 'ed570627-0265-4620-bb42-bae06bcfa914')"
+		    else ""
+	lineageTag: 4d4c22f9-d4dc-4c2e-9730-dbc47fa53b05
+	queryGroup: Functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+/// URI of the FinOps hub Azure Data Explorer cluster to pull data from. Copy from the "clusterUri" deployment output.
+/// 
+/// Pro tip: As a shortcut, you can alternatively use the "{name}.{region}" subset of the URI.
+expression 'Cluster URL' = "ftk-mf.westcentralus" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: d8708cbe-5fb8-4e10-b96f-54e31a5e9665
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+/// Indicate whether you want the default granularity to be daily or monthly in this report. This only impacts visuals configured to use the x_ReportingDate column. Use ChargePeriodStart for daily and x_ChargeMonth for monthly to ignore this setting.
+expression 'Default Granularity' = "Monthly" meta [IsParameterQuery=true, List={"Daily", "Monthly"}, DefaultValue="Daily", Type="Text", IsParameterQueryRequired=true]
+	lineageTag: de3955a9-0b39-4a66-8351-661dba69609c
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression PolicyDefinitions =
+		let
+		  query = "
+		  policyResources
+		  | where type =='microsoft.authorization/policydefinitions'
+		  | extend displayName = properties.displayName,
+		      description = properties.description,
+		      version = properties.version
+		    | project subscriptionId, id, name, displayName, description, version"
+		  & ftk_DemoFilter(),
+		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+		  NullHandling =
+		    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+					#table(
+						{ "id", "name", "displayName", "description", "version" },
+						{}
+					)
+		    else Source
+		in
+		  NullHandling
+	lineageTag: b34adf6c-2d9c-4731-b2cf-c1b5e24b4748
+	queryGroup: 'Resource Graph'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+/// Indicates whether we should remove duplicate resource IDs reported from Azure Resource Graph (ARG). This may lead to incorrect or incomplete data. Please file a support request with the ARG team to resolve the issue.
+expression 'Remove Duplicate Resource IDs' = false meta [IsParameterQuery=true, List={false, true}, DefaultValue=false, Type="Logical", IsParameterQueryRequired=true]
+	lineageTag: 8874e3dd-ace8-4145-bc74-acb63aa36684
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
+

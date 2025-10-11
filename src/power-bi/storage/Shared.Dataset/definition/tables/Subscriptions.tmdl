@@ -1,0 +1,175 @@
+table Subscriptions
+	lineageTag: 07b667e4-2b48-4235-8cfb-5d59858a92fd
+
+	column id
+		dataType: string
+		lineageTag: 793921fd-f3f6-4f61-b14e-8fa9430505b4
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 8505a157-2e52-44c3-aae3-7a17aa29e660
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: f4dd6a96-342a-43f3-88a3-e1787d6d67b8
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 3194af1d-8e00-49df-86bb-8b491c39ae3d
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: 540d1adf-2e23-4e17-afca-65de9fe9681b
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 4ba56665-8cb0-448d-a51a-1d5847d1d651
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: a1a2d9d2-d9f1-4109-b4c7-2eb2697004e9
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: 3ed589d4-d97f-460c-9f6f-81b131c8b8b2
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 5be96267-523e-4c25-823c-ed29e37bd321
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 21317308-a1e5-495b-9e1c-d0e60fa9e45e
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: 71a123ff-da4e-40a8-9e8a-51cf3e0cd91b
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: ff48b324-4a1c-488d-97d3-f9f59e0b7f3c
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: c13df37c-910c-432c-a474-b7d68dbc1ddb
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 39936a9e-4e8c-4e26-9688-6a23cbe4804d
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: a6bc54f9-1649-4b14-b916-70b557245ac4
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	column properties
+		dataType: string
+		lineageTag: 6a2cd7e5-ed25-4b1c-b06f-29a947c9b8d6
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.managementGroupAncestorsChain'
+		dataType: string
+		lineageTag: fbb4c9cd-dcfc-4b61-8bc7-42b8dfd82e50
+		summarizeBy: none
+		sourceColumn: properties.managementGroupAncestorsChain
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.state'
+		dataType: string
+		lineageTag: c37d69f0-5039-4418-94b9-44fcd6690201
+		summarizeBy: none
+		sourceColumn: properties.state
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Subscriptions = m
+		mode: import
+		queryGroup: 'Resource Graph'
+		source = ```
+				let
+				  query = "
+				    resourcecontainers
+				    | where type == 'microsoft.resources/subscriptions'
+				    | extend
+				      ['properties.managementGroupAncestorsChain'] = properties.managementGroupAncestorsChain,
+				      ['properties.state'] = properties.state 
+				    " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				      #table(
+				        { "id", "name", "subscriptionId", "tenantId", "properties.managementGroupAncestorsChain", "properties.state" },
+				        {}
+				      )
+				    else Source
+				in
+				  Source
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

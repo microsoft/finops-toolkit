@@ -1,0 +1,29 @@
+// ============================================================================
+// Query: Top N Quarterly Cost by Resource Group
+// Description:
+//   Returns the top N resource groups by total effective cost over the last quarter (3 months).
+//   Includes monthly breakdown and subaccount context for each resource group.
+// Author: FinOps Toolkit
+// Parameters:
+//   N: Number of top resource groups to return (default: 5)
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(90d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
+// Output:
+//   Each row represents a resource group, subaccount, and month with its total effective cost.
+// Usage:
+//   Use this query to identify major cost drivers and trends at the resource group level for quarterly reporting.
+// Last Tested: 2025-05-17
+// ============================================================================
+
+// Top N Quarterly Cost by Resource Group (Custom Date Range)
+// Looks back 3 months for a quarterly report of cost by resource group
+let N = 5;
+let startDate = startofmonth(ago(90d)); // Default: last 3 months
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| as filteredCosts
+| extend x_ChargeMonth = startofmonth(ChargePeriodStart)
+| summarize EffectiveCost = sum(EffectiveCost) by SubAccountName, x_ResourceGroupName, x_ChargeMonth
+| order by x_ChargeMonth desc, EffectiveCost desc
+| top N by EffectiveCost

@@ -33,12 +33,12 @@ $SqlTimeout = 120
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -55,14 +55,14 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = 0
         $Cmd.CommandText = "DELETE FROM [dbo].[$recommendationsTable] WHERE GeneratedDate < GETDATE()-$RecommendationsMaxAge"
-        $DeletedRows = $Cmd.ExecuteNonQuery()            
+        $DeletedRows = $Cmd.ExecuteNonQuery()
         $connectionSuccess = $true
     }
     catch {
@@ -71,9 +71,9 @@ do {
         Start-Sleep -Seconds ($tries * 20)
     }
     finally {
-        $Conn.Close()    
-        $Conn.Dispose()            
-    }    
+        $Conn.Close()
+        $Conn.Dispose()
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))

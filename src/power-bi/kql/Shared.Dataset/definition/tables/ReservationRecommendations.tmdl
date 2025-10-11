@@ -1,0 +1,278 @@
+table ReservationRecommendations
+	lineageTag: a9b8f96b-84d0-4176-95a1-65eade30a2ef
+
+	column RegionId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 1d28b29e-9294-42aa-a8d5-67f37690726b
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionName
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 73b052c1-34db-41b6-af45-46c0a70bf976
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountKey
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: f1ced707-0b0c-4864-a228-780c35ca891e
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountNormalizedGroup
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 00d1a67f-4fd1-4a06-ade4-c3260bfbe31d
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountNormalizedGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountNormalizedRatio
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 035e8df5-b562-48e1-bb20-62a578fee69a
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountNormalizedRatio
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountNormalizedSize
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 14375b85-698f-432e-86eb-64fd914b1e80
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountNormalizedSize
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountPercent
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 187b0171-6109-4588-82ca-04164ebf4aa5
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountPercent
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountResourceType
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 9d751780-dfb3-43a6-8008-83fd13719439
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountSavings
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 4e513408-c07c-4781-8a6f-1177339f5ed4
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_CommitmentDiscountScope
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: ca9d5395-8a0b-4f43-b34f-a7ab79eac477
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountScope
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_EffectiveCostAfter
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 39925233-3d71-4a7e-af0a-3cf3a67827f6
+		summarizeBy: sum
+		sourceColumn: x_EffectiveCostAfter
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_EffectiveCostBefore
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: f89a879f-16c5-4d1e-9687-85ff45d9b7e6
+		summarizeBy: sum
+		sourceColumn: x_EffectiveCostBefore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_LookbackPeriodLabel
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 2fad7f44-aca5-45a0-9c9c-c4cdfdff422b
+		summarizeBy: none
+		sourceColumn: x_LookbackPeriodLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_RecommendationDate
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetimeoffset
+		lineageTag: 8b1f7b9a-4286-48a6-a697-d548a30ca39d
+		summarizeBy: none
+		sourceColumn: x_RecommendationDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_RecommendedQuantity
+		dataType: double
+		formatString: 0
+		sourceProviderType: decimal
+		lineageTag: 48fcb8f6-401b-4cb7-b878-660313ef2fbc
+		summarizeBy: sum
+		sourceColumn: x_RecommendedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_RecommendedQuantityNormalized
+		dataType: double
+		formatString: 0
+		sourceProviderType: decimal
+		lineageTag: bb94d481-2f71-4894-b9a5-e04f5f2ad0a3
+		summarizeBy: sum
+		sourceColumn: x_RecommendedQuantityNormalized
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterId
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 668de058-26a0-4dd2-a494-6692df36b0ac
+		summarizeBy: none
+		sourceColumn: x_SkuMeterId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTerm
+		dataType: int64
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 7d757c95-21f3-4521-9391-00c4c3ce1b18
+		summarizeBy: sum
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTermLabel
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: db39890b-583d-41ab-9795-de32274627dd
+		summarizeBy: none
+		sourceColumn: x_SkuTermLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BreakEvenDate
+		dataType: dateTime
+		formatString: Mmm d, yyyy
+		sourceProviderType: datetimeoffset
+		lineageTag: 6a5719f2-06a5-406a-b4a4-7f68bd76b36d
+		summarizeBy: none
+		sourceColumn: x_BreakEvenDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_BreakEvenMonths
+		dataType: double
+		formatString: 0.0 mo
+		sourceProviderType: decimal
+		lineageTag: b2eb1130-d5ea-40cb-8f55-1ceb40f7ce8e
+		summarizeBy: sum
+		sourceColumn: x_BreakEvenMonths
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_CommitmentDiscountSavingsDailyRate
+		dataType: double
+		sourceProviderType: decimal
+		lineageTag: 89c50515-c080-4d04-8996-6b9d4617529b
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavingsDailyRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition ReservationRecommendations = m
+		mode: directQuery
+		queryGroup: 'Data Explorer'
+		source =
+				let
+				    Source = AzureDataExplorer.Contents(#"Cluster URL", "Hub", "
+				
+				    Recommendations_v1_2
+				    | where x_SourceProvider == 'Microsoft' and x_SourceType == 'ReservationRecommendations'
+				    | extend RegionId = tostring(x_RecommendationDetails.RegionId)
+				    | extend RegionName = tostring(x_RecommendationDetails.RegionName)
+				    | extend x_CommitmentDiscountSavings = x_EffectiveCostBefore - x_EffectiveCostAfter
+				    | extend x_CommitmentDiscountScope = tostring(x_RecommendationDetails.CommitmentDiscountScope)
+				    | extend x_CommitmentDiscountNormalizedSize  = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedSize)
+				    | extend x_SkuTerm = toint(x_RecommendationDetails.SkuTerm)
+				    | extend x_SkuMeterId = tostring(x_RecommendationDetails.SkuMeterId)
+				    | summarize arg_max(x_RecommendationDate, *) by  x_CommitmentDiscountNormalizedSize, x_SkuMeterId, x_SkuTerm, RegionId,tostring(x_RecommendationDetails.CommitmentDiscountNormalizedGroup)
+				    | extend x_BreakEvenMonths = x_EffectiveCostAfter * x_SkuTerm / x_EffectiveCostBefore
+				    | extend x_BreakEvenDate = startofday(now()) + 1d + toint(x_BreakEvenMonths * 30.437) * 1d
+				    | project
+				        RegionId,
+				        RegionName = iff(isempty(RegionName), RegionId, RegionName),
+				        x_BreakEvenDate,
+				        x_BreakEvenMonths,
+				        x_CommitmentDiscountKey             = strcat(x_CommitmentDiscountNormalizedSize, x_SkuMeterId),
+				        x_CommitmentDiscountNormalizedGroup = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedGroup),
+				        x_CommitmentDiscountNormalizedRatio = tostring(x_RecommendationDetails.CommitmentDiscountNormalizedRatio),
+				        x_CommitmentDiscountNormalizedSize,
+				        x_CommitmentDiscountPercent         = 1.0 * x_CommitmentDiscountSavings / x_EffectiveCostBefore * 100,
+				        x_CommitmentDiscountResourceType = tostring(x_RecommendationDetails.CommitmentDiscountResourceType),
+				        x_CommitmentDiscountSavings,
+				        x_CommitmentDiscountSavingsDailyRate = x_CommitmentDiscountSavings / (x_SkuTerm - x_BreakEvenMonths) / (365/12),
+				        x_CommitmentDiscountScope = case(
+				            x_CommitmentDiscountScope == 'Single', 'Subscription',
+				            x_CommitmentDiscountScope
+				        ),
+				        x_EffectiveCostAfter,
+				        x_EffectiveCostBefore,
+				        x_LookbackPeriodLabel = replace_regex(tostring(x_RecommendationDetails.LookbackPeriodDuration), 'P([0-9]+)D', @'\1 days'),
+				        x_RecommendationDate,
+				        x_RecommendedQuantity           = todecimal(x_RecommendationDetails.RecommendedQuantity),
+				        x_RecommendedQuantityNormalized = todecimal(x_RecommendationDetails.RecommendedQuantityNormalized),
+				        x_SkuMeterId,
+				        x_SkuTerm,
+				        x_SkuTermLabel = case(x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
+				
+				    ", [MaxRows=null, MaxSize=null, NoTruncate=false, AdditionalSetStatements=null, ClientRequestIdPrefix="ftk-PowerBI-ReservationRecommendations"]),
+				
+				    // Sort columns alphabetically
+				    Output = Table.ReorderColumns(Source, List.Sort(Table.ColumnNames(Source)))
+				in
+				    Output
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

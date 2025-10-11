@@ -9,7 +9,8 @@
     The Start-FinOpsCostExport command runs a Cost Management export for the most recent period using the Run API.
 
     This command has been tested with the following API versions:
-    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2025-03-01 (default) – Enables FocusCost and other datasets.
+    - 2023-07-01-preview
     - 2023-08-01
     - 2023-03-01
 
@@ -21,36 +22,37 @@
 
     .PARAMETER StartDate
     Optional. Day to start pulling the data for. If not set, the export will use the dates defined in the export configuration.
-    
+
     .PARAMETER EndDate
     Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration.
-    
+
     .PARAMETER Backfill
     Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0.
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.
 
     .EXAMPLE
     Start-FinopsCostExport -Name 'CostExport'
 
-    Runs an export called 'CostExport' for the configured period.
+    Runs an export called 'CostExport' for the configured period on the subscription configured in Get-AzContext.
 
     .EXAMPLE
-    Start-FinopsCostExport -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
+    Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234' -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
 
-    Runs an export called 'CostExport' for a specific date range.
+    Runs an export called 'CostExport' for a specific date range on the 1234 billing account.
 
     .EXAMPLE
-    Start-FinopsCostExport -Name 'CostExport' -Backfill 12
+    Start-FinopsCostExport -Scope '/providers/Microsoft.Billing/billingAccounts/1234/billingProfiles/5678' -Name 'CostExport' -Backfill 12
 
-    Runs an export called 'CostExport' for the previous 12 months.
+    Runs an export called 'CostExport' for the previous 12 months on the 5678 billing profile.
 
     .LINK
     https://aka.ms/ftk/Start-FinOpsCostExport
 #>
 function Start-FinOpsCostExport
 {
+    [OutputType([bool])]
     [cmdletBinding()]
     param
     (
@@ -61,26 +63,26 @@ function Start-FinOpsCostExport
         [Parameter()]
         [string]
         $Scope,
-        
+
         [Parameter()]
         [datetime]
         $StartDate,
-        
+
         [Parameter()]
         [datetime]
         $EndDate,
-        
+
         [Parameter()]
         [int]
         $Backfill,
 
         [Parameter()]
         [string]
-        $ApiVersion = '2023-07-01-preview'
+        $ApiVersion = '2025-03-01'
     )
 
     $export = Get-FinOpsCostExport -Name $Name -Scope $Scope
-    
+
     if (-not $export)
     {
         Write-Error "Export $Name not found. Did you specify the correct scope?" -ErrorAction Stop
@@ -97,7 +99,7 @@ function Start-FinOpsCostExport
         # If -StartDate is not set, assume the current month
         if (-not $StartDate)
         {
-            $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC)
+            $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).ToUniversalTime().Date
         }
 
         # If -EndDate is not set, assume 1 month
@@ -110,7 +112,7 @@ function Start-FinOpsCostExport
         $StartDate = $StartDate.AddMonths($Backfill * -1)
         Write-Verbose "Backfill $Backfill months = $($StartDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"')) to $($EndDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"'))"
     }
-    
+
     # Remove time + set end date
     if ($StartDate)
     {
@@ -128,7 +130,6 @@ function Start-FinOpsCostExport
 
     # Start measuring progress
     $progressActivity = "Running exports"
-    $startTime = [DateTime]::Now
     $months = (($EndDate.Year - $StartDate.Year) * 12) + $EndDate.Month - $StartDate.Month + 1
     if ($months -lt 1) { $months = 1 } # Assume at least 1 month to avoid errors
     $estimatedSecPerMonth = 6 # Estimated time to trigger a single month export accounting for throttling (10 per minute)
@@ -172,8 +173,17 @@ function Start-FinOpsCostExport
                 $firstDay = $StartDate
                 $lastDay = $EndDate
             }
+            
+            # Ensure end date is not in the future
+            $today = (Get-Date).ToUniversalTime().Date
+            if ($lastDay -ge $today)
+            {
+                Write-Verbose "Adjusting end date to yesterday as it cannot be in the future."
+                $lastDay = $today.AddDays(-1)
+            }
+            
             $body = @{ timePeriod = @{ from = $firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'"); to = $lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } }
-            Write-Verbose "Executing $($firstDay.ToString("MMM d yyyy")) export $runpath"
+            Write-Verbose "Executing $($firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")) to $($lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")) export $runpath"
         }
         else
         {
@@ -187,7 +197,7 @@ function Start-FinOpsCostExport
         }
         else
         {
-            Write-Verbose "Export failed to execute"
+            Write-Error "Export failed to execute: ($($response.Content.error.code)) $($response.Content.error.message)"
         }
 
         # If export throttled, wait 60 seconds and try again
@@ -201,20 +211,23 @@ function Start-FinOpsCostExport
                 Write-Progress `
                     -Activity $progressActivity `
                     -Status "$percent% complete - Throttled by Cost Management. Waiting 60 seconds." `
+
             }
             else
             {
                 Write-Information "Requests are being throttled by Cost Management. Waiting 60 seconds and retrying..."
             }
             Start-Sleep -Seconds 60
+            # Don't increment $monthToExport - retry the same month
         }
         else
         {
             # If not retrying, then track the success
             $success = $success -and $response.Success
+            
+            # Only increment month if not throttled
+            $monthToExport += 1
         }
-
-        $monthToExport += 1
     } while ($months -gt 1 -and $EndDate.AddMonths($monthToExport * -1) -ge $StartDate)
 
     if ($months -gt 1)

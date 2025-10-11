@@ -23,7 +23,7 @@ $workspaceSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_LogA
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
 }
@@ -102,12 +102,12 @@ $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -123,25 +123,25 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE CollectedType IN ('RBACAssignments','ARGResourceContainers')"
-    
+
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $controlRows = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($controlRows) | Out-Null            
+        $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -154,8 +154,8 @@ $subscriptionsTableName = $lognamePrefix + ($controlRows | Where-Object { $_.Col
 
 Write-Output "Will run query against tables $rbacTableName and $subscriptionsTableName"
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $recommendationSearchTimeSpan = 30 + $consumptionOffsetDaysStart
 
@@ -180,13 +180,13 @@ $baseQuery = @"
     | where TimeGenerated > ago(1d) and Model_s == 'AzureRM' and Scope_s startswith '/subscriptions/'
     | extend SubscriptionGuid_g = tostring(split(Scope_s, '/')[2])
     | summarize AssignmentsCount=count() by SubscriptionGuid_g, TenantGuid_g, Cloud_s
-    | join kind=leftouter ( 
+    | join kind=leftouter (
        $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s, Tags_s, InstanceId_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s, Tags_s, InstanceId_s
     ) on SubscriptionGuid_g
-    | where AssignmentsCount >= $assignmentsThreshold    
+    | where AssignmentsCount >= $assignmentsThreshold
 "@
 
 try
@@ -194,12 +194,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -245,7 +245,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }
@@ -302,7 +302,7 @@ $baseQuery = @"
     | where TimeGenerated > ago(1d) and Model_s == 'AzureRM' and Scope_s has 'managementGroups'
     | extend ManagementGroupId = tostring(split(Scope_s, '/')[4])
     | summarize AssignmentsCount=count() by ManagementGroupId, TenantGuid_g, Scope_s, Cloud_s
-    | where AssignmentsCount >= $assignmentsThreshold        
+    | where AssignmentsCount >= $assignmentsThreshold
 "@
 
 try
@@ -310,12 +310,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -396,15 +396,15 @@ Write-Output "Looking for subscriptions with more than $rgPercentageThreshold% o
 $baseQuery = @"
     $subscriptionsTableName
     | where TimeGenerated > ago(1d)
-    | where ContainerType_s =~ 'microsoft.resources/subscriptions/resourceGroups' 
+    | where ContainerType_s =~ 'microsoft.resources/subscriptions/resourceGroups'
     | summarize RGCount=count() by SubscriptionGuid_g, TenantGuid_g, Cloud_s
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         $subscriptionsTableName
         | where TimeGenerated > ago(1d)
-        | where ContainerType_s =~ 'microsoft.resources/subscriptions' 
-        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s, Tags_s, InstanceId_s 
+        | where ContainerType_s =~ 'microsoft.resources/subscriptions'
+        | project SubscriptionGuid_g, SubscriptionName = ContainerName_s, Tags_s, InstanceId_s
     ) on SubscriptionGuid_g
-    | where RGCount >= $rgThreshold    
+    | where RGCount >= $rgThreshold
 "@
 
 try
@@ -412,12 +412,12 @@ try
     $queryResults = Invoke-AzOperationalInsightsQuery -WorkspaceId $workspaceId -Query $baseQuery -Timespan (New-TimeSpan -Days $recommendationSearchTimeSpan) -Wait 600 -IncludeStatistics
     if ($queryResults)
     {
-        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)        
+        $results = [System.Linq.Enumerable]::ToArray($queryResults.Results)
     }
 }
 catch
 {
-    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"    
+    Write-Warning -Message "Query failed. Debug the following query in the AOE Log Analytics workspace: $baseQuery"
     Write-Warning -Message $error[0]
     $recommendationsErrors++
 }
@@ -463,7 +463,7 @@ foreach ($result in $results)
             {
                 $tagName = $tagPair[0].Trim()
                 $tagValue = $tagPair[1].Trim()
-                $tags[$tagName] = $tagValue    
+                $tags[$tagName] = $tagValue
             }
         }
     }

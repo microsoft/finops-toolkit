@@ -14,14 +14,14 @@ param(
     [Parameter(Mandatory = $false)]
     [string] $externalCredentialName,
 
-    [Parameter(Mandatory = $false)] 
+    [Parameter(Mandatory = $false)]
     [string] $billingPeriod, # YYYYMM format
 
-    [Parameter(Mandatory = $false)] 
-    [string] $meterCategories, # comma-separated meter categories (e.g., "Virtual Machines,Storage")
+    [Parameter(Mandatory = $false)]
+    [string] $meterCategories, # comma-separated meter categories (for example, "Virtual Machines,Storage")
 
-    [Parameter(Mandatory = $false)] 
-    [string] $meterRegions # comma-separated billing meter regions (e.g., "EU North,EU West")
+    [Parameter(Mandatory = $false)]
+    [string] $meterRegions # comma-separated billing meter regions (for example, "EU North,EU West")
 )
 
 $ErrorActionPreference = "Stop"
@@ -30,16 +30,16 @@ function Authenticate-AzureWithOption {
     param (
         [string] $authOption = "ManagedIdentity",
         [string] $cloudEnv = "AzureCloud",
-        [string] $clientID 
+        [string] $clientID
     )
 
     switch ($authOption) {
-        "UserAssignedManagedIdentity" { 
+        "UserAssignedManagedIdentity" {
             Connect-AzAccount -Identity -EnvironmentName $cloudEnv -AccountId $clientID
             break
         }
         Default { #ManagedIdentity
-            Connect-AzAccount -Identity -EnvironmentName $cloudEnv 
+            Connect-AzAccount -Identity -EnvironmentName $cloudEnv
             break
         }
     }
@@ -66,7 +66,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -100,14 +100,14 @@ if ($authenticationOption -eq "UserAssignedManagedIdentity")
     Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment -clientID $uamiClientID
 }
 else
-{    
+{
     Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment
 }
 
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -119,8 +119,8 @@ else
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
-    $cloudEnvironment = $externalCloudEnvironment   
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 # compute billing period
@@ -187,7 +187,7 @@ if (-not([string]::IsNullOrEmpty($meterRegions)))
 }
 
 function Generate-Pricesheet {
-    param (        
+    param (
         [string] $InputCSVPath,
         [string] $OutputCSVPath,
         [string] $HeaderLine
@@ -264,7 +264,7 @@ function Generate-Pricesheet {
                         $categoryWriteLine = $true
                         break
                     }
-                }    
+                }
 
                 foreach ($meterRegion in $meterRegionFilters)
                 {
@@ -273,7 +273,7 @@ function Generate-Pricesheet {
                         $regionWriteLine = $true
                         break
                     }
-                }    
+                }
 
                 if ($categoryWriteLine -eq $true -and $regionWriteLine -eq $true)
                 {
@@ -288,19 +288,19 @@ function Generate-Pricesheet {
     $csvBlobName = [System.IO.Path]::GetFileName($OutputCSVPath)
     $csvProperties = @{"ContentType" = "text/csv"};
     Set-AzStorageBlobContent -File $OutputCSVPath -Container $storageAccountSinkContainer -Properties $csvProperties -Blob $csvBlobName -Context $saCtx -Force
-        
+
     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     Write-Output "[$now] Uploaded $csvBlobName to Blob Storage..."
 
     Remove-Item -Path $InputCSVPath -Force
 
     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-    Write-Output "[$now] Removed $InputCSVPath from local disk..."                    
+    Write-Output "[$now] Removed $InputCSVPath from local disk..."
 
     Remove-Item -Path $OutputCSVPath -Force
 
     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-    Write-Output "[$now] Removed $OutputCSVPath from local disk..."                    
+    Write-Output "[$now] Removed $OutputCSVPath from local disk..."
 }
 
 Write-Output "Starting pricesheet export process for $billingPeriod billing period for Billing Account $BillingAccountID..."
@@ -338,7 +338,7 @@ if ($result.StatusCode -in (200,202))
     {
         $tries++
         Write-Output "Checking whether export is ready (try $tries)..."
-        
+
         Start-Sleep -Seconds $sleepSeconds
         $downloadResult = Invoke-AzRestMethod -Method GET -Path $requestResultPath
 
@@ -375,10 +375,10 @@ if ($result.StatusCode -in (200,202))
                     $csvExportPath = $csvFile.FullName
                     $finalCsvExportPath = "$env:TEMP\$($csvFile.Name)-final.csv"
                     Generate-Pricesheet -InputCSVPath $csvExportPath -OutputCSVPath $finalCsvExportPath -HeaderLine 1
-                }         
+                }
                 Remove-Item -Path $zipExportPath -Force
                 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-                Write-Output "[$now] Removed $zipExportPath from local disk..."                           
+                Write-Output "[$now] Removed $zipExportPath from local disk..."
             }
             else
             {
@@ -390,7 +390,7 @@ if ($result.StatusCode -in (200,202))
                 Write-Output "Blob downloaded to $csvExportPath successfully."
                 Generate-Pricesheet -InputCSVPath $csvExportPath -OutputCSVPath $finalCsvExportPath -HeaderLine 3
             }
-                    
+
             $requestSuccess = $true
         }
         elseif ($downloadResult.StatusCode -eq 202)
@@ -412,17 +412,17 @@ if ($result.StatusCode -in (200,202))
                 Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment -clientID $uamiClientID
             }
             else
-            {    
+            {
                 Authenticate-AzureWithOption -authOption $authenticationOption -cloudEnv $cloudEnvironment
             }
-            
+
             $sleepSeconds = 2
         }
         else
         {
             Write-Output "Got an unexpected response code: $($downloadResult.StatusCode)"
         }
-    } 
+    }
     while (-not($requestSuccess) -and $tries -lt $MaxTries)
 
     if ($tries -ge $MaxTries)

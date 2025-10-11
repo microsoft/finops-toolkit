@@ -1068,14 +1068,14 @@ var runbooks = [
   }
   {
     name: savingsPlansExportsRunbookName
-    version: '1.0.1.0'
+    version: '1.0.2.0'
     description: 'Exports Savings Plans Usage to Blob Storage using the EA or MCA APIs'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${savingsPlansExportsRunbookName}.ps1')
   }
   {
     name: csvIngestRunbookName
-    version: '1.6.1.0'
+    version: '1.6.2.0'
     description: 'Ingests CSV blobs as custom logs to Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${csvIngestRunbookName}.ps1')
@@ -1238,7 +1238,7 @@ var runbooks = [
 var automationVariables = [
   {
     name: 'AzureOptimization_CloudEnvironment'
-    description: 'Azure Cloud environment (e.g., AzureCloud, AzureChinaCloud, etc.)'
+    description: 'Azure Cloud environment (for example, AzureCloud, AzureChinaCloud, etc.)'
     value: '"${cloudEnvironment}"'
   }
   {

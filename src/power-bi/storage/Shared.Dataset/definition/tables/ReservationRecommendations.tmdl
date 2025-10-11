@@ -1,0 +1,341 @@
+/// Reservation recommendations data from Cost Management exports.
+table ReservationRecommendations
+	lineageTag: a9b8f96b-84d0-4176-95a1-65eade30a2ef
+
+	column x_IncrementalRefreshDate
+		dataType: string
+		lineageTag: 0d03437c-a892-4d20-9e24-e1ae25b31e47
+		summarizeBy: none
+		sourceColumn: x_IncrementalRefreshDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_RecommendedQuantity
+		dataType: double
+		formatString: 0
+		lineageTag: 48fcb8f6-401b-4cb7-b878-660313ef2fbc
+		summarizeBy: sum
+		sourceColumn: x_RecommendedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuDetails
+		dataType: string
+		lineageTag: 1436758b-70a6-468d-945a-84a0a392ad45
+		summarizeBy: none
+		sourceColumn: x_SkuDetails
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterId
+		dataType: string
+		lineageTag: 668de058-26a0-4dd2-a494-6692df36b0ac
+		summarizeBy: none
+		sourceColumn: x_SkuMeterId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTerm
+		dataType: double
+		formatString: 0
+		lineageTag: 7d757c95-21f3-4521-9391-00c4c3ce1b18
+		summarizeBy: sum
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountResourceType
+		dataType: string
+		lineageTag: 9d751780-dfb3-43a6-8008-83fd13719439
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountScope
+		dataType: string
+		lineageTag: ca9d5395-8a0b-4f43-b34f-a7ab79eac477
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountScope
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountAgreement
+		dataType: string
+		lineageTag: bd791989-03ff-472b-bf5a-835bf1ea6a7d
+		summarizeBy: none
+		sourceColumn: x_BillingAccountAgreement
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceType
+		dataType: string
+		lineageTag: 6f87e180-fda9-41a6-817b-320f313162d1
+		summarizeBy: none
+		sourceColumn: x_SourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceVersion
+		dataType: string
+		lineageTag: 5b288faa-c9d1-4fc5-a96d-31eacecd5060
+		summarizeBy: none
+		sourceColumn: x_SourceVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionName
+		dataType: string
+		lineageTag: 40f5f2e5-e17b-4388-96e3-ab2729d5b525
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountKey
+		dataType: string
+		lineageTag: f1ced707-0b0c-4864-a228-780c35ca891e
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountNormalizedGroup
+		dataType: string
+		lineageTag: 00d1a67f-4fd1-4a06-ade4-c3260bfbe31d
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountNormalizedGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountNormalizedRatio
+		dataType: string
+		lineageTag: 035e8df5-b562-48e1-bb20-62a578fee69a
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountNormalizedRatio
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountNormalizedSize
+		dataType: string
+		lineageTag: 14375b85-698f-432e-86eb-64fd914b1e80
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountNormalizedSize
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountSavings
+		dataType: double
+		lineageTag: 4e513408-c07c-4781-8a6f-1177339f5ed4
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_LookbackPeriodLabel
+		dataType: string
+		lineageTag: 2fad7f44-aca5-45a0-9c9c-c4cdfdff422b
+		summarizeBy: none
+		sourceColumn: x_LookbackPeriodLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_LookbackPeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 5966a783-e1b0-4031-b09d-c226069cce77
+		summarizeBy: none
+		sourceColumn: x_LookbackPeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTermLabel
+		dataType: string
+		lineageTag: db39890b-583d-41ab-9795-de32274627dd
+		summarizeBy: none
+		sourceColumn: x_SkuTermLabel
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_RecommendedQuantityNormalized
+		dataType: double
+		formatString: 0
+		lineageTag: bb94d481-2f71-4894-b9a5-e04f5f2ad0a3
+		summarizeBy: sum
+		sourceColumn: x_RecommendedQuantityNormalized
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_EffectiveCostAfter
+		dataType: double
+		lineageTag: 39925233-3d71-4a7e-af0a-3cf3a67827f6
+		summarizeBy: sum
+		sourceColumn: x_EffectiveCostAfter
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_EffectiveCostBefore
+		dataType: double
+		lineageTag: f89a879f-16c5-4d1e-9687-85ff45d9b7e6
+		summarizeBy: sum
+		sourceColumn: x_EffectiveCostBefore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_BreakEvenDate
+		dataType: dateTime
+		formatString: Mmm d, yyyy
+		lineageTag: 84494ff0-ef51-4636-8d9b-7bbc7f681633
+		summarizeBy: none
+		sourceColumn: x_BreakEvenDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column x_BreakEvenMonths
+		dataType: double
+		formatString: 0.0 mo
+		lineageTag: 4e18a526-f90e-4e01-ae84-44c2f3628b11
+		summarizeBy: sum
+		sourceColumn: x_BreakEvenMonths
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column x_CommitmentDiscountSavingsDailyRate
+		dataType: double
+		lineageTag: 5a1a0a4f-f2fa-4934-bb07-a3079b2bb314
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountSavingsDailyRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RecommendedQuantityNormlized
+		dataType: string
+		lineageTag: 0d0708d7-e478-40b1-9659-4c26df698c3d
+		summarizeBy: none
+		sourceColumn: RecommendedQuantityNormlized
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuInstanceType
+		dataType: string
+		lineageTag: e1824773-15df-4083-86bf-886ab04b977b
+		summarizeBy: none
+		sourceColumn: x_SkuInstanceType
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ReservationRecommendations = m
+		mode: import
+		queryGroup: Storage
+		source = ```
+				let
+				    // Get the data
+				    RawData = ftk_Storage("reservationrecommendations"),
+				
+				    _addMissing = (tbl, col, typ) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null, typ),
+				    _getJsonCost = (tbl as table, col as text) as table => Table.RemoveColumns(
+				        Table.AddColumn(
+				            Table.RenameColumns(_addMissing(_addMissing(tbl, col, type any), col&"Json", type text), {{col, col&"Backup"}}),
+				            col,
+				            each if Record.Field(_, col&"Json") = null or Record.Field(_, col&"Json") = "" then
+				                if Value.Type(Record.Field(_, col&"Backup")) = type text and Text.Start(Record.Field(_, col&"Backup"), 1) = "{" then
+				                    try (Json.Document(Record.Field(_, col&"Backup"))[value]) otherwise Record.Field(_, col&"Backup")
+				                else
+				                    Record.Field(_, col&"Backup")
+				            else
+				                try (Json.Document(Record.Field(_, col&"Json"))[value]) otherwise Record.Field(_, col&"Backup"),
+				            type number
+				        ),
+				        {col&"Json", col&"Backup"},
+				        MissingField.Ignore
+				    ),
+				    Fixes = Table.TransformColumnTypes(
+				        Table.ReplaceValue(Table.ReplaceValue(
+				            // Create missing columns
+				            _addMissing(_addMissing(_addMissing(_addMissing(
+				                _getJsonCost(_getJsonCost(_getJsonCost(RawData,
+				                    "CostWithNoReservedInstances"),
+				                    "NetSavings"),
+				                    "TotalCostWithReservedInstances"),
+				                "RecommendedQuantityNormalized", type number),
+				                "TotalCostWithReservedInstances", type number),
+				                "SKU",     type text),
+				                "SkuName", type text),
+				            // Normalize frequency
+				            each [LookBackPeriod], each Text.Replace(Text.Replace([LookBackPeriod], "Last", ""), "Days", " Days"), Replacer.ReplaceValue, {"LookBackPeriod"}),
+				            // Fix inconsistent Microsoft term values
+				            each [Term], each if [Term] = "P1M" then 1 else if [Term] = "P1Y" then 12 else if [Term] = "P3Y" then 36 else if [Term] = "P5Y" then 60 else Number.FromText([Term]), Replacer.ReplaceValue, {"Term"}),
+				        {
+				            // Dates
+				            {"FirstUsageDate",                 type datetime},
+				            // Numbers
+				            {"CostWithNoReservedInstances",    type number},
+				            {"NetSavings",                     type number},
+				            {"RecommendedQuantity",            type number},
+				            {"RecommendedQuantityNormalized",  type number},
+				            {"Term",                           type number},
+				            {"TotalCostWithReservedInstances", type number}
+				        }
+				    ),
+				
+				    Rename = Table.RenameColumns(Fixes, {
+				        {"CostWithNoReservedInstances",    "x_EffectiveCostBefore"},
+				        {"FirstUsageDate",                 "x_LookbackPeriodStart"},
+				        {"InstanceFlexibilityGroup",       "x_CommitmentDiscountNormalizedGroup"},
+				        {"InstanceFlexibilityRatio",       "x_CommitmentDiscountNormalizedRatio"},
+				        {"Location",                       "RegionName"},
+				        {"MeterId",                        "x_SkuMeterId"},
+				        {"MeterID",                        "x_SkuMeterId"},
+				        {"NetSavings",                     "x_CommitmentDiscountSavings"},
+				        {"NormalizedSize",                 "x_CommitmentDiscountNormalizedSize"},
+				        {"RecommendedQuantity",            "x_RecommendedQuantity"},
+				        {"RecommendedQuantityNormalized",  "x_RecommendedQuantityNormalized"},
+				        {"ResourceType",                   "x_CommitmentDiscountResourceType"},
+				        {"Scope",                          "tmp_CommitmentDiscountScope"},
+				        {"SkuProperties",                  "x_SkuDetails"},
+				        {"Term",                           "x_SkuTerm"},
+				        {"TotalCostWithReservedInstances", "x_EffectiveCostAfter"}
+				    }, MissingField.Ignore),
+				
+				    Add = Table.RemoveColumns(
+				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
+				            "x_LookbackPeriodLabel",     each [LookBackPeriod] & (if Text.Contains([LookBackPeriod], "Days") then "" else " Days")),
+				            "x_SkuInstanceType",         each if [SKU] <> null then [SKU] else [SkuName]),
+				            "x_CommitmentDiscountKey",   each [x_CommitmentDiscountNormalizedSize] & [x_SkuMeterId]),
+				            "x_CommitmentDiscountScope", each if [tmp_CommitmentDiscountScope] = "Single" then "Subscription" else [tmp_CommitmentDiscountScope]),
+				            "x_SkuTermLabel",
+				                each if [x_SkuTerm] = 1 then "1 month"
+				                else if [x_SkuTerm] < 12 then Text.From([x_SkuTerm]) & " months"
+				                else if [x_SkuTerm] = 12 then "1 year"
+				                else Text.From([x_SkuTerm] / 12) & " years"
+				            ),
+				            "x_BreakEvenMonths",         each [x_EffectiveCostAfter] * [x_SkuTerm] / [x_EffectiveCostBefore], type number),
+				            "x_BreakEvenDate",           each Date.AddDays(DateTime.Date(DateTime.LocalNow()), 1 + Number.Round([x_BreakEvenMonths] * 30.437, 0)), type date),
+				            "x_CommitmentDiscountSavingsDailyRate", each [x_CommitmentDiscountSavings] / ([x_SkuTerm] - [x_BreakEvenMonths]) / (365/12), type number),
+				        {"tmp_CommitmentDiscountScope", "LookBackPeriod", "SKU", "SkuName"}
+				    ),
+				        
+				    // Sort columns alphabetically
+				    Output = Table.ReorderColumns(Add, List.Sort(Table.ColumnNames(Add)))
+				in
+				    Output
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

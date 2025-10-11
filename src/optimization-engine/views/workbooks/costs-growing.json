@@ -1,318 +1,308 @@
 {
-  "version": "Notebook/1.0",
-  "items": [
-    {
-      "type": 1,
-      "content": {
-        "json": "### Outliers/growing costs conditions"
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 1,
+        "content": {
+          "json": "### Outliers/growing costs conditions"
+        },
+        "customWidth": "50",
+        "name": "text - 5"
       },
-      "customWidth": "50",
-      "name": "text - 5"
-    },
-    {
-      "type": 1,
-      "content": {
-        "json": "### Filters"
+      {
+        "type": 1,
+        "content": {
+          "json": "### Filters"
+        },
+        "customWidth": "50",
+        "name": "text - 5 - Copy"
       },
-      "customWidth": "50",
-      "name": "text - 5 - Copy"
-    },
-    {
-      "type": 9,
-      "content": {
-        "version": "KqlParameterItem/1.0",
-        "parameters": [
-          {
-            "id": "017ba09e-f6c5-496e-bc96-b7cfc09cf561",
-            "version": "KqlParameterItem/1.0",
-            "name": "CostTimeRange",
-            "label": "Cost Time Range",
-            "type": 4,
-            "isRequired": true,
-            "value": {
-              "durationMs": 604800000
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "parameters": [
+            {
+              "id": "017ba09e-f6c5-496e-bc96-b7cfc09cf561",
+              "version": "KqlParameterItem/1.0",
+              "name": "CostTimeRange",
+              "label": "Cost Time Range",
+              "type": 4,
+              "isRequired": true,
+              "value": {
+                "durationMs": 604800000
+              },
+              "typeSettings": {
+                "selectableValues": [
+                  {
+                    "durationMs": 604800000
+                  },
+                  {
+                    "durationMs": 1209600000
+                  },
+                  {
+                    "durationMs": 2592000000
+                  },
+                  {
+                    "durationMs": 5184000000
+                  },
+                  {
+                    "durationMs": 7776000000
+                  }
+                ],
+                "allowCustom": true
+              },
+              "timeContext": {
+                "durationMs": 1209600000
+              }
             },
-            "typeSettings": {
-              "selectableValues": [
-                {
-                  "durationMs": 604800000
-                },
-                {
-                  "durationMs": 1209600000
-                },
-                {
-                  "durationMs": 2592000000
-                },
-                {
-                  "durationMs": 5184000000
-                },
-                {
-                  "durationMs": 7776000000
-                }
-              ],
-              "allowCustom": true
+            {
+              "id": "85603c03-1d4b-474b-9cdb-9ba97192fc9e",
+              "version": "KqlParameterItem/1.0",
+              "name": "InstanceMinCost",
+              "label": "Min. daily cost",
+              "type": 1,
+              "description": "The minimum cost to be considered for an instance to be reported",
+              "isRequired": true,
+              "value": "1",
+              "typeSettings": {
+                "paramValidationRules": [
+                  {
+                    "regExp": "^[1-9][0-9]*$",
+                    "match": true,
+                    "message": "Must be an integer greater than 0"
+                  }
+                ]
+              },
+              "timeContext": {
+                "durationMs": 0
+              }
             },
-            "timeContext": {
-              "durationMs": 1209600000
-            }
-          },
-          {
-            "id": "85603c03-1d4b-474b-9cdb-9ba97192fc9e",
-            "version": "KqlParameterItem/1.0",
-            "name": "InstanceMinCost",
-            "label": "Min. daily cost",
-            "type": 1,
-            "description": "The minimum cost to be considered for an instance to be reported",
-            "isRequired": true,
-            "value": "1",
-            "typeSettings": {
-              "paramValidationRules": [
-                {
-                  "regExp": "^[1-9][0-9]*$",
-                  "match": true,
-                  "message": "Must be an integer greater than 0"
-                }
-              ]
+            {
+              "id": "5cf46ddd-b223-4333-a025-65c79eb7ee78",
+              "version": "KqlParameterItem/1.0",
+              "name": "GrowthPercentage",
+              "label": "Growth (%)",
+              "type": 1,
+              "description": "Cost growth from start to end date",
+              "isRequired": true,
+              "value": "1",
+              "typeSettings": {
+                "paramValidationRules": [
+                  {
+                    "regExp": "^-?[0-9][0-9]*$",
+                    "match": true,
+                    "message": "Must be an integer"
+                  }
+                ]
+              },
+              "timeContext": {
+                "durationMs": 0
+              }
             },
-            "timeContext": {
-              "durationMs": 0
+            {
+              "id": "af718458-abd1-4608-85eb-ae60152caa13",
+              "version": "KqlParameterItem/1.0",
+              "name": "TopN",
+              "label": "Top #",
+              "type": 1,
+              "isRequired": true,
+              "value": "20",
+              "timeContext": {
+                "durationMs": 0
+              }
             }
-          },
-          {
-            "id": "5cf46ddd-b223-4333-a025-65c79eb7ee78",
-            "version": "KqlParameterItem/1.0",
-            "name": "GrowthPercentage",
-            "label": "Growth (%)",
-            "type": 1,
-            "description": "Cost growth from start to end date",
-            "isRequired": true,
-            "value": "1",
-            "typeSettings": {
-              "paramValidationRules": [
-                {
-                  "regExp": "^-?[0-9][0-9]*$",
-                  "match": true,
-                  "message": "Must be an integer"
-                }
-              ]
-            },
-            "timeContext": {
-              "durationMs": 0
-            }
-          },
-          {
-            "id": "af718458-abd1-4608-85eb-ae60152caa13",
-            "version": "KqlParameterItem/1.0",
-            "name": "TopN",
-            "label": "Top #",
-            "type": 1,
-            "isRequired": true,
-            "value": "20",
-            "timeContext": {
-              "durationMs": 0
-            }
-          }
-        ],
-        "style": "pills",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
+          ],
+          "style": "pills",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "parameters - 1"
       },
-      "customWidth": "50",
-      "name": "parameters - 1"
-    },
-    {
-      "type": 9,
-      "content": {
-        "version": "KqlParameterItem/1.0",
-        "crossComponentResources": [
-          "value::all"
-        ],
-        "parameters": [
-          {
-            "id": "b48a696e-cf64-450b-a7cc-9e0a5e457170",
-            "version": "KqlParameterItem/1.0",
-            "name": "SelectedSubscriptions",
-            "label": "Subscription",
-            "type": 2,
-            "isRequired": true,
-            "multiSelect": true,
-            "quote": "'",
-            "delimiter": ",",
-            "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId, name",
-            "crossComponentResources": [
-              "value::all"
-            ],
-            "value": [
-              "value::all"
-            ],
-            "typeSettings": {
-              "additionalResourceOptions": [
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "parameters": [
+            {
+              "id": "d4b1b5fe-71af-43ef-bcb3-ebf114d55cb2",
+              "version": "KqlParameterItem/1.0",
+              "name": "SelectedSubscriptions",
+              "label": "Subscription",
+              "type": 2,
+              "isRequired": true,
+              "multiSelect": true,
+              "quote": "'",
+              "delimiter": ",",
+              "query": "AzureOptimizationResourceContainersV1_CL | where todatetime(StatusDate_s) > datetime('{CostTimeRange:startISO}') | where ContainerType_s =~ 'microsoft.resources/subscriptions' | project subscriptionId = SubscriptionGuid_g, SubscriptionName = ContainerName_s | distinct subscriptionId, SubscriptionName | order by SubscriptionName asc",
+              "typeSettings": {
+                "additionalResourceOptions": [
+                  "value::all"
+                ]
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "value": [
                 "value::all"
-              ],
-              "showDefault": false
+              ]
+            }
+          ],
+          "style": "pills",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "parameters - 7"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "Adjust the filters above according to what you consider being the appropriate thresholds for an abnormal consumption growth. If the first tile below (\"Top Growing/Outliers\") shows results, select each line to analyze the details of the costs growth over time for the specific line item.",
+          "style": "info"
+        },
+        "name": "infoText"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let CostStartIndex = 1;\r\nlet GrowthFactor = 1 + todouble({GrowthPercentage}) / 100;\r\nlet SubscriptionSeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by SubscriptionId, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by SubscriptionId\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet ResourceGroupSeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and isnotempty(ResourceGroup) and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by ResourceGroup, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by ResourceGroup\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet ResourceSeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by ResourceId, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by ResourceId\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet MeterCategorySeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterCategory_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterCategory_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet MeterSubCategorySeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and isnotempty(MeterSubCategory_s) and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterSubCategory_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterSubCategory_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet MeterNameSeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterName_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterName_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nSubscriptionSeries\r\n| extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n| mvexpand outliers, Date_s\r\n| summarize arg_max(todatetime(Date_s), *) by SubscriptionId\r\n| where outliers == 1\r\n| extend SeriesType='Outliers', PerspectiveType = 'SubscriptionId', PerspectiveId = SubscriptionId\r\n| distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n| union (\r\n    SubscriptionSeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'SubscriptionId', PerspectiveId = SubscriptionId\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    ResourceGroupSeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by ResourceGroup\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'ResourceGroup', PerspectiveId = ResourceGroup\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    ResourceGroupSeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'ResourceGroup', PerspectiveId = ResourceGroup\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    ResourceSeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by ResourceId\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'ResourceId', PerspectiveId = ResourceId\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    ResourceSeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'ResourceId', PerspectiveId = ResourceId\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    MeterCategorySeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by MeterCategory_s\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'MeterCategory_s', PerspectiveId = MeterCategory_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    MeterCategorySeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'MeterCategory_s', PerspectiveId = MeterCategory_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    MeterSubCategorySeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by MeterSubCategory_s\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'MeterSubCategory_s', PerspectiveId = MeterSubCategory_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    MeterSubCategorySeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'MeterSubCategory_s', PerspectiveId = MeterSubCategory_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    MeterNameSeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by MeterName_s\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'MeterName_s', PerspectiveId = MeterName_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    MeterNameSeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'MeterName_s', PerspectiveId = MeterName_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| extend FirstCost = round(StartCost, 0), LastCost = round(EndCost, 0)\r\n| distinct PerspectiveId, PerspectiveType, FirstCost, LastCost\r\n| top {TopN} by iif(GrowthFactor >= 1, LastCost-FirstCost, FirstCost-LastCost) desc",
+          "size": 1,
+          "showAnalytics": true,
+          "title": "Top Growing/Outliers (daily costs)",
+          "noDataMessage": "The query returned no results. Your costs do not have anomalies and are not growing given the conditions filters above.",
+          "timeContextFromParameter": "CostTimeRange",
+          "exportedParameters": [
+            {
+              "fieldName": "PerspectiveType",
+              "parameterName": "SelectedPerspective",
+              "parameterType": 1
             },
-            "timeContext": {
-              "durationMs": 0
-            },
-            "queryType": 1,
-            "resourceType": "microsoft.resourcegraph/resources"
-          }
-        ],
-        "style": "pills",
-        "queryType": 1,
-        "resourceType": "microsoft.resourcegraph/resources"
+            {
+              "fieldName": "PerspectiveId",
+              "parameterName": "SelectedPerspectiveId",
+              "parameterType": 1
+            }
+          ],
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "GrowingAndOutliers"
       },
-      "customWidth": "50",
-      "name": "parameters - 7"
-    },
-    {
-      "type": 1,
-      "content": {
-        "json": "Adjust the filters above according to what you consider being the appropriate thresholds for an abnormal consumption growth. If the first tile below (\"Top Growing/Outliers\") shows results, select each line to analyze the details of the costs growth over time for the specific line item.",
-        "style": "info"
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "AzureOptimizationConsumptionV1_CL\r\n| where {SelectedPerspective} in~ ('{SelectedPerspectiveId}') and TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize PerspectiveCost = sum(FinalCost) by bin(todatetime(Date_s), 1d)\r\n| render timechart",
+          "size": 1,
+          "aggregation": 5,
+          "showAnalytics": true,
+          "title": "Evolution over time (select growing/outlier cost)",
+          "timeContextFromParameter": "CostTimeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "outliers"
       },
-      "name": "infoText"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "let CostStartIndex = 1;\r\nlet GrowthFactor = 1 + todouble({GrowthPercentage}) / 100;\r\nlet SubscriptionSeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by SubscriptionId, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by SubscriptionId\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet ResourceGroupSeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and isnotempty(ResourceGroup) and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by ResourceGroup, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by ResourceGroup\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet ResourceSeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by ResourceId, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by ResourceId\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet MeterCategorySeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterCategory_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterCategory_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet MeterSubCategorySeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and isnotempty(MeterSubCategory_s) and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterSubCategory_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterSubCategory_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nlet MeterNameSeries = materialize(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in ({SelectedSubscriptions:value})\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterName_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterName_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| where StartCost >= 0 and EndCost > {InstanceMinCost} and iif(GrowthFactor > 1, EndCost > (StartCost * GrowthFactor), iif(GrowthFactor < 1, EndCost < (StartCost * GrowthFactor), EndCost == StartCost)));\r\nSubscriptionSeries\r\n| extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n| mvexpand outliers, Date_s\r\n| summarize arg_max(todatetime(Date_s), *) by SubscriptionId\r\n| where outliers == 1\r\n| extend SeriesType='Outliers', PerspectiveType = 'SubscriptionId', PerspectiveId = SubscriptionId\r\n| distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n| union (\r\n    SubscriptionSeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'SubscriptionId', PerspectiveId = SubscriptionId\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    ResourceGroupSeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by ResourceGroup\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'ResourceGroup', PerspectiveId = ResourceGroup\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    ResourceGroupSeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'ResourceGroup', PerspectiveId = ResourceGroup\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    ResourceSeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by ResourceId\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'ResourceId', PerspectiveId = ResourceId\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    ResourceSeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'ResourceId', PerspectiveId = ResourceId\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    MeterCategorySeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by MeterCategory_s\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'MeterCategory_s', PerspectiveId = MeterCategory_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    MeterCategorySeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'MeterCategory_s', PerspectiveId = MeterCategory_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    MeterSubCategorySeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by MeterSubCategory_s\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'MeterSubCategory_s', PerspectiveId = MeterSubCategory_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    MeterSubCategorySeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'MeterSubCategory_s', PerspectiveId = MeterSubCategory_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union ( \r\n    MeterNameSeries\r\n    | extend outliers=series_decompose_anomalies(Cost, 1.5)\r\n    | mvexpand outliers, Date_s\r\n    | summarize arg_max(todatetime(Date_s), *) by MeterName_s\r\n    | where outliers == 1\r\n    | extend SeriesType='Outliers', PerspectiveType = 'MeterName_s', PerspectiveId = MeterName_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| union (\r\n    MeterNameSeries\r\n    | extend SeriesType='Growing', PerspectiveType = 'MeterName_s', PerspectiveId = MeterName_s\r\n    | distinct PerspectiveId, SeriesType, PerspectiveType, StartCost, EndCost\r\n)\r\n| extend FirstCost = round(StartCost, 0), LastCost = round(EndCost, 0)\r\n| distinct PerspectiveId, PerspectiveType, FirstCost, LastCost\r\n| top {TopN} by iif(GrowthFactor >= 1, LastCost-FirstCost, FirstCost-LastCost) desc",
-        "size": 1,
-        "showAnalytics": true,
-        "title": "Top Growing/Outliers (daily costs)",
-        "noDataMessage": "The query returned no results. Your costs do not have anomalies and are not growing given the conditions filters above.",
-        "timeContextFromParameter": "CostTimeRange",
-        "exportedParameters": [
-          {
-            "fieldName": "PerspectiveType",
-            "parameterName": "SelectedPerspective",
-            "parameterType": 1
-          },
-          {
-            "fieldName": "PerspectiveId",
-            "parameterName": "SelectedPerspectiveId",
-            "parameterType": 1
-          }
-        ],
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by SubscriptionId, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by SubscriptionId\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project SubscriptionId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), SubscriptionId\r\n| join kind=inner ( \r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}')\r\n    | where ContainerType_s =~ 'microsoft.resources/subscriptions' \r\n    | extend SubscriptionName = ContainerName_s\r\n    | extend SubscriptionId = SubscriptionGuid_g\r\n    | distinct SubscriptionId, SubscriptionName \r\n) on SubscriptionId \r\n| project-away SubscriptionId, SubscriptionId1\r\n| render timechart",
+          "size": 1,
+          "aggregation": 5,
+          "showAnalytics": true,
+          "title": "Top contributing subscriptions over time",
+          "timeContextFromParameter": "CostTimeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "subscriptionDetails"
       },
-      "customWidth": "50",
-      "name": "GrowingAndOutliers"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "AzureOptimizationConsumptionV1_CL\r\n| where {SelectedPerspective} in~ ('{SelectedPerspectiveId}') and TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize PerspectiveCost = sum(FinalCost) by bin(todatetime(Date_s), 1d)\r\n| render timechart",
-        "size": 1,
-        "aggregation": 5,
-        "showAnalytics": true,
-        "title": "Evolution over time (select growing/outlier cost)",
-        "timeContextFromParameter": "CostTimeRange",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| extend ResourceGroup = tolower(ResourceGroup)\r\n| summarize InstanceCost = sum(FinalCost) by ResourceGroup, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by ResourceGroup\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project ResourceGroup;\r\nAzureOptimizationConsumptionV1_CL\r\n| extend ResourceGroup = tolower(ResourceGroup)\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and ResourceGroup in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), ResourceGroup\r\n| render timechart",
+          "size": 1,
+          "aggregation": 5,
+          "showAnalytics": true,
+          "title": "Top contributing resource groups over time",
+          "timeContextFromParameter": "CostTimeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "resourceGroupDetails"
       },
-      "customWidth": "50",
-      "name": "outliers"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by SubscriptionId, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by SubscriptionId\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project SubscriptionId;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and SubscriptionId in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), SubscriptionId\r\n| join kind=inner ( \r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}')\r\n    | where ContainerType_s =~ 'microsoft.resources/subscriptions' \r\n    | extend SubscriptionName = ContainerName_s\r\n    | extend SubscriptionId = SubscriptionGuid_g\r\n    | distinct SubscriptionId, SubscriptionName \r\n) on SubscriptionId \r\n| project-away SubscriptionId, SubscriptionId1\r\n| render timechart",
-        "size": 1,
-        "aggregation": 5,
-        "showAnalytics": true,
-        "title": "Top contributing subscriptions over time",
-        "timeContextFromParameter": "CostTimeRange",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| extend ResourceId = tolower(ResourceId)\r\n| where {SelectedPerspective} =~ '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by ResourceId, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by ResourceId\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| extend ResourceId = tolower(ResourceId)\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and ResourceId in~ (ContributingInstances)\r\n| where {SelectedPerspective} =~ '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), tostring(split(ResourceId,'/')[-1])\r\n| render timechart",
+          "size": 1,
+          "aggregation": 5,
+          "showAnalytics": true,
+          "title": "Top contributing instances over time",
+          "timeContextFromParameter": "CostTimeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "instanceDetails"
       },
-      "customWidth": "50",
-      "name": "subscriptionDetails"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| extend ResourceGroup = tolower(ResourceGroup)\r\n| summarize InstanceCost = sum(FinalCost) by ResourceGroup, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by ResourceGroup\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project ResourceGroup;\r\nAzureOptimizationConsumptionV1_CL\r\n| extend ResourceGroup = tolower(ResourceGroup)\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and ResourceGroup in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), ResourceGroup\r\n| render timechart",
-        "size": 1,
-        "aggregation": 5,
-        "showAnalytics": true,
-        "title": "Top contributing resource groups over time",
-        "timeContextFromParameter": "CostTimeRange",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterCategory_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterCategory_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project MeterCategory_s;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), MeterCategory_s\r\n| render timechart",
+          "size": 1,
+          "aggregation": 5,
+          "showAnalytics": true,
+          "title": "Top contributing meter categories over time",
+          "timeContextFromParameter": "CostTimeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "meterCategoryDetails"
       },
-      "customWidth": "50",
-      "name": "resourceGroupDetails"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| extend ResourceId = tolower(ResourceId)\r\n| where {SelectedPerspective} =~ '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by ResourceId, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by ResourceId\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project ResourceId;\r\nAzureOptimizationConsumptionV1_CL\r\n| extend ResourceId = tolower(ResourceId)\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and ResourceId in~ (ContributingInstances)\r\n| where {SelectedPerspective} =~ '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), tostring(split(ResourceId,'/')[-1])\r\n| render timechart",
-        "size": 1,
-        "aggregation": 5,
-        "showAnalytics": true,
-        "title": "Top contributing instances over time",
-        "timeContextFromParameter": "CostTimeRange",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterSubCategory_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterSubCategory_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project MeterSubCategory_s;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and MeterSubCategory_s in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), MeterSubCategory_s\r\n| render timechart",
+          "size": 1,
+          "aggregation": 5,
+          "showAnalytics": true,
+          "title": "Top contributing meter subcategories over time",
+          "timeContextFromParameter": "CostTimeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "meterSubCategoryDetails"
       },
-      "customWidth": "50",
-      "name": "instanceDetails"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterCategory_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterCategory_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project MeterCategory_s;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), MeterCategory_s\r\n| render timechart",
-        "size": 1,
-        "aggregation": 5,
-        "showAnalytics": true,
-        "title": "Top contributing meter categories over time",
-        "timeContextFromParameter": "CostTimeRange",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
-      },
-      "customWidth": "50",
-      "name": "meterCategoryDetails"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterSubCategory_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterSubCategory_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project MeterSubCategory_s;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and MeterSubCategory_s in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), MeterSubCategory_s\r\n| render timechart",
-        "size": 1,
-        "aggregation": 5,
-        "showAnalytics": true,
-        "title": "Top contributing meter subcategories over time",
-        "timeContextFromParameter": "CostTimeRange",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
-      },
-      "customWidth": "50",
-      "name": "meterSubCategoryDetails"
-    },
-    {
-      "type": 3,
-      "content": {
-        "version": "KqlItem/1.0",
-        "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterName_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterName_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project MeterName_s;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and MeterName_s in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), MeterName_s\r\n| render timechart",
-        "size": 1,
-        "aggregation": 5,
-        "showAnalytics": true,
-        "title": "Top contributing meter names over time",
-        "timeContextFromParameter": "CostTimeRange",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
-      },
-      "customWidth": "50",
-      "name": "meterNameDetails"
-    }
-  ],
-  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
-}
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let CostStartIndex = 1;\r\nlet ContributingInstances = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage'\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by MeterName_s, Date_s\r\n| order by todatetime(Date_s) asc\r\n| make-series Cost=sum(InstanceCost) on todatetime(Date_s) step 1d by MeterName_s\r\n| extend StartCost = todouble(Cost[CostStartIndex]), EndCost = todouble(Cost[array_length(Cost)-1])\r\n| top {TopN} by iif({GrowthPercentage} >= 0, EndCost-StartCost, StartCost-EndCost)\r\n| project MeterName_s;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > datetime('{CostTimeRange:startISO}') and TimeGenerated < datetime('{CostTimeRange:endISO}') and ChargeType_s == 'Usage' and MeterName_s in (ContributingInstances)\r\n| where {SelectedPerspective} == '{SelectedPerspectiveId}'\r\n| extend FinalCost = todouble(CostInBillingCurrency_s)\r\n| summarize InstanceCost = sum(FinalCost) by bin(todatetime(Date_s), 1d), MeterName_s\r\n| render timechart",
+          "size": 1,
+          "aggregation": 5,
+          "showAnalytics": true,
+          "title": "Top contributing meter names over time",
+          "timeContextFromParameter": "CostTimeRange",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "customWidth": "50",
+        "name": "meterNameDetails"
+      }
+    ],
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }

@@ -9,7 +9,8 @@
     The Remove-FinOpsCostExport command deletes a Cost Management export and optionally deletes all data associated with the export from the related storage account.
 
     This command has been tested with the following API versions:
-    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2025-03-01 (default) – GA version for FocusCost and other datasets.
+    - 2023-07-01-preview
     - 2023-08-01
     - 2023-03-01
 
@@ -23,7 +24,7 @@
     Optional. Indicates that all cost data associated with the Export scope should be deleted.
 
     .PARAMETER APIVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2025-03-01.
 
     .EXAMPLE
     Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
@@ -33,6 +34,7 @@
 
 function Remove-FinOpsCostExport
 {
+    [OutputType([bool])]
     [CmdletBinding(SupportsShouldProcess)]
     param
     (
@@ -50,7 +52,7 @@ function Remove-FinOpsCostExport
 
         [Parameter()]
         [string]
-        $ApiVersion = '2023-07-01-preview'
+        $ApiVersion = '2025-03-01'
     )
 
     $context = Get-AzContext
@@ -92,7 +94,7 @@ function Remove-FinOpsCostExport
             Write-Warning ($script:localizedData.CostExport_Common_NotFoundFormat -f $Name, $Scope)
             return $true
         }
-        
+
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteExport'))
         {
             $response = Invoke-Rest -Method "DELETE" -Uri "$($export.Id)?api-version=$ApiVersion" -CommandName "Remove-FinOpsCostExport"

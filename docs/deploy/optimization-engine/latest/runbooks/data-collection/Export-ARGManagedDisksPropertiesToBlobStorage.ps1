@@ -35,7 +35,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -61,12 +61,12 @@ $ARGPageSize = 1000
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -74,7 +74,7 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -88,9 +88,9 @@ $cloudSuffix = ""
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
     $cloudSuffix = $externalCloudEnvironment.ToLower() + "-"
-    $cloudEnvironment = $externalCloudEnvironment   
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 $tenantId = (Get-AzContext).Tenant.Id
@@ -119,25 +119,25 @@ $resultsSoFar = 0
 Write-Output "Querying for ARM Managed Disks properties"
 
 $argQuery = @"
-    resources 
-    | where type =~ 'Microsoft.Compute/disks' 
-    | extend DiskId = tolower(id), OwnerVmId = tolower(managedBy) 
+    resources
+    | where type =~ 'Microsoft.Compute/disks'
+    | extend DiskId = tolower(id), OwnerVmId = tolower(managedBy)
     | join kind=leftouter (
-        resources 
-        | where type =~ 'Microsoft.Compute/virtualMachines' and array_length(properties.storageProfile.dataDisks) > 0 
-        | extend OwnerVmId = tolower(id) 
-        | mv-expand DataDisks = properties.storageProfile.dataDisks 
-        | extend DiskId = tolower(DataDisks.managedDisk.id), diskCaching = tostring(DataDisks.caching), diskType = 'Data' 
-        | project DiskId, OwnerVmId, diskCaching, diskType 
+        resources
+        | where type =~ 'Microsoft.Compute/virtualMachines' and array_length(properties.storageProfile.dataDisks) > 0
+        | extend OwnerVmId = tolower(id)
+        | mv-expand DataDisks = properties.storageProfile.dataDisks
+        | extend DiskId = tolower(DataDisks.managedDisk.id), diskCaching = tostring(DataDisks.caching), diskType = 'Data'
+        | project DiskId, OwnerVmId, diskCaching, diskType
         | union (
-            resources 
-            | where type =~ 'Microsoft.Compute/virtualMachines' 
-            | extend OwnerVmId = tolower(id) 
-            | extend DiskId = tolower(properties.storageProfile.osDisk.managedDisk.id), diskCaching = tostring(properties.storageProfile.osDisk.caching), diskType = 'OS' 
+            resources
+            | where type =~ 'Microsoft.Compute/virtualMachines'
+            | extend OwnerVmId = tolower(id)
+            | extend DiskId = tolower(properties.storageProfile.osDisk.managedDisk.id), diskCaching = tostring(properties.storageProfile.osDisk.caching), diskType = 'OS'
             | project DiskId, OwnerVmId, diskCaching, diskType
         )
-    ) on OwnerVmId, DiskId 
-    | project-away OwnerVmId, DiskId, OwnerVmId1, DiskId1 
+    ) on OwnerVmId, DiskId
+    | project-away OwnerVmId, DiskId, OwnerVmId1, DiskId1
     | order by id asc
 "@
 
@@ -164,7 +164,7 @@ do
 Write-Output "Found $($mdisksTotal.Count) Managed Disk entries"
 
 <#
-    Building CSV entries 
+    Building CSV entries
 #>
 
 $datetime = (get-date).ToUniversalTime()
@@ -191,20 +191,20 @@ foreach ($disk in $mdisksTotal)
         OwnerVMId = $ownerVmId
         DeploymentModel = "Managed"
         DiskType = $disk.diskType
-        TimeCreated = $disk.properties.timeCreated 
-        DiskIOPS = $disk.properties.diskIOPSReadWrite 
+        TimeCreated = $disk.properties.timeCreated
+        DiskIOPS = $disk.properties.diskIOPSReadWrite
         DiskThroughput = $disk.properties.diskMBpsReadWrite
         DiskTier = $disk.properties.tier
         DiskState = $disk.properties.diskState
         EncryptionType = $disk.properties.encryption.type
         Zones = $disk.zones
-        Caching = $disk.diskCaching 
+        Caching = $disk.diskCaching
         DiskSizeGB = $disk.properties.diskSizeGB
         SKU = $disk.sku.name
         StatusDate = $statusDate
         Tags = $disk.tags
     }
-    
+
     $alldisks += $logentry
 }
 
@@ -229,4 +229,4 @@ Write-Output "[$now] Uploaded $csvBlobName to Blob Storage..."
 Remove-Item -Path $csvExportPath -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Removed $csvExportPath from local disk..."    
+Write-Output "[$now] Removed $csvExportPath from local disk..."

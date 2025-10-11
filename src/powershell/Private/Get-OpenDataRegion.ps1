@@ -16,6 +16,7 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'ap southeast'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }
         ,[PSCustomObject]@{ OriginalValue = 'apeast'; RegionId = 'eastasia'; RegionName = 'East Asia'; }
         ,[PSCustomObject]@{ OriginalValue = 'apsoutheast'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }
+        ,[PSCustomObject]@{ OriginalValue = 'ase'; RegionId = 'eastasia'; RegionName = 'East Asia'; }
         ,[PSCustomObject]@{ OriginalValue = 'asiaeast'; RegionId = 'eastasia'; RegionName = 'East Asia'; }
         ,[PSCustomObject]@{ OriginalValue = 'asiapacific'; RegionId = 'asiapacific'; RegionName = 'Asia Pacific'; }
         ,[PSCustomObject]@{ OriginalValue = 'asiasoutheast'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }
@@ -27,6 +28,7 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'au southeast'; RegionId = 'australiasoutheast'; RegionName = 'Australia Southeast'; }
         ,[PSCustomObject]@{ OriginalValue = 'aucentral'; RegionId = 'australiacentral'; RegionName = 'Australia Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'aucentral2'; RegionId = 'australiacentral2'; RegionName = 'Australia Central 2'; }
+        ,[PSCustomObject]@{ OriginalValue = 'aue'; RegionId = 'australiaeast'; RegionName = 'Australia East'; }
         ,[PSCustomObject]@{ OriginalValue = 'aueast'; RegionId = 'australiaeast'; RegionName = 'Australia East'; }
         ,[PSCustomObject]@{ OriginalValue = 'auh'; RegionId = 'uaecentral'; RegionName = 'UAE Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'ausoutheast'; RegionId = 'australiasoutheast'; RegionName = 'Australia Southeast'; }
@@ -81,7 +83,7 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'cc'; RegionId = 'canadacentral'; RegionName = 'Canada Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'central india'; RegionId = 'centralindia'; RegionName = 'Central India'; }
         ,[PSCustomObject]@{ OriginalValue = 'central us'; RegionId = 'centralus'; RegionName = 'Central US'; }
-        ,[PSCustomObject]@{ OriginalValue = 'centralcanada'; RegionId = 'canadacentral'; RegionName = 'Central Canada'; }
+        ,[PSCustomObject]@{ OriginalValue = 'centralcanada'; RegionId = 'canadacentral'; RegionName = 'Canada Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'centralindia'; RegionId = 'centralindia'; RegionName = 'Central India'; }
         ,[PSCustomObject]@{ OriginalValue = 'centralus'; RegionId = 'centralus'; RegionName = 'Central US'; }
         ,[PSCustomObject]@{ OriginalValue = 'centraluseuap'; RegionId = 'centraluseuap'; RegionName = 'Central US EUAP'; }
@@ -358,10 +360,12 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'southafricaw'; RegionId = 'southafricawest'; RegionName = 'South Africa West'; }
         ,[PSCustomObject]@{ OriginalValue = 'southafricawest'; RegionId = 'southafricawest'; RegionName = 'South Africa West'; }
         ,[PSCustomObject]@{ OriginalValue = 'southcentralus'; RegionId = 'southcentralus'; RegionName = 'South Central US'; }
+        ,[PSCustomObject]@{ OriginalValue = 'southcentralus2'; RegionId = 'southcentralus2'; RegionName = 'South Central US 2'; }
         ,[PSCustomObject]@{ OriginalValue = 'southcentralusstg'; RegionId = 'southcentralusstg'; RegionName = 'South Central US STG'; }
         ,[PSCustomObject]@{ OriginalValue = 'southeast asia'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }
         ,[PSCustomObject]@{ OriginalValue = 'southeast_asia'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }
         ,[PSCustomObject]@{ OriginalValue = 'southeastasia'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }
+        ,[PSCustomObject]@{ OriginalValue = 'southeastus'; RegionId = 'southeastus'; RegionName = 'Southeast US'; }
         ,[PSCustomObject]@{ OriginalValue = 'southindia'; RegionId = 'southindia'; RegionName = 'South India'; }
         ,[PSCustomObject]@{ OriginalValue = 'southsoutheastasia'; RegionId = 'southeastasia'; RegionName = 'Southeast Asia'; }
         ,[PSCustomObject]@{ OriginalValue = 'spainc'; RegionId = 'spaincentral'; RegionName = 'Spain Central'; }
@@ -380,6 +384,7 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'sydney'; RegionId = 'australiaeast'; RegionName = 'Australia East'; }
         ,[PSCustomObject]@{ OriginalValue = 'taiwann'; RegionId = 'taiwannorth'; RegionName = 'Taiwan North'; }
         ,[PSCustomObject]@{ OriginalValue = 'taiwannorth'; RegionId = 'taiwannorth'; RegionName = 'Taiwan North'; }
+        ,[PSCustomObject]@{ OriginalValue = 'taiwannorthwest'; RegionId = 'taiwannorthwest'; RegionName = 'Taiwan Northwest'; }
         ,[PSCustomObject]@{ OriginalValue = 'tokyo'; RegionId = 'japaneast'; RegionName = 'Japan East'; }
         ,[PSCustomObject]@{ OriginalValue = 'toronto'; RegionId = 'canadacentral'; RegionName = 'Canada Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'tw north'; RegionId = 'taiwannorth'; RegionName = 'Taiwan North'; }
@@ -460,6 +465,7 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'ussecwc'; RegionId = 'ussecwestcentral'; RegionName = 'USSec West Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'ussecwest'; RegionId = 'ussecwest'; RegionName = 'USSec West'; }
         ,[PSCustomObject]@{ OriginalValue = 'ussecwestcentral'; RegionId = 'ussecwestcentral'; RegionName = 'USSec West Central'; }
+        ,[PSCustomObject]@{ OriginalValue = 'ussgovarizona'; RegionId = 'usgovarizona'; RegionName = 'USGov Arizona'; }
         ,[PSCustomObject]@{ OriginalValue = 'ussouth'; RegionId = 'southcentralus'; RegionName = 'South Central US'; }
         ,[PSCustomObject]@{ OriginalValue = 'ussouthcentral'; RegionId = 'southcentralus'; RegionName = 'South Central US'; }
         ,[PSCustomObject]@{ OriginalValue = 'usstagesc'; RegionId = 'southcentralusstg'; RegionName = 'South Central US STG'; }

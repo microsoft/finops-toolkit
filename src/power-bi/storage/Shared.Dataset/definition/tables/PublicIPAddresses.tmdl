@@ -1,0 +1,116 @@
+table PublicIPAddresses
+	lineageTag: 5c35f59e-97dc-424c-b1ae-0526c2c708ed
+
+	column id
+		dataType: string
+		lineageTag: 25bf5fbf-8f5e-4b15-a187-625c6a612325
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 6004d8c7-c14e-4645-959a-be60b835cff9
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.provisioningState'
+		dataType: string
+		lineageTag: 552b63bf-51c6-487b-94ba-9811897d6668
+		summarizeBy: none
+		sourceColumn: properties.provisioningState
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceGuid'
+		dataType: string
+		lineageTag: 9792e908-997a-4ef1-a288-cca086f0a720
+		summarizeBy: none
+		sourceColumn: properties.resourceGuid
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.idleTimeoutInMinutes'
+		dataType: string
+		lineageTag: 71fa242f-feef-4749-871e-212257842c7c
+		summarizeBy: none
+		sourceColumn: properties.idleTimeoutInMinutes
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.publicIPAllocationMethod'
+		dataType: string
+		lineageTag: 6691799d-57f0-4949-b0cb-a3d392b056c0
+		summarizeBy: none
+		sourceColumn: properties.publicIPAllocationMethod
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.publicIPAddressVersion'
+		dataType: string
+		lineageTag: a2509f77-55b5-4da7-bc2b-673da4224c5c
+		summarizeBy: none
+		sourceColumn: properties.publicIPAddressVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipAddress'
+		dataType: string
+		lineageTag: c4667d70-08f9-4d7c-8401-1bb9674cdc65
+		summarizeBy: none
+		sourceColumn: properties.ipAddress
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfiguration'
+		dataType: string
+		lineageTag: 996ada29-00db-4da9-8c3a-f132a9942293
+		summarizeBy: none
+		sourceColumn: properties.ipConfiguration
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipTags'
+		dataType: string
+		lineageTag: c6048a40-80ce-40bf-85c2-5020bd678dee
+		summarizeBy: none
+		sourceColumn: properties.ipTags
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PublicIPAddresses = m
+		mode: import
+		queryGroup: 'Resource Graph'
+		source =
+				let
+				  query = "
+				    Resources
+				    | where type =~ 'microsoft.network/publicipaddresses'
+				    | extend
+				      ['properties.provisioningState'] = properties.provisioningState,
+				      ['properties.resourceGuid'] = properties.resourceGuid,
+				      ['properties.idleTimeoutInMinutes'] = properties.idleTimeoutInMinutes,
+				      ['properties.publicIPAllocationMethod'] = properties.publicIPAllocationMethod,
+				      ['properties.publicIPAddressVersion'] = properties.publicIPAddressVersion,
+				      ['properties.ipAddress'] = properties.ipAddress,
+				      ['properties.ipConfiguration'] = properties.ipConfiguration,
+				      ['properties.ipTags'] = properties.ipTags
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.provisioningState", "properties.resourceGuid", "properties.idleTimeoutInMinutes", "properties.publicIPAllocationMethod", "properties.publicIPAddressVersion", "properties.ipAddress", "properties.ipConfiguration", "properties.ipTags" },
+								{}
+							)
+				    else Source
+				in
+				  NullHandling
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

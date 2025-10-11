@@ -44,7 +44,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -70,12 +70,12 @@ $ARGPageSize = 1000
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -83,7 +83,7 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -97,9 +97,9 @@ $cloudSuffix = ""
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
     $cloudSuffix = $externalCloudEnvironment.ToLower() + "-"
-    $cloudEnvironment = $externalCloudEnvironment   
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 $tenantId = (Get-AzContext).Tenant.Id
@@ -339,7 +339,7 @@ if ($PolicyStatesEndpoint -eq "ARG")
         | extend initiativeId = tolower(properties.policySetDefinitionId)
         | summarize StatesCount = count() by tenantId, subscriptionId, complianceState, effect, assignmentId, definitionReferenceId, definitionId, initiativeId
     )
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         resources
         | project resourceId=tolower(id), tags
     ) on resourceId
@@ -396,7 +396,7 @@ else
                 evaluatedOn = $policyState.Timestamp
                 StatesCount = 1
             }
-            $policyStatesTotal += $policyStateObject    
+            $policyStatesTotal += $policyStateObject
         }
 
         $compliantStates = $policyStates | Where-Object { $_.ComplianceState -eq "Compliant" } `
@@ -415,7 +415,7 @@ else
             {
                 $initiativeId = $compliantStateProps[4].Trim().ToLower()
             }
-            
+
             $policyStateObject = New-Object PSObject -Property @{
                 tenantId = $tenantId
                 subscriptionId = $sub
@@ -427,9 +427,9 @@ else
                 initiativeId = $initiativeId
                 StatesCount = $policyState.Count
             }
-            $policyStatesTotal += $policyStateObject    
+            $policyStatesTotal += $policyStateObject
         }
-    }        
+    }
 
     Write-Output "Building $($policyStatesTotal.Count) policyState entries"
 }
@@ -478,7 +478,7 @@ foreach ($policyState in $policyStatesTotal)
         Tags = $tags
         StatusDate = $statusDate
     }
-    
+
     $allpolicyStates += $logentry
 }
 
@@ -493,7 +493,7 @@ if ($PolicyStatesEndpoint -eq "ARG")
     | mv-expand notScope = properties.notScopes
     | extend policyAssignmentId = tolower(id)
     | extend assignmentPolicyDefinitionId = tolower(properties.policyDefinitionId)
-    | join kind=leftouter ( 
+    | join kind=leftouter (
         policyresources
         | where type =~ 'microsoft.authorization/policysetdefinitions'
         | mv-expand policyDefinition = properties.policyDefinitions
@@ -556,12 +556,12 @@ if ($PolicyStatesEndpoint -eq "ARG")
             DefinitionName = $policyDefinitions[$definitionId]
             DefinitionReferenceId = $definitionReferenceId
             StatusDate = $statusDate
-        }        
+        }
 
         $allpolicyStates += $logentry
     }
 }
-else 
+else
 {
     Write-Output "Adding excluded scopes from $($excludedAssignmentScopes.Count) assignments"
 
@@ -616,7 +616,7 @@ else
                     DefinitionName = $policyDefinitions[$definitionId]
                     DefinitionReferenceId = $definitionReferenceId
                     StatusDate = $statusDate
-                }        
+                }
 
                 $allpolicyStates += $logentry
             }
@@ -641,4 +641,4 @@ Write-Output "Uploaded $csvBlobName to Blob Storage..."
 
 Remove-Item -Path $csvExportPath -Force
 
-Write-Output "Removed $csvExportPath from local disk..."    
+Write-Output "Removed $csvExportPath from local disk..."

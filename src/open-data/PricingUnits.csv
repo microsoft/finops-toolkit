@@ -39,7 +39,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 GB","MCA, EA",1,GB
 "1 GB Hour","MCA, EA",1,GB Hours
 "1 GB Second","MCA, EA",1,GB Seconds
-"1 GB/Day",MCA,1,GB/Day
+"1 GB/Day","MCA, EA",1,GB/Day
 "1 GB/Hour","MCA, EA",1,GB/Hour
 "1 GB/Month","MCA, EA",1,GB/Month
 "1 GB/hora",MCA,1,GB/Hour
@@ -57,7 +57,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 Hourly Unit",EA,1,Units/Hour
 "1 Hourly Units",EA,1,Units/Hour
 "1 Hours",EA,1,Hours
-"1 IOPS/Month",MCA,1,IOPS/Month
+"1 IOPS/Month","MCA, EA",1,IOPS/Month
 "1 Key",EA,1,Keys
 "1 Key Use",EA,1,Keys
 "1 MB","MCA, EA",1,MB
@@ -79,8 +79,8 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 Plans",EA,1,Plans
 "1 Policies",EA,1,Policies
 "1 Resource",EA,1,Resources
-"1 Rotation",MCA,1,Rotation
-"1 Second",MCA,1,Seconds
+"1 Rotation","MCA, EA",1,Rotation
+"1 Second","MCA, EA",1,Seconds
 "1 Sites",EA,1,Sites
 "1 Subscription",EA,1,Subscriptions
 "1 Subscriptions",EA,1,Subscriptions
@@ -148,6 +148,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10 PiB/Hour",EA,10,PiB/Hour
 "10 Pipelines",EA,10,Pipelines
 "10 Rotations",EA,10,Rotations
+"10 Seconds",EA,10,Seconds
 "10 Service Endpoints",EA,10,Endpoints
 "10 TB",EA,10,TB
 "10 TB Hours",EA,10,TB Hours
@@ -190,7 +191,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "100 Mbps",EA,100,Mbps
 "100 Minutes",EA,100,Minutes
 "100 Months",EA,100,Months
-"100 Seconds",MCA,100,Seconds
+"100 Seconds","MCA, EA",100,Seconds
 "100 TB",EA,100,TB
 "100 TB/Hour",EA,100,TB/Hour
 "100 TB/Month",EA,100,TB/Month
@@ -226,6 +227,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1000 Relay Hours",EA,1000,Hours
 "1000 Relay Hrs",EA,1000,Hours
 "1000 Renders",EA,1000,Renders
+"1000 TB",EA,1000,TB
 "1000 Transactions",EA,1000,Transactions
 "10000",EA,10000,Units
 "10000 ",EA,10000,Units
@@ -287,6 +289,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10000000 Transactions",EA,10000000,Transactions
 "100000000",EA,100000000,Units
 "100000000 ",EA,100000000,Units
+"100000000 /Day",EA,100000000,Units/Day
 "100000000 /Month",EA,100000000,Units/Month
 "100000000 Events",EA,100000000,Events
 "100000000 Operation Units",EA,100000000,Units
@@ -307,11 +310,12 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10K Transactions",MCA,10000,Transactions
 "10K/Hour",MCA,10000,Units/Hour
 "10K/Month","MCA, EA",10000,Units/Month
-"10M",MCA,10000000,Units
+"10M","MCA, EA",10000000,Units
 "128 MB","MCA, EA",128,MB
 "150 Hours",EA,150,Hours
 "1B",MCA,1000000000,Units
 "1K","MCA, EA",1000,Units
+"1K/Day",MCA,1000,Units/Day
 "1K/Hour",MCA,1000,Units/Hour
 "1K/Month",MCA,1000,Units/Month
 "1M","MCA, EA",1000000,Units
@@ -372,7 +376,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "Minute(s)","MCA, EA",1,Minutes
 "Per Call","MCA, EA",1,Calls
 "Per Request",MCA,1,Requests
-"Text",MCA,1,Messages
+"Text","MCA, EA",1,Messages
 "Unassigned",EA,1,Units
 "Unit",MCA,1,Units
 "Units",MCA,1,Units

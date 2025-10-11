@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Install and cache PowerShell modules
-        uses: potatoqualitee/psmodulecache@v5.2
+        uses: potatoqualitee/psmodulecache@v6.2.1
         with:
           modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
           shell: pwsh

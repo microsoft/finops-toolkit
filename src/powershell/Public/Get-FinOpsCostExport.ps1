@@ -9,7 +9,8 @@
     The Get-FinOpsCostExport command gets a list of Cost Management exports for a given scope.
 
     This command has been tested with the following API versions:
-    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2025-03-01 (default) – GA version for FocusCost and other datasets.
+    - 2023-07-01-preview
     - 2023-08-01
 
     .PARAMETER Name
@@ -34,7 +35,7 @@
     Optional. Indicates whether the run history should be expanded. Default = false.
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.
+    Optional. API version to use when calling the Cost Management exports API. Default = 2025-03-01.
 
     .EXAMPLE
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
@@ -62,7 +63,7 @@
     Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2023-07-01-preview"
+    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2025-03-01"
 
     Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
 
@@ -83,7 +84,7 @@ function Get-FinOpsCostExport
         $Scope,
 
         [Parameter()]
-        [ValidateSet("ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations")]
+        [ValidateSet("ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions")]
         [string]
         $Dataset,
 
@@ -106,7 +107,7 @@ function Get-FinOpsCostExport
 
         [Parameter()]
         [string]
-        $ApiVersion = '2023-07-01-preview'
+        $ApiVersion = '2025-03-01'
     )
 
     $context = Get-AzContext
@@ -174,12 +175,12 @@ function Get-FinOpsCostExport
                 eTag                = $_.eTag
                 Description         = $_.properties.exportDescription
                 Dataset             = $_.properties.definition.type
-                DatasetVersion      = $_.properties.definition.configuration.dataVersion
-                DatasetFilters      = $_.properties.definition.configuration.filter
+                DatasetVersion      = $_.properties.definition.dataSet.configuration.dataVersion
+                DatasetFilters      = $_.properties.definition.dataSet.configuration.filter
                 DatasetTimeFrame    = $_.properties.definition.timeframe
                 DatasetStartDate    = $_.properties.definition.timePeriod.from
                 DatasetEndDate      = $_.properties.definition.timePeriod.to
-                DatasetGranularity  = $_.properties.definition.dataset.granularity
+                DatasetGranularity  = $_.properties.definition.dataSet.granularity
                 ScheduleStatus      = $_.properties.schedule.status
                 ScheduleRecurrence  = $_.properties.schedule.recurrence
                 ScheduleStartDate   = $_.properties.schedule.recurrencePeriod.from
@@ -188,20 +189,25 @@ function Get-FinOpsCostExport
                 Format              = $_.properties.format
                 StorageAccountId    = $_.properties.deliveryInfo.destination.resourceId
                 StorageContainer    = $_.properties.deliveryInfo.destination.container
-                StoragePath         = $_.properties.deliveryInfo.destination.rootfolderpath
-                OverwriteData       = $_.properties.deliveryInfo.dataOverwriteBehavior -eq "OverwritePreviousReport"
-                PartitionData       = $_.properties.deliveryInfo.partitionData
-                CompressionMode     = $_.properties.deliveryInfo.compressionMode
+                StoragePath         = $_.properties.deliveryInfo.destination.rootFolderPath
+                OverwriteData       = $_.properties.dataOverwriteBehavior -eq "OverwritePreviousReport"
+                PartitionData       = $_.properties.partitionData
+                CompressionMode     = $_.properties.compressionMode
                 RunHistory          = $_.properties.runHistory.value | Where-Object { $_ -ne $null } | ForEach-Object {
                     [PSCustomObject]@{
-                        Id            = $_.id
-                        ExecutionType = $_.properties.executionType
-                        FileName      = $_.fileName
-                        StartTime     = $_.processingStartTime
-                        EndTime       = $_.processingEndTime
-                        Status        = $_.status
-                        SubmittedBy   = $_.submittedBy
-                        SubmittedTime = $_.submittedTime
+                        ResourceId     = $_.id
+                        RunId          = $_.name
+                        ExecutionType  = $_.properties.executionType
+                        Status         = $_.properties.status
+                        SubmittedBy    = $_.properties.submittedBy
+                        SubmittedTime  = $_.properties.submittedTime
+                        RunStartTime   = $_.properties.processingStartTime
+                        RunEndTime     = $_.properties.processingEndTime
+                        FileName       = $_.properties.fileName
+                        QueryStartDate = $_.properties.startDate
+                        QueryEndDate   = $_.properties.endDate
+                        ErrorCode      = $_.properties.error.code
+                        ErrorMessage   = $_.properties.error.message
                     }
                 }
             }

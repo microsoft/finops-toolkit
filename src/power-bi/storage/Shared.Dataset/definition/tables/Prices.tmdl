@@ -1,0 +1,443 @@
+/// Cost and usage (FOCUS) data from Cost Management exports.
+/// 
+/// Data version = 1.0-preview(v1)
+/// Learn more @ https://aka.ms/finops/hubs
+table Prices
+	lineageTag: 71332c0b-dcb0-4c8a-86a9-b64ea64f0f8f
+
+	column BillingAccountId
+		dataType: string
+		lineageTag: ecb70dce-0ceb-4e90-bd2a-5b68dd2fc857
+		summarizeBy: none
+		sourceColumn: BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingCurrency
+		dataType: string
+		lineageTag: 83a303a4-023f-41c9-8f55-8ab5fc8bac44
+		summarizeBy: none
+		sourceColumn: BillingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChargeCategory
+		dataType: string
+		lineageTag: 4986b709-0a7c-4130-b81b-ac9c8f6e5392
+		summarizeBy: none
+		sourceColumn: ChargeCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountCategory
+		dataType: string
+		lineageTag: dea2c3e5-f256-4a3a-b030-f017401329b3
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column CommitmentDiscountType
+		dataType: string
+		lineageTag: 13a96fa8-e307-412a-9888-5eefd6fb7e83
+		summarizeBy: none
+		sourceColumn: CommitmentDiscountType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ContractedUnitPrice
+		dataType: double
+		lineageTag: da363fd3-17f6-4706-b77b-5c63d21e54e8
+		summarizeBy: sum
+		sourceColumn: ContractedUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ListUnitPrice
+		dataType: double
+		lineageTag: f05a61e8-3ca2-4269-aedf-63f786926e17
+		summarizeBy: sum
+		sourceColumn: ListUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SkuId
+		dataType: string
+		lineageTag: c956219e-3527-4d83-aa6f-29f4956428f9
+		summarizeBy: none
+		sourceColumn: SkuId
+
+		annotation SummarizationSetBy = Automatic
+
+	column SkuPriceId
+		dataType: string
+		lineageTag: 5012916a-d280-4d90-bb14-61919f4d4a3d
+		summarizeBy: none
+		sourceColumn: SkuPriceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BaseUnitPrice
+		dataType: double
+		lineageTag: 196be5f1-cd04-4b36-b818-d5dfcc5c1bbf
+		summarizeBy: sum
+		sourceColumn: x_BaseUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_BillingAccountId
+		dataType: string
+		lineageTag: af5785c9-36bb-4b8d-8d24-12c927dae4ed
+		summarizeBy: none
+		sourceColumn: x_BillingAccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingProfileId
+		dataType: string
+		lineageTag: 965223cb-6b8d-4dcd-a97e-9b4ff00427d8
+		summarizeBy: none
+		sourceColumn: x_BillingProfileId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_IncrementalRefreshDate
+		dataType: string
+		lineageTag: 55e08448-a8ac-4f16-98f3-915f443d4117
+		summarizeBy: none
+		sourceColumn: x_IncrementalRefreshDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingCurrency
+		dataType: string
+		lineageTag: d10e5626-f1e1-4e90-9533-63508719ddc1
+		summarizeBy: none
+		sourceColumn: x_PricingCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingUnitDescription
+		dataType: string
+		lineageTag: 7001a093-154b-424a-bcaf-25293046ce96
+		summarizeBy: none
+		sourceColumn: x_PricingUnitDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuDescription
+		dataType: string
+		lineageTag: e7bab184-be37-45f3-8fc8-012ac641b0d1
+		summarizeBy: none
+		sourceColumn: x_SkuDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterCategory
+		dataType: string
+		lineageTag: f5b36d30-35b5-4038-8786-ef32ea2659fe
+		summarizeBy: none
+		sourceColumn: x_SkuMeterCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterId
+		dataType: string
+		lineageTag: b94161f4-b3d2-49ec-a111-549f0c892e01
+		summarizeBy: none
+		sourceColumn: x_SkuMeterId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterName
+		dataType: string
+		lineageTag: 1c9d3fcd-5772-4899-969e-605851024eca
+		summarizeBy: none
+		sourceColumn: x_SkuMeterName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterSubcategory
+		dataType: string
+		lineageTag: 34e0bd95-f87c-44cf-b603-dd272af04c87
+		summarizeBy: none
+		sourceColumn: x_SkuMeterSubcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuMeterType
+		dataType: string
+		lineageTag: 3779f658-fa5b-44a1-8f78-b6d5ea830b63
+		summarizeBy: none
+		sourceColumn: x_SkuMeterType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuPriceType
+		dataType: string
+		lineageTag: 6439667d-414a-495c-8627-31d2e68f1820
+		summarizeBy: none
+		sourceColumn: x_SkuPriceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuProductId
+		dataType: string
+		lineageTag: 396cdde9-139b-49be-9478-7d7067804d47
+		summarizeBy: none
+		sourceColumn: x_SkuProductId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuRegion
+		dataType: string
+		lineageTag: 55cef02e-f4fc-40d2-b0f0-a1cefa2a21f7
+		summarizeBy: none
+		sourceColumn: x_SkuRegion
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuServiceFamily
+		dataType: string
+		lineageTag: e8fd04fd-9f6f-45ea-8fcd-7e09a73f7439
+		summarizeBy: none
+		sourceColumn: x_SkuServiceFamily
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTerm
+		dataType: double
+		lineageTag: 5efcaf40-5166-448e-8dc6-bf0d5c952a69
+		summarizeBy: sum
+		sourceColumn: x_SkuTerm
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_SkuIncludedQuantity
+		dataType: double
+		lineageTag: dd01c686-b624-4782-9a05-7c57a6817f1c
+		summarizeBy: sum
+		sourceColumn: x_SkuIncludedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column x_SkuOfferId
+		dataType: string
+		lineageTag: 3795c164-2f31-4eab-b6bf-4a51868814dc
+		summarizeBy: none
+		sourceColumn: x_SkuOfferId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuPartNumber
+		dataType: string
+		lineageTag: bffe87e9-8706-423e-909c-514a76d545c4
+		summarizeBy: none
+		sourceColumn: x_SkuPartNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_EffectivePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 5376743d-614c-455a-8ef0-d48a35c0b536
+		summarizeBy: none
+		sourceColumn: x_EffectivePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_EffectivePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 866f03fb-5b29-406a-828b-8af3dc012311
+		summarizeBy: none
+		sourceColumn: x_EffectivePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuId
+		dataType: string
+		lineageTag: 091ca856-451e-4b7e-a2c1-6a779530c80d
+		summarizeBy: none
+		sourceColumn: x_SkuId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountAgreement
+		dataType: string
+		lineageTag: 4368fe70-6efa-49a8-9df7-abb859926de7
+		summarizeBy: none
+		sourceColumn: x_BillingAccountAgreement
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceType
+		dataType: string
+		lineageTag: 8acc7e19-fe28-4508-8cc3-166317d442c7
+		summarizeBy: none
+		sourceColumn: x_SourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceVersion
+		dataType: string
+		lineageTag: c9aed3be-165a-479e-b6cc-e4a4f873bca8
+		summarizeBy: none
+		sourceColumn: x_SourceVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column PricingUnit
+		dataType: string
+		lineageTag: 03ff6fbe-f948-495f-bbd0-3e924c21ad77
+		summarizeBy: none
+		sourceColumn: PricingUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_PricingBlockSize
+		dataType: double
+		lineageTag: e2b74b8c-4a93-4689-8118-f51321e5c671
+		summarizeBy: sum
+		sourceColumn: x_PricingBlockSize
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Prices = m
+		mode: import
+		queryGroup: Storage
+		source = ```
+				let
+				    // Get the data
+				    RawData = ftk_Storage("pricesheet"),
+				    HackToWorkAroundDateParsingBug = Table.Sort(RawData,{{"EffectiveStartDate", Order.Ascending}}),
+				
+				    FixTypes = Table.TransformColumnTypes(
+				        Table.ReplaceValue(HackToWorkAroundDateParsingBug, 
+				            // Fix inconsistent Microsoft term values
+				            each [Term], each if [Term] = "P1M" then 1 else if [Term] = "P1Y" then 12 else if [Term] = "P3Y" then 36 else if [Term] = "P5Y" then 60 else [Term], Replacer.ReplaceValue, {"Term"}),
+				        {
+				            // Date columns
+				            {"EffectiveEndDate",   type datetime},
+				            {"EffectiveStartDate", type datetime},
+				            // Cost/price columns
+				            {"BasePrice",          type number},
+				            {"MarketPrice",        type number},
+				            {"UnitPrice",          type number},
+				            {"Term",               type number},
+				            // Other
+				            {"UnitOfMeasure",      type text}
+				            // TODO: Should we set the type for EA-only fields? -- {"IncludedQuantity",   type number},
+				        }
+				    ),
+				
+				    HasEA = Table.HasColumns(FixTypes, "EnrollmentNumber"),
+				    HasMCA = Table.HasColumns(FixTypes, "BillingAccountId"),
+				    AlignColumns = 
+				        // If missing MCA columns, rename EA columns to match MCA column names (they're renamed later)
+				        if HasEA and HasMCA = false then (
+				            Table.AddColumn(Table.AddColumn(
+				                Table.RenameColumns(
+				                    Table.TransformColumnTypes(FixTypes, {{"IncludedQuantity",   type number}}),
+				                    {
+				                        {"EnrollmentNumber", "BillingAccountId"},
+				                        {"CurrencyCode",     "BillingCurrency"},
+				                        {"MeterID",          "MeterId"},
+				                        {"ProductID",        "ProductId"},
+				                        {"SkuID",            "SkuId"}
+				                    },
+				                    MissingField.Ignore
+				                ),
+				                "BillingProfileId", each [BillingAccountId]),
+				                "Currency",         each [BillingCurrency])
+				        )
+				        // If both EA and MCA, move EA values to MCA columns
+				        else if HasEA and HasMCA then (
+				            Table.RemoveColumns(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(FixTypes,
+				                null, each [EnrollmentNumber], Replacer.ReplaceValue, {"BillingAccountId"}),
+				                null, each [EnrollmentNumber], Replacer.ReplaceValue, {"BillingProfileId"}),
+				                null, each [CurrencyCode],     Replacer.ReplaceValue, {"BillingCurrency"}),
+				                null, each [CurrencyCode],     Replacer.ReplaceValue, {"Currency"}),
+				                null, each [MeterID],          Replacer.ReplaceValue, {"MeterId"}),
+				                null, each [ProductID],        Replacer.ReplaceValue, {"ProductId"}),
+				                null, each [SkuID],            Replacer.ReplaceValue, {"SkuId"}),
+				                {"EnrollmentNumber", "CurrencyCode", "MeterID", "ProductID", "SkuID"}
+				            )
+				        )
+				        else FixTypes,
+				
+				    SplitUnitOfMeasure = Table.ReplaceValue(Table.ReplaceValue(
+				        Table.ExpandTableColumn(
+				            Table.NestedJoin(AlignColumns, {"UnitOfMeasure"}, PricingUnits, {"UnitOfMeasure"}, "PricingUnits", JoinKind.LeftOuter),
+				            "PricingUnits",
+				            {"PricingBlockSize", "DistinctUnits"},
+				            {"x_PricingBlockSize", "PricingUnit"}
+				        ),
+				        null, 1, Replacer.ReplaceValue, {"x_PricingBlockSize"}),
+				        null, "Units", Replacer.ReplaceValue, {"PricingUnit"}),
+				
+				    Rename = Table.RenameColumns(SplitUnitOfMeasure,
+				        {
+				            {"BasePrice",          "x_BaseUnitPrice"},
+				            {"BillingAccountId",   "x_BillingAccountId"},
+				            {"BillingAccountName", "BillingAccountName"},
+				            {"BillingCurrency",    "BillingCurrency"},
+				            {"BillingProfileId",   "x_BillingProfileId"},
+				            {"BillingProfileName", "x_BillingProfileName"},
+				            {"Currency",           "x_PricingCurrency"},
+				            {"EffectiveEndDate",   "x_EffectivePeriodEnd"},
+				            {"EffectiveStartDate", "x_EffectivePeriodStart"},
+				            {"MarketPrice",        "ListUnitPrice"},
+				            {"MeterCategory",      "x_SkuMeterCategory"},
+				            {"MeterId",            "x_SkuMeterId"},
+				            {"MeterName",          "x_SkuMeterName"},
+				            {"MeterRegion",        "x_SkuRegion"},
+				            {"MeterSubCategory",   "x_SkuMeterSubcategory"},
+				            {"MeterType",          "x_SkuMeterType"},
+				            {"PriceType",          "x_SkuPriceType"},
+				            {"Product",            "x_SkuDescription"},
+				            {"ProductId",          "x_SkuProductId"},
+				            {"ServiceFamily",      "x_SkuServiceFamily"},
+				            {"SkuId",              "x_SkuId"},
+				            {"Term",               "x_SkuTerm"},
+				            {"TierMinimumUnits",   "x_SkuTierMinimum"},
+				            {"UnitOfMeasure",      "x_PricingUnitDescription"},
+				            {"UnitPrice",          "ContractedUnitPrice"},
+				            // EA only
+				            {"IncludedQuantity",   "x_SkuIncludedQuantity"},
+				            {"OfferID",            "x_SkuOfferId"},
+				            {"PartNumber",         "x_SkuPartNumber"}
+				        },
+				        MissingField.Ignore
+				    ),
+				
+				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
+				        "BillingAccountId",           each "/providers/Microsoft.Billing/billingAccounts/" & [x_BillingAccountId] & (if [x_BillingProfileId] = null or [x_BillingProfileId] = [x_BillingAccountId] then null else "/billingProfiles/" & [x_BillingProfileId])),
+				        "ChargeCategory",             each if [x_SkuPriceType] = "Consumption" then "Usage"       else if [x_SkuPriceType] = "SavingsPlan" or [x_SkuPriceType] = "Reservation" then "Purchase" else null),
+				        "CommitmentDiscountCategory", each if [x_SkuPriceType] = "Reservation" then "Usage"       else if [x_SkuPriceType] = "SavingsPlan" then "Spend" else null),
+				        "CommitmentDiscountType",     each if [x_SkuPriceType] = "Reservation" then "Reservation" else if [x_SkuPriceType] = "SavingsPlan" then "Savings Plan" else null),
+				        "SkuId",      each [x_SkuProductId]),
+				        "SkuPriceId", each [x_SkuProductId] & "_" & (if Table.HasColumns(Rename, {"x_SkuId"}) and [x_SkuId] <> null and [x_SkuId] <> "" then [x_SkuId] else "(MISSING-SKU-ID)") & "_" & [x_SkuMeterType]),
+				
+				    // Sort columns alphabetically
+				    Output = Table.ReorderColumns(Add, List.Sort(Table.ColumnNames(Add)))
+				in
+				    Output
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+

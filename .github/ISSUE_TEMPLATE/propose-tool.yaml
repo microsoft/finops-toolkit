@@ -1,0 +1,93 @@
+name: "📋 Propose New Tool"
+description: "Suggest a new tool to be included in the Toolkit."
+labels: 
+  - "Needs: Triage 🔍"
+  - "Type: New Tool ⚡"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thank You for Contributing!  
+        Thank you for taking the time to propose a new tool for the FinOps Toolkit. 🙌  
+        Please complete the following form to provide details about the tool you are suggesting.
+  - type: dropdown
+    id: submitter_type
+    attributes:
+      label: "Are you submitting your tool or someone else's?"
+      description: >
+        Select whether you are the owner of the tool or suggesting a tool developed by someone else.  
+        Note: If you are not the owner, most fields in this form may not apply to you.
+      multiple: false
+      options:
+        - "I'm submitting a tool that I own."
+        - "I'm submitting a suggestion for someone else's tool (please specify below)."
+      default: 0
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: "Tool ownership responsibilities (only applicable to tool owners)"
+      description: >
+        To ensure the supportability and maintenance of the tool, we require the person proposing the tool to acknowledge the following responsibilities.  
+        Please review the [responsibilities](https://github.com/microsoft/finops-toolkit/blob/dev/docs-wiki/Advisory-council.md) and check the box to proceed.
+      options:
+        - label: "I acknowledge the responsibilities of a technical lead and agree to serve in this role for the proposed tool upon its approval."
+
+  - type: input
+    id: tool_name
+    attributes:
+      label: "Tool name"
+      description: "Provide a clear, descriptive name for the tool."
+      placeholder: "Enter the tool's name"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Summarize the purpose and functionality of the tool."
+      placeholder: "Enter a short description"
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: "Use case"
+      description: "What problem does this tool solve? Who will benefit from it?"
+      placeholder: "Describe the use case"
+    validations:
+      required: true
+
+  - type: input
+    id: services_used
+    attributes:
+      label: "Services used"
+      description: "What Azure services are needed to deploy this tool?"
+      placeholder: "List required Azure services"
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: "Dependencies"
+      description: "List any dependencies, such as other tools, data sources, or teams."
+      placeholder: "Describe dependencies"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Progress tracking (To Be Completed by the onboarding lead)
+        **Status Updates:**  
+        The tech lead will update this section throughout the development process.
+
+        | Task                                 | Status   | Comments          |
+        |--------------------------------------|----------|-------------------|
+        | Discovery meeting completed          | [ ]      |                   |
+        | Feature branch created               | [ ]      |                   |
+        | Tasks outlined and assigned          | [ ]      |                   |
+        | Pull requests submitted              | [ ]      |                   |
+        | Tool reviewed and approved by tech lead | [ ]   |                   |
+        | Governing board review completed     | [ ]      |                   |
+        | Merged into dev                      | [ ]      |                   |

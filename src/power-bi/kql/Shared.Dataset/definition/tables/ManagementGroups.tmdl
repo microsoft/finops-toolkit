@@ -1,0 +1,266 @@
+table ManagementGroups
+	lineageTag: 0e04ab5f-9838-4180-a7f3-dc1cbcb6f296
+
+	column id
+		dataType: string
+		lineageTag: 38577e5e-de2d-4ca7-a7bf-0bd1d7760f70
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 0fd21169-a00f-4900-9617-2b610fd5aeeb
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 7caac691-f03c-426f-a945-13fac8d416eb
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 41a1123e-155c-48a8-ae42-be5c2f9a8d39
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: fdcebd93-8ecc-42c1-ad50-b8a9545c2ff4
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: bd352c53-fffc-45b9-9042-ddac5d8cb7b1
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: 32c2cdd3-8cfb-467f-b932-bd860cdf5454
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: 95c5f3c2-0cf9-40e6-93bf-70c46e61ee16
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: b7f98133-e7a2-4b5c-80b3-f07c76116251
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 8a230b5a-d863-43b3-a713-31badfce6796
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: c405bc3b-7b6b-45c4-93e4-06f0d3eda278
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: 9084e19a-6639-447c-b365-671cd2e81486
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: 5ffd94bb-922a-4e28-a475-b818e035a90f
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 843d2718-8d1a-41a2-be04-8010408f4f84
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: 1536d8ca-3e8b-492f-9ebd-1760fcda0656
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	column properties
+		dataType: string
+		lineageTag: 78c55e74-c4b8-40c9-83fa-5cc7ffe7ba35
+		summarizeBy: none
+		sourceColumn: properties
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.displayName'
+		dataType: string
+		lineageTag: 77376fd0-0cbd-4aea-9e27-4c85b79fac0f
+		summarizeBy: none
+		sourceColumn: properties.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details'
+		dataType: string
+		lineageTag: b461edc9-5520-4c5a-bf67-5838f2e467b1
+		summarizeBy: none
+		sourceColumn: properties.details
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain'
+		dataType: string
+		lineageTag: d2fbf058-de2f-43b1-8081-eb1093ae0a97
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.updatedTime'
+		dataType: string
+		lineageTag: 6aff6f29-5cc8-4ddf-97ad-0f38672122ba
+		summarizeBy: none
+		sourceColumn: properties.details.updatedTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.updatedBy'
+		dataType: string
+		lineageTag: cbfd897b-08e8-4285-89cb-372113198db1
+		summarizeBy: none
+		sourceColumn: properties.details.updatedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.version'
+		dataType: string
+		lineageTag: cc5c1908-4ea7-4d0e-b1f7-ae30db8c3448
+		summarizeBy: none
+		sourceColumn: properties.details.version
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent'
+		dataType: string
+		lineageTag: cdb333f1-7b73-4341-9144-c1b11091f4c9
+		summarizeBy: none
+		sourceColumn: properties.details.parent
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.displayName'
+		dataType: string
+		lineageTag: 59269895-6d89-46b2-8b3c-b2f12cdb5128
+		summarizeBy: none
+		sourceColumn: properties.details.parent.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.name'
+		dataType: string
+		lineageTag: 427c73d7-9a51-41c4-ac4d-6027908b59f5
+		summarizeBy: none
+		sourceColumn: properties.details.parent.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.id'
+		dataType: string
+		lineageTag: c684c947-b504-4f61-b713-0a9f5a763ed1
+		summarizeBy: none
+		sourceColumn: properties.details.parent.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain.displayName'
+		dataType: string
+		lineageTag: e5da0404-bcf9-4993-b287-a25549381c42
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain.name'
+		dataType: string
+		lineageTag: a832ce75-93eb-449c-a0f3-0d929a03bbc2
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain.name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ManagementGroups = m
+		mode: import
+		queryGroup: 'Resource Graph'
+		source =
+				let
+				  query = "
+				    resourcecontainers
+				    | where type == 'microsoft.management/managementgroups'
+				    | extend
+				      ['properties.displayName'] = properties.displayName,
+				      ['properties.details'] = properties.details,
+				      ['properties.details.managementGroupAncestorsChain'] = properties.details.managementGroupAncestorsChain,
+				      ['properties.details.updatedTime'] = properties.details.updatedTime,
+				      ['properties.details.updatedBy'] = properties.details.updatedBy,
+				      ['properties.details.version'] = properties.details.version,
+				      ['properties.details.parent'] = properties.details.parent,
+				      ['properties.details.parent.displayName'] = properties.details.parent.displayName,
+				      ['properties.details.parent.name'] = properties.details.parent.name,
+				      ['properties.details.parent.id'] = properties.details.parent.id
+				    | mv-expand ['properties.details.managementGroupAncestorsChain']
+				    | extend
+				      ['properties.details.managementGroupAncestorsChain.displayName'] = properties.details.managementGroupAncestorsChain.displayName,
+				      ['properties.details.managementGroupAncestorsChain.name'] = properties.details.managementGroupAncestorsChain.name
+				    " & (if ftk_DemoFilter() = "" then "" else "| where name startswith 'Trey'"),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.displayName", "properties.details", "properties.details.managementGroupAncestorsChain", "properties.details.updatedTime", "properties.details.updatedBy", "properties.details.version", "properties.details.parent", "properties.details.parent.displayName", "properties.details.parent.name", "properties.details.parent.id", "properties.details.managementGroupAncestorsChain.displayName", "properties.details.managementGroupAncestorsChain.name" },
+								{}
+							)
+				    else Source
+				in
+				  NullHandling
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -8,59 +8,66 @@
     .PARAMETER Name
     Name of the data to build. Allowed = PricingUnits, Regions, ResourceTypes, Services. Default = * (all).
 
-    .PARAMETER Data
-    Indicates that data files should be generated. Only applies to resource types. Default = false, if -PowerShell is not specified.
+    .PARAMETER Json
+    Indicates that JSON files should be generated. Only applies to resource types. Default = false, if -PowerShell is not specified.
+
+    .PARAMETER Csv
+    Indicates that CSV files should be generated from JSON files. Only applies to resource types. Default = false, if -PowerShell is not specified.
 
     .PARAMETER PowerShell
-    Indicates that PowerShell functions should be generated from data files. Default = true, unless -Data is specified.
+    Indicates that PowerShell functions should be generated from data files. Default = true, unless -Json or -Csv is specified.
 
-    .PARAMETER All
-    Indicates that all data files and PowerShell functions should be generated. Shortcut for -Data -PowerShell. Default = false.
+    .PARAMETER Hubs
+    Indicates that FinOps hubs KQL functions should be generated from data files. Default = true, unless -Json or -Csv is specified.
 
     .PARAMETER Test
     Indicates that data tests should be run after the build completes. Default = false.
+
+    .EXAMPLE
+    ./Build-OpenData -Json
+
+    Step 1: Generates JSON files for all applicable datasets.
+
+    .EXAMPLE
+    ./Build-OpenData -Csv
+
+    Step 2: Generates data files for all applicable datasets.
+
+    .EXAMPLE
+    ./Build-OpenData -PowerShell -Test
+
+    Step 3: Generates PowerShell commands and run tests for all datasets.
 
     .EXAMPLE
     ./Build-OpenData Services
 
     Generates a private Get-FinOpsServicesData PowerShell function from the contents of open-data/Services.csv.
 
-    .EXAMPLE
-    ./Build-OpenData -Data
-
-    Generates data files for all applicable datasets.
-
-    .EXAMPLE
-    ./Build-OpenData -All
-
-    Generates data files and PowerShell functions for all datasets.
-
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-opendata
 #>
-Param(
+param(
     [Parameter(Position = 0)]
     [string]
     $Name = "*",
 
     [switch]
-    $Data,
+    $Json,
+
+    [switch]
+    $Csv,
 
     [switch]
     $PowerShell,
 
     [switch]
-    $All,
+    $Hubs,
 
     [switch]
     $Test
 )
 
-if ($All)
-{
-    $Data = $PowerShell = $true
-}
-elseif (-not $Data -and -not $PowerShell)
+if (-not $Json -and -not $Csv -and -not $PowerShell -and -not $Hubs)
 {
     $PowerShell = $true
 }
@@ -81,9 +88,12 @@ function Write-Command($Command, $File)
     Write-Output "    param()"
     Write-Output "    return [PSCustomObject]@("
 
+    $script:rowNum = 0
     $first = $true
     $data | ForEach-Object {
         $row = $_
+        $script:rowNum++
+        Write-Debug "Row $($script:rowNum) = '$($row.UnitOfMeasure)'"
         $props = $columns | ForEach-Object {
             $column = $_
             $value = $row.$column
@@ -119,11 +129,56 @@ function Write-Test($DataType, $Command)
     Write-Output "}"
 }
 
-$outDir = "$PSScriptRoot/../powershell"
+function Write-KqlSplitFunction($Function, $Rows, $Columns)
+{
+    # Write header
+    Write-Output "// Copyright (c) Microsoft Corporation."
+    Write-Output "// Licensed under the MIT License."
+    Write-Output ""
+    Write-Output ".create-or-alter function "
+    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData/Internal')"
+    Write-Output "$Function(id: string) {"
+    Write-Output "    dynamic({"
+
+    $firstRow = $true
+    $Rows | ForEach-Object {
+        $row = $_
+        $firstColumn = $true
+        $props = $Columns | ForEach-Object {
+            $column = $_
+            $value = $row.$column
+            if ($null -eq $value) { $value = '' }
+            $stringColumn = (-not ($value -match '^([\d\.]+|true|false)$')) -or ($stringColumnNames -contains $column)
+            if ($stringColumn) { $quote = '"' } else { $quote = '' }
+            $escapingQuote = "$(if ($stringColumn -and $value.Contains('"')) { '@' })$quote"
+            $line = "$(if (-not $firstColumn) { "$quote$column$quote`: " })$escapingQuote$($value -replace '"', '""')$quote"
+            $firstColumn = $false
+            return $line
+        }
+        Write-Output "        $(if (-not $firstRow) { ',' })$($props[0]): { $(($props | Select-Object -Skip 1) -join ', ') }"
+        $firstRow = $false
+    }
+
+    Write-Output "    })[tolower(id)]"
+    Write-Output "}"
+}
+
+function Write-KqlWrapperFunction($Function, $Parts)
+{
+    Write-Output "// $Function"
+    Write-Output ".create-or-alter function "
+    Write-Output "with (docstring = 'Return details about the specified ID.', folder = 'OpenData')"
+    Write-Output "$Function(id: string) {"
+    Write-Output "    coalesce($(($Parts | ForEach-Object { "$($_.Name)(id)" }) -join ', '))"
+    Write-Output "}"
+}
+
+$hubsDir = "$PSScriptRoot/../templates/finops-hub/modules/scripts"
+$psDir = "$PSScriptRoot/../powershell"
 $srcDir = "$PSScriptRoot/../open-data"
 $svgDir = "$PSScriptRoot/../../docs/svg"
 
-if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
+if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Json)
 {
     # Pull resource types from the Azure app
     # $azureAppMetadataDir = '<devops>/_git/AzureUX-Mobile?path=/AzureMobile/AzureMobile.Core/Resources'
@@ -255,8 +310,8 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                 if ($localInternalIconPath.EndsWith('.svg'))
                 {
                     if (Get-Item $localInternalIconPath)
-                    { 
-                        $internalIcon = Get-Content $localInternalIconPath -Raw 
+                    {
+                        $internalIcon = Get-Content $localInternalIconPath -Raw
                     }
                     else
                     {
@@ -286,6 +341,10 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
 
                 # Remove unnecessary properties/tags and switch opacity to fill-opacity (ffimg bug)
                 $icon = ($icon.Replace(" opacity=", " fill-opacity=") -replace ' xmlns:svg=', ' xmlns=' -replace " (focusable|role|xmlns:[^=]+)='[^']+'", "") -replace "<title>[^<]*</title>", ""
+                if ($icon -notmatch ' xmlns=')
+                {
+                    $icon = $icon -replace '<svg ', '<svg xmlns=''http://www.w3.org/2000/svg'' '
+                }
 
                 # Replace clip paths that change often
                 $icon = $icon -replace ' clip-path=''url\(#([^\)]+)', " clip-path='url(#$resourceType"
@@ -326,8 +385,10 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
             logOverrides $override.originalPlural        $override.plural        $asset.pluralDisplayName        'plural display name'
             logOverrides $override.originalLowerSingular $override.lowerSingular $asset.lowerSingularDisplayName 'lower singular display name'
             logOverrides $override.originalLowerPlural   $override.lowerPlural   $asset.lowerPluralDisplayName   'lower plural display name'
-            
-            [array]$links = $asset.links | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
+
+            [array]$links = $asset.links `
+            | Where-Object { @('https://aka.ms/portalfx/designpatterns', 'https://aka.ms/portalfx/browse') -notcontains $_.uri } `
+            | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
             $typeInfo = [PSCustomObject]@{
                 resourceType             = $resourceType
                 singularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
@@ -362,9 +423,12 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                 return processResourceType $_.type @{} $_
             }
         }
-        elseif ($asset.resourceType.resourceTypeName.ToLower().StartsWith('private.') `
+        elseif ($asset.resourceType.resourceTypeName.ToLower().StartsWith('microsoft.contoso/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().StartsWith('private.') `
                 -or $asset.resourceType.resourceTypeName.ToLower().StartsWith('providers.test') `
-                -or $asset.resourceType.resourceTypeName.ToLower() -contains '/browse')
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('.samplepartner/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('.samplerp/') `
+                -or $asset.resourceType.resourceTypeName.ToLower().Contains('/browse'))
         {
             # Skip private and test resource types
             Write-Warning "Skipping $($asset.resourceType.resourceTypeName)..."
@@ -412,16 +476,20 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
     }
     Write-Host "Adding $($missingTypes.Count) missing resource types..."
     $resourceTypes += $missingTypes
-    
+
     # Sort resource types
     $resourceTypes = $resourceTypes | Sort-Object -Property resourceType
 
+    # Save files
+    $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8
+}
+
+if ($Csv)
+{
     # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
     function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
 
-    # Save files
-    $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8    
-    $resourceTypes `
+    Get-Content "$srcDir/ResourceTypes.json" -Raw | ConvertFrom-Json -Depth 5 `
     | ForEach-Object {
         return [ordered]@{
             ResourceType             = $_.resourceType
@@ -448,10 +516,10 @@ if ($PowerShell)
         $file = $_
         $dataType = $file.BaseName
         $command = "Get-OpenData$($dataType.TrimEnd('s'))"
-    
+
         Write-Verbose "Generating $command from $dataType.csv..."
-        Write-Command -Command $command -File $file      | Out-File "$outDir/Private/$command.ps1"          -Encoding ascii -Append:$false
-        Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
+        Write-Command -Command $command -File $file      | Out-File "$psDir/Private/$command.ps1"          -Encoding ascii -Append:$false
+        Write-Test -DataType $dataType -Command $command | Out-File "$psDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
     }
 }
 
@@ -461,33 +529,109 @@ if ($Test)
     & "$PSScriptRoot/Test-PowerShell.ps1" -Unit -Integration -Data
 }
 
-<# TODO: Integrate the following script to revert SVG files with nonfunctional changes
+# Generate Hubs KQL functions from data files
+if ($Hubs)
+{
+    $outFile = "$hubsDir/OpenDataFunctions.kql"
+    $rowsPerFile = 500
+
+    # Write header
+    Write-Output "// Copyright (c) Microsoft Corporation." | Out-File $outFile -Encoding ascii -Append:$false
+    Write-Output "// Licensed under the MIT License."      | Out-File $outFile -Encoding ascii -Append
+
+    # Constraints
+    $filesToUse = $(
+        'ResourceTypes'
+    )
+    $columnsToKeep = $(
+        'ResourceType',
+        'SingularDisplayName'
+    )
+
+    # Loop thru all datasets
+    Get-ChildItem "$srcDir/*.csv" `
+    | Where-Object { $_.Name -like "$Name.csv" -and $filesToUse -contains $_.BaseName }
+    | ForEach-Object {
+        $file = $_
+        $dataType = $file.BaseName
+        $function = ($dataType -creplace '([a-z])([A-Z])', '$1_$2').ToLower().TrimEnd('s')
+
+        Write-Verbose "Reading $dataType.csv..."
+        $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') } `
+        | Where-Object { $ColumnsToKeep -contains $_ }
+        $rows = Import-Csv $File
+
+        # Split the array into groups
+        $parts = @()
+        for ($i = 0; $i -lt $rows.Count; $i += $rowsPerFile)
+        {
+            $parts += @{ Name = "_$($function)_$($parts.Count+1)"; Rows = $rows[$i..([math]::Min($i + $rowsPerFile - 1, $rows.Count - 1))] }
+        }
+        Write-Verbose "  $($rows.Count) rows split across $($parts.Count) files"
+
+        # Write the wrapper function
+        Write-Verbose "Generating KQL $function() from $dataType.csv..."
+        Write-Output "" | Out-File $outFile -Encoding ascii -Append
+        Write-KqlWrapperFunction -Function $function -Parts $parts `
+        | Out-File $outFile -Encoding ascii -Append
+
+        # Write the internal functions
+        0..($parts.Count - 1) | ForEach-Object {
+            $index = $_
+            $part = $parts[$index]
+            $splitFunction = $part.Name
+            $splitFile = $outFile.Replace('.kql', "$splitFunction.kql")
+            Write-Verbose "Generating KQL $splitFunction()..."
+            Write-KqlSplitFunction -Function $splitFunction -Rows $part.Rows -Columns $columns `
+            | Out-File $splitFile -Encoding ascii -Append:$false
+        }
+    }
+}
+
 (git diff --name-only) `
 | Where-Object { $_ -match '^docs/svg/([^/]+/)+[^\.]+\.svg$' } `
 | ForEach-Object {
-    $file = $_
+    $file = "$PSScriptRoot/../../$_"
     $diff = git diff -- $file
     $changes = $diff -split "`n" `
     | Where-Object { $_ -match '^\+|^\-' } ` # Remove lines that are not changes
     | Where-Object { $_ -notmatch '^\+\+\+|^\-\-\-' } # Remove the diff metadata lines
-    # Check if all changes are GUID changes
-    $hasFunctionalChanges = $true
+
+    # Match added/removed lines
+    $added = @()
+    $removed = @()
     foreach ($line in $changes)
     {
-        if (
-            $line -notmatch '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' `
-            -and $line -notmatch '^\+\s*$' `
-            -and $line -notmatch '^\-\s*$' `
-        )
+        if ($line.StartsWith('+'))
         {
-            $hasFunctionalChanges = $true
+            $added += $line.Substring(1)
+        }
+        elseif ($line.StartsWith('-'))
+        {
+            $removed += $line.Substring(1) 
+        }
+    }
+
+    # Filter out files that only changed GUIDs
+    $onlyGuidChanges = $false
+    $maxPairs = [Math]::Max($added.Count, $removed.Count)
+    for ($i = 0; $i -lt $maxPairs; $i++)
+    {
+        $before = if ($i -lt $removed.Count) { $removed[$i] } else { '' }
+        $after = if ($i -lt $added.Count) { $added[$i] } else { '' }
+
+        # Replace all GUIDs in both lines with a placeholder and compare
+        $beforeClean = $before -replace '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', '__GUID__'
+        $afterClean = $after -replace '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', '__GUID__'
+        if ($beforeClean -eq $afterClean)
+        {
+            $onlyGuidChanges = $true
             break
         }
     }
-    if (-not $hasFunctionalChanges)
+    if ($onlyGuidChanges)
     {
         Write-Host "Reverting $file"
         git checkout -- $file
     }
 }
-#>

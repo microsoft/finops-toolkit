@@ -1,0 +1,114 @@
+table Resources
+	lineageTag: ec447c64-6e55-41d8-a5ea-a43adab5dc79
+
+	column x_ResourceGroupId = "/subscriptions/" & Resources[subscriptionId] & "/resourcegroups/" & Resources[resourceGroup]
+		lineageTag: dfd516fd-8d25-441f-93a3-190abe05d572
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column id
+		dataType: string
+		lineageTag: 3e3f2af4-0c29-4314-bb73-2f2814bce3d0
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: df96413f-3717-4f22-8e50-69d5e667c403
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: f5eb1b01-e021-4ae0-9a31-6f52efec4801
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: f3a1771a-7794-4bf1-bf81-7c046a215b44
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 565179fa-8aec-468c-bee1-0442f3a3be54
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: d6304358-f530-408f-ba5c-b9de2d9c2be8
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: 2964f864-60c6-47d5-b1b9-cbeebda9e754
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column creationTime
+		dataType: string
+		lineageTag: 3793d80a-795c-429a-a786-e29e1c04cb0c
+		summarizeBy: none
+		sourceColumn: creationTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column timeModified
+		dataType: string
+		lineageTag: 1fea57ec-7e6c-4929-84f9-8842192253b1
+		summarizeBy: none
+		sourceColumn: timeModified
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Resources = m
+		mode: import
+		queryGroup: 'Resource Graph'
+		source =
+				let
+				  query = "
+				    resources
+				    | extend
+				      id = tolower(id),
+				      ['creationTime'] = properties.creationTime,
+				      ['timeModified'] = properties.timeModified
+				    | project id, name, type, tenantId, location, subscriptionId, resourceGroup, creationTime, timeModified
+				  " & ftk_DemoFilter(),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				      #table(
+				        { "id", "name", "type", "tenantId", "location", "subscriptionId", "resourceGroup", "creationTime", "timeModified" },
+				        {}
+				      )
+				    else Source,
+				
+				  // Remove duplicate IDs
+				  // This step may hide valid rows and show invalid rows due to a bug in Resource Graph. We do not recommend it but are including it in case you want to unblock yourself.
+				  // If you experience a "duplicate IDs" error for the Resources table, please file a support request against Azure Resource Graph.
+				  RemoveDuplicates = if #"Remove Duplicate Resource IDs" then Table.Distinct(NullHandling, {"id"}) else NullHandling
+				in
+				    RemoveDuplicates
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

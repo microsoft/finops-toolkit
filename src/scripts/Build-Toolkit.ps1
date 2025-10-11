@@ -21,7 +21,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-toolkit
 #>
-Param(
+param(
     [Parameter(Position = 0)][string]$Template = "*",
     [switch]$Major,
     [switch]$Minor,
@@ -82,7 +82,6 @@ Get-ChildItem "$PSScriptRoot/../workbooks/*" -Directory `
     $ver | Out-File "$outdir/$workbook-workbook/ftkver.txt" -NoNewline
     Write-Host ''
 }
-| ForEach-Object { Build-QuickstartTemplate $_ }
 
 # Package templates
 Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimization-engine*" -Directory -ErrorAction SilentlyContinue `
@@ -98,6 +97,17 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
 
     Write-Host "Building template $templateName..."
 
+    # Get custom build configuration
+    $buildConfig = Get-Content "$_/.build.config" -ErrorAction SilentlyContinue | ConvertFrom-Json -Depth 10
+
+    # Backfill config options to avoid null references
+    (@{ ignore = @(); combineKql = @{}; rename = @{}; variableExpansion = @() }).PSObject.Properties | ForEach-Object {
+        if (-not $buildConfig.PSObject.Properties[$_.Name])
+        {
+            $buildConfig | Add-Member -MemberType NoteProperty -Name $_.Name -Value $_.Value
+        }
+    }
+
     # Create target directory
     $destDir = "$outdir/$templateName"
     Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
@@ -105,28 +115,69 @@ Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimizati
 
     # Copy required files
     Write-Host "  Copying files..."
-    Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse -Exclude ".buildignore,scaffold.json"
+    Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse -Exclude ".build.config,.buildignore,scaffold.json"
 
     # Remove ignored files
-    Get-Content "$srcDir/.buildignore" `
-    | ForEach-Object {
-        $file = $_
-        if (Test-Path "$destDir/$file")
-        {
-            Remove-Item "$destDir/$file" -Recurse -Force
+    $ignoredFiles = (Get-Content "$srcDir/.buildignore" -ErrorAction SilentlyContinue) + $buildConfig.ignore
+    if ($ignoredFiles.Length)
+    {
+        Write-Host "  Removing ignored files..."
+        $ignoredFiles `
+        | ForEach-Object {
+            $file = $_
+            if (Test-Path "$destDir/$file")
+            {
+                Write-Verbose "Removing $file"
+                Remove-Item "$destDir/$file" -Recurse -Force
+            }
         }
     }
 
-    # TODO: Create a way to define required dependencies
-    if ($templateName -eq "finops-workbooks")
+    # Combine KQL files, if specified
+    if ($buildConfig.combineKql.Length)
     {
-        Write-Host "  Copying dependencies..."
-        & "$PSScriptRoot/New-Directory" "$destDir/workbooks"
-        Get-ChildItem "$destDir/../*-workbook" -Directory `
+        Write-Host "  Combining KQL files..."
+        $buildConfig.combineKql | ForEach-Object {
+            $combinedScript = ".execute database script with (ContinueOnErrors=true)`n<|`n//`n"
+            $_.files | ForEach-Object {
+                $combinedScript += Get-Content "$srcDir/$_" -Raw
+            }
+            $combinedScript = $combinedScript -replace '(\r?\n)(\r?\n)+', '$1//$1'
+            $combinedScript | Out-File "$destDir/../$($_.name)" -Encoding utf8 -Force
+            Write-Verbose "Combined $($_.files.Length) files into $($_.name)"
+        }
+    }
+
+    # Update placeholder variables
+    if ($buildConfig.variableExpansion.Length)
+    {
+        Write-Host "  Expanding variables..."
+        $buildConfig.variableExpansion | ForEach-Object {
+            if (Test-Path "$destDir/$_")
+            {
+                Write-Verbose "Updating $_"
+                (Get-Content "$destDir/$_" -Raw) `
+                    -replace '\$\$ftkver\$\$', $ver `
+                    -replace '\$\$build-date\$\$', (Get-Date -Format 'yyyy-MM-dd') `
+                    -replace '\$\$build-month\$\$', (Get-Date -Format 'MMMM yyyy') `
+                | Out-File "$destDir/$_" -Encoding utf8 -Force
+            }
+        }
+    }
+
+    # Move files, if specified
+    if ($buildConfig.move.Length)
+    {
+        Write-Host "  Moving files..."
+        $buildConfig.move `
+        | Where-Object { Test-Path "$destDir/$($_.path)" } `
         | ForEach-Object {
-            $workbookDir = "$destDir/workbooks/$($_.Name -replace '-workbook', '')"
-            Copy-Item -Path $_ -Destination $workbookDir -Recurse
-            Remove-Item -Path "$workbookDir/*" -Include azuredeploy*.json, createUiDefinition.json, metadata.json, README.md
+            Write-Verbose "Moving $($_.path) to $($_.destination)"
+            Move-Item -Path "$destDir/$($_.path)" -Destination "$destDir/$($_.destination)" -Force
+            if ($_.ignore.Length)
+            {
+                Remove-Item -Path "$destDir/*" -Include ($_.ignore -join ',') -Force
+            }
         }
     }
 

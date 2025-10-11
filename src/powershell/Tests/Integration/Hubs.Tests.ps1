@@ -101,7 +101,7 @@ Describe 'Hubs' {
                     }
 
                     Monitor 'Removing instance...' {
-                        $script:removeaResult = Remove-FinOpsHub -Name $ftk_HubName -ResourceGroupName $ftk_HubRG -Force
+                        $script:removeResult = Remove-FinOpsHub -Name $ftk_HubName -ResourceGroupName $ftk_HubRG -Force -Confirm:$false
                         Report -Object ($script:removeResult ?? '(null)')
                     }
                 }
@@ -111,7 +111,7 @@ Describe 'Hubs' {
         Context 'Deploy and upgrade' -Skip {
             It 'Should deploy FinOps hubs <_>' -ForEach $versions {
                 $ver = $_
-            
+
                 # Act
                 Monitor "FinOps hubs $ver" -Indent '   ' {
                     Monitor "Deploying..." {
@@ -130,7 +130,7 @@ Describe 'Hubs' {
                     }
 
                     Monitor 'Removing instance...' {
-                        $script:removeResult = Remove-FinOpsHub -Name $ftk_HubName -ResourceGroupName $ftk_HubRG -Force
+                        $script:removeResult = Remove-FinOpsHub -Name $ftk_HubName -ResourceGroupName $ftk_HubRG -Force -Confirm:$false
                         Report -Object ($script:removeResult ?? '(null)')
                     }
                 }
@@ -152,7 +152,7 @@ Describe 'Hubs' {
                 | Should -Be @(
                     'microsoft.datafactory/factories',
                     'microsoft.keyvault/vaults',
-                (if ([version]$ver -ge [version]'0.1') { 'microsoft.managedidentity/userassignedidentities', 'microsoft.managedidentity/userassignedidentities' }),
+                    (if ([version]$ver -ge [version]'0.1') { 'microsoft.managedidentity/userassignedidentities', 'microsoft.managedidentity/userassignedidentities' }),
                     'microsoft.storage/storageaccounts'
                 ) -ErrorAction Continue -Because "hub should have expected resources (v$ver)"
 

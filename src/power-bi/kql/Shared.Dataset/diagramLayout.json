@@ -1,0 +1,421 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 15.290158374954769,
+        "y": 649.83173093557775
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 622.49632879773367,
+            "y": 0.12883460093945587
+          },
+          "nodeIndex": "InstanceSizeFlexibility",
+          "nodeLineageTag": "04a435c4-9138-4c1f-ad59-dd939cd8e139",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 19
+        },
+        {
+          "location": {
+            "x": 1185.7254596773939,
+            "y": 58.914750697858679
+          },
+          "nodeIndex": "HubScopes",
+          "nodeLineageTag": "6dfeb4ff-e902-435e-abed-2109389c66e3",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 1675.7578273618187,
+            "y": 90.152148286790947
+          },
+          "nodeIndex": "HubSettings",
+          "nodeLineageTag": "b391a865-7a16-491c-a9f4-8bc826285b97",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 1341.4689645089809,
+            "y": 200.08632840748695
+          },
+          "nodeIndex": "StorageData",
+          "nodeLineageTag": "4dbd4a61-a185-428e-83f1-b5b3dcb80134",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 1026.39427703441,
+            "y": 211.01046683930952
+          },
+          "nodeIndex": "StorageErrors",
+          "nodeLineageTag": "02d75203-d20c-4de5-92b5-9c4c062b96db",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 14
+        },
+        {
+          "location": {
+            "x": 1826.9125430864931,
+            "y": 658.33784439719625
+          },
+          "nodeIndex": "Disks",
+          "nodeLineageTag": "ca0025b1-6be2-4a29-af32-30ef5f20fe5f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 21
+        },
+        {
+          "location": {
+            "x": 472.83118255794193,
+            "y": 1882.1942297253386
+          },
+          "nodeIndex": "PolicyAssignments",
+          "nodeLineageTag": "fc42feb2-59a9-44bf-8459-e2c1592a05dd",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 20
+        },
+        {
+          "location": {
+            "x": 316.87461345434446,
+            "y": 1546.7947883330939
+          },
+          "nodeIndex": "PolicyStates",
+          "nodeLineageTag": "cf0e7752-0e35-40aa-a509-8a4f90194eee",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 15
+        },
+        {
+          "location": {
+            "x": 1127.0645503230141,
+            "y": 1173.185423876829
+          },
+          "nodeIndex": "Resources",
+          "nodeLineageTag": "ec447c64-6e55-41d8-a5ea-a43adab5dc79",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 16
+        },
+        {
+          "location": {
+            "x": 17.579810021599258,
+            "y": 1193.7566482788134
+          },
+          "nodeIndex": "Subscriptions",
+          "nodeLineageTag": "07b667e4-2b48-4235-8cfb-5d59858a92fd",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 17
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 1587.1812560941887
+          },
+          "nodeIndex": "Compliance calculation",
+          "nodeLineageTag": "9b45030f-f270-4b9c-8264-bde9e0fd5fea",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 700.20445902382892,
+            "y": 671.89863112171861
+          },
+          "nodeIndex": "AdvisorRecommendations",
+          "nodeLineageTag": "a76a7ba9-b6b5-4140-9739-344b958bfc9f",
+          "size": {
+            "height": 300,
+            "width": 346.82588969923927
+          },
+          "zIndex": 24
+        },
+        {
+          "location": {
+            "x": 383.42207998343906,
+            "y": 950.71515264937045
+          },
+          "nodeIndex": "AdvisorReservationRecommendations",
+          "nodeLineageTag": "e2be3b74-1430-4a74-bf1a-18576064c803",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 38.406079484442742,
+            "y": 813.8245408302829
+          },
+          "nodeIndex": "ManagementGroups",
+          "nodeLineageTag": "0e04ab5f-9838-4180-a7f3-dc1cbcb6f296",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 1819.1977027954124,
+            "y": 1037.6244509239905
+          },
+          "nodeIndex": "NetworkInterfaces",
+          "nodeLineageTag": "471a2007-5388-404a-97e6-1b2292878a8c",
+          "size": {
+            "height": 300,
+            "width": 247.43951801943126
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 1489.3716036970629,
+            "y": 1184.5349016561922
+          },
+          "nodeIndex": "NetworkSecurityGroups",
+          "nodeLineageTag": "7d98f967-9180-4a4f-958a-89256520af0f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 2180.6620177560894,
+            "y": 1038.3092298271372
+          },
+          "nodeIndex": "PublicIPAddresses",
+          "nodeLineageTag": "5c35f59e-97dc-424c-b1ae-0526c2c708ed",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 18
+        },
+        {
+          "location": {
+            "x": 813.50504774041337,
+            "y": 1354.2369605882143
+          },
+          "nodeIndex": "Regions",
+          "nodeLineageTag": "4d14c13f-1a1f-4d48-831d-3d1aa829bc80",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 1109.6497753732119,
+            "y": 1593.1213685822286
+          },
+          "nodeIndex": "ResourceTypes",
+          "nodeLineageTag": "ac01cf9d-360d-46af-b370-4093c135f5fa",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 1496.0193629467244,
+            "y": 1511.058514034351
+          },
+          "nodeIndex": "SqlDatabases",
+          "nodeLineageTag": "28ccb046-cb49-4d65-8bef-6c25b4e6d9bd",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 23
+        },
+        {
+          "location": {
+            "x": 1490.9510079876281,
+            "y": 854.57200867485642
+          },
+          "nodeIndex": "VirtualMachines",
+          "nodeLineageTag": "bc3b3e64-3016-4758-897f-eeae6043bd77",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 22
+        },
+        {
+          "location": {
+            "x": 2013.2013139082305,
+            "y": 95.003779786281015
+          },
+          "nodeIndex": "PricingUnits",
+          "nodeLineageTag": "d66ce6f9-eeff-48b4-8b10-825ead39a54d",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 306.69755059249349,
+            "y": 0
+          },
+          "nodeIndex": "ReservationRecommendations",
+          "nodeLineageTag": "a9b8f96b-84d0-4176-95a1-65eade30a2ef",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeIndex": "Costs",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {},
+          "nodeIndex": "VirtualMachinesDisks",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 78.481855489842161,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    },
+    {
+      "ordinal": 1,
+      "scrollPosition": {
+        "x": 8.5714285714285712,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 0,
+            "y": 15
+          },
+          "nodeIndex": "Resources",
+          "nodeLineageTag": "ec447c64-6e55-41d8-a5ea-a43adab5dc79",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 351.42857142857144,
+            "y": 21.714285714285666
+          },
+          "nodeIndex": "VirtualMachines",
+          "nodeLineageTag": "bc3b3e64-3016-4758-897f-eeae6043bd77",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 639.42857142857144,
+            "y": 453.71428571428578
+          },
+          "nodeIndex": "PublicIPAddresses",
+          "nodeLineageTag": "5c35f59e-97dc-424c-b1ae-0526c2c708ed",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 123.71428571428567,
+            "y": 449.28571428571422
+          },
+          "nodeIndex": "NetworkInterfaces",
+          "nodeLineageTag": "471a2007-5388-404a-97e6-1b2292878a8c",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 659.28571428571422,
+            "y": 19.571428571428555
+          },
+          "nodeIndex": "VirtualMachinesDisks",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Virtual Machines",
+      "zoomValue": 70,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Virtual Machines",
+  "defaultDiagram": "All tables"
+}

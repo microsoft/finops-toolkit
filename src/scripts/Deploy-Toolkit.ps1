@@ -42,7 +42,7 @@
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-toolkit
 #>
-Param(
+param(
     [Parameter(Position = 0)][string]$Template = "finops-hub",
     [string]$ResourceGroup,
     [string]$Location = "westus",
@@ -64,6 +64,7 @@ function iff([bool]$Condition, $IfTrue, $IfFalse)
 # Build toolkit if requested
 if ($Build)
 {
+    Write-Verbose "Building $Template template..."
     & "$PSScriptRoot/Build-Toolkit" -Template $Template
 }
 
@@ -120,6 +121,7 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
     {
         "resourceGroup"
         {
+            Write-Verbose 'Starting resource group deployment...'
 
             # Set default RG name
             if ($Demo)
@@ -143,9 +145,11 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
             else
             {
                 # Create resource group if it doesn't exist
+                Write-Verbose 'Checking resource group $ResourceGroup...'
                 $rg = Get-AzResourceGroup $ResourceGroup -ErrorAction SilentlyContinue
-                If ($null -eq $rg)
+                if ($null -eq $rg)
                 {
+                    Write-Verbose 'Creating resource group $ResourceGroup...'
                     New-AzResourceGroup `
                         -Name $ResourceGroup `
                         -Location $Location `
@@ -153,7 +157,9 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
                 }
 
                 # Start deployment
+                Write-Verbose "Deploying $templateFile..."
                 $global:ftkDeployment = New-AzResourceGroupDeployment `
+                    -DeploymentName "ftk-$templateName".Replace('/', '-') `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -ResourceGroupName $ResourceGroup `
@@ -161,11 +167,12 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
                 $global:ftkDeployment
             }
 
-            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
+            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup/deployments"
 
         }
         "subscription"
         {
+            Write-Verbose 'Starting subscription deployment...'
 
             Write-Host "  → [sub] $((Get-AzContext).Subscription.Name)..."
             $Parameters.Keys | ForEach-Object { Write-Host "          $($_) = $($Parameters[$_])" }
@@ -176,7 +183,9 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
             }
             else
             {
+                Write-Verbose "Deploying $templateFile..."
                 $global:ftkDeployment = New-AzSubscriptionDeployment `
+                    -DeploymentName "ftk-$templateName".Replace('/', '-') `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -Location $Location `
@@ -193,6 +202,7 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
         }
         "tenant"
         {
+            Write-Verbose 'Starting tenant deployment...'
 
             $azContext = (Get-AzContext).Tenant
             Write-Host "  → [tenant] $(iff ([string]::IsNullOrWhitespace($azContext.Name)) $azContext.Id $azContext.Name)..."
@@ -204,7 +214,9 @@ if (Test-Path "$PSScriptRoot/../workbooks/$Template")
             }
             else
             {
+                Write-Verbose "Deploying $templateFile..."
                 $global:ftkDeployment = New-AzTenantDeployment `
+                    -DeploymentName "ftk-$templateName".Replace('/', '-') `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -Location $Location `

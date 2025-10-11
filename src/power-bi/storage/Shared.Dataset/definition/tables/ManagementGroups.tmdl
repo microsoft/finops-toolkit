@@ -1,0 +1,154 @@
+table ManagementGroups
+	lineageTag: 0e04ab5f-9838-4180-a7f3-dc1cbcb6f296
+
+	column id
+		dataType: string
+		lineageTag: 38577e5e-de2d-4ca7-a7bf-0bd1d7760f70
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 0fd21169-a00f-4900-9617-2b610fd5aeeb
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.displayName'
+		dataType: string
+		lineageTag: c2a83af4-ecb0-48e2-8c91-c539f010c832
+		summarizeBy: none
+		sourceColumn: properties.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details'
+		dataType: string
+		lineageTag: 22995768-4815-4e93-8dbd-380eb7d44f43
+		summarizeBy: none
+		sourceColumn: properties.details
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain'
+		dataType: string
+		lineageTag: d19480fb-6f16-49e7-b2b7-4fad83c35e7d
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.updatedTime'
+		dataType: string
+		lineageTag: 008e6ba3-287b-47b4-a4ab-739a14ac19fa
+		summarizeBy: none
+		sourceColumn: properties.details.updatedTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.updatedBy'
+		dataType: string
+		lineageTag: 7ba4276d-ba03-4243-b330-9b2961829e82
+		summarizeBy: none
+		sourceColumn: properties.details.updatedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.version'
+		dataType: string
+		lineageTag: cc74e405-4d3e-4c8f-b35f-2dd4d388b1d4
+		summarizeBy: none
+		sourceColumn: properties.details.version
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent'
+		dataType: string
+		lineageTag: 107025bb-de26-4e8b-8c2a-64c244d292d8
+		summarizeBy: none
+		sourceColumn: properties.details.parent
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.displayName'
+		dataType: string
+		lineageTag: b160c643-8416-4ffd-a945-3c0119eafadb
+		summarizeBy: none
+		sourceColumn: properties.details.parent.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.name'
+		dataType: string
+		lineageTag: e5cbe777-4e50-4c62-aec7-67ead1fe0b8d
+		summarizeBy: none
+		sourceColumn: properties.details.parent.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.parent.id'
+		dataType: string
+		lineageTag: 42790a1e-b547-4fdb-808f-8c49218e9530
+		summarizeBy: none
+		sourceColumn: properties.details.parent.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain.displayName'
+		dataType: string
+		lineageTag: 4ca64703-7f49-4170-93f3-16087702156f
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain.displayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.details.managementGroupAncestorsChain.name'
+		dataType: string
+		lineageTag: f5aa191d-ef68-4b44-92f7-63bdca6bc16c
+		summarizeBy: none
+		sourceColumn: properties.details.managementGroupAncestorsChain.name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ManagementGroups = m
+		mode: import
+		queryGroup: 'Resource Graph'
+		source =
+				let
+				  query = "
+				    resourcecontainers
+				    | where type == 'microsoft.management/managementgroups'
+				    | extend
+				      ['properties.displayName'] = properties.displayName,
+				      ['properties.details'] = properties.details,
+				      ['properties.details.managementGroupAncestorsChain'] = properties.details.managementGroupAncestorsChain,
+				      ['properties.details.updatedTime'] = properties.details.updatedTime,
+				      ['properties.details.updatedBy'] = properties.details.updatedBy,
+				      ['properties.details.version'] = properties.details.version,
+				      ['properties.details.parent'] = properties.details.parent,
+				      ['properties.details.parent.displayName'] = properties.details.parent.displayName,
+				      ['properties.details.parent.name'] = properties.details.parent.name,
+				      ['properties.details.parent.id'] = properties.details.parent.id
+				    | mv-expand ['properties.details.managementGroupAncestorsChain']
+				    | extend
+				      ['properties.details.managementGroupAncestorsChain.displayName'] = properties.details.managementGroupAncestorsChain.displayName,
+				      ['properties.details.managementGroupAncestorsChain.name'] = properties.details.managementGroupAncestorsChain.name
+				    " & (if ftk_DemoFilter() = "" then "" else "| where name startswith 'Trey'"),
+				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  NullHandling =
+				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+							#table(
+								{ "id", "name", "properties.displayName", "properties.details", "properties.details.managementGroupAncestorsChain", "properties.details.updatedTime", "properties.details.updatedBy", "properties.details.version", "properties.details.parent", "properties.details.parent.displayName", "properties.details.parent.name", "properties.details.parent.id", "properties.details.managementGroupAncestorsChain.displayName", "properties.details.managementGroupAncestorsChain.name" },
+								{}
+							)
+				    else Source
+				in
+				  NullHandling
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

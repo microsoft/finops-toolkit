@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "RateOptimization"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "dce92157-0c91-4998-a022-00d86f57f452"
+  }
+}

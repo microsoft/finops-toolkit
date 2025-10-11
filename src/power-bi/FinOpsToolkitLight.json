@@ -1,0 +1,64 @@
+﻿{
+  "name": "Microsoft FinOps light theme",
+  "dataColors": [
+    "#6f4bb2",
+    "#0078d4",
+    "#ef6950",
+    "#3449aa",
+    "#00a2ad",
+    "#733569",
+    "#e3008c",
+    "#335c50",
+    "#3599b8",
+    "#dfbfbf",
+    "#4ac5bb",
+    "#5f6b6d",
+    "#fb8281",
+    "#f4d25a",
+    "#7f898a",
+    "#a4ddee",
+    "#fdab89",
+    "#b687ac",
+    "#28738a",
+    "#a78f8f",
+    "#168980",
+    "#293537",
+    "#bb4a4a",
+    "#b59525",
+    "#475052",
+    "#6a9fb0",
+    "#bd7150",
+    "#7b4f71",
+    "#1b4d5c",
+    "#706060",
+    "#0f5c55",
+    "#1c2325"
+  ],
+  "visualStyles": {
+    "*": {
+      "*": {
+        "visualTooltip": [
+          {
+            "titleFontColor": { "solid": { "color": "#ffffff" } },
+            "valueFontColor": { "solid": { "color": "#ffffff" } }
+          }
+        ],
+        "outspacePane": [
+          {
+            "checkboxAndApplyColor": { "solid": { "color": "#6f4bb2" } }
+          }
+        ]
+      }
+    }
+  },
+  "bad": "#e00b1c",
+  "neutral": "#db7500",
+  "good": "#57a300",
+  "minimum": "#efedf8",
+  "center": "#ffca8a",
+  "maximum": "#8970c3",
+  "textClasses": {
+    "callout": { "fontFace": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif" },
+    "title": { "fontFace": "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif" }
+  }
+}

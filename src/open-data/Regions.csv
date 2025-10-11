@@ -10,6 +10,7 @@ ap east,eastasia,East Asia
 ap southeast,southeastasia,Southeast Asia
 apeast,eastasia,East Asia
 apsoutheast,southeastasia,Southeast Asia
+ase,eastasia,East Asia
 asiaeast,eastasia,East Asia
 asiapacific,asiapacific,Asia Pacific
 asiasoutheast,southeastasia,Southeast Asia
@@ -21,6 +22,7 @@ au east,australiaeast,Australia East
 au southeast,australiasoutheast,Australia Southeast
 aucentral,australiacentral,Australia Central
 aucentral2,australiacentral2,Australia Central 2
+aue,australiaeast,Australia East
 aueast,australiaeast,Australia East
 auh,uaecentral,UAE Central
 ausoutheast,australiasoutheast,Australia Southeast
@@ -75,7 +77,7 @@ cbr2,australiacentral2,Australia Central 2
 cc,canadacentral,Canada Central
 central india,centralindia,Central India
 central us,centralus,Central US
-centralcanada,canadacentral,Central Canada
+centralcanada,canadacentral,Canada Central
 centralindia,centralindia,Central India
 centralus,centralus,Central US
 centraluseuap,centraluseuap,Central US EUAP
@@ -352,10 +354,12 @@ southafricanorth,southafricanorth,South Africa North
 southafricaw,southafricawest,South Africa West
 southafricawest,southafricawest,South Africa West
 southcentralus,southcentralus,South Central US
+southcentralus2,southcentralus2,South Central US 2
 southcentralusstg,southcentralusstg,South Central US STG
 southeast asia,southeastasia,Southeast Asia
 southeast_asia,southeastasia,Southeast Asia
 southeastasia,southeastasia,Southeast Asia
+southeastus,southeastus,Southeast US
 southindia,southindia,South India
 southsoutheastasia,southeastasia,Southeast Asia
 spainc,spaincentral,Spain Central
@@ -374,6 +378,7 @@ syd,australiaeast,Australia East
 sydney,australiaeast,Australia East
 taiwann,taiwannorth,Taiwan North
 taiwannorth,taiwannorth,Taiwan North
+taiwannorthwest,taiwannorthwest,Taiwan Northwest
 tokyo,japaneast,Japan East
 toronto,canadacentral,Canada Central
 tw north,taiwannorth,Taiwan North
@@ -454,6 +459,7 @@ ussecw,ussecwest,USSec West
 ussecwc,ussecwestcentral,USSec West Central
 ussecwest,ussecwest,USSec West
 ussecwestcentral,ussecwestcentral,USSec West Central
+ussgovarizona,usgovarizona,USGov Arizona
 ussouth,southcentralus,South Central US
 ussouthcentral,southcentralus,South Central US
 usstagesc,southcentralusstg,South Central US STG

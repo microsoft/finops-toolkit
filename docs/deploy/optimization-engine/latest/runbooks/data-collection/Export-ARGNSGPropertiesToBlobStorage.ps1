@@ -40,7 +40,7 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
-    $storageAccountSinkEnv = $cloudEnvironment    
+    $storageAccountSinkEnv = $cloudEnvironment
 }
 $storageAccountSinkKeyCred = Get-AutomationPSCredential -Name "AzureOptimization_StorageSinkKey" -ErrorAction SilentlyContinue
 $storageAccountSinkKey = $null
@@ -66,12 +66,12 @@ $ARGPageSize = 1000
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -79,7 +79,7 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    
+
     $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
@@ -93,9 +93,9 @@ $cloudSuffix = ""
 if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 {
     "Logging in to Azure with $externalCredentialName external credential..."
-    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential 
+    Connect-AzAccount -ServicePrincipal -EnvironmentName $externalCloudEnvironment -Tenant $externalTenantId -Credential $externalCredential
     $cloudSuffix = $externalCloudEnvironment.ToLower() + "-"
-    $cloudEnvironment = $externalCloudEnvironment   
+    $cloudEnvironment = $externalCloudEnvironment
 }
 
 $tenantId = (Get-AzContext).Tenant.Id
@@ -122,7 +122,7 @@ Write-Output "Querying for NSG properties"
 
 $argQuery = @"
 resources
-| where type =~ 'Microsoft.Network/networkSecurityGroups' 
+| where type =~ 'Microsoft.Network/networkSecurityGroups'
 | extend nicCount = iif(isnotempty(properties.networkInterfaces),array_length(properties.networkInterfaces),0)
 | extend subnetCount = iif(isnotempty(properties.subnets),array_length(properties.subnets),0)
 | mvexpand securityRules = properties.securityRules
@@ -191,7 +191,7 @@ foreach ($nsgRule in $nsgRulesTotal)
         Tags = $nsgRule.tags
         StatusDate = $statusDate
     }
-    
+
     $allnsgRules += $logentry
 }
 
@@ -214,4 +214,4 @@ Write-Output "[$now] Uploaded $csvBlobName to Blob Storage..."
 Remove-Item -Path $csvExportPath -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-Write-Output "[$now] Removed $csvExportPath from local disk..."    
+Write-Output "[$now] Removed $csvExportPath from local disk..."

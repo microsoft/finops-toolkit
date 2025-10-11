@@ -1,0 +1,300 @@
+- name: FinOps documentation
+  href: index.yml
+- name: Overview
+  expanded: true
+  items:
+    - name: What is FinOps?
+      href: overview.md
+    - name: FinOps on Azure e-book
+      href: https://aka.ms/finops/ebook
+    - name: What's new
+      href: https://aka.ms/finops/blog
+- name: Implementing FinOps
+  items:
+    - name: Implementing FinOps guide
+      href: implementing-finops-guide.md
+    - name: Conduct a FinOps iteration
+      href: conduct-iteration.md
+    - name: FinOps review assessment
+      href: https://aka.ms/finops/review
+    - name: FinOps Framework
+      items:
+        - name: FinOps Framework overview
+          href: framework/finops-framework.md
+        - name: FinOps capabilities
+          href: framework/capabilities.md
+          items:
+            - name: Understand
+              items:
+                - name: Understand usage and cost
+                  href: framework/understand/understand-cloud-usage-cost.md
+                - name: Data ingestion
+                  href: framework/understand/ingestion.md
+                - name: Allocation
+                  href: framework/understand/allocation.md
+                - name: Reporting + analytics
+                  href: framework/understand/reporting.md
+                - name: Anomalies
+                  href: framework/understand/anomalies.md
+            - name: Quantify
+              items:
+                - name: Quantify business value
+                  href: framework/quantify/quantify-business-value.md
+                - name: Planning and estimating
+                  href: framework/quantify/planning.md
+                - name: Forecasting
+                  href: framework/quantify/forecasting.md
+                - name: Budgeting
+                  href: framework/quantify/budgeting.md
+                - name: Benchmarking
+                  href: framework/quantify/benchmarking.md
+                - name: Unit economics
+                  href: framework/quantify/unit-economics.md
+            - name: Optimize
+              items:
+                - name: Optimize usage and cost
+                  href: framework/optimize/optimize-cloud-usage-cost.md
+                - name: Architecting for cloud
+                  href: framework/optimize/architecting.md
+                - name: Workload optimization
+                  href: framework/optimize/workloads.md
+                - name: Rate optimization
+                  href: framework/optimize/rates.md
+                - name: Licensing + SaaS
+                  href: framework/optimize/licensing.md
+                - name: Cloud sustainability
+                  href: framework/optimize/sustainability.md
+            - name: Manage
+              items:
+                - name: Manage the FinOps practice
+                  href: framework/manage/manage-finops.md
+                - name: FinOps practice operations
+                  href: framework/manage/operations.md
+                - name: Education + enablement
+                  href: framework/manage/education.md
+                - name: Policy + governance
+                  href: framework/manage/governance.md
+                - name: Invoicing + chargeback
+                  href: framework/manage/invoicing-chargeback.md
+                - name: FinOps assessment
+                  href: framework/manage/assessment.md
+                - name: Onboarding workloads
+                  href: framework/manage/onboarding.md
+                - name: Tools + services
+                  href: framework/manage/tools-services.md
+                - name: Intersecting frameworks
+                  href: framework/manage/intersecting-disciplines.md
+    - name: FinOps best practices
+      items:
+        - name: Best practice library
+          href: best-practices/library.md
+        - name: General services
+          href: best-practices/general.md
+        - name: Compute services
+          href: best-practices/compute.md
+        - name: Databases services
+          href: best-practices/databases.md
+        - name: Networking services
+          href: best-practices/networking.md
+        - name: Storage services
+          href: best-practices/storage.md
+        - name: Web services
+          href: best-practices/web.md
+    - name: FOCUS
+      items:
+        - name: Overview
+          href: focus/what-is-focus.md
+        - name: Updating reports
+          href: focus/mapping.md
+        - name: Convert to FOCUS
+          href: focus/convert.md
+        - name: Validate FOCUS data
+          href: focus/validate.md
+        - name: FOCUS dataset
+          href: focus/metadata.md
+        - name: Conformance summary
+          href: focus/conformance-summary.md
+        - name: Conformance report
+          href: focus/conformance-full-report.md
+- name: Microsoft Fabric workspace for FinOps
+  items:
+    - name: Create a Fabric workspace for FinOps
+      href: fabric/create-fabric-workspace-finops.md
+- name: FinOps toolkit
+  items:
+    - name: Overview
+      href: toolkit/finops-toolkit-overview.md
+    - name: FinOps hubs
+      items:
+        - name: Overview
+          href: toolkit/hubs/finops-hubs-overview.md
+        - name: Create or upgrade hubs
+          href: toolkit/hubs/deploy.md
+        - name: Configure private networking
+          href: toolkit/hubs/private-networking.md
+        - name: Configure scopes
+          href: toolkit/hubs/configure-scopes.md
+        - name: Configure dashboards
+          href: toolkit/hubs/configure-dashboards.md
+        - name: Configure AI agents
+          href: toolkit/hubs/configure-ai.md
+        - name: Savings calculations
+          href: toolkit/hubs/savings-calculations.md          
+        - name: Deployment template
+          href: toolkit/hubs/template.md
+        - name: Data model
+          href: toolkit/hubs/data-model.md
+        - name: Data processing
+          href: toolkit/hubs/data-processing.md
+        - name: Upgrade guide
+          href: toolkit/hubs/upgrade.md
+        - name: Compatibility guide
+          href: toolkit/hubs/compatibility.md
+    - name: Power BI
+      items:
+        - name: Overview
+          href: toolkit/power-bi/reports.md
+        - name: Set up reports
+          href: toolkit/power-bi/setup.md
+        - name: Choose a Power BI data source
+          href: toolkit/power-bi/help-me-choose.md
+        - name: Cost summary report
+          href: toolkit/power-bi/cost-summary.md
+        - name: Governance report
+          href: toolkit/power-bi/governance.md
+        - name: Invoicing and chargeback report
+          href: toolkit/power-bi/invoicing.md
+        - name: Rate optimization report
+          href: toolkit/power-bi/rate-optimization.md
+        - name: Workload optimization report
+          href: toolkit/power-bi/workload-optimization.md
+        - name: Data ingestion report
+          href: toolkit/power-bi/data-ingestion.md
+        - name: Cost Management connector report
+          href: toolkit/power-bi/connector.md
+        - name: EA template app report
+          href: toolkit/power-bi/template-app.md
+    - name: Workbooks
+      items:
+        - name: Overview
+          href: toolkit/workbooks/finops-workbooks-overview.md
+        - name: Governance workbook
+          href: toolkit/workbooks/governance.md
+        - name: Optimization workbook
+          href: toolkit/workbooks/optimization.md
+        - name: Customize workbooks
+          href: toolkit/workbooks/customize-workbooks.md
+    - name: FinOps alerts
+      items:
+        - name: Overview
+          href: toolkit/alerts/finops-alerts-overview.md
+        - name: Configure alerts
+          href: toolkit/alerts/configure-finops-alerts.md
+    - name: Optimization engine
+      items:
+        - name: Overview
+          href: toolkit/optimization-engine/overview.md
+        - name: Reports
+          href: toolkit/optimization-engine/reports.md
+        - name: Customizations
+          href: toolkit/optimization-engine/customize.md
+        - name: Configure workspaces
+          href: toolkit/optimization-engine/configure-workspaces.md
+        - name: Suppress recommendations
+          href: toolkit/optimization-engine/suppress-recommendations.md
+        - name: Setup options
+          href: toolkit/optimization-engine/setup-options.md
+        - name: FAQ
+          href: toolkit/optimization-engine/faq.md
+        - name: Troubleshooting guide
+          href: toolkit/optimization-engine/troubleshooting.md
+    - name: Open data
+      href: toolkit/open-data.md
+    - name: PowerShell
+      items:
+        - name: All commands
+          href: toolkit/powershell/powershell-commands.md
+        - name: Toolkit
+          items:
+            - name: Toolkit commands
+              href: toolkit/powershell/toolkit/finops-toolkit-commands.md
+            - name: Get-FinOpsToolkitVersion
+              href: toolkit/powershell/toolkit/get-finopstoolkitversion.md
+        - name: Cost Management
+          items:
+            - name: Cost Management commands
+              href: toolkit/powershell/cost/cost-management-commands.md
+            - name: Add-FinOpsServicePrincipal
+              href: toolkit/powershell/cost/add-finopsserviceprincipal.md
+            - name: Get-FinOpsCostExport
+              href: toolkit/powershell/cost/get-finopscostexport.md
+            - name: New-FinOpsCostExport
+              href: toolkit/powershell/cost/new-finopscostexport.md
+            - name: Remove-FinOpsCostExport
+              href: toolkit/powershell/cost/remove-finopscostexport.md
+            - name: Start-FinOpsCostExport
+              href: toolkit/powershell/cost/start-finopscostexport.md
+        - name: FinOps hubs
+          items:
+            - name: FinOps hubs commands
+              href: toolkit/powershell/hubs/finops-hubs-commands.md
+            - name: Deploy-FinOpsHub
+              href: toolkit/powershell/hubs/deploy-finopshub.md
+            - name: Initialize-FinOpsHubDeployment
+              href: toolkit/powershell/hubs/initialize-finopshubdeployment.md
+            - name: Register-FinOpsHubProviders
+              href: toolkit/powershell/hubs/register-finopshubproviders.md
+            - name: Remove-FinOpsHub
+              href: toolkit/powershell/hubs/remove-finopshub.md
+            - name: Remove-FinOpsHubScope
+              href: toolkit/powershell/hubs/remove-finopshubscope.md
+            - name: Get-FinOpsHub
+              href: toolkit/powershell/hubs/get-finopshub.md
+        - name: Open data
+          items:
+            - name: Open data commands
+              href: toolkit/powershell/data/open-data-commands.md
+            - name: Get-FinOpsPricingUnit
+              href: toolkit/powershell/data/get-finopspricingunit.md
+            - name: Get-FinOpsRegion
+              href: toolkit/powershell/data/get-finopsregion.md
+            - name: Get-FinOpsResourceType
+              href: toolkit/powershell/data/get-finopsresourcetype.md
+            - name: Get-FinOpsService
+              href: toolkit/powershell/data/get-finopsservice.md
+    - name: Bicep registry
+      items:
+        - name: Modules
+          href: toolkit/bicep-registry/modules.md
+        - name: Scheduled actions
+          href: toolkit/bicep-registry/scheduled-actions.md
+    - name: Help + support
+      items:
+        - name: Help options
+          href: toolkit/help/help-options.md
+        - name: Get support
+          href: toolkit/help/support.md
+        - name: How to deploy tools
+          href: toolkit/help/deploy.md
+        - name: Data dictionary
+          href: toolkit/help/data-dictionary.md
+        - name: Common terms
+          href: toolkit/help/terms.md
+        - name: Troubleshooting guide
+          href: toolkit/help/troubleshooting.md
+        - name: Common errors
+          href: toolkit/help/errors.md
+        - name: Contribute to the toolkit
+          href: toolkit/help/contributors.md
+    - name: Changelog
+      href: toolkit/changelog.md
+    - name: Roadmap
+      href: toolkit/roadmap.md
+- name: Resources
+  items:
+    - name: FinOps discussions on Microsoft Tech Community
+      href: https://aka.ms/finops/discuss
+    - name: FinOps Foundation
+      href: https://finops.org/
+    - name: FinOps events
+      href: https://www.finops.org/community/events/

@@ -870,7 +870,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### Reference: [Microsoft Azure Well-Architected Framework - cost optimization pillar](https://learn.microsoft.com/en-us/azure/architecture/framework/cost/overview)",
+              "json": "### Reference: [Microsoft Azure Well-Architected Framework - cost optimization pillar](https://learn.microsoft.com/azure/architecture/framework/cost/overview)",
               "style": "upsell"
             },
             "name": "Reference"
@@ -878,7 +878,7 @@
           {
             "type": 1,
             "content": {
-              "json": "This workbook aims to offer a comprehensive overview of your Azure environment's resource usage, aligning with the WAF Cost Optimization pillar. It identifies recommendations to optimize efficiency, providing guidance on potential opportunities. Please note that the workbook serves as guidance to highlight optimization opportunities, and the extent of cost reduction depends on their implementation.\r\n\r\n## Overview of the cost optimization pillar\r\n\r\n* The cost optimization pillar provides principles for balancing business goals with technology needs to create a cost-effective workload while avoiding capital-intensive solutions.The workbook emphasizes the importance of reducing waste and improving operational efficiencies.\r\n\r\n* To assess your workload based on the principles outlined in the [Microsoft Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/architecture/framework/), reference the [Microsoft Azure Well-Architected Review](https://learn.microsoft.com/en-us/assessments/?id=azure-architecture-review&mode=pre-assessment&session=20dc50e4-5b71-4f38-bc49-51cc1d9f205c) tool.\r\n\r\n\r\n\r\n\r\n"
+              "json": "This workbook aims to offer a comprehensive overview of your Azure environment's resource usage, aligning with the WAF Cost Optimization pillar. It identifies recommendations to optimize efficiency, providing guidance on potential opportunities. Please note that the workbook serves as guidance to highlight optimization opportunities, and the extent of cost reduction depends on their implementation.\r\n\r\n## Overview of the cost optimization pillar\r\n\r\n* The cost optimization pillar provides principles for balancing business goals with technology needs to create a cost-effective workload while avoiding capital-intensive solutions.The workbook emphasizes the importance of reducing waste and improving operational efficiencies.\r\n\r\n* To assess your workload based on the principles outlined in the [Microsoft Azure Well-Architected Framework](https://learn.microsoft.com/azure/architecture/framework/), reference the [Microsoft Azure Well-Architected Review](https://learn.microsoft.com/assessments/?id=azure-architecture-review&mode=pre-assessment&session=20dc50e4-5b71-4f38-bc49-51cc1d9f205c) tool.\r\n\r\n\r\n\r\n\r\n"
             },
             "name": "objective"
           },
@@ -898,9 +898,9 @@
           {
             "type": 1,
             "content": {
-              "json": "## Prerequisites\r\n\r\nThis workbook requires the following least-privileged (minimum) roles on your Subscriptions:\r\n\r\n  * **Reader** : allows you to import the workbook without saving it and view all of the workbook tabs.\r\n  * **Workbook Contributor** : allows you to import and save the workbook\r\n\r\nThis workbook includes \"Quick Fix\" actions within certain queries. The permissions necessary to execute these actions may vary and are documented for each specific action.\r\n\r\n\r\n"
+              "json": "## Change log\r\n**Last update:** December 2024  \r\n\r\nTo learn more about this update and other announcements, visit the [FinOps Toolkit](https://github.com/microsoft/finops-toolkit/releases) page.  \r\n\r\n### **December 2024**  \r\n➕ **Added:**  \r\n- Azure Arc Windows license management under the **Commitment Discounts** tab.  \r\n\r\n### **November 2024**  \r\n➕ **Added:**  \r\n- On the **Storage** tab, included the RSVaultBackup tag in the list of non-idle disks.  \r\n\r\n🛠️ **Fixed:**  \r\n- Resolved an issue on the **Commitment Discounts** tab where RI rows were limited.  \r\n- Corrected VM processor details on the **Compute** tab query.  \r\n\r\n### **October 2024**  \r\n➕ **Added:**  \r\n- New **Compute** query to identify VMs by processor architecture type.  \r\n- New **Database** query to identify SQL Pool instances with zero databases.  \r\n- New **Storage** query to identify powered-off VMs with premium disks.  \r\n\r\n✏️ **Changed:**  \r\n- Redesigned the **Rate Optimization** tab for easier identification of break-even points for reservations.  \r\n- Fixed the **AHB VMSS** query to count the total cores consumed across the entire scale set.  \r\n- Improved the **Storage Idle Disks** query to ignore disks used by AKS pods.  \r\n- Updated the **Storage Not V2** query to exclude blockBlobStorage accounts.  \r\n- Added an export option for the **Idle Backups** list to streamline data extraction.  \r\n"
             },
-            "name": "Prerequisites"
+            "name": "changelog"
           },
           {
             "type": 1,

@@ -1,0 +1,204 @@
+/// Errors identified when reviewing storage content.
+table StorageErrors
+	lineageTag: 02d75203-d20c-4de5-92b5-9c4c062b96db
+
+	column Scope
+		dataType: string
+		lineageTag: 61bff547-50e5-430e-9750-6891711f4729
+		summarizeBy: none
+		sourceColumn: Scope
+
+		annotation SummarizationSetBy = Automatic
+
+	column Dataset
+		dataType: string
+		lineageTag: 0a132096-0377-44d9-9430-cd35e38c1322
+		summarizeBy: none
+		sourceColumn: Dataset
+
+		annotation SummarizationSetBy = Automatic
+
+	column DatasetVersion
+		dataType: string
+		lineageTag: 4e79b8f6-037c-4e82-8828-f32fc4637ecb
+		summarizeBy: none
+		sourceColumn: DatasetVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: dateTime
+		formatString: Mmm yyyy
+		lineageTag: 383cc84c-63e3-40f7-a6a1-b11e00346b4f
+		summarizeBy: none
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column ErrorCode
+		dataType: string
+		lineageTag: 792e1902-5a8e-42c7-baea-940a6298f04e
+		summarizeBy: none
+		sourceColumn: ErrorCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column AllFiles
+		dataType: int64
+		formatString: 0
+		lineageTag: 5aedafb0-03f2-49d8-ba75-ed79ad3ea867
+		summarizeBy: sum
+		sourceColumn: AllFiles
+
+		annotation SummarizationSetBy = Automatic
+
+	column ConfigFiles
+		dataType: int64
+		formatString: 0
+		lineageTag: 9cd62c25-e24d-4784-be4d-6ffecaea87c4
+		summarizeBy: sum
+		sourceColumn: ConfigFiles
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataFiles
+		dataType: int64
+		formatString: 0
+		lineageTag: 3f2b3998-70d7-4806-bd46-d2a5535209ad
+		summarizeBy: sum
+		sourceColumn: DataFiles
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnsupportedFiles
+		dataType: int64
+		formatString: 0
+		lineageTag: 90989e62-7751-41eb-ac5a-343111237365
+		summarizeBy: sum
+		sourceColumn: UnsupportedFiles
+
+		annotation SummarizationSetBy = Automatic
+
+	column SizeInGB
+		dataType: double
+		lineageTag: 850a6e72-3212-4a5d-afa3-97f43fc11343
+		summarizeBy: sum
+		sourceColumn: SizeInGB
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column StorageAccount
+		dataType: string
+		lineageTag: 4d89a572-fe97-4438-924f-f58fe34bfe3b
+		summarizeBy: none
+		sourceColumn: StorageAccount
+
+		annotation SummarizationSetBy = Automatic
+
+	column StorageContainer
+		dataType: string
+		lineageTag: 8a33836e-5472-44f3-87d2-ed1d597a96ac
+		summarizeBy: none
+		sourceColumn: StorageContainer
+
+		annotation SummarizationSetBy = Automatic
+
+	column StoragePath
+		dataType: string
+		lineageTag: 551867de-d295-4d0e-8935-5abdb40652e8
+		summarizeBy: none
+		sourceColumn: StoragePath
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExportName
+		dataType: string
+		lineageTag: 63b6f552-ca9f-4b0d-a4a1-1a5bbf94d2d0
+		summarizeBy: none
+		sourceColumn: ExportName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Created
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3683738c-3c36-4c42-99db-83c666c8a3de
+		summarizeBy: none
+		sourceColumn: Created
+
+		annotation SummarizationSetBy = Automatic
+
+	column Updated
+		dataType: dateTime
+		formatString: Mmm d, yyyy
+		lineageTag: 609cdadb-ad18-4292-9d1d-129a6c2bbaaf
+		summarizeBy: none
+		sourceColumn: Updated
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	column ErrorSeverity
+		dataType: string
+		lineageTag: eeff1d08-31e6-480b-80de-3e25ce889329
+		summarizeBy: none
+		sourceColumn: ErrorSeverity
+
+		annotation SummarizationSetBy = Automatic
+
+	column ErrorMessage
+		dataType: string
+		lineageTag: 258fd42f-aea8-45c5-a818-f78d8d9011ca
+		summarizeBy: none
+		sourceColumn: ErrorMessage
+
+		annotation SummarizationSetBy = Automatic
+
+	column ErrorMitigation
+		dataType: string
+		lineageTag: 9eb6fd80-02e2-4d77-8c68-fdd455d75c5d
+		summarizeBy: none
+		sourceColumn: ErrorMitigation
+
+		annotation SummarizationSetBy = Automatic
+
+	partition StorageErrors = m
+		mode: import
+		queryGroup: Storage
+		source =
+				let
+				    CommonErrors = #table(
+				        { "Code", "Severity", "Message", "Mitigation" },
+				        {
+				            { "BadHubVersion",          "Critical",      "FinOps hubs 0.2 is not operational. Please upgrade to version 0.3 or later.",                          "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs." },
+				            { "InvalidExportContainer", "Critical",      "This file looks like it may be exported from Cost Management but it is not in the correct container.", "Update your Cost Management export to point to the 'msexports' storage container. The 'ingestion' container is only used for querying ingested cost data." },
+				            { "InvalidExportVersion",   "Critical",      "FinOps hubs requires FOCUS cost exports but this file looks like a legacy Cost Management export.",    "Create a new Cost Management export for FOCUS cost and either stop the current export or change it to export to a different storage container." },
+				            { "InvalidHubVersion",      "Critical",      "FinOps hubs 0.1.1 and earlier does not work with this Power BI report.",                               "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1." },
+				            { "InvalidScopeId",         "Informational", "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.", "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope." },
+				            { "ExportDataNotFound",     "Critical",      "Cost Management data has not been exported.",                                                          "Create a new FOCUS export in Cost Management at https://aka.ms/exportsv2. After created, select 'Run now' to start the export process." },
+				            { "NoDataIngested",         "Critical",      "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.", "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope." },
+				            { "UnknownExportFile",      "Informational", "This file does not look like it was exported from Cost Management. File will be ignored.",             "The 'msexports' container is intended for Cost Management exports only. Please move other files in another storage container." },
+				            { "UnknownHubVersion",      "Critical",      "Unable to identify the version of FinOps hubs from the settings file. Please verify settings are correct. FinOps hubs 0.1.1 and earlier does not work with this Power BI report.", "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1." },
+				            { "UnsupportedExportType",  "Warning",       "This export manifest indicates the export was for an unsupported dataset. Exported data will be reported as ingestion errors.", "Create a new Cost Management export for FOCUS cost and either stop the current export or change it to export to a different storage container." }
+				        }
+				    ),
+				
+				    Source = Table.SelectRows(StorageData, each [Errors] <> null and List.Count([Errors]) > 0),
+				    ExpandErrors = Table.ExpandListColumn(Source, "Errors"),
+				    RenameErrors = Table.RenameColumns(ExpandErrors, {{"Errors", "ErrorCode"}}),
+				    ErrorDetails = Table.NestedJoin(RenameErrors, {"ErrorCode"}, CommonErrors, {"Code"}, "ErrorDetails", JoinKind.LeftOuter),
+				    ExpandDetails = Table.ExpandTableColumn(ErrorDetails, "ErrorDetails", {"Severity", "Message", "Mitigation"}, {"ErrorSeverity", "ErrorMessage", "ErrorMitigation"})
+				in
+				    ExpandDetails
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

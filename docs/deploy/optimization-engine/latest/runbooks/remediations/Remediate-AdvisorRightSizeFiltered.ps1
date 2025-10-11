@@ -29,7 +29,7 @@ if ([string]::IsNullOrEmpty($sqldatabase))
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
 
 
-$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue 
+$storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "remediationlogs"
 }
@@ -62,12 +62,12 @@ $recommendationsTable = "Recommendations"
 "Logging in to Azure with $authenticationOption..."
 
 switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" { 
+    "UserAssignedManagedIdentity" {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
     Default { #ManagedIdentity
-        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
 }
@@ -87,30 +87,30 @@ do {
     $tries++
     try {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
-        $Conn.Open() 
+        $Conn.Open()
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = @"
         SELECT InstanceId, Cloud, TenantGuid, JSON_VALUE(AdditionalInfo, '`$.currentSku') AS CurrentSKU, JSON_VALUE(AdditionalInfo, '`$.targetSku') AS TargetSKU, COUNT(InstanceId)
-        FROM [dbo].[$recommendationsTable] 
+        FROM [dbo].[$recommendationsTable]
         WHERE RecommendationSubTypeId = '$rightSizeRecommendationId' AND FitScore >= $minFitScore AND GeneratedDate >= GETDATE()-(7*$minWeeksInARow)
         GROUP BY InstanceId, Cloud, TenantGuid, JSON_VALUE(AdditionalInfo, '`$.currentSku'), JSON_VALUE(AdditionalInfo, '`$.targetSku')
         HAVING COUNT(InstanceId) >= $minWeeksInARow
-"@    
+"@
         $sqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
         $sqlAdapter.SelectCommand = $Cmd
         $vmsToRightSize = New-Object System.Data.DataTable
-        $sqlAdapter.Fill($vmsToRightSize) | Out-Null            
+        $sqlAdapter.Fill($vmsToRightSize) | Out-Null
         $connectionSuccess = $true
     }
     catch {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
-    }    
+    }
 } while (-not($connectionSuccess) -and $tries -lt 3)
 
 if (-not($connectionSuccess))
@@ -120,8 +120,8 @@ if (-not($connectionSuccess))
 
 Write-Output "Found $($vmsToRightSize.Rows.Count) remediation opportunities."
 
-$Conn.Close()    
-$Conn.Dispose()            
+$Conn.Close()
+$Conn.Dispose()
 
 $logEntries = @()
 
@@ -163,7 +163,7 @@ foreach ($vm in $vmsToRightSize.Rows)
     $subscriptionId = $vm.InstanceId.Split("/")[2]
     $resourceGroup = $vm.InstanceId.Split("/")[4]
     $instanceName = $vm.InstanceId.Split("/")[8]
-    
+
     if ($isEligible)
     {
         Write-Output "Downsizing (SIMULATE=$Simulate) $($vm.InstanceId) to $($vm.TargetSKU)..."
@@ -178,16 +178,16 @@ foreach ($vm in $vmsToRightSize.Rows)
             if ($vmObj)
             {
                 $vmObj.HardwareProfile.VmSize = $vm.TargetSKU
-                Update-AzVM -VM $vmObj -ResourceGroupName $resourceGroup    
+                Update-AzVM -VM $vmObj -ResourceGroupName $resourceGroup
             }
             else
             {
-                Write-Output "Skipping as VM was already removed."                
+                Write-Output "Skipping as VM was already removed."
             }
         }
         else
         {
-            Write-Output "Did not apply remediation."    
+            Write-Output "Did not apply remediation."
         }
     }
 
@@ -209,10 +209,10 @@ foreach ($vm in $vmsToRightSize.Rows)
         LogDetails = $logDetails | ConvertTo-Json -Compress
         RecommendationSubTypeId = $rightSizeRecommendationId
     }
-    
+
     $logEntries += $logentry
 }
-    
+
 $today = $datetime.ToString("yyyyMMdd")
 $csvExportPath = "$today-rightsizefiltered.csv"
 
