@@ -127,7 +127,7 @@ Resource management
 ```kql
 Resources
 | where type == 'microsoft.compute/virtualmachines'
-| extend osDiskId= tostring(properties.storageProfile.osDisk.managedDisk.id)
+| extend osDiskId = tostring(properties.storageProfile.osDisk.managedDisk.id)
 | join kind=leftouter(
     Resources
     | where type =~ 'microsoft.compute/disks'
