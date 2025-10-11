@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getPublisherTags, HubAppProperties } from 'hub-types.bicep'
+import { getAppPublisherTags, HubAppProperties } from 'hub-types.bicep'
 
 
 //==============================================================================
@@ -28,7 +28,7 @@ param roles string[]
 // Create managed identity
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: identityName
-  tags: getPublisherTags(app, 'Microsoft.ManagedIdentity/userAssignedIdentities')
+  tags: getAppPublisherTags(app, 'Microsoft.ManagedIdentity/userAssignedIdentities')
   location: app.hub.location
 }
 

@@ -34,6 +34,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' existing = {
     resource script 'scripts' = [for scr in items(scripts) : {
       name: scr.key
       properties: {
+        #disable-next-line use-secure-value-for-secure-inputs // KQL scripts don't contain sensitive information
         scriptContent: scr.value
         continueOnErrors: continueOnErrors
         forceUpdateTag: forceUpdateTag

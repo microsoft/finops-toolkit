@@ -35,6 +35,20 @@ Power BI reports are provided as template (.PBIT) files. Template files are not 
 
 <br>
 
+## Export requirements
+
+Before using this report, you need to configure Cost Management exports to provide the necessary data. The following exports are required or recommended:
+
+| Dataset                     | Version          | Requirement | Notes                                                                                             |
+| --------------------------- | ---------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| Cost and usage (FOCUS)      | `1.0` or `1.0r2` | **Required** | Provides the primary cost and usage data for resource cost analysis.                            |
+| Price sheet                 | `2023-05-01`     | Recommended | Required to populate missing prices for EA and MCA accounts to show accurate cost calculations.  |
+| Azure Resource Graph        | Latest           | **Required** | Required to gather resource metadata for workload optimization analysis.                        |
+
+For instructions on how to create Cost Management exports, see [Create and manage exports](/azure/cost-management-billing/costs/tutorial-improved-exports). If using FinOps hubs, these exports can be configured automatically.
+
+<br>
+
 ## Get started
 
 The **Get started** page includes a basic introduction to the report with links to learn more.
