@@ -46,6 +46,11 @@ The following section lists features and enhancements that are currently in deve
   - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
   - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
 
+### Documentation improvements
+
+- **Added**
+  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
+
 <br><a name="latest"></a>
 
 ## v13
