@@ -1,8 +1,8 @@
 ---
 title: Troubleshooting reservation savings calculations
 description: Learn how to diagnose and fix issues with reservation savings showing as zero in FinOps toolkit reports.
-author: flanakin
-ms.author: micflan
+author: msbrett
+ms.author: brettwil
 ms.date: 10/10/2025
 ms.topic: troubleshooting-article
 ms.service: finops
