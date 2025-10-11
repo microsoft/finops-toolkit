@@ -41,6 +41,11 @@ The following section lists features and enhancements that are currently in deve
 ### Documentation improvements
 
 
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v13
+
+- **Fixed**
+  - Fixed Azure Hybrid Benefit workbooks to detect all Windows VMs regardless of publisher, including VMs from publishers like esri and safesoftwareinc that were previously excluded ([#1849](https://github.com/microsoft/finops-toolkit/issues/1849)).
+
 ### [Power BI reports](power-bi/reports.md) v13
 
 - **Fixed**
