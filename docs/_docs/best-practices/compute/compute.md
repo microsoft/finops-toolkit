@@ -18,45 +18,15 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Advisor](#advisor)
 - [Azure Kubernetes Service](#azure-kubernetes-service)
 - [Virtual machines](#virtual-machines)
+- [Virtual machine scale sets](#virtual-machine-scale-sets)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
 
 </details>
 
 ---
-
-## Advisor
-
-### List of cost recommendations for Compute
-
-This Azure Resource Graph (ARG) query retrieves a list of Azure Advisor recommendations specifically for compute resources. It filters the recommendations to include only those related to virtual machines, scale sets, and other compute services, providing insights into potential cost savings.
-
-<h4>Category</h4>
-
-Cost optimization
-
-<h4>Query</h4>
-
-```kql
-advisorresources
-| where type == 'microsoft.advisor/recommendations'
-| where tostring(properties.category) has 'Cost'
-| where properties.shortDescription.problem has 'underutilized'
-| where properties.impactedField has 'Compute'
-    or properties.impactedField has 'Container'
-| project
-    AffectedResource = tostring(properties.resourceMetadata.resourceId),
-    Impact = properties.impact,
-    resourceGroup,
-    AdditionalInfo = properties.extendedProperties,
-    subscriptionId,
-    Recommendation = tostring(properties.shortDescription.problem)
-```
-
-<br>
 
 ## Azure Kubernetes Service
 
@@ -109,8 +79,8 @@ Waste reduction
 
 ```kql
 resources
-| where type =~ 'microsoft.compute/virtualmachines' 
-    and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM deallocated' 
+| where type =~ 'microsoft.compute/virtualmachines'
+    and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM deallocated'
     and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM running'
 | extend PowerState = tostring(properties.extended.instanceView.powerState.displayStatus)
 | extend VMLocation = location
@@ -155,11 +125,11 @@ Resource management
 <h4>Query</h4>
 
 ```kql
-resources
+Resources
 | where type == 'microsoft.compute/virtualmachines'
-| extend osDiskId = tostring(properties.storageProfile.osDisk.managedDisk.id)
+| extend osDiskId= tostring(properties.storageProfile.osDisk.managedDisk.id)
 | join kind=leftouter(
-    resources
+    Resources
     | where type =~ 'microsoft.compute/disks'
     | where properties !has 'Unattached'
     | where properties has 'osType'
@@ -167,12 +137,12 @@ resources
         OS = tostring(properties.osType),
         osSku = tostring(sku.name),
         osDiskSizeGB = toint(properties.diskSizeGB),
-        osDiskId = tostring(id)
+         osDiskId=tostring(id)
 ) on osDiskId
 | join kind=leftouter(
-    resources
+    Resources
     | where type =~ 'microsoft.compute/disks'
-    | where properties !has 'osType'
+    | where properties !has "osType"
     | where properties !has 'Unattached'
     | project
         sku = tostring(sku.name),
@@ -239,6 +209,8 @@ resources
 ```
 
 <br>
+
+## Virtual machine scale sets
 
 ### Query: Virtual machine scale set details
 

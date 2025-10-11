@@ -94,7 +94,7 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Added Enterprise App Patterns links resources to the architecting for the cloud section.
-> 2. Fixed KQL formatting issues in Compute best practices documentation and reorganized content alphabetically.
+> 2. Improved Compute best practices documentation: removed Advisor section, standardized KQL formatting in VM disks query, and created separate Virtual machine scale sets section.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
