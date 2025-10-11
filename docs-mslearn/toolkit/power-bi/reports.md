@@ -87,13 +87,22 @@ Reports are provided as Power BI template (.pbit) files that do not include samp
 | Exports in storage (including FinOps hubs)         | [Storage reports](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)                          | Not recommended when monitoring more than $2 million per month.                                          |
 | Cost Management connector                          | [Cost Management connector report](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.zip) | Not recommended when monitoring more than $1M in total cost or accounts that contain savings plan usage. |
 
-Configure FinOps hubs or Cost Management exports with KQL or storage reports. For FinOps hubs, refer to [Configure scopes](../hubs/configure-scopes.md). For Cost Management exports, refer to [How to create exports](/azure/cost-management-billing/costs/tutorial-improved-exports). Power BI reports use the following export types:
+Configure FinOps hubs or Cost Management exports with KQL or storage reports. For FinOps hubs, refer to [Configure scopes](../hubs/configure-scopes.md). For Cost Management exports, refer to [How to create exports](/azure/cost-management-billing/costs/tutorial-improved-exports).
 
-- Cost and usage (FOCUS) &ndash; Required for all reports.
-- Price sheet
-- Reservation details
-- Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
-- Reservation transactions
+### Export requirements
+
+**Before using any Power BI report**, you need to configure the appropriate Cost Management exports. Different reports require different datasets:
+
+| Dataset                     | Version          | Required for reports                                    | Notes                                                                                             |
+| --------------------------- | ---------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Cost and usage (FOCUS)      | `1.0` or `1.0r2` | **All reports**                                         | Primary cost and usage data. Required for all functionality.                                     |
+| Price sheet                 | `2023-05-01`     | All reports (recommended for accurate pricing)         | Required to populate missing prices for EA and MCA accounts.                                     |
+| Reservation details         | `2023-03-01`     | Rate optimization (recommended)                         | Provides detailed reservation usage data for utilization analysis.                              |
+| Reservation recommendations | `2023-05-01`     | **Rate optimization** (required for recommendations)   | Required to display reservation purchase recommendations.                                        |
+| Reservation transactions    | `2023-05-01`     | Rate optimization, Invoicing (optional)                | Provides reservation purchase and refund details.                                               |
+
+> [!IMPORTANT]
+> Each report documentation page includes specific export requirements. Review the "Export requirements" section on each report page before downloading to ensure you have the necessary data configured.
 
 For more information, see [How to setup Power BI](setup.md#set-up-your-first-report).
 
