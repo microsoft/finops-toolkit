@@ -137,7 +137,7 @@ Resources
         OS = tostring(properties.osType),
         osSku = tostring(sku.name),
         osDiskSizeGB = toint(properties.diskSizeGB),
-         osDiskId=tostring(id)
+         osDiskId = tostring(id)
 ) on osDiskId
 | join kind=leftouter(
     Resources
