@@ -59,6 +59,8 @@ _Released August 2025_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
+- **Added**
+  - Added GitHub Copilot instructions template for FinOps hubs that can be downloaded and used with VS Code to connect to and query FinOps hub instances using AI ([#1801](https://github.com/microsoft/finops-toolkit/issues/1801)).
 - **Changed**
   - Reorganized Bicep modules into separate apps.
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
@@ -67,6 +69,8 @@ _Released August 2025_
 - **Fixed**
   - Fixed all Bicep compilation errors and warnings with inline suppressions and descriptive comments.
   - Fixed Build-Toolkit.ps1 bicep generate-params command bug.
+  - Fixed broken download link for GitHub Copilot instructions in [Configure AI agents documentation](hubs/configure-ai.md) by adding the finops-hub-copilot template to the build and packaging process.
+  - Added clarifying notes in [Configure AI agents documentation](hubs/configure-ai.md) to explain that vscode:// protocol handler links only work when VS Code is installed locally.
 
 ### [Power BI reports](power-bi/reports.md) v13
 

@@ -95,7 +95,32 @@ function Copy-TemplateFiles()
         $srcPath = $_
         $templateName = $srcPath.Name
         $versionSubFolder = (Join-Path $srcPath $version)
-        $zip = Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+
+        # Read build config to check for zipWithoutVersion option
+        $srcConfigPath = "$PSScriptRoot/../templates/$templateName/.build.config"
+        $buildConfig = $null
+        if (Test-Path $srcConfigPath)
+        {
+            try
+            {
+                $buildConfig = Get-Content $srcConfigPath -Raw -ErrorAction Stop | ConvertFrom-Json -Depth 10 -ErrorAction Stop
+            }
+            catch
+            {
+                Write-Verbose "Warning: Failed to parse .build.config for $templateName. Using default settings. Error: $($_.Exception.Message)"
+            }
+        }
+        $zipWithoutVersion = $buildConfig.zipWithoutVersion -eq $true
+
+        # Create ZIP filename with or without version
+        if ($zipWithoutVersion)
+        {
+            $zip = Join-Path (Get-Item $relDir) "$templateName.zip"
+        }
+        else
+        {
+            $zip = Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+        }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
         if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true)

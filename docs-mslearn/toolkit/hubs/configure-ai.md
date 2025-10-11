@@ -48,6 +48,9 @@ The simplest way to get started with an AI-powered FinOps hub is with [GitHub Co
    - [Install GitHub Copilot Chat](vscode:extension/GitHub.copilot-chat)
    - [Install Azure MCP server for VS Code](https://insiders.vscode.dev/redirect/mcp/install?name=Azure%20MCP%20Server&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40azure%2Fmcp%40latest%22%2C%22server%22%2C%22start%22%5D%7D)
 
+   > [!TIP]
+   > The first two links use VS Code protocol handlers to open the Extensions view directly to the extension. If clicking doesn't open VS Code, you can manually install the extensions by opening VS Code, clicking the Extensions icon in the Activity Bar, and searching for "GitHub Copilot" and "GitHub Copilot Chat".
+
    <!--
    ### [VS Code Insiders](#tab/vscode-insiders)
 
@@ -78,6 +81,9 @@ If you're using GitHub Copilot, start by opening Chat in Agent mode:
 
 - [Open Agent mode in VS Code](vscode://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai)
 <!-- - [Open Agent mode in VS Code Insiders](vscode-insiders://GitHub.Copilot-Chat/chat?mode=agent&referrer=ftk-finops-hubs-docs-configureai) -->
+
+> [!TIP]
+> These links use VS Code protocol handlers and will only work when VS Code is installed on your device. If clicking the links doesn't open VS Code, you can manually open VS Code, press **Ctrl+Shift+P** (or **Cmd+Shift+P** on Mac), type "Chat: Open Chat", and then select **Agent** mode from the dropdown at the bottom of the chat pane.
 
 The AI instructions for FinOps hubs are preconfigured for FinOps tasks and already know how to find and connect to your FinOps hub instance. To start, ask to connect to your FinOps hub instance:
 
