@@ -139,7 +139,9 @@
         - name: Configure AI agents
           href: toolkit/hubs/configure-ai.md
         - name: Savings calculations
-          href: toolkit/hubs/savings-calculations.md          
+          href: toolkit/hubs/savings-calculations.md
+        - name: Troubleshoot reservation savings
+          href: toolkit/hubs/troubleshooting-reservation-savings.md
         - name: Deployment template
           href: toolkit/hubs/template.md
         - name: Data model

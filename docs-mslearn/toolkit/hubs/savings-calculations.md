@@ -144,6 +144,8 @@ If you see many zero savings values:
 2. **Enable price population** - In storage reports, enable "Experimental: Populate Missing Prices" parameter.
 3. **Use FinOps hubs** - FinOps hubs with Data Explorer automatically populate missing prices when available.
 
+For detailed steps to resolve missing reservation savings, see [Troubleshooting reservation savings](./troubleshooting-reservation-savings.md).
+
 <br>
 
 ## Give feedback

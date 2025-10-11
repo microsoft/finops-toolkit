@@ -417,9 +417,13 @@ TODO: Consider the following ways to streamline this in the future:
 
 This error code is shown in the `x_SourceChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management didn't include `ContractedCost` for the specified rows, which means savings can't be calculated.
 
+This is a known limitation in the FOCUS export for all MCA reservation usage, EA reservation usage when cost allocation is enabled, and Marketplace charges. See [FOCUS conformance summary](https://learn.microsoft.com/cloud-computing/finops/focus/conformance-summary#missing-data) for details.
+
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings aren't available for these records.
 
-To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+To calculate complete savings for reservation usage, export and ingest price sheet data. FinOps hubs will automatically join price data with cost data to populate missing ContractedCost values. For step-by-step guidance, see [Troubleshooting reservation savings](../hubs/troubleshooting-reservation-savings.md).
+
+For more information about the underlying issue, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
 
 <br>
 
@@ -443,9 +447,13 @@ For details on how missing prices affect savings calculations, see [Understandin
 
 This error code is shown in the `x_SourceChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management didn't include `ListCost` for the specified rows, which means savings can't be calculated.
 
+This is a known limitation in the FOCUS export for all MCA reservation usage, EA reservation usage, and Marketplace charges. See [FOCUS conformance summary](https://learn.microsoft.com/cloud-computing/finops/focus/conformance-summary#missing-data) for details.
+
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings aren't available for these records.
 
-To calculate complete savings, you can join cost and usage data with prices. For more information, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+To calculate complete savings for reservation usage, export and ingest price sheet data. FinOps hubs will automatically join price data with cost data to populate missing ListCost values. For step-by-step guidance, see [Troubleshooting reservation savings](../hubs/troubleshooting-reservation-savings.md).
+
+For more information about the underlying issue, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
 
 <br>
 
