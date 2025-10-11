@@ -38,7 +38,7 @@ The simplest way to get started with an AI-powered FinOps hub is with [GitHub Co
    1. Open VS Code.
    2. Open a folder or workspace where you want to connect to your FinOps hub instance.
    3. Create a `.github` folder at the root of the workspace.
-   4. Download the [GitHub Copilot instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-copilot.zip) and extract the contents to the `.github` folder.
+   4. Go to the [FinOps toolkit releases page](https://github.com/microsoft/finops-toolkit/releases) and download the **finops-hub-copilot-v{version}.zip** file that matches your hub version (for example, finops-hub-copilot-v12.zip for hub v12). Extract the contents to the `.github` folder.
 
 5. Install GitHub Copilot and Azure MCP:
 
@@ -62,7 +62,7 @@ For details about the Azure MCP server, see [Azure MCP on GitHub](https://github
 
 ## Connect from other AI platforms
 
-FinOps hubs use [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) to connect to and query your data in Azure Data Explorer using the Azure MCP server. Besides GitHub Copilot, there are many popular [clients that support MCP servers](https://modelcontextprotocol.io/clients), like Claude, Continue, and more. While we have not tested instructions with other clients, you may be able to reuse some or all of the [AI instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-copilot.zip) with other clients. Try the instructions with clients you use and [create a change request](https://aka.ms/ftk/ideas) or [submit a pull request](https://github.com/microsoft/finops-toolkit/pulls) if you discover any gaps or improvements.
+FinOps hubs use [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) to connect to and query your data in Azure Data Explorer using the Azure MCP server. Besides GitHub Copilot, there are many popular [clients that support MCP servers](https://modelcontextprotocol.io/clients), like Claude, Continue, and more. While we have not tested instructions with other clients, you may be able to reuse some or all of the AI instructions for FinOps hubs with other clients. You can download the instructions from the [FinOps toolkit releases page](https://github.com/microsoft/finops-toolkit/releases) (look for the **finops-hub-copilot-v{version}.zip** file that matches your hub version). Try the instructions with clients you use and [create a change request](https://aka.ms/ftk/ideas) or [submit a pull request](https://github.com/microsoft/finops-toolkit/pulls) if you discover any gaps or improvements.
 
 To learn more about the Azure MCP server, see [Azure MCP on GitHub](https://github.com/Azure/azure-mcp?tab=readme-ov-file#-azure-mcp-server).
 
@@ -70,7 +70,7 @@ To learn more about the Azure MCP server, see [Azure MCP on GitHub](https://gith
 
 ## Query FinOps hubs with AI
 
-After you install the Azure MCP server and configure your AI client, use the following sample steps to connect and query your FinOps hub instance. These steps are based on GitHub Copilot Agent mode with the [AI instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-copilot.zip). They may work differently in other clients.
+After you install the Azure MCP server and configure your AI client, use the following sample steps to connect and query your FinOps hub instance. These steps are based on GitHub Copilot Agent mode with the AI instructions for FinOps hubs (available from the [FinOps toolkit releases page](https://github.com/microsoft/finops-toolkit/releases) as **finops-hub-copilot-v{version}.zip**). They may work differently in other clients.
 
 ### Connect to your hub
 

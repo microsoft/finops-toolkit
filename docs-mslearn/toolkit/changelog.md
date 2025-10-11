@@ -29,6 +29,8 @@ The following section lists features and enhancements that are currently in deve
 
 - **Added**
   - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
+- **Fixed**
+  - Fixed broken download links in AI agent configuration documentation to point to the releases page where users can download the version-specific copilot instructions file.
 
 ### [Optimization engine](optimization-engine/overview.md)
 
