@@ -28,11 +28,6 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-### Documentation improvements
-
-- **Updated** FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
-
-
 ### [Power BI reports](power-bi/reports.md) v13
 
 - **Fixed**
@@ -56,6 +51,11 @@ _Released August 2025_
 > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
 > [!div class="nextstepaction"]
 > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v13
+
+- **Changed**
+  - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
 
 <br>
 
