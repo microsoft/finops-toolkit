@@ -25,32 +25,9 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md)
-
-- **Added**
-  - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
-
-### [Optimization engine](optimization-engine/overview.md)
-
-- **Fixed**
-  - Reservations-related workbooks fixed by replacing Instance Size Flexibility ratios CSV vanity URL with actual one to work around Log Analytics externaldata limitation ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
-  - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
-
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
-
-### [Power BI reports](power-bi/reports.md)
-
-- **Added**
-  - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
-  - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
-
-### Documentation improvements
-
-- **Added**
-  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
-  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
 
 
 <br><a name="latest"></a>
@@ -61,6 +38,8 @@ _Released August 2025_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
+- **Added**
+  - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
 - **Changed**
   - Reorganized Bicep modules into separate apps.
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
@@ -70,8 +49,17 @@ _Released August 2025_
   - Fixed all Bicep compilation errors and warnings with inline suppressions and descriptive comments.
   - Fixed Build-Toolkit.ps1 bicep generate-params command bug.
 
+### [Optimization engine](optimization-engine/overview.md) v13
+
+- **Fixed**
+  - Reservations-related workbooks fixed by replacing Instance Size Flexibility ratios CSV vanity URL with actual one to work around Log Analytics externaldata limitation ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
+  - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
+
 ### [Power BI reports](power-bi/reports.md) v13
 
+- **Added**
+  - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
+  - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
 
@@ -81,6 +69,12 @@ _Released August 2025_
 
 - **Changed**
   - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
+
+### Documentation improvements v13
+
+- **Added**
+  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
+  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
 
 <br>
 
