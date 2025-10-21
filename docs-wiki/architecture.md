@@ -14,20 +14,21 @@ On this page:
 
 ## 📂 Folder structure
 
-| Name                                                                 | Description                      |
-| -------------------------------------------------------------------- | -------------------------------- |
-| [docs](../docs)                                                      | Public-facing toolkit docs.      |
-| [docs-wiki](../docs-wiki)                                            | Repo wiki for internal dev docs. |
-| [src](../src)                                                        | Source code and dev docs.        |
-| ├─ [bicep-registry](../src/bicep-registry)                           | Bicep registry modules.          |
-| ├─ [open-data](../src/open-data)                                     | Open data.                       |
-| ├─ [power-bi](../src/power-bi)                                       | Power BI reports.                |
-| ├─ [powershell](../src/powershell)                                   | PowerShell module functions.     |
-| ├─ [templates](../src/templates)                                     | ARM deployment templates.        |
-| │ &nbsp;&nbsp; └─ [finops-hub](../src/templates/finops-hub)          | FinOps hub template.             |
-| └─ [workbooks](../src/workbooks)                                     | Azure Monitor workbooks.         |
-| &nbsp; &nbsp;&nbsp; ├─ [governance](../src/templates/governance)     | Governance workbook.             |
-| &nbsp; &nbsp;&nbsp; └─ [optimization](../src/templates/optimization) | Optimization workbook.           |
+| Name                                                                          | Description                      |
+| ----------------------------------------------------------------------------- | -------------------------------- |
+| [docs](../tree/dev/docs)                                                      | Public-facing toolkit docs.      |
+| [docs-mslearn](../tree/dev/docs-mslearn)                                      | Public-facing docs on mslearn.   |
+| [docs-wiki](../tree/dev/docs-wiki)                                            | Repo wiki for internal dev docs. |
+| [src](../tree/dev/src)                                                        | Source code and dev docs.        |
+| ├─ [bicep-registry](../tree/dev/src/bicep-registry)                           | Bicep registry modules.          |
+| ├─ [open-data](../tree/dev/src/open-data)                                     | Open data.                       |
+| ├─ [power-bi](../tree/dev/src/power-bi)                                       | Power BI reports.                |
+| ├─ [powershell](../tree/dev/src/powershell)                                   | PowerShell module functions.     |
+| ├─ [templates](../tree/dev/src/templates)                                     | ARM deployment templates.        |
+| │ &nbsp;&nbsp; └─ [finops-hub](../tree/dev/src/templates/finops-hub)          | FinOps hub template.             |
+| └─ [workbooks](../tree/dev/src/workbooks)                                     | Azure Monitor workbooks.         |
+| &nbsp; &nbsp;&nbsp; ├─ [governance](../tree/dev/src/workbooks/governance)     | Governance workbook.             |
+| &nbsp; &nbsp;&nbsp; └─ [optimization](../tree/dev/src/workbooks/optimization) | Optimization workbook.           |
 
 Files and folders should use kebab casing (for example, `this-is-my-folder`). The only exception is for RP namespaces in module paths.
 

@@ -24,7 +24,7 @@ To empower organizations to quantify and maximize the value they get from the Mi
 
 The FinOps toolkit is a labor of love from passionate people across the globe both inside and outside of Microsoft. There are many ways to contribute from feedback and discussions to submitting and reviewing documentation updates and code changes. We value any contribution, regardless of its size.
 
-To learn more, refer to our [contribution guide](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md)
+To learn more, refer to our [contribution guide](../tree/dev/CONTRIBUTING.md)
 
 <br>
 
