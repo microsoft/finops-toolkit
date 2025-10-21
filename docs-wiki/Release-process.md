@@ -21,7 +21,7 @@ When a feature branch is code-complete, it can be merged into `dev`. Before proc
 3. All new or updated functionality must be documented in the [changelog](../tree/dev/docs-mslearn/toolkit/changelog.md).
    > _See [Changelog guidance](#-changelog-guidance) for details about changelog requirements._
 4. All new or updated functionality must be documented in the [documentation](../tree/dev/docs).
-<!-- THIS LINE NEEDS EXPLANATION / EDIT -->5. Update the [list of available tools](https://github.com/microsoft/finops-toolkit/tree/dev/docs#-available-tools) on the documentation home page.
+5. Update the [list of available tools](https://aka.ms/finops/toolkit#available-tools) on the documentation home page.
 
 Once the above requirements have been met, the feature branch can be merged into `dev` using the following steps:
 
