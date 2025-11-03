@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices } from '../../fx/hub-types.bicep'
+import { finOpsToolkitVersion, getPrivateEndpointName, HubAppProperties, privateRoutingForLinkedServices } from '../../fx/hub-types.bicep'
 
 
 //==============================================================================
@@ -273,7 +273,9 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 
 //  Kusto cluster
 resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = if (useAzure) {
-  name: replace(clusterName, '_', '-')
+  name: !empty(app.hub.customNames.dataExplorerCluster) 
+    ? replace(app.hub.customNames.dataExplorerCluster, '_', '-') 
+    : replace(clusterName, '_', '-')
   dependsOn: [
     appRegistration
   ]
@@ -465,7 +467,7 @@ resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtu
 
 // Private endpoint
 resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (useAzure && app.hub.options.privateRouting) {
-  name: '${cluster.name}-ep'
+  name: getPrivateEndpointName(app.hub, cluster.name, 'cluster')
   location: app.hub.location
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.Network/privateEndpoints'] ?? {})
   properties: {
@@ -493,25 +495,25 @@ resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/pri
       {
         name: 'privatelink-westus-kusto-net'
         properties: {
-          privateDnsZoneId: dataExplorerPrivateDnsZone.id
+          privateDnsZoneId: !empty(app.hub.existingDnsZones.dataExplorer) ? app.hub.existingDnsZones.dataExplorer : dataExplorerPrivateDnsZone.id
         }
       }
       {
         name: 'privatelink-blob-core-windows-net'
         properties: {
-          privateDnsZoneId: blobPrivateDnsZone.id
+          privateDnsZoneId: !empty(app.hub.existingDnsZones.blob) ? app.hub.existingDnsZones.blob : blobPrivateDnsZone.id
         }
       }
       {
         name: 'privatelink-table-core-windows-net'
         properties: {
-          privateDnsZoneId: tablePrivateDnsZone.id
+          privateDnsZoneId: !empty(app.hub.existingDnsZones.table) ? app.hub.existingDnsZones.table : tablePrivateDnsZone.id
         }
       }
       {
         name: 'privatelink-queue-core-windows-net'
         properties: {
-          privateDnsZoneId: queuePrivateDnsZone.id
+          privateDnsZoneId: !empty(app.hub.existingDnsZones.queue) ? app.hub.existingDnsZones.queue : queuePrivateDnsZone.id
         }
       }
     ]

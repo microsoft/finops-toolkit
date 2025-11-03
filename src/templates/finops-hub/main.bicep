@@ -150,6 +150,45 @@ param enablePublicAccess bool = true
 @description('Optional. Address space for the workload. Minimum /26 subnet size is required for the workload. Default: "10.20.30.0/26".')
 param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 
+@description('Optional. Custom name for the Storage Account. If empty, a default name will be generated. Must be globally unique, 3-24 characters, lowercase letters and numbers only.')
+param storageAccountName string = ''
+
+@description('Optional. Custom name for the Data Factory. If empty, a default name will be generated. Must be globally unique, 3-63 characters, letters, numbers, and non-repeating dashes.')
+param dataFactoryName string = ''
+
+@description('Optional. Custom name for the Key Vault. If empty, a default name will be generated. Must be globally unique, 3-24 characters, letters, numbers, and dashes.')
+param keyVaultName string = ''
+
+@description('Optional. Custom name for the Virtual Network. If empty, a default name will be generated. Only used when enablePublicAccess is false.')
+param virtualNetworkName string = ''
+
+@description('Optional. Custom name for the Managed Identity. If empty, a default name will be generated.')
+param managedIdentityName string = ''
+
+@description('Optional. Custom name for the Data Explorer Cluster. If empty, a default name will be generated. Only used when dataExplorerName is not empty. Must be globally unique, 4-22 characters, lowercase letters and numbers only.')
+param dataExplorerClusterName string = ''
+
+@description('Optional. Custom name prefix for Private Endpoints. If empty, default names will be generated. The suffix will be appended based on the service (e.g., "-blob-ep", "-dfs-ep", "-vault-ep", "-cluster-ep").')
+param privateEndpointNamePrefix string = ''
+
+@description('Optional. Resource ID of an existing Private DNS Zone for Blob storage. If provided, the hub will use this zone instead of creating a new one. Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net')
+param existingBlobDnsZoneId string = ''
+
+@description('Optional. Resource ID of an existing Private DNS Zone for Data Lake Storage (DFS). If provided, the hub will use this zone instead of creating a new one. Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/privateDnsZones/privatelink.dfs.core.windows.net')
+param existingDfsDnsZoneId string = ''
+
+@description('Optional. Resource ID of an existing Private DNS Zone for Queue storage. If provided, the hub will use this zone instead of creating a new one. Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/privateDnsZones/privatelink.queue.core.windows.net')
+param existingQueueDnsZoneId string = ''
+
+@description('Optional. Resource ID of an existing Private DNS Zone for Table storage. If provided, the hub will use this zone instead of creating a new one. Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/privateDnsZones/privatelink.table.core.windows.net')
+param existingTableDnsZoneId string = ''
+
+@description('Optional. Resource ID of an existing Private DNS Zone for Key Vault. If provided, the hub will use this zone instead of creating a new one. Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net')
+param existingVaultDnsZoneId string = ''
+
+@description('Optional. Resource ID of an existing Private DNS Zone for Data Explorer. If provided, the hub will use this zone instead of creating a new one. Format: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/privateDnsZones/privatelink.{region}.kusto.windows.net')
+param existingDataExplorerDnsZoneId string = ''
+
 
 //==============================================================================
 // Resources
@@ -180,6 +219,19 @@ module hub 'modules/hub.bicep' = {
     remoteHubStorageKey: remoteHubStorageKey
     enablePublicAccess: enablePublicAccess
     virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+    storageAccountName: storageAccountName
+    dataFactoryName: dataFactoryName
+    keyVaultName: keyVaultName
+    virtualNetworkName: virtualNetworkName
+    managedIdentityName: managedIdentityName
+    dataExplorerClusterName: dataExplorerClusterName
+    privateEndpointNamePrefix: privateEndpointNamePrefix
+    existingBlobDnsZoneId: existingBlobDnsZoneId
+    existingDfsDnsZoneId: existingDfsDnsZoneId
+    existingQueueDnsZoneId: existingQueueDnsZoneId
+    existingTableDnsZoneId: existingTableDnsZoneId
+    existingVaultDnsZoneId: existingVaultDnsZoneId
+    existingDataExplorerDnsZoneId: existingDataExplorerDnsZoneId
   }
 }
 
