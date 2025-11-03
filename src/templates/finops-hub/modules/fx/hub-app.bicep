@@ -303,7 +303,7 @@ resource storageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04
 
 // Create managed identity to start/stop triggers
 resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (usesDataFactory) {
-  name: app.hub.options.hasNamingConvention && !empty(app.hub.customNames.managedIdentity) 
+  name: !empty(app.hub.customNames.managedIdentity) 
     ? app.hub.customNames.managedIdentity 
     : '${dataFactory.name}_triggerManager'
   location: app.hub.location
