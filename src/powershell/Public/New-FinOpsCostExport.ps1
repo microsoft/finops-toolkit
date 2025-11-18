@@ -25,6 +25,9 @@
     .PARAMETER Format
     Optional. Format of the export files. Allowed values = "Csv", "Parquet". Default = "Csv".
 
+    .PARAMETER CompressionMode
+    Optional. Compression used for exported files. Allowed values = "None", "GZip", "Snappy". Default = "None".
+
     .PARAMETER DatasetVersion
     Optional. Schema version of the dataset to export. Default = "1.2-preview" (applies to FocusCost only).
 
@@ -153,6 +156,11 @@ function New-FinOpsCostExport
         [ValidateSet("Csv", "Parquet")]
         [string]
         $Format = "Csv",
+
+        [Parameter()]
+        [ValidateSet("None", "GZip", "Snappy")]
+        [string]
+        $CompressionMode = "None",
 
         [Parameter()]
         [string]
@@ -367,7 +375,7 @@ function New-FinOpsCostExport
                 $props | Add-Member -Name name -Value $Name -MemberType NoteProperty -Force
                 $props.properties = $props.properties | Add-Member -Name exportDescription -Value $Description -MemberType NoteProperty -Force -PassThru
                 $props.properties = $props.properties | Add-Member -Name dataOverwriteBehavior -Value "$(if ($DoNotOverwrite) { "CreateNewReport" } else { "OverwritePreviousReport" })" -MemberType NoteProperty -Force -PassThru
-                $props.properties = $props.properties | Add-Member -Name compressionMode -Value "None" -MemberType NoteProperty -Force -PassThru
+                $props.properties = $props.properties | Add-Member -Name compressionMode -Value $CompressionMode -MemberType NoteProperty -Force -PassThru
                 $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name dataVersion -Value $DatasetVersion -MemberType NoteProperty -Force -PassThru
                 $props.properties.deliveryInfo.destination.type = "AzureBlob"
 
