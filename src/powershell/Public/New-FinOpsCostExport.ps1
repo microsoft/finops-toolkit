@@ -22,6 +22,9 @@
     .PARAMETER Dataset
     Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions". Default = "FocusCost".
 
+    .PARAMETER Format
+    Optional. Format of the export files. Allowed values = "Csv", "Parquet". Default = "Csv".
+
     .PARAMETER DatasetVersion
     Optional. Schema version of the dataset to export. Default = "1.2-preview" (applies to FocusCost only).
 
@@ -145,6 +148,11 @@ function New-FinOpsCostExport
         [ValidateSet("ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions")]
         [string]
         $Dataset = "FocusCost",
+
+        [Parameter()]
+        [ValidateSet("Csv", "Parquet")]
+        [string]
+        $Format = "Csv",
 
         [Parameter()]
         [string]
@@ -278,7 +286,7 @@ function New-FinOpsCostExport
                         }
                     }
                     schedule      = @{ status = "Inactive" }
-                    format        = "Csv"
+                    format        = $Format
                     deliveryInfo  = @{
                         destination = @{
                             resourceId     = $StorageAccountId
