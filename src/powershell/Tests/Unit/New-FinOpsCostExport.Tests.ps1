@@ -209,6 +209,52 @@ InModuleScope 'FinOpsToolkit' {
             }
         }
 
+        Describe 'Format and compression' {
+            It 'Should default to CSV format' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams
+
+                # Assert
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.format -eq 'Csv'
+                }
+            }
+
+            It 'Should set explicit export format' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams -Format 'Parquet'
+
+                # Assert
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.format -eq 'Parquet'
+                }
+            }
+
+            It 'Should default to no compression' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams
+
+                # Assert
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.compressionMode -eq 'None'
+                }
+            }
+
+            It 'Should set explicit compression mode' {
+                # Arrange
+                # Act
+                New-FinOpsCostExport @newExportParams -CompressionMode 'Snappy'
+
+                # Assert
+                Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
+                    $Body.properties.compressionMode -eq 'Snappy'
+                }
+            }
+        }
+
         Describe 'Storage Path Handling' {
             It 'Should use scope as default storage path without colons' {
                 # Arrange
