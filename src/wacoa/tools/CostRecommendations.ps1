@@ -493,7 +493,32 @@ function Export-ResultsToExcel {
         [string]$ExcelFilePath
     )
 
-    $AllResources | Export-Excel -Path $ExcelFilePath -WorksheetName 'Recommendations' -AutoSize -TableName 'Table1' -TableStyle $script:settings.defaultSettings.excelTableStyle
+    # Map resources to ensure all expected fields are included
+    $mappedData = $AllResources | ForEach-Object {
+        [PSCustomObject]@{
+            ResourceId = $_.ResourceId
+            ResourceType = $_.x_ResourceType
+            ResourceName = $_.ResourceName
+            ResourceGroupName = $_.x_ResourceGroupName
+            SubscriptionId = $_.SubAccountId
+            SubscriptionName = $_.SubAccountName
+            RecommendationId = $_.RecommendationId
+            RecommendationName = $_.RecommendationName
+            RecommendationPriority = $_.x_RecommendationPriority
+            RecommendationImpact = $_.RecommendationImpact
+            RecommendationDetails = $_.x_RecommendationDetails
+            RecommendationDescription = $_.RecommendationDescription
+            Category = $_.Category
+            ImpactedField = $_.ImpactedField
+            ImpactedValue = $_.ImpactedValue
+            LastUpdated = $_.LastUpdated
+            RecommendationState = $_.RecommendationState
+            ExtendedProperties = $_.ExtendedProperties
+            Tags = $_.Tags
+        }
+    }
+    
+    $mappedData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Recommendations' -AutoSize -TableName 'Table1' -TableStyle $script:settings.defaultSettings.excelTableStyle
     Write-Log -Message "Results exported to Excel file: $ExcelFilePath" -Level "INFO"
 
     if ($AssessmentFilePath) {
