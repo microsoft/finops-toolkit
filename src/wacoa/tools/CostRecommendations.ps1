@@ -558,6 +558,24 @@ function Start-CostRecommendations {
             exit
         }
         
+        if (($env:ACC_ENV -eq 'AzureCloudShell') -or ($env:CLOUD_SHELL -eq 'true')) {
+            Write-Host "Script running from Azure CloudShell. Testing if Temp folder exist" -ForegroundColor Yellow
+
+            # Get current directory
+            $currentPath = Get-Location
+
+            # Define the temp folder path
+            $tempFolderPath = Join-Path -Path $currentPath -ChildPath "temp\WACOA"
+
+            # Check if "temp" folder exists; if not, create it
+            if (-not (Test-Path -Path $tempFolderPath)) {
+                New-Item -ItemType Directory -Path $tempFolderPath | Out-Null
+            }
+
+            # Set the TEMP environment variable to the new temp folder path
+            $env:TEMP = $tempFolderPath
+        }
+        
         Install-AndImportModules -Modules @('Az.Accounts', 'Az.ResourceGraph', 'ImportExcel', 'powershell-yaml')
         Connect-ToAzure
         
