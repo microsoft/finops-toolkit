@@ -49,6 +49,7 @@ _Released August 2025_
   - Fixed all Bicep compilation errors and warnings with inline suppressions and descriptive comments.
   - Fixed Build-Toolkit.ps1 bicep generate-params command bug.
   - Fixed Azure Data Explorer dashboard queries by converting `todecimal(0)` to `toreal(0)` to ensure compatibility with KQL type system ([#1893](https://github.com/microsoft/finops-toolkit/issues/1893)).
+  - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2 by adding fallback mappings for `PricingCurrency`, `SkuMeter`, and `SkuPriceDetails` columns to their legacy `x_` counterparts.
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
