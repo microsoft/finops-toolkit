@@ -99,7 +99,7 @@ Costs_v1_2()
             PricingCurrency = x_PricingCurrency,
             SkuMeter = x_SkuMeterName
         // Add new columns
-        | join kind=leftouter (Services | where isnotempty(x_ResourceType) | project x_ResourceType, ServiceSubcategory, x_ServiceModel) on x_ResourceType
+        | lookup kind=leftouter (Services | where isnotempty(x_ResourceType) | summarize take_any(ServiceSubcategory), take_any(x_ServiceModel) by x_ResourceType | project x_ResourceType, ServiceSubcategory, x_ServiceModel) on x_ResourceType
         | extend CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
         | extend CapacityReservationStatus = case(
             isempty(CapacityReservationId), '',
