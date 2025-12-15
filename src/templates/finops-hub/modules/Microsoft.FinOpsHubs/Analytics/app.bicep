@@ -125,8 +125,8 @@ var INGESTION_DB = 'Ingestion'
 var INGESTION_ID_SEPARATOR = '__'
 
 var ftkReleaseUri = endsWith(finOpsToolkitVersion, '-dev')
-  ? 'https://github.com/microsoft/finops-toolkit/releases/latest/download'
-  : 'https://github.com/microsoft/finops-toolkit/releases/download/v${finOpsToolkitVersion}'
+  ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
+  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/v${finOpsToolkitVersion}/src/open-data'
 
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
