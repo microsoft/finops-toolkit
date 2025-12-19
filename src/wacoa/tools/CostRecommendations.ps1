@@ -496,25 +496,23 @@ function Export-ResultsToExcel {
     # Map resources to ensure all expected fields are included
     $mappedData = $AllResources | ForEach-Object {
         [PSCustomObject]@{
-            ResourceId = $_.ResourceId
-            ResourceType = $_.x_ResourceType
-            ResourceName = $_.ResourceName
-            ResourceGroupName = $_.x_ResourceGroupName
-            SubscriptionId = $_.SubAccountId
-            SubscriptionName = $_.SubAccountName
-            RecommendationId = $_.RecommendationId
-            RecommendationName = $_.RecommendationName
-            RecommendationPriority = $_.x_RecommendationPriority
-            RecommendationImpact = $_.RecommendationImpact
-            RecommendationDetails = $_.x_RecommendationDetails
-            RecommendationDescription = $_.RecommendationDescription
-            Category = $_.Category
-            ImpactedField = $_.ImpactedField
-            ImpactedValue = $_.ImpactedValue
-            LastUpdated = $_.LastUpdated
-            RecommendationState = $_.RecommendationState
-            ExtendedProperties = $_.ExtendedProperties
-            Tags = $_.Tags
+            ResourceId                 = $_.ResourceId
+            ResourceName               = $_.ResourceName
+            x_ResourceType             = $_.x_ResourceType
+            x_ResourceGroupName        = $_.x_ResourceGroupName
+            SubAccountId               = $_.SubAccountId
+            SubAccountName             = $_.SubAccountName
+            x_RecommendationId          = $_.x_RecommendationId
+            x_RecommendationCategory    = $_.x_RecommendationCategory
+            x_RecommendationImpact      = $_.x_RecommendationImpact
+            x_RecommendationProvider    = $_.x_RecommendationProvider
+            x_RecommendationTypeId      = $_.x_RecommendationTypeId
+            x_RecommendationControl     = $_.x_RecommendationControl
+            x_RecommendationMaturityLevel = $_.x_RecommendationMaturityLevel
+            x_RecommendationDescription = $_.x_RecommendationDescription
+            x_RecommendationSolution    = $_.x_RecommendationSolution
+            x_RecommendationDetails     = $_.x_RecommendationDetails
+            x_RecommendationDate        = $_.x_RecommendationDate
         }
     }
     
