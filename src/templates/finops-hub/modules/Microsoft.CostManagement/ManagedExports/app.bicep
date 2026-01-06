@@ -496,6 +496,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               activity: 'Set Scopes'
               dependencyConditions: [
                 'Succeeded'
+                'Failed'
               ]
             }
             {
@@ -742,6 +743,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               activity: 'Set Scopes'
               dependencyConditions: [
                 'Succeeded'
+                'Failed'
               ]
             }
             {
@@ -1075,6 +1077,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               activity: 'Save Scopes'
               dependencyConditions: [
                 'Succeeded'
+                'Failed'
               ]
             }
             {
