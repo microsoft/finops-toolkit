@@ -50,6 +50,7 @@ module appRegistration '../../fx/hub-app.bicep' = {
 // Key Vault secret
 module keyVault_secret '../../fx/hub-vault.bicep' = {
   name: 'keyVault_secret'
+  dependsOn: [appRegistration]  // Wait for Key Vault to be created
   params: {
     vaultName: app.keyVault
     secretName: storageKeySecretName
@@ -62,11 +63,13 @@ module keyVault_secret '../../fx/hub-vault.bicep' = {
 // Get key vault instance
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
   name: app.keyVault
+  dependsOn: [appRegistration]  // Wait for Key Vault to be created
 }
 
 // Get data factory instance
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: app.dataFactory
+  dependsOn: [appRegistration]  // Wait for Key Vault to be created
 
   // cSpell:ignore linkedservices
   resource linkedService_remoteHubStorage 'linkedservices' = {
