@@ -29,6 +29,9 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+- **Fixed**
+  - Fixed logic to properly generate the scopes to monitor.
 
 <br><a name="latest"></a>
 
