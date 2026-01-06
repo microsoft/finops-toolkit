@@ -9,7 +9,7 @@ The FinOps toolkit is an open-source collection of customizable tools and resour
 - Advanced solutions to facilitate building custom capabilities.
 - Learning resources and best practices about how to implement FinOps.
 
-[🧰 Learn about the tools](https://aka.ms/finops/toolkit#-available-tools)
+[🧰 Learn about the tools](https://aka.ms/finops/toolkit#available-tools)
 
 <br>
 
