@@ -17,9 +17,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in August 2025<span class="ftk-version">v13</span></h3>
+    <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
     <p>
-        August brings modular Bicep reorganization, enhanced multi-cloud documentation, Optimization Engine bug fixes, Power BI export requirements documentation, and comprehensive Data Lake connectivity guides.
+        January brings modular Bicep reorganization, enhanced multi-cloud documentation, Optimization Engine bug fixes, Power BI export requirements documentation, and comprehensive Data Lake connectivity guides.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

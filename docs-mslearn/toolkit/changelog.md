@@ -34,7 +34,7 @@ The following section lists features and enhancements that are currently in deve
 
 ## v13
 
-_Released August 2025_
+_Released January 2026_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
