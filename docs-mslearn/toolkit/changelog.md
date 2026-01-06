@@ -49,6 +49,7 @@ _Released August 2025_
   - Fixed all Bicep compilation errors and warnings with inline suppressions and descriptive comments.
   - Fixed Build-Toolkit.ps1 bicep generate-params command bug.
   - Fixed Azure Data Explorer dashboard queries by converting `todecimal(0)` to `toreal(0)` to ensure compatibility with KQL type system ([#1893](https://github.com/microsoft/finops-toolkit/issues/1893)).
+  - Fixed ADF pipeline dependency logic in config_RunBackfillJob, config_StartExportProcess, and config_ConfigureExports pipelines to properly handle both array and non-array scope configurations by adding 'Failed' condition to 'Save/Set Scopes' activity dependencies.
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
