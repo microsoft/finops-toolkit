@@ -70,7 +70,7 @@ type HubRoutingProperties = {
   options: {
     enableTelemetry: 'Indicates whether telemetry should be enabled for deployments.'
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
-    keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault.'
+    keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault. When enabled, deleted Key Vault and its secrets cannot be permanently deleted until the retention period expires, which is required for compliance in some environments.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
