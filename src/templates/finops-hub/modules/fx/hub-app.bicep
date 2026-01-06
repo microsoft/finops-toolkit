@@ -479,6 +479,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
     enabledForDiskEncryption: true
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
+    enablePurgeProtection: app.hub.options.keyVaultEnablePurgeProtection ? true : null
     enableRbacAuthorization: false
     createMode: 'default'
     tenantId: subscription().tenantId

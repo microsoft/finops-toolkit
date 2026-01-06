@@ -34,6 +34,9 @@ param enableInfrastructureEncryption bool = false
 ])
 param keyVaultSku string = 'premium'
 
+@description('Optional. Enable purge protection for the Key Vault. Default: false.')
+param enablePurgeProtection bool = false
+
 @description('Optional. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string = ''
 
@@ -179,6 +182,7 @@ var hub = newHub(
   tagsByResource,
   storageSku,
   keyVaultSku,
+  enablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
   virtualNetworkAddressPrefix,

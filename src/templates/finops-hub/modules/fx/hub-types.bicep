@@ -70,6 +70,7 @@ type HubRoutingProperties = {
   options: {
     enableTelemetry: 'Indicates whether telemetry should be enabled for deployments.'
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
+    keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
@@ -93,6 +94,7 @@ type HubProperties = {
   options: {
     enableTelemetry: bool
     keyVaultSku: string
+    keyVaultEnablePurgeProtection: bool
     networkAddressPrefix: string
     privateRouting: bool
     publisherIsolation: bool
@@ -180,6 +182,7 @@ func newHubInternal(
   tagsByResource object,
   storageSku string,
   keyVaultSku string,
+  keyVaultEnablePurgeProtection bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   networkName string,
@@ -199,6 +202,7 @@ func newHubInternal(
   options: {
     enableTelemetry: isTelemetryEnabled ?? true
     keyVaultSku: keyVaultSku
+    keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
     networkAddressPrefix: networkAddressPrefix
     privateRouting: !enablePublicAccess
     publisherIsolation: false  // TODO: Expose publisher isolation option
@@ -237,6 +241,7 @@ func newHub(
   tagsByResource object,
   storageSku string,
   keyVaultSku string,
+  keyVaultEnablePurgeProtection bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
   networkAddressPrefix string,
@@ -250,6 +255,7 @@ func newHub(
   tagsByResource,
   storageSku,
   keyVaultSku,
+  keyVaultEnablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
