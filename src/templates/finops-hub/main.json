@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.39.26.7824",
-      "templateHash": "1315021558585288245"
+      "templateHash": "1351885535922779620"
     }
   },
   "parameters": {
@@ -38,13 +38,6 @@
       "defaultValue": false,
       "metadata": {
         "description": "Optional. Enable infrastructure encryption on the storage account. Default = false."
-      }
-    },
-    "enablePurgeProtection": {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata": {
-        "description": "Optional. Enable purge protection for the Key Vault. Default: false."
       }
     },
     "remoteHubStorageUri": {
@@ -259,9 +252,6 @@
           },
           "enableInfrastructureEncryption": {
             "value": "[parameters('enableInfrastructureEncryption')]"
-          },
-          "enablePurgeProtection": {
-            "value": "[parameters('enablePurgeProtection')]"
           },
           "enableManagedExports": {
             "value": "[parameters('enableManagedExports')]"

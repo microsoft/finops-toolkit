@@ -26,9 +26,6 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
-@description('Optional. Enable purge protection for the Key Vault. Default: false.')
-param enablePurgeProtection bool = false
-
 @description('Optional. Storage account to push data to for ingestion into a remote hub.')
 param remoteHubStorageUri string = ''
 
@@ -166,7 +163,6 @@ module hub 'modules/hub.bicep' = {
     // eventGridLocation: eventGridLocation
     storageSku: storageSku
     enableInfrastructureEncryption: enableInfrastructureEncryption
-    enablePurgeProtection: enablePurgeProtection
     enableManagedExports: enableManagedExports
     dataExplorerName: dataExplorerName
     dataExplorerSku: dataExplorerSku

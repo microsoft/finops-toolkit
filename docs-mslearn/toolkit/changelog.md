@@ -38,7 +38,7 @@ _Released January 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
 - **Added**
-  - Added optional `enablePurgeProtection` parameter to enable purge protection on the Key Vault for compliance with enterprise-scale Azure Landing Zone policies ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added optional `enablePurgeProtection` parameter (default: `false`) in `modules/hub.bicep` to enable purge protection on the Key Vault for compliance with enterprise-scale Azure Landing Zone policies. Follows the same pattern as `keyVaultSku` parameter ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
   - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
 - **Changed**
   - Reorganized Bicep modules into separate apps.
