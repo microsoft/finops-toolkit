@@ -763,7 +763,7 @@ Costs_transform_v1_2()
         ServiceSubcategory,  // TODO: Populate ServiceSubcategory from ServiceName when missing
         SkuId,
         SkuMeter = coalesce(SkuMeter, x_SkuMeterName),
-        SkuPriceDetails = coalesce(SkuPriceDetails, x_SkuDetails),
+        SkuPriceDetails,
         SkuPriceId,
         SubAccountId,
         SubAccountName = iff(isempty(SubAccountId), '', SubAccountName),
