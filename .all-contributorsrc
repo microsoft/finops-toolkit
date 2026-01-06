@@ -833,6 +833,15 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "sandernaus",
+      "name": "Sander Naus",
+      "avatar_url": "https://avatars.githubusercontent.com/u/714779?v=4",
+      "profile": "http://www.sandernaus.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
