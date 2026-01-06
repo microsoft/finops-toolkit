@@ -125,8 +125,8 @@ var INGESTION_DB = 'Ingestion'
 var INGESTION_ID_SEPARATOR = '__'
 
 var ftkReleaseUri = endsWith(finOpsToolkitVersion, '-dev')
-  ? 'https://github.com/microsoft/finops-toolkit/releases/latest/download'
-  : 'https://github.com/microsoft/finops-toolkit/releases/download/v${finOpsToolkitVersion}'
+  ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
+  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/v${finOpsToolkitVersion}/src/open-data'
 
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
@@ -976,7 +976,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                     userProperties: []
                     typeProperties: {
                       // cSpell:ignore externaldata
-                      command: '.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription: string, AccountTypes: string, x_PricingBlockSize: decimal, PricingUnit: string)[@"${ftkReleaseUri}/PricingUnits.csv"] with (format="csv", ignoreFirstRecord=true) | project-away AccountTypes'
+                      command: '.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription: string, AccountTypes: string, x_PricingBlockSize: real, PricingUnit: string)[@"${ftkReleaseUri}/PricingUnits.csv"] with (format="csv", ignoreFirstRecord=true) | project-away AccountTypes'
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
