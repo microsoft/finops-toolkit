@@ -29,12 +29,11 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-
 <br><a name="latest"></a>
 
 ## v13
 
-_Released August 2025_
+_Released January 2026_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
@@ -49,7 +48,9 @@ _Released August 2025_
   - Fixed all Bicep compilation errors and warnings with inline suppressions and descriptive comments.
   - Fixed Build-Toolkit.ps1 bicep generate-params command bug.
   - Fixed Azure Data Explorer dashboard queries by converting `todecimal(0)` to `toreal(0)` to ensure compatibility with KQL type system ([#1893](https://github.com/microsoft/finops-toolkit/issues/1893)).
+  - Fixed logic to properly generate the scopes to monitor.
   - Fixed datatype mismatch in InitializeHub pipeline by changing `x_PricingBlockSize` from `decimal` to `real` to match PricingUnits table schema.
+  - Fixed ADF pipeline dependency logic in config_RunBackfillJob, config_StartExportProcess, and config_ConfigureExports pipelines to properly handle both array and non-array scope configurations by adding 'Failed' condition to 'Save/Set Scopes' activity dependencies.
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
