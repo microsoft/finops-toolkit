@@ -54,6 +54,7 @@ _Released January 2026_
   - Fixed datatype mismatch in InitializeHub pipeline by changing `x_PricingBlockSize` from `decimal` to `real` to match PricingUnits table schema.
   - Fixed ADF pipeline dependency logic in config_RunBackfillJob, config_StartExportProcess, and config_ConfigureExports pipelines to properly handle both array and non-array scope configurations by adding 'Failed' condition to 'Save/Set Scopes' activity dependencies.
   - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2 by adding fallback mappings for `PricingCurrency` and `SkuMeter` columns to their legacy `x_` counterparts.
+  - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md). The packaging process now respects the `unversionedZip` property in `.build.config` to create unversioned ZIP files for finops-hub-copilot, enabling stable download links ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
