@@ -95,7 +95,21 @@ function Copy-TemplateFiles()
         $srcPath = $_
         $templateName = $srcPath.Name
         $versionSubFolder = (Join-Path $srcPath $version)
-        $zip = Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+        
+        # Check if template should use an unversioned ZIP filename
+        $buildConfigPath = "$PSScriptRoot/../templates/$templateName/.build.config"
+        $unversionedZip = $false
+        if (Test-Path $buildConfigPath)
+        {
+            $buildConfig = Get-Content $buildConfigPath -Raw | ConvertFrom-Json
+            $unversionedZip = $buildConfig.unversionedZip -eq $true
+        }
+        
+        $zip = if ($unversionedZip) {
+            Join-Path (Get-Item $relDir) "$templateName.zip"
+        } else {
+            Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+        }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
         if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true)
@@ -157,15 +171,6 @@ function Copy-TemplateFiles()
 
         Write-Verbose ("Compressing $srcPath to $zip" -replace (Get-Item $relDir).FullName, '.')
         Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
-        
-        # Create unversioned copy for specific templates that need stable download links
-        if ($templateName -eq "finops-hub-copilot")
-        {
-            $unversionedZip = Join-Path (Get-Item $relDir) "$templateName.zip"
-            Write-Verbose ("Creating unversioned copy: $unversionedZip" -replace (Get-Item $relDir).FullName, '.')
-            Copy-Item $zip $unversionedZip -Force
-        }
-        
         return $zip
     }
 }
