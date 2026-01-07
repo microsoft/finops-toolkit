@@ -44,7 +44,7 @@ The following section lists features and enhancements that are currently in deve
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
 - **Fixed**
-  - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md). The packaging process now creates both versioned and unversioned ZIP files for finops-hub-copilot ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
+  - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md). The packaging process now respects the `unversionedZip` property in `.build.config` to create unversioned ZIP files for finops-hub-copilot, enabling stable download links ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
 - **Changed**
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
     - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
