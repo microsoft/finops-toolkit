@@ -5,12 +5,12 @@ Write-Output "Updating settings.json file..."
 Write-Output "  Storage account: $env:storageAccountName"
 Write-Output "  Container: $env:containerName"
 
-$validateScopes = { $_.Length -gt 45 }
+$validateScopes = { $_.scope.Length -gt 45 }
 
 # Initialize variables
 $fileName = 'settings.json'
 $filePath = Join-Path -Path . -ChildPath $fileName
-$newScopes = $env:scopes.Split('|') | Where-Object $validateScopes | ForEach-Object { @{ scope = $_ } }
+$newScopes = $env:scopes.Split('|') | ForEach-Object { [PSCustomObject]@{ scope = $_ } } | Where-Object $validateScopes
 
 # Get storage context
 $storageContext = @{
@@ -157,7 +157,7 @@ else
 # Updating settings
 Write-Output "Updating version to $env:ftkVersion..."
 $json.version = $env:ftkVersion
-$json.scopes = (@() + $json.scopes + $newScopes) | Select-Object -Unique
+$json.scopes = ($json.scopes + $newScopes) | Sort-Object scope -Unique
 if ($null -eq $json.scopes) { $json.scopes = @() }
 $text = $json | ConvertTo-Json
 Write-Output "---------"
