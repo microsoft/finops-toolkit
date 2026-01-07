@@ -151,6 +151,43 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       }
     }
   }
+
+  // Replace the manifest_sink dataset to write manifests to remote hub
+  resource dataset_manifest_sink 'datasets' = {
+    name: 'manifest_sink'
+    properties: {
+      annotations: []
+      parameters: {
+        fileName: {
+          type: 'String'
+          defaultValue: 'manifest.json'
+        }
+        folderPath: {
+          type: 'String'
+          defaultValue: ingestionContainerName
+        }
+      }
+      type: 'Json'
+      typeProperties: {
+        location: {
+          type: 'AzureBlobFSLocation'
+          fileName: {
+            value: '@{dataset().fileName}'
+            type: 'Expression'
+          }
+          folderPath: {
+            value: '@{dataset().folderPath}'
+            type: 'Expression'
+          }
+        }
+      }
+      linkedServiceName: {
+        parameters: {}
+        referenceName: linkedService_remoteHubStorage.name
+        type: 'LinkedServiceReference'
+      }
+    }
+  }
 }
 
 

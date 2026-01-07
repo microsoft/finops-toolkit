@@ -55,6 +55,7 @@ _Released January 2026_
   - Fixed datatype mismatch in InitializeHub pipeline by changing `x_PricingBlockSize` from `decimal` to `real` to match PricingUnits table schema.
   - Fixed ADF pipeline dependency logic in config_RunBackfillJob, config_StartExportProcess, and config_ConfigureExports pipelines to properly handle both array and non-array scope configurations by adding 'Failed' condition to 'Save/Set Scopes' activity dependencies.
   - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2 by adding fallback mappings for `PricingCurrency` and `SkuMeter` columns to their legacy `x_` counterparts.
+  - Fixed RemoteHub manifest file not being copied to remote storage by splitting manifest dataset into separate source and sink datasets, allowing RemoteHub to override the sink to point to remote storage.
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
