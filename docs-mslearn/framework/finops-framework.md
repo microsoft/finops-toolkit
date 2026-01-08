@@ -45,7 +45,7 @@ Before digging into FinOps, it's important to understand the core principles tha
 - **FinOps should be enabled centrally** – Centralize management of FinOps practices for consistency, automation, and rate negotiations.
 - **Take advantage of the variable cost model of the cloud** – Make continuous small adjustments in cloud usage and optimization.
 
-For more information about FinOps principles, including tips from the experts, see [FinOps with Azure – Bringing FinOps to life through organizational and cultural alignment](https://azure.microsoft.com/solutions/finops).
+For more information about FinOps principles, including tips from the experts, see [FinOps with Azure – Bringing FinOps to life through organizational and cultural alignment](https://azure.microsoft.com/resources/finops-with-azure-bringing-finops-to-life-through-organizational-and-cultural-alignment/).
 
 <br>
 
