@@ -37,6 +37,25 @@ Power BI reports are provided as template (.PBIT) files. Template files are not 
 
 <br>
 
+## Export requirements
+
+Before using this report, you need to configure Cost Management exports to provide the necessary data. The following exports are required or recommended:
+
+| Dataset                     | Version          | Requirement | Notes                                                                                             |
+| --------------------------- | ---------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| Cost and usage (FOCUS)      | `1.0` or `1.0r2` | **Required** | Provides the primary cost and usage data for all report functionality.                          |
+| Price sheet                 | `2023-05-01`     | **Required** | Required to calculate accurate savings and show missing list and contracted prices.              |
+| Reservation details         | `2023-03-01`     | Recommended | Provides detailed reservation usage data for utilization analysis.                              |
+| Reservation recommendations | `2023-05-01`     | **Required** | Required to display reservation purchase recommendations in the Recommendations page.           |
+| Reservation transactions    | `2023-05-01`     | Optional    | Provides reservation purchase and refund details.                                               |
+
+For instructions on how to create these exports, see [Create and manage exports](/azure/cost-management-billing/costs/tutorial-improved-exports). If using FinOps hubs, these exports can be configured automatically.
+
+> [!IMPORTANT]
+> Microsoft Cost Management does not include the list and contracted prices for all accounts. To calculate accurate and complete savings, you will need to export prices. If using storage reports, enable the "Experimental: Populate Missing Prices" parameter in each report. If using KQL reports, missing prices will be populated automatically when prices are exported.
+
+<br>
+
 ## Working with this report
 
 This report includes the following filters on each page:
