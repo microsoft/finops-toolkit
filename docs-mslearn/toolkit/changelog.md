@@ -29,7 +29,6 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-
 <br><a name="latest"></a>
 
 ## v13
@@ -40,6 +39,9 @@ _Released January 2026_
 
 - **Added**
   - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
+  - Added comprehensive troubleshooting guidance for [ErrorCodeNotString](help/errors.md#errorcodenotstring) error that occurs when Azure Data Factory Fail activities cannot evaluate dynamic expressions.
+  - Enhanced [DataExplorerPostIngestionDropFailed](help/errors.md#dataexplorerpostingestiondropfailed) error documentation with detailed troubleshooting steps, common scenarios, and links to Microsoft Learn resources.
+  - Enhanced [DataExplorerPreIngestionDropFailed](help/errors.md#dataexplorerpreingestiondropfailed) error documentation with troubleshooting guidance and cross-references.
 - **Changed**
   - Reorganized Bicep modules into separate apps.
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
@@ -48,6 +50,14 @@ _Released January 2026_
 - **Fixed**
   - Fixed all Bicep compilation errors and warnings with inline suppressions and descriptive comments.
   - Fixed Build-Toolkit.ps1 bicep generate-params command bug.
+  - Fixed Azure Data Explorer dashboard queries by converting `todecimal(0)` to `toreal(0)` to ensure compatibility with KQL type system ([#1893](https://github.com/microsoft/finops-toolkit/issues/1893)).
+  - Fixed Costs_v1_2 function producing duplicate records when Services table contains multiple entries for the same resource type, causing cost discrepancies between dashboards.
+  - Fixed `config_InitializeHub` pipeline failure in Azure Data Explorer caused by HTTP redirects when loading open data CSV files (PricingUnits, Regions, ResourceTypes, Services) from GitHub releases. Updated to use raw.githubusercontent.com URLs that do not redirect ([#1886](https://github.com/microsoft/finops-toolkit/issues/1886)).
+  - Fixed logic to properly generate the scopes to monitor.
+  - Fixed datatype mismatch in InitializeHub pipeline by changing `x_PricingBlockSize` from `decimal` to `real` to match PricingUnits table schema.
+  - Fixed ADF pipeline dependency logic in config_RunBackfillJob, config_StartExportProcess, and config_ConfigureExports pipelines to properly handle both array and non-array scope configurations by adding 'Failed' condition to 'Save/Set Scopes' activity dependencies.
+  - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2 by adding fallback mappings for `PricingCurrency` and `SkuMeter` columns to their legacy `x_` counterparts.
+  - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md). The packaging process now respects the `unversionedZip` property in `.build.config` to create unversioned ZIP files for finops-hub-copilot, enabling stable download links ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
