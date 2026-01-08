@@ -89,6 +89,19 @@ Public routing doesn't require configuration. If you opt for private routing, wo
 
 <br>
 
+## Plan for multiple tenants and clouds
+
+FinOps hubs support remote hub functionality for collecting cost data across multiple Azure tenants and clouds. Remote hubs enable centralized cost management for organizations with distributed billing relationships while maintaining data sovereignty during processing.
+
+Remote hubs can be used for multiple tenants in the same Azure cloud or tenants in different Azure clouds. Supported clouds are:
+- Azure Commercial
+- Azure Government
+- Azure China
+
+To configure remote hubs, see [Configure remote hubs](configure-remote-hubs.md).
+
+<br>
+
 ## Optional: Set up Microsoft Fabric
 
 Many organizations adopt Microsoft Fabric as a unified data platform to streamline data analytics, storage, and processing. FinOps hubs can use Microsoft Fabric Real-Time Intelligence (RTI) as either a primary or secondary data store. This section only applies when configuring Microsoft Fabric as a primary data store instead of Azure Data Explorer.
@@ -154,6 +167,10 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
 12. Indicate is you want public or private network routing. [Learn more](private-networking.md).
 13. If you selected private, specify the desired private network address prefix.
 14. Select the **Next** button at the bottom of the form.
+    - **Optional**: For remote hub configuration (cross-tenant scenarios), expand **Remote hub configuration** and:
+      - Enter the **Remote hub storage URI** from the primary hub
+      - Enter the **Remote hub storage key** from the primary hub
+      - For details, see [Configure remote hubs](configure-remote-hubs.md)
 15. If desired, specify more tags to add to resources.
 16. Select the **Next** button at the bottom of the form.
 17. Review the configuration summary and select the **Create** button at the bottom of the form.

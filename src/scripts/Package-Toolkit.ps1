@@ -95,7 +95,28 @@ function Copy-TemplateFiles()
         $srcPath = $_
         $templateName = $srcPath.Name
         $versionSubFolder = (Join-Path $srcPath $version)
-        $zip = Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+        
+        # Check if template should use an unversioned ZIP filename
+        $buildConfigPath = Join-Path $PSScriptRoot ".." "templates" $templateName ".build.config"
+        $unversionedZip = $false
+        if (Test-Path $buildConfigPath)
+        {
+            try
+            {
+                $buildConfig = Get-Content $buildConfigPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+                $unversionedZip = $buildConfig.unversionedZip -eq $true
+            }
+            catch
+            {
+                Write-Warning "Failed to read .build.config for $templateName : $_"
+            }
+        }
+        
+        $zip = if ($unversionedZip) {
+            Join-Path (Get-Item $relDir) "$templateName.zip"
+        } else {
+            Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+        }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
         if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true)

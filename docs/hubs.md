@@ -212,6 +212,10 @@ Create a new or update an existing FinOps hub instance.
         <div>Details about what's included in the FinOps hub deployment template.<br>&nbsp;</div>
     </div>
     <div class="ftk-tile">
+        <div>🔗 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/deploy#optional-configure-remote-hubs">Remote hubs</a></div>
+        <div>Configure cross-tenant data collection where satellite hubs send data to a central hub.</div>
+    </div>
+    <div class="ftk-tile">
         <div>🧮 <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/compatibility">Compatibility guide</a></div>
         <div>Identify breaking changes in each release that may require additional work when upgrading.</div>
     </div>
