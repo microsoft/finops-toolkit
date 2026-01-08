@@ -50,6 +50,7 @@ module appRegistration '../../fx/hub-app.bicep' = {
 // Key Vault secret
 module keyVault_secret '../../fx/hub-vault.bicep' = {
   name: 'keyVault_secret'
+  dependsOn: [appRegistration]  // Wait for Key Vault to be created
   params: {
     vaultName: app.keyVault
     secretName: storageKeySecretName
@@ -62,11 +63,13 @@ module keyVault_secret '../../fx/hub-vault.bicep' = {
 // Get key vault instance
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
   name: app.keyVault
+  dependsOn: [appRegistration]  // Wait for Key Vault to be created
 }
 
 // Get data factory instance
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: app.dataFactory
+  dependsOn: [appRegistration]  // Wait for Key Vault to be created
 
   // cSpell:ignore linkedservices
   resource linkedService_remoteHubStorage 'linkedservices' = {
@@ -137,6 +140,43 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           fileSystem: ingestionContainerName
           folderPath: {
             value: '@dataset().folderPath'
+            type: 'Expression'
+          }
+        }
+      }
+      linkedServiceName: {
+        parameters: {}
+        referenceName: linkedService_remoteHubStorage.name
+        type: 'LinkedServiceReference'
+      }
+    }
+  }
+
+  // Replace the manifest_sink dataset to write manifests to remote hub
+  resource dataset_manifest_sink 'datasets' = {
+    name: 'manifest_sink'
+    properties: {
+      annotations: []
+      parameters: {
+        fileName: {
+          type: 'String'
+          defaultValue: 'manifest.json'
+        }
+        folderPath: {
+          type: 'String'
+          defaultValue: ingestionContainerName
+        }
+      }
+      type: 'Json'
+      typeProperties: {
+        location: {
+          type: 'AzureBlobFSLocation'
+          fileName: {
+            value: '@{dataset().fileName}'
+            type: 'Expression'
+          }
+          folderPath: {
+            value: '@{dataset().folderPath}'
             type: 'Expression'
           }
         }
