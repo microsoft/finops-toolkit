@@ -28,6 +28,21 @@ Power BI reports are provided as template (.PBIT) files. Template files are not 
 
 <br>
 
+## Export requirements
+
+This report is specifically designed for **FinOps hubs** deployments and requires different data sources than other reports:
+
+| Data source                 | Requirement | Notes                                                                                             |
+| --------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| FinOps hubs Data Explorer   | **Required** | Provides ingestion monitoring data and hub cost analysis. Only available with KQL reports.      |
+| Cost and usage (FOCUS)      | **Required** | Provides cost data to analyze FinOps hubs infrastructure costs.                                 |
+
+This report is **only available for KQL reports** connecting to FinOps hubs with Azure Data Explorer. It cannot be used with storage reports or direct Cost Management exports.
+
+For instructions on how to deploy FinOps hubs, see [FinOps hubs overview](../hubs/finops-hubs-overview.md).
+
+<br>
+
 ## Get started
 
 The **Get started** page includes a basic introduction to the report with other links to learn more.

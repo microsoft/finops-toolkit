@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getHubTags, HubProperties } from 'hub-types.bicep'
+import { getHubTags, HubProperties } from '../../fx/hub-types.bicep'
 
 
 //==============================================================================
@@ -293,7 +293,7 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 //------------------------------------------------------------------------------
 
 resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (hub.options.privateRouting) {
-  name: string(hub.routing.scriptStorage)
+  name: hub.routing.scriptStorage
   dependsOn: [
     vNet::scriptSubnet
   ]
@@ -372,9 +372,11 @@ output config HubProperties = hub
 output vNetId string = !hub.options.privateRouting ? '' : vNet.id
 
 @description('Virtual network address prefixes.')
+#disable-next-line BCP318 // Null safety warning for conditional resource access
 output vNetAddressSpace array = !hub.options.privateRouting ? [] : vNet.properties.addressSpace.addressPrefixes
 
 @description('Virtual network subnets.')
+#disable-next-line BCP318 // Null safety warning for conditional resource access
 output vNetSubnets array = !hub.options.privateRouting ? [] : vNet.properties.subnets
 
 @description('Resource ID of the FinOps hub network subnet.')
