@@ -56,12 +56,12 @@ Apply the following logic to all of the rows:
 | ContractedCost             | UnitPrice * Quantity / focus:x_PricingBlockSize                                                    | Note that x_PricingBlockSize requires a mapping. See column notes for details.                                                                                                                                                                                                            |
 | ContractedUnitPrice        | UnitPrice                                                                                          | None                                                                                                                                                                                                                                                                                      |
 | EffectiveCost              | CostInBillingCurrency                                                                              | If ChargeType == "Purchase" or "Refund" and PricingModel == "Reservation" or "SavingsPlan", then `0`; otherwise, use CostInBillingCurrency.                                                                                                                                               |
-| InvoiceId                  | InvoiceId                                                                                          | None (renamed from x_InvoiceId in FOCUS 1.0 to InvoiceId in FOCUS 1.2)                                                                                                                                                                                                                  |
+| InvoiceId                  | InvoiceId                                                                                          | New in FOCUS 1.2. Renamed from x_InvoiceId.                                                                                                                                                                                                                  |
 | InvoiceIssuerName          | PartnerName                                                                                        | If PartnerName is empty, use `Microsoft`                                                                                                                                                                                                                                                  |
 | ListCost                   | Enterprise Agreement: Not available<br><br>Microsoft Customer Agreement: PaygCostInBillingCurrency | None                                                                                                                                                                                                                                                                                      |
 | ListUnitPrice              | Enterprise Agreement: PayGPrice<br><br>Microsoft Customer Agreement: PayGPrice \* ExchangeRate     | None                                                                                                                                                                                                                                                                                      |
 | PricingCategory            | PricingModel                                                                                       | If `OnDemand`, then `Standard`; if `Spot`, then `Dynamic`; if `Reservation` or `Savings Plan`, then `Committed`; otherwise, null.                                                                                                                                                         |
-| PricingCurrency            | Enterprise Agreement: BillingCurrencyCode<br><br>Microsoft Customer Agreement: PricingCurrency     | None (renamed from x_PricingCurrency in FOCUS 1.0 to PricingCurrency in FOCUS 1.2)                                                                                                                                                                                                      |
+| PricingCurrency            | Enterprise Agreement: BillingCurrencyCode<br><br>Microsoft Customer Agreement: PricingCurrency     | New in FOCUS 1.2. Renamed from x_PricingCurrency.                                                                                                                                                                                                      |
 | PricingQuantity            | Quantity / focus:x_PricingBlockSize                                                                | Note that x_PricingBlockSize requires a mapping. See column notes for details.                                                                                                                                                                                                            |
 | PricingUnit                | DistinctUnits (lookup)                                                                             | Map UnitOfMeasure to DistinctUnits using [Pricing units data file](../toolkit/open-data.md#pricing-units).                                                                                                                                                                                |
 | ProviderName               | `Microsoft`                                                                                        | None                                                                                                                                                                                                                                                                                      |
@@ -93,7 +93,7 @@ _² While RegionName is a direct mapping of ResourceLocation, Cost Management an
 - `CommitmentDiscountQuantity`
 - `CommitmentDiscountUnit`
 - `ServiceSubcategory`
-- `SkuMeter`
+- `SkuMeter` (renamed from `x_SkuMeterName`)
 - `SkuPriceDetails`
 
 **Note for FOCUS 1.2 users:** The following columns were added or renamed in FOCUS 1.2:
@@ -101,8 +101,6 @@ _² While RegionName is a direct mapping of ResourceLocation, Cost Management an
 - `InvoiceId` (promoted from x_InvoiceId)
 - `PricingCurrency` (promoted from x_PricingCurrency)
 - `SubAccountType` (new column)
-
-The `x_SkuMeterName` column was renamed to `SkuMeter` in FOCUS 1.1.
 
 <br>
 
