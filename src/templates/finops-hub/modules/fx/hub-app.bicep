@@ -488,13 +488,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
       defaultAction: app.hub.options.privateRouting ? 'Deny' : 'Allow'
     }
   }
-
-  resource keyVault_accessPolicies 'accessPolicies' = {
-    name: 'add'
-    properties: {
-      accessPolicies: keyVaultAccessPolicies
-    }
-  }
 }
 
 resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (usesKeyVault && app.hub.options.privateRouting) {
