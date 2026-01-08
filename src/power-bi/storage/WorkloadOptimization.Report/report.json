@@ -475,7 +475,7 @@
       "config": "{\"filterSortOrder\":3}",
       "displayName": "Unattached disks",
       "displayOption": 1,
-      "filters": "[{\"name\":\"a8b6fd6ed46c12bd0666\",\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"Disks\"}},\"Property\":\"diskState\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"Disks\",\"Type\":0}],\"Where\":[{\"Condition\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"diskState\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"'Unattached'\"}}]]}}}]},\"type\":\"Categorical\",\"howCreated\":1,\"objects\":{},\"ordinal\":0}]",
+      "filters": "[]",
       "height": 720.0,
       "name": "8cbb99e1095a3882680b",
       "ordinal": 2,
