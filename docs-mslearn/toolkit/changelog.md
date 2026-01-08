@@ -74,6 +74,7 @@ _Released January 2026_
   - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
+  - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data when set to 3 months ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
 
 > [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
 
