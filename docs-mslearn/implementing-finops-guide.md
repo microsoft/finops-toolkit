@@ -23,7 +23,7 @@ FinOps is an expansive area with branches that extend out into many cloud manage
 If you're new to FinOps, there are a few places you can get started:
 
 - [What is FinOps?](overview.md) &ndash; Quick introduction to FinOps.
-- [FinOps on Azure e-book](https://azure.microsoft.com/resources/finops-with-azure-bringing-finops-to-life-through-organizational-and-cultural-alignment) &ndash; Executive walkthrough of the FinOps principles.
+- [FinOps on Azure e-book](https://azure.microsoft.com/solutions/finops) &ndash; Executive walkthrough of the FinOps principles.
 - [Get started with FinOps](/training/modules/get-started-with-finops) &ndash; Self-paced FinOps introduction.
 
 <br>

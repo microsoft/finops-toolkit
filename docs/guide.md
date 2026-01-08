@@ -38,7 +38,7 @@ If you're new to FinOps, there are a few places you can get started:
     <div class="ftk-tile">
         <div>📑 FinOps principles</div>
         <div>Executive walkthrough of the FinOps principles for anyone.</div>
-        <a target="_blank" href="https://azure.microsoft.com/resources/finops-with-azure-bringing-finops-to-life-through-organizational-and-cultural-alignment">Read the e-book</a>
+        <a target="_blank" href="https://azure.microsoft.com/solutions/finops">Read the e-book</a>
     </div>
     <div class="ftk-tile">
         <div>🏫 Get started with FinOps</div>
