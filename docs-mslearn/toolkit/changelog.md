@@ -39,6 +39,9 @@ _Released January 2026_
 
 - **Added**
   - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
+  - Added comprehensive troubleshooting guidance for [ErrorCodeNotString](help/errors.md#errorcodenotstring) error that occurs when Azure Data Factory Fail activities cannot evaluate dynamic expressions.
+  - Enhanced [DataExplorerPostIngestionDropFailed](help/errors.md#dataexplorerpostingestiondropfailed) error documentation with detailed troubleshooting steps, common scenarios, and links to Microsoft Learn resources.
+  - Enhanced [DataExplorerPreIngestionDropFailed](help/errors.md#dataexplorerpreingestiondropfailed) error documentation with troubleshooting guidance and cross-references.
 - **Changed**
   - Reorganized Bicep modules into separate apps.
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
