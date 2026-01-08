@@ -17,9 +17,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in July 2025<span class="ftk-version">v12</span></h3>
+    <h3>What's new in August 2025<span class="ftk-version">v13</span></h3>
     <p>
-        July introduces support for FOCUS 1.2, autostart in FinOps hubs, a new page in the Cost summary Power BI report, and various small fixes, improvements, and documentation updates across the board.
+        August brings modular Bicep reorganization, enhanced multi-cloud documentation, Optimization Engine bug fixes, Power BI export requirements documentation, and comprehensive Data Lake connectivity guides.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
@@ -209,6 +209,8 @@ Whether you're looking for a little assistance or are interested in contributing
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/adeelaz"><img src="https://avatars.githubusercontent.com/u/63263829?v=4?s=100" width="100px;" alt="Adeel Aziz"/><br /><sub><b>Adeel Aziz</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=adeelaz" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/shasulin"><img src="https://avatars.githubusercontent.com/u/45314814?v=4?s=100" width="100px;" alt="shasulin"/><br /><sub><b>shasulin</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Ashasulin" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/kasimrehman"><img src="https://avatars.githubusercontent.com/u/57490380?v=4?s=100" width="100px;" alt="Kasim Rehman"/><br /><sub><b>Kasim Rehman</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=kasimrehman" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/mpritchard2"><img src="https://avatars.githubusercontent.com/u/20865962?v=4?s=100" width="100px;" alt="Mike Pritchard"/><br /><sub><b>Mike Pritchard</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=mpritchard2" title="Documentation">📖</a> <a href="https://github.com/microsoft/finops-toolkit/commits?author=mpritchard2" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="http://www.sandernaus.com"><img src="https://avatars.githubusercontent.com/u/714779?v=4?s=100" width="100px;" alt="Sander Naus"/><br /><sub><b>Sander Naus</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=sandernaus" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/gorkomikus"><img src="https://avatars.githubusercontent.com/u/76739221?v=4?s=100" width="100px;" alt="gorkomikus"/><br /><sub><b>gorkomikus</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=gorkomikus" title="Code">💻</a></td>
     </tr>
