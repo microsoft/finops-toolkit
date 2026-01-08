@@ -18,10 +18,10 @@ When a feature branch is code-complete, it can be merged into `dev`. Before proc
    > _The PR will be blocked if they don't._
 2. Any new features are code complete and not missing any functionality required for release.
    > _Once in `dev`, the feature is considered part of the next release and can be pushed out at any time. Any broken features will be reverted._
-3. All new or updated functionality must be documented in the [changelog](https://github.com/microsoft/finops-toolkit/blob/dev/docs/changelog.md).
+3. All new or updated functionality must be documented in the [changelog](../tree/dev/docs-mslearn/toolkit/changelog.md).
    > _See [Changelog guidance](#-changelog-guidance) for details about changelog requirements._
-4. All new or updated functionality must be documented in the [documentation](https://github.com/microsoft/finops-toolkit/blob/dev/docs).
-5. Update the [list of available tools](https://github.com/microsoft/finops-toolkit/tree/dev/docs#-available-tools) on the documentation home page.
+4. All new or updated functionality must be documented in the [documentation](../tree/dev/docs).
+5. Update the [list of available tools](https://aka.ms/finops/toolkit#available-tools) on the documentation home page.
 
 Once the above requirements have been met, the feature branch can be merged into `dev` using the following steps:
 
@@ -34,7 +34,7 @@ Once the above requirements have been met, the feature branch can be merged into
 
 ## 🚀 Publishing an official release
 
-1. Review the [changelog](../docs/_resources/changelog.md) to ensure it encapsulates all changes.
+1. Review the [changelog](../tree/dev/docs-mslearn/toolkit/changelog.md) to ensure it encapsulates all changes.
    - Move all released changes to an official numbered version section.
    - If there are committed changes in a feature branch that you want to mention, add them to an "Unreleased" section.
 2. Update the version.
@@ -86,7 +86,7 @@ Once the above requirements have been met, the feature branch can be merged into
 
 5. Finalize the release.
 
-   1. Update the [milestone](https://github.com/microsoft/finops-toolkit/milestones).
+   1. Update the [milestone](../milestones).
 
       1. Review all issues in the milestone, move anything that needs to be pushed, and close any completed items.
       2. Close the milestone when all issues have been closed or moved.
@@ -119,7 +119,7 @@ Once the above requirements have been met, the feature branch can be merged into
 
    5. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
 
-      > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](https://github.com/microsoft/finops-toolkit/actions/workflows/pages/pages-build-deployment) to see if there are any failures._
+      > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](../actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
    6. Run `Package-Toolkit -Build -PowerBI` script.
       - For each Power BI report:
@@ -136,7 +136,7 @@ Once the above requirements have been met, the feature branch can be merged into
         6. Save PBIX again in the release folder.
            > ⚠️ _**DO NOT** save the above changes back to the Power BI project files!_
         7. Copy the first paragraph from the **Get started** page and export a template (PBIT file) in the release folder. Use the copied text for the description and add "Learn more at https://aka.ms/ftk/{report-name}" as a separate paragraph in the description.
-   7. Tag and publish a [new release](https://github.com/microsoft/finops-toolkit/releases/new):
+   7. Tag and publish a [new release](../releases/new):
       1. Create a tag on publish using the "vX.X" format.
       2. Set the **Target** to `main`.
       3. Set the **Previous tag** to the previous release tag.

@@ -161,6 +161,34 @@ InModuleScope 'FinOpsToolkit' {
                         }
                     } -Times 1
                 }
+
+                It 'Should deploy the template with RemoteHubStorageUri' {
+                    $remoteHubStorageUri = 'https://primaryhub.dfs.core.windows.net/'
+                    { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -RemoteHubStorageUri $remoteHubStorageUri -Version 'latest' } | Should -Not -Throw
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                        $TemplateParameterObject.remoteHubStorageUri -eq $remoteHubStorageUri
+                    } -Times 1
+                }
+
+                It 'Should deploy the template with RemoteHubStorageKey' {
+                    $remoteHubStorageKey = 'abc123...xyz789=='
+                    { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -RemoteHubStorageKey $remoteHubStorageKey -Version 'latest' } | Should -Not -Throw
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                        $TemplateParameterObject.remoteHubStorageKey -eq $remoteHubStorageKey
+                    } -Times 1
+                }
+
+                It 'Should deploy the template with both RemoteHub parameters' {
+                    $remoteHubStorageUri = 'https://primaryhub.dfs.core.windows.net/'
+                    $remoteHubStorageKey = 'abc123...xyz789=='
+                    { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -RemoteHubStorageUri $remoteHubStorageUri -RemoteHubStorageKey $remoteHubStorageKey -Version 'latest' } | Should -Not -Throw
+                    Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
+                    Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
+                        $TemplateParameterObject.remoteHubStorageUri -eq $remoteHubStorageUri -and $TemplateParameterObject.remoteHubStorageKey -eq $remoteHubStorageKey
+                    } -Times 1
+                }
             }
         }
     }
