@@ -35,6 +35,15 @@ The following section lists features and enhancements that are currently in deve
 
 _Released January 2026_
 
+### [Implementing FinOps guide](../implementing-finops-guide.md) v13
+
+- **Added**
+  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
+  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
+- **Changed**
+  - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
+  - Updated FOCUS converter documentation to include newly added fields in FOCUS 1.2-preview specification, including ServiceSubcategory and renamed columns (InvoiceId, PricingCurrency, SkuMeter).
+
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
 - **Added**
@@ -77,17 +86,6 @@ _Released January 2026_
   - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data when set to 3 months ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
 
 > [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
-
-### [Implementing FinOps guide](../implementing-finops-guide.md) v13
-
-- **Changed**
-  - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
-
-### Documentation improvements v13
-
-- **Added**
-  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
-  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
 
 <br>
 
