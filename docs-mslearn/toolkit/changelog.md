@@ -51,7 +51,6 @@ _Released January 2026_
   - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
-  - Fixed missing `CapacityReservationId` and `CapacityReservationStatus` columns in storage-based Power BI templates ([#1839](https://github.com/microsoft/finops-toolkit/issues/1839)).
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
@@ -91,6 +90,7 @@ _Released January 2026_
 - **Added**
   - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
   - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
+  - Added `CapacityReservationId` and `CapacityReservationStatus` columns in storage-based Power BI reports ([#1839](https://github.com/microsoft/finops-toolkit/issues/1839)).
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
   - Fixed unattached disks count in the workload optimization report to show only truly unattached disks instead of all disks. The card visual now filters disks where (managedBy is empty and diskState is not ActiveSAS) or (diskState is Unattached and not ActiveSAS) ([#1896](https://github.com/microsoft/finops-toolkit/issues/1896)).
