@@ -479,6 +479,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
     enabledForDiskEncryption: true
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
+    // Use null instead of false when purge protection is disabled - Azure requires null to indicate the property should not be set
+    enablePurgeProtection: app.hub.options.keyVaultEnablePurgeProtection ? true : null
     enableRbacAuthorization: false
     createMode: 'default'
     tenantId: subscription().tenantId
@@ -486,13 +488,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: app.hub.options.privateRouting ? 'Deny' : 'Allow'
-    }
-  }
-
-  resource keyVault_accessPolicies 'accessPolicies' = {
-    name: 'add'
-    properties: {
-      accessPolicies: keyVaultAccessPolicies
     }
   }
 }

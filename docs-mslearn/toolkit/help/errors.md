@@ -248,7 +248,45 @@ Data Explorer ingestion timed out after 2 hours while waiting for available capa
 
 Data Explorer post-ingestion cleanup (drop extents from the final table) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.
 
-**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+This error can occur when:
+- The Data Explorer cluster is experiencing capacity issues or high resource utilization
+- The drop extents command encounters an invalid expression or syntax error
+- There are permission issues accessing the Data Explorer database
+- Network connectivity issues between Data Factory and Data Explorer
+
+**Mitigation**: 
+
+1. **Review the detailed error message**: Navigate to Azure Data Factory > Monitor > Pipeline runs > Click on the failed run > View the "Post-Ingest Drop Failed Error" activity to see the specific Data Explorer error code and message.
+
+2. **Common solutions based on error type**:
+   - **If you see "Failed to interpret Post-Ingest Drop Failed Error fail message or error code"**: This indicates the dynamic expression in the Fail activity couldn't be evaluated. This typically means:
+     - The `Post-Ingest Cleanup` activity failed but didn't return error details in the expected format
+     - Check the `Post-Ingest Cleanup` activity output for the actual Data Explorer error
+     - See [ErrorCodeNotString](#errorcodenotstring) for more details on this specific error pattern
+   
+   - **For capacity/resource issues**: 
+     - Wait a few minutes and rerun the pipeline
+     - Check Data Explorer cluster metrics in Azure Monitor
+     - Consider scaling up the cluster if consistently hitting capacity limits
+   
+   - **For permission issues**: 
+     - Verify the Data Factory managed identity has proper permissions on the Data Explorer database
+     - Ensure the managed identity has at least "Database Ingestor" and "Database Admin" roles
+   
+   - **For syntax/expression errors**:
+     - Review the Data Explorer command logs using `.show commands` in the Data Explorer query editor
+     - Check for recent schema changes that might affect the drop extents query
+
+3. **Rerun ingestion**: Once the issue is resolved, rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory.
+
+4. **Prevent data duplication**: If the error persists, you may need to manually clean up duplicate extents using Data Explorer commands before rerunning ingestion. Contact support for assistance.
+
+For more information, see:
+- [Azure Data Factory Fail activity error codes](https://learn.microsoft.com/azure/data-factory/control-flow-fail-activity#understand-the-fail-activity-error-code)
+- [Troubleshoot Azure Data Explorer connector](https://learn.microsoft.com/azure/data-factory/connector-troubleshoot-azure-data-explorer)
+- [Monitor Azure Data Explorer ingestion](https://learn.microsoft.com/azure/data-explorer/monitor-data-explorer)
+
+Report unresolved issues at https://aka.ms/ftk/ideas.
 
 <br>
 
@@ -258,7 +296,30 @@ Data Explorer post-ingestion cleanup (drop extents from the final table) failed.
 
 Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. Ingestion was not completed.
 
-**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+This error occurs when the Data Explorer cleanup step that runs before ingesting new data fails. This cleanup is necessary to prevent duplicate data in the raw tables.
+
+**Mitigation**: 
+
+1. **Review the detailed error message**: Navigate to Azure Data Factory > Monitor > Pipeline runs > Click on the failed run > View the "Pre-Ingest Drop Failed Error" activity to see the specific Data Explorer error code and message.
+
+2. **Common solutions based on error type**:
+   - **If you see "Failed to interpret Pre-Ingest Drop Failed Error fail message or error code"**: See [ErrorCodeNotString](#errorcodenotstring) for troubleshooting steps.
+   
+   - **For capacity/resource issues**: 
+     - Wait a few minutes and rerun the pipeline
+     - Check Data Explorer cluster metrics in Azure Monitor
+   
+   - **For permission issues**: 
+     - Verify the Data Factory managed identity has "Database Admin" role on the Data Explorer database
+   
+   - **For syntax/expression errors**:
+     - Review the Data Explorer command logs using `.show commands` in the Data Explorer query editor
+
+3. **Rerun ingestion**: Once the issue is resolved, rerun data ingestion for the specified folder using the `ingestion_ExecuteETL` pipeline in Azure Data Factory.
+
+For more information, see the mitigation steps for [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed).
+
+Report unresolved issues at https://aka.ms/ftk/ideas.
 
 <br>
 
@@ -303,6 +364,65 @@ This billing scope type is not supported by managed exports.
 Microsoft Customer Agreements are not supported for managed exports.
 
 **Mitigation**: Remove the MCA billing scope from settings.json and manually create new Cost Management exports for each MCA billing profile for FOCUS cost, pricesheet, reservation details, reservation transactions and reservation recommendations.
+
+<br>
+
+## ErrorCodeNotString
+
+<sup>Severity: Critical</sup>
+
+This error occurs when an Azure Data Factory Fail activity cannot evaluate its dynamic error message or error code expression to a valid string. The error message typically appears as "Failed to interpret *[activity_name]* fail message or error code" with error code `ErrorCodeNotString`.
+
+**Common scenarios**:
+- A parent activity (like `Post-Ingest Cleanup`, `Pre-Ingest Cleanup`, or `Ingest Data`) failed but didn't produce error output in the expected format
+- The dynamic expression tries to access a property that doesn't exist in the activity output
+- The activity output is null, empty, or not in the expected JSON structure
+
+**Mitigation**:
+
+1. **Identify the root cause activity**: Look at which activity triggered the Fail activity (e.g., if you see "Post-Ingest Drop Failed Error", check the "Post-Ingest Cleanup" activity).
+
+2. **Review the parent activity output**:
+   - Navigate to Azure Data Factory > Monitor > Pipeline runs
+   - Click on the failed pipeline run
+   - Find and click on the activity that ran just before the Fail activity
+   - Review the "Output" tab to see the actual error details
+   - Look for any error messages or codes that explain why the activity failed
+
+3. **Check for Data Explorer-specific issues** (for ingestion pipeline errors):
+   - **Resource capacity**: The Data Explorer cluster might be at capacity. Check cluster metrics in Azure Monitor.
+   - **Command syntax errors**: Review Data Explorer command history using `.show commands` in the query editor.
+   - **Permission issues**: Verify the managed identity has proper database permissions.
+   - **Network connectivity**: Ensure Data Factory can reach the Data Explorer cluster.
+
+4. **Common Data Explorer troubleshooting commands**:
+   ```kusto
+   // Check recent failed operations
+   .show operations
+   | where StartedOn > ago(4h) and State == "Failed"
+   
+   // Check ingestion failures
+   .show ingestion failures
+   | where FailedOn > ago(4h)
+   
+   // Check command history
+   .show commands
+   | where StartedOn > ago(4h)
+   ```
+
+5. **After resolving the underlying issue**: Rerun the failed pipeline from Azure Data Factory.
+
+**Related errors**: This error is often seen in conjunction with:
+- [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed)
+- [DataExplorerPreIngestionDropFailed](#dataexplorerpreingestiondropfailed)
+- [DataExplorerIngestionFailed](#dataexploreringestionfailed)
+
+For more information, see:
+- [Azure Data Factory Fail activity documentation](https://learn.microsoft.com/azure/data-factory/control-flow-fail-activity#understand-the-fail-activity-error-code)
+- [Troubleshoot Azure Data Factory pipelines](https://learn.microsoft.com/azure/data-factory/data-factory-troubleshoot-guide)
+- [Azure Data Explorer troubleshooting guide](https://learn.microsoft.com/azure/data-explorer/troubleshoot-database-table)
+
+Report unresolved issues at https://aka.ms/ftk/ideas.
 
 <br>
 

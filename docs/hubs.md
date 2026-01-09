@@ -20,9 +20,9 @@ Open, extensible, and scalable cost governance for the enterprise.
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in July 2025<span class="ftk-version">v12</span></h3>
+    <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
     <p>
-        In July, FinOps hubs introduced a new v1_2 schema version with support for FOCUS 1.2 and performance improvements, added support to start Data Explorer if stopped, made managed exports optional, expanded supported VNet CIDR block sizes, and added support for Alibaba and Tencent cloud columns.
+        In January, FinOps hubs reorganized Bicep modules into separate apps, enhanced scope configuration documentation to clarify multi-account and cross-cloud support, added comprehensive troubleshooting for Data Explorer ingestion errors, improved KQL function reliability, fixed all Bicep compilation warnings, and added documentation for removing private networking.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

@@ -22,7 +22,7 @@ expression '▶️  START HERE' = ```
 				    DateEnd = null,
 				    DateStart = null,
 				    DateMonths = #"Number of Months",
-				    DateStartEffective = if DateStart <> null and DateStart <> "" then DateStart else Date.AddMonths(if DateEnd <> null and DateEnd <> "" then DateEnd else Date.AddMonths(Date.StartOfMonth(DateTime.LocalNow()), 1), -DateMonths+1),
+				    DateStartEffective = if DateStart <> null and DateStart <> "" then DateStart else Date.AddMonths(if DateEnd <> null and DateEnd <> "" then DateEnd else Date.AddMonths(Date.StartOfMonth(DateTime.LocalNow()), 1), -DateMonths),
 				    _formatDate = (d) => try DateTime.ToText(d, [Format="MMM d, yyyy"]) otherwise d,
 				    DateStartFormat = 
 				        if (DateStart = null or DateStart = "") and (DateMonths = null or DateMonths < 1) then "*"

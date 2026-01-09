@@ -833,6 +833,43 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "kasimrehman",
+      "name": "Kasim Rehman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/57490380?v=4",
+      "profile": "https://github.com/kasimrehman",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "mpritchard2",
+      "name": "Mike Pritchard",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20865962?v=4",
+      "profile": "https://github.com/mpritchard2",
+      "contributions": [
+        "doc",
+        "code"
+      ]
+    },
+    {
+      "login": "sandernaus",
+      "name": "Sander Naus",
+      "avatar_url": "https://avatars.githubusercontent.com/u/714779?v=4",
+      "profile": "http://www.sandernaus.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "gorkomikus",
+      "name": "gorkomikus",
+      "avatar_url": "https://avatars.githubusercontent.com/u/76739221?v=4",
+      "profile": "https://github.com/gorkomikus",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
