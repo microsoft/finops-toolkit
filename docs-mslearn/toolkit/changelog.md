@@ -29,12 +29,17 @@ The following section lists features and enhancements that are currently in deve
 
 - Cost Management export modules for subscriptions and resource groups.
 
-
 <br><a name="latest"></a>
 
 ## v13
 
 _Released August 2025_
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v13
+
+- **Added**
+  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
+  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
@@ -63,18 +68,17 @@ _Released August 2025_
 - **Fixed**
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
 
-> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
-
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v13
 
 - **Changed**
   - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
 
-### Documentation improvements v13
+### [PowerShell module](powershell/powershell-commands.md) v13
 
 - **Added**
-  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
-  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
+  - Added `-Format` and `-CompressionMode` parameters to [New-FinOpsCostExport](powershell/cost/New-FinOpsCostExport.md) to support Parquet format and gzip/snappy compression ([#1074](https://github.com/microsoft/finops-toolkit/issues/1074)).
+
+> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
 
 <br>
 
