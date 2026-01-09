@@ -108,7 +108,7 @@
       "config": "{\"visibility\":0}",
       "displayName": "Unattached disks",
       "displayOption": 1,
-      "filters": "[{\"name\":\"b16f3941051eb8c4adae\",\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"Disks\"}},\"Property\":\"properties.diskState\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"Disks\",\"Type\":0}],\"Where\":[{\"Condition\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"properties.diskState\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"'Unattached'\"}}]]}}}]},\"type\":\"Categorical\",\"howCreated\":1,\"objects\":{}}]",
+      "filters": "[]",
       "height": 720.00,
       "name": "1b65e65e85a5204b0700",
       "ordinal": 2,
@@ -186,7 +186,7 @@
         },
         {
           "config": "{\"name\":\"32f8b73c37026ee61a51\",\"layouts\":[{\"id\":0,\"position\":{\"x\":215.99999999999997,\"y\":8,\"z\":4000,\"width\":184,\"height\":88,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"card\",\"projections\":{\"Values\":[{\"queryRef\":\"Min(Disks.id)\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"Disks\",\"Type\":0}],\"Select\":[{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"id\"}},\"Function\":2},\"Name\":\"Min(Disks.id)\",\"NativeReferenceName\":\"Unattached disks\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"id\"}},\"Function\":2}}}]},\"columnProperties\":{\"Min(Disks.id)\":{\"displayName\":\"Unattached disks\"}},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"objects\":{\"categoryLabels\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"labels\":[{\"properties\":{\"labelDisplayUnits\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"32D\"}}}}}]},\"vcObjects\":{\"visualTooltip\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"title\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Unattached disks'\"}}},\"alignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"12D\"}}}}}]}}}",
-          "filters": "[]",
+          "filters": "[{\"name\":\"92f6760209b85a7a8921\",\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"Disks\"}},\"Property\":\"diskState\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"Disks\",\"Type\":0}],\"Where\":[{\"Condition\":{\"Comparison\":{\"ComparisonKind\":0,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"diskState\"}},\"Right\":{\"Literal\":{\"Value\":\"'Unattached'\"}}}}}]},\"type\":\"Advanced\",\"howCreated\":1}]",
           "height": 88.00,
           "width": 184.00,
           "x": 216.00,
