@@ -130,14 +130,8 @@ function Start-FinOpsCostExport
 
     # Start measuring progress
     $progressActivity = "Running exports"
-    # Calculate number of months: from StartDate to EndDate inclusive (only if dates are provided)
-    $months = 1
-    if ($StartDate -and $EndDate)
-    {
-        $months = (($EndDate.Year - $StartDate.Year) * 12) + $EndDate.Month - $StartDate.Month + 1
-        if ($months -lt 1) { $months = 1 } # Assume at least 1 month to avoid errors
-        Write-Verbose "Calculated $months months from $($StartDate.ToString('yyyy-MM')) to $($EndDate.ToString('yyyy-MM'))"
-    }
+    $months = (($EndDate.Year - $StartDate.Year) * 12) + $EndDate.Month - $StartDate.Month + 1
+    if ($months -lt 1) { $months = 1 } # Assume at least 1 month to avoid errors
     $estimatedSecPerMonth = 6 # Estimated time to trigger a single month export accounting for throttling (10 per minute)
 
     # Loop thru each month
@@ -146,11 +140,11 @@ function Start-FinOpsCostExport
     $body = $null
     if ($StartDate)
     {
-        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
+        Write-Verbose "Exporting dates configured on the export definition"
     }
     else
     {
-        Write-Verbose "Exporting dates configured on the export definition"
+        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
     }
     do
     {
@@ -198,7 +192,7 @@ function Start-FinOpsCostExport
 
         $response = Invoke-Rest -Method POST -Uri $runpath -Body $body -CommandName "Start-FinOpsCostExport"
         
-        # If export throttled, wait 60 seconds and try again (check this BEFORE reporting errors)
+        # If export throttled, wait 60 seconds and try again
         if ($response.Throttled)
         {
             Write-Verbose "Export request throttled. Waiting 60 seconds and retrying."
@@ -220,7 +214,6 @@ function Start-FinOpsCostExport
         }
         else
         {
-            # Report success or failure (only when not throttled/retrying)
             if ($response.Success)
             {
                 Write-Verbose "Export executed successfully"
@@ -230,7 +223,7 @@ function Start-FinOpsCostExport
                 Write-Error "Export failed to execute: ($($response.Content.error.code)) $($response.Content.error.message)"
             }
 
-            # Track the success
+            # If not retrying, then track the success
             $success = $success -and $response.Success
             
             # Only increment month if not throttled
