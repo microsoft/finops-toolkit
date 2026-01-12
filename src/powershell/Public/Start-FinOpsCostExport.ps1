@@ -130,10 +130,14 @@ function Start-FinOpsCostExport
 
     # Start measuring progress
     $progressActivity = "Running exports"
-    # Calculate number of months: from StartDate to EndDate inclusive
-    $months = (($EndDate.Year - $StartDate.Year) * 12) + $EndDate.Month - $StartDate.Month + 1
-    if ($months -lt 1) { $months = 1 } # Assume at least 1 month to avoid errors
-    Write-Verbose "Calculated $months months from $($StartDate.ToString('yyyy-MM')) to $($EndDate.ToString('yyyy-MM'))"
+    # Calculate number of months: from StartDate to EndDate inclusive (only if dates are provided)
+    $months = 1
+    if ($StartDate -and $EndDate)
+    {
+        $months = (($EndDate.Year - $StartDate.Year) * 12) + $EndDate.Month - $StartDate.Month + 1
+        if ($months -lt 1) { $months = 1 } # Assume at least 1 month to avoid errors
+        Write-Verbose "Calculated $months months from $($StartDate.ToString('yyyy-MM')) to $($EndDate.ToString('yyyy-MM'))"
+    }
     $estimatedSecPerMonth = 6 # Estimated time to trigger a single month export accounting for throttling (10 per minute)
 
     # Loop thru each month
@@ -142,11 +146,11 @@ function Start-FinOpsCostExport
     $body = $null
     if ($StartDate)
     {
-        Write-Verbose "Exporting dates configured on the export definition"
+        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
     }
     else
     {
-        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
+        Write-Verbose "Exporting dates configured on the export definition"
     }
     do
     {
