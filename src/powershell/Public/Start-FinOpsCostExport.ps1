@@ -130,8 +130,10 @@ function Start-FinOpsCostExport
 
     # Start measuring progress
     $progressActivity = "Running exports"
+    # Calculate number of months: from StartDate to EndDate inclusive
     $months = (($EndDate.Year - $StartDate.Year) * 12) + $EndDate.Month - $StartDate.Month + 1
     if ($months -lt 1) { $months = 1 } # Assume at least 1 month to avoid errors
+    Write-Verbose "Calculated $months months from $($StartDate.ToString('yyyy-MM')) to $($EndDate.ToString('yyyy-MM'))"
     $estimatedSecPerMonth = 6 # Estimated time to trigger a single month export accounting for throttling (10 per minute)
 
     # Loop thru each month
@@ -191,16 +193,8 @@ function Start-FinOpsCostExport
         }
 
         $response = Invoke-Rest -Method POST -Uri $runpath -Body $body -CommandName "Start-FinOpsCostExport"
-        if ($response.Success)
-        {
-            Write-Verbose "Export executed successfully"
-        }
-        else
-        {
-            Write-Error "Export failed to execute: ($($response.Content.error.code)) $($response.Content.error.message)"
-        }
-
-        # If export throttled, wait 60 seconds and try again
+        
+        # If export throttled, wait 60 seconds and try again (check this BEFORE reporting errors)
         if ($response.Throttled)
         {
             Write-Verbose "Export request throttled. Waiting 60 seconds and retrying."
@@ -222,7 +216,17 @@ function Start-FinOpsCostExport
         }
         else
         {
-            # If not retrying, then track the success
+            # Report success or failure (only when not throttled/retrying)
+            if ($response.Success)
+            {
+                Write-Verbose "Export executed successfully"
+            }
+            else
+            {
+                Write-Error "Export failed to execute: ($($response.Content.error.code)) $($response.Content.error.message)"
+            }
+
+            # Track the success
             $success = $success -and $response.Success
             
             # Only increment month if not throttled
