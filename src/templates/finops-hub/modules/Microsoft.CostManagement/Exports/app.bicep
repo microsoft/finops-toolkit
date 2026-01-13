@@ -118,8 +118,12 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
     name: '${INGESTION}_files'
   }
 
-  resource dataset_manifest_source 'datasets' = {
-    name: 'manifest_source'
+  resource dataset_ingestion_manifest 'datasets' existing = {
+    name: 'ingestion_manifest'
+  }
+
+  resource dataset_msexports_manifest 'datasets' = {
+    name: 'msexports_manifest'
     properties: {
       parameters: {
         fileName: {
@@ -129,40 +133,6 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         folderPath: {
           type: 'String'
           defaultValue: MSEXPORTS
-        }
-      }
-      type: 'Json'
-      typeProperties: {
-        location: {
-          type: 'AzureBlobFSLocation'
-          fileName: {
-            value: '@{dataset().fileName}'
-            type: 'Expression'
-          }
-          folderPath: {
-            value: '@{dataset().folderPath}'
-            type: 'Expression'
-          }
-        }
-      }
-      linkedServiceName: {
-        referenceName: app.storage
-        type: 'LinkedServiceReference'
-      }
-    }
-  }
-
-  resource dataset_manifest_sink 'datasets' = {
-    name: 'manifest_sink'
-    properties: {
-      parameters: {
-        fileName: {
-          type: 'String'
-          defaultValue: 'manifest.json'
-        }
-        folderPath: {
-          type: 'String'
-          defaultValue: INGESTION
         }
       }
       type: 'Json'
@@ -322,7 +292,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               }
             }
             dataset: {
-              referenceName: dataFactory::dataset_manifest_source.name
+              referenceName: dataFactory::dataset_msexports_manifest.name
               type: 'DatasetReference'
               parameters: {
                 fileName: {
@@ -1020,7 +990,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           }
           inputs: [
             {
-              referenceName: dataFactory::dataset_manifest_source.name
+              referenceName: dataFactory::dataset_msexports_manifest.name
               type: 'DatasetReference'
               parameters: {
                 fileName: 'manifest.json'
@@ -1033,7 +1003,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           ]
           outputs: [
             {
-              referenceName: dataFactory::dataset_manifest_sink.name
+              referenceName: dataFactory::dataset_ingestion_manifest.name
               type: 'DatasetReference'
               parameters: {
                 fileName: 'manifest.json'
