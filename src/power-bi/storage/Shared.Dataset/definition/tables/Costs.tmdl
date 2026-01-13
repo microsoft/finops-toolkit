@@ -796,6 +796,22 @@ table Costs
 
 		annotation PBI_FormatHint = {"isCustom":true}
 
+	column CapacityReservationId
+		dataType: string
+		lineageTag: 7a3e4b1c-6f8e-4d9a-b5c1-3e2f4a7b8c9d
+		summarizeBy: none
+		sourceColumn: CapacityReservationId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CapacityReservationStatus
+		dataType: string
+		lineageTag: 8b4f5c2d-7g9f-5e0b-c6d2-4f3e5b8a9c0e
+		summarizeBy: none
+		sourceColumn: CapacityReservationStatus
+
+		annotation SummarizationSetBy = Automatic
+
 	column ChargeCategory
 		dataType: string
 		lineageTag: 669cea79-1e27-46c1-a88f-0ad859cee094
