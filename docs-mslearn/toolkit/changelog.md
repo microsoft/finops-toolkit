@@ -76,6 +76,7 @@ _Released January 2026_
   - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2 by adding fallback mappings for `PricingCurrency` and `SkuMeter` columns to their legacy `x_` counterparts.
   - Fixed RemoteHub manifest file not being copied to remote storage by splitting manifest dataset into separate source and sink datasets, allowing RemoteHub to override the sink to point to remote storage.
   - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md). The packaging process now respects the `unversionedZip` property in `.build.config` to create unversioned ZIP files for finops-hub-copilot, enabling stable download links ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
+  - Fixed ADF triggers not starting after deployment due to `$startTriggers` variable not being set from the `StartAllTriggers` environment variable in the Init-DataFactory.ps1 script.
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
