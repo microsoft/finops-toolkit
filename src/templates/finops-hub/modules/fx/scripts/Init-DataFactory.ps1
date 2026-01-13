@@ -8,6 +8,9 @@ param(
 # Init outputs
 $DeploymentScriptOutputs = @{}
 
+# Convert environment variable to boolean
+$startTriggers = $env:StartAllTriggers -eq 'true' -or $env:StartAllTriggers -eq 'True'
+
 if (-not $Stop)
 {
     Start-Sleep -Seconds 10
@@ -19,6 +22,7 @@ $triggers = Get-AzDataFactoryV2Trigger `
     -DataFactoryName $env:DataFactoryName
 
 Write-Output "Found $($triggers.Length) trigger(s)"
+Write-Output "StartAllTriggers: $startTriggers"
 
 if ($startTriggers)
 {
