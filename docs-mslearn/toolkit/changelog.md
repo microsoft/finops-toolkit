@@ -93,6 +93,7 @@ _Released January 2026_
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
   - Fixed unattached disks count in the workload optimization report to show only truly unattached disks instead of all disks. The card visual now filters disks where (managedBy is empty and diskState is not ActiveSAS) or (diskState is Unattached and not ActiveSAS) ([#1896](https://github.com/microsoft/finops-toolkit/issues/1896)).
   - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data when set to 3 months ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
+  - Fixed scheduled refresh failures in Governance and Workload Optimization reports caused by missing columns in empty table schemas and unused NullHandling logic ([#1878](https://github.com/microsoft/finops-toolkit/issues/1878)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v13
 
