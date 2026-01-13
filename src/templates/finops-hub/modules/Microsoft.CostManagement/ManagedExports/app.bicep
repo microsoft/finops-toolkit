@@ -1131,7 +1131,8 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                 typeProperties: {
                   variableName: 'exportScopeType'
                   value: {
-                    value: '@if(contains(toLower(item().scope), \'providers/microsoft.billing/billingaccounts\'), if(contains(toLower(item().scope), \':\'), \'mca\', \'ea\'), if(contains(toLower(item().scope), \'subscriptions/\'), \'subscription\', \'undefined\'))'
+                    // Detect scope type: mca (has colon), ea-department (has /departments/), ea (billing account), subscription, or undefined
+                    value: '@if(contains(toLower(item().scope), \'providers/microsoft.billing/billingaccounts\'), if(contains(toLower(item().scope), \':\'), \'mca\', if(contains(toLower(item().scope), \'/departments/\'), \'ea-department\', \'ea\')), if(contains(toLower(item().scope), \'subscriptions/\'), \'subscription\', \'undefined\'))'
                     type: 'Expression'
                   }
                 }
@@ -1417,6 +1418,87 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             headers: {
                               'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.ReservationRecommendations.VM.Shared.30d@${finOpsToolkitVersion}'
+                              ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
+                            }
+                            authentication: {
+                              type: 'MSI'
+                              resource: {
+                                value: '@variables(\'resourceManagementUri\')'
+                                type: 'Expression'
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                    { // EA Department - only cost details are supported at department scope (no pricesheet, reservation details/transactions, or recommendations)
+                      value: 'ea-department'
+                      activities: [
+                        { // 'EA Department open month focus export'
+                          name: 'EA Department open month focus export'
+                          type: 'WebActivity'
+                          dependsOn: [
+                          ]
+                          policy: {
+                            timeout: '0.00:05:00'
+                            retry: 2
+                            retryIntervalInSeconds: 30
+                            secureOutput: false
+                            secureInput: false
+                          }
+                          userProperties: []
+                          typeProperties: {
+                            url: {
+                              value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-daily-costdetails\'))}?api-version=${exportsApiVersion}'
+                              type: 'Expression'
+                            }
+                            method: 'PUT'
+                            body: {
+                              value: getExportBodyV2(MSEXPORTS, 'FocusCost', false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              type: 'Expression'
+                            }
+                            headers: {
+                              'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsDaily@${finOpsToolkitVersion}'
+                              ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
+                            }
+                            authentication: {
+                              type: 'MSI'
+                              resource: {
+                                value: '@variables(\'resourceManagementUri\')'
+                                type: 'Expression'
+                              }
+                            }
+                          }
+                        }
+                        { // 'EA Department closed month focus export'
+                          name: 'EA Department closed month focus export'
+                          type: 'WebActivity'
+                          dependsOn: [
+                            {
+                              activity: 'EA Department open month focus export'
+                              dependencyConditions: [ 'Succeeded' ]
+                            }
+                          ]
+                          policy: {
+                            timeout: '0.00:05:00'
+                            retry: 2
+                            retryIntervalInSeconds: 30
+                            secureOutput: false
+                            secureInput: false
+                          }
+                          userProperties: []
+                          typeProperties: {
+                            url: {
+                              value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))}?api-version=${exportsApiVersion}'
+                              type: 'Expression'
+                            }
+                            method: 'PUT'
+                            body: {
+                              value: getExportBodyV2(MSEXPORTS, 'FocusCost', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              type: 'Expression'
+                            }
+                            headers: {
+                              'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExportJobs.CostsMonthly@${finOpsToolkitVersion}'
                               ClientType: 'FinOpsToolkit.Hubs@${finOpsToolkitVersion}'
                             }
                             authentication: {
