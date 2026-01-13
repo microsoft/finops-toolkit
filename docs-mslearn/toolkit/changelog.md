@@ -84,6 +84,13 @@ _Released January 2026_
   - Reservations-related workbooks fixed by replacing Instance Size Flexibility ratios CSV vanity URL with actual one to work around Log Analytics externaldata limitation ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
   - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
 
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v13
+
+#### [Optimization workbook](workbooks/optimization.md) v13
+
+- **Fixed**
+  - Fixed SQL Managed Instance vCores displaying incorrect values in the AHB workbook by changing vCores from string to integer type ([#1877](https://github.com/microsoft/finops-toolkit/issues/1877)).
+
 ### [Power BI reports](power-bi/reports.md) v13
 
 - **Added**
