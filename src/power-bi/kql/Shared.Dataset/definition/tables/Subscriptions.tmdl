@@ -166,7 +166,7 @@ table Subscriptions
 				      )
 				    else Source
 				in
-				  Source
+				  NullHandling
 				```
 
 	annotation PBI_NavigationStepName = Navigation
