@@ -71,6 +71,7 @@ _Released January 2026_
   - Fixed RemoteHub manifest file not being copied to remote storage. The ingestion_manifest dataset is now consistently handled like other ingestion datasets (ingestion, ingestion_files) - created by the Core module and overridden by the RemoteHub module when configured, ensuring manifests are written to the correct storage location. Also renamed manifest_source to msexports_manifest and manifest_sink to ingestion_manifest for clarity.
   - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md). The packaging process now respects the `unversionedZip` property in `.build.config` to create unversioned ZIP files for finops-hub-copilot, enabling stable download links ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
   - Fixed ADF triggers not starting after deployment due to `$startTriggers` variable not being set from the `StartAllTriggers` environment variable in the Init-DataFactory.ps1 script.
+  - Fixed version format mismatch causing `config_InitializeHub` pipeline to fail when loading open data files from GitHub. The version in ftkver.txt (e.g., `12.0`) now matches the git tag format (e.g., `v12`) ([#1885](https://github.com/microsoft/finops-toolkit/issues/1885)).
 
 ### [Power BI reports](power-bi/reports.md) v13
 
