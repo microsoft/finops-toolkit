@@ -236,6 +236,42 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       }
     }
   }
+
+  resource dataset_ingestion_manifest 'datasets' = {
+    name: 'ingestion_manifest'
+    properties: {
+      annotations: []
+      parameters: {
+        fileName: {
+          type: 'String'
+          defaultValue: 'manifest.json'
+        }
+        folderPath: {
+          type: 'String'
+          defaultValue: INGESTION
+        }
+      }
+      type: 'Json'
+      typeProperties: {
+        location: {
+          type: 'AzureBlobFSLocation'
+          fileName: {
+            value: '@{dataset().fileName}'
+            type: 'Expression'
+          }
+          folderPath: {
+            value: '@{dataset().folderPath}'
+            type: 'Expression'
+          }
+        }
+      }
+      linkedServiceName: {
+        parameters: {}
+        referenceName: app.storage
+        type: 'LinkedServiceReference'
+      }
+    }
+  }
 }
 
 //==============================================================================
