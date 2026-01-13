@@ -44,12 +44,6 @@ _Released January 2026_
   - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
   - Updated FOCUS converter documentation to include newly added fields in FOCUS 1.2-preview specification, including ServiceSubcategory and renamed columns (InvoiceId, PricingCurrency, SkuMeter).
 
-### [Implementing FinOps guide](../implementing-finops-guide.md) v13
-
-- **Added**
-  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
-  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
-
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
 - **Added**
@@ -78,12 +72,6 @@ _Released January 2026_
   - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md). The packaging process now respects the `unversionedZip` property in `.build.config` to create unversioned ZIP files for finops-hub-copilot, enabling stable download links ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
   - Fixed ADF triggers not starting after deployment due to `$startTriggers` variable not being set from the `StartAllTriggers` environment variable in the Init-DataFactory.ps1 script.
 
-### [Optimization engine](optimization-engine/overview.md) v13
-
-- **Fixed**
-  - Reservations-related workbooks fixed by replacing Instance Size Flexibility ratios CSV vanity URL with actual one to work around Log Analytics externaldata limitation ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
-  - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
-
 ### [Power BI reports](power-bi/reports.md) v13
 
 - **Added**
@@ -93,6 +81,20 @@ _Released January 2026_
   - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
   - Fixed unattached disks count in the workload optimization report to show only truly unattached disks instead of all disks. The card visual now filters disks where (managedBy is empty and diskState is not ActiveSAS) or (diskState is Unattached and not ActiveSAS) ([#1896](https://github.com/microsoft/finops-toolkit/issues/1896)).
   - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data when set to 3 months ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
+  - Fixed EA department scope failing on pricesheet export by skipping pricesheet exports for scopes that don't support them ([#1870](https://github.com/microsoft/finops-toolkit/issues/1870)).
+
+### [Optimization engine](optimization-engine/overview.md) v13
+
+- **Fixed**
+  - Reservations-related workbooks fixed by replacing Instance Size Flexibility ratios CSV vanity URL with actual one to work around Log Analytics externaldata limitation ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
+  - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
+
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v13
+
+#### [Optimization workbook](workbooks/optimization.md) v13
+
+- **Fixed**
+  - Fixed SQL Managed Instance vCores displaying incorrect values in the AHB workbook by changing vCores from string to integer type ([#1877](https://github.com/microsoft/finops-toolkit/issues/1877)).
 
 ### [PowerShell module](powershell/powershell-commands.md) v13
 
