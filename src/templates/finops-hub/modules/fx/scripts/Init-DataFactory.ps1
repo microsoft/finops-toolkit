@@ -19,7 +19,6 @@ $triggers = Get-AzDataFactoryV2Trigger `
     -DataFactoryName $env:DataFactoryName
 
 Write-Output "Found $($triggers.Length) trigger(s)"
-Write-Output "StartAllTriggers: $startTriggers"
 
 
 $triggers | ForEach-Object {
