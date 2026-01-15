@@ -17,9 +17,6 @@ param dataFactoryInstances string[]
 @description('Required. Name of the managed identity to use when starting the triggers.')
 param identityName string
 
-@description('Optional. Start all triggers for the Data Factory instances. Default: false.')
-param startAllTriggers bool = false
-
 @description('Optional. List of pipelines to run. Default: [] (no pipelines).')
 param startPipelines string[] = []
 
@@ -59,10 +56,6 @@ module initialize 'hub-deploymentScript.bicep' = [
         {
           name: 'Pipelines'
           value: join(startPipelines, '|')
-        }
-        {
-          name: 'StartAllTriggers'
-          value: string(startAllTriggers)
         }
       ]
     }

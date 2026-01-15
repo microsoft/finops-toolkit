@@ -8,9 +8,6 @@ param(
 # Init outputs
 $DeploymentScriptOutputs = @{}
 
-# Convert environment variable to boolean
-$startTriggers = $env:StartAllTriggers -eq 'true' -or $env:StartAllTriggers -eq 'True'
-
 if (-not $Stop)
 {
     Start-Sleep -Seconds 10
@@ -24,44 +21,42 @@ $triggers = Get-AzDataFactoryV2Trigger `
 Write-Output "Found $($triggers.Length) trigger(s)"
 Write-Output "StartAllTriggers: $startTriggers"
 
-if ($startTriggers)
-{
-    $triggers | ForEach-Object {
-        $trigger = $_.Name
-        if ($Stop)
-        {
-            Write-Output "Stopping trigger $trigger..."
-            $triggerOutput = Stop-AzDataFactoryV2Trigger `
-                -ResourceGroupName $env:DataFactoryResourceGroup `
-                -DataFactoryName $env:DataFactoryName `
-                -Name $trigger `
-                -Force `
-                -ErrorAction SilentlyContinue # Ignore errors, since the trigger may not exist
-        }
-        else
-        {
-            Write-Output "Starting trigger $trigger..."
-            $triggerOutput = Start-AzDataFactoryV2Trigger `
-                -ResourceGroupName $env:DataFactoryResourceGroup `
-                -DataFactoryName $env:DataFactoryName `
-                -Name $trigger `
-                -Force
-        }
-        if ($triggerOutput)
-        {
-            Write-Output "done..."
-        }
-        else
-        {
-            Write-Output "failed..."
-        }
-        $DeploymentScriptOutputs[$trigger] = $triggerOutput
-    }
 
+$triggers | ForEach-Object {
+    $trigger = $_.Name
     if ($Stop)
     {
-        Start-Sleep -Seconds 10
+        Write-Output "Stopping trigger $trigger..."
+        $triggerOutput = Stop-AzDataFactoryV2Trigger `
+            -ResourceGroupName $env:DataFactoryResourceGroup `
+            -DataFactoryName $env:DataFactoryName `
+            -Name $trigger `
+            -Force `
+            -ErrorAction SilentlyContinue # Ignore errors, since the trigger may not exist
     }
+    else
+    {
+        Write-Output "Starting trigger $trigger..."
+        $triggerOutput = Start-AzDataFactoryV2Trigger `
+            -ResourceGroupName $env:DataFactoryResourceGroup `
+            -DataFactoryName $env:DataFactoryName `
+            -Name $trigger `
+            -Force
+    }
+    if ($triggerOutput)
+    {
+        Write-Output "done..."
+    }
+    else
+    {
+        Write-Output "failed..."
+    }
+    $DeploymentScriptOutputs[$trigger] = $triggerOutput
+}
+
+if ($Stop)
+{
+    Start-Sleep -Seconds 10
 }
 
 if (-not [string]::IsNullOrWhiteSpace($env:Pipelines))
