@@ -67,19 +67,18 @@ If consensus cannot be reached within 14 days and the board believes the issue i
 
 The governing board consists of the following representative seats:
 
-| Seat                          | Member                | Time zone |
-| ----------------------------- | --------------------- | --------- |
-| Business sponsor              | Nelson Pereira        | UTC       |
-| Community                     | Sonia Cuff            | UTC+10    |
-| Consulting                    | Tanuja Shah           | UTC-5     |
-| Engineering                   | Arthur Clares         | UTC       |
-| Marketing                     | Fernando Vasconcellos | UTC-5     |
-| Product                       | Michael Flanakin      | UTC-8     |
-| FinOps Certified Professional | Dirk Brinkmann        | UTC+1     |
-| External                      | Vacant                |           |
-| External                      | Vacant                |           |
-| External                      | Vacant                |           |
-| Advisory Council              | Vacant                |           |
+| Seat                          | Member              | Time zone |
+| ----------------------------- | ------------------- | --------- |
+| Engineering                   | Brett Wilson        | UTC-8     |
+| FinOps Certified Professional | Dirk Brinkmann      | UTC+1     |
+| Community                     | Sonia Cuff          | UTC+10    |
+| Product (External)            | Michael Flanakin    | UTC-8     |
+| Consulting (External)         | Roland Krummenacher | UTC+1     |
+| Marketing                     | Vacant              |           |
+| External                      | Vacant              |           |
+| External                      | Vacant              |           |
+| External                      | Vacant              |           |
+| Advisory Council              | Vacant              |           |
 
 Individuals must meet the following criteria in order to attain a board seat:
 
