@@ -45,7 +45,7 @@ Current board members:
     <tr>
       <td align="center" valign="top" width="209"><a href="https://github.com/MSBrett"><img src="https://avatars.githubusercontent.com/u/24294904?v=4?s=100" width="100px;" alt="Brett Wilson"/><br /><b>Brett Wilson</b></a><br /><sup>Engineering</sup></td>
       <td align="center" valign="top" width="209"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><b>Michael Flanakin</b></a><br /><sup>Product</sup></td>
-      <td align="center" valign="top" width="209"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/1803486?v=4?s=100" width="100px;" alt="Roland Krummenacher"/><br /><b>Roland Krummenacher</b></a><br /><sup>Product</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/RolandKrummenacher"><img src="https://avatars.githubusercontent.com/u/1803486?v=4?s=100" width="100px;" alt="Roland Krummenacher"/><br /><b>Roland Krummenacher</b></a><br /><sup>Consulting</sup></td>
     </tr>
     <tr>
       <td align="center" valign="top" width="209"><a href="https://github.com/DirkBrinkmann"><img src="https://avatars.githubusercontent.com/u/19854016?v=4?s=100" width="100px;" alt="Dirk Brinkmann"/><br /><b>Dirk Brinkmann</b></a><br /><sup>FinOps Certified Professional</sup></td>
