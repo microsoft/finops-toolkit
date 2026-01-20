@@ -2,6 +2,8 @@
 
 **Welcome aboard!** 👋 If this is your first time to our repo, here are a few tips:
 
+> 💡 **Join us!** We host a weekly contributor sync on Wednesdays at 8 AM Pacific / 4 PM UTC. [Add to calendar][contributor-sync] to stay connected with the team.
+
 - Every folder has a README that explains its purpose.
 - If you want to know how to deploy a FinOps toolkit solution, start with the [documentation](https://aka.ms/finops/toolkit).
 - If you want to know how you can contribute, check out the [contribution guide](../tree/dev/CONTRIBUTING.md).
@@ -185,3 +187,5 @@ As a reminder, smaller PRs are closed quicker. If your PR has less than 20 lines
 Congratulations on your first PR! Hopefully it won't be your last!
 
 Once your PR is merged, changes are usually deployed the following week in the Azure portal. Note that changes behind a feature flag must be manually enabled or enabled for rollout within the host portal. In general, all new features are rolled out via experimentation within the Azure portal, so they may not be available immediately.
+
+[contributor-sync]: https://aka.ms/ftk/contributor-sync

@@ -26,6 +26,8 @@ There are several ways you can contribute to the FinOps toolkit:
 
 We appreciate your interest in contributing to the FinOps toolkit!
 
+Want to stay connected with the team? Join our [weekly contributor sync](https://aka.ms/ftk/contributor-sync) on Wednesdays at 8 AM Pacific / 4 PM UTC or [biweekly office hours](https://aka.ms/ftk/office-hours) at 8:30 AM Pacific / 4:30 PM UTC.
+
 <br>
 
 ## Work on existing bugs

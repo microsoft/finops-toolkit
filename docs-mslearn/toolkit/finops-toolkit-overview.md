@@ -61,6 +61,8 @@ If you have any questions or comments on past or future releases, [join the conv
 
 The FinOps toolkit is an open source project. We have many ideas on the long-term vision, but are more interested in learning from the community to drive the product direction. There are many ways you can contribute to the project. You can participate in discussions and request features to review and submitting pull requests.
 
+Join our [biweekly office hours](https://aka.ms/ftk/office-hours) to ask questions and get live help from the team. Contributors can also join the [weekly contributor sync](https://aka.ms/ftk/contributor-sync) on Wednesdays at 8 AM Pacific / 4 PM UTC.
+
 > [!div class="nextstepaction"]
 > [How to contribute](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md)
 
