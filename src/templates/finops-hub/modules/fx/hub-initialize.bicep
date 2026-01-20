@@ -43,28 +43,14 @@ module initialize 'hub-deploymentScript.bicep' = [
       app: app
       identityName: identityName
       scriptContent: loadTextContent('./scripts/Init-DataFactory.ps1')
-      environmentVariables: [
-        {
-          name: 'DataFactorySubscriptionId'
-          value: subscription().id
-        }
-        {
-          name: 'DataFactoryResourceGroup'
-          value: resourceGroup().name
-        }
-        {
-          name: 'DataFactoryName'
-          value: adf
-        }
-        {
-          name: 'Pipelines'
-          value: join(startPipelines, '|')
-        }
-        {
-          name: 'StartAllTriggers'
-          value: string(startAllTriggers)
-        }
-      ]
+      arguments: join(filter([
+        '-DataFactorySubscriptionId "${subscription().id}"'
+        '-DataFactoryResourceGroup "${resourceGroup().name}"'
+        //# disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
+        '-DataFactoryName "${adf}"'
+        !empty(startPipelines) ? '-Pipelines "${join(startPipelines, '|')}"' : ''
+        startAllTriggers ? '-StartTriggers' : ''
+      ], arg => !empty(arg)), ' ')
     }
   }
 ]
