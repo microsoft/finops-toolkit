@@ -2,38 +2,41 @@
 # Licensed under the MIT License.
 
 param(
-    [switch] $Stop
+    [string] $DataFactoryResourceGroup,
+    [string] $DataFactoryName,
+    [string] $Pipelines = "",
+    [switch] $StartTriggers,
+    [switch] $StopTriggers
 )
 
 # Init outputs
 $DeploymentScriptOutputs = @{}
 
-# Convert environment variable to boolean
-$startTriggers = $env:StartAllTriggers -eq 'true' -or $env:StartAllTriggers -eq 'True'
+$RunPipelines = -not [string]::IsNullOrWhiteSpace($Pipelines)
 
-if (-not $Stop)
+if ($StartTriggers -or $RunPipelines)
 {
     Start-Sleep -Seconds 10
 }
 
-# Loop thru triggers
-$triggers = Get-AzDataFactoryV2Trigger `
-    -ResourceGroupName $env:DataFactoryResourceGroup `
-    -DataFactoryName $env:DataFactoryName
-
-Write-Output "Found $($triggers.Length) trigger(s)"
-Write-Output "StartAllTriggers: $startTriggers"
-
-if ($startTriggers)
+if ($StartTriggers -or $StopTriggers)
 {
+    # Loop thru triggers
+    $triggers = Get-AzDataFactoryV2Trigger `
+        -ResourceGroupName $DataFactoryResourceGroup `
+        -DataFactoryName $DataFactoryName
+    
+    Write-Output "Found $($triggers.Length) trigger(s)"
+    Write-Output "StartTriggers: $StartTriggers"
+
     $triggers | ForEach-Object {
         $trigger = $_.Name
-        if ($Stop)
+        if ($StopTriggers)
         {
             Write-Output "Stopping trigger $trigger..."
             $triggerOutput = Stop-AzDataFactoryV2Trigger `
-                -ResourceGroupName $env:DataFactoryResourceGroup `
-                -DataFactoryName $env:DataFactoryName `
+                -ResourceGroupName $DataFactoryResourceGroup `
+                -DataFactoryName $DataFactoryName `
                 -Name $trigger `
                 -Force `
                 -ErrorAction SilentlyContinue # Ignore errors, since the trigger may not exist
@@ -42,8 +45,8 @@ if ($startTriggers)
         {
             Write-Output "Starting trigger $trigger..."
             $triggerOutput = Start-AzDataFactoryV2Trigger `
-                -ResourceGroupName $env:DataFactoryResourceGroup `
-                -DataFactoryName $env:DataFactoryName `
+                -ResourceGroupName $DataFactoryResourceGroup `
+                -DataFactoryName $DataFactoryName `
                 -Name $trigger `
                 -Force
         }
@@ -58,20 +61,20 @@ if ($startTriggers)
         $DeploymentScriptOutputs[$trigger] = $triggerOutput
     }
 
-    if ($Stop)
+    if ($StopTriggers)
     {
         Start-Sleep -Seconds 10
     }
 }
 
-if (-not [string]::IsNullOrWhiteSpace($env:Pipelines))
+if ($RunPipelines)
 {
-    $env:Pipelines.Split('|') `
+    $Pipelines.Split('|') `
     | ForEach-Object {
         Write-Output "Running the init pipeline..."
         Invoke-AzDataFactoryV2Pipeline `
-            -ResourceGroupName $env:DataFactoryResourceGroup `
-            -DataFactoryName $env:DataFactoryName `
+            -ResourceGroupName $DataFactoryResourceGroup `
+            -DataFactoryName $DataFactoryName `
             -PipelineName $_
     }
 }
