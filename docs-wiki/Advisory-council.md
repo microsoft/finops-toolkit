@@ -98,7 +98,7 @@ The advisory council does not have dedicated meetings at this time. The advisory
 
   > The weekly contributor sync is held on Wednesdays at 8 AM Pacific / 4 PM UTC. This is the primary meeting for FinOps toolkit contributors to discuss progress, blockers, and upcoming work.
   >
-  > [Add to calendar](https://aka.ms/ftk/contributor-sync)
+  > [Add to calendar](https://aka.ms/ftk/contrib-sync)
 
 - **Biweekly office hours**
 
@@ -108,6 +108,6 @@ The advisory council does not have dedicated meetings at this time. The advisory
 
 - **Biweekly governing board meetings**
 
-  > The advisory council is also invited to the monthly governing board meetings; however, attendance is optional.
+  > The advisory council is also invited to the biweekly governing board meetings; however, attendance is optional.
 
 <br>

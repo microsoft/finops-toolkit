@@ -188,4 +188,4 @@ Congratulations on your first PR! Hopefully it won't be your last!
 
 Once your PR is merged, changes are usually deployed the following week in the Azure portal. Note that changes behind a feature flag must be manually enabled or enabled for rollout within the host portal. In general, all new features are rolled out via experimentation within the Azure portal, so they may not be available immediately.
 
-[contributor-sync]: https://aka.ms/ftk/contributor-sync
+[contributor-sync]: https://aka.ms/ftk/contrib-sync

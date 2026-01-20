@@ -111,7 +111,7 @@ Board members are expected to participate (synchronously or asynchronously) in t
 
 - **Weekly contributor sync**
 
-  > The [weekly contributor sync](https://aka.ms/ftk/contributor-sync) is held on Wednesdays at 8 AM Pacific / 4 PM UTC. This is the primary meeting for FinOps toolkit contributors to discuss progress, blockers, and upcoming work.
+  > The [weekly contributor sync](https://aka.ms/ftk/contrib-sync) is held on Wednesdays at 8 AM Pacific / 4 PM UTC. This is the primary meeting for FinOps toolkit contributors to discuss progress, blockers, and upcoming work.
   >
   > Governing board members are encouraged but not expected to join the contributor syncs.
 
@@ -119,6 +119,6 @@ Board members are expected to participate (synchronously or asynchronously) in t
 
   > [Biweekly office hours](https://aka.ms/ftk/office-hours) are held every other Wednesday at 8:30 AM Pacific / 4:30 PM UTC. This is an open forum for anyone to ask questions, get help with issues, or discuss FinOps toolkit topics.
   >
-  > Governing board members are encouraged but not expected to join the contributor syncs.
+  > Governing board members are encouraged but not expected to join the office hours.
 
 <br>
