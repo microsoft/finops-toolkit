@@ -334,9 +334,7 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
     identityName: triggerManagerIdentity.name
     scriptContent: loadTextContent('./scripts/Init-DataFactory.ps1')
     arguments: join([
-      '-DataFactorySubscriptionId "${subscription().id}"'
       '-DataFactoryResourceGroup "${resourceGroup().name}"'
-      //# disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
       '-DataFactoryName "${dataFactory.name}"'
       '-StopTriggers'
     ], ' ')
