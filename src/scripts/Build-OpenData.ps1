@@ -588,50 +588,78 @@ if ($Hubs)
     }
 }
 
+# Load the generic cube SVG for comparison (normalize whitespace)
+$genericCubeSvg = (Get-Content "$svgDir/microsoft.resources/resources.svg" -Raw).Trim()
+
 (git diff --name-only) `
 | Where-Object { $_ -match '^docs/svg/([^/]+/)+[^\.]+\.svg$' } `
 | ForEach-Object {
     $file = "$PSScriptRoot/../../$_"
-    $diff = git diff -- $file
-    $changes = $diff -split "`n" `
-    | Where-Object { $_ -match '^\+|^\-' } ` # Remove lines that are not changes
-    | Where-Object { $_ -notmatch '^\+\+\+|^\-\-\-' } # Remove the diff metadata lines
+    $shouldRevert = $false
+    $revertReason = ""
 
-    # Match added/removed lines
-    $added = @()
-    $removed = @()
-    foreach ($line in $changes)
+    # Check if changed TO the generic cube (regression from unique icon)
+    $newContent = (Get-Content $file -Raw -ErrorAction SilentlyContinue)?.Trim()
+    $oldContent = (git show HEAD:$_ 2>$null)?.Trim()
+    if ($newContent -eq $genericCubeSvg -and $oldContent -and $oldContent -ne $genericCubeSvg)
     {
-        if ($line.StartsWith('+'))
-        {
-            $added += $line.Substring(1)
+        $shouldRevert = $true
+        $revertReason = "regression to generic cube"
+    }
+
+    # Check if only non-visual changes (GUIDs, formatting, attribute order, minor precision)
+    if (-not $shouldRevert -and $oldContent -and $newContent)
+    {
+        # Normalize SVG for comparison (remove non-visual differences)
+        # Note: This catches common reformatting but not all SVG optimizations (path simplification, etc.)
+        function Get-NormalizedSvg($svg) {
+            $n = $svg
+            # Normalize generated IDs (GUIDs and short hashes like 'p8eaoyhoh__b')
+            $n = $n -replace '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', '__ID__'
+            $n = $n -replace "id='[a-z0-9_]+__[a-z]'", "id='__ID__'"
+            $n = $n -replace "url\(#[a-z0-9_]+__[a-z]\)", "url(#__ID__)"
+            $n = $n -replace "url\(#__ID__\)", "url(#__ID__)"
+            # Remove non-visual attributes
+            $n = $n -replace " class='[^']*'", ''
+            $n = $n -replace ' class="[^"]*"', ''
+            $n = $n -replace " fill='none'", ''
+            $n = $n -replace ' fill="none"', ''
+            # Normalize hex colors (#ffffff -> #fff, etc.)
+            $n = $n -replace '#([0-9a-fA-F])\1([0-9a-fA-F])\2([0-9a-fA-F])\3', '#$1$2$3'
+            # Remove <g> wrappers (they don't affect rendering)
+            $n = $n -replace '<g>', ''
+            $n = $n -replace '</g>', ''
+            # SVG path optimization: commands like V10.84Z or H5Z are redundant before Z
+            $n = $n -replace '([VvHhLl][-\d\.]+)[Zz]([''"])', '$2'
+            # Remove trailing Z/z from paths (implicit close with fill)
+            $n = $n -replace "[Zz](['""])", '$1'
+            # Normalize decimal precision - truncate to 1 decimal place
+            $n = $n -replace '(\d+\.\d)\d+', '$1'
+            # Extract and sort attributes within each tag to handle reordering
+            $n = [regex]::Replace($n, '<(\w+)\s+([^>]+)(/?)>', {
+                param($match)
+                $tagName = $match.Groups[1].Value
+                $attrs = $match.Groups[2].Value
+                $selfClose = $match.Groups[3].Value
+                # Parse attributes and sort them
+                $attrList = [regex]::Matches($attrs, "(\w+[-\w]*)='[^']*'") | ForEach-Object { $_.Value } | Sort-Object
+                return "<$tagName $($attrList -join ' ')$selfClose>"
+            })
+            return $n
         }
-        elseif ($line.StartsWith('-'))
+
+        $oldNormalized = Get-NormalizedSvg $oldContent
+        $newNormalized = Get-NormalizedSvg $newContent
+        if ($oldNormalized -eq $newNormalized)
         {
-            $removed += $line.Substring(1) 
+            $shouldRevert = $true
+            $revertReason = "only non-visual changes"
         }
     }
 
-    # Filter out files that only changed GUIDs
-    $onlyGuidChanges = $false
-    $maxPairs = [Math]::Max($added.Count, $removed.Count)
-    for ($i = 0; $i -lt $maxPairs; $i++)
+    if ($shouldRevert)
     {
-        $before = if ($i -lt $removed.Count) { $removed[$i] } else { '' }
-        $after = if ($i -lt $added.Count) { $added[$i] } else { '' }
-
-        # Replace all GUIDs in both lines with a placeholder and compare
-        $beforeClean = $before -replace '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', '__GUID__'
-        $afterClean = $after -replace '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', '__GUID__'
-        if ($beforeClean -eq $afterClean)
-        {
-            $onlyGuidChanges = $true
-            break
-        }
-    }
-    if ($onlyGuidChanges)
-    {
-        Write-Host "Reverting $file"
+        Write-Host "Reverting $file ($revertReason)"
         git checkout -- $file
     }
 }
