@@ -54,6 +54,7 @@ _Released January 2026_
   - Enhanced [DataExplorerPreIngestionDropFailed](help/errors.md#dataexplorerpreingestiondropfailed) error documentation with troubleshooting guidance and cross-references.
 - **Changed**
   - Reorganized Bicep modules into separate apps.
+  - Changed the User Access Administrator role to RBAC Administrator and moved it to the Managed Exports app ([#1946](https://github.com/microsoft/finops-toolkit/issues/1946)).
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
     - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
     - Cross-cloud data ingestion through FOCUS format support
