@@ -9,12 +9,15 @@
   "commitConvention": "none",
   "contributors": [
     {
-      "login": "ms:nelson",
-      "name": "Nelson Pereira",
-      "avatar_url": "https://media.licdn.com/dms/image/v2/C5603AQGWN7nsODstqA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1516244319322?e=1754524800&v=beta&t=EHH5lzBH8qFaqZHcVIn0ovzgkugW-QRlmEnEfgyawOU#",
-      "profile": "https://www.linkedin.com/in/nelsonmpereira/",
+      "login": "MSBrett",
+      "name": "Brett Wilson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24294904?v=4",
+      "profile": "https://github.com/MSBrett",
       "contributions": [
-        "leader"
+        "leader",
+        "code",
+        "doc",
+        "review"
       ]
     },
     {
@@ -32,47 +35,15 @@
       ]
     },
     {
-      "login": "arthurclares",
-      "name": "Arthur Clares",
-      "avatar_url": "https://avatars.githubusercontent.com/u/53261392?v=4",
-      "profile": "https://github.com/arthurclares",
+      "login": "RolandKrummenacher",
+      "name": "Roland Krummenacher",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1803486?v=4",
+      "profile": "https://github.com/RolandKrummenacher",
       "contributions": [
         "leader",
         "code",
-        "doc",
         "review",
-        "mentoring",
-        "promotion"
-      ]
-    },
-    {
-      "login": "scuffy",
-      "name": "Sonia Cuff",
-      "avatar_url": "https://avatars.githubusercontent.com/u/41356020?v=4",
-      "profile": "https://github.com/scuffy",
-      "contributions": [
-        "leader",
-        "promotion"
-      ]
-    },
-    {
-      "login": "tshah2808",
-      "name": "Tanuja Shah",
-      "avatar_url": "https://avatars.githubusercontent.com/u/67380293?v=4",
-      "profile": "https://github.com/tshah2808",
-      "contributions": [
-        "leader"
-      ]
-    },
-    {
-      "login": "ms:fernandovas",
-      "name": "Fernando Vasconcellos",
-      "avatar_url": "https://media.licdn.com/dms/image/v2/C4D03AQGOHJHlq3nhpQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1571181473582?e=1754524800&v=beta&t=dzXv18_LMfbGr2BgOKVVHfxD7OxudO0prln_zP0OEvw#",
-      "profile": "https://www.linkedin.com/in/fernando-vasconcellos-ba398b191/",
-      "contributions": [
-        "leader",
-        "doc",
-        "promotion"
+        "bug"
       ]
     },
     {
@@ -85,14 +56,13 @@
       ]
     },
     {
-      "login": "MSBrett",
-      "name": "Brett Wilson",
-      "avatar_url": "https://avatars.githubusercontent.com/u/24294904?v=4",
-      "profile": "https://github.com/MSBrett",
+      "login": "scuffy",
+      "name": "Sonia Cuff",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41356020?v=4",
+      "profile": "https://github.com/scuffy",
       "contributions": [
-        "code",
-        "doc",
-        "review"
+        "leader",
+        "promotion"
       ]
     },
     {
@@ -108,6 +78,20 @@
       ]
     },
     {
+      "login": "arthurclares",
+      "name": "Arthur Clares",
+      "avatar_url": "https://avatars.githubusercontent.com/u/53261392?v=4",
+      "profile": "https://github.com/arthurclares",
+      "contributions": [
+        "leader",
+        "code",
+        "doc",
+        "review",
+        "mentoring",
+        "promotion"
+      ]
+    },
+    {
       "login": "nteyan",
       "name": "Nicolas Teyan",
       "avatar_url": "https://avatars.githubusercontent.com/u/8894656?v=4",
@@ -119,15 +103,6 @@
       ]
     },
     {
-      "login": "bandersmsft",
-      "name": "Bill Anderson",
-      "avatar_url": "https://avatars.githubusercontent.com/u/9596428?v=4",
-      "profile": "https://github.com/bandersmsft",
-      "contributions": [
-        "doc"
-      ]
-    },
-    {
       "login": "ro100e",
       "name": "Robel",
       "avatar_url": "https://avatars.githubusercontent.com/u/59753782?v=4",
@@ -136,6 +111,18 @@
         "code",
         "doc",
         "review"
+      ]
+    },
+    {
+      "login": "DUeffing",
+      "name": "Daniel Ueffing",
+      "avatar_url": "https://avatars.githubusercontent.com/u/94981829?v=4",
+      "profile": "https://github.com/DUeffing",
+      "contributions": [
+        "ideas",
+        "code",
+        "doc",
+        "bug"
       ]
     },
     {
@@ -161,6 +148,15 @@
       ]
     },
     {
+      "login": "bandersmsft",
+      "name": "Bill Anderson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9596428?v=4",
+      "profile": "https://github.com/bandersmsft",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
       "login": "grantxyzou",
       "name": "grantxyzou",
       "avatar_url": "https://avatars.githubusercontent.com/u/110638253?v=4",
@@ -176,17 +172,6 @@
       "profile": "https://github.com/lmoscinski",
       "contributions": [
         "design"
-      ]
-    },
-    {
-      "login": "RolandKrummenacher",
-      "name": "Roland Krummenacher",
-      "avatar_url": "https://avatars.githubusercontent.com/u/1803486?v=4",
-      "profile": "https://github.com/RolandKrummenacher",
-      "contributions": [
-        "code",
-        "review",
-        "bug"
       ]
     },
     {
@@ -206,6 +191,17 @@
       "contributions": [
         "code",
         "review"
+      ]
+    },
+    {
+      "login": "chris-bowman",
+      "name": "Chris Bowman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20289947?v=4",
+      "profile": "https://github.com/chris-bowman",
+      "contributions": [
+        "bug",
+        "review",
+        "code"
       ]
     },
     {
@@ -322,18 +318,6 @@
       ]
     },
     {
-      "login": "DUeffing",
-      "name": "Daniel Ueffing",
-      "avatar_url": "https://avatars.githubusercontent.com/u/94981829?v=4",
-      "profile": "https://github.com/DUeffing",
-      "contributions": [
-        "ideas",
-        "code",
-        "doc",
-        "bug"
-      ]
-    },
-    {
       "login": "sebassem",
       "name": "Seif Bassem",
       "avatar_url": "https://avatars.githubusercontent.com/u/38246040?v=4",
@@ -391,14 +375,31 @@
       ]
     },
     {
-      "login": "chris-bowman",
-      "name": "Chris Bowman",
-      "avatar_url": "https://avatars.githubusercontent.com/u/20289947?v=4",
-      "profile": "https://github.com/chris-bowman",
+      "login": "ms:nelson",
+      "name": "Nelson Pereira",
+      "avatar_url": "https://github.com/user-attachments/assets/024a2024-c1da-4668-ba84-c61615c609d5",
+      "profile": "https://www.linkedin.com/in/nelsonmpereira/",
       "contributions": [
-        "bug",
-        "review",
-        "code"
+        "promotion"
+      ]
+    },
+    {
+      "login": "tshah2808",
+      "name": "Tanuja Shah",
+      "avatar_url": "https://avatars.githubusercontent.com/u/67380293?v=4",
+      "profile": "https://github.com/tshah2808",
+      "contributions": [
+        "promotion"
+      ]
+    },
+    {
+      "login": "ms:fernandovas",
+      "name": "Fernando Vasconcellos",
+      "avatar_url": "https://github.com/user-attachments/assets/15d008be-7819-42a2-beac-92daab361b40",
+      "profile": "https://www.linkedin.com/in/fernando-vasconcellos-ba398b191/",
+      "contributions": [
+        "doc",
+        "promotion"
       ]
     },
     {
