@@ -94,14 +94,30 @@ Individuals must meet the following criteria in order to attain a board seat:
 
 ## 📑 Meetings
 
-Governing board meetings are held monthly. Meetings are recorded to support asynchronous collaboration for those not able to join. Advisory council members, contributors, and active community members may request to join these calls or view recordings. Recordings are only stored for 30 days.
+Board members are expected to participate (synchronously or asynchronously) in the following meetings. Meetings are recorded to support asynchronous collaboration for those not able to join. Advisory council members, contributors, and active community members may request to join these calls or view recordings. Recordings are only stored for 30 days.
 
-Governing board meetings have the following agenda:
+- **Biweekly governing board meetings**
 
-- Monthly updates (5m)
-- Milestone progress, blockers, and risks (5-10m)
-- OKR and KPI review (5-10m)
-- New and ongoing initiatives (30m)
-- Action items and next steps (5m)
+  > Governing board meetings are held biweekly with the following agenda:
+  >
+  > - Monthly updates (5m)
+  > - Milestone progress, blockers, and risks (5-10m)
+  > - OKR and KPI review (5-10m)
+  > - New and ongoing initiatives (30m)
+  > - Action items and next steps (5m)
+  >
+  > Governing board members are expected to attend or participate offline at least monthly.
+
+- **Weekly contributor sync**
+
+  > The [weekly contributor sync](https://aka.ms/ftk/contrib-sync) is held on Wednesdays at 8 AM Pacific / 4 PM UTC. This is the primary meeting for FinOps toolkit contributors to discuss progress, blockers, and upcoming work.
+  >
+  > Governing board members are encouraged but not expected to join the contributor syncs.
+
+- **Biweekly office hours**
+
+  > [Biweekly office hours](https://aka.ms/ftk/office-hours) are held every other Wednesday at 8:30 AM Pacific / 4:30 PM UTC. This is an open forum for anyone to ask questions, get help with issues, or discuss FinOps toolkit topics.
+  >
+  > Governing board members are encouraged but not expected to join the office hours.
 
 <br>

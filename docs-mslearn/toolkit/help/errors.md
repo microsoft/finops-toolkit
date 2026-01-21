@@ -612,7 +612,7 @@ If the manifest properties look good and it was a new or upgraded FinOps hub ins
 6. If the error persists, create a [discussion](https://aka.ms/ftk/discuss) to see if anyone else if facing an issue or knows of a possible workaround (especially for policy issues).
 7. If the error is clearly a bug or feature gap, [create a bug or feature request issue in GitHub](https://aka.ms/ftk/ideas).
 
-We try to respond to issues and discussions within two business days.
+We try to respond to issues and discussions within three business days. Need live help? Join our [biweekly office hours](https://aka.ms/ftk/office-hours).
 
 <!--
 TODO: Consider the following ways to streamline this in the future:

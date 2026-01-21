@@ -81,5 +81,12 @@ configuration:
         then:
           - addLabel:
               label: 'Needs: Triage 🔍'
+          - addReply:
+              reply: |
+                Thank you for submitting this issue! We try to respond within 3 business days. In the meantime:
+
+                - 📖 Check the [troubleshooting guide](https://aka.ms/ftk/trouble) for common issues
+                - 💬 Ask questions in [Discussions](https://github.com/microsoft/finops-toolkit/discussions)
+                - 📅 Join our [biweekly office hours](https://aka.ms/ftk/office-hours) for live help from the team
 onFailure:
 onSuccess:
