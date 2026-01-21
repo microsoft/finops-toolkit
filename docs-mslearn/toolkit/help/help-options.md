@@ -16,6 +16,8 @@ ms.reviewer: micflan
 
 Have questions about implementing FinOps within your org? Start with [FinOps discussions](https://techcommunity.microsoft.com/category/azure/discussions/finops).
 
+Need live help? Join our [biweekly office hours](https://aka.ms/ftk/office-hours) to get answers from the team.
+
 ## Deployment and tool questions
 
 Have a question about deploying or using tools in the FinOps toolkit?

@@ -12,6 +12,7 @@ ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
+
 # How to get support for the FinOps toolkit
 
 Tools and resources within the FinOps toolkit are provided as-is without any express or implied warranties. Microsoft Support doesn't handle support requests for the FinOps toolkit. However, the underlying products used by tools in the toolkit are officially supported.
@@ -57,6 +58,6 @@ If the source of the issue is a managed product (including data from Cost Manage
 
 Whether you submit a support request or not, we recommend [creating an issue](https://aka.ms/ftk/ideas) to let us know about the problems you're facing. Even if the issue is a product bug, we would like to document it to help others.
 
-We try to respond to issues and discussions within two business days but there can sometimes be unanticipated delays. If you completed all of the preceding steps and the issue wasn't resolved within a week, we should set up a Teams call for you. Then you can share your screen so we can troubleshoot the issue together.
+We try to respond to issues and discussions within three business days but there can sometimes be unanticipated delays. If you completed all of the preceding steps and the issue wasn't resolved within a week, join our [biweekly office hours](https://aka.ms/ftk/office-hours) to get live help from the team. If you need more hands-on support, you can request a paid, community-driven advisory session or consulting delivery during the office hours call.
 
 <br>
