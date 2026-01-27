@@ -1,6 +1,47 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+<#
+.SYNOPSIS
+Manages Azure Data Factory triggers and pipelines during FinOps hub deployment.
+
+.DESCRIPTION
+This script is called by Bicep deployment scripts to start/stop Data Factory triggers
+and optionally run pipelines. It handles two types of triggers:
+
+1. Schedule triggers - Can be started/stopped directly
+2. BlobEventsTriggers - Require Event Grid subscription management before start/stop
+
+BlobEventsTriggers use Event Grid to listen for storage blob events. Before stopping,
+the Event Grid subscription must be removed (unsubscribed). Before starting, the
+subscription must be added and fully provisioned. This script handles this automatically
+by detecting BlobEventsTriggers via the BlobPathBeginsWith property.
+
+The script uses retry logic with linear backoff to handle transient API failures and
+wait for Event Grid subscription provisioning/deprovisioning to complete.
+
+.PARAMETER DataFactoryResourceGroup
+The resource group containing the Data Factory.
+
+.PARAMETER DataFactoryName
+The name of the Data Factory instance.
+
+.PARAMETER Pipelines
+Pipe-delimited list of pipeline names to run (e.g., "pipeline1|pipeline2").
+
+.PARAMETER StartTriggers
+Switch to start all stopped triggers (with Event Grid subscription for blob triggers).
+
+.PARAMETER StopTriggers
+Switch to stop all running triggers (with Event Grid unsubscription for blob triggers).
+
+.EXAMPLE
+.\Init-DataFactory.ps1 -DataFactoryResourceGroup "rg-hub" -DataFactoryName "adf-hub" -StopTriggers
+
+.EXAMPLE
+.\Init-DataFactory.ps1 -DataFactoryResourceGroup "rg-hub" -DataFactoryName "adf-hub" -StartTriggers
+#>
+
 param(
     [string] $DataFactoryResourceGroup,
     [string] $DataFactoryName,
@@ -26,7 +67,7 @@ function Invoke-WithRetry([scriptblock]$Action, [string]$Name, [int]$Delay = 5)
         {
             Write-Log "$Name failed (attempt $i/${MAX_RETRIES}): $($_.Exception.Message)"
             if ($i -eq $MAX_RETRIES) { throw }
-            Start-Sleep -Seconds ($Delay * $i) # Exponential backoff
+            Start-Sleep -Seconds ($Delay * $i)
         }
     }
 }
