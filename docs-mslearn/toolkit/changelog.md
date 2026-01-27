@@ -58,6 +58,7 @@ _Released January 2026_
   - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
     - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
     - Cross-cloud data ingestion through FOCUS format support
+  - Optimize trigger management script with retry logic and improved logging.
 - **Fixed**
   - Fixed duplicate Key Vault deployment in RemoteHub by removing redundant accessPolicies nested resource and adding proper dependencies.
   - Fixed all Bicep compilation errors and warnings with inline suppressions and descriptive comments.
