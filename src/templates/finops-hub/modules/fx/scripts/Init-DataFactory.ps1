@@ -9,142 +9,123 @@ param(
     [switch] $StopTriggers
 )
 
-# Constants
 $MAX_RETRIES = 20
-$RETRY_DELAY_SECONDS = 1
-
-# Init outputs
 $DeploymentScriptOutputs = @{}
 
-$RunPipelines = -not [string]::IsNullOrWhiteSpace($Pipelines)
-
-# Helper function to write output with a timestamp
 function Write-Log($Message)
 {
     Write-Output "$(Get-Date -Format 'HH:mm:ss') $Message"
 }
 
-# Helper function to invoke an action with retry logic
-function Invoke-WithRetry
+function Invoke-WithRetry([scriptblock]$Action, [string]$Name, [int]$Delay = 5)
 {
-    param(
-        [scriptblock] $Action,
-        [string] $ActionName,
-        [switch] $SuppressErrors
-    )
-
-    $lastError = $null
-    $previousErrorAction = $ErrorActionPreference
-    $ErrorActionPreference = 'Stop'
-
-    for ($attempt = 1; $attempt -le $MAX_RETRIES; $attempt++)
+    for ($i = 1; $i -le $MAX_RETRIES; $i++)
     {
-        try
-        {
-            $result = & $Action
-            $ErrorActionPreference = $previousErrorAction
-            return $result
-        }
+        try { return & $Action }
         catch
         {
-            $lastError = $_
-            Write-Log "$ActionName failed (attempt $attempt/${MAX_RETRIES}): $($_.Exception.Message)"
-            if ($attempt -lt $MAX_RETRIES)
-            {
-                Start-Sleep -Seconds $RETRY_DELAY_SECONDS
-            }
+            Write-Log "$Name failed (attempt $i/${MAX_RETRIES}): $($_.Exception.Message)"
+            if ($i -eq $MAX_RETRIES) { throw }
+            Start-Sleep -Seconds ($Delay * $i) # Exponential backoff
         }
     }
+}
 
-    # Report failure
-    $ErrorActionPreference = $previousErrorAction
-    if ($SuppressErrors)
-    {
-        Write-Log "$ActionName failed after $MAX_RETRIES attempts"
-        return $null
-    }
-    else
-    {
-        throw $lastError
+function Set-BlobTriggerSubscription([string]$TriggerName, [switch]$Subscribe)
+{
+    $targetStatus = if ($Subscribe) { 'Enabled' } else { 'Disabled' }
+    $action = if ($Subscribe) { 'Subscribing' } else { 'Unsubscribing' }
+
+    Write-Log "$action $TriggerName to events..."
+    Invoke-WithRetry -Name "$action $TriggerName" -Delay 5 -Action {
+        if ($Subscribe)
+        {
+            Add-AzDataFactoryV2TriggerSubscription `
+                -ResourceGroupName $DataFactoryResourceGroup `
+                -DataFactoryName $DataFactoryName `
+                -Name $TriggerName | Out-Null
+        }
+        else
+        {
+            Remove-AzDataFactoryV2TriggerSubscription `
+                -ResourceGroupName $DataFactoryResourceGroup `
+                -DataFactoryName $DataFactoryName `
+                -Name $TriggerName | Out-Null
+        }
+
+        $status = Get-AzDataFactoryV2TriggerSubscriptionStatus `
+            -ResourceGroupName $DataFactoryResourceGroup `
+            -DataFactoryName $DataFactoryName `
+            -Name $TriggerName
+        if ($status.Status -ne $targetStatus)
+        {
+            throw "Subscription status is $($status.Status), expected $targetStatus"
+        }
     }
 }
 
 if ($StartTriggers -or $StopTriggers)
 {
-    # Loop thru triggers
-    $triggers = Invoke-WithRetry -ActionName "Get triggers" -Action {
+    $triggers = Invoke-WithRetry -Name "Get triggers" -Action {
         Get-AzDataFactoryV2Trigger `
             -ResourceGroupName $DataFactoryResourceGroup `
             -DataFactoryName $DataFactoryName `
         | Where-Object {
-            ($StartTriggers -and $_.properties.runtimeState -ne "Started") `
-                -or ($StopTriggers -and $_.properties.runtimeState -ne "Stopped")
+            ($StartTriggers -and $_.Properties.RuntimeState -ne "Started") `
+                -or ($StopTriggers -and $_.Properties.RuntimeState -ne "Stopped")
         }
     }
 
-    Write-Log "Found $($triggers.Length) trigger(s)"
-    Write-Log "StartTriggers: $StartTriggers"
+    Write-Log "Found $($triggers.Count) trigger(s) to $(if ($StartTriggers) { 'start' } else { 'stop' })"
 
     $triggers | ForEach-Object {
-        $trigger = $_.Name
+        $triggerName = $_.Name
+        $isBlobTrigger = $null -ne $_.Properties.BlobPathBeginsWith
+
         if ($StopTriggers)
         {
-            Write-Log "Stopping trigger $trigger..."
-            $triggerOutput = Invoke-WithRetry -ActionName "Stop trigger $trigger" -SuppressErrors -Action {
+            if ($isBlobTrigger) { Set-BlobTriggerSubscription -TriggerName $triggerName }
+            Write-Log "Stopping trigger $triggerName..."
+            Invoke-WithRetry -Name "Stop $triggerName" -Action {
                 Stop-AzDataFactoryV2Trigger `
                     -ResourceGroupName $DataFactoryResourceGroup `
                     -DataFactoryName $DataFactoryName `
-                    -Name $trigger `
-                    -Force
+                    -Name $triggerName -Force
             }
         }
         else
         {
-            Write-Log "Starting trigger $trigger..."
-            $triggerOutput = Invoke-WithRetry -ActionName "Start trigger $trigger" -SuppressErrors -Action {
+            if ($isBlobTrigger) { Set-BlobTriggerSubscription -TriggerName $triggerName -Subscribe }
+            Write-Log "Starting trigger $triggerName..."
+            Invoke-WithRetry -Name "Start $triggerName" -Action {
                 Start-AzDataFactoryV2Trigger `
                     -ResourceGroupName $DataFactoryResourceGroup `
                     -DataFactoryName $DataFactoryName `
-                    -Name $trigger `
-                    -Force
+                    -Name $triggerName -Force
             }
         }
-        if ($triggerOutput)
-        {
-            Write-Log "...done"
-        }
-        else
-        {
-            Write-Log "...failed"
-        }
-        $DeploymentScriptOutputs[$trigger] = $triggerOutput
-    }
 
-    # Wait for triggers to reach the desired state
-    $triggers | ForEach-Object {
-        $trigger = $_.Name
-        Invoke-WithRetry -ActionName "Wait for trigger $trigger to update" -SuppressErrors -Action {
+        Invoke-WithRetry -Name "Wait for $triggerName" -Action {
             $state = (Get-AzDataFactoryV2Trigger `
                     -ResourceGroupName $DataFactoryResourceGroup `
                     -DataFactoryName $DataFactoryName `
-                    -Name $trigger).Properties.RuntimeState
-            if (($StartTriggers -and $state -ne "Started") -or ($StopTriggers -and $state -ne "Stopped"))
-            {
-                throw "Trigger $trigger is still $state"
-            }
+                    -Name $triggerName).Properties.RuntimeState
+            $expected = if ($StartTriggers) { 'Started' } else { 'Stopped' }
+            if ($state -ne $expected) { throw "Trigger is $state, expected $expected" }
         }
+
+        Write-Log "...done"
+        $DeploymentScriptOutputs[$triggerName] = $true
     }
 }
 
-if ($RunPipelines)
+if (-not [string]::IsNullOrWhiteSpace($Pipelines))
 {
-    $Pipelines.Split('|') `
-    | ForEach-Object {
-        $pipelineName = $_
-        Write-Log "Running pipeline $pipelineName..."
+    $Pipelines.Split('|') | ForEach-Object {
+        Write-Log "Running pipeline $_..."
         Invoke-AzDataFactoryV2Pipeline `
             -ResourceGroupName $DataFactoryResourceGroup `
             -DataFactoryName $DataFactoryName `
-            -PipelineName $pipelineName
+            -PipelineName $_
     }
 }
