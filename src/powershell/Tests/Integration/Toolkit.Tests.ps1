@@ -6,8 +6,15 @@
 Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
-        $plannedRelease = '12.0'
+        $plannedRelease = '12'
         $expected = @('0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+
+        # Helper function to normalize version strings for [version] parsing
+        # Single-part versions like "12" need to become "12.0" for [version] to parse them
+        function NormalizeVersion($ver) {
+            if ($ver -notmatch '\.') { return "$ver.0" }
+            return $ver
+        }
 
         # Act
         $result = Get-FinOpsToolkitVersion
@@ -18,7 +25,7 @@ Describe 'Get-FinOpsToolkitVersion' {
             $result.Count | Should -BeLessOrEqual ($expected.Count + 1)
             $result | ForEach-Object {
                 $verStr = $_.Version
-                $verObj = [version]$verStr
+                $verObj = [version](NormalizeVersion $verStr)
                 $fileCount = 0
 
                 function CheckFile($file, $minVer, $maxVer)
@@ -47,6 +54,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "optimization-workbook-v$verStr.zip"    $null  '0.5'
 
                 # Power BI
+                CheckFile "FinOpsToolkitData.pbix"              '12.0' $null
                 CheckFile "PowerBI-demo.zip"                    '0.7' $null
                 CheckFile "PowerBI-kql.zip"                     '0.7' $null
                 CheckFile "PowerBI-storage.zip"                 '0.7' $null
