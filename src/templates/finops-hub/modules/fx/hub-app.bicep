@@ -322,7 +322,7 @@ resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@
 ]
 
 // Stop all triggers before deploying triggers
-module stopTriggers 'hub-deploymentScript.bicep' = {
+module stopTriggers 'hub-deploymentScript.bicep' = if (usesDataFactory) {
   name: '${app.publisher}.${app.name}_ADF.StopTriggers'
   dependsOn: [
     // TODO: Do we need to make this optional only if private endpoints are enabled and telemetry is enabled? Will it fail when telemetry is disabled?
