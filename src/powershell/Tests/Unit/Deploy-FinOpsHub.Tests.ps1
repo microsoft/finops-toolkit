@@ -124,7 +124,7 @@ InModuleScope 'FinOpsToolkit' {
 
             Context 'More' {
                 BeforeAll {
-                    $templateFile = Join-Path -Path $env:temp -ChildPath 'FinOps\finops-hub-v1.0.0\main.bicep'
+                    $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
                     Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
                     Mock -CommandName 'New-AzResourceGroupDeployment'
                 }
