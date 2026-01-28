@@ -56,6 +56,11 @@ module appRegistration '../../fx/hub-app.bicep' = {
     features: [
       'DataFactory'
     ]
+    storageRoles: [
+      // RBAC Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/privileged#role-based-access-control-administrator
+      // Used to create Cost Management exports (which require access to grant access)
+      'f58310d9-a9f6-439a-9e8d-f62e7b41a168'
+    ]
   }
 }
 

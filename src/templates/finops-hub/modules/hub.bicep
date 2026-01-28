@@ -357,6 +357,7 @@ module startTriggers 'fx/hub-initialize.bicep' = {
     analytics
     deleteOldResources
     remoteHub
+    cmManagedExports  
   ]
   params: {
     app: core.outputs.app

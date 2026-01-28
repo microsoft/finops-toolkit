@@ -38,11 +38,6 @@ module appRegistration '../../fx/hub-app.bicep' = {
       'Storage'      // msexports + schema files
       'DataFactory'  // Move files from msexports to ingestion
     ]
-    storageRoles: [
-      // User Access Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
-      // Used to create Cost Management exports (which require access to grant access)
-      '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
-    ]
   }
 }
 
