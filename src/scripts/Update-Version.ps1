@@ -102,9 +102,10 @@ if ($update -or $Version)
 {
     # Update version in ftkver.txt files (templates, modules, docs)
     Write-Verbose "Updating ftkver.txt files..."
-    Get-ChildItem ../.. -Include ftkver.txt -Recurse `
+    $repoRoot = (Resolve-Path "$PSScriptRoot/../..").Path
+    Get-ChildItem $repoRoot -Include ftkver.txt -Recurse -Force `
     | ForEach-Object {
-        Write-Verbose "- $($_.FullName.Replace((Get-Item ../..).FullName + [IO.Path]::DirectorySeparatorChar, ''))"
+        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $ver | Out-File $_ -NoNewline
     }
 
