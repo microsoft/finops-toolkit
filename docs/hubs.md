@@ -22,7 +22,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 <div id="whats-new" class="ftk-new">
     <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
     <p>
-        In January, FinOps hubs reorganized Bicep modules into separate apps, enhanced scope configuration documentation to clarify multi-account and cross-cloud support, added comprehensive troubleshooting for Data Explorer ingestion errors, improved KQL function reliability, fixed all Bicep compilation warnings, and added documentation for removing private networking.
+        In January, FinOps hubs reorganized Bicep modules into separate apps, enhanced scope configuration documentation to clarify multi-account and cross-cloud support, added documentation for removing private networking and comprehensive troubleshooting, improved KQL function reliability, and fixed numerous pipeline and data processing bugs.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
