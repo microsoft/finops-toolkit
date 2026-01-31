@@ -127,7 +127,7 @@ var INGESTION_ID_SEPARATOR = '__'
 var ftkGitTag = loadTextContent('../../fx/ftktag.txt')  // cSpell:ignore ftktag
 var ftkReleaseUri = indexOf(finOpsToolkitVersion, '-dev') != -1
   ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
-  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/v${ftkGitTag}/src/open-data'
+  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/${ftkGitTag}/src/open-data'
 
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)

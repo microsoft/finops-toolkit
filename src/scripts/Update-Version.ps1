@@ -100,9 +100,9 @@ if ($update -or $Version)
 # Update version in secondary files, if needed
 if ($update -or $Version)
 {
-    # Update version files: ftkver.txt (major.minor) and ftktag.txt (major only, for git tags)
+    # Update version files: ftkver.txt (major.minor) and ftktag.txt (git tag, e.g., "v13")
     $repoRoot = (Resolve-Path "$PSScriptRoot/../..").Path
-    $tag = $ver -replace '\.0$', ''
+    $tag = 'v' + ($ver -replace '\.0$', '')
     foreach ($entry in @{ 'ftkver.txt' = $ver; 'ftktag.txt' = $tag }.GetEnumerator())
     {
         Write-Verbose "Updating $($entry.Key) files..."

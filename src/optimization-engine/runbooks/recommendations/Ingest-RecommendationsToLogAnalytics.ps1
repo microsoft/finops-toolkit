@@ -41,7 +41,8 @@ $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSi
 
 
 $storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
-if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
+if ([string]::IsNullOrEmpty($storageAccountSinkContainer))
+{
     $storageAccountSinkContainer = "recommendationsexports"
 }
 $StorageBlobsPageSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_StorageBlobsPageSize" -ErrorAction SilentlyContinue)
@@ -53,7 +54,8 @@ if (-not($StorageBlobsPageSize -gt 0))
 #region Functions
 
 # Function to create the authorization signature
-Function Build-OMSSignature ($workspaceId, $sharedKey, $date, $contentLength, $method, $contentType, $resource) {
+function Build-OMSSignature ($workspaceId, $sharedKey, $date, $contentLength, $method, $contentType, $resource)
+{
     $xHeaders = "x-ms-date:" + $date
     $stringToHash = $method + "`n" + $contentLength + "`n" + $contentType + "`n" + $xHeaders + "`n" + $resource
     $bytesToHash = [Text.Encoding]::UTF8.GetBytes($stringToHash)
@@ -67,7 +69,8 @@ Function Build-OMSSignature ($workspaceId, $sharedKey, $date, $contentLength, $m
 }
 
 # Function to create and post the request
-Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField, $AzureEnvironment) {
+function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField, $AzureEnvironment)
+{
     $method = "POST"
     $contentType = "application/json"
     $resource = "/api/logs"
@@ -93,22 +96,25 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
     }
     if ($AzureEnvironment -eq "AzureGermanCloud")
     {
-        throw "Azure Germany isn't suported for the Log Analytics Data Collector API"
+        throw "Azure Germany isn't supported for the Log Analytics Data Collector API"
     }
 
     $OMSheaders = @{
-        "Authorization"        = $signature;
-        "Log-Type"             = $logType;
-        "x-ms-date"            = $rfc1123date;
-        "time-generated-field" = $TimeStampField;
+        "Authorization"        = $signature
+        "Log-Type"             = $logType
+        "x-ms-date"            = $rfc1123date
+        "time-generated-field" = $TimeStampField
     }
 
-    Try {
+    try
+    {
 
         $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
     }
-    catch {
-        if ($_.Exception.Response.StatusCode.Value__ -eq 401) {
+    catch
+    {
+        if ($_.Exception.Response.StatusCode.Value__ -eq 401)
+        {
             "REAUTHENTICATING"
 
             $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
@@ -126,12 +132,16 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
 
 "Logging in to Azure with $authenticationOption..."
 
-switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" {
+switch ($authenticationOption)
+{
+    "UserAssignedManagedIdentity"
+    {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
-    Default { #ManagedIdentity
+    default
+    {
+        #ManagedIdentity
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
@@ -154,20 +164,22 @@ do
     $blobs = Get-AzStorageBlob -Container $storageAccountSinkContainer -MaxCount $StorageBlobsPageSize -ContinuationToken $continuationToken -Context $saCtx | Sort-Object -Property LastModified
     if ($blobs.Count -le 0) { break }
     $allblobs += $blobs
-    $continuationToken = $blobs[$blobs.Count -1].ContinuationToken;
+    $continuationToken = $blobs[$blobs.Count - 1].ContinuationToken
 }
-While ($null -ne $continuationToken)
+while ($null -ne $continuationToken)
 
 $tries = 0
 $connectionSuccess = $false
-do {
+do
+{
     $tries++
-    try {
+    try
+    {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
         $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
         $Conn.Open()
-        $Cmd=new-object system.Data.SqlClient.SqlCommand
+        $Cmd = New-Object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$LogAnalyticsIngestControlTable] WHERE StorageContainerName = '$storageAccountSinkContainer'"
@@ -178,7 +190,8 @@ do {
         $sqlAdapter.Fill($controlRows) | Out-Null
         $connectionSuccess = $true
     }
-    catch {
+    catch
+    {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
@@ -210,10 +223,12 @@ $newProcessedTime = $null
 
 $unprocessedBlobs = @()
 
-foreach ($blob in $allblobs) {
+foreach ($blob in $allblobs)
+{
     $blobLastModified = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     if ($lastProcessedDateTime -lt $blobLastModified -or `
-        ($lastProcessedDateTime -eq $blobLastModified -and $lastProcessedLine -gt 0)) {
+        ($lastProcessedDateTime -eq $blobLastModified -and $lastProcessedLine -gt 0))
+    {
         Write-Output "$($blob.Name) found (modified on $blobLastModified)"
         $unprocessedBlobs += $blob
     }
@@ -223,7 +238,8 @@ $unprocessedBlobs = $unprocessedBlobs | Sort-Object -Property LastModified
 
 Write-Output "Found $($unprocessedBlobs.Count) new blobs to process..."
 
-foreach ($blob in $unprocessedBlobs) {
+foreach ($blob in $unprocessedBlobs)
+{
     $newProcessedTime = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     Write-Output "About to process $($blob.Name)..."
     Get-AzStorageBlobContent -CloudBlob $blob.ICloudBlob -Context $saCtx -Force
@@ -248,8 +264,9 @@ foreach ($blob in $unprocessedBlobs) {
 
     if ($recCount -gt 1)
     {
-        for ($i = 0; $i -lt $recCount; $i += $LogAnalyticsChunkSize) {
-            $jsonObjectSplitted += , @($jsonObject[$i..($i + ($LogAnalyticsChunkSize - 1))]);
+        for ($i = 0; $i -lt $recCount; $i += $LogAnalyticsChunkSize)
+        {
+            $jsonObjectSplitted += , @($jsonObject[$i..($i + ($LogAnalyticsChunkSize - 1))])
         }
     }
     else
@@ -276,19 +293,23 @@ foreach ($blob in $unprocessedBlobs) {
 
                 $jsonObject = ConvertTo-Json -InputObject $jsonObjectSplitted[$j]
                 $res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($jsonObject)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
-                If ($res -ge 200 -and $res -lt 300) {
-                    Write-Output "Succesfully uploaded $currentObjectLines $LogAnalyticsSuffix rows to Log Analytics"
+                if ($res -ge 200 -and $res -lt 300)
+                {
+                    Write-Output "Successfully uploaded $currentObjectLines $LogAnalyticsSuffix rows to Log Analytics"
                     $linesProcessed += $currentObjectLines
-                    if ($j -eq ($jsonObjectSplitted.Count - 1)) {
+                    if ($j -eq ($jsonObjectSplitted.Count - 1))
+                    {
                         $lastProcessedLine = -1
                     }
-                    else {
+                    else
+                    {
                         $lastProcessedLine = $linesProcessed - 1
                     }
 
                     $updatedLastProcessedLine = $lastProcessedLine
                     $updatedLastProcessedDateTime = $lastProcessedDateTime
-                    if ($j -eq ($jsonObjectSplitted.Count - 1)) {
+                    if ($j -eq ($jsonObjectSplitted.Count - 1))
+                    {
                         $updatedLastProcessedDateTime = $newProcessedTime
                     }
                     $lastProcessedDateTime = $updatedLastProcessedDateTime
@@ -298,7 +319,7 @@ foreach ($blob in $unprocessedBlobs) {
                     $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
                     $Conn.AccessToken = $dbToken.Token
                     $Conn.Open()
-                    $Cmd=new-object system.Data.SqlClient.SqlCommand
+                    $Cmd = New-Object system.Data.SqlClient.SqlCommand
                     $Cmd.Connection = $Conn
                     $Cmd.CommandText = $sqlStatement
                     $Cmd.CommandTimeout = $SqlTimeout
@@ -306,7 +327,8 @@ foreach ($blob in $unprocessedBlobs) {
                     $Conn.Close()
                     $Conn.Dispose()
                 }
-                Else {
+                else
+                {
                     $linesProcessed += $currentObjectLines
                     Write-Warning "Failed to upload $currentObjectLines $LogAnalyticsSuffix rows. Error code: $res"
                     throw
