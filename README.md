@@ -146,6 +146,7 @@ There are many ways to participate. From reporting bugs and requesting features 
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/gajadv"><img src="https://avatars.githubusercontent.com/u/125584305?v=4?s=100" width="100px;" alt="gajadv"/><br /><sub><b>gajadv</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Agajadv" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="http://www.jeeja.biz"><img src="https://avatars.githubusercontent.com/u/3397477?v=4?s=100" width="100px;" alt="Francesco Mantovani"/><br /><sub><b>Francesco Mantovani</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Afrancesco1119" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>

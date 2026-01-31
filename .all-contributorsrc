@@ -880,6 +880,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "francesco1119",
+      "name": "Francesco Mantovani",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3397477?v=4",
+      "profile": "http://www.jeeja.biz",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
