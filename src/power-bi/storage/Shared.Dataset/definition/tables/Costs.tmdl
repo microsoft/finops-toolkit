@@ -613,6 +613,14 @@ table Costs
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_SkuInstanceType
+		dataType: string
+		lineageTag: 34616157-7ddc-4ed4-8bda-0afea596e583
+		summarizeBy: none
+		sourceColumn: x_SkuInstanceType
+
+		annotation SummarizationSetBy = Automatic
+
 	column x_SkuLicenseStatus
 		dataType: string
 		lineageTag: 86d87994-b011-4838-a8e9-97ddb856d6fa
@@ -1648,13 +1656,13 @@ table Costs
 					// AHB columns
 				// TODO: Add SQL AHB handling
 					AHB = Table.RemoveColumns(
-						Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+						Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
 							Table.TransformColumnTypes(
 								Table.ExpandRecordColumn(
 									Table.ReplaceErrorValues(Table.AddColumn(ExtractedTags, "tmp_SkuDetails", each [x_SkuDetailsDictionary]), {{"tmp_SkuDetails", null}}),
 									"tmp_SkuDetails",
-									{"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
-									{"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
+									{"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores",        "ServerSku"},
+									{"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores", "tmp_ServerSku"}
 								),
 								{{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}
 							),
@@ -1669,8 +1677,9 @@ table Costs
 								type number
 							),
 							"x_SkuLicenseStatus",      each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Windows") or [tmp_SQLAHB] = "False" then "Not enabled" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], "Windows Server BYOL")) or [tmp_SQLAHB] = "True" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Azure Hybrid Benefit")) then "Enabled" else "Not supported"),
-							"x_CommitmentDiscountKey", each [x_SkuType] & [x_SkuMeterId]),
-						{ "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_SQLvCores", "tmp_VMName", "tmp_VMvCPUs" }
+							"x_SkuInstanceType",       each if [x_SkuType] <> null then [x_SkuType] else if [tmp_ServerSku] <> null then [tmp_ServerSku] else null),
+							"x_CommitmentDiscountKey", each if [x_SkuInstanceType] <> null then [x_SkuInstanceType] & [x_SkuMeterId] else null),
+						{ "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_ServerSku", "tmp_SQLvCores", "tmp_VMName", "tmp_VMvCPUs" }
 					),
 				
 					// Unique key for the record -- WARNING: This increases the data size significantly.
