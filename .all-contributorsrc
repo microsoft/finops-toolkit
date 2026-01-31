@@ -889,6 +889,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "ahpandit",
+      "name": "ahpandit",
+      "avatar_url": "https://avatars.githubusercontent.com/u/98794500?v=4",
+      "profile": "https://github.com/ahpandit",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
