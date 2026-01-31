@@ -42,7 +42,8 @@ $FiltersTable = "Filters"
 #region Functions
 
 # Function to create the authorization signature
-Function Build-OMSSignature ($workspaceId, $sharedKey, $date, $contentLength, $method, $contentType, $resource) {
+function Build-OMSSignature ($workspaceId, $sharedKey, $date, $contentLength, $method, $contentType, $resource)
+{
     $xHeaders = "x-ms-date:" + $date
     $stringToHash = $method + "`n" + $contentLength + "`n" + $contentType + "`n" + $xHeaders + "`n" + $resource
     $bytesToHash = [Text.Encoding]::UTF8.GetBytes($stringToHash)
@@ -56,7 +57,8 @@ Function Build-OMSSignature ($workspaceId, $sharedKey, $date, $contentLength, $m
 }
 
 # Function to create and post the request
-Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField, $AzureEnvironment) {
+function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField, $AzureEnvironment)
+{
     $method = "POST"
     $contentType = "application/json"
     $resource = "/api/logs"
@@ -82,22 +84,25 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
     }
     if ($AzureEnvironment -eq "AzureGermanCloud")
     {
-        throw "Azure Germany isn't suported for the Log Analytics Data Collector API"
+        throw "Azure Germany isn't supported for the Log Analytics Data Collector API"
     }
 
     $OMSheaders = @{
-        "Authorization"        = $signature;
-        "Log-Type"             = $logType;
-        "x-ms-date"            = $rfc1123date;
-        "time-generated-field" = $TimeStampField;
+        "Authorization"        = $signature
+        "Log-Type"             = $logType
+        "x-ms-date"            = $rfc1123date
+        "time-generated-field" = $TimeStampField
     }
 
-    Try {
+    try
+    {
 
         $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
     }
-    catch {
-        if ($_.Exception.Response.StatusCode.Value__ -eq 401) {
+    catch
+    {
+        if ($_.Exception.Response.StatusCode.Value__ -eq 401)
+        {
             "REAUTHENTICATING"
 
             $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
@@ -114,12 +119,16 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
 
 "Logging in to Azure with $authenticationOption..."
 
-switch ($authenticationOption) {
-    "UserAssignedManagedIdentity" {
+switch ($authenticationOption)
+{
+    "UserAssignedManagedIdentity"
+    {
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
         break
     }
-    Default { #ManagedIdentity
+    default
+    {
+        #ManagedIdentity
         Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment
         break
     }
@@ -132,14 +141,16 @@ Write-Output "Getting excluded recommendation sub-type IDs..."
 
 $tries = 0
 $connectionSuccess = $false
-do {
+do
+{
     $tries++
-    try {
+    try
+    {
         $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
         $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;")
         $Conn.AccessToken = $dbToken.Token
         $Conn.Open()
-        $Cmd=new-object system.Data.SqlClient.SqlCommand
+        $Cmd = New-Object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
         $Cmd.CommandTimeout = $SqlTimeout
         $Cmd.CommandText = "SELECT * FROM [dbo].[$FiltersTable] WHERE IsEnabled = 1 AND (FilterEndDate IS NULL OR FilterEndDate > GETDATE())"
@@ -150,7 +161,8 @@ do {
         $sqlAdapter.Fill($filters) | Out-Null
         $connectionSuccess = $true
     }
-    catch {
+    catch
+    {
         Write-Output "Failed to contact SQL at try $tries."
         Write-Output $Error[0]
         Start-Sleep -Seconds ($tries * 20)
@@ -165,22 +177,22 @@ if (-not($connectionSuccess))
 $Conn.Close()
 $Conn.Dispose()
 
-$datetime = (get-date).ToUniversalTime()
+$datetime = (Get-Date).ToUniversalTime()
 $timestamp = $datetime.ToString("yyyy-MM-ddTHH:mm:00.000Z")
 
 $filterObjects = @()
 
 $filterObject = New-Object PSObject -Property @{
-    Timestamp = $timestamp
-    FilterId = (New-Guid).Guid
+    Timestamp               = $timestamp
+    FilterId                = (New-Guid).Guid
     RecommendationSubTypeId = [System.Guid]::empty.Guid
-    FilterType = "Dummy"
-    InstanceId = [System.Guid]::empty.Guid
-    InstanceName = "Dummy"
-    FilterStartDate = "2019-01-01T00:00:00.000Z"
-    FilterEndDate = "2199-12-31T23:59:59.000Z"
-    Author = "AOE"
-    Notes = "This is a dummy suppression required to build the full suppressions schema in Log Analytics"
+    FilterType              = "Dummy"
+    InstanceId              = [System.Guid]::empty.Guid
+    InstanceName            = "Dummy"
+    FilterStartDate         = "2019-01-01T00:00:00.000Z"
+    FilterEndDate           = "2199-12-31T23:59:59.000Z"
+    Author                  = "AOE"
+    Notes                   = "This is a dummy suppression required to build the full suppressions schema in Log Analytics"
 }
 $filterObjects += $filterObject
 
@@ -220,16 +232,16 @@ foreach ($filter in $filters)
     }
 
     $filterObject = New-Object PSObject -Property @{
-        Timestamp = $timestamp
-        FilterId = $filter.FilterId
+        Timestamp               = $timestamp
+        FilterId                = $filter.FilterId
         RecommendationSubTypeId = $filter.RecommendationSubTypeId
-        FilterType = $filter.FilterType
-        InstanceId = $instanceId
-        InstanceName = $instanceName
-        FilterStartDate = $filterStartDate
-        FilterEndDate = $filterEndDate
-        Author = $filter.Author
-        Notes = $filter.Notes
+        FilterType              = $filter.FilterType
+        InstanceId              = $instanceId
+        InstanceName            = $instanceName
+        FilterStartDate         = $filterStartDate
+        FilterEndDate           = $filterEndDate
+        Author                  = $filter.Author
+        Notes                   = $filter.Notes
     }
     $filterObjects += $filterObject
 }
@@ -240,10 +252,12 @@ $LogAnalyticsSuffix = "SuppressionsV1"
 $logname = $lognamePrefix + $LogAnalyticsSuffix
 
 $res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($filtersJson)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
-If ($res -ge 200 -and $res -lt 300) {
-    Write-Output "Succesfully uploaded $($filterObjects.Count) $LogAnalyticsSuffix rows to Log Analytics"
+if ($res -ge 200 -and $res -lt 300)
+{
+    Write-Output "Successfully uploaded $($filterObjects.Count) $LogAnalyticsSuffix rows to Log Analytics"
 }
-Else {
+else
+{
     Write-Warning "Failed to upload $($filterObjects.Count) $LogAnalyticsSuffix rows. Error code: $res"
     throw
 }
