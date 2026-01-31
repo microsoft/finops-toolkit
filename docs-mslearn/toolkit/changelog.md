@@ -97,7 +97,10 @@ _Released January 2026_
 - **Added**
   - Added `-Format` and `-CompressionMode` parameters to [New-FinOpsCostExport](powershell/cost/New-FinOpsCostExport.md) to support Parquet format and gzip/snappy compression ([#1074](https://github.com/microsoft/finops-toolkit/issues/1074)).
 
-> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
 
 <br>
 
@@ -201,7 +204,10 @@ _Released July 16, 2025_
     - microsoft.durabletask/schedulers
     - microsoft.edge/contexts
 
-> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v12) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.11...v12)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v12)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.11...v12)
 
 <br>
 
@@ -335,7 +341,10 @@ _Released June 2, 2025_
     - microsoft.synapse/workspaces/sqlpools
     - microsoft.web/sites/slots
 
-> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.10...v0.11)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.11)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.10...v0.11)
 
 <br>
 
@@ -452,7 +461,10 @@ _Released May 4, 2025_
     - microsoft.liftrpilot/organizations
     - mongodb.atlas/organizations
 
-> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.10)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.9...v0.10)
 
 <br>
 
@@ -635,7 +647,10 @@ _Released April 4, 2025_
 - **Added**
   - Added sample data for MCA reservation exports.
 
-> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.8...v0.9)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.9)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.8...v0.9)
 
 <br>
 
@@ -847,7 +862,10 @@ _Released February 12, 2025_
     - microsoft.iotoperations/instances
     - microsoft.networkcloud/baremetalmachines <!-- cSpell:enable -->
 
-> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.8) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.7...v0.8)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.8)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.7...v0.8)
 
 <br>
 
@@ -1002,7 +1020,10 @@ _**Breaking change**_
     - microsoft.healthdataaiservices/deidservices
     - microsoft.insights/datacollectionrules <!-- cSpell:enable -->
 
-> [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.6...v0.7)
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.6...v0.7)
 
 <br>
 
@@ -1152,7 +1173,10 @@ _Released October 2, 2024_
     - microsoft.sql/longtermretentionservers
     - microsoft.verifiedid/authorities <!-- cSpell:enable -->
 
-> [!div class="nextstepaction"] > [Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6)
+> [!div class="nextstepaction"]
+> [Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6)
 
 <br>
 
@@ -1421,7 +1445,10 @@ _Released September 1, 2024_
   - Move Microsoft Defender for Endpoint from the **Multicloud** service category to **Security**.
   - Move StorSimple from the **Multicloud** service category to **Storage**.
 
-> [!div class="nextstepaction"] > [Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5)
+> [!div class="nextstepaction"]
+> [Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5)
 
 <br>
 
@@ -1543,7 +1570,10 @@ _Released July 12, 2024_
   - Changed the primary columns in the [Regions](open-data.md#regions) and [Services](open-data.md#services) open data files to be lowercase.
   - Updated all [sample exports](open-data.md#dataset-examples) to use the same date range as the FOCUS 1.0 dataset.
 
-> [!div class="nextstepaction"] > [Download v0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.3...v0.4)
+> [!div class="nextstepaction"]
+> [Download v0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.3...v0.4)
 
 <br>
 
@@ -1631,7 +1661,10 @@ _Released March 28, 2024_
   - Added ServiceModel and Environment columns to the [services](open-data.md#services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
   - New and updated [resource types](open-data.md#resource-types) and icons.
 
-> [!div class="nextstepaction"] > [Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3)
+> [!div class="nextstepaction"]
+> [Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3)
 
 <br>
 
@@ -1720,7 +1753,10 @@ _**Breaking change**_
 - **Added**
   - [FinOps Open Cost and Usage Specification (FOCUS) details](../focus/what-is-focus.md).
 
-> [!div class="nextstepaction"] > [Download v0.2](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1.1...v0.2)
+> [!div class="nextstepaction"]
+> [Download v0.2](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1.1...v0.2)
 
 <br>
 
@@ -1755,7 +1791,10 @@ _Released October 26, 2023_
     - [Register-FinOpsHubProviders](powershell/hubs/Register-FinOpsHubProviders.md)
     - [Remove-FinOpsHub](powershell/hubs/Remove-FinOpsHub.md)
 
-> [!div class="nextstepaction"] > [Download v0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1...v0.1.1)
+> [!div class="nextstepaction"]
+> [Download v0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1...v0.1.1)
 
 <br>
 
@@ -1803,7 +1842,10 @@ _Released October 22, 2023_
   - [Regions](open-data.md#regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
   - [Services](open-data.md#services) to map all resource types to FOCUS service names and categories.
 
-> [!div class="nextstepaction"] > [Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.0.1...v0.1)
+> [!div class="nextstepaction"]
+> [Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.0.1...v0.1)
 
 <br>
 
@@ -1828,7 +1870,10 @@ _Released May 27, 2023_
 - **Added**
   - [Cost optimization workbook](workbooks/optimization.md) to centralize cost optimization.
 
-> [!div class="nextstepaction"] > [Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1)
+> [!div class="nextstepaction"]
+> [Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1)
 
 <br>
 
@@ -1836,10 +1881,12 @@ _Released May 27, 2023_
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
-> [!div class="nextstepaction"] > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Changelog)
+> [!div class="nextstepaction"]
+> [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Changelog)
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
-> [!div class="nextstepaction"] > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+> [!div class="nextstepaction"]
+> [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
 
 <br>
