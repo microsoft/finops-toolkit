@@ -125,7 +125,7 @@ var INGESTION_DB = 'Ingestion'
 var INGESTION_ID_SEPARATOR = '__'
 
 var ftkGitTag = loadTextContent('../../fx/ftktag.txt')  // cSpell:ignore ftktag
-var ftkReleaseUri = endsWith(finOpsToolkitVersion, '-dev')
+var ftkReleaseUri = indexOf(finOpsToolkitVersion, '-dev') != -1
   ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
   : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/v${ftkGitTag}/src/open-data'
 

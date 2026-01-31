@@ -6,8 +6,8 @@
 Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
-        $plannedRelease = '12'
-        $expected = @('0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+        $plannedRelease = '13'
+        $expected = @('12', '0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
 
         # Helper function to normalize version strings for [version] parsing
         # Single-part versions like "12" need to become "12.0" for [version] to parse them
