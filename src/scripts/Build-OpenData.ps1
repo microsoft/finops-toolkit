@@ -629,10 +629,6 @@ $genericCubeSvg = (Get-Content "$svgDir/microsoft.resources/resources.svg" -Raw)
             # Remove <g> wrappers (they don't affect rendering)
             $n = $n -replace '<g>', ''
             $n = $n -replace '</g>', ''
-            # SVG path optimization: commands like V10.84Z or H5Z are redundant before Z
-            $n = $n -replace '([VvHhLl][-\d\.]+)[Zz]([''"])', '$2'
-            # Remove trailing Z/z from paths (implicit close with fill)
-            $n = $n -replace "[Zz](['""])", '$1'
             # Normalize decimal precision - truncate to 1 decimal place
             $n = $n -replace '(\d+\.\d)\d+', '$1'
             # Extract and sort attributes within each tag to handle reordering
