@@ -38,42 +38,32 @@ _Released January 2026_
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v13
 
 - **Added**
-  - Created comprehensive [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI including Azure Data Explorer, Microsoft Fabric, Azure Synapse Analytics, Azure Databricks, and custom applications.
-  - Enhanced troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed) with detailed steps for diagnosing and resolving the common SEM0080 "Ingestion Failed" semantic error, including schema mismatch detection, ingestion mapping verification, and diagnostic query examples.
+  - Added [Data Lake Storage connectivity options](data-lake-storage-connectivity.md) documentation covering tools and services beyond Power BI.
+  - Added troubleshooting guidance for [Data Explorer ingestion errors](help/errors.md#dataexploreringestionfailed), including the SEM0080 "Ingestion Failed" semantic error.
 - **Changed**
-  - Updated FinOps framework documentation to prepare for Azure TCO calculator retirement scheduled for August 31, 2025. Azure Migrate cost estimation functionality remains available.
-  - Updated FOCUS converter documentation to include newly added fields in FOCUS 1.2-preview specification, including ServiceSubcategory and renamed columns (InvoiceId, PricingCurrency, SkuMeter).
+  - Updated FOCUS converter documentation for newly added fields in the FOCUS 1.2-preview specification, including ServiceSubcategory, InvoiceId, PricingCurrency, and SkuMeter.
+  - Removed Azure TCO calculator references for tool retirement on August 31, 2025.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v13
 
 - **Added**
-  - Added optional `enablePurgeProtection` parameter (default: `false`) to enable purge protection on the Key Vault for compliance with enterprise-scale Azure Landing Zone policies. Available in both `main.bicep` and `modules/hub.bicep` ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
-  - Document [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
-  - Added comprehensive troubleshooting guidance for [ErrorCodeNotString](help/errors.md#errorcodenotstring) error that occurs when Azure Data Factory Fail activities cannot evaluate dynamic expressions.
-  - Enhanced [DataExplorerPostIngestionDropFailed](help/errors.md#dataexplorerpostingestiondropfailed) error documentation with detailed troubleshooting steps, common scenarios, and links to Microsoft Learn resources.
-  - Enhanced [DataExplorerPreIngestionDropFailed](help/errors.md#dataexplorerpreingestiondropfailed) error documentation with troubleshooting guidance and cross-references.
+  - Added optional `enablePurgeProtection` parameter (default: `false`) to enable Key Vault purge protection for compliance with Azure Landing Zone policies ([#1067](https://github.com/microsoft/finops-toolkit/issues/1067)).
+  - Added documentation for [how to remove private networking](hubs/private-networking.md#removing-private-networking) and switch back to public access to reduce costs ([#1342](https://github.com/microsoft/finops-toolkit/issues/1342)).
+  - Added troubleshooting guidance for [ErrorCodeNotString](help/errors.md#errorcodenotstring), [DataExplorerPostIngestionDropFailed](help/errors.md#dataexplorerpostingestiondropfailed), and [DataExplorerPreIngestionDropFailed](help/errors.md#dataexplorerpreingestiondropfailed) errors.
 - **Changed**
   - Reorganized Bicep modules into separate apps.
   - Changed the User Access Administrator role to RBAC Administrator and moved it to the Managed Exports app ([#1946](https://github.com/microsoft/finops-toolkit/issues/1946)).
-  - Enhanced [Configure scopes documentation](hubs/configure-scopes.md) to explicitly clarify that FinOps hubs support:
-    - Multiple Azure scopes (billing accounts, subscriptions, resource groups) in a single hub instance
-    - Cross-cloud data ingestion through FOCUS format support
-  - Optimize trigger management script with retry logic and improved logging.
+  - Updated [Configure scopes documentation](hubs/configure-scopes.md) to clarify support for multiple Azure scopes and cross-cloud data ingestion.
+  - Optimized trigger management script with retry logic and improved logging.
 - **Fixed**
-  - Fixed duplicate Key Vault deployment in RemoteHub by removing redundant accessPolicies nested resource and adding proper dependencies.
-  - Fixed all Bicep compilation errors and warnings with inline suppressions and descriptive comments.
-  - Fixed Build-Toolkit.ps1 bicep generate-params command bug.
-  - Fixed Azure Data Explorer dashboard queries by converting `todecimal(0)` to `toreal(0)` to ensure compatibility with KQL type system ([#1893](https://github.com/microsoft/finops-toolkit/issues/1893)).
-  - Fixed Costs_v1_2 function producing duplicate records when Services table contains multiple entries for the same resource type, causing cost discrepancies between dashboards.
-  - Fixed `config_InitializeHub` pipeline failure in Azure Data Explorer caused by HTTP redirects when loading open data CSV files (PricingUnits, Regions, ResourceTypes, Services) from GitHub releases. Updated to use raw.githubusercontent.com URLs that do not redirect ([#1886](https://github.com/microsoft/finops-toolkit/issues/1886)).
-  - Fixed logic to properly generate the scopes to monitor.
-  - Fixed datatype mismatch in InitializeHub pipeline by changing `x_PricingBlockSize` from `decimal` to `real` to match PricingUnits table schema.
-  - Fixed ADF pipeline dependency logic in config_RunBackfillJob, config_StartExportProcess, and config_ConfigureExports pipelines to properly handle both array and non-array scope configurations by adding 'Failed' condition to 'Save/Set Scopes' activity dependencies.
-  - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2 by adding fallback mappings for `PricingCurrency` and `SkuMeter` columns to their legacy `x_` counterparts.
-  - Fixed RemoteHub manifest file not being copied to remote storage. The ingestion_manifest dataset is now consistently handled like other ingestion datasets (ingestion, ingestion_files) - created by the Core module and overridden by the RemoteHub module when configured, ensuring manifests are written to the correct storage location. Also renamed manifest_source to msexports_manifest and manifest_sink to ingestion_manifest for clarity.
-  - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md). The packaging process now respects the `unversionedZip` property in `.build.config` to create unversioned ZIP files for finops-hub-copilot, enabling stable download links ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
-  - Fixed ADF triggers not starting after deployment due to `$startTriggers` variable not being set from the `StartAllTriggers` environment variable in the Init-DataFactory.ps1 script.
-  - Fixed version format mismatch causing `config_InitializeHub` pipeline to fail when loading open data files from GitHub. The version in ftkver.txt (e.g., `12.0`) now matches the git tag format (e.g., `v12`) ([#1885](https://github.com/microsoft/finops-toolkit/issues/1885)).
+  - Fixed ADF triggers not starting after deployment.
+  - Fixed ADF pipeline dependency logic to properly handle both array and non-array scope configurations.
+  - Fixed `config_InitializeHub` pipeline failures caused by GitHub URL redirects and version format mismatches ([#1885](https://github.com/microsoft/finops-toolkit/issues/1885), [#1886](https://github.com/microsoft/finops-toolkit/issues/1886)).
+  - Fixed scope generation logic and datatype mismatch (`x_PricingBlockSize`) in InitializeHub pipeline.
+  - Fixed Azure Data Explorer dashboard queries by converting `todecimal(0)` to `toreal(0)` for KQL compatibility ([#1893](https://github.com/microsoft/finops-toolkit/issues/1893)).
+  - Fixed `Costs_v1_2` function producing duplicate records when Services table contains multiple entries for the same resource type.
+  - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2.
+  - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md) ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
 
 ### [Power BI reports](power-bi/reports.md) v13
 
@@ -81,18 +71,18 @@ _Released January 2026_
   - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
   - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
 - **Fixed**
-  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
-  - Fixed unattached disks count in the workload optimization report to show only truly unattached disks instead of all disks. The card visual now filters disks where (managedBy is empty and diskState is not ActiveSAS) or (diskState is Unattached and not ActiveSAS) ([#1896](https://github.com/microsoft/finops-toolkit/issues/1896)).
-  - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data when set to 3 months ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
-  - Fixed EA department scope failing on pricesheet export by skipping pricesheet exports for scopes that don't support them ([#1870](https://github.com/microsoft/finops-toolkit/issues/1870)).
+  - Fixed tag expansion when tag names contain special characters like colons.
+  - Fixed unattached disks count in the workload optimization report to show only truly unattached disks ([#1896](https://github.com/microsoft/finops-toolkit/issues/1896)).
+  - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
+  - Fixed EA department scope failing on pricesheet export by skipping unsupported scopes ([#1870](https://github.com/microsoft/finops-toolkit/issues/1870)).
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
 - **Changed**
-  - Changed default SQL database backup redundancy to LRS, for improved cost efficiency and compatibility with deployments in non-paired Azure regions.
+  - Changed default SQL database backup redundancy to LRS for improved cost efficiency and compatibility with non-paired Azure regions.
 - **Fixed**
-  - Reservations-related workbooks fixed by replacing Instance Size Flexibility ratios CSV vanity URL with actual one to work around Log Analytics externaldata limitation ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
-  - Underutilized disks recommendations were not being generated when customer environment has Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
+  - Fixed reservations-related workbooks by replacing Instance Size Flexibility ratios CSV vanity URL ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
+  - Fixed underutilized disks recommendations not being generated for Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
   - Small documentation improvements and fixes to broken links.
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v13

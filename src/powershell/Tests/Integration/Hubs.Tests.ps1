@@ -42,7 +42,7 @@ Describe 'Hubs' {
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
             $ftk_ResourceGroup = "ftk-test-integration"
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
-            $ftk_HubName = "ftk-test-DeployHub_$($env:USERNAME)"
+            $ftk_HubName = "ftk-test-DeployHub_$($env:USER ?? $env:USERNAME ?? 'unknown')"
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
             $ftk_HubRG = "ftk-test-integration"
             # TODO: Confirm lowercase/space requirement and add handling to avoid the limitation

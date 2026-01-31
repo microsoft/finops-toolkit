@@ -124,9 +124,10 @@ var INGESTION = 'ingestion'
 var INGESTION_DB = 'Ingestion'
 var INGESTION_ID_SEPARATOR = '__'
 
-var ftkReleaseUri = endsWith(finOpsToolkitVersion, '-dev')
+var ftkGitTag = loadTextContent('../../fx/ftktag.txt')  // cSpell:ignore ftktag
+var ftkReleaseUri = indexOf(finOpsToolkitVersion, '-dev') != -1
   ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
-  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/v${finOpsToolkitVersion}/src/open-data'
+  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/v${ftkGitTag}/src/open-data'
 
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
@@ -645,7 +646,7 @@ resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-0
       }
       version: {
         type: 'string'
-        defaultValue: finOpsToolkitVersion
+        defaultValue: ftkGitTag  // Must match the tag, not a major.minor version (e.g., 13, not 13.0)
       }
     }
     annotations: []
