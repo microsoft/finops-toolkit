@@ -115,7 +115,7 @@ function Copy-TemplateFiles()
         $zip = if ($unversionedZip) {
             Join-Path (Get-Item $relDir) "$templateName.zip"
         } else {
-            Join-Path (Get-Item $relDir) "$templateName-$version.zip"
+            Join-Path (Get-Item $relDir) "$templateName-$tag.zip"
         }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
@@ -200,7 +200,8 @@ function Copy-OpenDataFolders()
     }
 }
 
-$version = & "$PSScriptRoot/Get-Version" -AsTag
+$version = & "$PSScriptRoot/Get-Version"
+$tag = & "$PSScriptRoot/Get-Version" -AsTag
 
 if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
 {
