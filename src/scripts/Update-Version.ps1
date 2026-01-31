@@ -100,12 +100,17 @@ if ($update -or $Version)
 # Update version in secondary files, if needed
 if ($update -or $Version)
 {
-    # Update version in ftkver.txt files (templates, modules, docs)
-    Write-Verbose "Updating ftkver.txt files..."
-    Get-ChildItem ../.. -Include ftkver.txt -Recurse `
-    | ForEach-Object {
-        Write-Verbose "- $($_.FullName.Replace((Get-Item ../..).FullName + [IO.Path]::DirectorySeparatorChar, ''))"
-        $ver | Out-File $_ -NoNewline
+    # Update version files: ftkver.txt (major.minor) and ftktag.txt (major only, for git tags)
+    $repoRoot = (Resolve-Path "$PSScriptRoot/../..").Path
+    $tag = $ver -replace '\.0$', ''
+    foreach ($entry in @{ 'ftkver.txt' = $ver; 'ftktag.txt' = $tag }.GetEnumerator())
+    {
+        Write-Verbose "Updating $($entry.Key) files..."
+        Get-ChildItem $repoRoot -Include $entry.Key -Recurse -Force `
+        | ForEach-Object {
+            Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+            $entry.Value | Out-File $_ -NoNewline
+        }
     }
 
     # Update version in PowerShell

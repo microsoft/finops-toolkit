@@ -36,7 +36,7 @@ function Save-FinOpsHubTemplate
 
         [Parameter()]
         [string]
-        $Destination = $env:temp
+        $Destination = [System.IO.Path]::GetTempPath()
     )
 
     $progress = $ProgressPreference

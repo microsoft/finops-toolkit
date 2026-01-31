@@ -176,7 +176,7 @@ function Deploy-FinOpsHub
         }
 
         # Create folder for download
-        $toolkitPath = Join-Path $env:temp -ChildPath 'FinOpsToolkit'
+        $toolkitPath = Join-Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOpsToolkit'
         if (Test-ShouldProcess $PSCmdlet $toolkitPath 'CreateTempDirectory')
         {
             New-Directory -Path $toolkitPath
