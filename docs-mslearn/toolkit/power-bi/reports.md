@@ -104,7 +104,7 @@ Configure FinOps hubs or Cost Management exports with KQL or storage reports. Fo
 > [!IMPORTANT]
 > Each report documentation page includes specific export requirements. Review the "Export requirements" section on each report page before downloading to ensure you have the necessary data configured.
 
-For more information, see [How to setup Power BI](setup.md#set-up-your-first-report).
+For more information, see [How to setup Power BI](setup.md#set-up-your-first-report). After publishing reports to the Power BI service, see [Configure scheduled refresh](setup.md#configure-scheduled-refresh-in-power-bi-service) to automatically update your data.
 
 <br>
 

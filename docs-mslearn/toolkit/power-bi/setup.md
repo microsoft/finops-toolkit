@@ -123,6 +123,74 @@ If you run into any issues syncing your data, see [Troubleshooting Power BI repo
 
 <br>
 
+## Configure scheduled refresh in Power BI service
+
+After publishing your reports to the Power BI service, you can configure scheduled refresh to automatically update your data on a regular basis. The need for scheduled refresh depends on your data source:
+
+**Data sources that require scheduled refresh:**
+- **Storage-based reports** (Cost Management exports) &ndash; Data is exported periodically and needs to be refreshed to reflect the latest exports.
+- **Azure Resource Graph queries** &ndash; Resource information changes over time and should be refreshed regularly.
+- **FinOps toolkit open data** &ndash; Reference data is updated periodically and should be refreshed to get the latest versions.
+
+**Data sources that do not require scheduled refresh:**
+- **FinOps hubs with Azure Data Explorer** &ndash; Data is automatically ingested and immediately available through KQL queries.
+- **FinOps hubs with Microsoft Fabric** &ndash; Data is automatically ingested and immediately available through SQL queries.
+
+### Set up scheduled refresh
+
+To configure scheduled refresh for your published Power BI reports:
+
+1. **Publish your report to Power BI service:**
+   1. In Power BI Desktop, select **File** > **Publish** > **Publish to Power BI**.
+   2. Choose your workspace and select **Select**.
+   3. Once published, select **Got it** to close the confirmation dialog.
+
+2. **Configure the semantic model refresh:**
+   1. Open the [Power BI service](https://app.powerbi.com) in your web browser.
+   2. Navigate to your workspace.
+   3. In the workspace, locate your semantic model (it has the same name as your report).
+   4. Select the **More options** (three dots) menu for the semantic model.
+   5. Select **Settings**.
+
+3. **Set up data source credentials:**
+   1. In the **Data source credentials** section, configure credentials for each data source:
+      - For **Azure Data Lake Storage Gen2**: Use your organizational account or configure a service principal.
+      - For **Azure Resource Graph**: Use your organizational account with appropriate subscription access.
+      - For **https://github.com/...**: This should already be set to anonymous access.
+   2. Select **Sign in** for each data source that requires authentication.
+
+4. **Configure scheduled refresh:**
+   1. In the **Scheduled refresh** section, turn on **Keep your data up to date**.
+   2. Choose your refresh frequency (for example, **Daily** or **Weekly**).
+   3. Add refresh times that work for your organization.
+   4. Optionally, configure **Refresh failure notifications** to receive email alerts if refresh fails.
+   5. Select **Apply**.
+
+### Refresh frequency recommendations
+
+For optimal performance and cost management:
+
+- **Cost data (exports)**: Daily refresh is typically sufficient as Cost Management exports are usually updated once per day.
+- **Resource data**: Weekly refresh may be sufficient unless you need to track resource changes more frequently.
+- **Reference data**: Weekly or monthly refresh is typically sufficient for FinOps toolkit open data.
+
+For FinOps hubs using Azure Data Explorer or Microsoft Fabric, data is ingested automatically and you don't need to configure refresh schedules.
+
+### Troubleshooting refresh issues
+
+If you encounter refresh failures:
+
+1. **Check data source credentials** &ndash; Ensure all credentials are valid and have appropriate permissions.
+2. **Review the refresh history** &ndash; Check the semantic model settings for error details in the refresh history.
+3. **Verify storage account access** &ndash; Ensure the account has Storage Blob Data Reader access to the storage account.
+4. **Check for data size limits** &ndash; Large datasets may require incremental refresh configuration.
+
+For more information about configuring scheduled refresh in Power BI, see:
+- [Configure scheduled refresh](/power-bi/connect-data/refresh-scheduled-refresh) in Power BI documentation
+- [Configure scheduled refresh for semantic models in Microsoft Fabric](/fabric/data-warehouse/semantic-model-refresh) for Fabric-specific guidance
+
+<br>
+
 ## Use a SAS token to connect data to a report
 
 Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. To connect Power BI reports to your data via SAS tokens:

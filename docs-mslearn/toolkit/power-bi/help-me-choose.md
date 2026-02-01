@@ -85,7 +85,7 @@ The following table outlines the supported features by each data source option. 
 
 _¹ FinOps hubs include a Data Factory pipeline for added benefits on top of Cost Management exports. Pipeline costs are $2/mo per $1 million in spend based on list prices and add support for multiple tenants, scheduling export times, and parquet data conversion._
 
-_² The Cost Management connector for Power BI doesn't support incremental refresh, so the limits are the same as the per-month estimation. Storage-based estimates are based on incremental refresh being enabled, which requires configuration after your report is published._
+_² The Cost Management connector for Power BI doesn't support incremental refresh, so the limits are the same as the per-month estimation. Storage-based estimates are based on incremental refresh being enabled, which requires configuration after your report is published. For guidance on configuring refresh, see [Configure scheduled refresh in Power BI service](setup.md#configure-scheduled-refresh-in-power-bi-service)._
 
 _³ The Cost Management connector uses an old API version and doesn't include details for some features, like savings plans. Use exports or FinOps hubs for the latest version with all details._
 
