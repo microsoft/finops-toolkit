@@ -51,7 +51,7 @@ function Update-Scripts {
         
         Write-Host "Scripts updated successfully!" -ForegroundColor Green
         
-        $restart = Read-Host "Do you want to restart the script with the new version? (Yes/No or Y/N)"
+        $restart = (Read-Host "Do you want to restart the script with the new version? (Yes/No or Y/N)").Trim().ToLower()
         if ($restart -eq "yes" -or $restart -eq "y") {
             Write-Host "Restarting script..." -ForegroundColor Cyan
             & $mainScriptPath
@@ -164,10 +164,15 @@ function Process-KQLFiles {
         
         foreach ($scope in $ScopeObject.IndividualScopes) {
             if ($scope.Type -eq "Subscription") {
-                $scopeConditions += "(SubAccountId == '$($scope.SubscriptionId)')"
+                # Escape single quotes in subscription ID to prevent KQL injection
+                $escapedSubId = $scope.SubscriptionId -replace "'", "''"
+                $scopeConditions += "(SubAccountId == '$escapedSubId')"
             }
             elseif ($scope.Type -eq "ResourceGroup") {
-                $scopeConditions += "(SubAccountId == '$($scope.SubscriptionId)' and x_ResourceGroupName == '$($scope.ResourceGroupName)')"
+                # Escape single quotes to prevent KQL injection
+                $escapedSubId = $scope.SubscriptionId -replace "'", "''"
+                $escapedRgName = $scope.ResourceGroupName -replace "'", "''"
+                $scopeConditions += "(SubAccountId == '$escapedSubId' and x_ResourceGroupName == '$escapedRgName')"
             }
         }
         
@@ -366,7 +371,25 @@ function Manual-Validations {
         Write-Host "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -ForegroundColor Cyan
         Write-Log -Message "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -Level "INFO"
 
-        $resourceTypeConditions = $uniqueResourceTypes | ForEach-Object { "type == '$_'" }
+        # Validate and escape resource types to prevent KQL injection
+        $validResourceTypes = @()
+        foreach ($resourceType in $uniqueResourceTypes) {
+            if (Test-ResourceType -ResourceType $resourceType) {
+                $validResourceTypes += $resourceType
+            } else {
+                Write-Log -Message "Invalid resource type format detected and skipped: $resourceType" -Level "WARNING"
+            }
+        }
+        
+        if ($validResourceTypes.Count -eq 0) {
+            Write-Log -Message "No valid resource types found in YAML files." -Level "ERROR"
+            return @()
+        }
+        
+        $resourceTypeConditions = $validResourceTypes | ForEach-Object { 
+            $escapedType = $_ -replace "'", "''"
+            "type == '$escapedType'"
+        }
         $resourceTypeFilter = $resourceTypeConditions -join ' or '
 
         $query = "resources | where $resourceTypeFilter"
@@ -376,10 +399,15 @@ function Manual-Validations {
             
             foreach ($scope in $ScopeObject.IndividualScopes) {
                 if ($scope.Type -eq "Subscription") {
-                    $scopeConditions += "(subscriptionId == '$($scope.SubscriptionId)')"
+                    # Escape single quotes in subscription ID to prevent KQL injection
+                    $escapedSubId = $scope.SubscriptionId -replace "'", "''"
+                    $scopeConditions += "(subscriptionId == '$escapedSubId')"
                 }
                 elseif ($scope.Type -eq "ResourceGroup") {
-                    $scopeConditions += "(subscriptionId == '$($scope.SubscriptionId)' and resourceGroup == '$($scope.ResourceGroupName)')"
+                    # Escape single quotes to prevent KQL injection
+                    $escapedSubId = $scope.SubscriptionId -replace "'", "''"
+                    $escapedRgName = $scope.ResourceGroupName -replace "'", "''"
+                    $scopeConditions += "(subscriptionId == '$escapedSubId' and resourceGroup == '$escapedRgName')"
                 }
             }
             
@@ -521,9 +549,33 @@ function Export-ResultsToExcel {
 
     if ($AssessmentFilePath) {
         try {
-            $assessmentData = Get-Content -Path $AssessmentFilePath | Select-Object -Skip 11 | ConvertFrom-Csv -ErrorAction Stop
-            $assessmentData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -AutoSize -TableName 'WAF Assessment' -TableStyle $script:settings.defaultSettings.excelTableStyle
-            Write-Log -Message "Added Well-Architected Cost Optimization assessment as a new tab in the Excel file." -Level "INFO"
+            # Read the CSV file content
+            $csvContent = Get-Content -Path $AssessmentFilePath -ErrorAction Stop
+            
+            # Find the line that contains CSV headers (usually contains comma-separated values)
+            $headerLineIndex = -1
+            for ($i = 0; $i -lt $csvContent.Count; $i++) {
+                # Look for a line that looks like CSV headers (has commas and looks like header text)
+                if ($csvContent[$i] -match '^\w+,\w+' -or $csvContent[$i] -match '^"[^"]+","[^"]+"') {
+                    $headerLineIndex = $i
+                    break
+                }
+            }
+            
+            if ($headerLineIndex -eq -1) {
+                Write-Log -Message "Could not find CSV header line in assessment file. Trying default skip of 11 lines." -Level "WARNING"
+                $assessmentData = $csvContent | Select-Object -Skip 11 | ConvertFrom-Csv -ErrorAction Stop
+            } else {
+                Write-Log -Message "Found CSV header at line $($headerLineIndex + 1)." -Level "INFO"
+                $assessmentData = $csvContent | Select-Object -Skip $headerLineIndex | ConvertFrom-Csv -ErrorAction Stop
+            }
+            
+            if (-not $assessmentData -or $assessmentData.Count -eq 0) {
+                Write-Log -Message "No data found in assessment CSV file after parsing." -Level "WARNING"
+            } else {
+                $assessmentData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -AutoSize -TableName 'WAF Assessment' -TableStyle $script:settings.defaultSettings.excelTableStyle
+                Write-Log -Message "Added Well-Architected Cost Optimization assessment ($($assessmentData.Count) rows) as a new tab in the Excel file." -Level "INFO"
+            }
         }
         catch {
             Write-Log -Message "Failed to import or add the Well-Architected Cost Optimization assessment: $_" -Level "ERROR"
@@ -620,7 +672,7 @@ function Start-CostRecommendations {
             Write-Log -Message "Folder '$tempDir' already exists. Skipping download." -Level "INFO"
         }
         
-        $includeAssessment = Read-Host "Would you like to include the results of a Well-Architected Cost Optimization assessment? (Yes/No or Y/N)"
+        $includeAssessment = (Read-Host "Would you like to include the results of a Well-Architected Cost Optimization assessment? (Yes/No or Y/N)").Trim().ToLower()
         $assessmentFilePath = $null
         if ($includeAssessment -eq "yes" -or $includeAssessment -eq "y") {
             $assessmentFilePath = Get-FilePath
@@ -633,7 +685,7 @@ function Start-CostRecommendations {
         
         $ExcelFilePath = Join-Path $PSScriptRoot ('ACORL-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.xlsx')
         
-        $runManualChecks = Read-Host "Would you like to run manual checks? (Yes/No or Y/N)"
+        $runManualChecks = (Read-Host "Would you like to run manual checks? (Yes/No or Y/N)").Trim().ToLower()
         if ($runManualChecks -eq "yes" -or $runManualChecks -eq "y") {
             Write-Log -Message "Running manual checks." -Level "INFO"
             Manual-Validations -BasePath $tempDir -ExcelFilePath $ExcelFilePath -ScopeObject $scope
