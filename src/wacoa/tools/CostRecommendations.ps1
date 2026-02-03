@@ -35,6 +35,11 @@ function Update-Scripts {
         $mainScriptDir = Split-Path -Parent $mainScriptPath
         $prerequisitesScriptPath = Join-Path $mainScriptDir "CostRecommendations-Prerequisites.ps1"
         
+        Write-Host "WARNING: Downloading and executing scripts from remote URLs." -ForegroundColor Yellow
+        Write-Host "WARNING: This operation trusts content from: $($MainScriptUrl -replace '/[^/]+$', '')" -ForegroundColor Yellow
+        Write-Host "WARNING: Ensure you trust this source before proceeding." -ForegroundColor Yellow
+        Write-Host ""
+        
         Write-Host "Downloading latest script versions..." -ForegroundColor Cyan
         
         $tempMainScriptPath = Join-Path $env:TEMP "CostRecommendations.ps1.new"
@@ -42,6 +47,20 @@ function Update-Scripts {
         
         $tempPrerequisitesScriptPath = Join-Path $env:TEMP "CostRecommendations-Prerequisites.ps1.new"
         Invoke-WebRequest -Uri $PrerequisitesScriptUrl -OutFile $tempPrerequisitesScriptPath -ErrorAction Stop
+        
+        # Verify downloaded files are not empty
+        $mainScriptSize = (Get-Item $tempMainScriptPath).Length
+        $prereqScriptSize = (Get-Item $tempPrerequisitesScriptPath).Length
+        
+        if ($mainScriptSize -lt 100 -or $prereqScriptSize -lt 100) {
+            Write-Host "ERROR: Downloaded scripts appear to be too small or empty. Update aborted." -ForegroundColor Red
+            Remove-Item -Path $tempMainScriptPath -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tempPrerequisitesScriptPath -Force -ErrorAction SilentlyContinue
+            return $false
+        }
+        
+        Write-Host "Downloaded main script: $mainScriptSize bytes" -ForegroundColor Cyan
+        Write-Host "Downloaded prerequisites script: $prereqScriptSize bytes" -ForegroundColor Cyan
         
         Copy-Item -Path $tempMainScriptPath -Destination $mainScriptPath -Force
         Copy-Item -Path $tempPrerequisitesScriptPath -Destination $prerequisitesScriptPath -Force
@@ -51,7 +70,7 @@ function Update-Scripts {
         
         Write-Host "Scripts updated successfully!" -ForegroundColor Green
         
-        $restart = Read-Host "Do you want to restart the script with the new version? (Yes/No or Y/N)"
+        $restart = (Read-Host "Do you want to restart the script with the new version? (Yes/No or Y/N)").Trim().ToLower()
         if ($restart -eq "yes" -or $restart -eq "y") {
             Write-Host "Restarting script..." -ForegroundColor Cyan
             & $mainScriptPath
@@ -96,6 +115,52 @@ function Load-Settings {
     
     try {
         $settings = Get-Content -Path $settingsPath -Raw | ConvertFrom-Json
+        
+        # Ensure scriptVersion exists and is not empty
+        if (-not $settings.scriptVersion -or [string]::IsNullOrWhiteSpace($settings.scriptVersion)) {
+            Write-Host "Warning: settings.json is missing scriptVersion. Using default version 2.0" -ForegroundColor Yellow
+            $settings | Add-Member -NotePropertyName scriptVersion -NotePropertyValue "2.0" -Force
+        }
+        
+        # Ensure repositoryUrls exists
+        if (-not $settings.repositoryUrls) {
+            Write-Host "Warning: settings.json is missing repositoryUrls. Adding defaults." -ForegroundColor Yellow
+            $settings | Add-Member -NotePropertyName repositoryUrls -NotePropertyValue @{
+                mainScript = "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/CostRecommendations.ps1"
+                prerequisitesScript = "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/CostRecommendations-Prerequisites.ps1"
+                versionFile = "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/version.txt"
+                resourcesZip = "https://github.com/microsoft/finops-toolkit/raw/refs/heads/features/wacoascripts/src/wacoa/content/azure-resources.zip"
+            } -Force
+        }
+        
+        # Ensure paths exists
+        if (-not $settings.paths) {
+            Write-Host "Warning: settings.json is missing paths. Adding defaults." -ForegroundColor Yellow
+            $settings | Add-Member -NotePropertyName paths -NotePropertyValue @{
+                tempDir = "Temp"
+                resourcesDir = "Temp/azure-resources"
+                cacheFile = "ScopeCache.txt"
+            } -Force
+        }
+        
+        # Ensure defaultSettings exists
+        if (-not $settings.defaultSettings) {
+            Write-Host "Warning: settings.json is missing defaultSettings. Adding defaults." -ForegroundColor Yellow
+            $settings | Add-Member -NotePropertyName defaultSettings -NotePropertyValue @{
+                parallelThrottleLimit = 5
+                excelTableStyle = "Light19"
+                logLevel = "INFO"
+            } -Force
+        }
+        
+        # Save the updated settings back to file if any changes were made
+        try {
+            $settings | ConvertTo-Json -Depth 10 | Set-Content -Path $settingsPath
+        }
+        catch {
+            Write-Host "Warning: Could not update settings.json: $_" -ForegroundColor Yellow
+        }
+        
         return $settings
     }
     catch {
@@ -164,10 +229,15 @@ function Process-KQLFiles {
         
         foreach ($scope in $ScopeObject.IndividualScopes) {
             if ($scope.Type -eq "Subscription") {
-                $scopeConditions += "(SubAccountId == '$($scope.SubscriptionId)')"
+                # Escape single quotes in subscription ID to prevent KQL injection
+                $escapedSubId = $scope.SubscriptionId -replace "'", "''"
+                $scopeConditions += "(SubAccountId == '$escapedSubId')"
             }
             elseif ($scope.Type -eq "ResourceGroup") {
-                $scopeConditions += "(SubAccountId == '$($scope.SubscriptionId)' and x_ResourceGroupName == '$($scope.ResourceGroupName)')"
+                # Escape single quotes to prevent KQL injection
+                $escapedSubId = $scope.SubscriptionId -replace "'", "''"
+                $escapedRgName = $scope.ResourceGroupName -replace "'", "''"
+                $scopeConditions += "(SubAccountId == '$escapedSubId' and x_ResourceGroupName == '$escapedRgName')"
             }
         }
         
@@ -193,7 +263,8 @@ function Process-KQLFiles {
             )
             $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
             $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message"
-            Add-Content -Path $PathToLogFile -Value $logMessage -ErrorAction SilentlyContinue
+            # Change to Continue so we see if there are write failures
+            Add-Content -Path $PathToLogFile -Value $logMessage -ErrorAction Continue
         }
 
         try {
@@ -338,7 +409,8 @@ function Manual-Validations {
                 )
                 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
                 $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message"
-                Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
+                # Change to Continue so we see if there are write failures
+                Add-Content -Path $logFile -Value $logMessage -ErrorAction Continue
             }
 
             try {
@@ -366,7 +438,25 @@ function Manual-Validations {
         Write-Host "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -ForegroundColor Cyan
         Write-Log -Message "Unique resource types in YAML files: $($uniqueResourceTypes -join ', ')" -Level "INFO"
 
-        $resourceTypeConditions = $uniqueResourceTypes | ForEach-Object { "type == '$_'" }
+        # Validate and escape resource types to prevent KQL injection
+        $validResourceTypes = @()
+        foreach ($resourceType in $uniqueResourceTypes) {
+            if (Test-ResourceType -ResourceType $resourceType) {
+                $validResourceTypes += $resourceType
+            } else {
+                Write-Log -Message "Invalid resource type format detected and skipped: $resourceType" -Level "WARNING"
+            }
+        }
+        
+        if ($validResourceTypes.Count -eq 0) {
+            Write-Log -Message "No valid resource types found in YAML files." -Level "ERROR"
+            return @()
+        }
+        
+        $resourceTypeConditions = $validResourceTypes | ForEach-Object { 
+            $escapedType = $_ -replace "'", "''"
+            "type == '$escapedType'"
+        }
         $resourceTypeFilter = $resourceTypeConditions -join ' or '
 
         $query = "resources | where $resourceTypeFilter"
@@ -376,10 +466,15 @@ function Manual-Validations {
             
             foreach ($scope in $ScopeObject.IndividualScopes) {
                 if ($scope.Type -eq "Subscription") {
-                    $scopeConditions += "(subscriptionId == '$($scope.SubscriptionId)')"
+                    # Escape single quotes in subscription ID to prevent KQL injection
+                    $escapedSubId = $scope.SubscriptionId -replace "'", "''"
+                    $scopeConditions += "(subscriptionId == '$escapedSubId')"
                 }
                 elseif ($scope.Type -eq "ResourceGroup") {
-                    $scopeConditions += "(subscriptionId == '$($scope.SubscriptionId)' and resourceGroup == '$($scope.ResourceGroupName)')"
+                    # Escape single quotes to prevent KQL injection
+                    $escapedSubId = $scope.SubscriptionId -replace "'", "''"
+                    $escapedRgName = $scope.ResourceGroupName -replace "'", "''"
+                    $scopeConditions += "(subscriptionId == '$escapedSubId' and resourceGroup == '$escapedRgName')"
                 }
             }
             
@@ -422,7 +517,8 @@ function Manual-Validations {
                 )
                 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
                 $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message"
-                Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
+                # Change to Continue so we see if there are write failures
+                Add-Content -Path $logFile -Value $logMessage -ErrorAction Continue
             }
 
             try {
@@ -521,9 +617,34 @@ function Export-ResultsToExcel {
 
     if ($AssessmentFilePath) {
         try {
-            $assessmentData = Get-Content -Path $AssessmentFilePath | Select-Object -Skip 11 | ConvertFrom-Csv -ErrorAction Stop
-            $assessmentData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -AutoSize -TableName 'WAF Assessment' -TableStyle $script:settings.defaultSettings.excelTableStyle
-            Write-Log -Message "Added Well-Architected Cost Optimization assessment as a new tab in the Excel file." -Level "INFO"
+            # Read the CSV file content
+            $csvContent = Get-Content -Path $AssessmentFilePath -ErrorAction Stop
+            
+            # Find the line that contains CSV headers (usually contains comma-separated values)
+            $headerLineIndex = -1
+            for ($i = 0; $i -lt $csvContent.Count; $i++) {
+                # Look for a line that has commas and reasonable content (not just empty or whitespace)
+                $line = $csvContent[$i].Trim()
+                if ($line.Length -gt 0 -and $line.Contains(',') -and -not $line.StartsWith('#')) {
+                    $headerLineIndex = $i
+                    break
+                }
+            }
+            
+            if ($headerLineIndex -eq -1) {
+                Write-Log -Message "Could not find CSV header line in assessment file. Trying default skip of 11 lines." -Level "WARNING"
+                $assessmentData = $csvContent | Select-Object -Skip 11 | ConvertFrom-Csv -ErrorAction Stop
+            } else {
+                Write-Log -Message "Found CSV header at line $($headerLineIndex + 1)." -Level "INFO"
+                $assessmentData = $csvContent | Select-Object -Skip $headerLineIndex | ConvertFrom-Csv -ErrorAction Stop
+            }
+            
+            if (-not $assessmentData -or $assessmentData.Count -eq 0) {
+                Write-Log -Message "No data found in assessment CSV file after parsing." -Level "WARNING"
+            } else {
+                $assessmentData | Export-Excel -Path $ExcelFilePath -WorksheetName 'Well-Architected Assessment' -AutoSize -TableName 'WAF Assessment' -TableStyle $script:settings.defaultSettings.excelTableStyle
+                Write-Log -Message "Added Well-Architected Cost Optimization assessment ($($assessmentData.Count) rows) as a new tab in the Excel file." -Level "INFO"
+            }
         }
         catch {
             Write-Log -Message "Failed to import or add the Well-Architected Cost Optimization assessment: $_" -Level "ERROR"
@@ -620,7 +741,7 @@ function Start-CostRecommendations {
             Write-Log -Message "Folder '$tempDir' already exists. Skipping download." -Level "INFO"
         }
         
-        $includeAssessment = Read-Host "Would you like to include the results of a Well-Architected Cost Optimization assessment? (Yes/No or Y/N)"
+        $includeAssessment = (Read-Host "Would you like to include the results of a Well-Architected Cost Optimization assessment? (Yes/No or Y/N)").Trim().ToLower()
         $assessmentFilePath = $null
         if ($includeAssessment -eq "yes" -or $includeAssessment -eq "y") {
             $assessmentFilePath = Get-FilePath
@@ -633,7 +754,7 @@ function Start-CostRecommendations {
         
         $ExcelFilePath = Join-Path $PSScriptRoot ('ACORL-File-' + (Get-Date -Format 'yyyy-MM-dd-HH-mm') + '.xlsx')
         
-        $runManualChecks = Read-Host "Would you like to run manual checks? (Yes/No or Y/N)"
+        $runManualChecks = (Read-Host "Would you like to run manual checks? (Yes/No or Y/N)").Trim().ToLower()
         if ($runManualChecks -eq "yes" -or $runManualChecks -eq "y") {
             Write-Log -Message "Running manual checks." -Level "INFO"
             Manual-Validations -BasePath $tempDir -ExcelFilePath $ExcelFilePath -ScopeObject $scope

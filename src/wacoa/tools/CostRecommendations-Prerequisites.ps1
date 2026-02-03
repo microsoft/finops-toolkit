@@ -11,6 +11,45 @@ $IsRunningOnWindows = $PSVersionTable.Platform -eq 'Win32NT'
     Author: arclares
 #>
 
+function Test-SubscriptionId {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$SubscriptionId
+    )
+    
+    # Validate subscription ID is a valid GUID format
+    $guidRegex = '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+    return $SubscriptionId -match $guidRegex
+}
+
+function Test-ResourceGroupName {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$ResourceGroupName
+    )
+    
+    # Validate resource group name follows Azure naming conventions
+    # Alphanumeric, hyphens, underscores, periods, and parentheses only
+    # Between 1 and 90 characters
+    # Cannot end with a period
+    $rgNameRegex = '^[a-zA-Z0-9_\-\.\(\)]{1,90}$'
+    $endsWithPeriod = $ResourceGroupName -match '\.$'
+    
+    return ($ResourceGroupName -match $rgNameRegex) -and (-not $endsWithPeriod)
+}
+
+function Test-ResourceType {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$ResourceType
+    )
+    
+    # Validate resource type follows Azure format: Provider.Service/resourceType
+    # Can have multiple levels like Provider.Service/parentType/childType
+    $resourceTypeRegex = '^[A-Za-z0-9]+(\.[A-Za-z0-9]+)+/[A-Za-z0-9/]+$'
+    return $ResourceType -match $resourceTypeRegex
+}
+
 function Write-Log {
     param (
         [Parameter(Mandatory = $true)]
@@ -33,11 +72,18 @@ function Write-Log {
 function Check-ScriptVersion {
     param (
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [string]$CurrentVersion,
 
         [Parameter(Mandatory = $true)]
         [string]$RemoteVersionUrl
     )
+    
+    # Handle empty or null CurrentVersion
+    if ([string]::IsNullOrWhiteSpace($CurrentVersion)) {
+        Write-Log -Message "Current version is not set. Skipping version check." -Level "WARNING"
+        return
+    }
 
     Write-Log -Message "Current script version: $CurrentVersion" -Level "INFO"
     Write-Log -Message "Checking for latest version at: $RemoteVersionUrl" -Level "INFO"
@@ -184,7 +230,53 @@ function Download-GitHubFolder {
 
     Write-Log -Message "Extracting zip file to: $Destination" -Level "INFO"
     try {
-        Expand-Archive -Path $zipFilePath -DestinationPath $Destination -Force -ErrorAction Stop
+        # First, extract to a temporary staging directory for validation
+        $stagingPath = Join-Path $tempPath "azure-resources-staging"
+        if (Test-Path -Path $stagingPath) {
+            Remove-Item -Path $stagingPath -Recurse -Force -ErrorAction Stop
+        }
+        New-Item -Path $stagingPath -ItemType Directory -ErrorAction Stop | Out-Null
+        
+        # Extract without -Force to staging directory first
+        Expand-Archive -Path $zipFilePath -DestinationPath $stagingPath -ErrorAction Stop
+        
+        # Validate extracted contents for path traversal attempts
+        $extractedFiles = Get-ChildItem -Path $stagingPath -Recurse -File
+        $hasPathTraversal = $false
+        foreach ($file in $extractedFiles) {
+            $relativePath = $file.FullName.Substring($stagingPath.Length).TrimStart([IO.Path]::DirectorySeparatorChar)
+            # Check for path traversal attempts (../ or ..\)
+            if ($relativePath -match '\.\.[/\\]' -or $relativePath -match '^\.\.') {
+                Write-Log -Message "Potential path traversal detected in zip file: $relativePath" -Level "ERROR"
+                $hasPathTraversal = $true
+                break
+            }
+        }
+        
+        if ($hasPathTraversal) {
+            Remove-Item -Path $stagingPath -Recurse -Force -ErrorAction SilentlyContinue
+            throw "Zip file contains potentially malicious path traversal entries."
+        }
+        
+        # If validation passed, copy to final destination
+        Write-Log -Message "Validation passed. Moving files to final destination." -Level "INFO"
+        Get-ChildItem -Path $stagingPath -Recurse | ForEach-Object {
+            $targetPath = Join-Path $Destination ($_.FullName.Substring($stagingPath.Length).TrimStart([IO.Path]::DirectorySeparatorChar))
+            if ($_.PSIsContainer) {
+                if (-not (Test-Path -Path $targetPath)) {
+                    New-Item -Path $targetPath -ItemType Directory -ErrorAction Stop | Out-Null
+                }
+            } else {
+                $targetDir = Split-Path -Parent $targetPath
+                if (-not (Test-Path -Path $targetDir)) {
+                    New-Item -Path $targetDir -ItemType Directory -ErrorAction Stop | Out-Null
+                }
+                Copy-Item -Path $_.FullName -Destination $targetPath -Force -ErrorAction Stop
+            }
+        }
+        
+        # Clean up staging directory
+        Remove-Item -Path $stagingPath -Recurse -Force -ErrorAction SilentlyContinue
     }
     catch {
         Write-Log -Message "Failed to extract zip file: $_" -Level "ERROR"
@@ -342,6 +434,13 @@ function Get-Scope {
                     
                     if ($rawScope -match "^/subscriptions/([^/]+)$") {
                         $subId = $Matches[1]
+                        
+                        # Validate subscription ID format
+                        if (-not (Test-SubscriptionId -SubscriptionId $subId)) {
+                            Write-Log -Message "Invalid subscription ID format: $subId (must be a valid GUID)" -Level "ERROR"
+                            continue
+                        }
+                        
                         $allSubscriptionIds += $subId
                         
                         $individualScopes += @{
@@ -355,6 +454,18 @@ function Get-Scope {
                     elseif ($rawScope -match "^/subscriptions/([^/]+)/resourceGroups/([^/]+)$") {
                         $subId = $Matches[1]
                         $rgName = $Matches[2]
+                        
+                        # Validate subscription ID and resource group name formats
+                        if (-not (Test-SubscriptionId -SubscriptionId $subId)) {
+                            Write-Log -Message "Invalid subscription ID format: $subId (must be a valid GUID)" -Level "ERROR"
+                            continue
+                        }
+                        
+                        if (-not (Test-ResourceGroupName -ResourceGroupName $rgName)) {
+                            Write-Log -Message "Invalid resource group name format: $rgName" -Level "ERROR"
+                            continue
+                        }
+                        
                         $allSubscriptionIds += $subId
                         
                         $individualScopes += @{
