@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getHubTags, HubProperties } from '../../fx/hub-types.bicep'
+import { getHubTags, getPrivateEndpointName, HubProperties } from '../../fx/hub-types.bicep'
 
 
 //==============================================================================
@@ -197,7 +197,8 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 //------------------------------------------------------------------------------
 
 // Required for the Azure portal and Storage Explorer
-resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+// Create new DNS Zone if not using existing
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting && empty(hub.existingDnsZones.blob)) {
   name: string(hub.routing.dnsZones.blob.name)
   dependsOn: [
     vNet
@@ -205,22 +206,25 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
+}
 
-  resource blobPrivateDnsZoneLink 'virtualNetworkLinks' = {
-    name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
-    location: 'global'
-    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
-    properties: {
-      registrationEnabled: false
-      virtualNetwork: {
-        id: hub.routing.networkId
-      }
+// Link to VNet (only needed for new zones; existing zones should already be linked)
+resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (hub.options.privateRouting && empty(hub.existingDnsZones.blob)) {
+  parent: blobPrivateDnsZone
+  name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: hub.routing.networkId
     }
   }
 }
 
 // Required for Power BI
-resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+// Create new DNS Zone if not using existing
+resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting && empty(hub.existingDnsZones.dfs)) {
   name: string(hub.routing.dnsZones.dfs.name)
   dependsOn: [
     vNet
@@ -228,22 +232,25 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
+}
 
-  resource dfsPrivateDnsZoneLink 'virtualNetworkLinks' = {
-    name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
-    location: 'global'
-    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
-    properties: {
-      registrationEnabled: false
-      virtualNetwork: {
-        id: hub.routing.networkId
-      }
+// Link to VNet (only needed for new zones; existing zones should already be linked)
+resource dfsPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (hub.options.privateRouting && empty(hub.existingDnsZones.dfs)) {
+  parent: dfsPrivateDnsZone
+  name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: hub.routing.networkId
     }
   }
 }
 
 // Required for Azure Data Explorer
-resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+// Create new DNS Zone if not using existing
+resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting && empty(hub.existingDnsZones.queue)) {
   name: string(hub.routing.dnsZones.queue.name)
   dependsOn: [
     vNet
@@ -251,22 +258,25 @@ resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
-  
-  resource queuePrivateDnsZoneLink 'virtualNetworkLinks' = {
-    name: '${replace(queuePrivateDnsZone.name, '.', '-')}-link'
-    location: 'global'
-    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
-    properties: {
-      registrationEnabled: false
-      virtualNetwork: {
-        id: hub.routing.networkId
-      }
+}
+
+// Link to VNet (only needed for new zones; existing zones should already be linked)
+resource queuePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (hub.options.privateRouting && empty(hub.existingDnsZones.queue)) {
+  parent: queuePrivateDnsZone
+  name: '${replace(queuePrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: hub.routing.networkId
     }
   }
 }
 
 // Required for Azure Data Explorer
-resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
+// Create new DNS Zone if not using existing
+resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting && empty(hub.existingDnsZones.table)) {
   name: string(hub.routing.dnsZones.table.name)
   dependsOn: [
     vNet
@@ -274,16 +284,18 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
   location: 'global'
   tags: getHubTags(hub, 'Microsoft.Storage/privateDnsZones')
   properties: {}
-  
-  resource tablePrivateDnsZoneLink 'virtualNetworkLinks' = {
-    name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
-    location: 'global'
-    tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
-    properties: {
-      registrationEnabled: false
-      virtualNetwork: {
-        id: hub.routing.networkId
-      }
+}
+
+// Link to VNet (only needed for new zones; existing zones should already be linked)
+resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = if (hub.options.privateRouting && empty(hub.existingDnsZones.table)) {
+  parent: tablePrivateDnsZone
+  name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  tags: getHubTags(hub, 'Microsoft.Network/privateDnsZones/virtualNetworkLinks')
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: hub.routing.networkId
     }
   }
 }
@@ -324,7 +336,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
 }
 
 resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hub.options.privateRouting) {
-  name: '${scriptStorageAccount.name}-blob-ep'
+  name: getPrivateEndpointName(hub, scriptStorageAccount.name, 'script-blob')
   dependsOn: [
     vNet::scriptSubnet
   ]
@@ -350,9 +362,9 @@ resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hu
     properties: {
       privateDnsZoneConfigs: [
         {
-          name: blobPrivateDnsZone.name
+          name: string(hub.routing.dnsZones.blob.name)
           properties: {
-            privateDnsZoneId: blobPrivateDnsZone.id
+            privateDnsZoneId: !empty(hub.existingDnsZones.blob) ? hub.existingDnsZones.blob : blobPrivateDnsZone.id
           }
         }
       ]

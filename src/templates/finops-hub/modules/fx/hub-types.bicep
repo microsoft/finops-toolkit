@@ -77,6 +77,23 @@ type HubRoutingProperties = {
     storageInfrastructureEncryption: 'Indicates whether infrastructure encryption is enabled for the storage account.'
     storageSku: 'Storage account SKU. Allowed values: "Premium_LRS", "Premium_ZRS".'
   }
+  customNames: {
+    storageAccount: 'Custom name for the storage account. If empty, a default name will be generated.'
+    dataFactory: 'Custom name for the Data Factory. If empty, a default name will be generated.'
+    keyVault: 'Custom name for the Key Vault. If empty, a default name will be generated.'
+    virtualNetwork: 'Custom name for the Virtual Network. If empty, a default name will be generated.'
+    managedIdentity: 'Custom name for the Managed Identity. If empty, a default name will be generated.'
+    dataExplorerCluster: 'Custom name for the Data Explorer Cluster. If empty, a default name will be generated.'
+    privateEndpointPrefix: 'Custom name prefix for Private Endpoints. If empty, default names will be generated.'
+  }
+  existingDnsZones: {
+    blob: 'Resource ID of an existing Private DNS Zone for Blob storage, if provided.'
+    dfs: 'Resource ID of an existing Private DNS Zone for Data Lake Storage (DFS), if provided.'
+    queue: 'Resource ID of an existing Private DNS Zone for Queue storage, if provided.'
+    table: 'Resource ID of an existing Private DNS Zone for Table storage, if provided.'
+    vault: 'Resource ID of an existing Private DNS Zone for Key Vault, if provided.'
+    dataExplorer: 'Resource ID of an existing Private DNS Zone for Data Explorer, if provided.'
+  }
   routing: 'FinOps hub private network routing properties, if enabled.'
   core: {
     suffix: 'Unique suffix used for shared resources.'
@@ -100,6 +117,23 @@ type HubProperties = {
     publisherIsolation: bool
     storageInfrastructureEncryption: bool
     storageSku: string
+  }
+  customNames: {
+    storageAccount: string
+    dataFactory: string
+    keyVault: string
+    virtualNetwork: string
+    managedIdentity: string
+    dataExplorerCluster: string
+    privateEndpointPrefix: string
+  }
+  existingDnsZones: {
+    blob: string
+    dfs: string
+    queue: string
+    table: string
+    vault: string
+    dataExplorer: string
   }
   routing: HubRoutingProperties
   core: {
@@ -188,6 +222,19 @@ func newHubInternal(
   networkName string,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
+  customStorageAccountName string,
+  customDataFactoryName string,
+  customKeyVaultName string,
+  customVirtualNetworkName string,
+  customManagedIdentityName string,
+  customDataExplorerClusterName string,
+  customPrivateEndpointPrefix string,
+  existingBlobDnsZoneId string,
+  existingDfsDnsZoneId string,
+  existingQueueDnsZoneId string,
+  existingTableDnsZoneId string,
+  existingVaultDnsZoneId string,
+  existingDataExplorerDnsZoneId string
 ) HubProperties => {
   id: id
   name: name
@@ -209,9 +256,26 @@ func newHubInternal(
     storageInfrastructureEncryption: enableInfrastructureEncryption
     storageSku: storageSku
   }
+  customNames: {
+    storageAccount: customStorageAccountName
+    dataFactory: customDataFactoryName
+    keyVault: customKeyVaultName
+    virtualNetwork: customVirtualNetworkName
+    managedIdentity: customManagedIdentityName
+    dataExplorerCluster: customDataExplorerClusterName
+    privateEndpointPrefix: customPrivateEndpointPrefix
+  }
+  existingDnsZones: {
+    blob: existingBlobDnsZoneId
+    dfs: existingDfsDnsZoneId
+    queue: existingQueueDnsZoneId
+    table: existingTableDnsZoneId
+    vault: existingVaultDnsZoneId
+    dataExplorer: existingDataExplorerDnsZoneId
+  }
   routing: {
-    networkId: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks', networkName)
-    networkName: enablePublicAccess ? '' : networkName
+    networkId: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks', !empty(customVirtualNetworkName) ? customVirtualNetworkName : networkName)
+    networkName: enablePublicAccess ? '' : (!empty(customVirtualNetworkName) ? customVirtualNetworkName : networkName)
     scriptStorage: enablePublicAccess ? '' : '${take(safeStorageName(name), 16 - length(suffix))}script${suffix}'
     dnsZones: {
       blob:  enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('blob')
@@ -220,11 +284,11 @@ func newHubInternal(
       table: enablePublicAccess ? { id:'', name:'' } : dnsZoneIdName('table')
     }
     subnets: {
-      dataExplorer: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'dataExplorer-subnet')!
-      dataFactory:  enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      keyVault:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
-      scripts:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'script-subnet')!
-      storage:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', networkName, 'private-endpoint-subnet')!
+      dataExplorer: enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', !empty(customVirtualNetworkName) ? customVirtualNetworkName : networkName, 'dataExplorer-subnet')!
+      dataFactory:  enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', !empty(customVirtualNetworkName) ? customVirtualNetworkName : networkName, 'private-endpoint-subnet')!
+      keyVault:     enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', !empty(customVirtualNetworkName) ? customVirtualNetworkName : networkName, 'private-endpoint-subnet')!
+      scripts:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', !empty(customVirtualNetworkName) ? customVirtualNetworkName : networkName, 'script-subnet')!
+      storage:      enablePublicAccess ? '' : resourceId('Microsoft.Network/virtualNetworks/subnets', !empty(customVirtualNetworkName) ? customVirtualNetworkName : networkName, 'private-endpoint-subnet')!
     }
   }
   core: {
@@ -246,6 +310,19 @@ func newHub(
   enablePublicAccess bool,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
+  customStorageAccountName string,
+  customDataFactoryName string,
+  customKeyVaultName string,
+  customVirtualNetworkName string,
+  customManagedIdentityName string,
+  customDataExplorerClusterName string,
+  customPrivateEndpointPrefix string,
+  existingBlobDnsZoneId string,
+  existingDfsDnsZoneId string,
+  existingQueueDnsZoneId string,
+  existingTableDnsZoneId string,
+  existingVaultDnsZoneId string,
+  existingDataExplorerDnsZoneId string
 ) HubProperties => newHubInternal(
   '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${name}',  // id
   name,
@@ -260,7 +337,20 @@ func newHub(
   enablePublicAccess,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
   networkAddressPrefix,
-  isTelemetryEnabled ?? true
+  isTelemetryEnabled ?? true,
+  customStorageAccountName,
+  customDataFactoryName,
+  customKeyVaultName,
+  customVirtualNetworkName,
+  customManagedIdentityName,
+  customDataExplorerClusterName,
+  customPrivateEndpointPrefix,
+  existingBlobDnsZoneId,
+  existingDfsDnsZoneId,
+  existingQueueDnsZoneId,
+  existingTableDnsZoneId,
+  existingVaultDnsZoneId,
+  existingDataExplorerDnsZoneId
 )
 
 //------------------------------------------------------------------------------
@@ -291,13 +381,19 @@ func newAppInternal(
   hub: hub
 
   // Globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
-  dataFactory: replace('${take('${replace(hub.name, '_', '-')}-engine', 63 - length(suffix) - 1)}-${suffix}', '--', '-')
+  dataFactory: !empty(hub.customNames.dataFactory) 
+    ? hub.customNames.dataFactory 
+    : replace('${take('${replace(hub.name, '_', '-')}-engine', 63 - length(suffix) - 1)}-${suffix}', '--', '-')
 
   // Globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
-  keyVault: replace('${take('${replace(hub.name, '_', '-')}-vault', 24 - length(suffix) - 1)}-${suffix}', '--', '-')
+  keyVault: !empty(hub.customNames.keyVault) 
+    ? hub.customNames.keyVault 
+    : replace('${take('${replace(hub.name, '_', '-')}-vault', 24 - length(suffix) - 1)}-${suffix}', '--', '-')
 
   // Globally unique storage account name: 3-24 chars; lowercase letters/numbers only
-  storage: '${take(safeStorageName(hub.name), 24 - length(suffix))}${suffix}'
+  storage: !empty(hub.customNames.storageAccount) 
+    ? hub.customNames.storageAccount 
+    : '${take(safeStorageName(hub.name), 24 - length(suffix))}${suffix}'
 }
 
 @export()
@@ -327,6 +423,13 @@ func getAppPublisherTags(app HubAppProperties, resourceType string) object => un
   app.hub.options.publisherIsolation ? app.tags : app.hub.tags,
   app.hub.tagsByResource[?resourceType] ?? {}
 )
+
+@export()
+@description('Returns the name for a private endpoint based on the resource name and service type.')
+func getPrivateEndpointName(hub HubProperties, resourceName string, serviceType string) string => 
+  !empty(hub.customNames.privateEndpointPrefix) 
+    ? '${hub.customNames.privateEndpointPrefix}-${serviceType}-ep' 
+    : '${resourceName}-${serviceType}-ep'
 
 
 //------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { getAppPublisherTags, HubAppProperties, HubAppFeature } from 'hub-types.bicep'
+import { getAppPublisherTags, getPrivateEndpointName, HubAppProperties, HubAppFeature } from 'hub-types.bicep'
 
 
 //==============================================================================
@@ -303,7 +303,9 @@ resource storageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04
 
 // Create managed identity to start/stop triggers
 resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (usesDataFactory) {
-  name: '${dataFactory.name}_triggerManager'
+  name: !empty(app.hub.customNames.managedIdentity) 
+    ? app.hub.customNames.managedIdentity 
+    : '${dataFactory.name}_triggerManager'
   location: app.hub.location
   tags: union(app.tags, app.hub.tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
 }
@@ -377,7 +379,7 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' exist
 }
 
 resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesStorage && app.hub.options.privateRouting) {
-  name: '${storageAccount.name}-blob-ep'
+  name: getPrivateEndpointName(app.hub, storageAccount.name, 'blob')
   location: app.hub.location
   tags: getAppPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
@@ -403,7 +405,7 @@ resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (uses
         {
           name: blobPrivateDnsZone.name
           properties: {
-            privateDnsZoneId: blobPrivateDnsZone.id
+            privateDnsZoneId: !empty(app.hub.existingDnsZones.blob) ? app.hub.existingDnsZones.blob : blobPrivateDnsZone.id
           }
         }
       ]
@@ -416,7 +418,7 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existi
 }
 
 resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesStorage && app.hub.options.privateRouting) {
-  name: '${storageAccount.name}-dfs-ep'
+  name: getPrivateEndpointName(app.hub, storageAccount.name, 'dfs')
   location: app.hub.location
   tags: getAppPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
@@ -442,7 +444,7 @@ resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesS
         {
           name: dfsPrivateDnsZone.name
           properties: {
-            privateDnsZoneId: dfsPrivateDnsZone.id
+            privateDnsZoneId: !empty(app.hub.existingDnsZones.dfs) ? app.hub.existingDnsZones.dfs : dfsPrivateDnsZone.id
           }
         }
       ]
@@ -501,7 +503,7 @@ resource keyVaultPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' =
 }
 
 resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (usesKeyVault && app.hub.options.privateRouting) {
-  name: '${keyVault.name}-ep'
+  name: getPrivateEndpointName(app.hub, keyVault.name, 'vault')
   location: app.hub.location
   tags: getAppPublisherTags(app, 'Microsoft.Network/privateEndpoints')
   properties: {
@@ -527,7 +529,7 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (
         {
           name: keyVaultPrivateDnsZone.name
           properties: {
-            privateDnsZoneId: keyVaultPrivateDnsZone.id
+            privateDnsZoneId: !empty(app.hub.existingDnsZones.vault) ? app.hub.existingDnsZones.vault : keyVaultPrivateDnsZone.id
           }
         }
       ]

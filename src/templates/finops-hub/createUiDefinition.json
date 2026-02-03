@@ -745,6 +745,210 @@
         ]
       },
       {
+        "name": "customization",
+        "label": "Customization",
+        "elements": [
+          {
+            "name": "customizationIntro",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": true,
+            "options": {
+              "text": "Customize resource names and networking configuration for your FinOps hub deployment. All settings on this page are optional."
+            }
+          },
+          {
+            "name": "resourceNaming",
+            "type": "Microsoft.Common.Section",
+            "label": "Resource naming (optional)",
+            "elements": [
+              {
+                "name": "namingInfo",
+                "type": "Microsoft.Common.InfoBox",
+                "visible": true,
+                "options": {
+                  "icon": "Info",
+                  "text": "Leave fields empty to use auto-generated names following Azure naming best practices."
+                }
+              },
+              {
+                "name": "storageAccountName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Storage Account name",
+                "toolTip": "Name for the Azure Storage Account. Must be globally unique, 3-24 characters, lowercase letters and numbers only.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[a-z0-9]{3,24}$",
+                  "validationMessage": "Storage Account name must be 3-24 characters long and contain only lowercase letters and numbers."
+                },
+                "visible": true
+              },
+              {
+                "name": "dataFactoryName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Data Factory name",
+                "toolTip": "Name for the Azure Data Factory instance. Must be 3-63 characters, alphanumeric and hyphens only.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{1,61}[a-zA-Z0-9]$",
+                  "validationMessage": "Data Factory name must be 3-63 characters long, start and end with alphanumeric characters, and contain only alphanumeric characters and hyphens."
+                },
+                "visible": true
+              },
+              {
+                "name": "keyVaultName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Key Vault name",
+                "toolTip": "Name for the Azure Key Vault. Must be globally unique, 3-24 characters, alphanumeric and hyphens only.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[a-zA-Z][a-zA-Z0-9\\-]{1,22}[a-zA-Z0-9]$",
+                  "validationMessage": "Key Vault name must be 3-24 characters long, start with a letter, end with alphanumeric character, and contain only alphanumeric characters and hyphens."
+                },
+                "visible": true
+              },
+              {
+                "name": "virtualNetworkName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Virtual Network name",
+                "toolTip": "Name for the Azure Virtual Network. Must be 2-64 characters, alphanumeric, hyphens, underscores, and periods only.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.]{0,62}[a-zA-Z0-9]$",
+                  "validationMessage": "Virtual Network name must be 2-64 characters long, start and end with alphanumeric characters, and contain only alphanumeric characters, hyphens, underscores, and periods."
+                },
+                "visible": true
+              },
+              {
+                "name": "managedIdentityName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Managed Identity name",
+                "toolTip": "Name for the User-Assigned Managed Identity. Must be 3-128 characters, alphanumeric, hyphens, and underscores only.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[a-zA-Z0-9\\-_]{3,128}$",
+                  "validationMessage": "Managed Identity name must be 3-128 characters long and contain only alphanumeric characters, hyphens, and underscores."
+                },
+                "visible": true
+              },
+              {
+                "name": "dataExplorerClusterName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Data Explorer cluster name",
+                "toolTip": "Name for the Azure Data Explorer cluster (if enabled). Must be globally unique, 4-22 characters, lowercase letters, numbers, and hyphens only.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[a-z0-9][a-z0-9\\-]{2,20}[a-z0-9]$",
+                  "validationMessage": "Data Explorer cluster name must be 4-22 characters long, start and end with lowercase alphanumeric characters, and contain only lowercase letters, numbers, and hyphens."
+                },
+                "visible": true
+              },
+              {
+                "name": "privateEndpointNamePrefix",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Private Endpoint name prefix",
+                "toolTip": "Prefix for all Private Endpoint names. The service type will be appended (e.g., '{prefix}-blob', '{prefix}-vault').",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,62}$",
+                  "validationMessage": "Private Endpoint prefix must start with alphanumeric character and contain only alphanumeric characters and hyphens."
+                },
+                "visible": true
+              }
+            ],
+            "visible": true
+          },
+          {
+            "name": "centralizedNetworking",
+            "type": "Microsoft.Common.Section",
+            "label": "Centralized networking (Hub & Spoke)",
+            "elements": [
+              {
+                "name": "hubSpokeInfo",
+                "type": "Microsoft.Common.InfoBox",
+                "visible": true,
+                "options": {
+                  "icon": "Info",
+                  "text": "If you're deploying in a Hub & Spoke topology with centralized Private DNS Zones, provide the resource IDs of existing DNS Zones. This prevents creating duplicate DNS Zones and enables proper DNS resolution across your network. Leave empty to create new Private DNS Zones."
+                }
+              },
+              {
+                "name": "existingBlobDnsZoneId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Blob Storage DNS Zone ID",
+                "toolTip": "Resource ID of existing Private DNS Zone for Blob Storage (privatelink.blob.core.windows.net). Example: /subscriptions/{sub-id}/resourceGroups/{rg}/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net",
+                "constraints": {
+                  "required": false,
+                  "regex": "^(/subscriptions/[a-fA-F0-9\\-]+/resourceGroups/[^/]+/providers/Microsoft\\.Network/privateDnsZones/privatelink\\.blob\\.core\\.windows\\.net)?$",
+                  "validationMessage": "Must be a valid Azure resource ID for a Private DNS Zone or empty."
+                },
+                "visible": true
+              },
+              {
+                "name": "existingDfsDnsZoneId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Data Lake Storage DNS Zone ID",
+                "toolTip": "Resource ID of existing Private DNS Zone for Data Lake Storage (privatelink.dfs.core.windows.net).",
+                "constraints": {
+                  "required": false,
+                  "regex": "^(/subscriptions/[a-fA-F0-9\\-]+/resourceGroups/[^/]+/providers/Microsoft\\.Network/privateDnsZones/privatelink\\.dfs\\.core\\.windows\\.net)?$",
+                  "validationMessage": "Must be a valid Azure resource ID for a Private DNS Zone or empty."
+                },
+                "visible": true
+              },
+              {
+                "name": "existingQueueDnsZoneId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Queue Storage DNS Zone ID",
+                "toolTip": "Resource ID of existing Private DNS Zone for Queue Storage (privatelink.queue.core.windows.net).",
+                "constraints": {
+                  "required": false,
+                  "regex": "^(/subscriptions/[a-fA-F0-9\\-]+/resourceGroups/[^/]+/providers/Microsoft\\.Network/privateDnsZones/privatelink\\.queue\\.core\\.windows\\.net)?$",
+                  "validationMessage": "Must be a valid Azure resource ID for a Private DNS Zone or empty."
+                },
+                "visible": true
+              },
+              {
+                "name": "existingTableDnsZoneId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Table Storage DNS Zone ID",
+                "toolTip": "Resource ID of existing Private DNS Zone for Table Storage (privatelink.table.core.windows.net).",
+                "constraints": {
+                  "required": false,
+                  "regex": "^(/subscriptions/[a-fA-F0-9\\-]+/resourceGroups/[^/]+/providers/Microsoft\\.Network/privateDnsZones/privatelink\\.table\\.core\\.windows\\.net)?$",
+                  "validationMessage": "Must be a valid Azure resource ID for a Private DNS Zone or empty."
+                },
+                "visible": true
+              },
+              {
+                "name": "existingVaultDnsZoneId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Key Vault DNS Zone ID",
+                "toolTip": "Resource ID of existing Private DNS Zone for Key Vault (privatelink.vaultcore.azure.net).",
+                "constraints": {
+                  "required": false,
+                  "regex": "^(/subscriptions/[a-fA-F0-9\\-]+/resourceGroups/[^/]+/providers/Microsoft\\.Network/privateDnsZones/privatelink\\.vaultcore\\.azure\\.net)?$",
+                  "validationMessage": "Must be a valid Azure resource ID for a Private DNS Zone or empty."
+                },
+                "visible": true
+              },
+              {
+                "name": "existingDataExplorerDnsZoneId",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Data Explorer DNS Zone ID",
+                "toolTip": "Resource ID of existing Private DNS Zone for Data Explorer (privatelink.{region}.kusto.windows.net). The region must match your deployment location.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^(/subscriptions/[a-fA-F0-9\\-]+/resourceGroups/[^/]+/providers/Microsoft\\.Network/privateDnsZones/privatelink\\.[a-z0-9]+\\.kusto\\.windows\\.net)?$",
+                  "validationMessage": "Must be a valid Azure resource ID for a Private DNS Zone or empty."
+                },
+                "visible": true
+              }
+            ],
+            "visible": true
+          }
+        ]
+      },
+      {
         "name": "tags",
         "label": "Tags",
         "elements": [
@@ -786,7 +990,20 @@
       "dataExplorerFinalRetentionInMonths": "[steps('retention').dataExplorer.finalMonths]",
       "remoteHubStorageUri": "[steps('advanced').remoteHub.remoteHubStorageUri]",
       "remoteHubStorageKey": "[steps('advanced').remoteHub.remoteHubStorageKey]",
-      "tagsByResource": "[steps('tags').tagsByResource]"
+      "tagsByResource": "[steps('tags').tagsByResource]",
+      "storageAccountName": "[steps('customization').resourceNaming.storageAccountName]",
+      "dataFactoryName": "[steps('customization').resourceNaming.dataFactoryName]",
+      "keyVaultName": "[steps('customization').resourceNaming.keyVaultName]",
+      "virtualNetworkName": "[steps('customization').resourceNaming.virtualNetworkName]",
+      "managedIdentityName": "[steps('customization').resourceNaming.managedIdentityName]",
+      "dataExplorerClusterName": "[steps('customization').resourceNaming.dataExplorerClusterName]",
+      "privateEndpointNamePrefix": "[steps('customization').resourceNaming.privateEndpointNamePrefix]",
+      "existingBlobDnsZoneId": "[steps('customization').centralizedNetworking.existingBlobDnsZoneId]",
+      "existingDfsDnsZoneId": "[steps('customization').centralizedNetworking.existingDfsDnsZoneId]",
+      "existingQueueDnsZoneId": "[steps('customization').centralizedNetworking.existingQueueDnsZoneId]",
+      "existingTableDnsZoneId": "[steps('customization').centralizedNetworking.existingTableDnsZoneId]",
+      "existingVaultDnsZoneId": "[steps('customization').centralizedNetworking.existingVaultDnsZoneId]",
+      "existingDataExplorerDnsZoneId": "[steps('customization').centralizedNetworking.existingDataExplorerDnsZoneId]"
     }
   }
 }

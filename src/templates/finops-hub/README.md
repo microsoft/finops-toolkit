@@ -2,19 +2,19 @@
 description: This template creates a new FinOps hub instance, including Data Lake storage and a Data Factory.
 page_type: sample
 products:
-- azure
-- azure-blob-storage
-- azure-cost-management
-- azure-data-explorer
-- azure-data-factory
-- azure-data-lake
-- azure-key-vault
-- azure-resource-manager
-- azure-storage-accounts
+  - azure
+  - azure-blob-storage
+  - azure-cost-management
+  - azure-data-explorer
+  - azure-data-factory
+  - azure-data-lake
+  - azure-key-vault
+  - azure-resource-manager
+  - azure-storage-accounts
 urlFragment: finops-hub
 languages:
-- bicep
-- json
+  - bicep
+  - json
 ---
 
 # FinOps hub
@@ -57,6 +57,43 @@ Please ensure the following prerequisites are met before deploying this template
 To use FinOps hubs, you can either leverage the available Power BI reports or connect directly to the included storage account. To learn more, see [FinOps hubs documentation](https://aka.ms/finops/hubs).
 
 If you run into any issues, see [Troubleshooting FinOps hubs](https://aka.ms/finops/hubs/troubleshoot).
+
+<br>
+
+## ⚙️ Customization options
+
+### Resource naming
+
+By default, FinOps hubs automatically generates resource names following Azure best practices. You can customize names for the following resources by specifying optional parameters during deployment:
+
+- **Storage Account** (`storageAccountName`)
+- **Data Factory** (`dataFactoryName`)
+- **Key Vault** (`keyVaultName`)
+- **Virtual Network** (`virtualNetworkName`)
+- **Managed Identity** (`managedIdentityName`)
+- **Data Explorer Cluster** (`dataExplorerClusterName`)
+- **Private Endpoints** (`privateEndpointNamePrefix`) - Prefix for all private endpoint names
+
+If you leave these parameters empty, the template will generate appropriate default names automatically.
+
+### Centralized networking (Hub & Spoke)
+
+If you're deploying FinOps hubs in a Hub & Spoke network topology with centralized Private DNS Zones, you can reference existing DNS zones instead of creating new ones:
+
+- **Blob Storage DNS Zone** (`existingBlobDnsZoneId`)
+- **Data Lake Storage DNS Zone** (`existingDfsDnsZoneId`)
+- **Queue Storage DNS Zone** (`existingQueueDnsZoneId`)
+- **Table Storage DNS Zone** (`existingTableDnsZoneId`)
+- **Key Vault DNS Zone** (`existingVaultDnsZoneId`)
+- **Data Explorer DNS Zone** (`existingDataExplorerDnsZoneId`)
+
+When you provide existing DNS Zone resource IDs, the template will:
+
+- Skip creating new Private DNS Zones
+- Configure private endpoints to use your centralized DNS zones
+- Link private endpoints to the existing zones via Private Endpoint DNS Zone Groups
+
+This approach is ideal for enterprise environments with centralized networking and avoids DNS zone duplication across multiple hub instances.
 
 <br>
 
