@@ -35,6 +35,11 @@ function Update-Scripts {
         $mainScriptDir = Split-Path -Parent $mainScriptPath
         $prerequisitesScriptPath = Join-Path $mainScriptDir "CostRecommendations-Prerequisites.ps1"
         
+        Write-Host "WARNING: Downloading and executing scripts from remote URLs." -ForegroundColor Yellow
+        Write-Host "WARNING: This operation trusts content from: $($MainScriptUrl -replace '/[^/]+$', '')" -ForegroundColor Yellow
+        Write-Host "WARNING: Ensure you trust this source before proceeding." -ForegroundColor Yellow
+        Write-Host ""
+        
         Write-Host "Downloading latest script versions..." -ForegroundColor Cyan
         
         $tempMainScriptPath = Join-Path $env:TEMP "CostRecommendations.ps1.new"
@@ -42,6 +47,20 @@ function Update-Scripts {
         
         $tempPrerequisitesScriptPath = Join-Path $env:TEMP "CostRecommendations-Prerequisites.ps1.new"
         Invoke-WebRequest -Uri $PrerequisitesScriptUrl -OutFile $tempPrerequisitesScriptPath -ErrorAction Stop
+        
+        # Verify downloaded files are not empty
+        $mainScriptSize = (Get-Item $tempMainScriptPath).Length
+        $prereqScriptSize = (Get-Item $tempPrerequisitesScriptPath).Length
+        
+        if ($mainScriptSize -lt 100 -or $prereqScriptSize -lt 100) {
+            Write-Host "ERROR: Downloaded scripts appear to be too small or empty. Update aborted." -ForegroundColor Red
+            Remove-Item -Path $tempMainScriptPath -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path $tempPrerequisitesScriptPath -Force -ErrorAction SilentlyContinue
+            return $false
+        }
+        
+        Write-Host "Downloaded main script: $mainScriptSize bytes" -ForegroundColor Cyan
+        Write-Host "Downloaded prerequisites script: $prereqScriptSize bytes" -ForegroundColor Cyan
         
         Copy-Item -Path $tempMainScriptPath -Destination $mainScriptPath -Force
         Copy-Item -Path $tempPrerequisitesScriptPath -Destination $prerequisitesScriptPath -Force
@@ -244,7 +263,8 @@ function Process-KQLFiles {
             )
             $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
             $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message"
-            Add-Content -Path $PathToLogFile -Value $logMessage -ErrorAction SilentlyContinue
+            # Change to Continue so we see if there are write failures
+            Add-Content -Path $PathToLogFile -Value $logMessage -ErrorAction Continue
         }
 
         try {
@@ -389,7 +409,8 @@ function Manual-Validations {
                 )
                 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
                 $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message"
-                Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
+                # Change to Continue so we see if there are write failures
+                Add-Content -Path $logFile -Value $logMessage -ErrorAction Continue
             }
 
             try {
@@ -496,7 +517,8 @@ function Manual-Validations {
                 )
                 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
                 $logMessage = "$timestamp [$Level] [Thread $([System.Threading.Thread]::CurrentThread.ManagedThreadId)] $Message"
-                Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
+                # Change to Continue so we see if there are write failures
+                Add-Content -Path $logFile -Value $logMessage -ErrorAction Continue
             }
 
             try {
