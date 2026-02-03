@@ -14,6 +14,18 @@ ms.reviewer: nteyan
 <!-- markdownlint-disable-next-line MD025 -->
 # Governance workbook
 
+> [!WARNING]
+> **This workbook is being retired**
+>
+> The Workload optimization report will be retired on December 31, 2025, and will no longer be supported. We recommend using the Azure Advisor Cost Optimization workbook instead, which provides similar capabilities with more features and ongoing support.
+>  ### View the Cost optimization workbook in Advisor
+>
+> 1. Sign in to the [Azure portal](https://portal.azure.com/).
+> 2. Search for Azure Advisor.
+> 3. In the left navigation menu, select **Workbooks**.
+> 4. In the Workbooks Gallery, select the **Cost Optimization (Preview)** workbook template.
+> 5. Select an area to explore.
+
 The governance workbook is an Azure Monitor workbook that provides a comprehensive overview of the governance posture of your Azure environment. It includes the standard metrics aligned with the Cloud Adoption Framework for all disciplines and has the capability to identify and apply recommendations to address noncompliant resources.
 
 :::image type="content" source="./media/governance/overview-governance.png" border="true" alt-text="Screenshot showing the Governance workbook overview page." lightbox="./media/governance/overview-governance.png":::
