@@ -96,6 +96,52 @@ function Load-Settings {
     
     try {
         $settings = Get-Content -Path $settingsPath -Raw | ConvertFrom-Json
+        
+        # Ensure scriptVersion exists and is not empty
+        if (-not $settings.scriptVersion -or [string]::IsNullOrWhiteSpace($settings.scriptVersion)) {
+            Write-Host "Warning: settings.json is missing scriptVersion. Using default version 2.0" -ForegroundColor Yellow
+            $settings | Add-Member -NotePropertyName scriptVersion -NotePropertyValue "2.0" -Force
+        }
+        
+        # Ensure repositoryUrls exists
+        if (-not $settings.repositoryUrls) {
+            Write-Host "Warning: settings.json is missing repositoryUrls. Adding defaults." -ForegroundColor Yellow
+            $settings | Add-Member -NotePropertyName repositoryUrls -NotePropertyValue @{
+                mainScript = "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/CostRecommendations.ps1"
+                prerequisitesScript = "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/CostRecommendations-Prerequisites.ps1"
+                versionFile = "https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/features/wacoascripts/src/wacoa/tools/version.txt"
+                resourcesZip = "https://github.com/microsoft/finops-toolkit/raw/refs/heads/features/wacoascripts/src/wacoa/content/azure-resources.zip"
+            } -Force
+        }
+        
+        # Ensure paths exists
+        if (-not $settings.paths) {
+            Write-Host "Warning: settings.json is missing paths. Adding defaults." -ForegroundColor Yellow
+            $settings | Add-Member -NotePropertyName paths -NotePropertyValue @{
+                tempDir = "Temp"
+                resourcesDir = "Temp/azure-resources"
+                cacheFile = "ScopeCache.txt"
+            } -Force
+        }
+        
+        # Ensure defaultSettings exists
+        if (-not $settings.defaultSettings) {
+            Write-Host "Warning: settings.json is missing defaultSettings. Adding defaults." -ForegroundColor Yellow
+            $settings | Add-Member -NotePropertyName defaultSettings -NotePropertyValue @{
+                parallelThrottleLimit = 5
+                excelTableStyle = "Light19"
+                logLevel = "INFO"
+            } -Force
+        }
+        
+        # Save the updated settings back to file if any changes were made
+        try {
+            $settings | ConvertTo-Json -Depth 10 | Set-Content -Path $settingsPath
+        }
+        catch {
+            Write-Host "Warning: Could not update settings.json: $_" -ForegroundColor Yellow
+        }
+        
         return $settings
     }
     catch {

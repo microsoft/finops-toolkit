@@ -72,11 +72,18 @@ function Write-Log {
 function Check-ScriptVersion {
     param (
         [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
         [string]$CurrentVersion,
 
         [Parameter(Mandatory = $true)]
         [string]$RemoteVersionUrl
     )
+    
+    # Handle empty or null CurrentVersion
+    if ([string]::IsNullOrWhiteSpace($CurrentVersion)) {
+        Write-Log -Message "Current version is not set. Skipping version check." -Level "WARNING"
+        return
+    }
 
     Write-Log -Message "Current script version: $CurrentVersion" -Level "INFO"
     Write-Log -Message "Checking for latest version at: $RemoteVersionUrl" -Level "INFO"
