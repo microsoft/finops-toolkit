@@ -623,8 +623,9 @@ function Export-ResultsToExcel {
             # Find the line that contains CSV headers (usually contains comma-separated values)
             $headerLineIndex = -1
             for ($i = 0; $i -lt $csvContent.Count; $i++) {
-                # Look for a line that looks like CSV headers (has commas and looks like header text)
-                if ($csvContent[$i] -match '^\w+,\w+' -or $csvContent[$i] -match '^"[^"]+","[^"]+"') {
+                # Look for a line that has commas and reasonable content (not just empty or whitespace)
+                $line = $csvContent[$i].Trim()
+                if ($line.Length -gt 0 -and $line.Contains(',') -and -not $line.StartsWith('#')) {
                     $headerLineIndex = $i
                     break
                 }
