@@ -28,7 +28,7 @@ Come ready to collaborate, share ideas, and build together!
 The contributor sync is held **every Wednesday** from **8:00-8:30 AM Pacific (4:00-4:30 PM UTC)**.
 
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_Nzg3OGYwMDEtNmJjNi00MzQ2LTliNWEtZmI5OGIzYTgyYTkz%40thread.v2/0?context=%7b%22Tid%22%3a%2210a66b8f-838f-4f58-a72b-419c6528f569%22%2c%22Oid%22%3a%22997adb29-26c9-4d91-b52a-58afd612dfdc%22%7d">Join the meeting</a>
-<a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" href="https://github.com/microsoft/finops-toolkit/raw/dev/docs/contributor-sync.ics">Add to calendar</a>
+<a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/contributor-sync.ics">Add to calendar</a>
 
 <br>
 

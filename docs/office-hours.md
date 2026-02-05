@@ -29,7 +29,7 @@ No agenda. Just drop in! All experience levels are welcome!
 Office hours are held **every other Wednesday** from **8:30-9:00 AM Pacific (4:30-5:00 PM UTC)**.
 
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjA0MzljMGUtOGU2My00MjYxLTlmM2EtYzM1YjRlNWQzMTQ0%40thread.v2/0?context=%7b%22Tid%22%3a%2210a66b8f-838f-4f58-a72b-419c6528f569%22%2c%22Oid%22%3a%22997adb29-26c9-4d91-b52a-58afd612dfdc%22%7d">Join the meeting</a>
-<a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" href="https://github.com/microsoft/finops-toolkit/raw/dev/docs/office-hours.ics">Add to calendar</a>
+<a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/office-hours.ics">Add to calendar</a>
 
 <br>
 
