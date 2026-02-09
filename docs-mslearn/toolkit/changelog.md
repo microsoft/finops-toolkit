@@ -64,7 +64,7 @@ _Released January 2026_
   - Fixed `Costs_v1_2` function producing duplicate records when Services table contains multiple entries for the same resource type.
   - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2.
   - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md) ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
-  - Fixed deprecated PriceSheet API version in managed exports and optimization engine from 2023-03-01 to 2023-05-01.
+  - Fixed incorrect PriceSheet API version in managed exports and optimization engine to 2023-05-01.
 
 ### [Power BI reports](power-bi/reports.md) v13
 
@@ -84,7 +84,7 @@ _Released January 2026_
 - **Fixed**
   - Fixed reservations-related workbooks by replacing Instance Size Flexibility ratios CSV vanity URL ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
   - Fixed underutilized disks recommendations not being generated for Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
-  - Fixed deprecated PriceSheet API version from 2023-03-01 to 2023-05-01.
+  - Fixed incorrect PriceSheet API version to 2023-05-01.
   - Small documentation improvements and fixes to broken links.
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v13
