@@ -1,106 +1,108 @@
 {
-  "[bicep]": {
+    "[bicep]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[markdown]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[powerquery]": {
+        "editor.formatOnSave": false
+    },
+    "[powershell]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-vscode.powershell"
+    },
+    "cSpell.words": [
+        "ADLS",
+        "architecting",
+        "autoshutdown",
+        "autostop",
+        "autostopping",
+        "bandersmsft",
+        "btnlink",
+        "CARML",
+        "chargeback",
+        "compat",
+        "CostManagement",
+        "deallocate",
+        "deallocated",
+        "Entra",
+        "eventhouse",
+        "FinOps",
+        "focuscost",
+        "hackathon",
+        "interruptible",
+        "ITAM",
+        "Kusto",
+        "lightbox",
+        "Lookback",
+        "micflan",
+        "MOSA",
+        "msexports",
+        "Multicloud",
+        "Multitenant",
+        "nextstepaction",
+        "nonidle",
+        "PAYG",
+        "PBIT",
+        "PBIX",
+        "preconfigured",
+        "pricesheet",
+        "Quickstart",
+        "quickstarts",
+        "reingest",
+        "reservationdetails",
+        "reservationrecommendations",
+        "reservationtransactions",
+        "Roadmap",
+        "runbook",
+        "runbooks",
+        "showback",
+        "startswith",
+        "templating",
+        "triaging",
+        "Unhide",
+        "westus"
+    ],
+    "editor.detectIndentation": false,
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[markdown]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[powerquery]": {
-    "editor.formatOnSave": false
-  },
-  "[powershell]": {
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "ms-vscode.powershell"
-  },
-  "cSpell.words": [
-    "ADLS",
-    "architecting",
-    "autoshutdown",
-    "autostop",
-    "autostopping",
-    "bandersmsft",
-    "btnlink",
-    "CARML",
-    "chargeback",
-    "compat",
-    "CostManagement",
-    "deallocate",
-    "deallocated",
-    "Entra",
-    "eventhouse",
-    "FinOps",
-    "focuscost",
-    "hackathon",
-    "interruptible",
-    "ITAM",
-    "Kusto",
-    "lightbox",
-    "Lookback",
-    "micflan",
-    "MOSA",
-    "msexports",
-    "Multicloud",
-    "Multitenant",
-    "nextstepaction",
-    "nonidle",
-    "PAYG",
-    "PBIT",
-    "PBIX",
-    "preconfigured",
-    "pricesheet",
-    "Quickstart",
-    "quickstarts",
-    "reingest",
-    "reservationdetails",
-    "reservationrecommendations",
-    "reservationtransactions",
-    "Roadmap",
-    "runbook",
-    "runbooks",
-    "showback",
-    "startswith",
-    "templating",
-    "triaging",
-    "Unhide",
-    "westus"
-  ],
-  "editor.detectIndentation": false,
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
-  },
-  "markdown.extension.italic.indicator": "_",
-  "markdown.extension.toc.levels": "2..2",
-  "markdown.extension.toc.orderedList": false,
-  "markdown.preview.typographer": false,
-  "markdown.updateLinksOnFileMove.enabled": "prompt",
-  "markdownlint.config": {
-    "line-length": false,
-    "no-bare-urls": false,
-    "no-inline-html": false
-  },
-  "powershell.codeFormatting.alignPropertyValuePairs": true,
-  "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
-  "powershell.codeFormatting.newLineAfterCloseBrace": true,
-  "powershell.codeFormatting.newLineAfterOpenBrace": true,
-  "powershell.codeFormatting.openBraceOnSameLine": false,
-  "powershell.codeFormatting.useCorrectCasing": true,
-  "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
-  "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
-  "powershell.codeFormatting.whitespaceInsideBrace": true,
-  "powerquery.general.experimental": false,
-  "terminal.integrated.defaultProfile.osx": "pwsh",
-  "terminal.integrated.profiles.osx": {
-    "pwsh": {
-      "path": "pwsh",
-      "args": ["-NoLogo"]
-    }
-  },
-  "workbench.editor.enablePreview": false
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit"
+    },
+    "markdown.extension.italic.indicator": "_",
+    "markdown.extension.toc.levels": "2..2",
+    "markdown.extension.toc.orderedList": false,
+    "markdown.preview.typographer": false,
+    "markdown.updateLinksOnFileMove.enabled": "prompt",
+    "markdownlint.config": {
+        "line-length": false,
+        "no-bare-urls": false,
+        "no-inline-html": false
+    },
+    "powershell.codeFormatting.alignPropertyValuePairs": true,
+    "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
+    "powershell.codeFormatting.newLineAfterCloseBrace": true,
+    "powershell.codeFormatting.newLineAfterOpenBrace": true,
+    "powershell.codeFormatting.openBraceOnSameLine": false,
+    "powershell.codeFormatting.useCorrectCasing": true,
+    "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
+    "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
+    "powershell.codeFormatting.whitespaceInsideBrace": true,
+    "powerquery.general.experimental": false,
+    "terminal.integrated.defaultProfile.osx": "pwsh",
+    "terminal.integrated.profiles.osx": {
+        "pwsh": {
+            "path": "pwsh",
+            "args": [
+                "-NoLogo"
+            ]
+        }
+    },
+    "workbench.editor.enablePreview": false
 }

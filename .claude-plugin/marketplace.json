@@ -1,0 +1,18 @@
+{
+    "name": "finops-toolkit",
+    "owner": {
+        "name": "Microsoft"
+    },
+    "plugins": [
+        {
+            "name": "microsoft-finops-toolkit",
+            "source": "./src/ai-tools/",
+            "description": "A Claude Code plugin for the Microsoft FinOps toolkit."
+        },
+        {
+            "name": "microsoft-learn",
+            "source": "https://github.com/microsoftdocs/mcp",
+            "description": "Stop AI Hallucinations. Give your AI assistant (Claude, Cursor, Copilot, Codex, ...) direct access to the latest official Microsoft documentation."
+        }
+    ]
+}

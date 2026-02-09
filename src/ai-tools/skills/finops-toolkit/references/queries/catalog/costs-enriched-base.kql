@@ -28,7 +28,7 @@
 //   for FinOps reporting, allocation, and optimization.
 //
 // For full schema and column definitions, see:
-//   https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/msbrett/features/ghc/src/queries/finops-hub-database-guide.md#column-definitions
+//   See finops-hub-database-guide.md#column-definitions in the queries reference directory
 // ============================================================================
 
 let startDate = startofmonth(ago(30d));
