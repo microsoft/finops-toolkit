@@ -25,6 +25,11 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Fixed**
+  - Fixed incorrect PriceSheet export dataset version in managed exports to 2023-05-01.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
@@ -64,7 +69,6 @@ _Released January 2026_
   - Fixed `Costs_v1_2` function producing duplicate records when Services table contains multiple entries for the same resource type.
   - Fixed backward compatibility in `Costs_transform_v1_2()` to support Cost Management exports that predate FOCUS 1.2.
   - Fixed broken link for GitHub Copilot instructions download in [Configure AI documentation](hubs/configure-ai.md) ([#1803](https://github.com/microsoft/finops-toolkit/issues/1803)).
-  - Fixed incorrect PriceSheet export dataset version in managed exports to 2023-05-01.
 
 ### [Power BI reports](power-bi/reports.md) v13
 
