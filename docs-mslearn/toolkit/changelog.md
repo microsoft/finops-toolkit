@@ -36,6 +36,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [PowerShell module](powershell/powershell-commands.md) v14
 
+- **Added**
+  - Added [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) parameters for all remaining Bicep template options: `-EnablePurgeProtection`, `-DisableManagedExports`, `-FabricQueryUri`, `-FabricCapacityUnits`, `-TagsByResource`, `-ScopesToMonitor`, `-ExportRetentionInDays`, and `-IngestionRetentionInMonths`.
 - **Fixed**
   - Fixed [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) failing in Cloud Shell and Linux environments due to missing TEMP environment variable (required by Bicep CLI) and cleanup errors masking the real problem ([#665](https://github.com/microsoft/finops-toolkit/issues/665)).
 
