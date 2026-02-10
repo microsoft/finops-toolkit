@@ -40,8 +40,8 @@
     .PARAMETER RemoteHubStorageKey
     Optional. Storage account key to use when pushing data to a remote hub.
 
-    .PARAMETER DisableManagedExports
-    Optional. Disable managed exports where your FinOps hub instance creates and runs Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Default = false (managed exports enabled).
+    .PARAMETER EnableManagedExports
+    Optional. Enable managed exports where your FinOps hub instance creates and runs Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Default = false.
 
     .PARAMETER DataExplorerName
     Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).
