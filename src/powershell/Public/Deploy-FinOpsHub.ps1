@@ -166,8 +166,20 @@ function Deploy-FinOpsHub
         $Tags
     )
 
+    # Initialize toolkitPath before try block to ensure cleanup works even if early failure occurs
+    # Fixes issue #665: If an error occurred before $toolkitPath was set, the finally block failed
+    # with 'Cannot bind argument to parameter Path because it is null', masking the real error
+    $toolkitPath = $null
+
     try
     {
+        # Ensure TEMP environment variable is set for Linux/Mac/Cloud Shell compatibility
+        # Bicep CLI requires TEMP to be set for intermediate file operations
+        if (-not $env:TEMP)
+        {
+            $env:TEMP = [System.IO.Path]::GetTempPath().TrimEnd([System.IO.Path]::DirectorySeparatorChar)
+        }
+
         # Create resource group if it doesn't exist
         $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction 'SilentlyContinue'
         if (-not $resourceGroupObject -and (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'CreateResourceGroup'))
@@ -241,6 +253,9 @@ function Deploy-FinOpsHub
     finally
     {
         # Clean up downloaded files
-        Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
+        if ($toolkitPath)
+        {
+            Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
+        }
     }
 }
