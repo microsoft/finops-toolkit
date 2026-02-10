@@ -898,6 +898,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "DMarshall-1",
+      "name": "DMarshall-1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/200792187?v=4",
+      "profile": "https://github.com/DMarshall-1",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
