@@ -29,7 +29,7 @@ No agenda. Just drop in! All experience levels are welcome! 🙋‍♀️ 💬
 
 ## Schedule
 
-Office hours are held **every other Wednesday** from **7:30-8:00 AM Pacific (3:30-4:00 PM UTC)**.
+Office hours are held **every other Wednesday** from **7:30-8:00 AM Pacific**.
 
 <a class="btn fs-5 mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/office-hours.ics">Add to calendar</a>
 
