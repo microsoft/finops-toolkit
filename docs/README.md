@@ -218,6 +218,7 @@ Whether you're looking for a little assistance or are interested in contributing
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/gajadv"><img src="https://avatars.githubusercontent.com/u/125584305?v=4?s=100" width="100px;" alt="gajadv"/><br /><sub><b>gajadv</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Agajadv" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="http://www.jeeja.biz"><img src="https://avatars.githubusercontent.com/u/3397477?v=4?s=100" width="100px;" alt="Francesco Mantovani"/><br /><sub><b>Francesco Mantovani</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Afrancesco1119" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ahpandit"><img src="https://avatars.githubusercontent.com/u/98794500?v=4?s=100" width="100px;" alt="ahpandit"/><br /><sub><b>ahpandit</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aahpandit" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/jchisum"><img src="https://avatars.githubusercontent.com/u/14060155?v=4?s=100" width="100px;" alt="jchisum"/><br /><sub><b>jchisum</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ajchisum" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
