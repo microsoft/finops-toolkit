@@ -19,27 +19,37 @@ ms.reviewer: micflan
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
+<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md)
+### Bicep Registry module pending updates
+
+- Cost Management export modules for subscriptions and resource groups.
+-->
+
+<br><a name="latest"></a>
+
+## v13 Update 1
+
+_Released February 10, 2026_
+
+This release is a minor patch to fix a bug in FinOps hub managed exports and the PowerShell Deploy-FinOpsHub command. If you are experiencing issues with managed exports in FinOps hubs v13, update to the latest v13 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep** before February 10, 2026, update to the latest version.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v13 Update 1
 
 - **Fixed**
   - Fixed incorrect PriceSheet export dataset version in managed exports to 2023-05-01.
 
-### Bicep Registry module pending updates
-
-- Cost Management export modules for subscriptions and resource groups.
-
-### [PowerShell module](powershell/powershell-commands.md) v14
+### [PowerShell module](powershell/powershell-commands.md) v13 Update 1
 
 - **Fixed**
   - Fixed [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) failing in Cloud Shell and Linux environments due to missing TEMP environment variable (required by Bicep CLI) and cleanup errors masking the real problem ([#665](https://github.com/microsoft/finops-toolkit/issues/665)).
 
-<br><a name="latest"></a>
+<br>
 
 ## v13
 
