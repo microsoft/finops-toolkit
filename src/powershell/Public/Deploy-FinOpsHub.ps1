@@ -152,7 +152,7 @@ function Deploy-FinOpsHub
 
         [Parameter()]
         [switch]
-        $DisableManagedExports,
+        $EnableManagedExports,
 
         [Parameter()]
         [string]
