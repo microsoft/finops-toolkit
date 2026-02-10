@@ -7,7 +7,7 @@ DTSTART:20260107T160000Z
 DTEND:20260107T163000Z
 RRULE:FREQ=WEEKLY;BYDAY=WE
 SUMMARY:FinOps toolkit contributor sync
-DESCRIPTION:Working session for FinOps toolkit contributors to align on changes\, review proposals\, unblock work\, and coordinate contributions.\n\nThis is for: Contributors and maintainers working on code\, architecture\, docs\, or standards.\n\nThis is not for: Customer support\, demos\, or general community discussion.\n\nCome ready to collaborate\, share ideas\, and build together!
+DESCRIPTION:Working session for FinOps toolkit contributors to align on changes\, review proposals\, unblock work\, and coordinate contributions.\n\n✅ This is for: Contributors and maintainers working on code\, architecture\, docs\, or standards.\n\n🚫 This is not for: Customer support\, demos\, or general community discussion.\n\nCome ready to collaborate\, share ideas\, and build together! 🤝🚀
 LOCATION:https://teams.microsoft.com/l/meetup-join/19%3ameeting_Nzg3OGYwMDEtNmJjNi00MzQ2LTliNWEtZmI5OGIzYTgyYTkz%40thread.v2/0?context=%7b%22Tid%22%3a%2210a66b8f-838f-4f58-a72b-419c6528f569%22%2c%22Oid%22%3a%22997adb29-26c9-4d91-b52a-58afd612dfdc%22%7d
 UID:finops-toolkit-contributor-sync@microsoft.com
 END:VEVENT

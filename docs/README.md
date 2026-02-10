@@ -13,6 +13,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 <a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#available-tools">Get the tools</a>
 <a class="btn fs-5 mb-4 mb-md-0 mr-4" href="./guide">Learn FinOps</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="./office-hours">Join office hours</a>
 
 ---
 
