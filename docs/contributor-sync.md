@@ -28,7 +28,7 @@ Come ready to collaborate, share ideas, and build together! 🤝 🚀
 
 ## Schedule
 
-The contributor sync is held **every Wednesday** from **8:00-8:30 AM Pacific (4:00-4:30 PM UTC)**.
+The contributor sync is held **every Wednesday** from **8:00-8:30 AM Pacific Time**.
 
 <a class="btn fs-5 mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/contributor-sync.ics">Add to calendar</a>
 
