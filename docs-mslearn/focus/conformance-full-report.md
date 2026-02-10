@@ -26,7 +26,7 @@ FOCUS requirements fall into four groups:
 - **RECOMMENDED** requirements are suggested best practices.
 - **MAY** requirements are optional and used to prepare FinOps practitioners for edge cases.
 
-While there's no official measurement for FOCUS conformance, we calculate a conformance score of **94%**, which accounts for all fully and half of the partially supported requirements. The following table summarizes requirements by level of support.
+While there's no official measurement for FOCUS conformance, we calculate a conformance score of **94%**, which accounts for all fully supported and half of the partially supported requirements. The following table summarizes requirements by level of support.
 
 | Type            | Supported | Partial support | Not supported | Not applicable |
 | :-------------- | :-------: | :-------------: | :-----------: | :------------: |
@@ -967,7 +967,7 @@ Source: [columns/resourcetype.md](https://github.com/FinOps-Open-Cost-and-Usage-
 
 Highest-level classification of a service based on the core function of the service.
 
-`ServiceCategory` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, please [submit a change request](https://aka.ms/ftk/ideas).
+`ServiceCategory` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, [submit a change request](https://aka.ms/ftk/ideas).
 
 Source: [columns/servicecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/servicecategory.md)
 
@@ -982,7 +982,7 @@ Source: [columns/servicecategory.md](https://github.com/FinOps-Open-Cost-and-Usa
 
 An offering that can be purchased from a provider (e.g., cloud virtual machine, SaaS database, professional services from a systems integrator).
 
-`ServiceName` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, please [submit a change request](https://aka.ms/ftk/ideas).
+`ServiceName` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, [submit a change request](https://aka.ms/ftk/ideas).
 
 Source: [columns/servicename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/servicename.md)
 
@@ -1001,7 +1001,7 @@ Source: [columns/servicename.md](https://github.com/FinOps-Open-Cost-and-Usage-S
 
 Secondary classification of the Service Category for a service based on its core function.
 
-`ServiceSubcategory` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, please [submit a change request](https://aka.ms/ftk/ideas).
+`ServiceSubcategory` is set based on a resource type mapping that uses the [Services](../toolkit/open-data.md#services) dataset in the FinOps toolkit. If you see gaps, [submit a change request](https://aka.ms/ftk/ideas).
 
 Source: [columns/servicesubcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.2/specification/columns/servicesubcategory.md)
 
