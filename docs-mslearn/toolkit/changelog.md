@@ -25,6 +25,11 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md)
+
+- **Fixed**
+  - Fixed incorrect PriceSheet export dataset version in managed exports to 2023-05-01.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.

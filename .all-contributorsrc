@@ -907,6 +907,24 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "DMarshall-1",
+      "name": "DMarshall-1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/200792187?v=4",
+      "profile": "https://github.com/DMarshall-1",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "MarchingBug",
+      "name": "Ana Del Campo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11653125?v=4",
+      "profile": "https://codeserendipity.com/",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
