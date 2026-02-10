@@ -36,6 +36,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [PowerShell module](powershell/powershell-commands.md) v14
 
+- **Added**
+  - Created [community reports repository](power-bi/community.md) for community-contributed Power BI reports, similar to Azure Quickstart Templates. The repository enables the FinOps community to share specialized reports for specific use cases while maintaining clear differentiation from official toolkit reports.
 - **Fixed**
   - Fixed [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) failing in Cloud Shell and Linux environments due to missing TEMP environment variable (required by Bicep CLI) and cleanup errors masking the real problem ([#665](https://github.com/microsoft/finops-toolkit/issues/665)).
 

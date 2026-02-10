@@ -43,6 +43,13 @@ In addition, the following reports use the Cost Management connector for Power B
 - [Cost Management connector](connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector for Enterprise Agreements and Microsoft Customer Agreement accounts.
 - [Cost Management template app](template-app.md) (EA only) – The original Cost Management template app as a customizable .pbix file.
 
+### Community reports
+
+The FinOps community also contributes specialized Power BI reports for specific use cases and industries. Community reports are maintained by their contributors and are not officially supported by the FinOps toolkit team.
+
+> [!div class="nextstepaction"]
+> [Explore community reports](community.md)
+
 <br>
 
 ## Data sources
