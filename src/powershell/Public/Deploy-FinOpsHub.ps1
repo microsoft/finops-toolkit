@@ -296,7 +296,7 @@ function Deploy-FinOpsHub
 
             if ($Version -eq 'latest' -or [version]$Version -ge '12.0')
             {
-                $parameterSplat.TemplateParameterObject.Add('enableManagedExports', $EnableManagedExports)
+                $parameterSplat.TemplateParameterObject.Add('enableManagedExports', $EnableManagedExports.IsPresent)
             }
 
             if ($Version -eq 'latest' -or [version]$Version -ge '13.0')
