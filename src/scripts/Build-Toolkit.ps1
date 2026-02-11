@@ -6,7 +6,22 @@
     Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.
 
     .PARAMETER Template
-    Optional. Name of the module or template to publish. Default = "*" (all templates and modules).
+    Optional. Name of the module or template to build. Default = * (all templates and modules).
+
+    .PARAMETER Major
+    Optional. Increments the major version number (x.0).
+
+    .PARAMETER Minor
+    Optional. Increments the minor version number (0.x).
+
+    .PARAMETER Patch
+    Optional. Increments the patch version number (0.0.x).
+
+    .PARAMETER Prerelease
+    Optional. Increments the prerelease version number (0.0.0-ooo.x).
+
+    .PARAMETER Label
+    Optional. Indicates the label to use for prerelease versions. Allowed: dev, alpha, preview.
 
     .EXAMPLE
     ./Build-Toolkit
