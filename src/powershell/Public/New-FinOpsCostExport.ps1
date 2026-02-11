@@ -136,7 +136,7 @@
 function New-FinOpsCostExport
 {
     [Diagnostics.CodeAnalysis.SuppressMessage("PSReviewUnusedParameter", "", Justification = "False positive rule")]
-    [CmdletBinding(DefaultParameterSetName = "Scheduled")]
+    [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = "Scheduled")]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -446,23 +446,26 @@ function New-FinOpsCostExport
         }
 
         # Create/update export
-        $createResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
-        if ($createResponse.Failure)
+        if ($PSCmdlet.ShouldProcess($Name, 'Create cost export'))
         {
-            Write-Error "Unable to create export $Name in scope $Scope. Error: $($createResponse.Content.error.message) ($($createResponse.Content.error.code))" -ErrorAction Stop
-            return
-        }
+            $createResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
+            if ($createResponse.Failure)
+            {
+                Write-Error "Unable to create export $Name in scope $Scope. Error: $($createResponse.Content.error.message) ($($createResponse.Content.error.code))" -ErrorAction Stop
+                return
+            }
 
-        # Run now if requested
-        if ($Backfill -gt 0 -and $OneTime -eq $false)
-        {
-            Start-FinOpsCostExport -Name $Name -Scope $Scope -Backfill $Backfill
-        }
-        elseif ($Execute -eq $true -or $OneTime -eq $true)
-        {
-            Start-FinOpsCostExport -Name $Name -Scope $Scope
-        }
+            # Run now if requested
+            if ($Backfill -gt 0 -and $OneTime -eq $false)
+            {
+                Start-FinOpsCostExport -Name $Name -Scope $Scope -Backfill $Backfill
+            }
+            elseif ($Execute -eq $true -or $OneTime -eq $true)
+            {
+                Start-FinOpsCostExport -Name $Name -Scope $Scope
+            }
 
-        return (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion)
+            return (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion)
+        }
     }
 }

@@ -103,8 +103,8 @@ function Remove-FinOpsHub
         }
 
         # List all resources to be deleted
-        Write-Host "The following resources will be deleted:"
-        $resources | ForEach-Object { Write-Host "- $($_.ResourceId)" }
+        Write-Information "The following resources will be deleted:"
+        $resources | ForEach-Object { Write-Information "- $($_.ResourceId)" }
 
         # Prompt the user for confirmation
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
@@ -165,7 +165,7 @@ function Remove-FinOpsHub
                     # Delete the resource
                     Write-Verbose -Message "Deleting resource: $($resource.Name)"
                     Remove-AzResource -ResourceId $resource.ResourceId -Force -ErrorAction Stop
-                    Write-Host "Deleted resource: $($resource.Name)"
+                    Write-Information "Deleted resource: $($resource.Name)"
                 }
                 catch
                 {

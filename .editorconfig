@@ -10,6 +10,15 @@ trim_trailing_whitespace = true
 
 [*.ps1]
 indent_size = 4
+charset = utf-8-bom
+
+[*.psm1]
+indent_size = 4
+charset = utf-8-bom
+
+[*.psd1]
+indent_size = 4
+charset = utf-8-bom
 
 [*.md]
 max_line_length = off

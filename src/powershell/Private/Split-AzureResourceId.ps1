@@ -53,7 +53,7 @@ function Split-AzureResourceId
 
         if (-not $Id)
         {
-            return @{ ResourceId = $null }
+            return [AzureResourceIdInfo]@{ ResourceId = $null }
         }
 
         # Add leading slash

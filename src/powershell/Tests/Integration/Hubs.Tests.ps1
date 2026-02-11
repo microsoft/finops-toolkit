@@ -6,7 +6,7 @@
 Describe 'Hubs' {
     BeforeDiscovery {
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
-        $requiredRPs = $global:ftk_InitializeTests_Hubs_RequiredRPs
+        $requiredRPs = Get-FinOpsHubRequiredResourceProvider
 
         # TODO: Automatically validate the last 3 versions only
         # TODO: Automatically validate the last 3 versions only
@@ -17,7 +17,7 @@ Describe 'Hubs' {
     BeforeAll {
         # Must be duplicated because pre-discovery vars aren't accessible
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '')]
-        $requiredRPs = $global:ftk_InitializeTests_Hubs_RequiredRPs
+        $requiredRPs = Get-FinOpsHubRequiredResourceProvider
     }
 
     Context 'Register-FinOpsHubProviders' {
