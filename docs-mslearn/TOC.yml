@@ -138,6 +138,8 @@
           href: toolkit/hubs/configure-dashboards.md
         - name: Configure AI agents
           href: toolkit/hubs/configure-ai.md
+        - name: Configure remote hubs
+          href: toolkit/hubs/configure-remote-hubs.md
         - name: Savings calculations
           href: toolkit/hubs/savings-calculations.md          
         - name: Deployment template
@@ -268,6 +270,8 @@
           href: toolkit/bicep-registry/modules.md
         - name: Scheduled actions
           href: toolkit/bicep-registry/scheduled-actions.md
+    - name: Data Lake Storage connectivity
+      href: toolkit/data-lake-storage-connectivity.md
     - name: Help + support
       items:
         - name: Help options

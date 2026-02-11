@@ -104,7 +104,7 @@ function Find-Repo($config, [string]$templateName)
             return $config
         }
         Write-Debug "  Not @ $repoRootDir"
-    }
+    } | Select-Object -First 1
 }
 
 # Create a new branch in the repo
