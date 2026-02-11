@@ -826,7 +826,7 @@
       "storageSku": "[steps('pricing').storage.storageSku]",
       "dataExplorerName": "[if(equals(basics('analyticsBackend').analyticsEngine, 'adx'), basics('analyticsBackend').dataExplorerName, '')]",
       "fabricQueryUri": "[if(equals(basics('analyticsBackend').analyticsEngine, 'fabric'), basics('analyticsBackend').fabricQueryUri, '')]",
-      "fabricCapacity": "[if(equals(basics('analyticsBackend').analyticsEngine, 'fabric'), basics('analyticsBackend').fabricCapacity, '')]",
+      "fabricCapacityUnits": "[if(equals(basics('analyticsBackend').analyticsEngine, 'fabric'), basics('analyticsBackend').fabricCapacity, '')]",
       "enableInfrastructureEncryption": "[steps('advanced').storage.enableInfrastructureEncryption]",
       "enableManagedExports": "[steps('advanced').managedExports.enableManagedExports]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
