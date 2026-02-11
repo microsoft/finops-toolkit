@@ -64,7 +64,7 @@
             "name": "analyticsEngine",
             "type": "Microsoft.Common.OptionsGroup",
             "label": "Hub mode",
-            "defaultValue": "None (storage only)",
+            "defaultValue": "Azure Data Explorer",
             "toolTip": "Select the analytics backend for this hub. None uses storage only for Power BI reports. Azure Data Explorer and Microsoft Fabric provide local analytics. Remote Hub forwards data to a central hub for cross-tenant scenarios.",
             "constraints": {
               "allowedValues": [
