@@ -48,57 +48,82 @@
         "visible": true
       },
       {
-        "name": "dataExplorer",
+        "name": "analyticsBackend",
         "type": "Microsoft.Common.Section",
-        "label": "Azure Data Explorer (optional)",
+        "label": "Analytics backend",
         "elements": [
           {
-            "name": "dataExplorerIntro",
+            "name": "analyticsIntro",
             "type": "Microsoft.Common.TextBlock",
             "visible": true,
             "options": {
-              "text": "Azure Data Explorer is a fast, scalable service for advanced, big data analytics. Data Explorer is optional but recommended when monitoring more than $100K in spend. FinOps hubs with Data Explorer starts at $120/mo for a single node cluster plus $10/mo per million in monitored spend (<0.02% of annual spend)."
+              "text": "Select how this hub will process and store cost data. Choose Azure Data Explorer or Microsoft Fabric for local analytics, or Remote Hub to forward data to a central FinOps hub in another tenant or subscription."
+            }
+          },
+          {
+            "name": "analyticsEngine",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Hub mode",
+            "defaultValue": "Azure Data Explorer",
+            "toolTip": "Select the analytics backend for this hub. Azure Data Explorer and Microsoft Fabric provide local analytics. Remote Hub forwards data to a central hub for cross-tenant scenarios.",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Azure Data Explorer",
+                  "value": "adx"
+                },
+                {
+                  "label": "Microsoft Fabric",
+                  "value": "fabric"
+                },
+                {
+                  "label": "Remote Hub",
+                  "value": "remote"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "dataExplorerIntro",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'adx')]",
+            "options": {
+              "text": "Azure Data Explorer is a fast, scalable service for advanced, big data analytics. Recommended when monitoring more than $100K in spend. Starts at $120/mo for a single node cluster plus $10/mo per million in monitored spend (<0.02% of annual spend)."
             }
           },
           {
             "name": "dataExplorerName",
             "type": "Microsoft.Common.TextBox",
             "label": "Cluster name",
-            "toolTip": "Name of the Azure Data Explorer cluster, if desired. If not specified, Data Explorer will not be deployed.",
+            "toolTip": "Name of the Azure Data Explorer cluster.",
             "constraints": {
-              "required": false,
+              "required": "[equals(basics('analyticsBackend').analyticsEngine, 'adx')]",
               "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,20}[a-z0-9]$",
               "validationMessage": "Name must be between 4 and 22 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
             },
-            "visible": true
-          }
-        ],
-        "visible": true
-      },
-      {
-        "name": "fabric",
-        "type": "Microsoft.Common.Section",
-        "label": "Microsoft Fabric (optional)",
-        "elements": [
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'adx')]"
+          },
           {
             "name": "fabricIntro",
             "type": "Microsoft.Common.TextBlock",
-            "visible": true,
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'fabric')]",
             "options": {
-              "text": "Microsoft Fabric is a unified data platform for data ingestion, processing, and analytics. FinOps hubs with Fabric starts at $300/mo for an F2 SKU plus $10/mo per million in monitored spend."
+              "text": "Microsoft Fabric is a unified data platform for data ingestion, processing, and analytics. Starts at $300/mo for an F2 SKU plus $10/mo per million in monitored spend."
             }
           },
           {
             "name": "fabricQueryUri",
             "type": "Microsoft.Common.TextBox",
             "label": "Fabric eventhouse query URI",
-            "toolTip": "Query URI for the Microsoft Fabric eventhouse, if applicable.",
+            "toolTip": "Query URI for the Microsoft Fabric eventhouse.",
             "constraints": {
-              "required": false,
+              "required": "[equals(basics('analyticsBackend').analyticsEngine, 'fabric')]",
               "regex": "^https://.*",
               "validationMessage": "Query URI must be a full Microsoft Fabric eventhouse URL."
             },
-            "visible": true
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'fabric')]"
           },
           {
             "name": "fabricCapacity",
@@ -123,7 +148,51 @@
                 { "label": "F2048", "value": "2048" }
               ]
             },
-            "visible": true
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'fabric')]"
+          },
+          {
+            "name": "remoteHubIntro",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]",
+            "options": {
+              "text": "Configure this hub as a satellite that sends data to a remote FinOps hub in another tenant or subscription. This enables cross-tenant cost management scenarios where a central hub collects cost data from multiple tenants."
+            }
+          },
+          {
+            "name": "remoteHubStorageUri",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Remote hub storage URI",
+            "toolTip": "Data Lake storage endpoint from the remote hub storage account. Copy from the storage account Settings > Endpoints > Data Lake storage. Example: https://myremotehub.dfs.core.windows.net/",
+            "constraints": {
+              "required": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]",
+              "regex": "^https://.*\\.dfs\\.core\\.windows\\.net/?$",
+              "validationMessage": "Must be a valid Data Lake storage endpoint URL in the format: https://storageaccount.dfs.core.windows.net/"
+            },
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
+          },
+          {
+            "name": "remoteHubStorageKey",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Remote hub storage key"
+            },
+            "toolTip": "Storage account access key for the remote hub. Copy from the remote hub storage account Security + networking > Access keys > key1/2 > Key.",
+            "constraints": {
+              "required": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]",
+              "regex": "^[A-Za-z0-9+/]{86}==$",
+              "validationMessage": "Must be a valid storage account access key (base64 encoded, ending with ==)"
+            },
+            "options": {
+              "hideConfirmation": true
+            },
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
+          },
+          {
+            "name": "enablePurgeProtection",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Key Vault purge protection",
+            "toolTip": "Enables purge protection for the Key Vault used to store the remote hub storage key. Purge protection prevents permanent deletion of the Key Vault for 90 days after deletion. Recommended for production deployments.",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
           }
         ],
         "visible": true
@@ -190,14 +259,14 @@
           {
             "name": "dataExplorer",
             "type": "Microsoft.Common.Section",
-            "label": "Data Explorer (optional)",
+            "label": "Data Explorer",
             "elements": [
               {
                 "name": "dataExplorerPricingIntro",
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "Azure Data Explorer is optional. If a cluster name is not specified on the Basics tab, this setting is ignored."
+                  "text": "Select the Azure Data Explorer SKU for your analytics workload."
                 }
               },
               {
@@ -478,7 +547,7 @@
                 "visible": true
               }
             ],
-            "visible": true
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'adx')]"
           },
           {
             "name": "spacer",
@@ -505,9 +574,25 @@
           {
             "name": "retentionIntro",
             "type": "Microsoft.Common.TextBlock",
-            "visible": true,
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'adx')]",
             "options": {
               "text": "Data retention settings indicate how long to keep data available for reporting or additional processing. Retained data contributes to monitored spend and the total storage costs for the hub instance."
+            }
+          },
+          {
+            "name": "fabricRetentionInfo",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'fabric')]",
+            "options": {
+              "text": "Data retention for Microsoft Fabric is managed within your Fabric eventhouse. Configure retention policies directly in Fabric."
+            }
+          },
+          {
+            "name": "remoteHubRetentionInfo",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]",
+            "options": {
+              "text": "Remote Hub satellites forward data to the central hub. Data retention is managed by the central hub, not the satellite."
             }
           },
           {
@@ -521,7 +606,7 @@
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "Storage retention is not implemented yet. You can set the retention period but files will not be automatically removed."
+                  "text": "Configure how long to retain data in Azure Data Lake Storage. Storage retention is not fully implemented yet - files will not be automatically removed."
                 }
               },
               {
@@ -555,15 +640,15 @@
           {
             "name": "dataExplorer",
             "type": "Microsoft.Common.Section",
-            "label": "Data Explorer (optional)",
-            "visible": true,
+            "label": "Data Explorer",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'adx')]",
             "elements": [
               {
                 "name": "dataExplorerIntro",
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
-                  "text": "Azure Data Explorer is optional. If a cluster name is not specified on the Basics tab, this setting is ignored."
+                  "text": "Configure data retention settings for Azure Data Explorer."
                 }
               },
               {
@@ -696,51 +781,6 @@
               }
             ],
             "visible": true
-          },
-          {
-            "name": "remoteHub",
-            "type": "Microsoft.Common.Section",
-            "label": "Remote hub configuration",
-            "elements": [
-              {
-                "name": "remoteHubIntro",
-                "type": "Microsoft.Common.TextBlock",
-                "visible": true,
-                "options": {
-                  "text": "Configure this hub to send data to a remote FinOps hub in another tenant or subscription. This enables cross-tenant cost management scenarios where a central tenant collects cost data from multiple tenants. Leave these fields empty if this is not a remote hub setup."
-                }
-              },
-              {
-                "name": "remoteHubStorageUri",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Remote hub storage URI",
-                "toolTip": "Data Lake storage endpoint from the remote hub storage account. Copy from the storage account Settings > Endpoints > Data Lake storage. Example: https://myremotehub.dfs.core.windows.net/",
-                "constraints": {
-                  "required": false,
-                  "regex": "^$|^https://.*\\.dfs\\.core\\.windows\\.net/?$",
-                  "validationMessage": "Must be a valid Data Lake storage endpoint URL in the format: https://storageaccount.dfs.core.windows.net/"
-                },
-                "visible": true
-              },
-              {
-                "name": "remoteHubStorageKey",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Remote hub storage key"
-                },
-                "toolTip": "Storage account access key for the remote hub. Copy from the remote hub storage account Security + networking > Access keys > key1/2 > Key.",
-                "constraints": {
-                  "required": false,
-                  "regex": "^$|^[A-Za-z0-9+/]{86}==$",
-                  "validationMessage": "Must be a valid storage account access key (base64 encoded, ending with ==)"
-                },
-                "options": {
-                  "hideConfirmation": true
-                },
-                "visible": true
-              }
-            ],
-            "visible": true
           }
         ]
       },
@@ -772,9 +812,9 @@
       "hubName": "[basics('hubName')]",
       "location": "[location()]",
       "storageSku": "[steps('pricing').storage.storageSku]",
-      "dataExplorerName": "[basics('dataExplorer').dataExplorerName]",
-      "fabricQueryUri": "[basics('fabric').fabricQueryUri]",
-      "fabricCapacity": "[basics('fabric').fabricCapacity]",
+      "dataExplorerName": "[if(equals(basics('analyticsBackend').analyticsEngine, 'adx'), basics('analyticsBackend').dataExplorerName, '')]",
+      "fabricQueryUri": "[if(equals(basics('analyticsBackend').analyticsEngine, 'fabric'), basics('analyticsBackend').fabricQueryUri, '')]",
+      "fabricCapacity": "[if(equals(basics('analyticsBackend').analyticsEngine, 'fabric'), basics('analyticsBackend').fabricCapacity, '')]",
       "enableInfrastructureEncryption": "[steps('advanced').storage.enableInfrastructureEncryption]",
       "enableManagedExports": "[steps('advanced').managedExports.enableManagedExports]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
@@ -784,8 +824,9 @@
       "ingestionRetentionInMonths": "[steps('retention').storage.ingestionMonths]",
       "dataExplorerRawRetentionInDays": "[steps('retention').dataExplorer.rawDays]",
       "dataExplorerFinalRetentionInMonths": "[steps('retention').dataExplorer.finalMonths]",
-      "remoteHubStorageUri": "[steps('advanced').remoteHub.remoteHubStorageUri]",
-      "remoteHubStorageKey": "[steps('advanced').remoteHub.remoteHubStorageKey]",
+      "remoteHubStorageUri": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageUri, '')]",
+      "remoteHubStorageKey": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), basics('analyticsBackend').remoteHubStorageKey, '')]",
+      "enablePurgeProtection": "[if(equals(basics('analyticsBackend').analyticsEngine, 'remote'), coalesce(basics('analyticsBackend').enablePurgeProtection, false), false)]",
       "tagsByResource": "[steps('tags').tagsByResource]"
     }
   }
