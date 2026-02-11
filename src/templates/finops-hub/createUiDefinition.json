@@ -203,7 +203,7 @@
             "name": "enablePurgeProtection",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable Key Vault purge protection",
-            "toolTip": "Enables purge protection for the Key Vault used to store the remote hub storage key. Purge protection prevents permanent deletion of the Key Vault for 90 days after deletion. Recommended for production deployments.",
+            "toolTip": "Enables purge protection for the Key Vault used to store the remote hub storage key. Purge protection prevents permanent deletion of the Key Vault for 90 days after deletion. Note: If the key is lost, you can regenerate it from the remote hub's storage account.",
             "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
           }
         ],
