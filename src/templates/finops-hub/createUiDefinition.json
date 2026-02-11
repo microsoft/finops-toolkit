@@ -57,17 +57,21 @@
             "type": "Microsoft.Common.TextBlock",
             "visible": true,
             "options": {
-              "text": "Select how this hub will process and store cost data. Choose Azure Data Explorer or Microsoft Fabric for local analytics, or Remote Hub to forward data to a central FinOps hub in another tenant or subscription."
+              "text": "Select how this hub will process and store cost data. Choose None for storage-based Power BI reports only, Azure Data Explorer or Microsoft Fabric for local analytics, or Remote Hub to forward data to a central FinOps hub."
             }
           },
           {
             "name": "analyticsEngine",
             "type": "Microsoft.Common.OptionsGroup",
             "label": "Hub mode",
-            "defaultValue": "Azure Data Explorer",
-            "toolTip": "Select the analytics backend for this hub. Azure Data Explorer and Microsoft Fabric provide local analytics. Remote Hub forwards data to a central hub for cross-tenant scenarios.",
+            "defaultValue": "None (storage only)",
+            "toolTip": "Select the analytics backend for this hub. None uses storage only for Power BI reports. Azure Data Explorer and Microsoft Fabric provide local analytics. Remote Hub forwards data to a central hub for cross-tenant scenarios.",
             "constraints": {
               "allowedValues": [
+                {
+                  "label": "None (storage only)",
+                  "value": "none"
+                },
                 {
                   "label": "Azure Data Explorer",
                   "value": "adx"
@@ -577,6 +581,14 @@
             "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'adx')]",
             "options": {
               "text": "Data retention settings indicate how long to keep data available for reporting or additional processing. Retained data contributes to monitored spend and the total storage costs for the hub instance."
+            }
+          },
+          {
+            "name": "storageOnlyRetentionInfo",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'none')]",
+            "options": {
+              "text": "Storage-only mode keeps all ingested data in Azure Data Lake Storage. Data is retained indefinitely until manually deleted. Use Power BI to connect directly to storage for reporting."
             }
           },
           {

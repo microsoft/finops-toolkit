@@ -38,7 +38,7 @@ The following section lists features and enhancements that are currently in deve
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
 - **Changed**
-  - Improved deployment UI to consolidate hub mode selection into a single radio button group with three mutually exclusive options: Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
+  - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
   - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
 
