@@ -192,6 +192,14 @@
             "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]"
           },
           {
+            "name": "remoteHubSecurityNote",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": "[equals(basics('analyticsBackend').analyticsEngine, 'remote')]",
+            "options": {
+              "text": "The storage key will be securely stored in Azure Key Vault and is never logged or exposed in deployment outputs."
+            }
+          },
+          {
             "name": "enablePurgeProtection",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable Key Vault purge protection",
