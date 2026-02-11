@@ -12,10 +12,8 @@ configuration:
     eventResponderTasks:
       - description: >-
           When an author creates new issue:
-          - Assign to PM
           - Label with `Needs: Triage 🔍`
-
-          TODO: Consider adding a comment to teach reviewer about what they can do: "@author, thanks for the issue! Please make sure all relevant details are included. @reviewer, please triage this issue. If you need more details, leave a comment with #needs-info..."
+          - Add a welcome comment
         if:
           - payloadType: Issues
           - isAction:

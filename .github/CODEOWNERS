@@ -1,97 +1,117 @@
-# Lines starting with '#' are comments.
-# Each line is a file pattern followed by one or more owners.
+# Lines starting with '#' are comments
+
+# Each line is a file pattern followed by one or more owners
 
 # More details are here: https://help.github.com/articles/about-codeowners/
 
-# The '*' pattern is global owners.
+# The '\*' pattern is global owners
 
-# Order is important. The last matching pattern has the most precedence.
-# The folders are ordered as follows:
+# Order is important. The last matching pattern has the most precedence
 
-# In each subsection folders are ordered first by depth, then alphabetically.
-# This should make it easy to add new rules without breaking existing ones.
+# The folders are ordered as follows
+
+# In each subsection folders are ordered first by depth, then alphabetically
+
+# This should make it easy to add new rules without breaking existing ones
 
 # Global rule
-#* @microsoft/finops-toolkit
-* @flanakin @arthurclares
+
+# \* @microsoft/finops-toolkit
+
+- @flanakin @msbrett
 
 # DevOps folders
-#.build @TODO
-#.github @TODO
-#docs-wiki @TODO
-#src/scripts @TODO
+
+# .build @TODO
+# .github @TODO
+# docs-wiki @TODO
+# src/scripts @TODO
 
 # General
-#docs/help.md @TODO
-#docs/README.md @TODO
-#docs-mslearn/toolkit/help @TODO
-#docs-mslearn/toolkit/*.md @TODO
-#docs-wiki @TODO
+
+# docs/help.md @TODO
+# docs/README.md @TODO
+# docs-mslearn/toolkit/help @TODO
+# docs-mslearn/toolkit/\*.md @TODO
+# docs-wiki @TODO
 
 # FTK governing board
+
 docs-mslearn/toolkit/roadmap.md @microsoft/finops-toolkit-board
 docs-wiki/Advisory-council.md @microsoft/finops-toolkit-board
 docs-wiki/Governing-board.md @microsoft/finops-toolkit-board
 docs-wiki/Release-process.md @microsoft/finops-toolkit-board
 
 # FTK advisory council
+
 .github/CODEOWNERS @microsoft/finops-toolkit-council
 docs-wiki/Coding-guidelines.md @microsoft/finops-toolkit-council
 docs-wiki/Dev-process.md @microsoft/finops-toolkit-council
 docs-wiki/Support-escalations.md @microsoft/finops-toolkit-board
 
 # Alerts
-docs/alerts.md @ro100e @arthurclares @flanakin
-docs-mslearn/toolkit/alerts @ro100e @arthurclares @flanakin
-src/templates/finops-alerts @ro100e
+
+# docs/alerts.md @ro100e @flanakin
+# docs-mslearn/toolkit/alerts @ro100e @flanakin
+# src/templates/finops-alerts @ro100e @flanakin
 
 # Bicep
-#docs/bicep.md @TODO
-#docs-mslearn/toolkit/bicep-registry @TODO
-#src/bicep-registry @TODO
+
+# docs/bicep.md @TODO
+# docs-mslearn/toolkit/bicep-registry @TODO
+# src/bicep-registry @TODO
 
 # Guide
-docs/guide.md @flanakin
-docs-mslearn/best-practices @arthurclares @flanakin
-docs-mslearn/framework @arthurclares @flanakin @kevindlr
-docs-mslearn/focus @flanakin
+
+#docs/guide.md @flanakin
+#docs-mslearn/best-practices @arthurclares @flanakin
+#docs-mslearn/framework @arthurclares @flanakin @kevindlr
+#docs-mslearn/focus @flanakin
 
 # Fabric
-docs-mslearn/fabric @flanakin
+
+#docs-mslearn/fabric @flanakin
 
 # Hubs
-docs/hubs.md @msbrett @flanakin @arthurclares
-docs-mslearn/toolkit/hubs @msbrett @flanakin @arthurclares
-src/templates/finops-hub @msbrett @flanakin @arthurclares
+
+docs/hubs.md @msbrett @flanakin @RolandKrummenacher
+docs-mslearn/toolkit/hubs @msbrett @flanakin @RolandKrummenacher
+src/templates/finops-hub @msbrett @flanakin @RolandKrummenacher
 
 # Open data
-docs/open-data.md @flanakin
-docs-mslearn/toolkit/open-data.md @flanakin
-src/open-data @flanakin
+
+#docs/open-data.md @flanakin
+#docs-mslearn/toolkit/open-data.md @flanakin
+#src/open-data @flanakin
 
 # Optimization Engine
-docs/optimization-engine.md @helderpinto @arthurclares @flanakin
-docs-mslearn/toolkit/optimization-engine @helderpinto @arthurclares @flanakin
+
+docs/optimization-engine.md @helderpinto @msbrett @flanakin
+docs-mslearn/toolkit/optimization-engine @helderpinto @msbrett @flanakin
 src/optimization-engine @helderpinto
 
 # Power BI
-#docs/power-bi.md @TODO
-#docs-mslearn/toolkit/power-bi @TODO
-#src/power-bi @TODO
-src/power-bi/*/Governance* @nteyan
+
+# docs/power-bi.md @TODO
+# docs-mslearn/toolkit/power-bi @TODO
+# src/power-bi @TODO
+src/power-bi/_/Governance_ @nteyan
 
 # PowerShell
-#docs/powershell.md @TODO
-#src/powershell @TODO
-#docs-mslearn/toolkit/powershell @TODO
-#src/powershell @TODO
+
+# docs/powershell.md @TODO
+# src/powershell @TODO
+# docs-mslearn/toolkit/powershell @TODO
+# src/powershell @TODO
 
 # Web
-src/web @ivanmtta @jamelachahbar @flanakin
+
+src/web @jamelachahbar @flanakin @akiskips
 
 # Workbooks
+
 docs/workbooks.md @arthurclares @nteyan @flanakin
 docs-mslearn/toolkit/workbooks @arthurclares @nteyan @flanakin
 src/templates/finops-workbooks @arthurclares @nteyan
 src/workbooks/governance @nteyan
-src/workbooks/optimization @arthurclares
+src/workbooks/optimization @arthurclares @flanakin
