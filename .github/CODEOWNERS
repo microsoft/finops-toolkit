@@ -95,7 +95,8 @@ src/optimization-engine @helderpinto
 # docs/power-bi.md @TODO
 # docs-mslearn/toolkit/power-bi @TODO
 # src/power-bi @TODO
-src/power-bi/_/Governance_ @nteyan
+src/power-bi/storage/Governance.* @nteyan
+src/power-bi/kql/Governance.* @nteyan
 
 # PowerShell
 
