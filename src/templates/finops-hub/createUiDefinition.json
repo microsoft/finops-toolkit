@@ -57,7 +57,7 @@
             "type": "Microsoft.Common.TextBlock",
             "visible": true,
             "options": {
-              "text": "Select how this hub will process and store cost data. Choose None for storage-based Power BI reports only, Azure Data Explorer or Microsoft Fabric for local analytics, or Remote Hub to forward data to a central FinOps hub."
+              "text": "Select how this hub will process and store cost data. Choose Azure Data Explorer or Microsoft Fabric for local analytics, None for storage-based Power BI reports only, or Remote Hub to forward data to a central FinOps hub."
             }
           },
           {
@@ -65,7 +65,7 @@
             "type": "Microsoft.Common.OptionsGroup",
             "label": "Hub mode",
             "defaultValue": "Azure Data Explorer",
-            "toolTip": "Select the analytics backend for this hub. None uses storage only for Power BI reports. Azure Data Explorer and Microsoft Fabric provide local analytics. Remote Hub forwards data to a central hub for cross-tenant scenarios.",
+            "toolTip": "Select the analytics backend for this hub. Azure Data Explorer and Microsoft Fabric provide local analytics. None uses storage only for Power BI reports. Remote Hub forwards data to a central hub for cross-tenant scenarios.",
             "constraints": {
               "allowedValues": [
                 {
