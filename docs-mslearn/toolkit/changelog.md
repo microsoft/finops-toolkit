@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: flanakin
 ms.author: micflan
-ms.date: 05/02/2025
+ms.date: 02/11/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -19,6 +19,7 @@ ms.reviewer: micflan
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
+<!--
 <br>
 
 ## Unreleased
@@ -28,8 +29,29 @@ The following section lists features and enhancements that are currently in deve
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
+-->
 
 <br><a name="latest"></a>
+
+## v13 Update 1
+
+_Released February 11, 2026_
+
+This release is a minor patch to fix a bug in FinOps hub managed exports and the PowerShell Deploy-FinOpsHub command. If you are experiencing issues with managed exports in FinOps hubs v13, update to the latest v13 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep** before February 11, 2026, update to the latest version.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v13 Update 1
+
+- **Fixed**
+  - Fixed incorrect PriceSheet export dataset version in managed exports to 2023-05-01.
+
+### [PowerShell module](powershell/powershell-commands.md) v13 Update 1
+
+- **Added**
+  - Added [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) parameters for all remaining Bicep template options: `-EnablePurgeProtection`, `-EnableManagedExports`, `-FabricQueryUri`, `-FabricCapacityUnits`, `-TagsByResource`, `-ScopesToMonitor`, `-ExportRetentionInDays`, and `-IngestionRetentionInMonths`.
+- **Fixed**
+  - Fixed [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) failing in Cloud Shell and Linux environments due to missing TEMP environment variable (required by Bicep CLI) and cleanup errors masking the real problem ([#665](https://github.com/microsoft/finops-toolkit/issues/665)).
+
+<br>
 
 ## v13
 
