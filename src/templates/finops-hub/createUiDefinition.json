@@ -69,16 +69,16 @@
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "None (storage only)",
-                  "value": "none"
-                },
-                {
                   "label": "Azure Data Explorer",
                   "value": "adx"
                 },
                 {
                   "label": "Microsoft Fabric",
                   "value": "fabric"
+                },
+                {
+                  "label": "None (storage only)",
+                  "value": "none"
                 },
                 {
                   "label": "Remote Hub",
