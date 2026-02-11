@@ -11,7 +11,7 @@ configuration:
   resourceManagementConfiguration:
     eventResponderTasks:
       - description: >-
-          When an author creates new issue:
+          When an author creates a new issue:
           - Label with `Needs: Triage 🔍`
           - Add a welcome comment
         if:
