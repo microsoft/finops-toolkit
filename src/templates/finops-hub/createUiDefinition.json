@@ -797,7 +797,8 @@
                       "message": "Address prefix must be a valid IPv4 address in the format 'XXX.XXX.XXX.XXX/YY' where YY is between 8 and 26 (minimum /26 subnet size required)."
                     }
                   ]
-                }
+                },
+                "visible": "[equals(steps('advanced').networking.enablePublicAccess, false)]"
               }
             ],
             "visible": true
