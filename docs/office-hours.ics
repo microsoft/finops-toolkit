@@ -2,12 +2,29 @@ BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Microsoft//FinOps toolkit//EN
 METHOD:PUBLISH
+BEGIN:VTIMEZONE
+TZID:America/Los_Angeles
+BEGIN:STANDARD
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+TZOFFSETFROM:-0700
+TZOFFSETTO:-0800
+TZNAME:PST
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+TZOFFSETFROM:-0800
+TZOFFSETTO:-0700
+TZNAME:PDT
+END:DAYLIGHT
+END:VTIMEZONE
 BEGIN:VEVENT
-DTSTART:20260121T163000Z
-DTEND:20260121T170000Z
+DTSTART;TZID=America/Los_Angeles:20260121T073000
+DTEND;TZID=America/Los_Angeles:20260121T080000
 RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=WE
 SUMMARY:FinOps toolkit office hours
-DESCRIPTION:Join the FinOps toolkit team for open office hours! Bring your questions about FinOps hubs\, Power BI reports\, or anything toolkit-related. Time permitting\, we can also help with other FinOps questions.\n\n- Get help with deployment issues\n- Discuss feature requests and roadmap\n- Share feedback and ideas\n- Connect with the community\n\nNo agenda. Just drop in! All experience levels are welcome!\n\nResources:\n- About the FinOps toolkit: https://aka.ms/finops/toolkit\n- Troubleshooting guide: https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting
+DESCRIPTION:Join the FinOps toolkit team for open office hours! Bring your questions about FinOps hubs\, Power BI reports\, or anything toolkit-related. Time permitting\, we can also help with other FinOps questions.\n\n- Get help with deployment issues\n- Discuss feature requests and roadmap\n- Share feedback and ideas\n- Connect with the community\n\nNo agenda. Just drop in! All experience levels are welcome! 🙋‍♀️💬\n\nResources:\n- 🧰 About the FinOps toolkit: https://aka.ms/finops/toolkit\n- 🛠️ Troubleshooting guide: https://learn.microsoft.com/cloud-computing/finops/toolkit/help/troubleshooting
 LOCATION:https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjA0MzljMGUtOGU2My00MjYxLTlmM2EtYzM1YjRlNWQzMTQ0%40thread.v2/0?context=%7b%22Tid%22%3a%2210a66b8f-838f-4f58-a72b-419c6528f569%22%2c%22Oid%22%3a%22997adb29-26c9-4d91-b52a-58afd612dfdc%22%7d
 UID:finops-toolkit-office-hours@microsoft.com
 END:VEVENT
