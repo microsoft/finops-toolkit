@@ -47,7 +47,7 @@ This release is a minor patch to fix a bug in FinOps hub managed exports and the
 ### [PowerShell module](powershell/powershell-commands.md) v13 Update 1
 
 - **Added**
-  - Added [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) parameters for all remaining Bicep template options: `-EnablePurgeProtection`, `-DisableManagedExports`, `-FabricQueryUri`, `-FabricCapacityUnits`, `-TagsByResource`, `-ScopesToMonitor`, `-ExportRetentionInDays`, and `-IngestionRetentionInMonths`.
+  - Added [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) parameters for all remaining Bicep template options: `-EnablePurgeProtection`, `-EnableManagedExports`, `-FabricQueryUri`, `-FabricCapacityUnits`, `-TagsByResource`, `-ScopesToMonitor`, `-ExportRetentionInDays`, and `-IngestionRetentionInMonths`.
 - **Fixed**
   - Fixed [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) failing in Cloud Shell and Linux environments due to missing TEMP environment variable (required by Bicep CLI) and cleanup errors masking the real problem ([#665](https://github.com/microsoft/finops-toolkit/issues/665)).
 
