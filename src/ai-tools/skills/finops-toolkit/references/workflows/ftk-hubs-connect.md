@@ -2,11 +2,11 @@
 
 ## Step 1: Use the cluster identifier, if specified
 
-If the user specified a cluster, check the environment configuration settings for the cluster by hub name, cluster name, cluster short URI (name and location), or cluster URI.
+If the user specified a cluster, check `.ftk/environments.local.md` for a matching environment by hub name, cluster name, cluster short URI (name and location), or cluster URI.
 
-If the cluster has already been added to the environment configuration, announce that you'll use that FinOps hub instance for the session and skip to step 4.
+If the cluster has already been added to `.ftk/environments.local.md`, announce that you'll use that FinOps hub instance for the session and skip to step 4.
 
-If the cluster was not found in the environment configuration, go to step 2 to find FinOps hub instances that you can connect to.
+If the cluster was not found in `.ftk/environments.local.md`, go to step 2 to find FinOps hub instances that you can connect to.
 
 ## Step 2: Find FinOps hub instances, if not specified
 
@@ -68,6 +68,31 @@ Announce the name and version of the FinOps hub instance you are connecting to, 
 
 If the query fails, inform the user that you couldn't connect to the FinOps hub instance and ask them to provide a different cluster URI or subscription name. If they provide a cluster URI, repeat step 4 with that URI. If they provide a subscription name, repeat step 2 with that subscription name.
 
-## Step 5: Run a health check
+## Step 5: Save the environment
+
+After validating the FinOps hub instance, save the connection details to `.ftk/environments.local.md`:
+
+1. Read the existing file if it exists to preserve other environments
+2. Add or update the environment entry using the `clusterShortUri` as the environment name
+3. Include `cluster-uri`, `tenant`, `subscription`, and `resource-group` values
+4. Set `default` to this environment if no default exists or if this is the only environment
+
+Example format:
+
+```markdown
+---
+default: myhub.eastus
+environments:
+  myhub.eastus:
+    cluster-uri: https://myhub.eastus.kusto.windows.net
+    tenant: 00000000-0000-0000-0000-000000000000
+    subscription: my-subscription
+    resource-group: rg-finops
+---
+```
+
+See `references/settings-format.md` for the complete file format documentation.
+
+## Step 6: Run a health check
 
 After connecting to the FinOps hub instance, inform the user they can use the `/ftk-hubs-healthCheck` prompt to run a health check.

@@ -172,6 +172,20 @@ The PowerShell-based build system:
 - Documentation uses Jekyll conventions
 - Build artifacts are generated, not checked in
 
+### Publishing Documentation to Microsoft Learn
+
+The source of truth for Microsoft Learn docs is `docs-mslearn/` in this repo. The `Publish-Toolkit "docs"` script does a destructive copy into a local clone of `MicrosoftDocs/partner-center-pr`. Any changes made only in partner-center-pr get overwritten on the next publish.
+
+To fix or update docs:
+
+1. Edit files in `docs-mslearn/` in this repo
+2. Commit to a feature branch and PR to `dev`
+3. Run `pwsh -Command ./src/scripts/Publish-Toolkit "docs" -Branch` to copy into partner-center-pr and push a branch
+4. Create a PR in `MicrosoftDocs/partner-center-pr` from that branch
+5. Post `#sign-off` as a comment on the partner-center-pr PR to trigger review
+
+Never fix docs only in partner-center-pr. Always fix here first.
+
 ### Coding Standards
 
 - Always follow the content and coding standards defined in `docs-wiki/Coding-guidelines.md`

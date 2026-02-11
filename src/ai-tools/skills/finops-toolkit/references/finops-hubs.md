@@ -16,15 +16,15 @@ All KQL queries are located in `references/queries/`:
 **To execute a query:**
 1. Read the .kql file from `references/queries/catalog/[name].kql`
 2. Substitute parameters (startDate, endDate, N, etc.)
-3. Get environment config from the project configuration (cluster-uri, tenant, subscription, resource-group)
+3. Get environment config from `.ftk/environments.local.md` (cluster-uri, tenant, subscription, resource-group)
 4. Execute via `mcp__azure-mcp-server__kusto` command `kusto_query`
 
 **Required MCP parameters:**
 ```json
 {
-  "cluster-uri": "<cluster-uri from project configuration>",
+  "cluster-uri": "<cluster-uri from .ftk/environments.local.md>",
   "database": "Hub",
-  "tenant": "<tenant from project configuration>",
+  "tenant": "<tenant from .ftk/environments.local.md>",
   "query": "<your KQL query>"
 }
 ```

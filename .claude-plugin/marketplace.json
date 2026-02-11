@@ -6,7 +6,7 @@
     "plugins": [
         {
             "name": "microsoft-finops-toolkit",
-            "source": "./src/ai-tools/",
+            "source": "https://github.com/microsoft/finops-toolkit",
             "description": "A Claude Code plugin for the Microsoft FinOps toolkit."
         },
         {
