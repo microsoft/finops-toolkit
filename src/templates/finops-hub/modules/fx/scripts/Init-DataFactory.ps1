@@ -78,22 +78,39 @@ function Set-BlobTriggerSubscription([string]$TriggerName, [switch]$Subscribe)
     $action = if ($Subscribe) { 'Subscribing' } else { 'Unsubscribing' }
 
     Write-Log "$action $TriggerName to events..."
-    Invoke-WithRetry -Name "$action $TriggerName" -Delay 5 -Action {
-        if ($Subscribe)
-        {
-            Add-AzDataFactoryV2TriggerSubscription `
-                -ResourceGroupName $DataFactoryResourceGroup `
-                -DataFactoryName $DataFactoryName `
-                -Name $TriggerName | Out-Null
+    try
+    {
+        Invoke-WithRetry -Name "$action $TriggerName" -Delay 5 -Action {
+            if ($Subscribe)
+            {
+                Add-AzDataFactoryV2TriggerSubscription `
+                    -ResourceGroupName $DataFactoryResourceGroup `
+                    -DataFactoryName $DataFactoryName `
+                    -Name $TriggerName | Out-Null
+            }
+            else
+            {
+                Remove-AzDataFactoryV2TriggerSubscription `
+                    -ResourceGroupName $DataFactoryResourceGroup `
+                    -DataFactoryName $DataFactoryName `
+                    -Name $TriggerName | Out-Null
+            }
         }
-        else
+    }
+    catch
+    {
+        $currentStatus = (Get-AzDataFactoryV2TriggerSubscriptionStatus `
+            -ResourceGroupName $DataFactoryResourceGroup `
+            -DataFactoryName $DataFactoryName `
+            -Name $TriggerName).Status
+        if ($currentStatus -ne 'Provisioning' -and $currentStatus -ne 'Deprovisioning')
         {
-            Remove-AzDataFactoryV2TriggerSubscription `
-                -ResourceGroupName $DataFactoryResourceGroup `
-                -DataFactoryName $DataFactoryName `
-                -Name $TriggerName | Out-Null
+            throw
         }
+        Write-Log "$TriggerName subscription is already $currentStatus, waiting for completion..."
+    }
 
+    Invoke-WithRetry -Name "$action status $TriggerName" -Delay 5 -Action {
         $status = Get-AzDataFactoryV2TriggerSubscriptionStatus `
             -ResourceGroupName $DataFactoryResourceGroup `
             -DataFactoryName $DataFactoryName `
