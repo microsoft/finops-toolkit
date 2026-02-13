@@ -1,0 +1,69 @@
+name: Update ms.date in docs-mslearn
+
+on:
+  pull_request:
+    paths:
+      - 'docs-mslearn/**/*.md'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dates:
+    name: Update ms.date in changed markdown files
+    runs-on: ubuntu-latest
+    # Only run on PRs from the same repo (not forks) to allow pushing
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get changed markdown files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: 'docs-mslearn/**/*.md'
+
+      - name: Update ms.date in changed files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          # Get current date in MM/DD/YYYY format
+          CURRENT_DATE=$(date +'%m/%d/%Y')
+          echo "Updating ms.date to: $CURRENT_DATE"
+
+          # Process each changed markdown file
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "Processing: $file"
+
+            # Check if file has ms.date in frontmatter and update it
+            if grep -q "^ms\.date:" "$file"; then
+              # Use sed to replace the ms.date line
+              sed -i "s/^ms\.date:.*$/ms.date: $CURRENT_DATE/" "$file"
+              echo "  Updated ms.date in $file"
+            else
+              echo "  No ms.date found in $file, skipping"
+            fi
+          done
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs-mslearn/**/*.md
+          git commit -m "chore: Update ms.date in docs-mslearn files"
+          git push
