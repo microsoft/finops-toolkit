@@ -13,15 +13,26 @@
     2. Strip control characters
     3. Remove patch version when 0 (keep major.minor and label)
 
+    .PARAMETER AsTag
+    Optional. Returns the version as a git tag (e.g., "v13" instead of "13.0"). Default = false.
+
     .PARAMETER AsDotNetVersion
-    Optional. Indicates that the returned version should be in the format "x.x.x.x". Otherwise, semantic versioning is used. Deafult = false.
+    Optional. Indicates that the returned version should be in the format "x.x.x.x". Otherwise, semantic versioning is used. Default = false.
 
     .EXAMPLE
     ./Get-Version
 
     Gets the current version number.
+
+    .EXAMPLE
+    ./Get-Version -AsTag
+
+    Gets the version as a git tag (e.g., "v13" instead of "13.0").
 #>
 param(
+    [switch]
+    $AsTag,
+
     [switch]
     $AsDotNetVersion
 )
@@ -31,6 +42,11 @@ $ver = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-J
     -replace '^(\d+\.\d+)(\.0)(-[a-z]+)?$', '$1$3' `
     -replace '^(\d+\.\d+)(\.0)?(-[a-z]+)?(\.\d+)?$', '$1$3$4' `
     -replace '(-[a-z]+)\.0$', '$1'
+
+if ($AsTag)
+{
+    return 'v' + ($ver -replace '\.0$', '')
+}
 
 if ($AsDotNetVersion -and $ver.Contains('-'))
 {
