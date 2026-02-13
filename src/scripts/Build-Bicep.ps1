@@ -6,13 +6,10 @@
     Builds all Bicep modules for publishing to the Bicep Registry.
 
     .PARAMETER Module
-    Path to the module to build.
+    Optional. Name of the module to build. Default = * (all modules).
 
     .PARAMETER Scope
     Optional. Scope to build. If not specified, all scopes will be built.
-
-    .PARAMETER Debug
-    Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
 
     .EXAMPLE
     ./Build-Bicep module-name

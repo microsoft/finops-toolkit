@@ -300,13 +300,15 @@ Examples:
 
 [Publish-Toolkit.ps1](./Publish-Toolkit.ps1) publishes a toolkit template, module, or documentation to its destination repo.
 
-| Parameter         | Description                                                                                                             |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `‑Template`       | Name of the template or module to publish. Default = * (all templates).                                                 |
-| `‑QuickstartRepo` | Optional. Name of the folder where the Azure Quickstart Templates repo is cloned. Default = azure-quickstart-templates. |
-| `‑RegistryRepo`   | Optional. Name of the folder where the Bicep Registry repo is cloned. Default = bicep-registry-modules.                 |
-| `‑Build`          | Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.                    |
-| `‑Branch`         | Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Default = false.           |
+| Parameter          | Description                                                                                                                     |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Template`        | Optional. Name of the template or module to publish. Default = * (all templates).                                               |
+| `‑QuickstartRepo`  | Optional. Name of the folder where the Azure Quickstart Templates repo is cloned. Default = azure-quickstart-templates.         |
+| `‑RegistryRepo`    | Optional. Name of the folder where the Bicep Registry repo is cloned. Default = bicep-registry-modules.                         |
+| `‑AppInsightsRepo` | Optional. Name of the folder where the Application Insights Workbooks repo is cloned. Default = Application-Insights-Workbooks. |
+| `‑DocsRepo`        | Optional. Name of the folder where the Partner Center documentation repo is cloned. Default = partner-center-pr.                |
+| `‑Build`           | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.                                |
+| `‑Branch`          | Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Alias: Commit. Default = false.    |
 
 Examples:
 

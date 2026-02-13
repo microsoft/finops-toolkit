@@ -9,10 +9,25 @@
     Run this from the /src/scripts folder.
 
     .PARAMETER Task
-    Required. Name of the task to execute.
+    Optional. Name of the task to execute.
 
-    .PARAMETER Silent
-    Optional. Indicates whether Invoke-Build should hide verbose build output. Default = false.
+    .PARAMETER Major
+    Optional. Increments the major version number (x.0). Only applies to version tasks.
+
+    .PARAMETER Minor
+    Optional. Increments the minor version number (0.x). Only applies to version tasks.
+
+    .PARAMETER Patch
+    Optional. Increments the patch version number (0.0.x). Only applies to version tasks.
+
+    .PARAMETER Prerelease
+    Optional. Increments the prerelease version number (0.0.0-ooo.x). Only applies to version tasks.
+
+    .PARAMETER Label
+    Optional. Indicates the label to use for prerelease versions. Allowed: dev, alpha, preview. Only applies to version tasks.
+
+    .PARAMETER Version
+    Optional. Sets the version number to an explicit value. Only applies to version tasks.
 
     .PARAMETER Reset
     Optional. Indicates whether the BuildHelper module should be re-compiled. Use this when changing build tasks and scripts. Default = false.
