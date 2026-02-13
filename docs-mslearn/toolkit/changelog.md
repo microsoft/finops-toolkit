@@ -33,6 +33,15 @@ The following section lists features and enhancements that are currently in deve
 
 <br><a name="latest"></a>
 
+## v14
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v14
+
+- **Fixed**
+  - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
+
+<br>
+
 ## v13 Update 1
 
 _Released February 11, 2026_
