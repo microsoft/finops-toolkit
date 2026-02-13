@@ -78,38 +78,43 @@ function Set-BlobTriggerSubscription([string]$TriggerName, [switch]$Subscribe)
     $action = if ($Subscribe) { 'Subscribing' } else { 'Unsubscribing' }
 
     Write-Log "$action $TriggerName to events..."
-    try
-    {
-        Invoke-WithRetry -Name "$action $TriggerName" -Delay 5 -Action {
-            if ($Subscribe)
-            {
-                Add-AzDataFactoryV2TriggerSubscription `
-                    -ResourceGroupName $DataFactoryResourceGroup `
-                    -DataFactoryName $DataFactoryName `
-                    -Name $TriggerName | Out-Null
-            }
-            else
-            {
-                Remove-AzDataFactoryV2TriggerSubscription `
-                    -ResourceGroupName $DataFactoryResourceGroup `
-                    -DataFactoryName $DataFactoryName `
-                    -Name $TriggerName | Out-Null
-            }
-        }
-    }
-    catch
-    {
-        $currentStatus = (Get-AzDataFactoryV2TriggerSubscriptionStatus `
+
+    # Check current status before attempting subscribe/unsubscribe
+    $currentStatus = (Get-AzDataFactoryV2TriggerSubscriptionStatus `
             -ResourceGroupName $DataFactoryResourceGroup `
             -DataFactoryName $DataFactoryName `
             -Name $TriggerName).Status
-        if ($currentStatus -ne 'Provisioning' -and $currentStatus -ne 'Deprovisioning')
-        {
-            throw
-        }
-        Write-Log "$TriggerName subscription is already $currentStatus, waiting for completion..."
+
+    if ($currentStatus -eq $targetStatus)
+    {
+        Write-Log "$TriggerName subscription is already $targetStatus, skipping."
+        return
     }
 
+    if ($currentStatus -eq 'Provisioning' -or $currentStatus -eq 'Deprovisioning')
+    {
+        Write-Log "$TriggerName subscription is $currentStatus, waiting for completion..."
+    }
+    else
+    {
+        # Only call subscribe/unsubscribe when not already in a transitional state
+        if ($Subscribe)
+        {
+            Add-AzDataFactoryV2TriggerSubscription `
+                -ResourceGroupName $DataFactoryResourceGroup `
+                -DataFactoryName $DataFactoryName `
+                -Name $TriggerName | Out-Null
+        }
+        else
+        {
+            Remove-AzDataFactoryV2TriggerSubscription `
+                -ResourceGroupName $DataFactoryResourceGroup `
+                -DataFactoryName $DataFactoryName `
+                -Name $TriggerName | Out-Null
+        }
+    }
+
+    # Poll until provisioning completes
     Invoke-WithRetry -Name "$action status $TriggerName" -Delay 5 -Action {
         $status = Get-AzDataFactoryV2TriggerSubscriptionStatus `
             -ResourceGroupName $DataFactoryResourceGroup `
