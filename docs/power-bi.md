@@ -12,7 +12,7 @@ permalink: /power-bi
 Accelerate your analytics efforts with simple, targeted reports. Summarize and break costs down, or customize to meet your needs.
 {: .fs-6 .fw-300 }
 
-<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#deploy">Deploy</a>
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#get-started">Get started</a>
 <a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/reports">Documentation</a>
 
 ---
@@ -65,11 +65,19 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
         FinOps toolkit Power BI reports do not incur any cost beyond the required Power BI licenses and underlying data storage costs.
     </p>
 </div>
+<a name="get-started"></a>
+
+## Get started with Power BI reports
+
+Choose your experience level to get the right guidance for your needs.
+
+{% include components/power-bi-wizard.html %}
+
 <a name="deploy"></a>
 
-## Deploy Power BI reports
+## Advanced deployment options
 
-Create a new or update an existing FinOps hub instance.
+For experienced users who want full control over the setup process.
 
 <div class="ftk-instructions">
     <div class="ftk-step">

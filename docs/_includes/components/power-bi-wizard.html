@@ -1,0 +1,227 @@
+<!-- Power BI Onboarding Wizard Component -->
+<div class="ftk-wizard">
+    <div class="ftk-wizard-header">
+        <h3>🚀 Get started with Power BI reports</h3>
+        <p>New to Power BI? This wizard will help you set up reports step by step.</p>
+        <div class="ftk-wizard-toggle">
+            <button class="ftk-wizard-beginner btn btn-primary" data-mode="beginner">I'm new to Power BI</button>
+            <button class="ftk-wizard-advanced btn" data-mode="advanced">I'm familiar with Power BI</button>
+        </div>
+    </div>
+
+    <div class="ftk-wizard-content ftk-beginner-mode">
+        <div class="ftk-wizard-progress">
+            <div class="ftk-progress-bar">
+                <div class="ftk-progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="ftk-progress-text">Step <span class="current-step">1</span> of <span class="total-steps">4</span></div>
+        </div>
+
+        <div class="ftk-wizard-step ftk-step-1 ftk-active">
+            <h4>💡 What are you trying to do?</h4>
+            <p>Let's start with the basics. What's your goal with Power BI reports?</p>
+            
+            <div class="ftk-wizard-options">
+                <label class="ftk-option" data-path="small">
+                    <input type="radio" name="use-case" value="small">
+                    <div class="ftk-option-content">
+                        <strong>📊 Track my Azure costs</strong>
+                        <p>I want to monitor a few subscriptions (under $100K/month)</p>
+                    </div>
+                </label>
+                
+                <label class="ftk-option" data-path="large">
+                    <input type="radio" name="use-case" value="large">
+                    <div class="ftk-option-content">
+                        <strong>🏢 Enterprise reporting</strong>
+                        <p>I need to report across many subscriptions or large spend (over $100K/month)</p>
+                    </div>
+                </label>
+                
+                <label class="ftk-option" data-path="existing">
+                    <input type="radio" name="use-case" value="existing">
+                    <div class="ftk-option-content">
+                        <strong>🔄 Connect to existing data</strong>
+                        <p>I already have FinOps hubs or exports set up</p>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="ftk-wizard-navigation">
+                <button class="ftk-next btn btn-primary" disabled>Next →</button>
+            </div>
+        </div>
+
+        <div class="ftk-wizard-step ftk-step-2">
+            <h4>⚙️ Set up your data source</h4>
+            
+            <div class="ftk-path-small" style="display: none;">
+                <div class="ftk-recommendation">
+                    <h5>📋 Recommended: Cost Management exports</h5>
+                    <p>Perfect for monitoring individual subscriptions or smaller workloads. Quick to set up and free to use.</p>
+                </div>
+                
+                <div class="ftk-setup-checklist">
+                    <h6>Setup checklist:</h6>
+                    <div class="ftk-checklist">
+                        <label>
+                            <input type="checkbox" class="ftk-progress-checkbox">
+                            <span>Create or choose a storage account with Data Lake Gen2</span>
+                            <div class="ftk-help">
+                                <a href="https://portal.azure.com/#create/Microsoft.StorageAccount-ARM" target="_blank" class="btn btn-sm">Create storage account</a>
+                                <details class="ftk-details">
+                                    <summary>Need help?</summary>
+                                    <p>Select <strong>Premium</strong> performance, <strong>Block blobs</strong> account type, and enable <strong>Hierarchical namespace</strong>.</p>
+                                </details>
+                            </div>
+                        </label>
+                        
+                        <label>
+                            <input type="checkbox" class="ftk-progress-checkbox">
+                            <span>Create Cost Management exports</span>
+                            <div class="ftk-help">
+                                <a href="https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports/openedBy/FinOpsToolkit.PowerBI.CreateExports" target="_blank" class="btn btn-sm">Create exports</a>
+                                <details class="ftk-details">
+                                    <summary>What exports do I need?</summary>
+                                    <p>Start with <strong>Cost and usage (FOCUS)</strong> export. You can add others later for more features.</p>
+                                </details>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ftk-path-large" style="display: none;">
+                <div class="ftk-recommendation">
+                    <h5>🚀 Recommended: FinOps hubs with Data Explorer</h5>
+                    <p>Optimized for enterprise scale with better performance and cross-tenant support.</p>
+                </div>
+                
+                <div class="ftk-setup-checklist">
+                    <h6>Setup checklist:</h6>
+                    <div class="ftk-checklist">
+                        <label>
+                            <input type="checkbox" class="ftk-progress-checkbox">
+                            <span>Deploy FinOps hubs</span>
+                            <div class="ftk-help">
+                                <a href="/hubs" target="_blank" class="btn btn-sm">Deploy FinOps hubs</a>
+                                <details class="ftk-details">
+                                    <summary>What's included?</summary>
+                                    <p>FinOps hubs automatically creates exports, processes data, and provides enterprise-grade analytics.</p>
+                                </details>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ftk-path-existing" style="display: none;">
+                <div class="ftk-recommendation">
+                    <h5>✅ Great! You're ready to connect</h5>
+                    <p>Since you already have data set up, you can skip straight to downloading reports.</p>
+                </div>
+            </div>
+            
+            <div class="ftk-wizard-navigation">
+                <button class="ftk-back btn">← Back</button>
+                <button class="ftk-next btn btn-primary">Next →</button>
+            </div>
+        </div>
+
+        <div class="ftk-wizard-step ftk-step-3">
+            <h4>📥 Download your reports</h4>
+            
+            <div class="ftk-download-section">
+                <div class="ftk-path-small ftk-path-existing" style="display: none;">
+                    <p>Download the storage reports that work with Cost Management exports and FinOps hubs storage.</p>
+                    <a href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip" class="btn btn-primary">📥 Download storage reports</a>
+                </div>
+                
+                <div class="ftk-path-large" style="display: none;">
+                    <p>Download the KQL reports optimized for FinOps hubs with Data Explorer.</p>
+                    <a href="https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip" class="btn btn-primary">📥 Download KQL reports</a>
+                </div>
+                
+                <div class="ftk-download-help">
+                    <h6>📖 Next steps after download:</h6>
+                    <ol>
+                        <li>Extract the ZIP file to a folder on your computer</li>
+                        <li>Open Power BI Desktop (download from <a href="https://powerbi.microsoft.com/desktop/" target="_blank">powerbi.microsoft.com</a>)</li>
+                        <li>Enable preview features: <strong>File → Options → Preview features → Power BI Project (.pbip)</strong></li>
+                        <li>Open any <code>.pbip</code> file from the extracted folder</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="ftk-wizard-navigation">
+                <button class="ftk-back btn">← Back</button>
+                <button class="ftk-next btn btn-primary">Next →</button>
+            </div>
+        </div>
+
+        <div class="ftk-wizard-step ftk-step-4">
+            <h4>🔗 Connect your data</h4>
+            
+            <div class="ftk-connection-guide">
+                <div class="ftk-path-small ftk-path-existing" style="display: none;">
+                    <h6>Storage connection parameters:</h6>
+                    <div class="ftk-parameter">
+                        <strong>Storage URL:</strong>
+                        <p>Go to your storage account → <strong>Settings → Endpoints</strong> → Copy the <strong>Data Lake Storage</strong> URL</p>
+                        <code>https://yourstorageaccount.dfs.core.windows.net/</code>
+                    </div>
+                </div>
+                
+                <div class="ftk-path-large" style="display: none;">
+                    <h6>Data Explorer connection parameters:</h6>
+                    <div class="ftk-parameter">
+                        <strong>Cluster URI:</strong>
+                        <p>Go to your FinOps hubs resource group → <strong>Deployments → hub → Outputs</strong> → Copy <strong>clusterUri</strong></p>
+                        <code>https://yourcluster.region.kusto.windows.net</code>
+                    </div>
+                </div>
+                
+                <div class="ftk-auth-guide">
+                    <h6>🔐 Authentication:</h6>
+                    <p>When prompted, sign in with an account that has access to your data source:</p>
+                    <ul>
+                        <li><strong>Storage:</strong> Storage Blob Data Reader access or higher</li>
+                        <li><strong>Data Explorer:</strong> Viewer access to the Hub database</li>
+                    </ul>
+                </div>
+                
+                <div class="ftk-success">
+                    <h5>🎉 You're all set!</h5>
+                    <p>Once connected, you can publish your reports to the Power BI service to share with your team.</p>
+                    <a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup" target="_blank" class="btn">📚 View detailed setup guide</a>
+                </div>
+            </div>
+            
+            <div class="ftk-wizard-navigation">
+                <button class="ftk-back btn">← Back</button>
+                <button class="ftk-restart btn btn-primary">Start over</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced mode content -->
+    <div class="ftk-wizard-content ftk-advanced-mode" style="display: none;">
+        <div class="ftk-advanced-links">
+            <h4>Quick links for experienced users:</h4>
+            <div class="ftk-gallery">
+                <div class="ftk-tile">
+                    <div><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/help-me-choose" target="_blank">🤔 Help me choose a data source</a></div>
+                    <div>Compare data source options and capabilities</div>
+                </div>
+                <div class="ftk-tile">
+                    <div><a href="https://learn.microsoft.com/cloud-computing/finops/toolkit/power-bi/setup" target="_blank">⚙️ Detailed setup instructions</a></div>
+                    <div>Complete technical setup documentation</div>
+                </div>
+                <div class="ftk-tile">
+                    <div><a href="/hubs" target="_blank">🏗️ Deploy FinOps hubs</a></div>
+                    <div>Enterprise-grade data processing solution</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
