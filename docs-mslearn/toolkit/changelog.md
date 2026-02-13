@@ -26,6 +26,11 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [Power BI reports](power-bi/reports.md)
+
+- **Added**
+  - Added comprehensive documentation for [configuring scheduled refresh in Power BI service](power-bi/setup.md#configure-scheduled-refresh-in-power-bi-service) including step-by-step instructions and guidance on when refresh is needed for different data sources.
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
