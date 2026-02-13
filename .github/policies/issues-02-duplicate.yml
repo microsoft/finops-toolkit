@@ -12,9 +12,9 @@ configuration:
     eventResponderTasks:
       - description: >-
           When an issue has been flagged with `#duplicate` in a comment:
-          - Assign to author
-          - Remove the `Needs: Triage 🔍` label
           - Label with `Resolution: Duplicate`
+          - Remove the `Needs: Triage 🔍` label
+          - Close the issue
         if:
           - payloadType: Issue_Comment
           - commentContains:
@@ -29,7 +29,6 @@ configuration:
               label: 'Resolution: Duplicate'
           - removeLabel:
               label: 'Needs: Triage 🔍'
-          - assignTo:
-              author: True
+          - closeIssue
 onFailure:
 onSuccess:
