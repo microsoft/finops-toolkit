@@ -715,7 +715,13 @@ The following are provided for backwards compatibility:
 - **Recommendations_final_v1_0** table in the **Ingestion** database to host data ingested with FinOps hubs 0.7-0.11.
 - **Recommendations_v1_0()** function in the **Hub** database to convert all data to FOCUS 1.0.
 
-The **Recommendations_raw** table supports Microsoft Cost Management reservation recommendation export schemas for EA and MCA accounts. Data is transformed into a FOCUS-aligned dataset when ingested into the final table. This dataset does not explicitly support other clouds.
+The **Recommendations_raw** table supports the following data sources:
+
+- Microsoft Cost Management reservation recommendation export schemas for EA and MCA accounts.
+- Azure Advisor cost recommendations via Azure Resource Graph (HubsRecommendations).
+- Custom recommendations from Azure Resource Graph queries (HubsRecommendations).
+
+Data is transformed into a FOCUS-aligned dataset when ingested into the final table. This dataset does not explicitly support other clouds.
 
 Columns in the **Recommendations** managed dataset include:
 

@@ -47,6 +47,9 @@ param remoteHubStorageKey string = ''
 @description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
+@description('Optional. Enable ARG-based recommendations ingestion. Requires Analytics (ADX or Fabric). Default: true.')
+param enableRecommendations bool = true
+
 // cSpell:ignore eventhouse
 @description('Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).')
 param fabricQueryUri string = ''
@@ -307,6 +310,21 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
 }
 
 //------------------------------------------------------------------------------
+// Recommendations app
+//------------------------------------------------------------------------------
+
+module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (enableRecommendations && (useFabric || useAzureDataExplorer)) {
+  name: 'Microsoft.FinOpsHubs.Recommendations'
+  dependsOn: [
+    core
+    analytics
+  ]
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
+  }
+}
+
+//------------------------------------------------------------------------------
 // Remote hub app
 //------------------------------------------------------------------------------
 
@@ -355,9 +373,10 @@ module startTriggers 'fx/hub-initialize.bicep' = {
   name: 'Microsoft.FinOpsHubs.StartTriggers'
   dependsOn: [
     analytics
+    recommendations
     deleteOldResources
     remoteHub
-    cmManagedExports  
+    cmManagedExports
   ]
   params: {
     app: core.outputs.app
