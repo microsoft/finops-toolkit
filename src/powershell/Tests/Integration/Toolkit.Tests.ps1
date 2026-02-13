@@ -6,12 +6,13 @@
 Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
-        $plannedRelease = '13'
-        $expected = @('12', '0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+        $plannedRelease = '14'
+        $expected = @('13', '12', '0.11', '0.10', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
 
         # Helper function to normalize version strings for [version] parsing
         # Single-part versions like "12" need to become "12.0" for [version] to parse them
-        function NormalizeVersion($ver) {
+        function NormalizeVersion($ver)
+        {
             if ($ver -notmatch '\.') { return "$ver.0" }
             return $ver
         }
@@ -54,7 +55,7 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "optimization-workbook-v$verStr.zip"    $null  '0.5'
 
                 # Power BI
-                CheckFile "FinOpsToolkitData.pbix"              '12.0' $null
+                CheckFile "FinOpsToolkitData.pbix"              '12.0' '12.0' # Accidentally added in v12
                 CheckFile "PowerBI-demo.zip"                    '0.7' $null
                 CheckFile "PowerBI-kql.zip"                     '0.7' $null
                 CheckFile "PowerBI-storage.zip"                 '0.7' $null
@@ -79,6 +80,10 @@ Describe 'Get-FinOpsToolkitVersion' {
                 CheckFile "ResourceTypes.csv"                   '0.2' $null
                 CheckFile "ResourceTypes.json"                  '0.2' $null
                 CheckFile "Services.csv"                        '0.1' $null
+
+                # Meeting invites
+                CheckFile "contributor-sync.ics"                '13.0' $null
+                CheckFile "office-hours.ics"                    '13.0' $null
 
                 # Deprecated / renamed
                 CheckFile "CommitmentDiscounts.pbit"            '0.2' '0.3'
