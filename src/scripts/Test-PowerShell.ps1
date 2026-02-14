@@ -47,6 +47,9 @@
     .PARAMETER AllTests
     Optional. Indicates whether to run all lint, unit, and integration tests. If set, this overrides Lint, Unit, and Integration options. Default = false.
 
+    .PARAMETER Markdown
+    Optional. Indicates whether to run markdown broken link tests. Default = false.
+
     .PARAMETER RunFailed
     Optional. Indicates whether to re-run previously failed tests. This can only be run after a run fails. Only the failed tests will be re-run. If there a no previous run details, nothing will run. Default = false.
 #>
@@ -86,6 +89,9 @@ param (
     $AllTests,
 
     [switch]
+    $Markdown,
+
+    [switch]
     $RunFailed
 )
 
@@ -105,47 +111,70 @@ if ($RunFailed)
 }
 else
 {
-    $typesToRun = @(
-        if ($AllTests -or $Lint) { 'Lint' }
-        if ($AllTests -or $Integration) { 'Integration' }
-        if ($AllTests -or $Unit -or (-not $Lint -and -not $Integration)) { 'Unit' }
-    )
-    if ($typesToRun.Count -eq 3) { $typesToRun = '*' }
+    # Handle special case for Markdown tests - only run broken links test
+    if ($Markdown -and -not ($Cost -or $Data -or $Exports -or $FOCUS -or $Hubs -or $Toolkit -or $Private -or $AllTests -or $Lint -or $Unit -or $Integration))
+    {
+        Write-Host ''
+        Write-Host "Finding broken links test..." -NoNewline
+        
+        $testsToRun = @("$PSScriptRoot/../powershell/Tests/Lint/BrokenLinks.Tests.ps1")
+        Write-Host "1 found"
+        Write-Host ''
+        
+        if (-not (Test-Path $testsToRun[0]))
+        {
+            Write-Host "Broken links test not found at $($testsToRun[0])" -ForegroundColor Red
+            return
+        }
+        
+        $config = New-PesterConfiguration
+        $config.Run.Path = $testsToRun
+    }
+    else
+    {
+        $typesToRun = @(
+            if ($AllTests -or $Lint) { 'Lint' }
+            if ($AllTests -or $Integration) { 'Integration' }
+            if ($AllTests -or $Unit -or (-not $Lint -and -not $Integration -and -not $Markdown)) { 'Unit' }
+        )
+        if ($typesToRun.Count -eq 3) { $typesToRun = '*' }
 
-    $testsToRun = @()
-    if ($Cost) { $testsToRun += '*-FinOpsCost*', 'Cost*' }
-    if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
-    if ($Exports) { $testsToRun += '*-FinOpsCostExport*', 'CostExports.Tests.ps1' }
-    if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
-    if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs.Tests.ps1' }
-    if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
-    if ($Private) { $testsToRun += (Get-ChildItem -Path "$PSScriptRoot/../powershell/Tests/$testType/Unit" -Exclude *-FinOps*, *-Hub*, *-OpenData* -Name *.Tests.ps1) }
-    if (-not $testsToRun) { $testsToRun = "*" }
+        $testsToRun = @()
+        if ($Cost) { $testsToRun += '*-FinOpsCost*', 'Cost*' }
+        if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
+        if ($Exports) { $testsToRun += '*-FinOpsCostExport*', 'CostExports.Tests.ps1' }
+        if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
+        if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs.Tests.ps1' }
+        if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
+        if ($Markdown) { $testsToRun += 'BrokenLinks.Tests.ps1' }
+        if ($Private) { $testsToRun += (Get-ChildItem -Path "$PSScriptRoot/../powershell/Tests/$testType/Unit" -Exclude *-FinOps*, *-Hub*, *-OpenData* -Name *.Tests.ps1) }
+        if (-not $testsToRun) { $testsToRun = "*" }
 
-    Write-Host ''
-    Write-Host ("Finding <$($typesToRun -join '|')>/<$($testsToRun -join '|')> tests..." -replace '<\*>/', '' -replace '<([^\|>]+)>', '$1' -replace '\*\-?', '' -replace '/ tests', ' tests') -NoNewline
+        Write-Host ''
+        Write-Host ("Finding <$($typesToRun -join '|')>/<$($testsToRun -join '|')> tests..." -replace '<\*>/', '' -replace '<([^\|>]+)>', '$1' -replace '\*\-?', '' -replace '/ tests', ' tests') -NoNewline
 
-    $testsToRun = $typesToRun `
-    | ForEach-Object {
-        $testType = $_
-        $testsToRun | ForEach-Object {
-            $path = "$PSScriptRoot/../powershell/Tests/$testType/$_"
-            if ((Get-ChildItem $path -ErrorAction SilentlyContinue).Count -gt 0)
-            {
-                return $path
+        $testsToRun = $typesToRun `
+        | ForEach-Object {
+            $testType = $_
+            $testsToRun | ForEach-Object {
+                $path = "$PSScriptRoot/../powershell/Tests/$testType/$_"
+                if ((Get-ChildItem $path -ErrorAction SilentlyContinue).Count -gt 0)
+                {
+                    return $path
+                }
             }
         }
-    }
 
-    Write-Host "$($testsToRun.Count) found"
-    Write-Host ''
-    if (-not $testsToRun)
-    {
-        return
-    }
+        Write-Host "$($testsToRun.Count) found"
+        Write-Host ''
+        if (-not $testsToRun)
+        {
+            return
+        }
 
-    $config = New-PesterConfiguration
-    $config.Run.Path = $testsToRun | Select-Object -Unique
+        $config = New-PesterConfiguration
+        $config.Run.Path = $testsToRun | Select-Object -Unique
+    }
 }
 
 Write-Host '--------------------------------------------------'
