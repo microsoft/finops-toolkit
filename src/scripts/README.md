@@ -7,6 +7,7 @@ On this page:
 - [🆕 Init-Repo](#-init-repo)
 - [🌐 Build-OpenData](#-build-opendata)
 - [📦 Build-Toolkit](#-build-toolkit)
+- [🚀 Deploy-Hub](#-deploy-hub)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
 - [🧪 Test-PowerShell](#-test-powershell)
 - [🏷️ Get-Version](#️-get-version)
@@ -136,6 +137,73 @@ Build-Toolkit runs the following scripts internally:
 
 - [Build-Bicep](./Build-Bicep.ps1) for Bicep Registry modules
 - [Build-Workbook](./Build-Workbook.ps1) for Azure Monitor workbook templates
+
+<br>
+
+## 🚀 Deploy-Hub
+
+[Deploy-Hub.ps1](./Deploy-Hub.ps1) is a wrapper around Deploy-Toolkit that simplifies FinOps hub deployments by providing scenario-based flags instead of requiring you to remember all the Bicep parameter names.
+
+By default, deploys with Azure Data Explorer (dev SKU). Use `-StorageOnly` for storage-only or `-Fabric` for Fabric-based deployments.
+
+All resources use an `{initials}-{name}` naming convention where initials are pulled from `git config user.name` and name defaults to `adx`. Pass a name as the first positional parameter to use a custom value (e.g., `216` for Feb 16).
+
+| Parameter        | Description                                                                                                |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `‑Name`          | Optional. First positional parameter. Suffix for `{initials}-{name}` convention. Default: `adx`.           |
+| `‑HubName`       | Optional. Name of the hub instance. Default: `hub`.                                                        |
+| `‑ADX`           | Optional. Name of the Azure Data Explorer cluster. Overrides the `{initials}-{name}` convention.           |
+| `‑ResourceGroup` | Optional. Name of the resource group. Overrides the `{initials}-{name}` convention.                        |
+| `‑Fabric`        | Optional. Deploy with Microsoft Fabric. Provide the eventhouse query URI.                                  |
+| `‑StorageOnly`   | Optional. Deploy a storage-only hub (no Azure Data Explorer or Fabric).                                    |
+| `‑Remove`        | Optional. Remove test environments. With a name, deletes the target RG. Alone, lists all `{initials}-*`.   |
+| `‑Location`      | Optional. Azure location. Default: `westus`.                                                               |
+| `‑Build`         | Optional. Build the template before deploying.                                                             |
+| `‑WhatIf`        | Optional. Validate the deployment without making changes.                                                  |
+
+Examples:
+
+- Deploy a hub with ADX (e.g., RG `aa-adx`, ADX `aa-adx`):
+
+  ```powershell
+  ./Deploy-Hub
+  ```
+
+- Deploy to a named environment (e.g., RG `aa-216`, ADX `aa-216`):
+
+  ```powershell
+  ./Deploy-Hub 216
+  ```
+
+- Deploy a storage-only hub:
+
+  ```powershell
+  ./Deploy-Hub -StorageOnly
+  ```
+
+- Deploy with Microsoft Fabric:
+
+  ```powershell
+  ./Deploy-Hub -Fabric "https://my-eventhouse.kusto.data.microsoft.com"
+  ```
+
+- Build the template first, then deploy:
+
+  ```powershell
+  ./Deploy-Hub -Build
+  ```
+
+- Clean up a specific test environment (e.g., `aa-210`):
+
+  ```powershell
+  ./Deploy-Hub -Remove 210
+  ```
+
+- List all test environments:
+
+  ```powershell
+  ./Deploy-Hub -Remove
+  ```
 
 <br>
 
@@ -302,7 +370,7 @@ Examples:
 
 | Parameter         | Description                                                                                                             |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `‑Template`       | Name of the template or module to publish. Default = * (all templates).                                                 |
+| `‑Template`       | Name of the template or module to publish. Default = \* (all templates).                                                |
 | `‑QuickstartRepo` | Optional. Name of the folder where the Azure Quickstart Templates repo is cloned. Default = azure-quickstart-templates. |
 | `‑RegistryRepo`   | Optional. Name of the folder where the Bicep Registry repo is cloned. Default = bicep-registry-modules.                 |
 | `‑Build`          | Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.                    |
@@ -311,19 +379,19 @@ Examples:
 Examples:
 
 - Builds and publishes the FinOps hub template to the Azure Quickstart Templates repo, commits changes, and pushes to the fork to prepare for a PR.
-  
+
   ```powershell
   ./Publish-Toolkit "finops-hub" -Build -Commit
   ```
 
 - Builds and publishes the resource group scheduled action module to the Bicep Registry repo locally but does not commit.
-  
+
   ```powershell
   ./Publish-Toolkit "resourcegroup-scheduled-action" -Build
   ```
 
 - Publishes documentation to the Microsoft Learn repo locally but does not commit.
-  
+
   ```powershell
   ./Publish-Toolkit "docs"
   ```
@@ -353,6 +421,8 @@ Examples:
 
   ```powershell
   ./Package-Toolkit -Build
+
+  ```
 
 - Builds the latest version of a specific template and updates the deployment files for the website.
 
