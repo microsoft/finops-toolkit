@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to upgrade my existing FinOps hub.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Upgrade a FinOps hubs instance
 
 This tutorial helps you upgrade an existing FinOps hub instance to the latest version to use new capabilities.
@@ -73,8 +72,10 @@ The Microsoft Fabric eventhouse database schema must be manually updated with ea
 
 Upgrading a FinOps hub instance requires redeploying the latest version of the template. Deploying the template creates new resources and updates existing resources as needed. To ensure the existing instance is updated, make sure to specify the same hub name and Data Explorer cluster name or Fabric eventhouse query URI.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Deploy](deploy.md#deploy-the-finops-hub-template)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -132,12 +133,14 @@ The Data Explorer dashboard was introduced with Data Explorer support in 0.7 and
 Each version of the dashboard is configured to work with a specific FinOps hub schema version (v1_0 or v1_2). Schema versions ensure backwards compatibility across FOCUS dataset versions from different providers. Older dashboard versions will continue to work after upgrading to the latest version of FinOps hubs, but newer dashboard versions may not work with older FinOps hub versions. The following table outlines the supported combinations.
 
 | Dashboard version | FinOps hubs schema | FinOps hubs version |
-|-------------------|--------------------|---------------------|
+| ----------------- | ------------------ | ------------------- |
 | 12+               | v1_2               | 12+                 |
 | 0.7-0.11          | v1_0               | 0.7+                |
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download dashboard](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json)
+<!-- prettier-ignore-end -->
 
 For more information, see [Configure Data Explorer dashboards](configure-dashboards.md).
 
@@ -198,13 +201,17 @@ If updating queries to use a newer schema version, use the following table to un
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/Upgrade)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3A"reactions-%2B1-desc")
+<!-- prettier-ignore-end -->
 
 <br>
 

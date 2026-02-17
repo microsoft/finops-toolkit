@@ -11,17 +11,20 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps hubs are so that I can use them in my organization.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
+<!-- markdownlint-disable heading-increment MD024 -->
+
 # Tutorial: Create and update FinOps hubs
 
 In this tutorial, you learn how to create a new or update an existing FinOps hub instance in Azure or Microsoft Fabric. The tutorial walks through deployment options and decisions that need to be made as you set up and configure FinOps hubs. This article helps you:
 
+<!-- prettier-ignore-start -->
 > [!div class="checklist"]
 > - Apply FinOps hubs prerequisites. <!-- markdownlint-disable-line MD032 -->
 > - Create a new or update an existing FinOps hub instance.
 > - Ingest and backfill data in FinOps hubs.
 > - Connect your hub to Microsoft Fabric.
 > - Create reports and dashboards.
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -47,7 +50,6 @@ More permissions are covered as part of the tutorial.
 
 FinOps hubs use Cost Management to export data and Event Grid to know when data is added to your storage account. Before deploying the template, you need to register the **Microsoft.CostManagementExports** and **Microsoft.EventGrid** resource providers.
 
-<!-- markdownlint-disable-next-line -->
 ### [Azure portal](#tab/azure-portal)
 
 1. From the Azure portal, open the [list of subscriptions](https://portal.azure.com/#view/Microsoft_Azure_Billing/SubscriptionsBladeV2).
@@ -57,7 +59,6 @@ FinOps hubs use Cost Management to export data and Event Grid to know when data 
 5. If the **Status** column shows Not Registered, select the context menu to the right of the provider name (⋅⋅⋅) and then select **Register**.
 6. Repeat steps 4-5 for **Microsoft.CostManagementExports**.
 
-<!-- markdownlint-disable-next-line -->
 ### [PowerShell](#tab/powershell)
 
 The following command is part of the FinOps toolkit PowerShell module. To install the module, see [Install the FinOps toolkit PowerShell module](../powershell/powershell-commands.md#install-the-module).
@@ -94,6 +95,7 @@ Public routing doesn't require configuration. If you opt for private routing, wo
 FinOps hubs support remote hub functionality for collecting cost data across multiple Azure tenants and clouds. Remote hubs enable centralized cost management for organizations with distributed billing relationships while maintaining data sovereignty during processing.
 
 Remote hubs can be used for multiple tenants in the same Azure cloud or tenants in different Azure clouds. Supported clouds are:
+
 - Azure Commercial
 - Azure Government
 - Azure China
@@ -119,7 +121,7 @@ Configuring Microsoft Fabric is a manual process and requires explicit steps bef
    3. Delete all text in the file.
    4. Download and open the [finops-hub-fabric-setup-Ingestion.kql file](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-fabric-setup-Ingestion.kql) in a text editor.
    5. Copy the entire text from this file into the Fabric queryset editor.
-   6. Press <kbd>Ctrl+H</kbd> to trigger the find and replace dialog, set the find text to `$$rawRetentionInDays$$`, and replace it with `0` or desired number of days to keep data in **_raw** tables, then press <kbd>Ctrl+Alt+Enter</kbd> to replace all instances.
+   6. Press <kbd>Ctrl+H</kbd> to trigger the find and replace dialog, set the find text to `$$rawRetentionInDays$$`, and replace it with `0` or desired number of days to keep data in **\_raw** tables, then press <kbd>Ctrl+Alt+Enter</kbd> to replace all instances.
    7. Press <kbd>Ctrl+Home</kbd> to bring the cursor to the beginning of the file and press <kbd>Shift+Enter</kbd> or select the **Run** command at the top of the page.
    8. Wait for the script to complete and then review the **Result** column to confirm all commands completed successfully.
       - If you see an error for a line that has **$$rawRetentionInDays$$**, repeat steps 2.6 and 2.7.
@@ -134,7 +136,6 @@ Configuring Microsoft Fabric is a manual process and requires explicit steps bef
 
 The core engine for FinOps hubs is deployed via an Azure Resource Manager deployment template. The template is available in [bicep](/azure/azure-resource-manager/bicep/overview). The template includes a storage account, Azure Data Factory, Azure Data Explorer, and other supporting resources. To learn more about the template and least-privileged access requirements, refer to the [FinOps hub template details](template.md).
 
-<!-- markdownlint-disable-next-line -->
 ### [Azure portal](#tab/azure-portal)
 
 1. Open the desired template in the Azure portal:
@@ -175,7 +176,6 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
 16. Select the **Next** button at the bottom of the form.
 17. Review the configuration summary and select the **Create** button at the bottom of the form.
 
-<!-- markdownlint-disable-next-line -->
 ### [PowerShell](#tab/powershell)
 
 The following command is part of the FinOps toolkit PowerShell module. To install the module, see [Install the FinOps toolkit PowerShell module](../powershell/powershell-commands.md#install-the-module).
@@ -214,31 +214,34 @@ If you set up Microsoft Fabric as a primary data store, configure access for Dat
    2. In the list of resources, select the Data Factory instance.
    3. In the menu on the left, select **Settings** > **Managed identities** and copy the **Object (principal) ID**.
 2. Give Data Factory access to the Hub and Ingestion databases:
+
    1. From Microsoft Fabric, open the desired workspace and select the target eventhouse.
    2. Select the **Ingestion** database in the left pane.
    3. Select **Ingestion_queryset** in the left pane.
    4. Run the following commands separately, replacing `<adf-identity-id>` with the Data Factory managed identity object ID from step 1:
 
       <!-- cSpell:ignore aadapp -->
+
       ```kusto
       .add database Ingestion admins ('aadapp=<adf-identity-id>')
 
       .add database Hub admins ('aadapp=<adf-identity-id>')
       ```
+
 <!--
-1. Create an identity for your Fabric workspace:
-   1. From Microsoft Fabric, open the workspace and select **Workspace settings** in the top-right corner.
-   2. In the flyout menu, select **Workspace identity** and then select the **+ Workspace identity** button.
-   3. Copy the ID.
-2. Grant your Fabric workspace access to storage:
-   1. From the Azure portal, open the FinOps hub resource group.
-   2. In the list of resources, select the primary storage account (not the "script" storage).
-   3. Select **Access control (IAM)** > **+ Add** > **Add role assignment**.
-   4. Select **Storage Blob Data Reader** and then **Next**.
-   5. Select **+ Select members**.
-   6. In the filter box, paste the workspace identity ID from step 3.
-   7. Select the workspace "application" from the list and then the **Select** button at the bottom.
-   8. Select **Review + assign** at the bottom-left of the page.
+3. Create an identity for your Fabric workspace:
+    1. From Microsoft Fabric, open the workspace and select **Workspace settings** in the top-right corner.
+    2. In the flyout menu, select **Workspace identity** and then select the **+ Workspace identity** button.
+    3. Copy the ID.
+4. Grant your Fabric workspace access to storage:
+    1. From the Azure portal, open the FinOps hub resource group.
+    2. In the list of resources, select the primary storage account (not the "script" storage).
+    3. Select **Access control (IAM)** > **+ Add** > **Add role assignment**.
+    4. Select **Storage Blob Data Reader** and then **Next**.
+    5. Select **+ Select members**.
+    6. In the filter box, paste the workspace identity ID from step 3.
+    7. Select the workspace "application" from the list and then the **Select** button at the bottom.
+    8. Select **Review + assign** at the bottom-left of the page.
 -->
 
 <br>
@@ -249,7 +252,6 @@ FinOps hubs can monitor any cost and usage dataset that aligns to the [FinOps Op
 
 You can ingest data from Microsoft Cost Management by creating exports manually or granting access to FinOps hubs to create and manage exports for you. The following steps must be repeated for each scope you need to monitor. We recommend using EA billing accounts and MCA billing profiles for the best coverage and broadest available datasets. To learn more about the difference between manual and managed exports, see [Configure scopes](configure-scopes.md).
 
-<!-- markdownlint-disable-next-line -->
 ### [Azure portal](#tab/azure-portal)
 
 1. From the Azure portal, open [Cost Management](https://aka.ms/costmgmt).
@@ -268,7 +270,6 @@ You can ingest data from Microsoft Cost Management by creating exports manually 
 13. Repeat steps 4-12 for any more datasets.
     - Reservation recommendations are required for the Rate optimization report's Reservation recommendations page to load.
 
-<!-- markdownlint-disable-next-line -->
 ### [PowerShell](#tab/powershell)
 
 The following command is part of the FinOps toolkit PowerShell module. To install the module, see [Install the FinOps toolkit PowerShell module](../powershell/powershell-commands.md#install-the-module).
@@ -364,21 +365,24 @@ To ingest data from other data providers that support FOCUS, such as Amazon Web 
 
 FinOps hubs don't automatically backfill data. To populate historical data, run historical data exports from the original data provider, including any custom data pipelines used to publish data into the **ingestion** storage container.
 
+<!-- prettier-ignore-start -->
 > [!IMPORTANT]
 > **Backfill order matters for accurate savings calculations**
-> 
+>
 > Always export price data before cost data when backfilling historical information. This ensures that:
+>
 > - Reserved Instance (RI) and savings plan benefits are correctly calculated in historical reports
 > - Missing price information doesn't cause incomplete savings analysis
 > - Data Explorer reports show accurate cost optimization opportunities across all time periods
 >
 > If you've already exported cost data before price data, rerun the **ingestion_ExecuteETL** pipeline for each affected month after price data is available.
+<!-- prettier-ignore-end -->
 
 For Microsoft Cost Management:
 
-<!-- markdownlint-disable-next-line -->
 ### [Azure portal](#tab/azure-portal)
 
+<!-- prettier-ignore-start -->
 1. From the Azure portal, open [Cost Management](https://aka.ms/costmgmt).
 2. Select the desired scope from the scope picker towards the top of the page.
    > [!NOTE]
@@ -391,57 +395,62 @@ For Microsoft Cost Management:
 5. Select the desired export in the list of exports.
    - Always export prices before costs to ensure they're available to populate missing prices in the cost and usage dataset.
    - If costs are exported first, rerun the **ingestion_ExecuteETL** pipeline for the month's cost data to populate the missing prices.
-6. Select **Export selected dates** and specify the desired month. Always export the full  month.
+6. Select **Export selected dates** and specify the desired month. Always export the full month.
 7. Repeat step 6 for all desired months.
    - Cost Management only supports exporting up to the last 12 months from the Azure portal.
    - Consider using PowerShell to export beyond the last 12 months.
 8. Repeat steps 5-7 for each export, maintaining the order specified in step 4.
 9. Repeat steps 2-8 for each scope.
+<!-- prettier-ignore-end -->
 
-<!-- markdownlint-disable-next-line -->
 ### [PowerShell](#tab/powershell)
 
 The following command is part of the FinOps toolkit PowerShell module. To install the module, see [Install the FinOps toolkit PowerShell module](../powershell/powershell-commands.md#install-the-module).
 
+<!-- prettier-ignore-start -->
 > [!IMPORTANT]
 > **For Microsoft Customer Agreement (MCA) contracts**: Use the billing profile scope (`/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###`) rather than the billing account scope for price sheet, reservation, and recommendation exports.
+<!-- prettier-ignore-end -->
 
 **Export data in the following order to ensure accurate savings calculations:**
 
 1. **First - Price sheet data** (if available at your scope):
-```powershell
-Start-FinOpsCostExport `
-    -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
-    -Name 'finops-hub-prices' `
-    -Dataset PriceSheet `
-    -Backfill 13 # or desired number of months
-```
+
+   ```powershell
+   Start-FinOpsCostExport `
+       -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
+       -Name 'finops-hub-prices' `
+       -Dataset PriceSheet `
+       -Backfill 13 # or desired number of months
+   ```
 
 2. **Second - Cost and usage data**:
-```powershell
-Start-FinOpsCostExport `
-    -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
-    -Name 'finops-hub-costs' `
-    -Dataset FocusCost `
-    -Backfill 13 # or desired number of months
-```
+
+   ```powershell
+   Start-FinOpsCostExport `
+       -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
+       -Name 'finops-hub-costs' `
+       -Dataset FocusCost `
+       -Backfill 13 # or desired number of months
+   ```
 
 3. **Third - Reservation and recommendation data** (if needed):
-```powershell
-# Reservation recommendations
-Start-FinOpsCostExport `
-    -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
-    -Name 'finops-hub-reservations' `
-    -Dataset ReservationRecommendations `
-    -Backfill 13 # or desired number of months
 
-# Reservation details  
-Start-FinOpsCostExport `
-    -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
-    -Name 'finops-hub-reservation-details' `
-    -Dataset ReservationDetails `
-    -Backfill 13 # or desired number of months
-```
+   ```powershell
+   # Reservation recommendations
+   Start-FinOpsCostExport `
+       -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
+       -Name 'finops-hub-reservations' `
+       -Dataset ReservationRecommendations `
+       -Backfill 13 # or desired number of months
+
+   # Reservation details
+   Start-FinOpsCostExport `
+       -Scope '/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###' `
+       -Name 'finops-hub-reservation-details' `
+       -Dataset ReservationDetails `
+       -Backfill 13 # or desired number of months
+   ```
 
 For other parameters, see [Start-FinOpsCostExport](../powershell/cost/Start-FinOpsCostExport.md).
 
@@ -456,6 +465,7 @@ If you've already exported cost data before price data and notice missing saving
 2. **Export missing price data**: Run price sheet exports for the affected months using the methods above.
 
 3. **Reprocess cost data**: After price data is available, manually trigger the **ingestion_ExecuteETL** pipeline for each affected month:
+
    - Navigate to your FinOps hub Data Factory instance in the Azure portal
    - Go to **Author & Monitor** > **Pipelines**
    - Find and run the **ingestion_ExecuteETL** pipeline
@@ -471,6 +481,7 @@ If you've already exported cost data before price data and notice missing saving
 ## Optional: Connect to Microsoft Fabric as a follower
 
 <!-- cSpell:ignore eventhouses -->
+
 If you chose to configure FinOps hubs with Data Explorer, but are still interested in making data available in Microsoft Fabric, create a shortcut (follower) database using Fabric eventhouses. Shortcut databases are not necessary if you ingested directly into a Fabric eventhouse.
 
 1. From your Fabric workspace, select the **+ New item** command at the top of the page.
@@ -489,7 +500,6 @@ FinOps hubs come with a Data Explorer dashboard and Power BI reports that can co
 
 We recommend setting up the Data Explorer dashboard even if you use Power BI due to the quick and easy setup and insights into ingested data.
 
-<!-- markdownlint-disable-next-line -->
 ### [Data Explorer dashboard](#tab/adx-dashboard)
 
 1. [Download the dashboard template](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json).
@@ -500,7 +510,6 @@ We recommend setting up the Data Explorer dashboard even if you use Power BI due
 
 For more information, see [Configure Data Explorer dashboards](configure-dashboards.md).
 
-<!-- markdownlint-disable-next-line -->
 ### [Fabric real-time dashboard](#tab/fabric-real-time-dashboard)
 
 1. [Download the dashboard template](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json).
@@ -517,7 +526,6 @@ For more information, see [Configure Data Explorer dashboards](configure-dashboa
 
 For more information, see [Configure Data Explorer dashboards](configure-dashboards.md).
 
-<!-- markdownlint-disable-next-line -->
 ### [Power BI reports](#tab/power-bi)
 
 1. Download the Power BI reports for your backend:
@@ -531,8 +539,8 @@ For more information, see [Configure Data Explorer dashboards](configure-dashboa
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub and Ingestion databases.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
    - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
-   - **https://ccmstorageprod...** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
-   - **https://github.com/...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
+   - **<https://ccmstorageprod>...** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
+   - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 For more information, see [Set up Power BI reports](../power-bi/setup.md).
 
@@ -554,13 +562,17 @@ If your issue isn't resolved with the troubleshooting guide, see [Get support fo
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/Deploy)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

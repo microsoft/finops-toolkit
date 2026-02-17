@@ -12,7 +12,6 @@ ms.reviewer: micflan
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable-next-line MD025 -->
 # Governance report
 
 The **Governance report** summarizes your Microsoft Cloud governance posture. It offers standard metrics aligned with the Cloud Adoption Framework (CAF) to help identify issues, apply recommendations, and resolve compliance gaps.
@@ -30,12 +29,14 @@ This report pulls data from:
 
 The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Policy%20and%20governance%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Policy%20and%20governance%20report%3F/surveyId/FTK/bladeName/PowerBI.Governance/featureName/Documentation)
+<!-- prettier-ignore-end -->
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
@@ -121,8 +122,10 @@ The **Network security groups** page lists network security groups and network s
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -12,7 +12,6 @@ ms.reviewer: hepint
 ---
 
 <!-- cSpell:ignore hepint -->
-<!-- markdownlint-disable-next-line MD025 -->
 # Customize Azure optimization engine
 
 The Azure optimization engine (AOE) is a set of Azure Automation runbooks that collect, ingest, and analyze Azure consumption and performance data to provide cost optimization recommendations. The engine is designed to be flexible and customizable, allowing you to adjust its behavior to better fit your organization's needs. This article provides guidance on how to customize the engine's settings. It includes adjusting thresholds, changing schedules, and expanding the engine's scope.
@@ -82,6 +81,7 @@ The script also asks you to enter, **if needed**, the Hybrid Worker Group you wa
 By default, AOE Automation runbooks are executed in the context of the Azure Automation sandbox. You might face performance issues due to the memory limits of the Automation sandbox. Or, you might decide to implement private endpoints for the Storage Account or SQL Database to harden AOE's security. In either case, you need to execute runbooks from a Hybrid Worker. It’s an Azure or on-premises Virtual Machine with the Automation Hybrid Worker extension. To change the execution context for the AOE runbooks, you must use the `Reset-AutomationSchedules.ps1` script. See how to use the script in the previous subsection. After setting the runbooks execution base time, enter the Hybrid Worker Group name you want the runbooks to run in.
 
 <!-- cSpell:ignore UAMI, Mbps -->
+<!-- prettier-ignore-start -->
 > [!IMPORTANT]
 > - The Hybrid Worker machine must have the required PowerShell modules installed. The `upgrade-manifest.json` file contains the list of required modules.
 > - Once you change the runbook execution context to Hybrid Worker, you must always use the `DoPartialUpgrade` flag whenever you upgrade AOE, or else you lose the runbook schedule settings and revert to the default sandbox configuration.
@@ -89,6 +89,7 @@ By default, AOE Automation runbooks are executed in the context of the Azure Aut
 >   - The Automation Account doesn't have any associated Managed Identity, that is, only the Hybrid Worker machine can have a User-Assigned Managed Identity.
 >   - All runbooks run in the context of the Hybrid Worker. In this case, you must create an `AzureOptimization_UAMIClientID` Automation Variable with the User-Assigned Managed Identity Client ID as value.
 >   - The `AzureOptimization_AuthenticationOption` Automation variable value is updated to `UserAssignedManagedIdentity`.
+<!-- prettier-ignore-end -->
 
 <br>
 

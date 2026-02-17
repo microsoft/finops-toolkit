@@ -12,7 +12,6 @@ ms.reviewer: micflan
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable-next-line MD025 -->
 # Understanding savings calculations in FinOps toolkit
 
 FinOps toolkit reports calculate savings by comparing different cost values to help you understand your optimization opportunities and actual savings achieved. This article explains how savings values are calculated and displayed, particularly for scenarios involving negative savings or missing price data.
@@ -150,8 +149,10 @@ If you see many zero savings values:
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20savings%20calculations%20in%20FinOps%20toolkit%20reports%3F/cvaQuestion/How%20valuable%20is%20the%20savings%20calculations%20documentation%3F/surveyId/FTK/bladeName/Hubs/featureName/SavingsCalculations)
+<!-- prettier-ignore-end -->
 
 <br>
 

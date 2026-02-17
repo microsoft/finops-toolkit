@@ -11,7 +11,6 @@ ms.reviewer: micflan
 # customer intent: As a FinOps practitioner, I want to understand the reporting and analytics capability so that I can implement it in the Microsoft Cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Reporting and analytics
 
 This article helps you understand the reporting and analytics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
@@ -51,8 +50,10 @@ If you're new to FinOps, we recommend starting with reporting and analytics usin
 
 Before you can effectively analyze usage and costs, you need to familiarize yourself with [how you're charged for the services you use](https://azure.microsoft.com/pricing#product-pricing). Understanding the factors that contribute to costs such as compute, storage, networking, data transfer, or executions helps you understand what you ultimately get billed. Understanding how your service usage aligns with the various pricing models also helps you understand what you get billed. These patterns vary between services, which can result in unexpected charges if you don't fully understand how you're charged and how you can stop billing.
 
+<!-- prettier-ignore-start -->
 > [!NOTE]
 > _For example, many people understand "VMs are not billed when they're not running." However, this is only partially true. There's a slight nuance for VMs where a "stopped" VM _will_ continue to charge you, because the cloud provider is still reserving that capacity for you. To stop billing, you must "deallocate" the VM. But you also need to remember that compute time isn't the only charge for a VM – you're also charged for network bandwidth, disk storage, and other connected resources. In the simplest example, a deallocated VM will always charge you for disk storage, even if the VM is not running. Depending on what other services you have connected, there could be other charges as well. This is why it's important to understand how the services and features you use will charge you._
+<!-- prettier-ignore-end -->
 
 We also recommend learning about [how cost data is tracked, stored, and refreshed in Microsoft Cost Management](/azure/cost-management-billing/costs/understand-cost-mgt-data). Some examples include:
 
@@ -144,13 +145,17 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.Framework/featureName/Capabilities.Understand.Reporting)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -11,7 +11,6 @@ ms.reviewer: robelmamecha
 #customer intent: As a FinOps practitioner, I need to learn about FinOps alerts.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps alerts
 
 FinOps alerts automate the identification of cost optimization opportunities using Azure Logic Apps for notifications and custom actions. It continuously scans your Azure environment for idle resources and sends notifications to help you take timely action. This solution empowers FinOps practitioners to better manage cloud spending while minimizing waste in the environment.
@@ -42,13 +41,17 @@ Deploying FinOps alerts requires access to create logic apps, assign access, and
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20alerts%3F/cvaQuestion/How%20valuable%20are%20FinOps%20alerts%3F/surveyId/FTK/bladeName/Alerts/featureName/Overview)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20alerts%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

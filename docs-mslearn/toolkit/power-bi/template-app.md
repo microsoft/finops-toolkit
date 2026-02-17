@@ -12,15 +12,16 @@ ms.reviewer: micflan
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable-next-line MD025 -->
 # Cost Management template app for Enterprise Agreement accounts
 
 The **EA template app** is the .pbix version of the "Cost Management app" in Microsoft AppSource. The template app isn't customizable or downloadable, so we're making the PBIX file available here. We don't recommend using this report as it only works for Enterprise Agreement billing accounts and is no longer being updated. You're welcome to download and customize it as needed. However, you might want to check out the other [FinOps toolkit reports](reports.md), which were updated to cover new scenarios. The [Cost summary](cost-summary.md) and [Rate optimization](rate-optimization.md) reports were both created based on the template app, so you should find most capabilities within those reports. If you feel something is missing, [let us know](https://aka.ms/ftk/ideas)!
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementTemplateApp.pbix)
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Cost%20Management%20template%20app%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Cost%20Management%20template%20app%20report%3F/surveyId/FTK/bladeName/PowerBI.CMTemplateApp/featureName/Documentation)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -58,8 +59,10 @@ In general, we don't plan to make changes to the template app. The following min
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 

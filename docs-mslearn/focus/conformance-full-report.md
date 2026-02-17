@@ -10,7 +10,6 @@ ms.subservice: finops-learning-resources
 ms.reviewer: micflan
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FOCUS conformance full report
 
 This document provides a detailed list of all FOCUS 1.2 requirements and indicates the level of support provided by the Microsoft Cost Management FOCUS 1.2-preview dataset. To learn more about FOCUS, refer to the [FOCUS overview](./what-is-focus.md).
@@ -1179,13 +1178,17 @@ Source: [columns/tags.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOC
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.FOCUS/featureName/Conformance.Report)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -11,7 +11,6 @@ ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to understand what the FinOps toolkit is and how it help me automate and extend the Microsoft Cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Get started with the Azure Optimization Engine
 
 The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment. See it like a fully customizable Azure Advisor.
@@ -25,15 +24,15 @@ Here are the requirements for deploying AOE:
 - A supported Azure subscription (see the [FAQ](faq.md))
 - A user account with Owner permissions over the chosen subscription, so that the Automation Managed Identity is granted the required privileges over the subscription (Reader) and deployment resource group (Storage Blob Data Contributor)
 - Azure PowerShell 9.0.0+
-- Optional, for Identity and Azure role-based access control (RBAC) (RBAC_ governance) Microsoft.Graph.Authentication and Microsoft.Graph.Identity.DirectoryManagement PowerShell modules (version 2.4.0+).
+- Optional, for Identity and Azure role-based access control (RBAC) (RBAC\_ governance) Microsoft.Graph.Authentication and Microsoft.Graph.Identity.DirectoryManagement PowerShell modules (version 2.4.0+).
 - Optional, for Identity and Azure RBAC governance. A user account is needed with at least Privileged Role Administrator permissions over the Microsoft Entra tenant, so that the Managed Identity is granted the required privileges over Microsoft Entra ID (Global Reader).
 - Optional, for Azure commitments insights. A user account is needed with administrative privileges over the Enterprise Agreement (Enterprise Enrollment Administrator) or the Microsoft Customer Agreement (Billing Profile Owner). The account is needed so that the Managed Identity is granted the required privileges over your consumption agreement.
 
 During deployment, you're asked several questions. You must plan for the following items:
 
 - Determine whether you're going to reuse an existing Log Analytics Workspace or if you want to create a new one.
-    >[!IMPORTANT]
-    > You should ideally reuse a workspace where you have VMs already sending performance metrics (`Perf` table), otherwise you will not fully leverage the augmented right-size recommendations capability. If this is not possible/desired for some reason, you can still manage to use multiple workspaces (see [Configuring workspaces](configure-workspaces.md)).
+  > [!IMPORTANT]
+  > You should ideally reuse a workspace where you have VMs already sending performance metrics (`Perf` table), otherwise you will not fully leverage the augmented right-size recommendations capability. If this is not possible/desired for some reason, you can still manage to use multiple workspaces (see [Configuring workspaces](configure-workspaces.md)).
 - An Azure subscription to deploy the solution is needed. If you're reusing a Log Analytics workspace, you must deploy into the same subscription the workspace is in.
 - A unique name prefix is needed for the Azure resources that get created. If you have specific naming requirements, you can also choose resource names during deployment.
 - Azure region
@@ -157,13 +156,17 @@ Every week at the same time, AOE recommendations are updated according to the cu
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Azure%20Optimization%20Engine%3F/cvaQuestion/How%20valuable%20are%20Azure%20Optimization%20Engine%3F/surveyId/FTK/bladeName/AOE/featureName/Overview)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20Optimization%20Engine%22%20sort%3A"reactions-%2B1-desc")
+<!-- prettier-ignore-end -->
 
 <br>
 

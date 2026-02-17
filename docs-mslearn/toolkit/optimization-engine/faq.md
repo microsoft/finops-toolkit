@@ -11,7 +11,6 @@ ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to answer frequently asked questions about Azure optimization engine.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Azure optimization engine Frequently Asked Questions
 
 This article summarizes frequently asked questions about Azure optimization engine (AOE). It covers support, subscriptions, currency, and other common questions.

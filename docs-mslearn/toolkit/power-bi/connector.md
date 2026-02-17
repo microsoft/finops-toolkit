@@ -12,7 +12,7 @@ ms.reviewer: micflan
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable-next-line MD025 -->
+
 # Cost Management connector report
 
 The **Cost Management connector** report provides a general overview of cost, commitment discounts, and savings with a few common breakdowns that enable you to:
@@ -25,15 +25,17 @@ The **Cost Management connector** report provides a general overview of cost, co
 - Determine which resources used commitment discounts, also called chargeback.
 - Summarize cost savings from negotiated and commitment discounts.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostManagementConnector.pbix)
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Cost%20Management%20connector%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Cost%20Management%20connector%20report%3F/surveyId/FTK/bladeName/PowerBI.CMConnector/featureName/Documentation)
+<!-- prettier-ignore-end -->
 
 <br>
 
 > [!WARNING]
-> The Cost Management connector uses an older API that doesn't include all details about savings plans. You'll see unused savings plan charges that don't have identifiable usage for due to this gap. This issue  skews numbers, if you have savings plans. Consider using [FinOps hubs](../hubs/finops-hubs-overview.md) to use savings plans.
+> The Cost Management connector uses an older API that doesn't include all details about savings plans. You'll see unused savings plan charges that don't have identifiable usage for due to this gap. This issue skews numbers, if you have savings plans. Consider using [FinOps hubs](../hubs/finops-hubs-overview.md) to use savings plans.
 
 <br>
 
@@ -61,7 +63,7 @@ A few common KPIs you fill find in this report are:
 - **Commitment savings** shows how much you're saving with commitment discounts.
   > [!IMPORTANT]
   > Microsoft Cost Management doesn't include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. File a support request and speak to your field rep to escalate this issue.
-  
+
 <br>
 
 ## Pages
@@ -133,8 +135,10 @@ If you have feedback about FOCUS, [create an issue in the FOCUS repository](http
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 

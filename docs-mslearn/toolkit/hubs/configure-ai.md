@@ -11,7 +11,6 @@ ms.reviewer: micflan
 # customer intent: As a FinOps hub admin, I want to connect an AI agent to my FinOps hub instance so that I can analyze my costs.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Configure and use AI agents
 
 Artificial Intelligence (AI) agents are revolutionizing the way people and applications engage with data by integrating large language models (LLMs) with external tools and databases. Agents streamline complex workflows, improve the accuracy of information retrieval, and provide an intuitive, natural language interface to your data. This article describes how to train an AI agent to understand [FinOps](../../overview.md), the [FinOps Open Cost and Usage Specification (FOCUS)](../../focus/what-is-focus.md), and connect to data in a FinOps hub instance.
@@ -174,13 +173,17 @@ These are just a few examples of the types of requests you can get answers to to
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/ConfigureAI)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

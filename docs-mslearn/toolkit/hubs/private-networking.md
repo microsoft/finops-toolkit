@@ -10,7 +10,6 @@ ms.reviewer: micflan
 # customer intent: As a FinOps toolkit user, I want to learn about how to configure private access to my data so that I can secure it.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Configure private networking in FinOps hubs
 
 As organizations increasingly adopt cloud services, ensuring secure and efficient access to these resources becomes paramount. FinOps hubs offer flexible options to support public or private access to data networking, depending on your needs. This guide explains how each data access option works and how to configure private networking to securely access data in FinOps hubs.
@@ -39,7 +38,7 @@ Private access is a more secure option that places FinOps hubs resources on an i
 - Storage is accessible via private IP address and trusted Azure services - firewall is set to default deny with bypass for services on trusted list.
 - Data Explorer (if deployed) is accessible via private IP address - firewall is set to default deny with no exceptions.
 - Key vault is accessible via private IP address and trusted Azure services - firewall is set to default deny with bypass for services on trusted list.
-- Azure  Data Factory is configured to use the public integration runtime, which helps reduce costs.
+- Azure Data Factory is configured to use the public integration runtime, which helps reduce costs.
 - A virtual network is deployed to ensure communication between all components during deployment and at runtime remains private.
 
 :::image type="content" source="./media/private-networking/finops-hubs-private-network.png" border="false" alt-text="Screenshot of privately accessible deployments." lightbox="./media/private-networking/finops-hubs-private-network.png" :::
@@ -89,15 +88,17 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
 ### Steps to remove private networking
 
 1. **Plan the transition**:
+
    - Identify all users and systems currently accessing the hub via private networking
    - Coordinate with your network administrators about the change
    - Schedule maintenance window as the hub will be temporarily inaccessible during the transition
 
 2. **Update the FinOps hub deployment**:
-   
+
    You have two options to redeploy your FinOps hub with public access:
-   
+
    **Option 1: Redeploy from existing deployment**
+
    - Navigate to your FinOps hub resource group in the Azure portal
    - Go to the **Deployments** tab on the resource group
    - Find and open the original FinOps hub deployment
@@ -105,8 +106,9 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
    - On the **Advanced** tab, set **Access** to **Public**
    - Review all other settings to ensure they remain as desired
    - Deploy the updated configuration
-   
+
    **Option 2: Deploy latest toolkit version**
+
    - Install the latest current version of the FinOps toolkit
    - Use the same resource group name, hub name, and Data Explorer cluster name as your existing deployment
    - These values can be obtained from the original deployment template or the config.json file in your hub storage account
@@ -114,11 +116,13 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
    - Deploy with the same configuration to update your existing hub
 
 3. **Verify the changes**:
+
    - Confirm that storage accounts, Data Explorer, and Key Vault are accessible via public endpoints
    - Test data access from Power BI and other connected systems
    - Verify that Azure Data Factory pipelines continue to run successfully
 
 4. **Clean up networking resources** (optional):
+
    - Once you've confirmed the hub is working correctly with public access, you can delete the networking resources to stop incurring networking costs
    - Delete resources in the following order to avoid dependency conflicts:
      1. Private endpoints
@@ -141,6 +145,7 @@ If you need to reduce costs or simplify your FinOps hub deployment, you can remo
 > After removing private networking, your FinOps hub data will be accessible over the internet, though still protected by role-based access control (RBAC) and transport layer security (TLS). Review your organization's security policies to ensure this meets your requirements.
 >
 > **Security recommendations:**
+>
 > - Check the security settings on storage accounts and Azure Data Explorer clusters to ensure they align with your security requirements
 > - Consider using network security groups (NSGs) or firewall rules to restrict access to well-known IP addresses such as your corporate firewall, VPN endpoints, or specific office locations
 > - Review and configure storage account network access rules to limit access from trusted networks if needed
@@ -171,6 +176,7 @@ If necessary, you can create the virtual network, subnets, and optionally peer i
 Communication between the various FinOps hub components is encrypted using TLS. For TLS certificate validation to succeed when using private networking, reliable domain name system (DNS) name resolution is required. DNS zones, private endpoints, and DNS entries guarantee name resolution between FinOps hub components.
 
 <!-- cSpell:ignore privatelink, vaultcore -->
+
 - **privatelink.blob.core.windows.net** – for Data Explorer and storage used by deployment scripts
 - **privatelink.dfs.core.windows.net** – for Data Explorer and the data lake hosting the FinOps data and pipeline configuration
 - **privatelink.table.core.windows.net** – for Data Explorer
@@ -226,13 +232,17 @@ This network topology follows the Hub-Spoke network architecture guidance outlin
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/PrivateNetworking)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3A"reactions-%2B1-desc")
+<!-- prettier-ignore-end -->
 
 <br>
 

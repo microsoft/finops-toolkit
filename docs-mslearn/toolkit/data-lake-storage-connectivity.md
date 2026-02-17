@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps practitioner, I want to understand Data Lake Storage connectivity options outside of Power BI so that I can build custom reports that meet my organizational needs.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Data Lake Storage connectivity options
 
 As a FinOps practitioner, you may need to build custom reports and analytics solutions outside of Power BI to meet specific organizational requirements. Azure Data Lake Storage provides a central repository for your FinOps data that can be accessed by multiple tools and services for advanced analytics, custom applications, and integration scenarios.
@@ -26,8 +25,10 @@ Azure Data Explorer is a fast, highly scalable data exploration service for log 
 
 If you're using [FinOps hubs](hubs/finops-hubs-overview.md), Azure Data Explorer is automatically configured with pre-built data ingestion pipelines, optimized data models, sample dashboards and queries, and automated data processing.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Configure Data Explorer dashboards](hubs/configure-dashboards.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -37,8 +38,10 @@ Microsoft Fabric is an all-in-one analytics solution that combines data integrat
 
 Fabric provides a unified analytics platform with OneLake storage, AI and machine learning capabilities, seamless Power BI integration, and support for real-time insights.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Create a Fabric workspace for FinOps](../fabric/create-fabric-workspace-finops.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -58,11 +61,13 @@ Azure Synapse Analytics is an enterprise data warehouse solution that combines b
 
 Azure Synapse Analytics provides comprehensive documentation for connecting to and querying data in Data Lake Storage.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Query data in Azure Data Lake Storage with Synapse SQL](https://learn.microsoft.com/azure/synapse-analytics/sql/query-data-storage)
 
 > [!div class="nextstepaction"]
 > [Create external tables in Synapse SQL](https://learn.microsoft.com/azure/synapse-analytics/sql/create-external-table-as-select)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -82,11 +87,13 @@ Azure Databricks is a unified analytics platform that provides collaborative Apa
 
 Azure Databricks provides comprehensive documentation for connecting to and analyzing data in Data Lake Storage.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Connect to Azure Data Lake Storage from Databricks](https://learn.microsoft.com/azure/databricks/storage/azure-storage)
 
 > [!div class="nextstepaction"]
 > [Machine learning with Databricks](https://learn.microsoft.com/azure/databricks/machine-learning/)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -126,11 +133,13 @@ Data Lake Storage provides REST APIs and SDKs that enable you to build custom ap
 
 Azure Data Lake Storage provides comprehensive SDKs and REST APIs for building custom applications.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Azure Data Lake Storage REST API](https://learn.microsoft.com/rest/api/storageservices/data-lake-storage-gen2)
 
 > [!div class="nextstepaction"]
 > [Azure Data Lake Storage client libraries](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -138,14 +147,14 @@ Azure Data Lake Storage provides comprehensive SDKs and REST APIs for building c
 
 The choice of tool depends on your specific requirements:
 
-| Tool | Best for | Complexity | Cost model |
-|------|----------|------------|------------|
-| **Azure Data Explorer** | Real-time analytics, KQL queries, built-in dashboards | Medium | Pay-per-use |
-| **Microsoft Fabric** | Unified analytics platform, AI/ML integration | Medium-High | Capacity-based |
-| **Azure Synapse** | Data warehousing, large-scale ETL, enterprise scenarios | High | Pay-per-use or dedicated |
-| **Azure Databricks** | Advanced analytics, machine learning, data science | High | Pay-per-use |
-| **Azure Machine Learning** | MLOps, automated ML, model deployment | High | Pay-per-use |
-| **Custom applications** | Specific integrations, custom workflows | Variable | Development cost |
+| Tool                       | Best for                                                | Complexity  | Cost model               |
+| -------------------------- | ------------------------------------------------------- | ----------- | ------------------------ |
+| **Azure Data Explorer**    | Real-time analytics, KQL queries, built-in dashboards   | Medium      | Pay-per-use              |
+| **Microsoft Fabric**       | Unified analytics platform, AI/ML integration           | Medium-High | Capacity-based           |
+| **Azure Synapse**          | Data warehousing, large-scale ETL, enterprise scenarios | High        | Pay-per-use or dedicated |
+| **Azure Databricks**       | Advanced analytics, machine learning, data science      | High        | Pay-per-use              |
+| **Azure Machine Learning** | MLOps, automated ML, model deployment                   | High        | Pay-per-use              |
+| **Custom applications**    | Specific integrations, custom workflows                 | Variable    | Development cost         |
 
 <br>
 
@@ -165,13 +174,17 @@ When connecting to Data Lake Storage, ensure proper security and governance:
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20Data%20Lake%20Storage%20connectivity%20options%3F/cvaQuestion/How%20valuable%20are%20the%20Data%20Lake%20Storage%20connectivity%20options%3F/surveyId/FTK/bladeName/DataLakeConnectivity/featureName/Documentation)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

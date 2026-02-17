@@ -11,7 +11,6 @@ ms.topic: concept-article
 # customer intent: As a FinOps practitioner, I want to understand the invoicing and chargeback capability so that I can implement it in the Microsoft Cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Invoicing and chargeback
 
 This article helps you understand the invoicing and chargeback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
@@ -52,7 +51,7 @@ Invoicing and chargeback are all about integrating with your own internal tools.
 
 At this point, you have a basic chargeback model that all stakeholders agreed to. As you move beyond the basics, consider the following points:
 
-- Think about setting up a one-way synchronization from your budget system to [Cost Management budgets](/azure/cost-management-billing/automate/automate-budget-creation). It  allows you to use automated alerts that are based on machine learning predictions.
+- Think about setting up a one-way synchronization from your budget system to [Cost Management budgets](/azure/cost-management-billing/automate/automate-budget-creation). It allows you to use automated alerts that are based on machine learning predictions.
 - If you track manual forecasts, consider creating Cost Management budgets for your forecast values as well. It gives you separate tracking and alerting for budgets separate from your forecast.
 - Automate your [cost allocation](../understand/allocation.md) strategy through tagging.
 - Expand coverage of shared costs and [commitment discounts](../optimize/rates.md) if not already included.
@@ -74,13 +73,17 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.Framework/featureName/Capabilities.Manage.Invoicing)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

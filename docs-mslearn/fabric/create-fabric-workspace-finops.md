@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with web services.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Create a Fabric workspace for FinOps
 
 This article walks you through creating and configuring a [Microsoft Fabric](/fabric/get-started/microsoft-fabric-overview) workspace for FinOps. It provides a step-by-step guide to create and configure Azure Data Lake storage (ADLS) setup, data export, workspace creation, and data ingestion. When completed, you can use Power BI to build reports.
@@ -22,7 +21,7 @@ Before you begin, you must have:
 
 - A paid Azure subscription with cost and usage information
 - Owner of a storage account or have access to grant permissions to the storage account
-- You must have the *Storage Blob Data Contributor* role when you use *Organizational account* authentication. If you don't have the required permission, you can use other authentication types like *Account key*. Otherwise, you get an `Invalid credentials` error.
+- You must have the _Storage Blob Data Contributor_ role when you use _Organizational account_ authentication. If you don't have the required permission, you can use other authentication types like _Account key_. Otherwise, you get an `Invalid credentials` error.
 
 To complete this walkthrough, you create the following resources that incur costs:
 
@@ -39,13 +38,13 @@ Microsoft Fabric is optimized to work with storage accounts with hierarchical na
 - Option 1: To create a Data Lake storage account, see [Create a storage account for Azure Data Lake Storage Gen2](/azure/storage/blobs/create-data-lake-storage-account).
 - Option 2: To enable hierarchical namespace on an existing storage account, see [Upgrade Azure Blob Storage with Azure Data Lake Storage Gen2 capabilities](/azure/storage/blobs/upgrade-to-data-lake-storage-gen2-how-to?tabs=azure-portal).
 
->[!TIP]
->If you deployed [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md), you can use the storage account created as part of the hub resource group.
+> [!TIP]
+> If you deployed [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md), you can use the storage account created as part of the hub resource group.
 
 For the following example, we used the following Data Lake Gen 2 storage account. You use your own storage account and subscription details.
 
-- Subscription = *Contoso subscription*.
-- Storage account = *Contoso-storage-account*.
+- Subscription = _Contoso subscription_.
+- Storage account = _Contoso-storage-account_.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/storage-account-configuration-gen-2.png" border="true" alt-text="Screenshot showing converting an existing storage account into Data Lake storage." lightbox="./media/create-fabric-workspace-finops/storage-account-configuration-gen-2.png" :::
 
@@ -66,14 +65,14 @@ Here are the high-level steps to create an export:
 3. Select **+ Create**
 4. On the Basics tab, select the template = **Cost and usage (FOCUS)**
    :::image type="content" source="./media/create-fabric-workspace-finops/exports-cost-and-usage-focus.png" border="true" alt-text="Screenshot showing creating a new FOCUS export dataset." lightbox="./media/create-fabric-workspace-finops/exports-cost-and-usage-focus.png" :::
-5. On the Datasets tab, fill in **Export prefix** to ensure you have a unique name for the export. For example, *june2024focus*.
+5. On the Datasets tab, fill in **Export prefix** to ensure you have a unique name for the export. For example, _june2024focus_.
 6. On the Destination tab, select:
    - Storage type = Azure blob storage
    - Destination and storage = **Use existing**
-   - Subscription = *Contoso subscription*
-   - Storage account = *Contoso-storage-account*
-   - Container = *msexports*
-   - Directory = focuscost/&lt;*scope-id*&gt;
+   - Subscription = _Contoso subscription_
+   - Storage account = _Contoso-storage-account_
+   - Container = _msexports_
+   - Directory = focuscost/&lt;_scope-id_&gt;
    - Compression type = **None**.
    - Overwrite data = **Enabled**
 7. On the Review + Create tab, select **Create**.
@@ -81,7 +80,7 @@ Here are the high-level steps to create an export:
 
 Ensure that your export completed and that the file is available before moving to the next step.
 
->[!IMPORTANT]
+> [!IMPORTANT]
 > Cost Management exports utilize managed identity. To create an export, you must be an Owner of the storage account or have access to grant permissions to the storage account. To see all required permissions, see [Prerequisites](/azure/cost-management-billing/costs/tutorial-improved-exports#prerequisites).
 
 If you want to automate export creation, consider using the [New-FinOpsCostExport command](../toolkit/powershell/cost/New-FinOpsCostExport.md) in the FinOps toolkit PowerShell module.
@@ -111,7 +110,7 @@ Here's an example screenshot showing a new Fabric workspace getting created.
 
 ## Create a lakehouse
 
-Microsoft Fabric [lakehouses](/fabric/data-engineering/lakehouse-overview) are data architectures that allow organizations to store and manage structured and unstructured data in a single location. They use  various tools and frameworks to process and analyze that data. These tools and frameworks can include SQL-based queries and analytics, machine learning, and other advanced analytics techniques.
+Microsoft Fabric [lakehouses](/fabric/data-engineering/lakehouse-overview) are data architectures that allow organizations to store and manage structured and unstructured data in a single location. They use various tools and frameworks to process and analyze that data. These tools and frameworks can include SQL-based queries and analytics, machine learning, and other advanced analytics techniques.
 
 You can either create a new lakehouse or use an existing one. Lakehouses are interoperable so we would generally recommend using a single lakehouse for all your FinOps datasets. A single lakehouse keeps related information together to share data models, pipelines, and security measures.
 
@@ -120,9 +119,9 @@ To create a new lakehouse in the Fabric workspace of your choice:
 1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
 1. Select the workspace where you want to create the lakehouse.
 1. Near the top left of the page, select **+ New** and then select **More options**.  
-    :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-more-options.png" border="true" alt-text="Screenshot showing navigation to More options." lightbox="./media/create-fabric-workspace-finops/fabric-new-more-options.png" :::
+   :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-more-options.png" border="true" alt-text="Screenshot showing navigation to More options." lightbox="./media/create-fabric-workspace-finops/fabric-new-more-options.png" :::
 1. Select **Lakehouse**  
-    :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" border="true" alt-text="Screenshot showing the Lakehouse option." lightbox="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" :::
+   :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" border="true" alt-text="Screenshot showing the Lakehouse option." lightbox="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" :::
 
 For more information, see [Create a lakehouse](/fabric/data-engineering/create-lakehouse).
 
@@ -137,13 +136,13 @@ To create a shortcut, see [Create an Azure Data Lake Storage Gen2 shortcut](/fab
 1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
 1. Select the lakehouse of your choice.
 1. Select the ellipsis (**...**) next to **Files**.  
-    You add CSV and Parquet files under **Files**. Delta tables get added under **Tables**.
+   You add CSV and Parquet files under **Files**. Delta tables get added under **Tables**.
 1. Select **New shortcut**.  
-    :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" border="true" alt-text="Screenshot showing creating a new shortcut in a lakehouse under the Files folder." lightbox="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" :::
+   :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" border="true" alt-text="Screenshot showing creating a new shortcut in a lakehouse under the Files folder." lightbox="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" :::
 1. Select **Azure Data Lake Storage Gen 2** and provide the following settings:
    - URL = **Data Lake Storage** URL of the Data Lake storage account. See the following note about authentication.
    - Connection = **Create a new connection**
-   - Connection name = &lt;*Any name of your choice*&gt;
+   - Connection name = &lt;_Any name of your choice_&gt;
    - Authentication kind = **Organizational account**
    - Sign in when prompted.
 
@@ -169,13 +168,13 @@ After the shortcut gets created, you can view the FOCUS cost data inside **Files
 
 1. In the lakehouse, find the directory that you created when you set up the export. The Directory is in the **Files** section.
 2. Next to the directory, select the ellipsis (**...**), and then select **Load to Tables** > **New table**.  
-    :::image type="content" source="./media/create-fabric-workspace-finops/load-to-tables-new-table.png" border="true" alt-text="Screenshot showing the New table option." lightbox="./media/create-fabric-workspace-finops/load-to-tables-new-table.png" :::
-    1. Table name = &lt;*Any valid name*&gt;
-    2. File type = `CSV`
-    3. Including subfolders = **Enabled**
-    4. Use header for column names = **Enabled**
-    5. Separator = `,`
-    6. Select **Load**
+   :::image type="content" source="./media/create-fabric-workspace-finops/load-to-tables-new-table.png" border="true" alt-text="Screenshot showing the New table option." lightbox="./media/create-fabric-workspace-finops/load-to-tables-new-table.png" :::
+   1. Table name = &lt;_Any valid name_&gt;
+   2. File type = `CSV`
+   3. Including subfolders = **Enabled**
+   4. Use header for column names = **Enabled**
+   5. Separator = `,`
+   6. Select **Load**
 
 :::image type="content" source="./media/create-fabric-workspace-finops/load-folder-to-new-table.png" border="true" alt-text="Screenshot showing the new table options." lightbox="./media/create-fabric-workspace-finops/load-folder-to-new-table.png" :::
 
@@ -213,27 +212,27 @@ Use the following Python script in step 3 above to ingest data into Fabric table
 # coding: utf-8
 
 # ## Sample Read CSV to Delta Output
-# 
+#
 # Exports Platform Demo Notebook
 
 # # Export to Delta Parquet
 
 # In[1]:
 read_path = '<USER INPUT>' # input path to your data stream
-export_table = '<USER INPUT>' # output path for your delta parquet table, ex: "Tables/CostDetails" 
+export_table = '<USER INPUT>' # output path for your delta parquet table, ex: "Tables/CostDetails"
 
 # In[3]:
-df = spark.read.format("csv").option("header", "true").option("inferSchema", "true").option("recursiveFileLookup", "true").load(read_path) 
-     
-''' Use this for parquet reading 
-df = spark.read.format("parquet").option("header", "true").option("inferSchema", "true").option("recursiveFileLookup", "true").load(read_path) 
-''' 
+df = spark.read.format("csv").option("header", "true").option("inferSchema", "true").option("recursiveFileLookup", "true").load(read_path)
+
+''' Use this for parquet reading
+df = spark.read.format("parquet").option("header", "true").option("inferSchema", "true").option("recursiveFileLookup", "true").load(read_path)
+'''
 
 # In[4]:
-''' Use this if you want to overwrite the schema as well 
-df.write.mode("overwrite").format("delta").option("overwriteSchema", "true").save(export_table) 
-''' 
-df.write.mode("overwrite").format("delta").save(export_table) 
+''' Use this if you want to overwrite the schema as well
+df.write.mode("overwrite").format("delta").option("overwriteSchema", "true").save(export_table)
+'''
+df.write.mode("overwrite").format("delta").save(export_table)
 ```
 
 ---
@@ -251,7 +250,7 @@ After the data is ingested into Fabric and tables are ready, you can move on to 
 1. Select the Power BI symbol at the bottom left.
 1. Select the same semantic model to build reports and then use Copilot to generate insights from your ingested data.
 
->[!NOTE]
+> [!NOTE]
 > The Power BI demo uses simulated cost data for illustration purposes.
 
 <br>
@@ -260,13 +259,17 @@ After the data is ingested into Fabric and tables are ready, you can move on to 
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Workspaces/featureName/Documentation.Create)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn about FinOps reports so that I can use them to better understand my cost data.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Power BI reports
 
 The FinOps toolkit Power BI reports provide a great starting point for your FinOps reporting. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed. You can also copy and paste visuals between reports to create your own custom reports.
@@ -35,8 +34,10 @@ The FinOps toolkit includes reports that connect to different data sources. We r
 
 If you need to monitor more than $1 million in spend, we generally recommend using Kusto Query Language (KQL) reports that connect to [FinOps hubs](../hubs/finops-hubs-overview.md) with Azure Data Explorer or Microsoft Fabric. Organizations who need other reports can continue to connect to the underlying hub storage account.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download demo](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-demo.zip)
+<!-- prettier-ignore-end -->
 
 In addition, the following reports use the Cost Management connector for Power BI to connect to your data. While the connector isn't recommended due to performance and scalability, these reports are also available for Enterprise Agreement (EA) and Microsoft Customer Agreement (MCA) accounts.
 
@@ -93,13 +94,13 @@ Configure FinOps hubs or Cost Management exports with KQL or storage reports. Fo
 
 **Before using any Power BI report**, you need to configure the appropriate Cost Management exports. Different reports require different datasets:
 
-| Dataset                     | Version          | Required for reports                                    | Notes                                                                                             |
-| --------------------------- | ---------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Cost and usage (FOCUS)      | `1.0` or `1.0r2` | **All reports**                                         | Primary cost and usage data. Required for all functionality.                                     |
-| Price sheet                 | `2023-05-01`     | All reports (recommended for accurate pricing)         | Required to populate missing prices for EA and MCA accounts.                                     |
-| Reservation details         | `2023-03-01`     | Rate optimization (recommended)                         | Provides detailed reservation usage data for utilization analysis.                              |
-| Reservation recommendations | `2023-05-01`     | **Rate optimization** (required for recommendations)   | Required to display reservation purchase recommendations.                                        |
-| Reservation transactions    | `2023-05-01`     | Rate optimization, Invoicing (optional)                | Provides reservation purchase and refund details.                                               |
+| Dataset                     | Version          | Required for reports                                 | Notes                                                              |
+| --------------------------- | ---------------- | ---------------------------------------------------- | ------------------------------------------------------------------ |
+| Cost and usage (FOCUS)      | `1.0` or `1.0r2` | **All reports**                                      | Primary cost and usage data. Required for all functionality.       |
+| Price sheet                 | `2023-05-01`     | All reports (recommended for accurate pricing)       | Required to populate missing prices for EA and MCA accounts.       |
+| Reservation details         | `2023-03-01`     | Rate optimization (recommended)                      | Provides detailed reservation usage data for utilization analysis. |
+| Reservation recommendations | `2023-05-01`     | **Rate optimization** (required for recommendations) | Required to display reservation purchase recommendations.          |
+| Reservation transactions    | `2023-05-01`     | Rate optimization, Invoicing (optional)              | Provides reservation purchase and refund details.                  |
 
 > [!IMPORTANT]
 > Each report documentation page includes specific export requirements. Review the "Export requirements" section on each report page before downloading to ensure you have the necessary data configured.
@@ -112,8 +113,10 @@ For more information, see [How to setup Power BI](setup.md#set-up-your-first-rep
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 

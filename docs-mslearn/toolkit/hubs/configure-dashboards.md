@@ -11,7 +11,7 @@ ms.reviewer: micflan
 # customer intent: As a FinOps hub admin, I want to deploy an Azure Data Explorer dashboard so that I can analyze my costs.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
+<!-- markdownlint-disable heading-increment MD024 -->
 # Configure Data Explorer dashboards
 
 Azure Data Explorer and Microsoft Fabric eventhouses are fast and highly scalable data exploration services. You can explore data in Microsoft Fabric or the [Azure Data Explorer web application](https://dataexplorer.azure.com) by running queries or building dashboards. A dashboard is a collection of queries visualized as tiles and organized into pages. The FinOps toolkit provides a custom dashboard with pages design to facilitate FinOps capabilities. This article walks you through the process of deploying and configuring this dashboard.
@@ -31,7 +31,6 @@ This walkthrough does not incur any cost; however, maintaining an active Data Ex
 
 ## Deploy the dashboard
 
-<!-- markdownlint-disable-next-line -->
 ### [Data Explorer](#tab/data-explorer)
 
 1. Download the [latest dashboard template](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json).
@@ -56,7 +55,6 @@ This walkthrough does not incur any cost; however, maintaining an active Data Ex
 
 Note that Data Explorer dashboards are only accessible to the person who creates them by default. Access to the data is controlled at the database level, so access to a dashboard does not grant access to the underlying data. Be sure to share access to the dashboard and the **Hub** and **Ingestion** databases in order for people to see the functional dashboard.
 
-<!-- markdownlint-disable-next-line -->
 ### [Fabric](#tab/fabric)
 
 1. [Download the dashboard template](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-dashboard.json).
@@ -86,14 +84,12 @@ You can now explore the FinOps hub dashboard.
 
 The FinOps hub dashboard is a sample dashboard that is intended to be customized. We encourage you to customize the dashboard to meet specific stakeholder needs and copy queries to other dashboards. To learn more about creating and customizing dashboards, refer to the following articles:
 
-<!-- markdownlint-disable-next-line -->
 ### [Data Explorer](#tab/data-explorer)
 
 - [Visualize data with Azure Data Explorer dashboards](/azure/data-explorer/azure-data-explorer-dashboards)
 - [Customize dashboard visuals](/azure/data-explorer/dashboard-customize-visuals)
 - [Apply conditional formatting](/azure/data-explorer/dashboard-conditional-formatting)
 
-<!-- markdownlint-disable-next-line -->
 ### [Fabric](#tab/fabric)
 
 - [Create a real-time dashboard](/fabric/real-time-intelligence/dashboard-real-time-create)
@@ -159,13 +155,17 @@ You may also consider using [Azure workbooks](/azure/azure-monitor/visualize/wor
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/ConfigureScopes)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

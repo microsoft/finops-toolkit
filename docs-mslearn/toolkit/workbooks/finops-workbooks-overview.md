@@ -11,8 +11,6 @@ ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps workbooks are and how they can help me accomplish my goals.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
-
 # FinOps workbooks
 
 FinOps workbooks are Azure Monitor workbooks that provide a series of tools to help engineers perform targeted FinOps capabilities, modeled after the Well-Architected Framework guidance.

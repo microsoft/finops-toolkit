@@ -11,8 +11,6 @@ ms.reviewer: micflan
 # customer intent: As a FinOps toolkit user, I want to learn about how to connect FinOps hubs to billing accounts and subscriptions so that I can do it.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
-
 # Configure scopes
 
 Connect FinOps hubs to your billing accounts and subscriptions by configuring Cost Management exports manually or granting FinOps hubs access to manage exports for you.
@@ -132,7 +130,10 @@ For the most seamless experience, we recommend [allowing FinOps hubs to manage e
 
 If you can't grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
 
+<!-- prettier-ignore-start -->
+
 1. Determine the scope for your data export.
+
    - For information about finding your billing account and scope IDs, see [Find your billing account and scope IDs](#find-your-billing-account-and-scope-ids).
    - We recommend exporting from either an **EA billing account** or **MCA billing profile** scope to access additional datasets, including price sheets and reservation recommendations.
    - Price sheet exports are required to populate missing prices and costs.
@@ -148,6 +149,7 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    > - Reservation details
    >
    > You must use the billing profile scope (`/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###`) for these exports. This is a Cost Management limitation.
+
    - We recommend creating daily exports for each export type supported at your chosen billing scope:
      - Enterprise Agreement billing account: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
      - Microsoft Customer Agreement billing profile: FocusCosts, Pricesheet, ReservationTransactions, ReservationDetails, ReservationRecommendations
@@ -186,8 +188,12 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range with either the `-Backfill` parameter or specific start and end dates.
 6. **Repeat steps 1-5 for each additional scope you want to monitor** (multiple billing accounts, subscriptions, etc.).
 
+<!-- prettier-ignore-end -->
+
+<!-- prettier-ignore-start -->
 > [!IMPORTANT]
 > **Configuring multiple scopes**: When setting up multiple scopes, ensure each has a unique directory path to prevent data conflicts. You can monitor multiple EA billing accounts, MCA billing profiles, subscriptions, and resource groups within a single FinOps hub instance.
+<!-- prettier-ignore-end -->
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
 
@@ -213,6 +219,7 @@ Managed exports allow FinOps hubs to set up and maintain Cost Management exports
 Managed exports use a managed identity (MI) to configure the exports automatically. To set it up, use the following steps:
 
 1. **Grant access to Azure Data Factory.**
+
    - From the FinOps hub resource group, navigate to **Deployments** > **hub** > **Outputs**, and make note of the values for **managedIdentityId** and **managedIdentityTenantId**. You'll use them in the next step.
    - Use the following guides to assign access to each scope you want to monitor:
      - EA enrollments – [Assign enrollment reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
@@ -243,6 +250,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    -->
 
 2. **Add the desired scopes.**
+
    1. From the FinOps hub resource group, open the storage account and navigate to **Storage browser** > **Blob containers** > **config**.
    2. Select the **settings.json** file, then select **⋯** > **View/edit** to open the file.
    3. Update the **scopes** property to include the scopes you want to monitor. For more information, see [Settings.json scope examples](#settingsjson-scope-examples).
@@ -260,6 +268,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    Use the **config_RunBackfillJob** pipeline to process historical data after it's been exported. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
 
    To run the pipeline from the Azure portal:
+
    1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_RunBackfillJob**.
    2. Select **Debug** in the command bar to run the pipeline. The total run time varies depending on the retention period and number of scopes you're monitoring.
 
@@ -280,6 +289,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    #### Option 2: Using Cost Management exports
 
    You can backfill multiple months of data directly using the Cost Management UI. Learn more about exports in the [Cost Management exports documentation](/azure/cost-management-billing/costs/tutorial-export-acm-data).
+
    1. Open the Azure portal and navigate to **Cost Management** > **Exports**.
    2. Select the managed export created by your FinOps hub.
    3. Select **Export selected dates** from the top menu.
@@ -416,13 +426,17 @@ If it's the first time you're using the FinOps toolkit PowerShell module, refer 
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/ConfigureScopes)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

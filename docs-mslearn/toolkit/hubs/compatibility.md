@@ -11,7 +11,6 @@ ms.reviewer: micflan
 # customer intent: As a FinOps toolkit user, I want to learn about which versions of Power BI reports work with each version of FinOps hubs so that I can use them.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps hubs compatibility guide
 
 FinOps hubs support in-place upgrades by redeploying the template. But what happens with the data? Might it break Power BI reports? What about my customized reports? This guide helps you identify what dependencies need to change when moving from one version of FinOps hubs to another. If you have any questions, [start a discussion](https://aka.ms/ftk/discuss).
@@ -56,8 +55,10 @@ The Power BI version refers to the Power BI reports made available within that s
 
 Did this guide give you the answers you needed? If not, ask a question in the discussion forums. We're here to help!
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Ask a question](https://aka.ms/ftk/discuss)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -65,13 +66,17 @@ Did this guide give you the answers you needed? If not, ask a question in the di
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/Compatibility)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc%20)
+<!-- prettier-ignore-end -->
 
 <br>
 

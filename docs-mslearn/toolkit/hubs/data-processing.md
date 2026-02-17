@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how data is processed in FinOps hubs so that I can better understand how to use the tool.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # How data is processed in FinOps hubs
 
 FinOps hubs perform many data processing activities to clean up, normalize, and optimize data. The following sections show how data flows from Cost Management into a hub instance.
@@ -55,7 +54,8 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
    4. After ingestion, the **ingestion_ETL_dataExplorer** pipeline performs some cleanup, including purging data in the final table that is past the data retention period.
       - As of 0.7, Data Explorer applies data retention in raw tables while data retention in final tables is applied by the ingestion pipeline. If data ingestion stops, historical data isn't purged.
       - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage.
-6. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
+6. (Optional) The **queries_DailySchedule** trigger runs the **queries_ExecuteETL** pipeline once per day to query Azure Resource Graph for additional recommendations and saves results to the **ingestion/Recommendations** folder. [Learn more](configure-recommendations.md).
+7. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
    - Data in Data Explorer can be read from the **Hub** database.
      - Use the `{dataset}()` function to use the latest schema.
        - This function is useful for quick exploration, but may introduce breaking changes as the FinOps hub instance is updated.
@@ -247,7 +247,7 @@ ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original
 ```
 
 - `ingestion` is the container where the data pipeline saves data.
-- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, the **Ingestion** database must have a matching, case-sensitive "_raw" table (for example, "Costs_raw"). FinOps hubs support the following datasets in this release:
+- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, the **Ingestion** database must have a matching, case-sensitive "\_raw" table (for example, "Costs_raw"). FinOps hubs support the following datasets in this release:
   - **CommitmentDiscountUsage** - Cost Management reservation details export.
   - **Costs** - FOCUS cost and usage data.
   - **Prices** - Cost Management price sheet export.
@@ -335,6 +335,7 @@ The following sections explain data process in FinOps hubs 0.6.
 ### Scope setup in v0.6
 
 The following steps happen when a new, managed scope is added to a hub instance. Unmanaged scopes (where Cost Management exports are manually configured) don't require any setup in hubs.
+
 <!--
 ```mermaid
 sequenceDiagram
@@ -428,10 +429,12 @@ FinOps hubs use Cost Management exports to obtain cost data. Cost Management con
 
 As of 0.4, FinOps hubs don't rely on file paths. Hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
 
+<!-- markdownlint-disable blanks-around-lists -->
+<!-- prettier-ignore-start -->
 > [!WARNING]
-  > - Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
-  > - To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
-
+> - Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
+> - To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
+<!-- prettier-ignore-end -->
 
 Export manifests can change with API versions. Here's an example with API version `2023-07-01-preview`:
 
@@ -620,7 +623,6 @@ msexports/{scope-id}/{export-name}/{date-range}/{export-time}/{guid}/{file}
   > | Resource group  | `/subscriptions/###/resourceGroups/###`                                |
   > | Billing account | `/providers/Microsoft.Billing/billingAccounts/###`                     |
   > | Billing profile | `/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###` |
-  >
 - `{export-name}` is the name of the export.
   > Hubs ignore this folder.
 - `{date-range}` is the date range data being exported.
@@ -648,13 +650,17 @@ The following steps outline the process for exporting and processing cost data u
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/DataProcessing)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

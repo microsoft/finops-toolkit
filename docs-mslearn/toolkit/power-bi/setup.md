@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to learn how to set up Power BI FinOps reports so that I can use them analyze my cost data.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # How to set up Power BI
 
 The FinOps toolkit Power BI reports provide a great starting point for your FinOps reporting. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed. You can also copy and paste visuals between reports to create your own custom reports.
@@ -22,13 +21,13 @@ FinOps toolkit reports support several ways to connect to your cost data. We gen
 
 The following table shows the different datasets available and which reports and tools can access them:
 
-| Dataset | Description | Compatible reports and tools | Notes |
-|---------|-------------|------------------------------|-------|
-| Cost Management exports | Raw cost and usage data exported to Azure Data Lake Storage Gen2 | • Power BI storage reports<br>• Custom Power BI reports<br>• Direct storage access | Recommended for accounts with less than $2M monthly spend |
-| FinOps hubs + Data Explorer (ADX) | Cost data processed and stored in Azure Data Explorer clusters | • Power BI KQL reports<br>• Data Explorer dashboards<br>• Azure Monitor workbooks<br>• Direct KQL queries<br>• Custom applications via Kusto API | Recommended for accounts with more than $100K total spend |
-| FinOps hubs + Microsoft Fabric RTI | Cost data processed and stored in Microsoft Fabric Real-Time Intelligence | • Power BI KQL reports<br>• Fabric Real-Time dashboards<br>• Direct KQL queries<br>• Custom applications via Kusto API | Best performance and capabilities option |
-| Microsoft Fabric OneLake | Raw exports stored in Microsoft Fabric OneLake | • Custom Fabric notebooks<br>• Custom Power BI reports<br>• Fabric data pipelines | For organizations already using Microsoft Fabric |
-| Cost Management connector | Direct Power BI connection to Cost Management APIs | • Cost Management connector Power BI reports | Deprecated - not recommended for new implementations |
+| Dataset                            | Description                                                               | Compatible reports and tools                                                                                                                     | Notes                                                     |
+| ---------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| Cost Management exports            | Raw cost and usage data exported to Azure Data Lake Storage Gen2          | • Power BI storage reports<br>• Custom Power BI reports<br>• Direct storage access                                                               | Recommended for accounts with less than $2M monthly spend |
+| FinOps hubs + Data Explorer (ADX)  | Cost data processed and stored in Azure Data Explorer clusters            | • Power BI KQL reports<br>• Data Explorer dashboards<br>• Azure Monitor workbooks<br>• Direct KQL queries<br>• Custom applications via Kusto API | Recommended for accounts with more than $100K total spend |
+| FinOps hubs + Microsoft Fabric RTI | Cost data processed and stored in Microsoft Fabric Real-Time Intelligence | • Power BI KQL reports<br>• Fabric Real-Time dashboards<br>• Direct KQL queries<br>• Custom applications via Kusto API                           | Best performance and capabilities option                  |
+| Microsoft Fabric OneLake           | Raw exports stored in Microsoft Fabric OneLake                            | • Custom Fabric notebooks<br>• Custom Power BI reports<br>• Fabric data pipelines                                                                | For organizations already using Microsoft Fabric          |
+| Cost Management connector          | Direct Power BI connection to Cost Management APIs                        | • Cost Management connector Power BI reports                                                                                                     | Deprecated - not recommended for new implementations      |
 
 Each dataset offers different capabilities and is optimized for different use cases. For detailed guidance on choosing the right option, see [Help me choose](help-me-choose.md).
 
@@ -57,7 +56,7 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
        - If not, select the link and change the access tier to "Hot".
        - Other access tiers have not been tested and are not recommended due to the performance impact.
 2. Configure Cost Management exports for any data you would like to include in reports.
-   
+
    You can create exports manually in the Azure portal or programmatically using the [`New-FinOpsCostExport`](../powershell/cost/new-finopscostexport.md) PowerShell command. Include the following datasets:
 
    | Dataset                     | Version          | Notes                                                                                                                           |
@@ -116,8 +115,8 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
    - **Azure Data Explorer (Kusto)** &ndash; Use an account that has at least viewer access to the Hub database.
    - **Azure Resource Graph** &ndash; Use an account that has direct access to any subscriptions you would like to report on.
    - **(your storage account)** &ndash; Use a SAS token or an account that has Storage Blob Data Reader or greater access.
-   - **https://ccmstorageprod...** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
-   - **https://github.com/...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
+   - **<https://ccmstorageprod>...** &ndash; Anonymous access. This URL is used for reservation size flexibility data.
+   - **<https://github.com/>...** &ndash; Anonymous access. This URL is used for FinOps toolkit open data files.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
 
@@ -128,6 +127,7 @@ If you run into any issues syncing your data, see [Troubleshooting Power BI repo
 Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. To connect Power BI reports to your data via SAS tokens:
 
 1. Generate the SAS token with required permissions:
+
    1. Navigate the FinOps hub storage account in the Azure portal.
    2. Select **Security + Networking** > **Shared access signature** in the menu on the left.
    3. Under **Allowed resource types**, select `Container` and `Object`.

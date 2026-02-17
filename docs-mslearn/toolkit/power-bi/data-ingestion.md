@@ -12,17 +12,19 @@ ms.reviewer: micflan
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable-next-line MD025 -->
+
 # Data ingestion report
 
 The **Data ingestion report** provides details about the data that got ingested into your FinOps hub storage account.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Data%20ingestion%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Data%20ingestion%20report%3F/surveyId/FTK/bladeName/PowerBI.DataIngestion/featureName/Documentation)
+<!-- prettier-ignore-end -->
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
@@ -32,10 +34,10 @@ Power BI reports are provided as template (.PBIT) files. Template files are not 
 
 This report is specifically designed for **FinOps hubs** deployments and requires different data sources than other reports:
 
-| Data source                 | Requirement | Notes                                                                                             |
-| --------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
-| FinOps hubs Data Explorer   | **Required** | Provides ingestion monitoring data and hub cost analysis. Only available with KQL reports.      |
-| Cost and usage (FOCUS)      | **Required** | Provides cost data to analyze FinOps hubs infrastructure costs.                                 |
+| Data source               | Requirement  | Notes                                                                                      |
+| ------------------------- | ------------ | ------------------------------------------------------------------------------------------ |
+| FinOps hubs Data Explorer | **Required** | Provides ingestion monitoring data and hub cost analysis. Only available with KQL reports. |
+| Cost and usage (FOCUS)    | **Required** | Provides cost data to analyze FinOps hubs infrastructure costs.                            |
 
 This report is **only available for KQL reports** connecting to FinOps hubs with Azure Data Explorer. It cannot be used with storage reports or direct Cost Management exports.
 
@@ -101,8 +103,10 @@ The **Ingestion errors** page summarizes potential issues that were identified a
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 

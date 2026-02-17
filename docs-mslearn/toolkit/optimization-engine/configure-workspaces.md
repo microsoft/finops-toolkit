@@ -11,7 +11,6 @@ ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to understand how to configure Log Analytics for Azure optimization engine.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Configure workspaces for Azure optimization engine
 
 This article explains how to configure Log Analytics workspaces for Azure optimization engine (AOE).

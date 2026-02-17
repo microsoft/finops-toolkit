@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how I can get help and support for the FinOps toolkit.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Help + support
 
 Have questions about implementing FinOps within your org? Start with [FinOps discussions](https://techcommunity.microsoft.com/category/azure/discussions/finops).

@@ -12,7 +12,7 @@ ms.reviewer: micflan
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable-next-line MD025 -->
+
 # Rate optimization report
 
 The **Rate optimization report** summarizes existing and potential savings from commitment discounts, like reservations and savings plans. This report enables you to:
@@ -23,12 +23,14 @@ The **Rate optimization report** summarizes existing and potential savings from 
 - Determine which resources used commitment discounts (also called chargeback).
 - Summarize cost savings from commitment discounts.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Rate%20optimization%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Rate%20optimization%20report%3F/surveyId/FTK/bladeName/PowerBI.RateOptimization/featureName/Documentation)
+<!-- prettier-ignore-end -->
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
@@ -41,13 +43,13 @@ Power BI reports are provided as template (.PBIT) files. Template files are not 
 
 Before using this report, you need to configure Cost Management exports to provide the necessary data. The following exports are required or recommended:
 
-| Dataset                     | Version          | Requirement | Notes                                                                                             |
-| --------------------------- | ---------------- | ----------- | ------------------------------------------------------------------------------------------------- |
-| Cost and usage (FOCUS)      | `1.0` or `1.0r2` | **Required** | Provides the primary cost and usage data for all report functionality.                          |
-| Price sheet                 | `2023-05-01`     | **Required** | Required to calculate accurate savings and show missing list and contracted prices.              |
-| Reservation details         | `2023-03-01`     | Recommended | Provides detailed reservation usage data for utilization analysis.                              |
-| Reservation recommendations | `2023-05-01`     | **Required** | Required to display reservation purchase recommendations in the Recommendations page.           |
-| Reservation transactions    | `2023-05-01`     | Optional    | Provides reservation purchase and refund details.                                               |
+| Dataset                     | Version          | Requirement  | Notes                                                                                 |
+| --------------------------- | ---------------- | ------------ | ------------------------------------------------------------------------------------- |
+| Cost and usage (FOCUS)      | `1.0` or `1.0r2` | **Required** | Provides the primary cost and usage data for all report functionality.                |
+| Price sheet                 | `2023-05-01`     | **Required** | Required to calculate accurate savings and show missing list and contracted prices.   |
+| Reservation details         | `2023-03-01`     | Recommended  | Provides detailed reservation usage data for utilization analysis.                    |
+| Reservation recommendations | `2023-05-01`     | **Required** | Required to display reservation purchase recommendations in the Recommendations page. |
+| Reservation transactions    | `2023-05-01`     | Optional     | Provides reservation purchase and refund details.                                     |
 
 For instructions on how to create these exports, see [Create and manage exports](/azure/cost-management-billing/costs/tutorial-improved-exports). If using FinOps hubs, these exports can be configured automatically.
 
@@ -283,8 +285,10 @@ The **Data quality** page shows some of the data used to calculate savings at a 
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -11,8 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to validate FinOps toolkit solutions are deployed and configured correctly.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
-
 # FinOps toolkit troubleshooting guide
 
 This article describes how to validate FinOps toolkit solutions were deployed and configured correctly. If you have a specific error code, review [common errors](errors.md) for details and mitigation steps. If you need a more thorough walkthrough to validate your configuration, use the following steps that apply to you.
@@ -228,13 +226,17 @@ If you've followed the troubleshooting steps and still need assistance, join our
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Help.Troubleshooting)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

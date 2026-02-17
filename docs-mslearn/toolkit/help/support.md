@@ -11,8 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what the support options I have for FinOps toolkit solutions.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
-
 # How to get support for the FinOps toolkit
 
 Tools and resources within the FinOps toolkit are provided as-is without any express or implied warranties. Microsoft Support doesn't handle support requests for the FinOps toolkit. However, the underlying products used by tools in the toolkit are officially supported.

@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what FinOps hubs are so that I can use them in my organization.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps hubs
 
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on three core design principles:
@@ -24,15 +23,19 @@ FinOps hubs extend Cost Management to provide a scalable platform for advanced d
 
 :::image type="content" source="media/finops-hubs-overview/architecture.png" border="true" alt-text="FinOps hubs diagram with Cost Management exports, Data Factory ingestion into Data Explorer or Fabric, and AI, reports, and dashboards querying data." lightbox="media/finops-hubs-overview/architecture.png" :::
 
+<!-- prettier-ignore-start -->
 > [!NOTE]
 > Estimated cost: Starts at $120/mo + $10/mo per $1M in cost being monitored.
 >
 > Estimated monthly cost includes $120 for a single-node Azure Data Explorer cluster or $300 for F2 Fabric capacity, plus $10 in Azure storage and processing cost per $1M being monitored. Exact cost will vary based on discounts, data size (we estimate ~20GB per $1M), and Fabric or Power BI license requirements. Cost without Data Explorer or Fabric is $5 per $1M. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator.
+<!-- prettier-ignore-end -->
 
 <br>
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Create a hub](#create-a-new-hub)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -42,8 +45,10 @@ Many organizations that use Microsoft Cost Management eventually hit a wall wher
 
 FinOps hubs streamline implementing the FinOps Framework. They're being designed to scale to meet the largest enterprise needs. And, they're open and extensible to support building custom solutions without the hassle of building the backend data store. FinOps hubs are designed for and by the community. Join the discussion and let us know what you'd like to see next or learn how to contribute and be a part of the team.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Join the conversation](https://aka.ms/ftk/discuss)
+<!-- prettier-ignore-end -->
 
 [Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md)
 
@@ -83,8 +88,10 @@ The FinOps hub template includes the following resources:
 
 Once deployed, you can query data directly using KQL queries, visualize data using the available Data Explorer dashboards, Fabric Real-Time dashboards, or Power BI reports; or connect to the database or storage account directly from your own tools.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [See the template](template.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -107,8 +114,10 @@ The FinOps toolkit includes five Power BI reports that are available in three se
 
 :::image type="content" source="../power-bi/media/governance/summary.png" border="true" alt-text="Screenshot of the Governance report Summary page that shows a summary of subscriptions, resource types, and other information." lightbox="../power-bi/media/governance/summary.png" :::
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Browse reports](../power-bi/reports.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -150,8 +159,8 @@ After you deploy a hub instance, there are several ways for you to get started:
 
   [Data Factory](/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Don't modify built-in pipelines or data in the **msexports** container. If you create custom pipelines, monitor new data in the **ingestion** container and use a consistent prefix to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
 
-   > [!IMPORTANT]
-   > Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](../roadmap.md). Get familiar the roadmap to avoid conflicts with future updates. Consider [contributing to the project](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md) to add support for new scenarios to avoid conflicts.
+  > [!IMPORTANT]
+  > Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](../roadmap.md). Get familiar the roadmap to avoid conflicts with future updates. Consider [contributing to the project](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md) to add support for new scenarios to avoid conflicts.
 
 - Generate custom alerts using Power Automate.
 
@@ -179,7 +188,7 @@ Configuring and managing FinOps hubs requires the following permissions:
 - Deploying the FinOps hubs template requires one of the following:
   - [Contributor](/azure/role-based-access-control/built-in-roles#contributor) and [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator)
   - [Owner](/azure/role-based-access-control/built-in-roles#owner)
-  - For least-privileged access, see  [template details](template.md#prerequisites).
+  - For least-privileged access, see [template details](template.md#prerequisites).
 - Configuring Power BI requires one of the following
   - Storage reports: [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles/storage#storage-blob-data-reader) or SAS token
   - KQL reports: Viewer on the Hub and Ingestion databases.
@@ -194,13 +203,17 @@ For for information, see [Cost Management documentation](/azure/cost-management-
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20hubs%3F/cvaQuestion/How%20valuable%20are%20FinOps%20hubs%3F/surveyId/FTK/bladeName/Hubs/featureName/Overview)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Tool%3A%20FinOps%20hubs%22%20sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

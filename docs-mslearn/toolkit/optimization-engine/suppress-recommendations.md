@@ -11,7 +11,6 @@ ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to understand how to suppress recommendations in Azure optimization engine.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Suppress recommendations
 
 When working on the recommendations provided by the Azure Optimization Engine (AOE), you might find some cases where the recommendation doesn't apply. For example, AOE might suggest high availability recommendations that don't apply to Dev/Test virtual machines (VM), or recommend enabling Azure Backup for noncritical VMs. You can suppress recommendations in two ways:
