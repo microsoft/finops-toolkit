@@ -1,18 +1,28 @@
 {
-    "name": "finops-toolkit",
-    "owner": {
-        "name": "Microsoft"
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "finops-toolkit",
+  "description": "Microsoft FinOps Toolkit plugins for AI-powered cloud financial management.",
+  "owner": {
+    "name": "Microsoft"
+  },
+  "plugins": [
+    {
+      "name": "microsoft-finops-toolkit",
+      "version": "1.0.0",
+      "source": "../src/claude-plugin",
+      "description": "AI-powered cloud financial management for Azure. Analyze costs with KQL queries against FinOps hubs, get CFO-level reporting, and access Azure Cost Management insights.",
+      "category": "productivity",
+      "homepage": "https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/finops-toolkit-overview"
     },
-    "plugins": [
-        {
-            "name": "microsoft-finops-toolkit",
-            "source": "https://github.com/microsoft/finops-toolkit",
-            "description": "A Claude Code plugin for the Microsoft FinOps toolkit."
-        },
-        {
-            "name": "microsoft-learn",
-            "source": "https://github.com/microsoftdocs/mcp",
-            "description": "Stop AI Hallucinations. Give your AI assistant (Claude, Cursor, Copilot, Codex, ...) direct access to the latest official Microsoft documentation."
-        }
-    ]
+    {
+      "name": "microsoft-learn",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/microsoftdocs/mcp.git"
+      },
+      "description": "Access official Microsoft documentation, API references, and code samples for Azure, .NET, Windows, and more.",
+      "category": "documentation",
+      "homepage": "https://learn.microsoft.com"
+    }
+  ]
 }
