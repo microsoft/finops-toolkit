@@ -163,6 +163,6 @@ I need more information:
 - [FinOps Framework](https://www.finops.org/framework/)
 - [Microsoft FinOps documentation](https://learn.microsoft.com/cloud-computing/finops/)
 - [FinOps hubs database data model](https://learn.microsoft.com/cloud-computing/finops/toolkit/hubs/data-model)
-- [FinOps hubs starter queries](https://github.com/microsoft/finops-toolkit/src/ai-tools/skills/finops-toolkit/references/queries/INDEX.md)
+- [FinOps hubs starter queries](https://github.com/microsoft/finops-toolkit/src/queries/INDEX.md)
 
 ---

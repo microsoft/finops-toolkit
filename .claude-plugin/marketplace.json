@@ -9,7 +9,7 @@
     {
       "name": "microsoft-finops-toolkit",
       "version": "1.0.0",
-      "source": "../src/claude-plugin",
+      "source": "../src/templates/claude-plugin",
       "description": "AI-powered cloud financial management for Azure. Analyze costs with KQL queries against FinOps hubs, get CFO-level reporting, and access Azure Cost Management insights.",
       "category": "productivity",
       "homepage": "https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/finops-toolkit-overview"

@@ -26,7 +26,6 @@ Azure Cost Management and optimization skills. Provides recommendations, budget 
 | **azure-credits** | Credit tracking | Azure Prepayment balance, expiration risk |
 | **azure-macc** | MACC commitment tracking | Balance, decrements, milestone tracking |
 
-
 ## Cost Optimization
 
 ### Azure Advisor Recommendations
