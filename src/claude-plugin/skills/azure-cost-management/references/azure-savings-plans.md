@@ -37,7 +37,7 @@ description: Query the Azure Cost Management Benefit Recommendations API to retr
 | Parameter | Required | Default | Description |
 |-----------|----------|---------|-------------|
 | `BillingScope` | Yes | - | Billing account, subscription, or resource group scope |
-| `LookBackPeriod` | No | Last7Days | Analysis period: Last7Days, Last30Days, Last60Days |
+| `LookBackPeriod` | No | Last7Days | Analysis period: Last7Days, Last30Days, Last60Days. Script default is Last7Days; API default (when omitted from REST call) is Last60Days |
 | `Term` | No | P3Y | Savings plan term: P1Y (1-year) or P3Y (3-year) |
 
 ### Scope Formats
@@ -45,6 +45,7 @@ description: Query the Azure Cost Management Benefit Recommendations API to retr
 | Scope Type | Format |
 |------------|--------|
 | Billing Account | `providers/Microsoft.Billing/billingAccounts/{billingAccountId}` |
+| Billing Profile (MCA) | `providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}` |
 | Subscription | `subscriptions/{subscriptionId}` |
 | Resource Group | `subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}` |
 
@@ -73,28 +74,29 @@ The API returns detailed financial projections:
 ### Request
 
 ```http
-POST https://management.azure.com/{scope}/providers/Microsoft.CostManagement/benefitRecommendations?api-version=2023-08-01
-Content-Type: application/json
+GET https://management.azure.com/{billingScope}/providers/Microsoft.CostManagement/benefitRecommendations?$filter=properties/lookBackPeriod eq 'Last30Days' AND properties/term eq 'P3Y'&$expand=properties/usage,properties/allRecommendationDetails&api-version=2024-08-01
 Authorization: Bearer {token}
-
-{
-  "properties": {
-    "lookBackPeriod": "Last30Days",
-    "term": "P3Y",
-    "scope": "Shared",
-    "kind": "SavingsPlan"
-  }
-}
 ```
 
-### Scope Values
+All parameters are passed via OData `$filter` query parameters, not a request body. The `$expand` parameter controls which detail sections are returned:
+
+| $expand value | Effect |
+|---------------|--------|
+| `properties/allRecommendationDetails` | Returns all 10 commitment level recommendations (required for comparison analysis) |
+| `properties/usage` | Returns hourly usage data for the lookback period |
+
+To filter for savings plans only, add `AND properties/kind eq 'SavingsPlan'` to the `$filter`. Without a `kind` filter, the API returns both savings plan and reservation recommendations.
+
+### Scope values
 
 | Scope | Description |
 |-------|-------------|
 | `Shared` | Analyzes usage across entire billing scope (default, optimal savings) |
 | `Single` | Resource-specific recommendations |
 
-### Response Structure
+**Note:** Add `AND properties/scope eq 'Shared'` to the `$filter` to specify scope. Default behavior analyzes shared scope.
+
+### Response structure
 
 ```json
 {
@@ -106,24 +108,35 @@ Authorization: Bearer {token}
         "lookBackPeriod": "Last30Days",
         "term": "P3Y",
         "totalHours": 720,
-        "recommendations": [
-          {
-            "commitmentAmount": 10.5,
-            "savingsAmount": 2500,
-            "savingsPercentage": 25.5,
-            "coveragePercentage": 85.2,
-            "averageUtilizationPercentage": 92.3,
-            "totalCost": 8500,
-            "benefitCost": 7560,
-            "overageCost": 940,
-            "wastageCost": 580
-          }
-        ]
+        "scope": "Shared",
+        "kind": "SavingsPlan",
+        "currencyCode": "USD",
+        "costWithoutBenefit": 11000,
+        "recommendationDetails": {
+          "commitmentAmount": 10.5,
+          "savingsAmount": 2500,
+          "savingsPercentage": 25.5,
+          "coveragePercentage": 85.2,
+          "averageUtilizationPercentage": 92.3,
+          "totalCost": 8500,
+          "benefitCost": 7560,
+          "overageCost": 940,
+          "wastageCost": 580
+        },
+        "allRecommendationDetails": {
+          "value": [
+            { "commitmentAmount": 5.0, "savingsPercentage": 15.2, "averageUtilizationPercentage": 98.1 },
+            { "commitmentAmount": 10.5, "savingsPercentage": 25.5, "averageUtilizationPercentage": 92.3 },
+            { "commitmentAmount": 15.0, "savingsPercentage": 28.1, "averageUtilizationPercentage": 85.7 }
+          ]
+        }
       }
     }
   ]
 }
 ```
+
+**Note:** The `allRecommendationDetails` array only appears when `$expand=properties/allRecommendationDetails` is included in the request. The `recommendationDetails` object always contains the single best recommendation.
 
 ---
 
@@ -174,51 +187,30 @@ $comparison | ConvertTo-Json
 
 ---
 
-## EA Storage Report
+## Integration with FinOps analysis
 
-Analyze storage account costs across an Enterprise Agreement:
-
-```powershell
-# Default (MonthToDate, configured EA)
-.\Get-EAStorageReport.ps1
-
-# Custom billing account and timeframe
-.\Get-EAStorageReport.ps1 -BillingAccountId "1234567" -Timeframe "TheLastMonth"
-```
-
-### Output
-
-- **Summary by subscription**: Account count, total cost, storage GiB per subscription
-- **Top 20 storage accounts by cost**: Highest-cost storage accounts
-- **All storage accounts**: Complete listing sorted by cost
-
-**Note:** Storage quantities are reported in GiB (gibibytes, base-2) as returned by Azure billing meters.
-
----
-
-## Integration with FinOps Analysis
-
-### Calculate Break-Even Point
+### Utilization analysis
 
 ```powershell
-# Get current pay-as-you-go costs
-$payg = $result.recommendations |
-    Select-Object -First 1 |
-    ForEach-Object { $_.totalCost + $_.savingsAmount }
+# Assess whether the recommended commitment level will be fully utilized
+# Key metric: averageUtilizationPercentage — the projected percentage of committed hours that would be consumed
+# Target: >90% utilization = good commitment fit; <80% = consider lower commitment
 
-# Calculate break-even
-$commitment = $result.recommendations[0]
-$monthlyCommitment = $commitment.commitmentAmount * 730  # hours/month
-$monthlySavings = $commitment.savingsAmount / 12
+$optimal = $result.recommendations |
+    Where-Object { $_.averageUtilizationPercentage -ge 90 } |
+    Sort-Object savingsAmount -Descending |
+    Select-Object -First 1
 
-$breakEvenMonths = $monthlyCommitment / $monthlySavings
-
-Write-Host "Monthly commitment: $$monthlyCommitment"
-Write-Host "Monthly savings: $$monthlySavings"
-Write-Host "Break-even: $breakEvenMonths months"
+$wastageRate = (1 - ($optimal.averageUtilizationPercentage / 100)) * $optimal.benefitCost
+Write-Host "Projected hourly commitment: $($optimal.commitmentAmount)"
+Write-Host "Projected savings (lookback period): $($optimal.savingsAmount)"
+Write-Host "Projected wastage (lookback period): $wastageRate"
+Write-Host "Utilization: $($optimal.averageUtilizationPercentage)%"
 ```
 
-### Risk Assessment
+**Important:** The `savingsAmount` from the API represents total savings over the lookback period (7, 30, or 60 days), not annual savings. Do not divide by 12 to get monthly figures — instead scale proportionally from the lookback window.
+
+### Risk assessment
 
 ```powershell
 # Evaluate commitment risk based on utilization variance
