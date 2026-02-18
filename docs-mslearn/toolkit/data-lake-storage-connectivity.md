@@ -185,7 +185,6 @@ Related resources:
 Related FinOps capabilities:
 
 - [Reporting and analytics](../framework/understand/reporting.md)
-- [Data analysis](../framework/understand/analysis.md)
 
 Related products:
 

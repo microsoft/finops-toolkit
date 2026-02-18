@@ -8,7 +8,9 @@ InModuleScope 'FinOpsToolkit' {
         BeforeAll {
             function Get-AzResourceGroup {}
             function New-AzResourceGroup {}
-            function New-AzResourceGroupDeployment {}
+            function New-AzResourceGroupDeployment {
+                param($TemplateFile, $TemplateParameterObject, $ResourceGroupName)
+            }
 
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $hubName = 'ftk-test-Deploy-FinOpsHub'
@@ -114,6 +116,7 @@ InModuleScope 'FinOpsToolkit' {
                 Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
                 Mock -CommandName 'New-AzResourceGroup'
                 Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
             }
 
             It 'Should throw if template file is not found' {

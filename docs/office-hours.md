@@ -11,6 +11,9 @@ permalink: /office-hours
 Join us for open office hours to get live help from the team.
 {: .fs-6 .fw-300 }
 
+<a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/office-hours.ics">Add to calendar</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" target="_blank" rel="noopener noreferrer" href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjA0MzljMGUtOGU2My00MjYxLTlmM2EtYzM1YjRlNWQzMTQ0%40thread.v2/0?context=%7b%22Tid%22%3a%2210a66b8f-838f-4f58-a72b-419c6528f569%22%2c%22Oid%22%3a%22997adb29-26c9-4d91-b52a-58afd612dfdc%22%7d">Join the meeting</a>
+
 ---
 
 Join the FinOps toolkit team for open office hours! Bring your questions about FinOps hubs, Power BI reports, or anything toolkit-related. Time permitting, we can also help with other FinOps questions.
@@ -20,16 +23,15 @@ Join the FinOps toolkit team for open office hours! Bring your questions about F
 - Share feedback and ideas
 - Connect with the community
 
-No agenda. Just drop in! All experience levels are welcome!
+No agenda. Just drop in! All experience levels are welcome! 🙋‍♀️ 💬
 
 <br>
 
 ## Schedule
 
-Office hours are held **every other Wednesday** from **8:30-9:00 AM Pacific (4:30-5:00 PM UTC)**.
+Office hours are held **every other Wednesday** from **7:30-8:00 AM Pacific**.
 
-<a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZjA0MzljMGUtOGU2My00MjYxLTlmM2EtYzM1YjRlNWQzMTQ0%40thread.v2/0?context=%7b%22Tid%22%3a%2210a66b8f-838f-4f58-a72b-419c6528f569%22%2c%22Oid%22%3a%22997adb29-26c9-4d91-b52a-58afd612dfdc%22%7d">Join the meeting</a>
-<a class="btn mb-4 mb-md-0 mr-4 ftk-btnlink" href="https://github.com/microsoft/finops-toolkit/raw/dev/docs/office-hours.ics">Add to calendar</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="https://github.com/microsoft/finops-toolkit/releases/latest/download/office-hours.ics">Add to calendar</a>
 
 <br>
 
@@ -46,8 +48,8 @@ To make the most of your time, we recommend:
 
 ## Resources
 
-- [About the FinOps toolkit](https://aka.ms/finops/toolkit)
-- [Troubleshooting guide](https://aka.ms/ftk/trouble)
-- [How to get support](./help)
+- 🧰 [About the FinOps toolkit](https://aka.ms/finops/toolkit)
+- 🛠️ [Troubleshooting guide](https://aka.ms/ftk/trouble)
+- 🙋‍♀️ [How to get support](./help)
 
 <br>

@@ -224,6 +224,11 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
         Copy-Item "$PSScriptRoot/../power-bi/cm-connector/*.pbix" "$relDir" -Force
         Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../power-bi/cm-connector/*.pbix").Count) PBIX files"
 
+        # Copy calendar files
+        Write-Verbose "Copying calendar files..."
+        Copy-Item "$PSScriptRoot/../../docs/*.ics" "$relDir" -Force
+        Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../../docs/*.ics").Count) calendar files"
+
         # Update version in docs
         $docVersionPath = "$PSScriptRoot/../../docs/_includes/ftkver.txt"
         $versionInDocs = Get-Content $docVersionPath -Raw

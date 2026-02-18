@@ -13,6 +13,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 <a class="btn btn-primary fs-5 mb-4 mb-md-0 mr-4" href="#available-tools">Get the tools</a>
 <a class="btn fs-5 mb-4 mb-md-0 mr-4" href="./guide">Learn FinOps</a>
+<a class="btn fs-5 mb-4 mb-md-0 mr-4" href="./office-hours">Join office hours</a>
 
 ---
 
@@ -218,6 +219,13 @@ Whether you're looking for a little assistance or are interested in contributing
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/gajadv"><img src="https://avatars.githubusercontent.com/u/125584305?v=4?s=100" width="100px;" alt="gajadv"/><br /><sub><b>gajadv</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Agajadv" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="http://www.jeeja.biz"><img src="https://avatars.githubusercontent.com/u/3397477?v=4?s=100" width="100px;" alt="Francesco Mantovani"/><br /><sub><b>Francesco Mantovani</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Afrancesco1119" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ahpandit"><img src="https://avatars.githubusercontent.com/u/98794500?v=4?s=100" width="100px;" alt="ahpandit"/><br /><sub><b>ahpandit</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aahpandit" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/jamie-oconnell"><img src="https://avatars.githubusercontent.com/u/13116496?v=4?s=100" width="100px;" alt="Jamie O'Connell"/><br /><sub><b>Jamie O'Connell</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ajamie-oconnell" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/jchisum"><img src="https://avatars.githubusercontent.com/u/14060155?v=4?s=100" width="100px;" alt="jchisum"/><br /><sub><b>jchisum</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ajchisum" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/DMarshall-1"><img src="https://avatars.githubusercontent.com/u/200792187?v=4?s=100" width="100px;" alt="DMarshall-1"/><br /><sub><b>DMarshall-1</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3ADMarshall-1" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://codeserendipity.com/"><img src="https://avatars.githubusercontent.com/u/11653125?v=4?s=100" width="100px;" alt="Ana Del Campo"/><br /><sub><b>Ana Del Campo</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3AMarchingBug" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="http://www.codeisahighway.com"><img src="https://avatars.githubusercontent.com/u/1054412?v=4?s=100" width="100px;" alt="Stephane Lapointe"/><br /><sub><b>Stephane Lapointe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=slapointe" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

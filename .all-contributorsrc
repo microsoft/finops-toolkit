@@ -898,6 +898,51 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "jamie-oconnell",
+      "name": "Jamie O'Connell",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13116496?v=4",
+      "profile": "https://github.com/jamie-oconnell",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "jchisum",
+      "name": "jchisum",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14060155?v=4",
+      "profile": "https://github.com/jchisum",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "DMarshall-1",
+      "name": "DMarshall-1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/200792187?v=4",
+      "profile": "https://github.com/DMarshall-1",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "MarchingBug",
+      "name": "Ana Del Campo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11653125?v=4",
+      "profile": "https://codeserendipity.com/",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "slapointe",
+      "name": "Stephane Lapointe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1054412?v=4",
+      "profile": "http://www.codeisahighway.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",

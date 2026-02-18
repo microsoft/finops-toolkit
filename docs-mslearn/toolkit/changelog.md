@@ -1,13 +1,13 @@
 ---
 title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
-author: flanakin
-ms.author: micflan
-ms.date: 05/02/2025
+author: MSBrett
+ms.author: brettwil
+ms.date: 02/11/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
-ms.reviewer: micflan
+ms.reviewer: brettwil
 #customer intent: As a FinOps user, I want to understand what changes were made in the latest FinOps toolkit releases.
 ---
 
@@ -19,6 +19,7 @@ ms.reviewer: micflan
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
+<!--
 <br>
 
 ## Unreleased
@@ -28,8 +29,38 @@ The following section lists features and enhancements that are currently in deve
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
+-->
 
 <br><a name="latest"></a>
+
+## v14
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v14
+
+- **Fixed**
+  - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
+
+<br>
+
+## v13 Update 1
+
+_Released February 11, 2026_
+
+This release is a minor patch to fix a bug in FinOps hub managed exports and the PowerShell Deploy-FinOpsHub command. If you are experiencing issues with managed exports in FinOps hubs v13, update to the latest v13 release. We are documenting this as a new patch release for transparency. If you downloaded **finops-hub.bicep** before February 11, 2026, update to the latest version.
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v13 Update 1
+
+- **Fixed**
+  - Fixed incorrect PriceSheet export dataset version in managed exports to 2023-05-01.
+
+### [PowerShell module](powershell/powershell-commands.md) v13 Update 1
+
+- **Added**
+  - Added [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) parameters for all remaining Bicep template options: `-EnablePurgeProtection`, `-EnableManagedExports`, `-FabricQueryUri`, `-FabricCapacityUnits`, `-TagsByResource`, `-ScopesToMonitor`, `-ExportRetentionInDays`, and `-IngestionRetentionInMonths`.
+- **Fixed**
+  - Fixed [Deploy-FinOpsHub](powershell/hubs/Deploy-FinOpsHub.md) failing in Cloud Shell and Linux environments due to missing TEMP environment variable (required by Bicep CLI) and cleanup errors masking the real problem ([#665](https://github.com/microsoft/finops-toolkit/issues/665)).
+
+<br>
 
 ## v13
 
@@ -74,7 +105,7 @@ _Released January 2026_
   - Fixed tag expansion when tag names contain special characters like colons.
   - Fixed unattached disks count in the workload optimization report to show only truly unattached disks ([#1896](https://github.com/microsoft/finops-toolkit/issues/1896)).
   - Fixed "Number of Months" parameter calculation that was excluding the first 5 days of data ([#1833](https://github.com/microsoft/finops-toolkit/issues/1833)).
-  - Fixed EA department scope failing on pricesheet export by skipping unsupported scopes ([#1870](https://github.com/microsoft/finops-toolkit/issues/1870)).
+  - Fixed EA department scope failing on price sheet export by skipping unsupported scopes ([#1870](https://github.com/microsoft/finops-toolkit/issues/1870)).
 
 ### [Optimization engine](optimization-engine/overview.md) v13
 
@@ -143,7 +174,7 @@ _Released July 16, 2025_
   - Added new properties to the [Recommendations managed dataset](hubs/data-model.md#recommendations-managed-dataset) to support custom recommendations.
   - Start Azure Data Explorer automatically if stopped when data is added to the ingestion container ([#1371](https://github.com/microsoft/finops-toolkit/issues/1371)).
   - Added a new **enableManagedExports** parameter to support disabling managed exports and not requiring the ability to assign the User Access Administrator role to a hub identity ([#1600](https://github.com/microsoft/finops-toolkit/issues/1600)).
-  - Document [how savings are calcultated](hubs/savings-calculations.md) and how to troubleshoot negative savings.
+  - Document [how savings are calculated](hubs/savings-calculations.md) and how to troubleshoot negative savings.
 - **Changed**
   - Changed all `decimal` columns to use `real` in raw and v1_2 tables and functions for improved performance.
   - Updated the Data Explorer dashboard to use the v1_2 schema.
@@ -246,7 +277,7 @@ _Released June 2, 2025_
 ### [Power BI reports](power-bi/reports.md) v0.11
 
 - **Added**
-  - Added a new [Invoicing and charegback report](power-bi/invoicing.md) that shows billed cost breakdowns, chargeback, and invoice recon pages.
+  - Added a new [Invoicing and chargeback report](power-bi/invoicing.md) that shows billed cost breakdowns, chargeback, and invoice recon pages.
   - Added a new [Usage analysis page](power-bi/cost-summary.md#usage-analysis) that shows usage over time compared to cost for a specific unit.
   - Added a new [Commitment discount utilization page](power-bi/rate-optimization.md#commitment-discount-utilization) that shows commitment discount utilization over time.
   - Added a new [Commitment discount resources page](power-bi/rate-optimization.md#commitment-discount-resources) that shows the resources that were covered by a specific commitment discount.
@@ -367,7 +398,7 @@ _Released May 4, 2025_
 
 - **Added**
   - Top 10 request: Added support for connecting FinOps hubs to Microsoft Fabric Real-Time Intelligence.
-  - Added support for Azure Gov and Azure China.
+  - Added support for Azure Gov and Azure operated by 21Vianet.
   - Expand deployment steps into a dedicated [Create and update FinOps hubs tutorial](hubs/deploy.md).
   - Created new bicep modules to support extensibility:
     - The **hub-app** module creates resources and tracks telemetry when an app is deployed.
@@ -387,7 +418,7 @@ _Released May 4, 2025_
 ### [Power BI reports](power-bi/reports.md) v0.10
 
 - **Added**
-  - Added support for Azure Gov and Azure China.
+  - Added support for Azure Gov and Azure operated by 21Vianet.
   - Documented that SAS tokens may require configuration at the storage account (and not a container) level ([#1418](https://github.com/microsoft/finops-toolkit/issues/1418#issuecomment-2834146702)).
   - Documented additional errors and mitigation steps.
 - **Changed**
@@ -396,7 +427,7 @@ _Released May 4, 2025_
   - Reduced data amount in the NetworkSecurityGroups query to avoid size limits ([#1540](https://github.com/microsoft/finops-toolkit/issues/1540)).
   - Disabled the PolicyDefinitions query due to size limits ([#1539](https://github.com/microsoft/finops-toolkit/issues/1539)).
   - Removed the Virtual machines page in the Workload optimization report ([#1519](https://github.com/microsoft/finops-toolkit/issues/1519)).
-  - Updated Resource Graph queries to support handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
+  - Updated Resource Graph queries to handle no results ([#1550](https://github.com/microsoft/finops-toolkit/issues/1550)).
   - Fixed reservation recommendation query for raw MCA exports ([#1530](https://github.com/microsoft/finops-toolkit/issues/1530)).
   - Fixed a parsing issue with the HubScopes query ([#1521](https://github.com/microsoft/finops-toolkit/issues/1521)).
   - Added a "Remove Duplicate Resource IDs" parameter to work around a bug in Azure Resource Graph ([#1541](https://github.com/microsoft/finops-toolkit/issues/1541)).
@@ -742,7 +773,7 @@ _Released February 12, 2025_
   - Deprecated the `monthsago()` KQL function. Please use `startofmonth(datetime, [offset])` instead.
 - **Fixed**
   - Improved performance and memory consumption in the `parse_resourceid()` function to address out of memory errors during cost data ingestion ([#1188](https://github.com/microsoft/finops-toolkit/issues/1188)).
-  - Fixed timezones for Data Factory triggers to resolve issue where triggers would not start due to unrecognized timezone.
+  - Fixed time zones for Data Factory triggers to resolve issue where triggers wouldn't start due to unrecognized time zone.
   - Fixed an issue where `x_ResourceType` is using the wrong value.
     - This fix resolves the issue for all newly ingested data.
     - To fix historical data, reingest data using the `ingestion_ExecuteETL` Data Factory pipeline.
@@ -1142,7 +1173,7 @@ _Released October 2, 2024_
 - Deprecated
   - With the deprecation of the legacy Log Analytics agent in August 31, the `Setup-LogAnalyticsWorkspaces` script is no longer being maintained and will be removed in a future update.
     - The script was used to set up performance counters collection for machines connected to Log Analytics workspaces with the legacy agent.
-    - We recommend migrating to the [Azure Monitor Agent](/azure/azure-monitor/agents/azure-monitor-agent-migration) and use the `Setup-DataCollectionRules` script to [setup performance counters collection with Data Collection Rules](optimization-engine/configure-workspaces.md).
+    - We recommend migrating to the [Azure Monitor Agent](/azure/azure-monitor/agents/azure-monitor-agent-migration) and use the `Setup-DataCollectionRules` script to [set up performance counters collection with Data Collection Rules](optimization-engine/configure-workspaces.md).
 
 ### [PowerShell module](powershell/powershell-commands.md) v0.6
 
