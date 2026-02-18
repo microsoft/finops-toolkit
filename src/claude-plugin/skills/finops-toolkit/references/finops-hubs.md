@@ -50,7 +50,7 @@ All KQL queries are located in `references/queries/`:
 
 **Database Rules:**
 - Always use "Hub" database, NEVER "Ingestion"
-- Function-based access: `Costs()`, `Prices()`, `Recommendations()`
+- Function-based access: `Costs()`, `Prices()`, `Recommendations()`, `Transactions()`
 
 ---
 

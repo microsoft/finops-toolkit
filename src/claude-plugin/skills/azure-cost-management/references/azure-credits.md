@@ -14,9 +14,9 @@ Credits are automatically applied to eligible charges when an invoice is generat
 **Products NOT covered by credits:**
 - Azure Marketplace products
 - Azure support plans
-- Canonical, Citrix XenApp/XenDesktop
+- Canonical products (Ubuntu Pro)
+- Citrix Virtual Apps and Desktops
 - Visual Studio subscriptions (Monthly/Annual)
-- Ubuntu Advantage
 
 ## Workflow: Assess Credit Health
 

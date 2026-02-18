@@ -218,9 +218,9 @@ $recommendations = $result.recommendations
 
 foreach ($rec in $recommendations) {
     $risk = switch ($rec.averageUtilizationPercentage) {
-        { $_ -ge 95 } { "Low - High utilization, minimal waste" }
-        { $_ -ge 85 } { "Medium - Good utilization, some flexibility" }
-        { $_ -ge 70 } { "High - Consider lower commitment" }
+        { $_ -ge 95 } { "Low - High utilization, minimal waste"; break }
+        { $_ -ge 85 } { "Medium - Good utilization, some flexibility"; break }
+        { $_ -ge 70 } { "High - Consider lower commitment"; break }
         default { "Very High - Significant underutilization risk" }
     }
 
@@ -284,7 +284,7 @@ When multiple commitment discounts exist, benefits are applied in this order:
 Savings plans cover **compute charges only**. The following are NOT covered:
 - Software licensing (Windows Server, SQL Server — use Azure Hybrid Benefit separately)
 - Networking charges
-- Storage costs (see `references/azure-storage-cost-analysis.md`)
+- Storage costs
 - Marketplace purchases
 
 ---

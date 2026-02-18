@@ -1,6 +1,6 @@
 ---
 name: azure-cost-management
-description: This skill should be used when the user asks about "Azure Advisor", "cost recommendations", "savings plans", "reservations", "reserved instances", "RI", "Azure budgets", "cost exports", "anomaly alerts", "MACC", "Azure credits", "Azure Prepayment", "commitment discounts", "cost optimization", "reservations vs savings plans", "which commitment discount", "storage cost report", or any Azure Cost Management operations.
+description: This skill should be used when the user asks about "Azure Advisor", "cost recommendations", "savings plans", "reservations", "reserved instances", "RI", "Azure budgets", "cost exports", "anomaly alerts", "MACC", "Azure credits", "Azure Prepayment", "commitment discounts", "cost optimization", "reservations vs savings plans", "which commitment discount", or any Azure Cost Management operations.
 license: MIT
 compatibility: Requires Azure CLI authentication (az login) and appropriate RBAC permissions for Cost Management APIs.
 metadata:
@@ -25,7 +25,7 @@ Azure Cost Management and optimization skills. Provides recommendations, budget 
 | **azure-commitment-discount-decision** | Commitment discount framework | Reservations vs savings plans decision criteria, hybrid strategy |
 | **azure-credits** | Credit tracking | Azure Prepayment balance, expiration risk |
 | **azure-macc** | MACC commitment tracking | Balance, decrements, milestone tracking |
-| **azure-storage-cost-analysis** | Storage cost reporting | EA storage report, cost by subscription and account |
+
 
 ## Cost Optimization
 
@@ -98,6 +98,4 @@ For detailed documentation: `references/azure-macc.md`
 - **Decision framework**: `references/azure-commitment-discount-decision.md`
 - **Budgets and alerts**: `references/azure-budgets.md`, `references/azure-anomaly-alerts.md`, `references/azure-cost-exports.md`
 - **Commitments**: `references/azure-credits.md`, `references/azure-macc.md`
-- **Cost analysis**: `references/azure-storage-cost-analysis.md`
-
 Load the appropriate reference file when detailed workflows, API examples, or troubleshooting are needed.

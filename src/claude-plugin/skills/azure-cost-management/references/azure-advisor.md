@@ -36,15 +36,17 @@ az advisor recommendation list \
 
 ```powershell
 # Get all cost recommendations
-Get-AzAdvisorRecommendation -Category Cost
+Get-AzAdvisorRecommendation |
+    Where-Object { $_.Category -eq 'Cost' }
 
 # Get high-impact recommendations
-Get-AzAdvisorRecommendation -Category Cost |
-    Where-Object { $_.Impact -eq 'High' }
+Get-AzAdvisorRecommendation |
+    Where-Object { $_.Category -eq 'Cost' -and $_.Impact -eq 'High' }
 
 # Export to CSV
-Get-AzAdvisorRecommendation -Category Cost |
-    Select-Object ResourceId, Impact, ShortDescription |
+Get-AzAdvisorRecommendation |
+    Where-Object { $_.Category -eq 'Cost' } |
+    Select-Object ResourceId, Impact, ShortDescriptionProblem |
     Export-Csv -Path "advisor-recommendations.csv"
 ```
 
@@ -65,7 +67,6 @@ Authorization: Bearer {token}
 | Shutdown idle VMs | `89515250-1243-43d1-b4e7-f9437cedffd8` | Stop VMs with low utilization |
 | Reserved instances | `84b1a508-fc21-49da-979e-96894f1665df` | Purchase RIs for consistent workloads |
 | Delete unused disks | `48eda464-1485-4dcf-a674-d0905df5054a` | Remove unattached managed disks |
-| Delete unused public IPs | `1a2b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p` | Remove unassociated public IPs |
 
 ---
 
@@ -104,6 +105,8 @@ Authorization: Bearer {token}
 ```
 
 **TTL Format:** `days:hours:minutes:seconds` (max 90 days)
+
+> **Dismiss vs postpone:** To permanently dismiss a recommendation instead of postponing it, omit the `ttl` property (send `"properties": {}` in the PUT body). The recommendation will remain hidden indefinitely with no automatic reappearance. Permanent dismissals can be reversed via the [Suppressions DELETE API](https://learn.microsoft.com/en-us/rest/api/advisor/suppressions/delete) or by clicking "Activate" under the Advisor portal's "Postponed & Dismissed" filter. Prefer postpone with TTL over permanent dismiss for cost recommendations, since dismissed recommendations silently stop surfacing even when resource conditions change. Reserve permanent dismissal for recommendations that are structurally irrelevant to your environment.
 
 ### List Suppressions
 
@@ -203,13 +206,14 @@ advisorresources
 # Get all cost recommendations across subscriptions
 $recommendations = Get-AzSubscription | ForEach-Object {
     Set-AzContext -Subscription $_.Id
-    Get-AzAdvisorRecommendation -Category Cost
+    Get-AzAdvisorRecommendation |
+        Where-Object { $_.Category -eq 'Cost' }
 }
 
 # Calculate total potential savings
 $totalSavings = $recommendations |
-    Where-Object { $_.ExtendedProperties.savingsAmount } |
-    Measure-Object -Property { [double]$_.ExtendedProperties.savingsAmount } -Sum
+    Where-Object { $_.ExtendedProperty["savingsAmount"] } |
+    Measure-Object -Property { [double]$_.ExtendedProperty["savingsAmount"] } -Sum
 
 Write-Host "Total potential monthly savings: $($totalSavings.Sum)"
 ```
@@ -220,8 +224,8 @@ Write-Host "Total potential monthly savings: $($totalSavings.Sum)"
 $recommendations |
     Select-Object @{N='Resource';E={$_.ResourceId}},
                   Impact,
-                  @{N='Savings';E={$_.ExtendedProperties.savingsAmount}},
-                  @{N='Problem';E={$_.ShortDescription.Problem}} |
+                  @{N='Savings';E={$_.ExtendedProperty["savingsAmount"]}},
+                  @{N='Problem';E={$_.ShortDescriptionProblem}} |
     Sort-Object -Property @{E='Impact';D=$true}, @{E='Savings';D=$true} |
     Format-Table
 ```

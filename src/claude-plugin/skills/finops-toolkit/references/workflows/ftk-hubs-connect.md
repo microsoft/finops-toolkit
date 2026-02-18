@@ -58,7 +58,7 @@ Costs
 | summarize
     Cost = numberstring(sum(EffectiveCost)),
     Months = dcount(startofmonth(ChargePeriodStart)),
-    DataLastUpdated = daterange(max(ChargePeriodStart))
+    DataLastUpdated = datestring(max(ChargePeriodStart))
     by
         HubVersion = version,
         BillingCurrency

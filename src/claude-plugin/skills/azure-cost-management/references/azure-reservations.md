@@ -7,7 +7,7 @@ description: Query the Azure Cost Management Benefit Recommendations API to retr
 - Up to 72% savings vs pay-as-you-go pricing for stable workloads
 - Resource-type specific (VMs, SQL DB, Cosmos DB, App Service, Synapse, Storage, etc.)
 - Instance size flexibility within VM series
-- Exchange and return policy (up to $50K/year in returns)
+- Self-service returns (up to $50K/year) and exchanges within product family
 - 1-year and 3-year terms
 - Applied before savings plans in the benefit stack
 
@@ -24,11 +24,14 @@ GET https://management.azure.com/{billingScope}/providers/Microsoft.CostManageme
 Authorization: Bearer {token}
 ```
 
-When no `kind` filter is specified, the API returns both savings plan and reservation recommendations. To retrieve reservations only, add the filter:
+When no `kind` filter is specified, the API returns both savings plan and reservation recommendations. The `kind` property is at the top level of each result (not under `properties`), so filter client-side:
 
+```powershell
+# Filter API results for reservations only
+$reservations = $jsonResult.value | Where-Object { $_.kind -eq 'Reservation' }
 ```
-$filter=properties/kind eq 'Reservation' AND properties/lookBackPeriod eq '{lookBackPeriod}' AND properties/term eq '{term}'
-```
+
+**Note:** The documented `$filter` query parameters support `properties/lookBackPeriod`, `properties/term`, `properties/scope`, `properties/subscriptionId`, and `properties/resourceGroup`. Filtering by `kind` is not a documented server-side filter — do it client-side after retrieving results.
 
 ### Parameters
 
@@ -37,7 +40,7 @@ $filter=properties/kind eq 'Reservation' AND properties/lookBackPeriod eq '{look
 | `billingScope` | Yes | - | Billing account, subscription, or resource group scope |
 | `lookBackPeriod` | No | Last7Days | Analysis period: Last7Days, Last30Days, Last60Days |
 | `term` | No | P3Y | Reservation term: P1Y (1-year) or P3Y (3-year) |
-| `kind` | No | - | Filter by benefit type: `Reservation` or `SavingsPlan` |
+| `kind` | No | - | Top-level property on results: `Reservation` or `SavingsPlan`. Filter client-side (not a supported `$filter` param). |
 
 ### Scope formats
 
@@ -57,21 +60,22 @@ The `Get-BenefitRecommendations.ps1` script (see `azure-savings-plans.md` for fu
 ### Get reservation recommendations only
 
 ```powershell
-# Get all benefit recommendations
-$result = .\Get-BenefitRecommendations.ps1 `
-    -BillingScope "subscriptions/12345678-1234-1234-1234-123456789012" `
-    -LookBackPeriod "Last30Days" `
-    -Term "P3Y"
+# Get all benefit recommendations and parse JSON
+$scope = "subscriptions/12345678-1234-1234-1234-123456789012"
+$url = "https://management.azure.com/$scope/providers/Microsoft.CostManagement/benefitRecommendations?`$filter=properties/lookBackPeriod eq 'Last30Days' AND properties/term eq 'P3Y'&`$expand=properties/usage,properties/allRecommendationDetails&api-version=2024-08-01"
+$uri = [uri]::new($url)
+$result = Invoke-AzRestMethod -Uri $uri.AbsoluteUri -Method GET
+$jsonResult = $result.Content | ConvertFrom-Json
 
-# Filter for reservation recommendations only
-$reservations = $result | Where-Object { $_.properties.kind -eq 'Reservation' }
+# Filter for reservation recommendations only (kind is top-level, not under properties)
+$reservations = $jsonResult.value | Where-Object { $_.kind -eq 'Reservation' }
 
 # Display summary
 $reservations | ForEach-Object {
     $rec = $_.properties
-    Write-Host "Resource type: $($rec.resourceType)"
-    Write-Host "  Recommended quantity: $($rec.recommendedQuantity)"
-    Write-Host "  Savings percentage: $($rec.savingsPercentage)%"
+    Write-Host "ARM SKU: $($rec.armSkuName)"
+    Write-Host "  Commitment: $($rec.recommendationDetails.commitmentAmount)/hr"
+    Write-Host "  Savings: $($rec.recommendationDetails.savingsPercentage)%"
     Write-Host "  Term: $($rec.term)"
     Write-Host ""
 }
@@ -81,14 +85,16 @@ $reservations | ForEach-Object {
 
 ```powershell
 $scope = "subscriptions/$subscriptionId"
+$url = "https://management.azure.com/$scope/providers/Microsoft.CostManagement/benefitRecommendations?`$filter=properties/lookBackPeriod eq 'Last30Days' AND properties/term eq 'P3Y'&`$expand=properties/allRecommendationDetails&api-version=2024-08-01"
+$uri = [uri]::new($url)
+$result = Invoke-AzRestMethod -Uri $uri.AbsoluteUri -Method GET
+$all = ($result.Content | ConvertFrom-Json).value
 
-$all = .\Get-BenefitRecommendations.ps1 -BillingScope $scope -LookBackPeriod "Last30Days"
+$reservationSavings = ($all | Where-Object { $_.kind -eq 'Reservation' } |
+    Measure-Object -Property { $_.properties.recommendationDetails.savingsAmount } -Sum).Sum
 
-$reservationSavings = ($all | Where-Object { $_.properties.kind -eq 'Reservation' } |
-    Measure-Object -Property { $_.properties.recommendations[0].savingsAmount } -Sum).Sum
-
-$savingsPlanSavings = ($all | Where-Object { $_.properties.kind -eq 'SavingsPlan' } |
-    Measure-Object -Property { $_.properties.recommendations[0].savingsAmount } -Sum).Sum
+$savingsPlanSavings = ($all | Where-Object { $_.kind -eq 'SavingsPlan' } |
+    Measure-Object -Property { $_.properties.recommendationDetails.savingsAmount } -Sum).Sum
 
 Write-Host "Total reservation savings: `$$reservationSavings"
 Write-Host "Total savings plan savings: `$$savingsPlanSavings"
@@ -106,7 +112,7 @@ Write-Host "Total savings plan savings: `$$savingsPlanSavings"
 | App Service | Isolated v2 stamps | Isolated tier only |
 | Azure Synapse Analytics | Data warehouse units | Compute reservations |
 | Azure Managed Disks | Premium SSD capacity | Specific disk sizes |
-| Azure Blob Storage | Reserved capacity | Hot and cool access tiers |
+| Azure Blob Storage | Reserved capacity | Hot, cool, and archive access tiers |
 | Azure Files | Reserved capacity | Premium file shares |
 | Azure Data Explorer | Markup units | Compute reservations |
 | Azure VMware Solution | Node reservations | Host-level reservations |
@@ -150,19 +156,25 @@ A reservation for one Standard_D4 (ratio 4) can cover four Standard_D1 instances
 
 | Action | Policy |
 |--------|--------|
-| Returns | Up to $50,000 USD (or equivalent) in self-service returns per rolling 12-month window |
-| Exchanges | Can exchange for different SKU, region, or term at any time (prorated) |
-| Cancellation | Self-service cancellation with prorated refund minus 12% early termination fee |
+| Returns | Self-service cancellation with prorated refund. Up to $50,000 USD (or equivalent) in returns per rolling 12-month window. Early termination fee is not currently charged. |
+| Exchanges | Within the same product family only. Prorated value applied to new reservation. Exchange refunds do NOT count against the $50K return limit. |
+| Trade-in | Existing reservations can be traded in for savings plans via self-service (no time limit). |
 
-**Important:** These policies differ significantly from savings plans, which have no cancellation or return option. This makes reservations more flexible for workloads with uncertain long-term usage patterns.
+### Compute reservation exchange grace period
 
-To check remaining return balance:
+For compute reservations (VMs, Dedicated Host, App Service), cross-series and cross-region exchanges are currently allowed under an extended grace period "until further notice." Microsoft will provide at least 6 months advance notice before ending this grace period. After it ends, compute reservation exchanges will be limited to within the same instance size flexibility group only.
+
+### Reservation types that cannot be exchanged or refunded
+
+Azure Databricks, Synapse Analytics Pre-purchase, Red Hat plans, SUSE Linux plans, Microsoft Defender for Cloud Pre-Purchase, and Microsoft Sentinel Pre-Purchase.
+
+**Important:** These policies differ significantly from savings plans, which have no cancellation, return, or exchange option. Consider reservation trade-in to savings plans as an alternative exit path.
+
+### Calculate refund for a specific reservation
 
 ```bash
-# View return balance in Azure portal
-# Navigate to: Reservations → Exchange/Return → View remaining return balance
-# Or use the REST API:
-az rest --method GET \
+# Calculate the refund amount for a specific reservation return (not the aggregate $50K balance)
+az rest --method POST \
   --url "https://management.azure.com/providers/Microsoft.Capacity/calculateRefund?api-version=2022-11-01" \
   --body '{
     "id": "/providers/Microsoft.Capacity/reservationOrders/{reservationOrderId}",
@@ -215,9 +227,9 @@ GET https://management.azure.com/providers/Microsoft.Capacity/reservationOrders/
 Authorization: Bearer {token}
 ```
 
-### Azure Resource Graph
+### Azure Resource Graph -- Advisor purchase recommendations
 
-Query cross-subscription reservation utilization:
+Query cross-subscription Advisor recommendations for VM reserved instance purchases (recommendationTypeId is specific to VM reservations):
 
 ```kusto
 advisorresources
@@ -233,18 +245,22 @@ advisorresources
 | order by savings desc
 ```
 
+**Note:** This query surfaces Advisor purchase recommendations, not utilization data. For utilization monitoring, use the Azure CLI or REST API examples above.
+
 ---
 
 ## Eligibility
 
 ### Agreement types
 
-| Agreement Type | Enrollment IDs | Can purchase reservations |
+| Agreement Type | Offer IDs | Can purchase reservations |
 |----------------|----------------|--------------------------|
 | EA | MS-AZR-0017P, MS-AZR-0148P | Yes |
 | MCA | - | Yes |
 | MPA | - | Yes |
-| CSP | - | Yes (unlike some savings plan scenarios) |
+| CSP | - | Yes (partners purchase via Partner Center; customers cannot self-service manage) |
+| Pay-As-You-Go | MS-AZR-0003P, MS-AZR-0023P | Yes |
+| Azure Sponsorship | MS-AZR-0036P | Yes |
 
 ### Required roles
 
@@ -257,6 +273,34 @@ advisorresources
 
 ---
 
+## Payment options
+
+| Option | Description |
+|--------|-------------|
+| All upfront | Pay the full commitment amount at purchase |
+| Monthly | Pay in monthly installments over the term |
+
+Payment frequency does not affect the discount amount — only cash flow timing. Total cost is the same for either option.
+
+---
+
+## Auto-renewal
+
+Reservations can be configured for automatic renewal before expiration. Review utilization data before renewal to confirm the commitment level and SKU are still appropriate. Auto-renewal is enabled by default for new purchases — disable it in the Azure portal if you prefer manual renewal.
+
+---
+
+## Coverage limitations
+
+Reservation discounts cover the **compute or capacity portion** of the specified resource type only. The following are NOT covered:
+
+- Software licensing (Windows Server, SQL Server — use Azure Hybrid Benefit separately)
+- Networking charges
+- Storage costs (except for Azure Blob Storage and Azure Files reserved capacity)
+- Marketplace purchases
+
+---
+
 ## Best practices
 
 1. **Normalize usage for at least 30 days** before purchasing to ensure stable baseline
@@ -266,6 +310,8 @@ advisorresources
 5. **Use the 3-day stale data guard** - Microsoft provides the lower of 3-day and lookback-period recommendations as a safeguard against overcommitment
 6. **Compare with savings plans** - use the Benefit Recommendations API to evaluate both options before purchasing
 7. **Layer reservations and savings plans** - buy reservations for stable, predictable workloads; use savings plans as a safety net for variable compute
+
+See `references/azure-commitment-discount-decision.md` for the full decision framework.
 
 ---
 
@@ -299,3 +345,5 @@ advisorresources
 - [Self-service exchanges and refunds](https://learn.microsoft.com/azure/cost-management-billing/reservations/exchange-and-refund-azure-reservations)
 - [Benefit Recommendations API](https://learn.microsoft.com/rest/api/cost-management/benefit-recommendations)
 - [Manage reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/manage-reserved-vm-instance)
+- [Reservation trade-in to savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/reservation-trade-in)
+- [Reservation exchange policy changes](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-exchange-policy-changes)

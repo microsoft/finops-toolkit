@@ -41,13 +41,13 @@ Use this text-based decision flow to determine the right commitment type:
 | Maximum savings | Up to 72% | Up to 65% | 0% (baseline) |
 | Flexibility | Low (specific SKU, region) | High (any eligible compute) | Maximum |
 | Cancellation | Returns up to $50K/year | No cancellation or refund | N/A |
-| Exchange | Yes (prorated) | No | N/A |
+| Exchange | Yes, within same product family (prorated) | No (but can trade in reservations for savings plans) | N/A |
 | Applies to | Specific resource type and region | All eligible compute services | All services |
 | Benefit application order | First (highest priority) | Second (after reservations) | N/A |
-| Scope options | Shared, subscription, RG, management group | Shared, subscription, RG | N/A |
-| Agreement types | EA, MCA, MPA, CSP | EA, MCA, MPA | All |
+| Scope options | Shared, management group, subscription, RG | Shared, management group, subscription, RG | N/A |
+| Agreement types | EA, MCA, MPA, CSP, PAYG, Sponsorship | EA, MCA, MPA | All |
 | Term options | 1 year, 3 years | 1 year, 3 years | None |
-| Payment options | All upfront, monthly, partial upfront | All upfront, monthly | Usage-based |
+| Payment options | All upfront, monthly | All upfront, monthly | Usage-based |
 | Instance size flexibility | Yes (within VM series) | N/A (applies to all compute) | N/A |
 
 ---
@@ -61,6 +61,8 @@ The optimal approach for most organizations:
 3. **Pay-as-you-go** for truly unpredictable or temporary workloads
 
 Key principle: Reservations are applied first in the benefit stack, so they always "win" for matching workloads. Savings plans catch remaining eligible charges that reservations don't cover.
+
+**Migration path:** If existing reservations no longer fit your workloads, you can trade them in for savings plans via self-service (no time limit). This is a one-way conversion — savings plans cannot be traded back to reservations.
 
 ---
 
@@ -95,8 +97,8 @@ $stdDev = [Math]::Sqrt(($hourlyUsage | ForEach-Object { [Math]::Pow($_ - $mean, 
 $cv = $stdDev / $mean
 
 switch ($cv) {
-    { $_ -lt 0.3 } { Write-Host "CV: $([Math]::Round($cv, 3)) - Stable: reservation candidate" }
-    { $_ -lt 0.6 } { Write-Host "CV: $([Math]::Round($cv, 3)) - Variable: savings plan candidate" }
+    { $_ -lt 0.3 } { Write-Host "CV: $([Math]::Round($cv, 3)) - Stable: reservation candidate"; break }
+    { $_ -lt 0.6 } { Write-Host "CV: $([Math]::Round($cv, 3)) - Variable: savings plan candidate"; break }
     default         { Write-Host "CV: $([Math]::Round($cv, 3)) - Volatile: stay on pay-as-you-go" }
 }
 ```
@@ -115,29 +117,29 @@ The Benefit Recommendations API does not support management group scope. Microso
 6. Repeat until incremental savings are negligible
 
 ```powershell
-# Aggregate recommendations across subscriptions
+# Aggregate recommendations across subscriptions by calling the API directly
 $subscriptions = Get-AzSubscription
 $totalRecommended = 0
 
 foreach ($sub in $subscriptions) {
     Set-AzContext -Subscription $sub.Id
-    $recs = .\Get-BenefitRecommendations.ps1 `
-        -BillingScope "subscriptions/$($sub.Id)" `
-        -LookBackPeriod "Last30Days" `
-        -Term "P3Y"
+    $scope = "subscriptions/$($sub.Id)"
+    $url = "https://management.azure.com/$scope/providers/Microsoft.CostManagement/benefitRecommendations?`$filter=properties/lookBackPeriod eq 'Last30Days' AND properties/term eq 'P3Y'&`$expand=properties/allRecommendationDetails&api-version=2024-08-01"
+    $uri = [uri]::new($url)
+    $result = Invoke-AzRestMethod -Uri $uri.AbsoluteUri -Method GET
+    $recs = ($result.Content | ConvertFrom-Json).value
 
-    if ($recs.recommendations) {
-        $optimal = $recs.recommendations |
-            Where-Object { $_.averageUtilizationPercentage -ge 90 } |
-            Sort-Object savingsAmount -Descending |
-            Select-Object -First 1
-        $totalRecommended += $optimal.commitmentAmount
+    foreach ($rec in $recs) {
+        $details = $rec.properties.recommendationDetails
+        if ($details -and $details.averageUtilizationPercentage -ge 90) {
+            $totalRecommended += $details.commitmentAmount
+        }
     }
 }
 
 $mgScopeCommitment = $totalRecommended * 0.7
-Write-Host "Total recommended: $totalRecommended/hr"
-Write-Host "Management group purchase (70%): $mgScopeCommitment/hr"
+Write-Host "Total recommended: `$$totalRecommended/hr"
+Write-Host "Management group purchase (70%): `$$mgScopeCommitment/hr"
 ```
 
 ---
@@ -146,11 +148,10 @@ Write-Host "Management group purchase (70%): $mgScopeCommitment/hr"
 
 | Event | Wait period | Reason |
 |-------|-------------|--------|
-| After purchasing a reservation | 7 days | Allows recommendation engine to recalculate |
-| After purchasing a savings plan | 7 days | Allows recommendation engine to recalculate |
-| After any commitment change | 3 days | Utilization data needs time to stabilize |
+| After purchasing, before evaluating other commitment types | 7 days | Allows recommendation engine to recalculate across both reservation and savings plan models |
+| Iterative same-type purchasing (management group workaround) | 3 days | Allows new commitment to affect subscription-level recommendations before next iteration |
 
-The recommendation engine uses recent utilization data. New commitments change the usage pattern, so recommendations generated before stabilization may be inaccurate.
+The recommendation engine uses recent utilization data. New commitments change the usage pattern, so recommendations generated before the engine recalculates may be inaccurate.
 
 ---
 
@@ -167,7 +168,7 @@ The recommendation engine uses recent utilization data. New commitments change t
 - ESR below 10% indicates no commitment discounts in place -- opportunity for savings
 - Utilization below 80% indicates overcommitment -- consider exchanging or not renewing
 - Coverage above 80% may indicate overcommitment risk -- leave room for usage variability
-- Target ESR for mature organizations: 25-40%
+- Target ESR varies by organization and industry -- track trend over time rather than targeting a specific number
 
 ---
 
@@ -175,10 +176,9 @@ The recommendation engine uses recent utilization data. New commitments change t
 
 This decision framework maps to the FinOps Framework's rate optimization capability:
 
-- **Understand phase**: Analyze current spend, identify commitment-eligible workloads, assess usage stability
-- **Optimize phase**: Purchase commitments based on this decision framework, monitor utilization
-- **Quantify phase**: Track ESR, utilization, wastage -- report savings to stakeholders
-- **Manage phase**: Establish governance processes for commitment purchases, renewals, exchanges
+- **Inform**: Analyze current spend, identify commitment-eligible workloads, assess usage stability, track ESR/utilization/wastage
+- **Optimize**: Purchase commitments based on this decision framework, exchange underutilized reservations, adjust commitment levels
+- **Operate**: Establish governance processes for commitment purchases, renewals, and exchanges; monitor utilization weekly; report savings to stakeholders
 
 Link: [Rate optimization (FinOps Framework)](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/rates)
 
@@ -188,7 +188,7 @@ Link: [Rate optimization (FinOps Framework)](https://learn.microsoft.com/cloud-c
 
 | Mistake | Impact | Prevention |
 |---------|--------|------------|
-| Buying savings plans before reservations | 5-7% lower savings | Always buy reservations first for stable workloads |
+| Buying savings plans before reservations | Lower savings (reservations offer up to 72% vs 65%) | Always buy reservations first for stable workloads |
 | Purchasing 100% coverage | High wastage risk | Target 60-80% coverage, leave buffer for variability |
 | Using 7-day lookback for large purchases | Overcommitment risk | Use 30 or 60-day lookback for commitments over $1K/month |
 | Ignoring pending migrations | Stranded commitments | Check with infrastructure teams before purchasing |
@@ -214,3 +214,5 @@ Link: [Rate optimization (FinOps Framework)](https://learn.microsoft.com/cloud-c
 - [Rate optimization (FinOps Framework)](https://learn.microsoft.com/cloud-computing/finops/framework/optimize/rates)
 - [Choose commitment amount](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/choose-commitment-amount)
 - [Benefit Recommendations API](https://learn.microsoft.com/rest/api/cost-management/benefit-recommendations)
+- [Reservation trade-in to savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/reservation-trade-in)
+- [Exchange and refund policies](https://learn.microsoft.com/azure/cost-management-billing/reservations/exchange-and-refund-azure-reservations)
