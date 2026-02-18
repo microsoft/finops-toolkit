@@ -11,7 +11,6 @@ ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with database services.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for Databases
 
 This article outlines a collection of proven FinOps practices for database services. It provides strategies for optimizing costs, improving efficiency, and using Azure Resource Graph (ARG) queries to gain insights into your database resources. By following these practices, you can ensure that your database services are cost-effective and aligned with your organization's financial goals.
@@ -117,7 +116,14 @@ resources
 
 ## SQL Databases
 
-The following sections provide ARG queries for SQL Databases. These queries help you identify SQL databases that might be idle, old, in development, or used for testing purposes. By analyzing these databases, you can optimize costs and improve efficiency by decommissioning or repurposing underutilized resources.
+Azure SQL Database is a fully managed platform as a service (PaaS) database engine that handles most database management functions such as upgrading, patching, backups, and monitoring without user involvement. Elastic Pools allow you to share resources among multiple databases to optimize cost.
+
+Related resources:
+
+- [Azure SQL Database product page](https://azure.microsoft.com/products/azure-sql/database)
+- [Azure SQL Database pricing](https://azure.microsoft.com/pricing/details/azure-sql-database/single)
+- [Azure SQL Database documentation](/azure/azure-sql/database)
+- [SQL Database performance guidance](/azure/architecture/checklist/data-ops)
 
 ### Query: SQL DB idle
 
@@ -139,15 +145,22 @@ resources
 | project id, SQLDBName, Type, Tier, resourceGroup, Location, subscriptionId
 ```
 
-### Query: Unused Elastic Pools analysis
+### Remove unused Elastic Pools
 
-This ARG query identifies potentially idle Elastic Pools in your Azure SQL environment by analyzing the number of databases associated with each Elastic Pool.
+Recommendation: Remove Elastic Pools that have no associated databases to avoid unnecessary costs.
 
-**Category**
+#### About unused Elastic Pools
 
-Optimization
+SQL Elastic Pools let multiple databases share a common pool of resources. When an Elastic Pool has no databases, it still incurs charges based on its configured eDTUs or vCores. Removing empty Elastic Pools eliminates these unnecessary costs.
 
-**Query**
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify unused Elastic Pools. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify unused Elastic Pools
+
+Use the following ARG query to identify Elastic Pools with no associated databases.
 
 ```kusto
 resources
@@ -188,13 +201,17 @@ resources
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.BestPractices/featureName/Databases)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

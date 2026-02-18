@@ -11,7 +11,6 @@ ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with compute services.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for compute
 
 This article outlines a collection of proven FinOps practices for compute services. It provides guidance on optimizing costs, improving efficiency, and gaining insights into your compute resources in Azure. The practices are categorized based on the type of compute service, such as virtual machines (VM), Azure Kubernetes Service (AKS), and Azure Functions.
@@ -20,9 +19,16 @@ This article outlines a collection of proven FinOps practices for compute servic
 
 ## Azure Kubernetes Service
 
-The following section provides an Azure Resource Graph (ARG) query for AKS clusters. The query helps you gain insights into your VMs.
+Azure Kubernetes Service (AKS) simplifies deploying and managing containerized applications. It offers serverless Kubernetes, an integrated CI/CD experience, and enterprise-grade security and governance.
 
-### Query - AKS cluster
+Related resources:
+
+- [Azure Kubernetes Service product page](https://azure.microsoft.com/products/kubernetes-service)
+- [Azure Kubernetes Service pricing](https://azure.microsoft.com/pricing/details/kubernetes-service)
+- [Azure Kubernetes Service documentation](/azure/aks)
+- [AKS baseline architecture](/azure/architecture/reference-architectures/containers/aks/baseline-aks)
+
+### Query: AKS cluster details
 
 This ARG query retrieves detailed information about AKS clusters in your Azure environment.
 
@@ -55,6 +61,50 @@ resources
     AKSname = name
 ```
 
+### Use Spot VMs for AKS clusters
+
+Recommendation: Use Spot VMs for AKS agent pools to reduce compute costs for fault-tolerant, interruptible workloads.
+
+#### About Spot VMs in AKS
+
+[Spot VMs](/azure/virtual-machines/spot-vms) take advantage of unused Azure capacity at a significantly reduced cost. When Azure needs the capacity back, the Azure infrastructure evicts Spot VMs. Spot VMs are useful for workloads that can handle interruptions, like batch processing jobs, dev/test environments, and large compute workloads.
+
+AKS clusters that use autoscaling but don't leverage Spot VMs may be paying more than necessary. By enabling Spot VMs for interruptible workloads, you can significantly reduce compute costs. This recommendation only applies to clusters running workloads that can tolerate interruptions. Not all workloads are suitable for Spot VMs.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify AKS clusters without Spot VMs as an opt-in recommendation. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Query: AKS clusters without Spot VMs
+
+Use the following ARG query to identify AKS clusters with autoscaling enabled that aren't using Spot VMs.
+
+**Category**
+
+Optimization
+
+**Query**
+
+```kusto
+resources
+| where type == 'microsoft.containerservice/managedclusters'
+| mvexpand AgentPoolProfiles = properties.agentPoolProfiles
+| where AgentPoolProfiles.enableAutoScaling == true
+    and isnull(AgentPoolProfiles.scaleSetPriority)
+| project
+    ResourceId = id,
+    AKSName = name,
+    ProfileName = tostring(AgentPoolProfiles.name),
+    VMSize = tostring(AgentPoolProfiles.vmSize),
+    NodeCount = tostring(AgentPoolProfiles.['count']),
+    MinCount = tostring(AgentPoolProfiles.minCount),
+    MaxCount = tostring(AgentPoolProfiles.maxCount),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
 <br>
 
 ## Virtual machines
@@ -82,11 +132,17 @@ Stopped VMs were shut down from within the operating system (for example, using 
 
 Deallocated VMs are stopped via cloud management APIs in the Azure portal, CLI, PowerShell, or other client tool. When a VM is deallocated, Azure releases the corresponding compute resources. Since compute resources are released, these VMs don't incur compute charges; however, it's important to note that both stopped and deallocated VMs continue to incur charges unrelated to compute, like storage charges from disks.
 
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify stopped VMs that aren't deallocated. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
 #### Identify stopped VMs
 
 Use the following Azure Resource Graph (ARG) query to identify stopped VMs that aren't deallocated. It retrieves details about their power state, location, resource group, and subscription ID.
 
 <!-- cSpell:ignore tostring, virtualmachines -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.compute/virtualmachines'
@@ -115,6 +171,7 @@ To learn more about commitment discounts, refer to the [Rate optimization capabi
 Use the following FinOps hub query to measure overall VM commitment discount coverage.
 
 <!-- cSpell:ignore countif, leftover, strcat -->
+
 ```kusto
 Costs
 | where ResourceType =~ 'Virtual machine'
@@ -187,7 +244,7 @@ Costs
 
 To learn more about FinOps hubs, refer to [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md).
 
-### Query - Virtual machine scale set details
+### Query: Virtual machine scale set details
 
 This query analyzes Virtual Machine Scale Sets in your Azure environment based on their SKU, spot VM priority, and priority mix policy. It provides insights for cost optimization and resource management strategies.
 
@@ -207,7 +264,7 @@ resources
 | project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
 ```
 
-### Query - Virtual machine processor type analysis
+### Query: Virtual machine processor type analysis
 
 This query identifies the processor type (ARM, AMD, or Intel) used by VMs in your Azure environment. It helps in understanding the distribution of VMs across different processor architectures, which is useful for optimizing workload performance and cost efficiency.
 
@@ -249,19 +306,146 @@ resources
 | project vmName = name, processorType, vmSize, resourceGroup
 ```
 
+### Use Azure Hybrid Benefit for Windows VMs
+
+Recommendation: Enable Azure Hybrid Benefit for Windows VMs to reduce licensing costs by using existing on-premises Windows Server licenses.
+
+#### About Azure Hybrid Benefit for Windows
+
+[Azure Hybrid Benefit](/azure/virtual-machines/windows/hybrid-use-benefit-licensing) lets you use your on-premises Windows Server licenses with Software Assurance or Windows Server subscription to run Windows VMs in Azure at a reduced cost. Instead of paying for a full Windows Server license with each VM, you can bring your existing licenses and only pay for the base compute cost. This recommendation only applies if your organization has qualifying on-premises Windows Server licenses.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify Windows VMs without Azure Hybrid Benefit as an opt-in recommendation. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Query: Windows VMs without Azure Hybrid Benefit
+
+Use the following ARG query to identify Windows VMs and scale sets that aren't leveraging Azure Hybrid Benefit. The query excludes dev/test subscriptions, which already have discounted licensing.
+
+**Category**
+
+Optimization
+
+**Query**
+
+<!-- cSpell:ignore licenseType -->
+
+```kusto
+resourcecontainers
+| where type =~ 'Microsoft.Resources/subscriptions'
+| where tostring(properties.subscriptionPolicies.quotaId) !has 'MSDNDevTest_2014-09-01'
+| project SubscriptionName = name, subscriptionId
+| join (
+    resources
+    | where type =~ 'microsoft.compute/virtualmachines'
+        or type =~ 'microsoft.compute/virtualMachineScaleSets'
+    | where tostring(properties.storageProfile.imageReference.publisher) == 'MicrosoftWindowsServer'
+        or tostring(properties.virtualMachineProfile.storageProfile.osDisk.osType) == 'Windows'
+        or tostring(properties.storageProfile.imageReference.publisher) == 'microsoftsqlserver'
+    | where tostring(properties.['licenseType']) !has 'Windows'
+        and tostring(properties.virtualMachineProfile.['licenseType']) != 'Windows_Server'
+    | project
+        ResourceId = id,
+        ResourceName = name,
+        VMSize = tostring(properties.hardwareProfile.vmSize),
+        LicenseType = tostring(properties.['licenseType']),
+        Region = location,
+        ResourceGroupName = resourceGroup,
+        subscriptionId
+) on subscriptionId
+| project
+    ResourceId,
+    ResourceName,
+    VMSize,
+    LicenseType,
+    Region,
+    ResourceGroupName,
+    SubscriptionName,
+    SubscriptionId = subscriptionId
+```
+
+### Use Azure Hybrid Benefit for SQL VMs
+
+Recommendation: Enable Azure Hybrid Benefit for SQL Server VMs to reduce licensing costs by using existing on-premises SQL Server licenses.
+
+#### About Azure Hybrid Benefit for SQL VMs
+
+[Azure Hybrid Benefit for SQL Server](/azure/azure-sql/virtual-machines/windows/licensing-model-azure-hybrid-benefit-ahb-change) lets you use your on-premises SQL Server licenses with Software Assurance to run SQL Server VMs in Azure at a reduced cost. This benefit applies to Standard and Enterprise editions (Developer and Express editions are already free and don't need Azure Hybrid Benefit). This recommendation only applies if your organization has qualifying on-premises SQL Server licenses with Software Assurance.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify SQL VMs without Azure Hybrid Benefit as an opt-in recommendation. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Query: SQL VMs without Azure Hybrid Benefit
+
+Use the following ARG query to identify SQL Server VMs that aren't leveraging Azure Hybrid Benefit. The query excludes dev/test subscriptions and Developer/Express editions.
+
+**Category**
+
+Optimization
+
+**Query**
+
+```kusto
+resourcecontainers
+| where type =~ 'Microsoft.Resources/subscriptions'
+| where tostring(properties.subscriptionPolicies.quotaId) !has 'MSDNDevTest_2014-09-01'
+| project SubscriptionName = name, subscriptionId
+| join (
+    resources
+    | where type =~ 'Microsoft.SqlVirtualMachine/SqlVirtualMachines'
+        and tostring(properties.['sqlServerLicenseType']) != 'AHUB'
+    | project
+        ResourceId = id,
+        ResourceName = name,
+        LicenseType = tostring(properties.['sqlServerLicenseType']),
+        SQLVersion = tostring(properties.['sqlImageOffer']),
+        SQLSKU = tostring(properties.['sqlImageSku']),
+        Region = location,
+        ResourceGroupName = resourceGroup,
+        subscriptionId
+) on subscriptionId
+| join (
+    resources
+    | where type =~ 'Microsoft.Compute/virtualMachines'
+    | project
+        ResourceName = tolower(name),
+        VMSize = tostring(properties.hardwareProfile.vmSize),
+        subscriptionId
+) on ResourceName
+| where SQLSKU != 'Developer' and SQLSKU != 'Express'
+| project
+    ResourceId,
+    ResourceName,
+    VMSize,
+    LicenseType,
+    SQLVersion,
+    SQLSKU,
+    Region,
+    ResourceGroupName,
+    SubscriptionName,
+    SubscriptionId = subscriptionId
+```
+
 <br>
 
 ## Give feedback
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.BestPractices/featureName/Compute)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -11,7 +11,6 @@ ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with storage services.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for Storage
 
 This article outlines a collection of proven FinOps practices for storage services. It provides strategies for optimizing costs, improving efficiency, and using Azure Resource Graph (ARG) queries to gain insights into your storage resources. By following these practices, you can ensure that your storage services are cost-effective and aligned with your organization's financial goals.
@@ -73,17 +72,30 @@ resources
 
 ## Disks
 
-The following sections provide ARG queries for disk services. These queries help you gain insights into your disk resources and ensure they're configured with the appropriate settings. By analyzing disk snapshots and identifying idle disks, you can optimize your disk services for cost efficiency.
+Azure managed disks are block-level storage volumes that are managed by Azure and used with virtual machines. Managed disks provide high availability, scalability, and security for your VM workloads.
 
-### Query: Idle disks
+Related resources:
 
-This ARG query identifies idle or unattached managed disks within your Azure environment.
+- [Managed disks product page](https://azure.microsoft.com/products/managed-disks)
+- [Managed disks pricing](https://azure.microsoft.com/pricing/details/managed-disks)
+- [Managed disks documentation](/azure/virtual-machines/managed-disks-overview)
 
-**Category**
+### Remove unattached disks
 
-Optimization
+Recommendation: Remove or downgrade unattached managed disks to avoid unnecessary storage costs.
 
-**Query**
+#### About unattached disks
+
+When a VM is deleted, its associated managed disks may not be deleted automatically. These unattached (orphaned) disks continue to incur storage costs based on their disk type and size. The query excludes disks that are in active SAS transfer mode or are Azure Site Recovery replica or seed disks, as these are expected to be temporarily unattached.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify unattached disks. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify unattached disks
+
+Use the following ARG query to identify unattached managed disks.
 
 ```kusto
 resources
@@ -94,7 +106,7 @@ resources
     and tags !contains 'ASR-ReplicaDisk'
     and tags !contains 'asrseeddisk'
 | extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), SubId=subscriptionId
-| order by DiskId asc 
+| order by DiskId asc
 | project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId
 ```
 
@@ -187,13 +199,17 @@ resources
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.BestPractices/featureName/Storage)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 
