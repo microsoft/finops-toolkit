@@ -1721,8 +1721,8 @@ Recommendations_transform_v1_2()
     //
     | project
         ProviderName,
-        ResourceId,
-        ResourceName,
+        ResourceId = tolower(ResourceId),      // Force lowercase for consistent grouping/filtering
+        ResourceName = tolower(ResourceName),  // Force lowercase for consistent grouping/filtering
         ResourceType,
         SubAccountId = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
         SubAccountName,
@@ -1734,8 +1734,8 @@ Recommendations_transform_v1_2()
         x_RecommendationDate,
         x_RecommendationDescription,
         x_RecommendationDetails,
-        x_RecommendationId,        // TODO: Set for reservation recommendations
-        x_ResourceGroupName,
+        x_RecommendationId = coalesce(x_RecommendationId, tolower(ResourceId)),  // Force lowercase for consistent grouping/filtering
+        x_ResourceGroupName = tolower(x_ResourceGroupName),                      // Force lowercase for consistent grouping/filtering
         x_SourceName,
         x_SourceProvider,
         x_SourceType,
