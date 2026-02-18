@@ -1,6 +1,6 @@
 ---
 name: azure-cost-management
-description: This skill should be used when the user asks about "Azure Advisor", "cost recommendations", "savings plans", "reservations", "Azure budgets", "cost exports", "anomaly alerts", "MACC", "Azure credits", "Azure Prepayment", "commitment discounts", "cost optimization", or any Azure Cost Management operations.
+description: This skill should be used when the user asks about "Azure Advisor", "cost recommendations", "savings plans", "reservations", "reserved instances", "RI", "Azure budgets", "cost exports", "anomaly alerts", "MACC", "Azure credits", "Azure Prepayment", "commitment discounts", "cost optimization", "reservations vs savings plans", "which commitment discount", "storage cost report", or any Azure Cost Management operations.
 license: MIT
 compatibility: Requires Azure CLI authentication (az login) and appropriate RBAC permissions for Cost Management APIs.
 metadata:
@@ -21,8 +21,11 @@ Azure Cost Management and optimization skills. Provides recommendations, budget 
 | **azure-budgets** | Budget management | Create budgets, notifications, action groups |
 | **azure-cost-exports** | Scheduled exports | FOCUS exports, backfill, troubleshooting |
 | **azure-anomaly-alerts** | Cost anomaly detection | Bulk alert deployment across subscriptions |
+| **azure-reservations** | Reserved instance analysis | Reservation recommendations, utilization, coverage, exchange/return |
+| **azure-commitment-discount-decision** | Commitment discount framework | Reservations vs savings plans decision criteria, hybrid strategy |
 | **azure-credits** | Credit tracking | Azure Prepayment balance, expiration risk |
 | **azure-macc** | MACC commitment tracking | Balance, decrements, milestone tracking |
+| **azure-storage-cost-analysis** | Storage cost reporting | EA storage report, cost by subscription and account |
 
 ## Cost Optimization
 
@@ -36,15 +39,18 @@ az advisor recommendation list --category Cost --output table
 
 For detailed documentation: `references/azure-advisor.md`
 
-### Savings Plans & Reservations
+### Savings plans and reservations
 
 **Benefit Recommendations API** for:
-- Savings plan purchase recommendations
-- Reservation recommendations
-- Coverage analysis
-- ROI calculations
+- Savings plan purchase recommendations (up to 65% savings)
+- Reservation recommendations (up to 72% savings)
+- Coverage analysis and utilization monitoring
+- Decision framework: when to use which commitment type
 
-For detailed documentation: `references/azure-savings-plans.md`
+For detailed documentation:
+- `references/azure-savings-plans.md` — savings plan analysis and script
+- `references/azure-reservations.md` — reserved instance analysis
+- `references/azure-commitment-discount-decision.md` — decision framework
 
 ## Budget & Alerts
 
@@ -86,10 +92,12 @@ Track MACC balance, decrements, milestone progress, eligible spend.
 
 For detailed documentation: `references/azure-macc.md`
 
-## Reference Documentation
+## Reference documentation
 
-- **Optimization**: `references/azure-advisor.md`, `references/azure-savings-plans.md`
-- **Budgets & Alerts**: `references/azure-budgets.md`, `references/azure-anomaly-alerts.md`, `references/azure-cost-exports.md`
+- **Optimization**: `references/azure-advisor.md`, `references/azure-savings-plans.md`, `references/azure-reservations.md`
+- **Decision framework**: `references/azure-commitment-discount-decision.md`
+- **Budgets and alerts**: `references/azure-budgets.md`, `references/azure-anomaly-alerts.md`, `references/azure-cost-exports.md`
 - **Commitments**: `references/azure-credits.md`, `references/azure-macc.md`
+- **Cost analysis**: `references/azure-storage-cost-analysis.md`
 
 Load the appropriate reference file when detailed workflows, API examples, or troubleshooting are needed.
