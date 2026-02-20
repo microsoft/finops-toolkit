@@ -63,10 +63,10 @@ Authorization: Bearer {token}
 
 | Recommendation Type | ID | Description |
 |--------------------|-----|-------------|
-| Right-size VMs | `e10b1381-5f0a-47ff-8c7b-37bd13d7c974` | Resize underutilized VMs |
+| Right-size VMs | `e10b1381-5f0a-47ff-8c7b-37bd13d7c974` | Resize underutilized VMs — see `references/azure-vm-rightsizing.md` for full validation workflow |
 | Shutdown idle VMs | `89515250-1243-43d1-b4e7-f9437cedffd8` | Stop VMs with low utilization |
 | Reserved instances | `84b1a508-fc21-49da-979e-96894f1665df` | Purchase RIs for consistent workloads |
-| Delete unused disks | `48eda464-1485-4dcf-a674-d0905df5054a` | Remove unattached managed disks |
+| Delete unused disks | `48eda464-1485-4dcf-a674-d0905df5054a` | Remove unattached managed disks — see `references/azure-orphaned-resources.md` for expanded orphaned resource detection |
 
 ---
 
@@ -213,7 +213,8 @@ $recommendations = Get-AzSubscription | ForEach-Object {
 # Calculate total potential savings
 $totalSavings = $recommendations |
     Where-Object { $_.ExtendedProperty["savingsAmount"] } |
-    Measure-Object -Property { [double]$_.ExtendedProperty["savingsAmount"] } -Sum
+    ForEach-Object { [double]$_.ExtendedProperty["savingsAmount"] } |
+    Measure-Object -Sum
 
 Write-Host "Total potential monthly savings: $($totalSavings.Sum)"
 ```
@@ -224,9 +225,11 @@ Write-Host "Total potential monthly savings: $($totalSavings.Sum)"
 $recommendations |
     Select-Object @{N='Resource';E={$_.ResourceId}},
                   Impact,
-                  @{N='Savings';E={$_.ExtendedProperty["savingsAmount"]}},
+                  @{N='Savings';E={[double]($_.ExtendedProperty["savingsAmount"] ?? 0)}},
+                  @{N='ImpactRank';E={ @{'High'=3;'Medium'=2;'Low'=1}[$_.Impact] }},
                   @{N='Problem';E={$_.ShortDescriptionProblem}} |
-    Sort-Object -Property @{E='Impact';D=$true}, @{E='Savings';D=$true} |
+    Sort-Object -Property @{E='ImpactRank';D=$true}, @{E='Savings';D=$true} |
+    Select-Object Resource, Impact, Savings, Problem |
     Format-Table
 ```
 
