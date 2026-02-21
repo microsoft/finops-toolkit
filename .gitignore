@@ -373,3 +373,7 @@ env/
 claude.settings.local.json
 settings.local.json
 
+# FinOps test data generator output
+test-data/
+test-data-*/
+

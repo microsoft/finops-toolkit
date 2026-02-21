@@ -40,6 +40,12 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
 
+### [PowerShell module](powershell/powershell-commands.md) v14
+
+- **Added**
+  - Added [New-FinOpsTestData](powershell/data/New-FinOpsTestData.md) to generate synthetic, multi-cloud FOCUS-compliant cost data for Azure, AWS, GCP, and on-premises providers. Compatible with both Azure Data Explorer and Microsoft Fabric Real-Time Intelligence ingestion paths. Supports FOCUS versions 1.0-1.3 with version-specific column sets, commitment discounts, Azure Hybrid Benefit, tag variation, and inline budget scaling. Includes `-Seed` for reproducibility and upload to Azure storage. Generated manifests include a `_ftkTestData` watermark for safe cleanup identification.
+  - Added [Remove-FinOpsTestData](powershell/data/Remove-FinOpsTestData.md) to purge test data from Azure Data Explorer tables, storage containers, and local test-data folders for a clean reset. Does not manage Microsoft Fabric data (clean up Fabric resources separately). Includes multi-layer safety features: local-only cleanup by default, targeted storage deletion (scans manifests for `_ftkTestData` marker and removes only test-data folders — production data is preserved), and ADX cleanup requires `-Force` because `.clear table` removes all rows. Supports optional ADF trigger management and ADX update policy verification.
+
 <br>
 
 ## v13 Update 1
