@@ -5,6 +5,7 @@
     "queryEngine": "ResourceGraph",
     "scope": "Tenant",
     "source": "FinOps hubs",
+    "group": "spot",
     "type": "Microsoft-NonSpotAKSClusters",
     "version": "1.0"
 }

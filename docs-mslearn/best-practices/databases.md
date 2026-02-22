@@ -41,7 +41,7 @@ advisorresources
 | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
     and properties.recommendationTypeId == '8b993855-1b3f-4392-8860-6ed4f5afd8a7'
 | order by id asc
-| project 
+| project
     id, subscriptionId, resourceGroup,
     CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
     DatabaseName = properties.extendedProperties.DatabaseName,
@@ -78,7 +78,7 @@ advisorresources
         ' 6aa7a0df-192f-4dfa-bd61-f43db4843e7d'
     )
 | order by id asc
-| project 
+| project
     id, subscriptionId, resourceGroup,
     CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
     DatabaseName = properties.extendedProperties.DatabaseName,
@@ -176,7 +176,7 @@ resources
     | where type == "microsoft.sql/servers/databases"
     | extend elasticPoolId = tolower(tostring(properties.elasticPoolId))
 ) on elasticPoolId
-| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by 
+| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by
     elasticPoolId,
     elasticPoolName,
     serverResourceGroup = resourceGroup,
@@ -193,6 +193,90 @@ resources
     skuName,
     skuTier,
     skuCapacity
+```
+
+<br>
+
+## Azure Database for MySQL
+
+Azure Database for MySQL provides a fully managed MySQL database service. MySQL Single Server is on the retirement path, and customers should migrate to Flexible Server.
+
+Related resources:
+
+- [Azure Database for MySQL product page](https://azure.microsoft.com/products/mysql)
+- [Azure Database for MySQL pricing](https://azure.microsoft.com/pricing/details/mysql)
+- [Azure Database for MySQL documentation](/azure/mysql)
+
+### Migrate legacy MySQL servers
+
+Recommendation: Migrate MySQL Single Server instances to Flexible Server before the retirement date.
+
+#### About legacy MySQL servers
+
+Azure Database for MySQL - Single Server is being retired. Flexible Server provides better performance, more granular controls, improved availability with zone redundancy, and lower costs for many workloads. Migrating to Flexible Server ensures continued support and access to the latest MySQL versions and features.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify legacy MySQL Single Server instances. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify legacy MySQL servers
+
+Use the following ARG query to identify MySQL Single Server instances that should be migrated to Flexible Server.
+
+```kusto
+resources
+| where type =~ 'microsoft.dbformysql/servers'
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    SKUName = tostring(sku.name),
+    SKUTier = tostring(sku.tier),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
+<br>
+
+## Azure Database for PostgreSQL
+
+Azure Database for PostgreSQL provides a fully managed PostgreSQL database service. PostgreSQL Single Server is on the retirement path, and customers should migrate to Flexible Server.
+
+Related resources:
+
+- [Azure Database for PostgreSQL product page](https://azure.microsoft.com/products/postgresql)
+- [Azure Database for PostgreSQL pricing](https://azure.microsoft.com/pricing/details/postgresql)
+- [Azure Database for PostgreSQL documentation](/azure/postgresql)
+
+### Migrate legacy PostgreSQL servers
+
+Recommendation: Migrate PostgreSQL Single Server instances to Flexible Server before the retirement date.
+
+#### About legacy PostgreSQL servers
+
+Azure Database for PostgreSQL - Single Server is being retired. Flexible Server provides enhanced performance, improved high availability with zone redundancy, better cost optimization with burstable compute, and access to the latest PostgreSQL versions. Migrating to Flexible Server ensures continued support and access to the latest features.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify legacy PostgreSQL Single Server instances. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify legacy PostgreSQL servers
+
+Use the following ARG query to identify PostgreSQL Single Server instances that should be migrated to Flexible Server.
+
+```kusto
+resources
+| where type =~ 'microsoft.dbforpostgresql/servers'
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    SKUName = tostring(sku.name),
+    SKUTier = tostring(sku.tier),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
 ```
 
 <br>

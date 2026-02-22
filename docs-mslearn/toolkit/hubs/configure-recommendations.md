@@ -43,25 +43,69 @@ Hubs recommendations are combined with reservation recommendations from Cost Man
 
 ## Built-in recommendations
 
-FinOps hubs include the following recommendations, which are enabled by default:
+FinOps hubs include the following recommendations. Most are enabled by default. Optional recommendations may generate noise for organizations where they don't apply and can be enabled during deployment via the specified template parameter.
 
-| Recommendation                     | Description                                                                                                                                         |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Azure Advisor cost recommendations | Cost recommendations from Azure Advisor. [Learn more](../../best-practices/general.md#review-azure-advisor-cost-recommendations).                   |
-| Idle application gateways          | Application gateways without any backend pool. [Learn more](../../best-practices/networking.md#remove-idle-application-gateways).                   |
-| Idle load balancers                | Load balancers without any backend pool. [Learn more](../../best-practices/networking.md#remove-idle-load-balancers).                               |
-| Stopped VMs                        | Virtual machines that are stopped but not deallocated. [Learn more](../../best-practices/compute.md#deallocate-virtual-machines).                   |
-| Unattached disks                   | Unattached (orphaned) managed disks incurring storage costs. [Learn more](../../best-practices/storage.md#remove-unattached-disks).                 |
-| Unattached public IPs              | Unattached static public IP addresses incurring networking costs. [Learn more](../../best-practices/networking.md#remove-idle-public-ip-addresses). |
-| Unused Elastic Pools               | SQL Elastic Pools with no associated databases. [Learn more](../../best-practices/databases.md#remove-unused-elastic-pools).                        |
+### Compute
 
-The following recommendations require opt-in during deployment because they may generate noise for organizations where they don't apply:
+- **Virtual Machines**
+  - [Deallocate stopped VMs](../../best-practices/compute.md#deallocate-virtual-machines).
+  - [Migrate to managed disks](../../best-practices/compute.md#migrate-to-managed-disks).
+  - Optional: [Use Azure Hybrid Benefit for Windows VMs](../../best-practices/compute.md#use-azure-hybrid-benefit-for-windows-vms). Enabled via the `enableAHBRecommendations` option.
+- **SQL Virtual Machines**
+  - Optional: [Use Azure Hybrid Benefit for SQL VMs](../../best-practices/compute.md#use-azure-hybrid-benefit-for-sql-vms). Enabled via the `enableAHBRecommendations` option.
+- **Azure Kubernetes Service**
+  - Optional: [Use Spot VMs for AKS clusters](../../best-practices/compute.md#use-spot-vms-for-aks-clusters). Enabled via the `enableSpotRecommendations` option.
 
-| Recommendation                       | Parameter                   | Description                                                                                                                                                                                           |
-| ------------------------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Non-Spot AKS clusters                | `enableSpotRecommendations` | AKS clusters with autoscaling enabled but not using Spot VMs. [Learn more](../../best-practices/compute.md#use-spot-vms-for-aks-clusters). Spot VMs are only appropriate for interruptible workloads. |
-| SQL VMs without Azure Hybrid Benefit | `enableAHBRecommendations`  | SQL VMs not leveraging Azure Hybrid Benefit. [Learn more](../../best-practices/compute.md#use-azure-hybrid-benefit-for-sql-vms). Requires on-premises SQL Server licenses with Software Assurance.    |
-| VMs without Azure Hybrid Benefit     | `enableAHBRecommendations`  | Windows VMs not leveraging Azure Hybrid Benefit. [Learn more](../../best-practices/compute.md#use-azure-hybrid-benefit-for-windows-vms). Requires on-premises Windows Server licenses.                |
+### Databases
+
+- **Azure Database for MySQL**
+  - [Migrate legacy MySQL servers](../../best-practices/databases.md#migrate-legacy-mysql-servers)
+- **Azure Database for PostgreSQL**
+  - [Migrate legacy PostgreSQL servers](../../best-practices/databases.md#migrate-legacy-postgresql-servers)
+- **Azure SQL Database**
+  - [Remove unused elastic pools](../../best-practices/databases.md#remove-unused-elastic-pools)
+
+### Management and Governance
+
+- **Azure Advisor**
+  - [Review Azure Advisor cost recommendations](../../best-practices/general.md#review-azure-advisor-cost-recommendations)
+
+### Networking
+
+- **Application Gateway**
+  - [Remove idle application gateways](../../best-practices/networking.md#remove-idle-application-gateways).
+  - [Upgrade classic application gateways](../../best-practices/networking.md#upgrade-classic-application-gateways)
+- **DDoS Protection**
+  - [Remove unassociated DDoS plans](../../best-practices/networking.md#remove-unassociated-ddos-protection-plans)
+- **ExpressRoute**
+  - [Remove unprovisioned ExpressRoute circuits](../../best-practices/networking.md#remove-unprovisioned-expressroute-circuits)
+- **Load Balancer**
+  - [Remove idle load balancers](../../best-practices/networking.md#remove-idle-load-balancers).
+  - [Upgrade Basic load balancers](../../best-practices/networking.md#upgrade-basic-load-balancers)
+- **NAT Gateway**
+  - [Remove orphaned NAT gateways](../../best-practices/networking.md#remove-orphaned-nat-gateways)
+- **Network Interfaces**
+  - [Remove unattached NICs](../../best-practices/networking.md#remove-unattached-network-interfaces)
+- **Network Security Groups**
+  - [Remove empty NSGs](../../best-practices/networking.md#remove-empty-network-security-groups)
+- **Public IP Addresses**
+  - [Remove unattached public IPs](../../best-practices/networking.md#remove-idle-public-ip-addresses).
+  - [Upgrade Basic public IPs](../../best-practices/networking.md#upgrade-basic-public-ips)
+- **VPN Gateway**
+  - [Remove idle VNet gateways](../../best-practices/networking.md#remove-idle-vnet-gateways)
+
+### Storage
+
+- **Managed Disks**
+  - [Downgrade premium snapshots](../../best-practices/storage.md#downgrade-premium-snapshots).
+  - [Remove unattached disks](../../best-practices/storage.md#remove-unattached-disks)
+- **Storage Accounts**
+  - [Upgrade legacy storage accounts](../../best-practices/storage.md#upgrade-legacy-storage-accounts)
+
+### Web
+
+- **App Service**
+  - [Remove empty App Service plans](../../best-practices/web.md#remove-empty-app-service-plans)
 
 To disable a specific default recommendation, delete its query file from the **config/queries** folder in hub storage. The pipeline only processes query files that are present.
 

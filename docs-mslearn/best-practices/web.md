@@ -47,6 +47,38 @@ resources
 | order by id asc
 ```
 
+### Remove empty App Service plans
+
+Recommendation: Remove App Service plans that have no apps or functions hosted to avoid unnecessary charges.
+
+#### About empty App Service plans
+
+App Service plans define the compute resources for your web apps. Paid plans incur charges based on their configured SKU and instance count, regardless of whether any apps are hosted on them. Empty plans can accumulate during development or when apps are moved between plans. Removing unused plans eliminates unnecessary costs.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify empty App Service plans. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify empty App Service plans
+
+Use the following ARG query to identify App Service plans with no hosted apps.
+
+```kusto
+resources
+| where type =~ 'microsoft.web/serverfarms'
+| where toint(properties.numberOfSites) == 0
+| where sku.tier !~ 'Free'
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    SKUName = tostring(sku.name),
+    SKUTier = tostring(sku.tier),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
 ### Query: App Service plan details
 
 This ARG query retrieves detailed information about Azure App Service Plans within your Azure environment.

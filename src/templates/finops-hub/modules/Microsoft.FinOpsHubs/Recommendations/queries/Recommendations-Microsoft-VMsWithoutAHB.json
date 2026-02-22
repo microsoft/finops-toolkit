@@ -5,6 +5,7 @@
     "queryEngine": "ResourceGraph",
     "scope": "Tenant",
     "source": "FinOps hubs",
+    "group": "ahb",
     "type": "Microsoft-VMsWithoutAHB",
     "version": "1.0"
 }

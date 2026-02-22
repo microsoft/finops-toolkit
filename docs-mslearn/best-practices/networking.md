@@ -152,21 +152,105 @@ resources
 | order by id asc
 ```
 
+### Upgrade classic application gateways
+
+Recommendation: Upgrade Application Gateway v1 SKU to v2 before the v1 retirement date to maintain support and access improved features.
+
+#### About classic application gateways
+
+Application Gateway v1 SKU (Standard and WAF) is being retired. The v2 SKU offers autoscaling, zone redundancy, and improved performance. Migrating to v2 ensures continued support and may reduce costs through autoscaling, which automatically adjusts the number of instances based on traffic.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify classic application gateways using v1 SKU. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify classic application gateways
+
+Use the following ARG query to identify application gateways still using the v1 SKU.
+
+```kusto
+resources
+| where type =~ 'microsoft.network/applicationgateways'
+| where properties.sku.tier in ('Standard', 'WAF')
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    SKUTier = tostring(properties.sku.tier),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
+<br>
+
+## DDoS Protection
+
+Azure DDoS Protection provides countermeasures against the most sophisticated DDoS threats. It provides enhanced DDoS mitigation capabilities for your application and resources deployed in your virtual networks.
+
+Related resources:
+
+- [Azure DDoS Protection product page](https://azure.microsoft.com/products/ddos-protection)
+- [Azure DDoS Protection pricing](https://azure.microsoft.com/pricing/details/ddos-protection)
+- [Azure DDoS Protection documentation](/azure/ddos-protection)
+
+### Remove unassociated DDoS protection plans
+
+Recommendation: Remove DDoS protection plans that aren't associated with any virtual network to avoid unnecessary costs.
+
+#### About unassociated DDoS protection plans
+
+DDoS protection plans incur a fixed monthly charge. Plans that aren't associated with any virtual network provide no protection but still generate costs. Removing unused plans eliminates unnecessary spending.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify unassociated DDoS protection plans. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify unassociated DDoS protection plans
+
+Use the following ARG query to identify DDoS protection plans that aren't associated with any virtual network.
+
+```kusto
+resources
+| where type =~ 'microsoft.network/ddosprotectionplans'
+| where isnull(properties.virtualNetworks) or array_length(properties.virtualNetworks) == 0
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
 <br>
 
 ## ExpressRoute
 
-The following section provides an ARG query for ExpressRoute. It helps you gain insights into your ExpressRoute circuits and ensure they're configured with the appropriate settings.
+Azure ExpressRoute lets you extend your on-premises networks into the Microsoft cloud over a private connection. ExpressRoute circuits incur monthly charges based on the SKU and bandwidth provisioned.
 
-### Query: Idle ExpressRoute circuits
+Related resources:
 
-This ARG query analyzes ExpressRoute circuits within your Azure environment to identify any without a completed circuit.
+- [ExpressRoute product page](https://azure.microsoft.com/products/expressroute)
+- [ExpressRoute pricing](https://azure.microsoft.com/pricing/details/expressroute)
+- [ExpressRoute documentation](/azure/expressroute)
 
-**Category**
+### Remove unprovisioned ExpressRoute circuits
 
-Optimization
+Recommendation: Delete or provision ExpressRoute circuits that are in a not-provisioned state to avoid unnecessary charges.
 
-**Query**
+#### About unprovisioned ExpressRoute circuits
+
+ExpressRoute circuits that remain in a "NotProvisioned" state aren't actively carrying traffic but still incur monthly charges. These circuits may have been created but never completed with the service provider. Identifying and removing them eliminates unnecessary costs.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify unprovisioned ExpressRoute circuits. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify unprovisioned ExpressRoute circuits
+
+Use the following ARG query to identify ExpressRoute circuits in a not-provisioned state.
 
 ```kusto
 resources
@@ -239,6 +323,150 @@ resources
     subscriptionId
 ```
 
+### Upgrade Basic load balancers
+
+Recommendation: Upgrade load balancers using the retired Basic SKU to Standard for better performance, security, and continued support.
+
+#### About Basic load balancers
+
+The Basic SKU for Azure Load Balancer was retired on September 30, 2025. Basic load balancers don't provide an SLA, lack availability zone support, and have limited diagnostic capabilities. Upgrading to Standard SKU provides improved reliability, performance, and security features.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify Basic load balancers. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify Basic load balancers
+
+Use the following ARG query to identify load balancers using the Basic SKU.
+
+```kusto
+resources
+| where type =~ 'microsoft.network/loadbalancers'
+| where sku.name =~ 'Basic'
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    SKUName = tostring(sku.name),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
+<br>
+
+## NAT Gateway
+
+Azure NAT Gateway provides outbound internet connectivity for virtual networks. NAT gateways simplify outbound-only internet connectivity by providing a managed, highly available SNAT service.
+
+Related resources:
+
+- [NAT Gateway product page](https://azure.microsoft.com/products/azure-nat-gateway)
+- [NAT Gateway pricing](https://azure.microsoft.com/pricing/details/azure-nat-gateway)
+- [NAT Gateway documentation](/azure/nat-gateway)
+
+### Remove orphaned NAT gateways
+
+Recommendation: Remove NAT gateways that aren't associated with any subnet to avoid unnecessary charges.
+
+#### About orphaned NAT gateways
+
+NAT gateways incur hourly charges and data processing costs. Gateways that aren't associated with any subnet aren't providing outbound connectivity and represent wasted spend. These orphaned gateways may remain after a subnet or virtual network is reconfigured.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify orphaned NAT gateways. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify orphaned NAT gateways
+
+Use the following ARG query to identify NAT gateways not associated with any subnet.
+
+```kusto
+resources
+| where type == "microsoft.network/natgateways" and isnull(properties.subnets)
+| project
+    id,
+    GWName = name,
+    SKUName = tostring(sku.name),
+    SKUTier = tostring(sku.tier),
+    Location = location,
+    resourceGroup = tostring(strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)),
+    subnet = tostring(properties.subnet),
+    subscriptionId
+```
+
+<br>
+
+## Network Interface
+
+Azure network interfaces (NICs) enable Azure VMs to communicate with internet, Azure, and on-premises resources. NICs don't incur direct charges, but orphaned NICs can indicate missed cleanup opportunities and complicate resource management.
+
+### Remove unattached network interfaces
+
+Recommendation: Remove network interfaces that aren't attached to any virtual machine or private endpoint to keep your environment clean and reduce management overhead.
+
+#### About unattached network interfaces
+
+When a VM is deleted, its associated network interfaces may not be cleaned up automatically. These orphaned NICs can accumulate over time, cluttering your environment and potentially retaining associated resources like public IPs. While NICs don't incur direct charges, cleaning them up simplifies resource management and may reveal other orphaned resources.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify unattached network interfaces. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify unattached network interfaces
+
+Use the following ARG query to identify network interfaces not attached to any VM or private endpoint.
+
+```kusto
+resources
+| where type =~ 'microsoft.network/networkinterfaces'
+| where isnull(properties.virtualMachine) and isnull(properties.privateEndpoint)
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    PrivateIP = tostring(properties.ipConfigurations[0].properties.privateIPAddress),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
+<br>
+
+## Network Security Group
+
+Network security groups (NSGs) filter network traffic to and from Azure resources in a virtual network. NSGs contain security rules that allow or deny inbound and outbound network traffic.
+
+### Remove empty network security groups
+
+Recommendation: Remove network security groups that aren't associated with any network interface or subnet to simplify your environment and reduce management overhead.
+
+#### About empty network security groups
+
+NSGs that aren't associated with any network interface or subnet aren't actively filtering traffic. These unused resources can accumulate during infrastructure changes, adding clutter and complicating security audits. Removing them simplifies network management and helps maintain a clean environment.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify empty network security groups. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify empty network security groups
+
+Use the following ARG query to identify NSGs not associated with any network interface or subnet.
+
+```kusto
+resources
+| where type =~ 'microsoft.network/networksecuritygroups'
+| where isnull(properties.networkInterfaces) and isnull(properties.subnets)
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
 <br>
 
 ## Private DNS
@@ -276,6 +504,37 @@ Related resources:
 
 - [Public IP addresses pricing](https://azure.microsoft.com/pricing/details/ip-addresses)
 - [Public IP addresses documentation](/azure/virtual-network/ip-services/public-ip-addresses)
+
+### Upgrade Basic public IPs
+
+Recommendation: Upgrade public IP addresses using the retired Basic SKU to Standard for better security and continued support.
+
+#### About Basic public IPs
+
+The Basic SKU for Azure public IP addresses was retired on September 30, 2025. Basic public IPs lack zone redundancy, don't support routing preference, and are open to inbound traffic by default. Upgrading to Standard SKU provides zone redundancy, secure-by-default behavior (closed to inbound traffic), and support for routing preferences.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify Basic public IPs. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify Basic public IPs
+
+Use the following ARG query to identify public IP addresses using the Basic SKU.
+
+```kusto
+resources
+| where type =~ 'microsoft.network/publicipaddresses'
+| where sku.name =~ 'Basic'
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    SKUName = tostring(sku.name),
+    AllocationMethod = tostring(properties.publicIPAllocationMethod),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
 
 ### Remove idle public IP addresses
 
@@ -397,17 +656,29 @@ resources
 
 ## Virtual Network Gateway
 
-The following sections provide ARG queries for Virtual Network Gateways. They help you gain insights into your Virtual Network Gateway resources and ensure they're configured with the appropriate settings.
+Azure Virtual Network Gateways provide cross-premises connectivity between your Azure virtual networks and on-premises infrastructure. Gateways incur hourly charges based on their SKU.
 
-### Query: Check for idle Virtual Network Gateway
+Related resources:
 
-This ARG query analyzes Virtual Network Gateways within your Azure environment to identify any that are idle.
+- [VPN Gateway pricing](https://azure.microsoft.com/pricing/details/vpn-gateway)
+- [VPN Gateway documentation](/azure/vpn-gateway)
 
-**Category**
+### Remove idle VNet gateways
 
-Optimization
+Recommendation: Remove virtual network gateways that don't have any active connections to avoid unnecessary charges.
 
-**Query**
+#### About idle VNet gateways
+
+Virtual network gateways incur hourly costs based on their SKU tier, regardless of whether they're actively used. Gateways without any connections aren't providing cross-premises connectivity and represent wasted spend. These idle gateways may remain after a migration or when connectivity requirements change.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify idle VNet gateways. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify idle VNet gateways
+
+Use the following ARG query to identify virtual network gateways without any active connections.
 
 ```kusto
 resources
@@ -428,30 +699,6 @@ resources
     location,
     subscriptionId,
     status=id
-```
-
-### Query: Check for idle NAT gateway
-
-This ARG query analyzes NAT gateways within your Azure environment to identify any that are idle.
-
-**Category**
-
-Optimization
-
-**Query**
-
-```kusto
-resources
-| where type == "microsoft.network/natgateways" and isnull(properties.subnets)
-| project
-    id,
-    GWName = name,
-    SKUName = tostring(sku.name),
-    SKUTier = tostring(sku.tier),
-    Location = location,
-    resourceGroup = tostring(strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)),
-    subnet = tostring(properties.subnet),
-    subscriptionId
 ```
 
 <br>

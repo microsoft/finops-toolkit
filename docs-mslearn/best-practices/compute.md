@@ -264,6 +264,36 @@ resources
 | project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
 ```
 
+### Migrate to managed disks
+
+Recommendation: Migrate VMs using unmanaged disks to managed disks to improve reliability, simplify management, and prepare for the retirement of unmanaged disks.
+
+#### About unmanaged disks
+
+[Unmanaged disks](/azure/virtual-machines/unmanaged-disks-deprecation) store VHD files as page blobs in Azure Storage accounts, requiring you to manage storage account capacity, performance, and security yourself. Managed disks simplify disk management by handling storage account management for you, providing better reliability with availability sets, more granular access control, and support for newer features like disk encryption and bursting. Microsoft has announced the retirement of unmanaged disks, so migrating to managed disks is both a cost optimization and a compliance step.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify VMs using unmanaged disks. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify VMs with unmanaged disks
+
+Use the following ARG query to identify VMs that are still using unmanaged disks.
+
+```kusto
+resources
+| where type =~ 'microsoft.compute/virtualmachines'
+| where isnull(properties.storageProfile.osDisk.managedDisk)
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    OsDiskVhd = tostring(properties.storageProfile.osDisk.vhd.uri),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
+```
+
 ### Query: Virtual machine processor type analysis
 
 This query identifies the processor type (ARM, AMD, or Intel) used by VMs in your Azure environment. It helps in understanding the distribution of VMs across different processor architectures, which is useful for optimizing workload performance and cost efficiency.
