@@ -63,10 +63,10 @@ Azure Synapse Analytics provides comprehensive documentation for connecting to a
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Query data in Azure Data Lake Storage with Synapse SQL](https://learn.microsoft.com/azure/synapse-analytics/sql/query-data-storage)
+> [Query data in Azure Data Lake Storage with Synapse SQL](/azure/synapse-analytics/sql/query-data-storage)
 
 > [!div class="nextstepaction"]
-> [Create external tables in Synapse SQL](https://learn.microsoft.com/azure/synapse-analytics/sql/create-external-table-as-select)
+> [Create external tables in Synapse SQL](/azure/synapse-analytics/sql/create-external-table-as-select)
 <!-- prettier-ignore-end -->
 
 <br>
@@ -89,10 +89,10 @@ Azure Databricks provides comprehensive documentation for connecting to and anal
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Connect to Azure Data Lake Storage from Databricks](https://learn.microsoft.com/azure/databricks/storage/azure-storage)
+> [Connect to Azure Data Lake Storage from Databricks](/azure/databricks/storage/azure-storage)
 
 > [!div class="nextstepaction"]
-> [Machine learning with Databricks](https://learn.microsoft.com/azure/databricks/machine-learning/)
+> [Machine learning with Databricks](/azure/databricks/machine-learning/)
 <!-- prettier-ignore-end -->
 
 <br>
@@ -135,10 +135,10 @@ Azure Data Lake Storage provides comprehensive SDKs and REST APIs for building c
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Azure Data Lake Storage REST API](https://learn.microsoft.com/rest/api/storageservices/data-lake-storage-gen2)
+> [Azure Data Lake Storage REST API](/rest/api/storageservices/data-lake-storage-gen2)
 
 > [!div class="nextstepaction"]
-> [Azure Data Lake Storage client libraries](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet)
+> [Azure Data Lake Storage client libraries](/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet)
 <!-- prettier-ignore-end -->
 
 <br>

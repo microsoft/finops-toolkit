@@ -211,7 +211,7 @@ This error indicates that the Data Explorer `.ingest` command detected errors du
 
    - Check the **Ingestion result** metric in Azure Monitor
    - Filter by status to see success vs failure rates
-   - See [Monitor queued ingestion](https://learn.microsoft.com/azure/data-explorer/monitor-queued-ingestion) for more details
+   - See [Monitor queued ingestion](/azure/data-explorer/monitor-queued-ingestion) for more details
 
 8. **Rerun ingestion after fixing the issue**:
    - After resolving the root cause, rerun the `ingestion_ExecuteETL` pipeline
@@ -221,10 +221,10 @@ This error indicates that the Data Explorer `.ingest` command detected errors du
 
 **Additional resources**:
 
-- [Azure Data Explorer ingestion error codes](https://learn.microsoft.com/azure/data-explorer/error-codes)
-- [Ingestion behavior of invalid data](https://learn.microsoft.com/azure/data-explorer/ingest-invalid-data)
-- [Data Explorer ingestion overview](https://learn.microsoft.com/azure/data-explorer/ingest-data-overview)
-- [Kusto ingestion failures command](https://learn.microsoft.com/kusto/management/ingestion-failures)
+- [Azure Data Explorer ingestion error codes](/azure/data-explorer/error-codes)
+- [Ingestion behavior of invalid data](/azure/data-explorer/ingest-invalid-data)
+- [Data Explorer ingestion overview](/azure/data-explorer/ingest-data-overview)
+- [Kusto ingestion failures command](/kusto/management/ingestion-failures)
 
 If you continue to experience this error after following these steps, please [report the issue](https://aka.ms/ftk/ideas) with the following information:
 
@@ -301,9 +301,9 @@ This error can occur when:
 
 For more information, see:
 
-- [Azure Data Factory Fail activity error codes](https://learn.microsoft.com/azure/data-factory/control-flow-fail-activity#understand-the-fail-activity-error-code)
-- [Troubleshoot Azure Data Explorer connector](https://learn.microsoft.com/azure/data-factory/connector-troubleshoot-azure-data-explorer)
-- [Monitor Azure Data Explorer ingestion](https://learn.microsoft.com/azure/data-explorer/monitor-data-explorer)
+- [Azure Data Factory Fail activity error codes](/azure/data-factory/control-flow-fail-activity#understand-the-fail-activity-error-code)
+- [Troubleshoot Azure Data Explorer connector](/azure/data-factory/connector-troubleshoot-azure-data-explorer)
+- [Monitor Azure Data Explorer ingestion](/azure/data-explorer/monitor-data-explorer)
 
 Report unresolved issues at <https://aka.ms/ftk/ideas>.
 
@@ -446,9 +446,9 @@ This error occurs when an Azure Data Factory Fail activity cannot evaluate its d
 
 For more information, see:
 
-- [Azure Data Factory Fail activity documentation](https://learn.microsoft.com/azure/data-factory/control-flow-fail-activity#understand-the-fail-activity-error-code)
-- [Troubleshoot Azure Data Factory pipelines](https://learn.microsoft.com/azure/data-factory/data-factory-troubleshoot-guide)
-- [Azure Data Explorer troubleshooting guide](https://learn.microsoft.com/azure/data-explorer/troubleshoot-database-table)
+- [Azure Data Factory Fail activity documentation](/azure/data-factory/control-flow-fail-activity#understand-the-fail-activity-error-code)
+- [Troubleshoot Azure Data Factory pipelines](/azure/data-factory/data-factory-troubleshoot-guide)
+- [Azure Data Explorer troubleshooting guide](/azure/data-explorer/troubleshoot-database-table)
 
 Report unresolved issues at <https://aka.ms/ftk/ideas>.
 

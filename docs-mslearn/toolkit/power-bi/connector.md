@@ -149,11 +149,8 @@ Related resources:
 - [What is FOCUS?](../../focus/what-is-focus.md)
 - [How to convert Cost Management data to FOCUS](../../focus/convert.md)
 - [How to update existing reports to FOCUS](../../focus/mapping.md)
-
-<!-- TODO: Bring in after these resources are moved
-- [Common terms](../../_resources/terms.md)
-- [Data dictionary](../../_resources/data-dictionary.md)
--->
+- [Common terms](../help/terms.md)
+- [Data dictionary](../help/data-dictionary.md)
 
 Related FinOps capabilities:
 
