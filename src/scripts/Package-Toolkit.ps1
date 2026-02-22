@@ -112,9 +112,12 @@ function Copy-TemplateFiles()
             }
         }
         
-        $zip = if ($unversionedZip) {
+        $zip = if ($unversionedZip)
+        {
             Join-Path (Get-Item $relDir) "$templateName.zip"
-        } else {
+        }
+        else
+        {
             Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
         }
 
@@ -152,7 +155,23 @@ function Copy-TemplateFiles()
                 & "$PSScriptRoot/New-Directory" $targetDir
 
                 # Copy files and directories
-                $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$srcPath/$($_.source)" "$targetDir/$($_.destination)" -Force }
+                $packageManifest.deployment.Files | ForEach-Object {
+                    $destPath = $_.destination
+                    $srcFolder = "$($srcPath.FullName)/$($_.sourceFolder)/".Replace("//", "/")
+                    Get-ChildItem $srcFolder -Include $_.source -Recurse:$_.recurse | ForEach-Object {
+                        if ($destPath -eq '*')
+                        {
+                            $relativeDest = "$targetDir/$($_.FullName.Replace($srcFolder, ''))"
+                            $destDir = Split-Path $relativeDest -Parent
+                            if ($destDir) { & "$PSScriptRoot/New-Directory" $destDir }
+                            Copy-Item $_ $relativeDest -Force
+                        }
+                        else
+                        {
+                            Copy-Item $_ "$targetDir/$destPath" -Force
+                        }
+                    }
+                }
                 $packageManifest.deployment.Directories | ForEach-Object {
                     & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
                     Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force

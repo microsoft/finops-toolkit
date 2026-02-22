@@ -1,7 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices } from '../../fx/hub-types.bicep'
+import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices, isSupportedVersion } from '../../fx/hub-types.bicep'
+import { AppMetadata as CoreMetadata } from '../Core/metadata.bicep'
+import { AppMetadata as AnalyticsMetadata } from './metadata.bicep'
+
+metadata hubApp = {
+  id: 'Microsoft.FinOpsHubs.Analytics'
+  version: '$$ftkver$$'
+  dependencies: ['Microsoft.FinOpsHubs.Core']
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.FinOpsHubs/Analytics/metadata.bicep'
+}
 
 
 //==============================================================================
@@ -10,6 +19,10 @@ import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices
 
 @description('Required. FinOps hub app getting deployed.')
 param app HubAppProperties
+
+@description('Required. Metadata describing shared resources from the Core app. Must be v13 or higher.')
+@validate(x => isSupportedVersion(x.version, '13.0', ''), 'FinOps hubs Analytics requires FinOps hubs version 13.0 or higher.')
+param core CoreMetadata
 
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 @maxLength(22)
@@ -117,10 +130,8 @@ param rawRetentionInDays int
 // Variables
 //==============================================================================
 
-var CONFIG = 'config'
 var HUB_DATA_EXPLORER = 'hubDataExplorer'
 var HUB_DB = 'Hub'
-var INGESTION = 'ingestion'
 var INGESTION_DB = 'Ingestion'
 var INGESTION_ID_SEPARATOR = '__'
 
@@ -672,16 +683,16 @@ module trigger_IngestionManifestAdded '../../fx/hub-eventTrigger.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_IngestionManifestAddedTrigger'
   params: {
     dataFactoryName: dataFactory.name
-    triggerName: '${INGESTION}_ManifestAdded'
+    triggerName: '${core.containers.ingestion}_ManifestAdded'
 
     // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.IngestionManifestAdded'
     pipelineName: pipeline_ExecuteIngestionETL.name
     pipelineParameters: {
       folderPath: '@triggerBody().folderPath'
     }
-    
+
     storageAccountName: app.storage
-    storageContainer: INGESTION
+    storageContainer: core.containers.ingestion
     storagePathEndsWith: 'manifest.json'
   }
 }
@@ -691,7 +702,7 @@ module trigger_IngestionManifestAdded '../../fx/hub-eventTrigger.bicep' = {
 //------------------------------------------------------------------------------
 @description('Initializes the hub instance based on the configuration settings.')
 resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${CONFIG}_InitializeHub'
+  name: '${core.datasets.config}_InitializeHub'
   parent: dataFactory
   properties: {
     activities: [
@@ -720,7 +731,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
             }
           }
           dataset: {
-            referenceName: CONFIG
+            referenceName: core.datasets.config
             type: 'DatasetReference'
           }
         }
@@ -1173,7 +1184,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
 //------------------------------------------------------------------------------
 @description('Ingests parquet data into an Azure Data Explorer cluster.')
 resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (useAzure || useFabric) {
-  name: '${INGESTION}_ETL_dataExplorer'
+  name: '${core.containers.ingestion}_ETL_dataExplorer'
   parent: dataFactory
   properties: {
     activities: [
@@ -1202,11 +1213,11 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
             }
           }
           dataset: {
-            referenceName: CONFIG
+            referenceName: core.datasets.config
             type: 'DatasetReference'
             parameters: {
               fileName: 'settings.json'
-              folderPath: CONFIG
+              folderPath: core.containers.config
             }
           }
         }
@@ -1374,7 +1385,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     typeProperties: {
                       command: {
                         // cSpell:ignore abfss, toscalar
-                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("abfss://${INGESTION}@${app.storage}.dfs.${environment().suffixes.storage}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \';${useFabric ? 'impersonate' : 'managed_identity=system'}") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${finOpsToolkitVersion}\\"]"); print Success = assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")\')'
+                        value: '@concat(\'.ingest into table \', pipeline().parameters.table, \' ("abfss://${core.containers.ingestion}@${app.storage}.dfs.${environment().suffixes.storage}/\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName, \';${useFabric ? 'impersonate' : 'managed_identity=system'}") with (format="parquet", ingestionMappingReference="\', pipeline().parameters.table, \'_mapping", tags="[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${finOpsToolkitVersion}\\"]"); print Success = assert(iff(toscalar($command_results | project-keep HasErrors) == false, true, false), "Ingestion Failed")\')'
                         type: 'Expression'
                       }
                       commandTimeout: '01:00:00'
@@ -1615,7 +1626,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
 //------------------------------------------------------------------------------
 @description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits.')
 resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (useAzure || useFabric) {
-  name: '${INGESTION}_ExecuteETL'
+  name: '${core.containers.ingestion}_ExecuteETL'
   parent: dataFactory
   properties: {
     concurrency: 1
@@ -1890,26 +1901,33 @@ module runInitializationPipeline '../../fx/hub-initialize.bicep' = if (useAzure 
 // Outputs
 //==============================================================================
 
-@description('The resource ID of the cluster.')
-#disable-next-line BCP318 // Null safety warning for conditional resource access
-output clusterId string = useFabric ? '' : cluster.id
-
-@description('The ID of the cluster system assigned managed identity.')
-#disable-next-line BCP318 // Null safety warning for conditional resource access
-output principalId string = useFabric ? '' : cluster.identity.principalId
-
-@description('The name of the cluster.')
-#disable-next-line BCP318 // Null safety warning for conditional resource access
-output clusterName string = useFabric ? '' : cluster.name
-
-@description('The URI of the cluster.')
-output clusterUri string = dataExplorerUri
-
-@description('The name of the database for data ingestion.')
-output ingestionDbName string = INGESTION_DB  // Don't use cluster DB reference since that won't work for Fabric
-
-@description('The name of the database for queries.')
-output hubDbName string = HUB_DB  // Don't use cluster DB reference since that won't work for Fabric
-
 @description('Max ingestion capacity of the cluster.')
 output clusterIngestionCapacity int = dataExplorerIngestionCapacity
+
+@description('Metadata describing resources created by the Analytics app.')
+output metadata AnalyticsMetadata = {
+  id: 'Microsoft.FinOpsHubs.Analytics'
+  version: finOpsToolkitVersion
+  cluster: {
+    #disable-next-line BCP318 // Null safety warning for conditional resource access
+    id: useFabric ? '' : cluster.id
+    #disable-next-line BCP318 // Null safety warning for conditional resource access
+    name: useFabric ? '' : cluster.name
+    uri: dataExplorerUri
+    #disable-next-line BCP318 // Null safety warning for conditional resource access
+    principalId: useFabric ? '' : cluster.identity.principalId
+  }
+  databases: {
+    // Don't use cluster DB references since they won't work for Fabric
+    ingestion: INGESTION_DB
+    hub: HUB_DB
+  }
+  linkedServices: {
+    hubDataExplorer: linkedService_dataExplorer.name
+    ftkRepo: linkedService_ftkRepo.name
+  }
+  datasets: {
+    hubDataExplorer: dataset_dataExplorer.name
+    ftkReleaseFile: dataset_ftkReleaseFile.name
+  }
+}

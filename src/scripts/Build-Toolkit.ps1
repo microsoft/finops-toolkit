@@ -270,6 +270,24 @@ $templates | ForEach-Object {
         }
     }
 
+    # Replace $$ftkver$$ in all Bicep app.bicep files (for metadata version and URLs)
+    Write-Verbose "  Replacing version placeholders in app.bicep files..."
+    $hubAppFiles = Get-ChildItem "$destDir" -Include 'app.bicep' -Recurse -Force
+    $replacedCount = 0
+    $hubAppFiles | ForEach-Object {
+        $content = Get-Content $_.FullName -Raw
+        if ($content -match '\$\$ftkver\$\$')
+        {
+            Write-Verbose "    Replacing version in: $($_.FullName.Replace($destDir, ''))"
+            $content -replace '\$\$ftkver\$\$', $ver | Out-File $_.FullName -NoNewline
+            $replacedCount++
+        }
+    }
+    if ($replacedCount -gt 0)
+    {
+        Write-Verbose "    Replaced version placeholder in $replacedCount file(s)"
+    }
+
     # Build main.bicep, if applicable
     if (Test-Path "$srcDir/main.bicep")
     {

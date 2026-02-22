@@ -1,7 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { finOpsToolkitVersion, HubAppProperties } from '../../fx/hub-types.bicep'
+import { finOpsToolkitVersion, HubAppProperties, isSupportedVersion } from '../../fx/hub-types.bicep'
+import { AppMetadata as CoreMetadata } from '../../Microsoft.FinOpsHubs/Core/metadata.bicep'
+import { AppMetadata as ExportsMetadata } from './metadata.bicep'
+
+metadata hubApp = {
+  id: 'Microsoft.CostManagement.Exports'
+  version: '$$ftkver$$'
+  dependencies: [
+    'Microsoft.FinOpsHubs.Core'
+  ]
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.CostManagement/Exports/metadata.bicep'
+}
 
 
 //==============================================================================
@@ -11,17 +22,16 @@ import { finOpsToolkitVersion, HubAppProperties } from '../../fx/hub-types.bicep
 @description('Required. FinOps hub app getting deployed.')
 param app HubAppProperties
 
+@description('Required. Metadata describing shared resources from the Core app. Must be v13 or higher.')
+@validate(x => isSupportedVersion(x.version, '13.0', ''), 'Cost Management Exports requires FinOps hubs version 13.0 or higher.')
+param core CoreMetadata
+
 
 //==============================================================================
 // Variables
 //==============================================================================
 
-var CONFIG = 'config'
-var INGESTION = 'ingestion'
 var MSEXPORTS = 'msexports'
-
-// Separator used to separate ingestion ID from file name for ingested files
-var ingestionIdFileNameSeparator = '__'
 
 
 //==============================================================================
@@ -53,7 +63,7 @@ module schemaFiles '../../fx/hub-storage.bicep' = {
   ]
   params: {
     app: app
-    container: 'config'
+    container: core.containers.config
     files: {
       // cSpell:ignore actualcost, amortizedcost, focuscost, pricesheet, reservationdetails, reservationrecommendations, reservationtransactions
       'schemas/actualcost_c360-2025-04.json': loadTextContent('./schemas/actualcost_c360-2025-04.json')
@@ -102,23 +112,23 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   }
 
   resource dataset_config 'datasets' existing = {
-    name: CONFIG
+    name: core.datasets.config
   }
 
   resource dataset_ingestion 'datasets' existing = {
-    name: INGESTION
+    name: core.datasets.ingestion
   }
 
   resource dataset_ingestion_files 'datasets' existing = {
-    name: '${INGESTION}_files'
+    name: core.datasets.ingestionFiles
   }
 
   resource dataset_ingestion_manifest 'datasets' existing = {
-    name: 'ingestion_manifest'
+    name: core.datasets.ingestionManifest
   }
 
   resource dataset_msexports_manifest 'datasets' = {
-    name: 'msexports_manifest'
+    name: '${MSEXPORTS}_manifest'
     properties: {
       parameters: {
         fileName: {
@@ -152,7 +162,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   }
 
   resource dataset_msexports 'datasets' = {
-    name: replace('${MSEXPORTS}', '-', '_')
+    name: replace(MSEXPORTS, '-', '_')
     properties: {
       parameters: {
         blobPath: {
@@ -1003,7 +1013,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               parameters: {
                 fileName: 'manifest.json'
                 folderPath: {
-                  value: '@concat(\'${INGESTION}/\', variables(\'destinationFolder\'))'
+                  value: '@concat(\'${core.containers.ingestion}/\', variables(\'destinationFolder\'))'
                   type: 'Expression'
                 }
               }
@@ -1059,7 +1069,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by msexports_ExecuteETL
   //---------------------------------------------------------------------------
   resource pipeline_ToIngestion 'pipelines' = {
-    name: '${MSEXPORTS}_ETL_${INGESTION}'
+    name: '${MSEXPORTS}_ETL_${core.containers.ingestion}'
     properties: {
       activities: [
         { // Get Existing Parquet Files
@@ -1115,7 +1125,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
             }
             condition: {
               // cSpell:ignore endswith
-              value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, concat(pipeline().parameters.ingestionId, \'${ingestionIdFileNameSeparator}\'))))'
+              value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, concat(pipeline().parameters.ingestionId, \'${core.ingestionIdFileNameSeparator}\'))))'
               type: 'Expression'
             }
           }
@@ -1153,7 +1163,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                   value: '@toLower(pipeline().parameters.schemaFile)'
                   type: 'Expression'
                 }
-                folderPath: '${CONFIG}/schemas'
+                folderPath: '${core.containers.config}/schemas'
               }
             }
           }
@@ -1274,14 +1284,14 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           typeProperties: {
             variableName: 'destinationPath'
             value: {
-              value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.ingestionId, \'${ingestionIdFileNameSeparator}\', pipeline().parameters.destinationFile)'
+              value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.ingestionId, \'${core.ingestionIdFileNameSeparator}\', pipeline().parameters.destinationFile)'
               type: 'Expression'
             }
           }
         }
         { // Convert to Parquet
           name: 'Convert to Parquet'
-          description: 'Convert CSV to parquet and move the file to the ${INGESTION} container.'
+          description: 'Convert CSV to parquet and move the file to the ${core.containers.ingestion} container.'
           type: 'Switch'
           dependsOn: [
             {
@@ -1582,7 +1592,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               type: 'DatasetReference'
               parameters: {
                 fileName: 'settings.json'
-                folderPath: CONFIG
+                folderPath: core.containers.config
               }
             }
           }
@@ -1711,8 +1721,20 @@ module trigger_ExportManifestAdded '../../fx/hub-eventTrigger.bicep' = {
 @description('Properties of the hub app.')
 output app HubAppProperties = app
 
-@description('Name of the container used for Cost Management exports.')
-output exportContainer string = exportContainer.outputs.containerName
-
 @description('Number of schema files uploaded.')
 output schemaFilesUploaded int = schemaFiles.outputs.filesUploaded
+
+@description('Metadata describing resources created by the Cost Management Exports app.')
+output metadata ExportsMetadata = {
+  id: 'Microsoft.CostManagement.Exports'
+  version: finOpsToolkitVersion
+  containers: {
+    msexports: exportContainer.outputs.containerName
+  }
+  datasets: {
+    msexportsManifest: dataFactory::dataset_msexports_manifest.name
+    msexports: dataFactory::dataset_msexports.name
+    msexportsGzip: dataFactory::dataset_msexports_gzip.name
+    msexportsParquet: dataFactory::dataset_msexports_parquet.name
+  }
+}

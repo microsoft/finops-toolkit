@@ -1,7 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices } from '../../fx/hub-types.bicep'
+import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices, isSupportedVersion } from '../../fx/hub-types.bicep'
+import { AppMetadata as CoreMetadata } from '../Core/metadata.bicep'
+
+metadata hubApp = {
+  id: 'Microsoft.FinOpsHubs.RemoteHub'
+  version: '$$ftkver$$'
+  dependencies: ['Microsoft.FinOpsHubs.Core']
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.FinOpsHubs/RemoteHub/metadata.bicep'
+}
 
 
 //==============================================================================
@@ -18,8 +26,9 @@ param remoteStorageKey string
 @description('Required. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string
 
-@description('Optional. Name of the ingestion container. Default: ingestion.')
-param ingestionContainerName string = 'ingestion'
+@description('Required. Metadata describing shared resources from the Core app. Must be v13 or higher.')
+@validate(x => isSupportedVersion(x.version, '13.0', ''), 'Remote hubs require FinOps hubs version 13.0 or higher.')
+param core CoreMetadata
 
 
 //==============================================================================
@@ -96,7 +105,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 
   // Replace the ingestion dataset
   resource dataset_ingestion 'datasets' = {
-    name: ingestionContainerName
+    name: core.datasets.ingestion
     properties: {
       annotations: []
       parameters: {
@@ -112,7 +121,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
             value: '@{dataset().blobPath}'
             type: 'Expression'
           }
-          fileSystem: ingestionContainerName
+          fileSystem: core.containers.ingestion
         }
       }
       linkedServiceName: {
@@ -125,7 +134,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 
   // Replace the ingestion_files dataset
   resource dataset_ingestion_files 'datasets' = {
-    name: '${ingestionContainerName}_files'
+    name: core.datasets.ingestionFiles
     properties: {
       annotations: []
       parameters: {
@@ -137,7 +146,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       typeProperties: {
         location: {
           type: 'AzureBlobFSLocation'
-          fileSystem: ingestionContainerName
+          fileSystem: core.containers.ingestion
           folderPath: {
             value: '@dataset().folderPath'
             type: 'Expression'
@@ -154,7 +163,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 
   // Replace the ingestion_manifest dataset to write manifests to remote hub
   resource dataset_ingestion_manifest 'datasets' = {
-    name: 'ingestion_manifest'
+    name: core.datasets.ingestionManifest
     properties: {
       annotations: []
       parameters: {
@@ -164,7 +173,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         folderPath: {
           type: 'String'
-          defaultValue: ingestionContainerName
+          defaultValue: core.containers.ingestion
         }
       }
       type: 'Json'
@@ -194,6 +203,3 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 //==============================================================================
 // Outputs
 //==============================================================================
-
-@description('Name of the Key Vault instance.')
-output keyVaultName string = app.keyVault
