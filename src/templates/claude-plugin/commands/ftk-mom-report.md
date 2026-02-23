@@ -28,7 +28,7 @@ You are responsible for `research/`, `planning/` and interpreting `results/`.
 12. Add new working queries you create to `queries/finops-hubs/query-name.md` and update `queries/index.md` for re-use.
 13. Use autonomous batch processing to handle large datasets efficiently. 
 14. Save your work as you go to `results/[environment-name]-demo-report-[date].md` to avoid lost work.
-15. Investigate suspicious worload patterns for `research/anomaly-detection.md` and `research/fraud-detection.md`. 
+15. Investigate suspicious workload patterns for `research/anomaly-detection.md` and `research/fraud-detection.md`. 
 16. Leave no stone unturned.  Explore the data.  Look for more than just the usual suspects.
 
 **Remember:** This is a demo.  Update `results/[environment-name]-demo-report-[date].md` as you go to avoid boring the audience.
