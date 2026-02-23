@@ -43,7 +43,7 @@ jobs:
             # Check if file has ms.date in frontmatter and update it
             if grep -q "^ms\.date:" "$file"; then
               # Use sed to replace the ms.date line
-              sed -i "s/^ms\.date:.*$/ms.date: $CURRENT_DATE/" "$file"
+              sed -i "s|^ms\.date:.*$|ms.date: $CURRENT_DATE|" "$file"
               echo "  Updated ms.date in $file"
             else
               echo "  No ms.date found in $file, skipping"
