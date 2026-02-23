@@ -117,7 +117,7 @@ else
     if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
     if ($Exports) { $testsToRun += '*-FinOpsCostExport*', 'CostExports.Tests.ps1' }
     if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
-    if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs.Tests.ps1' }
+    if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs*.Tests.ps1' }
     if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
     if ($Private) { $testsToRun += (Get-ChildItem -Path "$PSScriptRoot/../powershell/Tests/$testType/Unit" -Exclude *-FinOps*, *-Hub*, *-OpenData* -Name *.Tests.ps1) }
     if (-not $testsToRun) { $testsToRun = "*" }
