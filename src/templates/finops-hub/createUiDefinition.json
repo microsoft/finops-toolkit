@@ -57,7 +57,7 @@
             "type": "Microsoft.Common.TextBlock",
             "visible": true,
             "options": {
-              "text": "Select how this hub will process and store cost data. Choose Azure Data Explorer or Microsoft Fabric for analytics, None for storage-based Power BI reports only, or Remote Hub to forward data to a central FinOps hub."
+              "text": "Select how this hub will process and store data. Azure Data Explorer or Microsoft Fabric are recommended for medium to large accounts. Select Remote hub to push data to a central FinOps hub in another tenant. Only select storage-only for small accounts with simple requirements."
             }
           },
           {
