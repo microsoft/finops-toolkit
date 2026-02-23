@@ -80,7 +80,7 @@ Describe 'update-mslearn-dates GitHub Action' {
 
         It 'Should use sed to replace ms.date line' {
             $workflowContent | Should -Match 'sed -i'
-            $workflowContent | Should -Match 's/\^ms\\\.date:'
+            $workflowContent | Should -Match 's[/|]\^ms\\\.date:'
         }
 
         It 'Should have step to check for changes before committing' {
@@ -109,7 +109,7 @@ Describe 'update-mslearn-dates GitHub Action' {
     Context 'Sed command validation' {
         It 'Should have correct sed regex to match ms.date at line start' {
             # The sed command should use ^ to anchor to start of line
-            $workflowContent | Should -Match 's/\^ms\\\.date:\.\*\$/ms\.date:'
+            $workflowContent | Should -Match 's[/|]\^ms\\\.date:\.\*\$[/|]ms\.date:'
         }
 
         It 'Should replace entire ms.date line' {
@@ -124,7 +124,7 @@ Describe 'update-mslearn-dates GitHub Action' {
         }
 
         It 'Should only add docs-mslearn files to commit' {
-            $workflowContent | Should -Match 'git add docs-mslearn/'
+            $workflowContent | Should -Match 'git add (-u )?docs-mslearn/'
         }
     }
 }
