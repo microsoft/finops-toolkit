@@ -201,7 +201,7 @@ function Start-FinOpsCostExport
         {
             Write-Verbose "Export executed successfully"
         }
-        else
+        elseif (-not $response.Throttled)
         {
             Write-Error "Export failed to execute: ($($response.Content.error.code)) $($response.Content.error.message)"
         }
