@@ -83,7 +83,7 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
 
 function Copy-TemplateFiles()
 {
-    Write-Host "Packaging $(if ($Template) { "$Template $version template" } else { "$version templates" })..."
+    Write-Host "Packaging $(if ($Template -ne "*") { "$Template $version template" } else { "$version templates" })..."
 
     Write-Verbose "Removing existing ZIP files..."
     Remove-Item "$relDir/*.zip" -Force
