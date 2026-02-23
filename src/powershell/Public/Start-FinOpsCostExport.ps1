@@ -140,11 +140,11 @@ function Start-FinOpsCostExport
     $body = $null
     if ($StartDate)
     {
-        Write-Verbose "Exporting dates configured on the export definition"
+        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
     }
     else
     {
-        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
+        Write-Verbose "Exporting dates configured on the export definition"
     }
 
     if (-not $PSCmdlet.ShouldProcess($Name, 'Run cost export'))

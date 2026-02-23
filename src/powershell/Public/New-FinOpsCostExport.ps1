@@ -418,8 +418,11 @@ function New-FinOpsCostExport
         # Register the Microsoft.CostManagementExports RP
         if ((Get-AzResourceProvider -ProviderNamespace Microsoft.CostManagementExports).RegistrationState -ne 'Registered')
         {
-            Write-Verbose "Microsoft.CostManagementExports provider is not registered. Registering provider."
-            Register-AzResourceProvider -ProviderNamespace 'Microsoft.CostManagementExports'
+            if ($PSCmdlet.ShouldProcess('Microsoft.CostManagementExports', 'Register resource provider'))
+            {
+                Write-Verbose "Microsoft.CostManagementExports provider is not registered. Registering provider."
+                Register-AzResourceProvider -ProviderNamespace 'Microsoft.CostManagementExports'
+            }
         }
         else
         {

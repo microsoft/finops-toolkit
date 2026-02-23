@@ -31,6 +31,18 @@ The following section lists features and enhancements that are currently in deve
 - Cost Management export modules for subscriptions and resource groups.
 -->
 
+<br>
+
+## Unreleased
+
+### [PowerShell module](powershell/powershell-commands.md) vNext
+
+- **Added**
+  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
+- **Fixed**
+  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
+  - Addressed minor lint warnings across PowerShell commands.
+
 <br><a name="latest"></a>
 
 ## v13 Update 1

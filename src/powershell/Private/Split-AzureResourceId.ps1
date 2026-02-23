@@ -51,11 +51,6 @@ function Split-AzureResourceId
     {
         Write-Verbose "Parsing resource ID: '$Id'"
 
-        if (-not $Id)
-        {
-            return [AzureResourceIdInfo]@{ ResourceId = $null }
-        }
-
         # Add leading slash
         if (-not $Id.StartsWith('/'))
         {
