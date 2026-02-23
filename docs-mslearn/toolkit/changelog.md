@@ -39,9 +39,9 @@ _Released March 2026_
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v13)
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v14)
 > [!div class="nextstepaction"]
-> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v12...v13)
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v13...v14)
 <!-- prettier-ignore-end -->
 
 <br>
