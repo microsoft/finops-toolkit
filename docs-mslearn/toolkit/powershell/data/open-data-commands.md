@@ -12,6 +12,7 @@ ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
+
 # Open data integration
 
 The FinOps toolkit open data PowerShell commands help you integrate datasets into your workflow.
@@ -24,6 +25,8 @@ The FinOps toolkit open data PowerShell commands help you integrate datasets int
 - [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
 - [Get-FinOpsResourceType](Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
 - [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
+- [New-FinOpsTestData](New-FinOpsTestData.md) – Generates synthetic, multi-cloud FOCUS-compliant cost data for FinOps Hub validation.
+- [Remove-FinOpsTestData](Remove-FinOpsTestData.md) – Removes test data from a FinOps hub environment.
 
 <br>
 

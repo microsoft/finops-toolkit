@@ -141,7 +141,7 @@
         - name: Configure remote hubs
           href: toolkit/hubs/configure-remote-hubs.md
         - name: Savings calculations
-          href: toolkit/hubs/savings-calculations.md          
+          href: toolkit/hubs/savings-calculations.md
         - name: Deployment template
           href: toolkit/hubs/template.md
         - name: Data model
@@ -264,6 +264,10 @@
               href: toolkit/powershell/data/get-finopsresourcetype.md
             - name: Get-FinOpsService
               href: toolkit/powershell/data/get-finopsservice.md
+            - name: New-FinOpsTestData
+              href: toolkit/powershell/data/New-FinOpsTestData.md
+            - name: Remove-FinOpsTestData
+              href: toolkit/powershell/data/Remove-FinOpsTestData.md
     - name: Bicep registry
       items:
         - name: Modules
