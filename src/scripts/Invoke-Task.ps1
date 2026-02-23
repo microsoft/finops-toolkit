@@ -24,7 +24,7 @@
     Optional. Increments the prerelease version number (0.0.0-ooo.x). Only applies to version tasks.
 
     .PARAMETER Label
-    Optional. Indicates the label to use for prerelease versions. Allowed: dev, alpha, preview. Only applies to version tasks.
+    Optional. Indicates the label to use for prerelease versions. Allowed: dev, rc, alpha, preview. Only applies to version tasks.
 
     .PARAMETER Version
     Optional. Sets the version number to an explicit value. Only applies to version tasks.

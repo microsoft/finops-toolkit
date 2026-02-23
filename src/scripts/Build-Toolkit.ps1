@@ -21,7 +21,7 @@
     Optional. Increments the prerelease version number (0.0.0-ooo.x).
 
     .PARAMETER Label
-    Optional. Indicates the label to use for prerelease versions. Allowed: dev, alpha, preview.
+    Optional. Indicates the label to use for prerelease versions. Allowed: dev, rc, alpha, preview.
 
     .EXAMPLE
     ./Build-Toolkit

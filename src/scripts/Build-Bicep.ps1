@@ -26,6 +26,7 @@
 
     Renders main module and test bicep code to the console instead of generating files.
 #>
+[CmdletBinding()]
 Param (
     [Parameter(Position = 0)][string] $Module = "*",
     [string] $Scope
