@@ -135,23 +135,23 @@ This error indicates that the Data Explorer `.ingest` command detected errors du
 
 **Common root causes**:
 
-1. **Empty parquet file**: The parquet file contains no data rows. This is the most common cause.
-   - Cost Management export generated an empty file (no data for the time period)
-   - ETL pipeline created an empty parquet file during transformation
-   - File was created but data write operation failed
+- **Empty parquet file**: The parquet file contains no data rows. This is the most common cause.
+  - Cost Management export generated an empty file (no data for the time period)
+  - ETL pipeline created an empty parquet file during transformation
+  - File was created but data write operation failed
 
-2. **Schema mismatch**: The parquet file schema doesn't match the ingestion mapping reference for the target table.
-   - Columns in the parquet file may have different names or data types than expected
-   - The ingestion mapping (e.g., `<table>_mapping`) may be outdated or incorrect
-   - New columns were added to the export schema that aren't in the mapping
+- **Schema mismatch**: The parquet file schema doesn't match the ingestion mapping reference for the target table.
+  - Columns in the parquet file may have different names or data types than expected
+  - The ingestion mapping (e.g., `<table>_mapping`) may be outdated or incorrect
+  - New columns were added to the export schema that aren't in the mapping
 
-3. **Corrupted or invalid parquet files**: The source file may be malformed, corrupted, or not a valid parquet file.
+- **Corrupted or invalid parquet files**: The source file may be malformed, corrupted, or not a valid parquet file.
 
-4. **Missing or incorrect ingestion mapping**: The referenced mapping (e.g., `Costs_raw_mapping`) doesn't exist or has incorrect column definitions.
+- **Missing or incorrect ingestion mapping**: The referenced mapping (e.g., `Costs_raw_mapping`) doesn't exist or has incorrect column definitions.
 
-5. **Data type conversion errors**: Data in the parquet file can't be converted to the target column types defined in the table schema.
+- **Data type conversion errors**: Data in the parquet file can't be converted to the target column types defined in the table schema.
 
-6. **File access issues**: Data Explorer can't access the parquet file in storage due to permissions or network issues.
+- **File access issues**: Data Explorer can't access the parquet file in storage due to permissions or network issues.
 
 **Mitigation steps**:
 

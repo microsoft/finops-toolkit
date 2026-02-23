@@ -270,7 +270,7 @@ InModuleScope 'FinOpsToolkit' {
                 
                 # Assert
                 Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
-                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq ($scopeWithColons -replace ':','-')
+                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq (($scopeWithColons -replace ':','-').Trim('/'))
                 }
             }
 
@@ -308,7 +308,7 @@ InModuleScope 'FinOpsToolkit' {
                 
                 # Assert
                 Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' -Times 1 -ParameterFilter {
-                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq $scopeWithoutColons
+                    $Body.properties.deliveryInfo.destination.rootFolderPath -eq $scopeWithoutColons.Trim('/')
                 }
             }
         }
