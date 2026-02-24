@@ -3,7 +3,7 @@ title: Remove-FinOpsHubScope command
 description: Stops monitoring a scope within a FinOps hub instance and optionally remove the data using the Remove-FinOpsHubScope command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 02/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

@@ -3,7 +3,7 @@ title: Data Lake Storage connectivity options
 description: Learn about tools and services that can connect to Data Lake Storage for FinOps analytics beyond Power BI, including Azure Data Explorer, Microsoft Fabric, and Azure Synapse Analytics.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 02/24/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

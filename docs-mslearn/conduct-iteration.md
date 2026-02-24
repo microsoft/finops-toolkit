@@ -3,7 +3,7 @@ title: Tutorial - Conduct an iteration
 description: This tutorial helps you learn how to take an iterative approach to FinOps adoption.
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2025
+ms.date: 02/24/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-learning-resources

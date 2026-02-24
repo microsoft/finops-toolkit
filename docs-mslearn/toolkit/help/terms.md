@@ -3,7 +3,7 @@ title: Common terms
 description: This article defines common terms used in the FinOps toolkit to help users understand the data and insights provided.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 02/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

@@ -3,7 +3,7 @@ title: Configure Data Explorer dashboards for FinOps hubs
 description: Deploy a pre-built Azure Data Explorer dashboard for FinOps hubs to start analyzing cost and usage for your accounts.
 author: flanakin
 ms.author: micflan
-ms.date: 04/29/2025
+ms.date: 02/24/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
