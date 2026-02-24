@@ -133,7 +133,6 @@ param rawRetentionInDays int
 var HUB_DATA_EXPLORER = 'hubDataExplorer'
 var HUB_DB = 'Hub'
 var INGESTION_DB = 'Ingestion'
-var INGESTION_ID_SEPARATOR = '__'
 
 var ftkGitTag = loadTextContent('../../fx/ftktag.txt')  // cSpell:ignore ftktag
 var ftkReleaseUri = indexOf(finOpsToolkitVersion, '-dev') != -1
@@ -1804,11 +1803,11 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
                     type: 'Expression'
                   }
                   originalFileName: {
-                    value: '@last(array(split(item().name, \'${INGESTION_ID_SEPARATOR}\')))'
+                    value: '@last(array(split(item().name, \'${core.ingestionIdFileNameSeparator}\')))'
                     type: 'Expression'
                   }
                   ingestionId: {
-                    value: '@concat(first(array(split(item().name, \'${INGESTION_ID_SEPARATOR}\'))), \'_\', variables(\'timestamp\'))'
+                    value: '@concat(first(array(split(item().name, \'${core.ingestionIdFileNameSeparator}\'))), \'_\', variables(\'timestamp\'))'
                     type: 'Expression'
                   }
                   table: {

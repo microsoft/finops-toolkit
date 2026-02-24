@@ -158,6 +158,10 @@ function Copy-TemplateFiles()
                 $packageManifest.deployment.Files | ForEach-Object {
                     $destPath = $_.destination
                     $srcFolder = "$($srcPath.FullName)/$($_.sourceFolder)/".Replace("//", "/")
+                    if (-not (Test-Path $srcFolder))
+                    {
+                        throw "Package manifest references source folder '$($_.sourceFolder)' that does not exist: $srcFolder"
+                    }
                     Get-ChildItem $srcFolder -Include $_.source -Recurse:$_.recurse | ForEach-Object {
                         if ($destPath -eq '*')
                         {
