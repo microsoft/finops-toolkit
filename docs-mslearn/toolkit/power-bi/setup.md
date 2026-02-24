@@ -59,13 +59,13 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
 
    You can create exports manually in the Azure portal or programmatically using the [`New-FinOpsCostExport`](../powershell/cost/new-finopscostexport.md) PowerShell command. Include the following datasets:
 
-   | Dataset                     | Version          | Notes                                                                                                                           |
-   | --------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-   | Cost and usage (FOCUS)      | `1.0` or `1.0r2` | Required for all reports. If you need FOCUS 1.0-preview, use [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. |
-   | Price sheet                 | `2023-05-01`     | Required to populate missing prices for EA and MCA.                                                                             |
-   | Reservation details         | `2023-03-01`     | Optional.                                                                                                                       |
-   | Reservation recommendations | `2023-05-01`     | Required to see reservation recommendations in the Rate optimization report.                                                    |
-   | Reservation transactions    | `2023-05-01`     | Optional.                                                                                                                       |
+   | Dataset                     | Version                          | Notes                                                                                                                           |
+   | --------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+   | Cost and usage (FOCUS)      | `1.0`, `1.0r2`, or `1.2-preview` | Required for all reports. If you need FOCUS 1.0-preview, use [FinOps hubs](../hubs/finops-hubs-overview.md) with Data Explorer. |
+   | Price sheet                 | `2023-05-01`                     | Required to populate missing prices for EA and MCA.                                                                             |
+   | Reservation details         | `2023-03-01`                     | Optional.                                                                                                                       |
+   | Reservation recommendations | `2023-05-01`                     | Required to see reservation recommendations in the Rate optimization report.                                                    |
+   | Reservation transactions    | `2023-05-01`                     | Optional.                                                                                                                       |
 
 3. Download and open the desired report in Power BI Desktop.
 

@@ -115,7 +115,7 @@ Cost Management provides the following 5 types of exports:
 
 FinOps hubs support the following dataset types, versions, and API versions:
 
-- FocusCost: 1.0r2, 1.0, 1.0-preview(v1)
+- FocusCost: 1.2-preview, 1.0r2, 1.0, 1.0-preview(v1)
 - PriceSheet: 2023-05-01
 - ReservationDetails: 2023-03-01
 - ReservationRecommendations: 2023-05-01
@@ -157,7 +157,7 @@ If you can't grant permissions for your scope, you can create Cost Management ex
 
 2. [Create a new FOCUS cost export](/azure/cost-management-billing/costs/tutorial-export-acm-data) using the following settings:
    - **Type of data** = `Cost and usage details (FOCUS)`¹
-   - **Dataset version** = `1.0` or `1.0r2`²
+   - **Dataset version** = `1.0`, `1.0r2`, or `1.2-preview`²
    - **Frequency** = `Daily export of month-to-date costs`³
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`

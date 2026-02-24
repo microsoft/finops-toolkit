@@ -319,7 +319,7 @@ To ingest CSV file from Cost Management exports, save files in a specific folder
 
 <a name="datasets"></a>FinOps hubs support the following dataset types, versions, and API versions:
 
-- FocusCost: `1.0r2`, `1.0`, `1.0-preview(v1)`
+- FocusCost: `1.2-preview`, `1.0r2`, `1.0`, `1.0-preview(v1)`
 - PriceSheet: `2023-05-01`
 - ReservationDetails: `2023-03-01`
 - ReservationRecommendations: `2023-05-01`
