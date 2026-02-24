@@ -152,15 +152,15 @@ if ($Remove)
         }
 
         Write-Host "Deleting resource group '$rgName'..."
-        Remove-AzResourceGroup -Name $rgName -Force
-        Write-Host "Deleted '$rgName'."
+        Remove-AzResourceGroup -Name $rgName -Force -WhatIf:$WhatIf
+        if (-not $WhatIf) { Write-Host "Deleted '$rgName'." }
     }
     else
     {
         # List all resource groups matching the initials-* pattern
         $pattern = "$initials-*"
         $groups = Get-AzResourceGroup | Where-Object { $_.ResourceGroupName -like $pattern }
-        if ($groups.Count -eq 0)
+        if (-not $groups)
         {
             Write-Host "No resource groups found matching '$pattern'."
         }
