@@ -11,8 +11,9 @@ ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with networking services.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
+<!-- prettier-ignore-start -->
 # FinOps best practices for Networking
+<!-- prettier-ignore-end -->
 
 This article outlines proven FinOps practices for networking services. They focus on cost optimization, efficiency improvements, and resource insights.
 
@@ -33,7 +34,7 @@ Optimization
 **Query**
 
 ```kusto
-resources 
+resources
 | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
 | project FWID=id, firewallName=name, SkuTier=tostring(properties.sku.tier), resourceGroup, location
 | join kind=inner (
@@ -97,17 +98,30 @@ resources
 
 ## Application Gateway
 
-The following section provides an ARG queries for Azure Application Gateway. It helps you gain insights into your Azure Application Gateway resources and ensure they're configured with the appropriate settings.
+Azure Application Gateway is a web traffic load balancer that enables you to manage traffic to your web applications. It provides application-level routing and load balancing services that let you build a scalable and highly available web front end in Azure.
 
-### Query: Idle application gateways
+Related resources:
 
-This ARG query analyzes application gateways and their associated backend pools within your Azure environment. It provides insights into which application gateways have empty backend pools, indicating they might be idle and potentially unnecessary.
+- [Application Gateway product page](https://azure.microsoft.com/products/application-gateway)
+- [Application Gateway pricing](https://azure.microsoft.com/pricing/details/application-gateway)
+- [Application Gateway documentation](/azure/application-gateway)
 
-**Category**
+### Remove idle application gateways
 
-Optimization
+Recommendation: Remove application gateways that don't have any backend pools to avoid unnecessary costs.
 
-**Query**
+#### About idle application gateways
+
+Application gateways without any backend pool targets aren't actively routing traffic and may represent unused resources. These idle gateways continue to incur costs even though they serve no function.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify idle application gateways. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify idle application gateways
+
+Use the following ARG query to identify application gateways with empty backend pools.
 
 ```kusto
 resources
@@ -179,17 +193,30 @@ resources
 
 ## Load Balancer
 
-The following section provides an ARG query for Azure Load Balancer. It helps you gain insights into your Azure load balancer resources and ensure they're configured with the appropriate settings.
+Azure Load Balancer operates at layer 4 of the OSI model and distributes inbound traffic across healthy backend pool instances. It provides high availability by monitoring the health of backend instances and automatically rerouting traffic away from unhealthy ones.
 
-### Query: Idle load balancers
+Related resources:
 
-This ARG query analyzes Azure load balancers and their associated backend pools within your Azure environment. It provides insights into which load balancers have empty backend pools, indicating they might be idle and potentially unnecessary.
+- [Load Balancer product page](https://azure.microsoft.com/products/load-balancer)
+- [Load Balancer pricing](https://azure.microsoft.com/pricing/details/load-balancer)
+- [Load Balancer documentation](/azure/load-balancer)
 
-**Category**
+### Remove idle load balancers
 
-Optimization
+Recommendation: Remove load balancers that don't have any backend pools to avoid unnecessary costs.
 
-**Query**
+#### About idle load balancers
+
+Load balancers without backend pool targets aren't actively distributing traffic and may represent unused resources. Standard SKU load balancers incur costs even when idle, so removing unused instances can reduce unnecessary spending.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify idle load balancers. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify idle load balancers
+
+Use the following ARG query to identify Standard SKU load balancers with empty backend pools.
 
 ```kusto
 resources
@@ -243,17 +270,29 @@ resources
 
 ## Public IP address
 
-The following sections provide ARG queries for public IP addresses. They help you gain insights into your public IP address resources and ensure they're configured with the appropriate settings.
+Azure public IP addresses enable Azure resources to communicate with the internet and other public-facing Azure services. Public IP addresses are assigned to resources such as virtual machines, load balancers, and application gateways. Static public IP addresses incur costs whether or not they're associated with a resource.
 
-### Query: Idle public IP addresses
+Related resources:
 
-This ARG query analyzes Azure public IP addresses. It provides insights into which public IPs are idle and potentially unnecessary.
+- [Public IP addresses pricing](https://azure.microsoft.com/pricing/details/ip-addresses)
+- [Public IP addresses documentation](/azure/virtual-network/ip-services/public-ip-addresses)
 
-**Category**
+### Remove idle public IP addresses
 
-Optimization
+Recommendation: Remove unattached static public IP addresses to avoid unnecessary networking costs.
 
-**Query**
+#### About idle public IP addresses
+
+Static public IP addresses incur costs regardless of whether they're associated with a resource. Unattached public IPs can accumulate over time as resources are deleted but their associated public IPs are left behind. Identifying and removing these orphaned resources can reduce unnecessary costs.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify unattached public IP addresses. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify idle public IP addresses
+
+Use the following ARG query to identify unattached static public IP addresses, including those associated with unattached network interfaces.
 
 ```kusto
 resources
@@ -301,7 +340,7 @@ resources
 )
 ```
 
-### Query: Identify public IP addresses routing method 
+### Query: Identify public IP addresses routing method
 
 This ARG query analyzes public IP addresses and identifies the routing method, allocation method, and SKU. It also analyzes other details of public IP addresses that are associated with an IP configuration.
 
@@ -421,13 +460,17 @@ resources
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.BestPractices/featureName/Networking)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

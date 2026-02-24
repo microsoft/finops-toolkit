@@ -11,10 +11,56 @@ ms.reviewer: arclares
 #customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with Microsoft Cloud services.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for general resource management
 
 This article outlines a collection of general FinOps best practices that can be applied to various Microsoft Cloud services. It includes strategies for optimizing costs, improving efficiency, and using Azure Resource Graph (ARG) queries to gain insights into your resources. By following these practices, you can ensure that your cloud services are cost-effective and aligned with your organization's financial goals.
+
+<br>
+
+## Azure Advisor
+
+Azure Advisor is a personalized cloud consultant that helps you follow best practices to optimize your Azure deployments. It analyzes your resource configuration and usage telemetry and recommends solutions that can help you reduce costs, improve performance, increase reliability, and enhance security.
+
+Related resources:
+
+- [Azure Advisor product page](https://azure.microsoft.com/products/advisor)
+- [Azure Advisor documentation](/azure/advisor)
+- [Azure Advisor cost recommendations](/azure/advisor/advisor-cost-recommendations)
+
+### Review Azure Advisor cost recommendations
+
+Recommendation: Regularly review and act on Azure Advisor cost recommendations to identify savings opportunities across your environment.
+
+#### About Azure Advisor cost recommendations
+
+Azure Advisor analyzes your resource configuration and usage to identify cost-saving opportunities. Cost recommendations include actions like resizing or shutting down underutilized resources, purchasing reservations, and right-sizing workloads. By reviewing these recommendations regularly, you can ensure your environment stays optimized as usage patterns change.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically ingest Azure Advisor cost recommendations. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify Azure Advisor cost recommendations
+
+Use the following ARG query to surface all cost recommendations from Azure Advisor, including impact details and extended properties.
+
+```kusto
+advisorresources
+| where type == 'microsoft.advisor/recommendations'
+| where properties.category == 'Cost'
+| project
+    id,
+    subscriptionId,
+    resourceGroup,
+    ResourceId = tostring(properties.resourceMetadata.resourceId),
+    ResourceType = tostring(properties.impactedField),
+    Impact = tostring(properties.impact),
+    Description = tostring(properties.shortDescription.problem),
+    Solution = tostring(properties.shortDescription.solution),
+    RecommendationTypeId = tostring(properties.recommendationTypeId),
+    LastUpdated = tostring(properties.lastUpdated),
+    ExtendedProperties = properties.extendedProperties
+```
 
 <br>
 
@@ -61,13 +107,17 @@ advisorresources
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.BestPractices/featureName/General)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 
