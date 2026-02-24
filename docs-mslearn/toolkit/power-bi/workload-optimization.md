@@ -3,7 +3,7 @@ title: FinOps toolkit Workload optimization report
 description: Learn about the Workload optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 02/24/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -12,7 +12,7 @@ ms.reviewer: micflan
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable-next-line MD025 -->
+
 # Workload optimization report
 
 The **Workload optimization report** provides insights into resource utilization and efficiency opportunities based on historical usage patterns. This report helps you:
@@ -26,10 +26,12 @@ This report pulls data from:
 
 The Workload optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
+<!-- prettier-ignore-end -->
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
 
@@ -39,11 +41,11 @@ Power BI reports are provided as template (.PBIT) files. Template files are not 
 
 Before using this report, you need to configure Cost Management exports to provide the necessary data. The following exports are required or recommended:
 
-| Dataset                     | Version          | Requirement | Notes                                                                                             |
-| --------------------------- | ---------------- | ----------- | ------------------------------------------------------------------------------------------------- |
-| Cost and usage (FOCUS)      | `1.0` or `1.0r2` | **Required** | Provides the primary cost and usage data for resource cost analysis.                            |
-| Price sheet                 | `2023-05-01`     | Recommended | Required to populate missing prices for EA and MCA accounts to show accurate cost calculations.  |
-| Azure Resource Graph        | Latest           | **Required** | Required to gather resource metadata for workload optimization analysis.                        |
+| Dataset                | Version                          | Requirement  | Notes                                                                                           |
+| ---------------------- | -------------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| Cost and usage (FOCUS) | `1.0`, `1.0r2`, or `1.2-preview` | **Required** | Provides the primary cost and usage data for resource cost analysis.                            |
+| Price sheet            | `2023-05-01`                     | Recommended  | Required to populate missing prices for EA and MCA accounts to show accurate cost calculations. |
+| Azure Resource Graph   | Latest                           | **Required** | Required to gather resource metadata for workload optimization analysis.                        |
 
 For instructions on how to create Cost Management exports, see [Create and manage exports](/azure/cost-management-billing/costs/tutorial-improved-exports). If using FinOps hubs, these exports can be configured automatically.
 
@@ -77,21 +79,21 @@ The chart shows the cost of each disk over time. The table shows the disks with 
 
 <br>
 
-<!-- TODO: Uncomment when files are added
 ## See also
 
-- [Common terms](../../_resources/terms.md)
-- [Data dictionary](../../_resources/data-dictionary.md)
+- [Common terms](../help/terms.md)
+- [Data dictionary](../help/data-dictionary.md)
 
 <br>
--->
 
 ## Looking for more?
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 

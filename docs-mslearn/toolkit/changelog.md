@@ -3,12 +3,12 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 02/11/2026
+ms.date: 02/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps user, I want to understand what changes were made in the latest FinOps toolkit releases.
+#customer intent: As a FinOps practitioner, I want to understand what changes were made in the latest FinOps toolkit releases.
 ---
 
 <!-- cSpell:ignore nextstepaction -->
@@ -31,9 +31,35 @@ The following section lists features and enhancements that are currently in deve
 - Cost Management export modules for subscriptions and resource groups.
 -->
 
+<br>
+
+## v14
+
+### [FinOps hubs](hubs/finops-hubs-overview.md) v14
+
+- **Changed**
+  - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
+  - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
+  - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
+
+### [PowerShell module](powershell/powershell-commands.md) v14
+
+- **Added**
+  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
+- **Fixed**
+  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
+  - Addressed minor lint warnings across PowerShell commands.
+
 <br><a name="latest"></a>
 
 ## v14
+
+### Claude Code plugin v1.0
+
+- **Added**
+  - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management.
+  - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 4 commands, and an output style.
+  - Moved KQL query catalog from `src/queries/` into the plugin.
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 

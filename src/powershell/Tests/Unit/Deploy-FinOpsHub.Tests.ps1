@@ -41,6 +41,10 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'Resource groups' {
+            BeforeAll {
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+            }
+
             It 'Should create RG if it does not exist' {
                 # Arrange
                 Mock -CommandName 'Get-AzResourceGroup' -MockWith { return $null }
@@ -93,6 +97,10 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'Deploy' {
+            BeforeAll {
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+            }
+
             It 'Should deploy the template' {
                 # Arrange
                 Mock -CommandName 'Get-AzResourceGroup' -MockWith { return $rgName }

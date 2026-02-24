@@ -83,7 +83,7 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
 
 function Copy-TemplateFiles()
 {
-    Write-Host "Packaging $(if ($Template) { "$Template v$version template" } else { "v$version templates" })..."
+    Write-Host "Packaging $(if ($Template -ne "*") { "$Template $version template" } else { "$version templates" })..."
 
     Write-Verbose "Removing existing ZIP files..."
     Remove-Item "$relDir/*.zip" -Force
@@ -118,7 +118,7 @@ function Copy-TemplateFiles()
         }
         else
         {
-            Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+            Join-Path (Get-Item $relDir) "$templateName-$tag.zip"
         }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
@@ -224,6 +224,7 @@ function Copy-OpenDataFolders()
 }
 
 $version = & "$PSScriptRoot/Get-Version"
+$tag = & "$PSScriptRoot/Get-Version" -AsTag
 
 if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
 {

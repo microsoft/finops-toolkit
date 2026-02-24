@@ -3,7 +3,7 @@ title: Configure workspaces
 description: Include the VM performance logs available in your Log Analytics workspaces to get deeper insights and more accurate results.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 02/24/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to understand how to configure Log Analytics for Azure optimization engine.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Configure workspaces for Azure optimization engine
 
 This article explains how to configure Log Analytics workspaces for Azure optimization engine (AOE).

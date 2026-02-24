@@ -6,7 +6,7 @@
     Publishes a toolkit template, module, or documentation to its destination repo.
 
     .PARAMETER Template
-    Name of the template or module to publish. Default = * (all templates).
+    Optional. Name of the template or module to publish. Default = * (all templates).
 
     .PARAMETER QuickstartRepo
     Optional. Name of the folder where the Azure Quickstart Templates repo is cloned. Default = azure-quickstart-templates.
@@ -14,11 +14,17 @@
     .PARAMETER RegistryRepo
     Optional. Name of the folder where the Bicep Registry repo is cloned. Default = bicep-registry-modules.
 
+    .PARAMETER AppInsightsRepo
+    Optional. Name of the folder where the Application Insights Workbooks repo is cloned. Default = Application-Insights-Workbooks.
+
+    .PARAMETER DocsRepo
+    Optional. Name of the folder where the Partner Center documentation repo is cloned. Default = partner-center-pr.
+
     .PARAMETER Build
-    Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
+    Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.
 
     .PARAMETER Branch
-    Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Default = false.
+    Optional. Indicates whether the changes should be committed to a new branch in the Git repo. Alias: Commit. Default = false.
 
     .EXAMPLE
     ./Publish-Toolkit "finops-hub"
