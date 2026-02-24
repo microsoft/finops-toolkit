@@ -934,6 +934,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "slapointe",
+      "name": "Stephane Lapointe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1054412?v=4",
+      "profile": "http://www.codeisahighway.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
