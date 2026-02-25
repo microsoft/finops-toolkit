@@ -814,7 +814,7 @@ table Costs
 
 	column CapacityReservationStatus
 		dataType: string
-		lineageTag: 8b4f5c2d-7g9f-5e0b-c6d2-4f3e5b8a9c0e
+		lineageTag: 8b4f5c2d-7a9f-5e0b-c6d2-4f3e5b8a9c0e
 		summarizeBy: none
 		sourceColumn: CapacityReservationStatus
 
