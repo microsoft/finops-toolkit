@@ -79,11 +79,6 @@ This release is a minor patch to fix a bug in FinOps hub managed exports and the
 - **Fixed**
   - Fixed incorrect PriceSheet export dataset version in managed exports to 2023-05-01.
 
-### [Power BI reports](power-bi/reports.md) v13
-
-- **Fixed**
-  - Fixed tag expansion in Power BI reports when tag names contain special characters like colons.
-
 ### [PowerShell module](powershell/powershell-commands.md) v13 Update 1
 
 - **Added**
