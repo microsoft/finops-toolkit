@@ -70,33 +70,6 @@ Columns prefixed with `x_` are toolkit enrichments added during data ingestion. 
 | x_FreeReason | Explains why cost is zero (Trial, Preview, Low Usage, etc.) |
 | x_AmortizationCategory | Principal or Amortized Charge for commitments |
 
-## Query Catalog
-
-A library of 17 pre-built KQL queries is available at `skills/finops-toolkit/references/queries/catalog/`. Always check if an existing query matches the user's need before writing custom KQL.
-
-| Scenario | Query file |
-|----------|------------|
-| Full enriched cost view (canonical base) | `costs-enriched-base.kql` |
-| Monthly cost trends | `monthly-cost-trend.kql` |
-| Top resource groups by cost | `top-resource-groups-by-cost.kql` |
-| Quarterly cost by resource group | `quarterly-cost-by-resource-group.kql` |
-| Cost by region trend | `cost-by-region-trend.kql` |
-| Top resource types by cost | `top-resource-types-by-cost.kql` |
-| Top services by cost | `top-services-by-cost.kql` |
-| Cost by financial hierarchy (billing profile, invoice section, team, product, app) | `cost-by-financial-hierarchy.kql` |
-| Service price benchmarking | `service-price-benchmarking.kql` |
-| Cost forecasting | `cost-forecasting-model.kql` |
-| Cost anomaly detection | `cost-anomaly-detection.kql` |
-| Monthly cost change percentage | `monthly-cost-change-percentage.kql` |
-| Commitment discount utilization | `commitment-discount-utilization.kql` |
-| Savings summary (ESR) | `savings-summary-report.kql` |
-| Top commitment transactions | `top-commitment-transactions.kql` |
-| Top other transactions | `top-other-transactions.kql` |
-| Reservation recommendation breakdown | `reservation-recommendation-breakdown.kql` |
-
-When a catalog query matches the user's request, read the `.kql` file, adapt the parameters (dates, N values, filters), and present it. When no catalog query matches, use `costs-enriched-base.kql` as the foundation for custom analysis.
-
-The full query catalog index is at `skills/finops-toolkit/references/queries/INDEX.md` and the complete schema documentation is at `skills/finops-toolkit/references/queries/finops-hub-database-guide.md`.
 
 ## KQL Query Patterns
 
@@ -177,9 +150,3 @@ The plugin provides an `azure-mcp-server` with the Kusto namespace for executing
 - If data appears inconsistent, flag it and explain potential causes (e.g., missing tags, ingestion lag).
 - If a query would be too broad, suggest scoping with time filters, subscription filters, or resource group filters.
 - Always validate that column names referenced in queries exist in the schema before presenting the query.
-
-## Coding Standards
-
-- Follow the FinOps toolkit coding guidelines (sentence casing, consistent formatting)
-- Use sentence casing for all text strings except proper nouns
-- Use consistent markdown formatting in all output
