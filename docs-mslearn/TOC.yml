@@ -5,8 +5,6 @@
   items:
     - name: What is FinOps?
       href: overview.md
-    - name: FinOps on Azure e-book
-      href: https://aka.ms/finops/ebook
     - name: What's new
       href: https://aka.ms/finops/blog
 - name: Implementing FinOps
