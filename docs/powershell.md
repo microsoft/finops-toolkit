@@ -19,15 +19,13 @@ Automate and scale your FinOps efforts with PowerShell commands that streamline 
 
 The FinOps toolkit PowerShell module helps you automate and scale common Cost Management and FinOps toolkit management operations and work with FinOps toolkit open data.
 
-<!--
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in April 2025<span class="ftk-version">v0.10</span></h3>
+    <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
     <p>
-        In April, the FinOps toolkit PowerShell module updated documentation to cover Add-FinOpsServicePrincipal and add examples of Start-FinOpsCostExport with the -Scope parameter.
+        In January, the PowerShell module added Format and CompressionMode parameters to New-FinOpsCostExport to support Parquet format and gzip/snappy compression.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
--->
 
 <a name="features"></a>
 

@@ -530,7 +530,7 @@ expression PolicyDefinitions =
 		  NullHandling =
 		    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 					#table(
-						{ "id", "name", "displayName", "description", "version" },
+						{ "subscriptionId", "id", "name", "displayName", "description", "version" },
 						{}
 					)
 		    else Source

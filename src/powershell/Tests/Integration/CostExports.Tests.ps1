@@ -305,14 +305,14 @@ Describe 'CostExports' {
             # NOTE: This is a unit test that mocks dependencies. It's run with integration tests due to how long it takes to run.
 
             # Arrange
-            $waited = $false
+            $script:waited = $false
             $testStartTime = Get-Date
             function CheckDate($date)
             {
                 $monthToThrottle = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths(-3).ToUniversalTime().Date.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
-                if ($date -eq $monthToThrottle -and -not $waited)
+                if ($date -eq $monthToThrottle -and -not $script:waited)
                 {
-                    $waited = $true
+                    $script:waited = $true
                     return $true
                 }
                 return $false

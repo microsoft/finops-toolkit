@@ -353,6 +353,12 @@ module deleteOldResources 'fx/hub-deploymentScript.bicep' = {
 // Start all ADF triggers
 module startTriggers 'fx/hub-initialize.bicep' = {
   name: 'Microsoft.FinOpsHubs.StartTriggers'
+  dependsOn: [
+    analytics
+    deleteOldResources
+    remoteHub
+    cmManagedExports  
+  ]
   params: {
     app: core.outputs.app
     dataFactoryInstances: [

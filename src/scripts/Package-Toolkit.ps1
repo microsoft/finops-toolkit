@@ -83,7 +83,7 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
 
 function Copy-TemplateFiles()
 {
-    Write-Host "Packaging $(if ($Template) { "$Template v$version template" } else { "v$version templates" })..."
+    Write-Host "Packaging $(if ($Template -ne "*") { "$Template $version template" } else { "$version templates" })..."
 
     Write-Verbose "Removing existing ZIP files..."
     Remove-Item "$relDir/*.zip" -Force
@@ -115,7 +115,7 @@ function Copy-TemplateFiles()
         $zip = if ($unversionedZip) {
             Join-Path (Get-Item $relDir) "$templateName.zip"
         } else {
-            Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+            Join-Path (Get-Item $relDir) "$templateName-$tag.zip"
         }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
@@ -201,6 +201,7 @@ function Copy-OpenDataFolders()
 }
 
 $version = & "$PSScriptRoot/Get-Version"
+$tag = & "$PSScriptRoot/Get-Version" -AsTag
 
 if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
 {
@@ -223,6 +224,11 @@ if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
         Write-Verbose "Copying PBIX files..."
         Copy-Item "$PSScriptRoot/../power-bi/cm-connector/*.pbix" "$relDir" -Force
         Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../power-bi/cm-connector/*.pbix").Count) PBIX files"
+
+        # Copy calendar files
+        Write-Verbose "Copying calendar files..."
+        Copy-Item "$PSScriptRoot/../../docs/*.ics" "$relDir" -Force
+        Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../../docs/*.ics").Count) calendar files"
 
         # Update version in docs
         $docVersionPath = "$PSScriptRoot/../../docs/_includes/ftkver.txt"

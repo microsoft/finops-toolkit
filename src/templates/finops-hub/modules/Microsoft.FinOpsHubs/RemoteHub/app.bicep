@@ -152,9 +152,9 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
     }
   }
 
-  // Replace the manifest_sink dataset to write manifests to remote hub
-  resource dataset_manifest_sink 'datasets' = {
-    name: 'manifest_sink'
+  // Replace the ingestion_manifest dataset to write manifests to remote hub
+  resource dataset_ingestion_manifest 'datasets' = {
+    name: 'ingestion_manifest'
     properties: {
       annotations: []
       parameters: {

@@ -8,7 +8,9 @@ InModuleScope 'FinOpsToolkit' {
         BeforeAll {
             function Get-AzResourceGroup {}
             function New-AzResourceGroup {}
-            function New-AzResourceGroupDeployment {}
+            function New-AzResourceGroupDeployment {
+                param($TemplateFile, $TemplateParameterObject, $ResourceGroupName)
+            }
 
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
             $hubName = 'ftk-test-Deploy-FinOpsHub'
@@ -39,6 +41,10 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'Resource groups' {
+            BeforeAll {
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+            }
+
             It 'Should create RG if it does not exist' {
                 # Arrange
                 Mock -CommandName 'Get-AzResourceGroup' -MockWith { return $null }
@@ -91,6 +97,10 @@ InModuleScope 'FinOpsToolkit' {
         }
 
         Context 'Deploy' {
+            BeforeAll {
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
+            }
+
             It 'Should deploy the template' {
                 # Arrange
                 Mock -CommandName 'Get-AzResourceGroup' -MockWith { return $rgName }
@@ -114,6 +124,7 @@ InModuleScope 'FinOpsToolkit' {
                 Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
                 Mock -CommandName 'New-AzResourceGroup'
                 Mock -CommandName 'Save-FinOpsHubTemplate'
+                Mock -CommandName 'Initialize-FinOpsHubDeployment'
             }
 
             It 'Should throw if template file is not found' {
@@ -124,7 +135,7 @@ InModuleScope 'FinOpsToolkit' {
 
             Context 'More' {
                 BeforeAll {
-                    $templateFile = Join-Path -Path $env:temp -ChildPath 'FinOps\finops-hub-v1.0.0\main.bicep'
+                    $templateFile = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath 'FinOps/finops-hub-v1.0.0/main.bicep'
                     Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile } }
                     Mock -CommandName 'New-AzResourceGroupDeployment'
                 }

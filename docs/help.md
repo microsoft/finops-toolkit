@@ -16,13 +16,8 @@ Have a question? We're here to help!
 
 Tools and resources within the FinOps toolkit are provided as-is without any express or implied warranties. Microsoft Support doesn't handle support requests for the FinOps toolkit. However, the underlying products used by tools in the toolkit are officially supported.
 
-<blockquote class="important">
-    <em>
-        Official Microsoft Support is coming to the FinOps toolkit! Expect official support to be available in early 2025. In the meantime, please use the resources below.
-    </em>
-</blockquote>
-
 <a name="help"></a>
+
 <div class="ftk-instructions">
     <div class="ftk-step">
         <button class="ftk-accordion">1️⃣&nbsp; Report security issues securely</button>
@@ -152,7 +147,7 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
         </div>
     </div>
     <div class="ftk-step">
-        <button class="ftk-accordion">8️⃣&nbsp; Create an issue in GitHub for all problems</button>
+        <button class="ftk-accordion">7️⃣&nbsp; Create an issue in GitHub</button>
         <div>
             <p>
                 Whether you submit a support request or not, create an issue to let us know about the problems you're facing. Even if the issue is a product bug, we would like to document it to help others.
@@ -162,9 +157,20 @@ Tools and resources within the FinOps toolkit are provided as-is without any exp
             </p>
         </div>
     </div>
+    <div class="ftk-step">
+        <button class="ftk-accordion">8️⃣&nbsp; Join office hours</button>
+        <div>
+            <p>
+                Still need help? Join our biweekly office hours to ask questions and get live support from the FinOps toolkit team.
+            </p>
+            <p>
+                <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://aka.ms/ftk/office-hours">Add to calendar</a>
+            </p>
+        </div>
+    </div>
 </div>
 
-We try to respond to issues and discussions within two business days but there can sometimes be unanticipated delays. If you completed all of the preceding steps and the issue wasn't resolved within a week, we should set up a Teams call for you. Then you can share your screen so we can troubleshoot the issue together.
+We try to respond to issues and discussions within three business days but there can sometimes be unanticipated delays. If you completed all of the preceding steps and the issue wasn't resolved within a week, join our [biweekly office hours](https://aka.ms/ftk/office-hours) to get live help from the team. If you need more hands-on support, you can request a paid, community-driven advisory session or consulting delivery during the office hours call.
 
 <a class="btn mb-4 mb-md-0 mr-4" target="_blank" href="https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20get%20help%20for%20FinOps%20toolkit%20issues%3F/cvaQuestion/How%20valuable%20is%20FinOps%20toolkit%20help%20and%20support%3F/surveyId/FTK{% include ftkver.txt %}/bladeName/Support/featureName/Marketing">💜 Give feedback</a>
 
