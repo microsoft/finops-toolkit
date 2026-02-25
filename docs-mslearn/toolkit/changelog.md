@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 02/24/2026
+ms.date: 02/25/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -127,6 +127,7 @@ _Released January 2026_
 - **Added**
   - Added export requirements sections to all Power BI report documentation pages to clarify which Cost Management exports are needed for each report.
   - Added Azure Resource Graph as an explicit requirement for governance and workload optimization reports.
+  - Added `CapacityReservationId` and `CapacityReservationStatus` columns in storage-based Power BI reports ([#1836](https://github.com/microsoft/finops-toolkit/issues/1836)).
 - **Fixed**
   - Fixed tag expansion when tag names contain special characters like colons.
   - Fixed unattached disks count in the workload optimization report to show only truly unattached disks ([#1896](https://github.com/microsoft/finops-toolkit/issues/1896)).
