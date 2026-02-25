@@ -22,6 +22,12 @@
     .PARAMETER Dataset
     Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions". Default = "FocusCost".
 
+    .PARAMETER Format
+    Optional. Format of the export files. Allowed values = "Csv", "Parquet". Default = "Csv".
+
+    .PARAMETER CompressionMode
+    Optional. Compression used for exported files. Allowed values = "None", "GZip", "Snappy". Default = "None".
+
     .PARAMETER DatasetVersion
     Optional. Schema version of the dataset to export. Default = "1.2-preview" (applies to FocusCost only).
 
@@ -130,7 +136,7 @@
 function New-FinOpsCostExport
 {
     [Diagnostics.CodeAnalysis.SuppressMessage("PSReviewUnusedParameter", "", Justification = "False positive rule")]
-    [CmdletBinding(DefaultParameterSetName = "Scheduled")]
+    [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = "Scheduled")]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -145,6 +151,16 @@ function New-FinOpsCostExport
         [ValidateSet("ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationRecommendations", "ReservationTransactions")]
         [string]
         $Dataset = "FocusCost",
+
+        [Parameter()]
+        [ValidateSet("Csv", "Parquet")]
+        [string]
+        $Format = "Csv",
+
+        [Parameter()]
+        [ValidateSet("None", "GZip", "Snappy")]
+        [string]
+        $CompressionMode = "None",
 
         [Parameter()]
         [string]
@@ -278,7 +294,7 @@ function New-FinOpsCostExport
                         }
                     }
                     schedule      = @{ status = "Inactive" }
-                    format        = "Csv"
+                    format        = $Format
                     deliveryInfo  = @{
                         destination = @{
                             resourceId     = $StorageAccountId
@@ -359,7 +375,7 @@ function New-FinOpsCostExport
                 $props | Add-Member -Name name -Value $Name -MemberType NoteProperty -Force
                 $props.properties = $props.properties | Add-Member -Name exportDescription -Value $Description -MemberType NoteProperty -Force -PassThru
                 $props.properties = $props.properties | Add-Member -Name dataOverwriteBehavior -Value "$(if ($DoNotOverwrite) { "CreateNewReport" } else { "OverwritePreviousReport" })" -MemberType NoteProperty -Force -PassThru
-                $props.properties = $props.properties | Add-Member -Name compressionMode -Value "None" -MemberType NoteProperty -Force -PassThru
+                $props.properties = $props.properties | Add-Member -Name compressionMode -Value $CompressionMode -MemberType NoteProperty -Force -PassThru
                 $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name dataVersion -Value $DatasetVersion -MemberType NoteProperty -Force -PassThru
                 $props.properties.deliveryInfo.destination.type = "AzureBlob"
 
@@ -402,8 +418,11 @@ function New-FinOpsCostExport
         # Register the Microsoft.CostManagementExports RP
         if ((Get-AzResourceProvider -ProviderNamespace Microsoft.CostManagementExports).RegistrationState -ne 'Registered')
         {
-            Write-Verbose "Microsoft.CostManagementExports provider is not registered. Registering provider."
-            Register-AzResourceProvider -ProviderNamespace 'Microsoft.CostManagementExports'
+            if ($PSCmdlet.ShouldProcess('Microsoft.CostManagementExports', 'Register resource provider'))
+            {
+                Write-Verbose "Microsoft.CostManagementExports provider is not registered. Registering provider."
+                Register-AzResourceProvider -ProviderNamespace 'Microsoft.CostManagementExports'
+            }
         }
         else
         {
@@ -430,23 +449,26 @@ function New-FinOpsCostExport
         }
 
         # Create/update export
-        $createResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
-        if ($createResponse.Failure)
+        if ($PSCmdlet.ShouldProcess($Name, 'Create cost export'))
         {
-            Write-Error "Unable to create export $Name in scope $Scope. Error: $($createResponse.Content.error.message) ($($createResponse.Content.error.code))" -ErrorAction Stop
-            return
-        }
+            $createResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
+            if ($createResponse.Failure)
+            {
+                Write-Error "Unable to create export $Name in scope $Scope. Error: $($createResponse.Content.error.message) ($($createResponse.Content.error.code))" -ErrorAction Stop
+                return
+            }
 
-        # Run now if requested
-        if ($Backfill -gt 0 -and $OneTime -eq $false)
-        {
-            Start-FinOpsCostExport -Name $Name -Scope $Scope -Backfill $Backfill
-        }
-        elseif ($Execute -eq $true -or $OneTime -eq $true)
-        {
-            Start-FinOpsCostExport -Name $Name -Scope $Scope
-        }
+            # Run now if requested
+            if ($Backfill -gt 0 -and $OneTime -eq $false)
+            {
+                Start-FinOpsCostExport -Name $Name -Scope $Scope -Backfill $Backfill
+            }
+            elseif ($Execute -eq $true -or $OneTime -eq $true)
+            {
+                Start-FinOpsCostExport -Name $Name -Scope $Scope
+            }
 
-        return (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion)
+            return (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion)
+        }
     }
 }

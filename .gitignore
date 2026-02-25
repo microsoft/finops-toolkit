@@ -368,3 +368,8 @@ venv/
 ENV/
 env/
 
+# Claude settings
+.claude/
+claude.settings.local.json
+settings.local.json
+

@@ -13,7 +13,7 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
 - **Test coverage**: Ensure changes don't break existing functionality
 - **Microsoft standards**: Follow Microsoft style guide and development practices
 - **Document changes**: Always document changes in the [changelog](../docs-mslearn/toolkit/changelog.md)
-  - **Every change must have a changelog entry** - no exceptions for bug fixes, features, or improvements
+  - **Every change must have a changelog entry** unless the PR body contains `[x] ❎ Log not needed` and the PR does NOT change any meaningful externally-facing functionality; no exceptions for external bug fixes, features, or improvements
   - **Document in the next release section**, not the last release:
     - Check the current version in [package.json](../package.json) (e.g., if version is "12.0.0", document changes under v13)
     - Remove `-dev` from the version number when determining the next release
@@ -21,10 +21,7 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
   - Changelog entries must be under the correct tool and version (e.g., FinOps hubs v13)
   - For releases, include download and changelog links at the end of each release section using the format:
     ```markdown
-    > [!div class="nextstepaction"]
-    > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/vX)
-    > [!div class="nextstepaction"]
-    > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/vX-1...vX)
+    > [!div class="nextstepaction"] > [Download](https://github.com/microsoft/finops-toolkit/releases/tag/vX) > [!div class="nextstepaction"] > [Full changelog](https://github.com/microsoft/finops-toolkit/compare/vX-1...vX)
     ```
 
 ### Code style guidelines
@@ -38,7 +35,7 @@ This is the Microsoft FinOps toolkit - an open-source collection of tools and re
 ## 📁 Repository structure
 
 - `/src/` - Source code for all toolkit components
-- `/docs/` - Public website and deployment templates  
+- `/docs/` - Public website and deployment templates
 - `/docs-wiki/` - Developer guidelines and project documentation
 - `/docs-mslearn/` - Microsoft Learn documentation content
 - `/.github/` - GitHub workflows, templates, and configuration

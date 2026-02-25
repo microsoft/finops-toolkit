@@ -36,7 +36,7 @@ function Save-FinOpsHubTemplate
 
         [Parameter()]
         [string]
-        $Destination = $env:temp
+        $Destination = [System.IO.Path]::GetTempPath()
     )
 
     $progress = $ProgressPreference
@@ -70,7 +70,7 @@ function Save-FinOpsHubTemplate
             Write-Information $LocalizedData.Hub_Deploy_02to021
             $Version = '0.3'
         }
- 
+
         # Get the version
         if ($Version.ToLower() -eq 'latest')
         {

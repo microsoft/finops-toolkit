@@ -1761,7 +1761,7 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
     zoneRedundant: false
     readScale: 'Disabled'
     autoPauseDelay: 60
-    requestedBackupStorageRedundancy: 'Geo'
+    requestedBackupStorageRedundancy: 'Local'
   }
 }
 
