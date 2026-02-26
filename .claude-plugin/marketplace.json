@@ -14,15 +14,7 @@
       "category": "finops",
       "homepage": "https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/finops-toolkit-overview"
     },
-    {
-      "name": "azure-capacity-management",
-      "version": "1.0.0",
-      "source": "https://github.com/MSBrett/azcapman",
-      "description": "AI-powered Azure capacity and quota management",
-      "category": "capacity-management",
-      "homepage": "https://aka.ms/azcapman"
-    },
-    {
+{
       "name": "microsoft-learn",
       "source": {
         "source": "url",
