@@ -177,7 +177,7 @@ Use the Retail Prices API (see `references/azure-retail-prices.md`) to validate 
 function Get-VmSkuPrice {
     param([string]$Sku, [string]$Region)
     $response = Invoke-RestMethod "https://prices.azure.com/api/retail/prices?`$filter=armSkuName eq '$Sku' and armRegionName eq '$Region' and priceType eq 'Consumption'"
-    return ($response.Items | Where-Object { $_.isPrimaryMeterRegion -and $_.type -eq 'Consumption' -and $_.meterName -notmatch 'Spot|Low Priority' }).retailPrice
+    return ($response.Items | Where-Object { $_.isPrimaryMeterRegion -and $_.type -eq 'Consumption' -and $_.meterName -notmatch 'Spot|Low Priority' } | Select-Object -First 1).retailPrice
 }
 
 # Example: D4s_v5 -> D2s_v5 in eastus

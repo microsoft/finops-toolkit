@@ -113,6 +113,17 @@ if ($update -or $Version)
         }
     }
 
+    # Update version in plugin.json files
+    Write-Verbose "Updating plugin.json files..."
+    Get-ChildItem $repoRoot -Include "plugin.json" -Recurse -Force `
+    | Where-Object { $_.FullName -like "*claude-plugin*" } `
+    | ForEach-Object {
+        Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
+        $json = Get-Content $_ -Raw | ConvertFrom-Json
+        $json.version = $ver
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+    }
+
     # Update version in PowerShell
     Write-Verbose "Updating PowerShell Get-VersionNumber..."
     & {

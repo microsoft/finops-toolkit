@@ -35,7 +35,7 @@ The following section lists features and enhancements that are currently in deve
 
 ## v14
 
-### Claude Code plugin v1.0
+### Claude Code plugin v14
 
 - **Added**
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management.

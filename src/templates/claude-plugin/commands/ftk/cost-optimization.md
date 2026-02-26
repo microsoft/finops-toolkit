@@ -185,4 +185,4 @@ Generate a markdown report with the following structure:
 - Include resource IDs or names for actionable items
 - Flag any data gaps (e.g., "Memory metrics unavailable — VM Insights not deployed")
 - If FinOps hubs are not connected, recommend `/ftk-hubs-connect` for deeper analysis
-- Save the report to `results/cost-optimization-{date}.md`
+- Save the report to `ftk/results/cost-optimization-{date}.md`
