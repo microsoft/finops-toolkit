@@ -76,6 +76,15 @@
     .PARAMETER Location
     Optional. Azure location. Default: westus.
 
+    .PARAMETER PR
+    Use PR naming convention. Sets initials to "pr" so resources are named "pr-{name}".
+
+    .PARAMETER Scope
+    Optional. Azure scope ID for cost data exports (e.g., "/subscriptions/{id}"). When specified with -ManagedExports, enables managed exports and grants the hub identity access. When specified without -ManagedExports, creates exports manually via New-FinOpsCostExport after deployment.
+
+    .PARAMETER ManagedExports
+    Optional. Use managed exports instead of manual exports. Requires -Scope. Grants the hub managed identity the required roles on the scope and passes scopesToMonitor to the template.
+
     .PARAMETER Build
     Optional. Build the template before deploying.
 
@@ -94,6 +103,9 @@ param(
     [string]$Fabric,
     [switch]$StorageOnly,
     [switch]$Remove,
+    [switch]$PR,
+    [string]$Scope,
+    [switch]$ManagedExports,
     [string]$Location,
     [switch]$Build,
     [switch]$WhatIf
@@ -123,7 +135,14 @@ function Get-Initials()
     return $u.Substring(0, [Math]::Min(2, $u.Length))
 }
 
-$initials = Get-Initials
+if ($PR)
+{
+    $initials = "pr"
+}
+else
+{
+    $initials = Get-Initials
+}
 
 # Default name to "adx" when not specified
 if (-not $Name)
@@ -188,6 +207,12 @@ if ($StorageOnly -and $Fabric)
     return
 }
 
+if ($ManagedExports -and -not $Scope)
+{
+    Write-Error "-ManagedExports requires -Scope. Provide an Azure scope ID (e.g., '/subscriptions/{id}')."
+    return
+}
+
 # Build parameters
 $params = @{}
 
@@ -215,6 +240,18 @@ else
 
 Write-Host "  Hub: $($params.hubName)"
 
+# Managed exports via template parameters
+if ($ManagedExports -and $Scope)
+{
+    $params.enableManagedExports = $true
+    $params.scopesToMonitor = @($Scope)
+    Write-Host "  Managed exports: $Scope"
+}
+elseif ($Scope)
+{
+    Write-Host "  Manual exports: $Scope"
+}
+
 # Resource group
 if (-not $ResourceGroup)
 {
@@ -232,3 +269,64 @@ $deployArgs.Build = $Build
 $deployArgs.WhatIf = $WhatIf
 
 & "$PSScriptRoot/Deploy-Toolkit" @deployArgs
+
+#------------------------------------------------------------------------------
+# Post-deployment: configure exports
+#------------------------------------------------------------------------------
+
+if ($Scope -and -not $WhatIf -and $global:ftkDeployment)
+{
+    $outputs = $global:ftkDeployment.Outputs
+
+    if ($ManagedExports)
+    {
+        # Grant hub managed identity the required roles on the scope
+        $managedIdentityId = $outputs["managedIdentityId"].Value
+        if ($managedIdentityId)
+        {
+            Write-Host "Granting hub identity access to $Scope..."
+            $roles = @("Cost Management Contributor", "RBAC Administrator")
+            foreach ($role in $roles)
+            {
+                $existing = Get-AzRoleAssignment -ObjectId $managedIdentityId -RoleDefinitionName $role -Scope $Scope -ErrorAction SilentlyContinue
+                if (-not $existing)
+                {
+                    New-AzRoleAssignment -ObjectId $managedIdentityId -RoleDefinitionName $role -Scope $Scope -ErrorAction SilentlyContinue | Out-Null
+                    Write-Host "  Granted: $role"
+                }
+            }
+        }
+        else
+        {
+            Write-Warning "Could not retrieve managedIdentityId from deployment outputs. Grant access manually."
+        }
+    }
+    else
+    {
+        # Create exports manually via New-FinOpsCostExport
+        $storageAccountId = $outputs["storageAccountId"].Value
+        if ($storageAccountId)
+        {
+            Write-Host "Creating manual exports for $Scope..."
+
+            # Build the FinOps toolkit PowerShell module if not already loaded
+            if (-not (Get-Command New-FinOpsCostExport -ErrorAction SilentlyContinue))
+            {
+                Import-Module "$PSScriptRoot/../powershell/FinOpsToolkit.psm1" -Force
+            }
+
+            New-FinOpsCostExport -Name "ftk-focuscost" `
+                -Scope $Scope `
+                -Dataset "FocusCost" `
+                -StorageAccountId $storageAccountId `
+                -StorageContainer "msexports" `
+                -DoNotOverwrite `
+                -Execute
+            Write-Host "  Created FocusCost export and triggered initial run."
+        }
+        else
+        {
+            Write-Warning "Could not retrieve storageAccountId from deployment outputs. Create exports manually."
+        }
+    }
+}

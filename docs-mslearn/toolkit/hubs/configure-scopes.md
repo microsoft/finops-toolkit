@@ -224,7 +224,9 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    - Use the following guides to assign access to each scope you want to monitor:
      - EA enrollments – [Assign enrollment reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - EA departments – [Assign department reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
-     - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](/azure/role-based-access-control/role-assignments-portal).
+     - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](/azure/role-based-access-control/role-assignments-portal). Assign the following roles to the hub managed identity on each scope:
+       - **Cost Management Contributor** – create and manage exports.
+       - **RBAC Administrator** – required by Cost Management to grant itself access to write export data to the hub storage account.
 
    <!--
    ### Enterprise agreement billing accounts and departments
