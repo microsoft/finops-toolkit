@@ -25,6 +25,15 @@ Fixes # <!-- TODO: Add related issues (e.g., Fixes #123, #246, #369) -->
 > - [ ] 💪 Unit tests
 > - [ ] 🙌 Integration tests
 
+### 📦 Deploy to test?
+
+> - [ ] Hubs with ADX (managed)
+> - [ ] Hubs with Fabric (manual) — URI: <!-- paste eventhouse query URI -->
+> - [ ] Hubs (manual)
+> - [ ] Hubs (no data)
+> - [ ] Workbooks
+> - [ ] Alerts
+
 ### 🙋‍♀️ Do any of the following that apply?
 
 > - [ ] 🚨 This is a breaking change.
