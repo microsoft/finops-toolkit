@@ -5,6 +5,7 @@ FinOps toolkit scripts are used for local development, testing, and publishing o
 On this page:
 
 - [🆕 Init-Repo](#-init-repo)
+- [🔧 Initialize-CI](#-initialize-ci)
 - [🌐 Build-OpenData](#-build-opendata)
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Hub](#-deploy-hub)
@@ -61,6 +62,32 @@ Examples:
 
   ```powershell
   ./Init-Repo -All
+  ```
+
+<br>
+
+## 🔧 Initialize-CI
+
+[Initialize-CI.ps1](./Initialize-CI.ps1) is a one-time setup script that creates the Azure AD app registration, service principal, federated credential, and GitHub environment needed for per-PR deployment CI.
+
+| Parameter          | Description                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| `‑SubscriptionId`  | Required. Azure subscription ID for PR deployments and cost exports.                           |
+| `‑Repository`      | Optional. GitHub repo in `owner/repo` format. Default: `microsoft/finops-toolkit`.             |
+| `‑WhatIf`          | Optional. Preview without making changes.                                                      |
+
+Examples:
+
+- Set up CI for a subscription:
+
+  ```powershell
+  ./Initialize-CI -SubscriptionId "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
+  ```
+
+- Preview what would be created:
+
+  ```powershell
+  ./Initialize-CI -SubscriptionId "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" -WhatIf
   ```
 
 <br>
