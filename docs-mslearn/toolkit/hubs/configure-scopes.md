@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 02/28/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
