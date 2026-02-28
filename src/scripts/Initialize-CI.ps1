@@ -24,19 +24,15 @@
     .PARAMETER Repository
     Optional. GitHub repo in "owner/repo" format. Default: "microsoft/finops-toolkit".
 
-    .PARAMETER WhatIf
-    Optional. Preview without making changes.
-
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md
 #>
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory)]
     [string]$SubscriptionId,
 
-    [string]$Repository = "microsoft/finops-toolkit",
-
-    [switch]$WhatIf
+    [string]$Repository = "microsoft/finops-toolkit"
 )
 
 $ErrorActionPreference = "Stop"
@@ -57,18 +53,13 @@ Write-Host ""
 
 Write-Host "Step 1: Creating Azure AD app registration '$appName'..."
 
-$existingApp = Get-AzADApplication -DisplayName $appName -ErrorAction SilentlyContinue | Select-Object -First 1
+$app = Get-AzADApplication -DisplayName $appName -ErrorAction SilentlyContinue | Select-Object -First 1
 
-if ($existingApp)
+if ($app)
 {
-    Write-Host "  App registration already exists (AppId: $($existingApp.AppId))."
-    $app = $existingApp
+    Write-Host "  App registration already exists (AppId: $($app.AppId))."
 }
-elseif ($WhatIf)
-{
-    Write-Host "  [WhatIf] Would create app registration '$appName'."
-}
-else
+elseif ($PSCmdlet.ShouldProcess($appName, 'Create app registration'))
 {
     $app = New-AzADApplication -DisplayName $appName
     Write-Host "  Created app registration (AppId: $($app.AppId))."
@@ -77,21 +68,20 @@ else
 # Service principal
 if ($app)
 {
-    $existingSp = Get-AzADServicePrincipal -ApplicationId $app.AppId -ErrorAction SilentlyContinue
-    if ($existingSp)
+    $sp = Get-AzADServicePrincipal -ApplicationId $app.AppId -ErrorAction SilentlyContinue
+    if ($sp)
     {
         Write-Host "  Service principal already exists."
-        $sp = $existingSp
     }
-    elseif ($WhatIf)
-    {
-        Write-Host "  [WhatIf] Would create service principal."
-    }
-    else
+    elseif ($PSCmdlet.ShouldProcess($appName, 'Create service principal'))
     {
         $sp = New-AzADServicePrincipal -ApplicationId $app.AppId
         Write-Host "  Created service principal (ObjectId: $($sp.Id))."
     }
+}
+else
+{
+    $PSCmdlet.ShouldProcess($appName, 'Create service principal') | Out-Null
 }
 
 #------------------------------------------------------------------------------
@@ -111,11 +101,7 @@ if ($app)
     {
         Write-Host "  Federated credential already exists."
     }
-    elseif ($WhatIf)
-    {
-        Write-Host "  [WhatIf] Would add federated credential (subject: $subject)."
-    }
-    else
+    elseif ($PSCmdlet.ShouldProcess($subject, 'Add federated credential'))
     {
         New-AzADAppFederatedCredential `
             -ApplicationObjectId $app.Id `
@@ -125,6 +111,10 @@ if ($app)
             -Audience @("api://AzureADTokenExchange") | Out-Null
         Write-Host "  Added federated credential (subject: $subject)."
     }
+}
+else
+{
+    $PSCmdlet.ShouldProcess($subject, 'Add federated credential') | Out-Null
 }
 
 #------------------------------------------------------------------------------
@@ -146,15 +136,18 @@ if ($sp)
         {
             Write-Host "  $role already assigned."
         }
-        elseif ($WhatIf)
-        {
-            Write-Host "  [WhatIf] Would grant $role."
-        }
-        else
+        elseif ($PSCmdlet.ShouldProcess("$role on $subscriptionScope", 'Grant role'))
         {
             New-AzRoleAssignment -ObjectId $sp.Id -RoleDefinitionName $role -Scope $subscriptionScope | Out-Null
             Write-Host "  Granted $role."
         }
+    }
+}
+else
+{
+    foreach ($role in $roles)
+    {
+        $PSCmdlet.ShouldProcess("$role on $subscriptionScope", 'Grant role') | Out-Null
     }
 }
 
@@ -176,12 +169,7 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue))
     return
 }
 
-if ($WhatIf)
-{
-    Write-Host "  [WhatIf] Would create environment '$environmentName' in $Repository."
-    Write-Host "  [WhatIf] Would add secrets: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, CI_SCOPE."
-}
-else
+if ($PSCmdlet.ShouldProcess("$environmentName in $Repository", 'Create GitHub environment'))
 {
     # Create environment
     gh api "repos/$Repository/environments/$environmentName" -X PUT --silent 2>$null
