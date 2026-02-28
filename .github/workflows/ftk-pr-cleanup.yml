@@ -1,0 +1,94 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: 'PR Cleanup'
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  cleanup:
+    name: Clean up PR resources
+    runs-on: ubuntu-latest
+    environment: ftk-pr
+    steps:
+      - name: Install Az modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+
+      - name: Azure login
+        uses: azure/login@hf_447_release
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Delete resource groups
+        id: delete
+        shell: pwsh
+        run: |
+          $prNumber = "${{ github.event.pull_request.number }}"
+          $pattern = "pr-$prNumber-*"
+          $groups = Get-AzResourceGroup | Where-Object { $_.ResourceGroupName -like $pattern }
+
+          if (-not $groups)
+          {
+              Write-Host "No resource groups found matching '$pattern'."
+              "deleted=0" >> $env:GITHUB_OUTPUT
+              "failed=" >> $env:GITHUB_OUTPUT
+              return
+          }
+
+          $deleted = 0
+          $failed = @()
+          foreach ($rg in $groups)
+          {
+              try
+              {
+                  Write-Host "Deleting $($rg.ResourceGroupName)..."
+                  Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force
+                  $deleted++
+              }
+              catch
+              {
+                  Write-Warning "Failed to delete $($rg.ResourceGroupName): $_"
+                  $failed += $rg.ResourceGroupName
+              }
+          }
+
+          "deleted=$deleted" >> $env:GITHUB_OUTPUT
+          "failed=$($failed -join ',')" >> $env:GITHUB_OUTPUT
+
+      - name: Post cleanup comment
+        if: steps.delete.outputs.deleted != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --body "Test environments cleaned up."
+
+      - name: Create issue for failed cleanups
+        if: steps.delete.outputs.failed != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          failed="${{ steps.delete.outputs.failed }}"
+          pr=${{ github.event.pull_request.number }}
+          author=${{ github.event.pull_request.user.login }}
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "Cleanup failed for PR #$pr" \
+            --body "The following resource groups could not be deleted: $failed. Please delete them manually." \
+            --assignee "$author"

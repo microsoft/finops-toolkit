@@ -1,0 +1,395 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+name: 'PR Deploy'
+
+on:
+  pull_request:
+    types: [opened, synchronize, edited]
+    paths:
+      - 'src/templates/**'
+      - '!src/templates/**/README.md'
+      - '!src/templates/**/docs/**'
+      - '!src/templates/**/test/**'
+
+  pull_request_target:
+    types: [labeled]
+
+concurrency:
+  group: ftk-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  #----------------------------------------------------------------------------
+  # Parse PR body checkboxes and determine what to deploy
+  #----------------------------------------------------------------------------
+  check-options:
+    name: Check deployment options
+    runs-on: ubuntu-latest
+    # Skip fork PRs unless they have the deployment label
+    if: >
+      github.event.action == 'labeled' && github.event.label.name == 'Needs: Deployment'
+      || github.event.pull_request.head.repo.full_name == github.repository
+    outputs:
+      any-selected: ${{ steps.parse.outputs.any-selected }}
+      deploy-adx: ${{ steps.parse.outputs.deploy-adx }}
+      deploy-fabric: ${{ steps.parse.outputs.deploy-fabric }}
+      deploy-manual: ${{ steps.parse.outputs.deploy-manual }}
+      deploy-nodata: ${{ steps.parse.outputs.deploy-nodata }}
+      deploy-workbooks: ${{ steps.parse.outputs.deploy-workbooks }}
+      deploy-alerts: ${{ steps.parse.outputs.deploy-alerts }}
+      fabric-uri: ${{ steps.parse.outputs.fabric-uri }}
+      templates-changed: ${{ steps.check-files.outputs.changed }}
+    steps:
+      - name: Check for template file changes
+        id: check-files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # For 'edited' events, paths filter doesn't apply — verify manually
+          changed=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only \
+            | grep -E '^src/templates/' \
+            | grep -v -E '(README\.md|/docs/|/test/)' \
+            | head -1)
+          if [ -n "$changed" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify fork PR safety
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Block fork PRs that modify workflow files
+          modified=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only \
+            | grep -E '^\.github/' \
+            | head -1)
+          if [ -n "$modified" ]; then
+            echo "::error::Fork PRs that modify .github/ files cannot use deployment CI."
+            exit 1
+          fi
+
+      - name: Parse deployment checkboxes
+        id: parse
+        run: |
+          body='${{ github.event.pull_request.body }}'
+
+          parse_checkbox() {
+            local pattern="$1"
+            local output_name="$2"
+            if echo "$body" | grep -qE "\- \[x\] $pattern"; then
+              echo "$output_name=true" >> "$GITHUB_OUTPUT"
+              return 0
+            else
+              echo "$output_name=false" >> "$GITHUB_OUTPUT"
+              return 1
+            fi
+          }
+
+          any=false
+
+          parse_checkbox "Hubs + ADX \(managed\)" "deploy-adx" && any=true
+          parse_checkbox "Hubs + Fabric \(manual\)" "deploy-fabric" && any=true
+          parse_checkbox "Hubs \(manual\)" "deploy-manual" && any=true
+          parse_checkbox "Hubs \(no data\)" "deploy-nodata" && any=true
+          parse_checkbox "Workbooks" "deploy-workbooks" && any=true
+          parse_checkbox "Alerts" "deploy-alerts" && any=true
+
+          echo "any-selected=$any" >> "$GITHUB_OUTPUT"
+
+          # Extract Fabric URI from the checkbox line
+          fabric_uri=$(echo "$body" | grep -oP '(?<=Hubs + Fabric \(manual\) — URI: )\S+' || true)
+          echo "fabric-uri=$fabric_uri" >> "$GITHUB_OUTPUT"
+
+  #----------------------------------------------------------------------------
+  # Hub deployments
+  #----------------------------------------------------------------------------
+  deploy-adx:
+    name: 'Hubs + ADX (managed)'
+    needs: check-options
+    if: needs.check-options.outputs.deploy-adx == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    runs-on: ubuntu-latest
+    environment: ftk-pr
+    steps:
+      - name: Install Az modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+          Install-Module -Name Az.Storage -RequiredVersion 6.2.0 -Force
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Azure login
+        uses: azure/login@hf_447_release
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy
+        shell: pwsh
+        run: |
+          ./src/scripts/Deploy-Hub -PR -Name "${{ github.event.pull_request.number }}-adx" `
+            -Scope "${{ secrets.CI_SCOPE }}" -ManagedExports -Build
+
+      - name: Post PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          rg="pr-$pr-adx"
+          if [ "${{ job.status }}" = "success" ]; then
+            body="**Hubs + ADX (managed)** deployed to [\`$rg\`](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$rg/overview)."
+          else
+            body="**Hubs + ADX (managed)** deployment failed. [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          fi
+          gh pr comment "$pr" --repo "${{ github.repository }}" --body "$body"
+
+  deploy-fabric:
+    name: 'Hubs + Fabric (manual)'
+    needs: check-options
+    if: needs.check-options.outputs.deploy-fabric == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    runs-on: ubuntu-latest
+    environment: ftk-pr
+    steps:
+      - name: Install Az modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+          Install-Module -Name Az.Storage -RequiredVersion 6.2.0 -Force
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Azure login
+        uses: azure/login@hf_447_release
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy
+        shell: pwsh
+        run: |
+          ./src/scripts/Deploy-Hub -PR -Name "${{ github.event.pull_request.number }}-fabric" `
+            -Fabric "${{ needs.check-options.outputs.fabric-uri }}" `
+            -Scope "${{ secrets.CI_SCOPE }}" -Build
+
+      - name: Post PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          rg="pr-$pr-fabric"
+          if [ "${{ job.status }}" = "success" ]; then
+            body="**Hubs + Fabric (manual)** deployed to [\`$rg\`](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$rg/overview). Fabric requires running KQL setup scripts manually."
+          else
+            body="**Hubs + Fabric (manual)** deployment failed. [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          fi
+          gh pr comment "$pr" --repo "${{ github.repository }}" --body "$body"
+
+  deploy-manual:
+    name: 'Hubs + (manual)'
+    needs: check-options
+    if: needs.check-options.outputs.deploy-manual == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    runs-on: ubuntu-latest
+    environment: ftk-pr
+    steps:
+      - name: Install Az modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+          Install-Module -Name Az.Storage -RequiredVersion 6.2.0 -Force
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Azure login
+        uses: azure/login@hf_447_release
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy
+        shell: pwsh
+        run: |
+          ./src/scripts/Deploy-Hub -PR -Name "${{ github.event.pull_request.number }}-manual" `
+            -StorageOnly -Scope "${{ secrets.CI_SCOPE }}" -Build
+
+      - name: Post PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          rg="pr-$pr-manual"
+          if [ "${{ job.status }}" = "success" ]; then
+            body="**Hubs (manual)** deployed to [\`$rg\`](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$rg/overview)."
+          else
+            body="**Hubs (manual)** deployment failed. [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          fi
+          gh pr comment "$pr" --repo "${{ github.repository }}" --body "$body"
+
+  deploy-nodata:
+    name: Hubs (no data)
+    needs: check-options
+    if: needs.check-options.outputs.deploy-nodata == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    runs-on: ubuntu-latest
+    environment: ftk-pr
+    steps:
+      - name: Install Az modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Azure login
+        uses: azure/login@hf_447_release
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy
+        shell: pwsh
+        run: |
+          ./src/scripts/Deploy-Hub -PR -Name "${{ github.event.pull_request.number }}-nodata" `
+            -StorageOnly -Build
+
+      - name: Post PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          rg="pr-$pr-nodata"
+          if [ "${{ job.status }}" = "success" ]; then
+            body="**Hubs (no data)** deployed to [\`$rg\`](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$rg/overview)."
+          else
+            body="**Hubs (no data)** deployment failed. [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          fi
+          gh pr comment "$pr" --repo "${{ github.repository }}" --body "$body"
+
+  #----------------------------------------------------------------------------
+  # Non-hub deployments
+  #----------------------------------------------------------------------------
+  deploy-workbooks:
+    name: Workbooks
+    needs: check-options
+    if: needs.check-options.outputs.deploy-workbooks == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    runs-on: ubuntu-latest
+    environment: ftk-pr
+    steps:
+      - name: Install Az modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Azure login
+        uses: azure/login@hf_447_release
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy
+        shell: pwsh
+        run: |
+          ./src/scripts/Deploy-Toolkit "finops-workbooks" `
+            -ResourceGroup "pr-${{ github.event.pull_request.number }}-workbooks" -Build
+
+      - name: Post PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          rg="pr-$pr-workbooks"
+          if [ "${{ job.status }}" = "success" ]; then
+            body="**Workbooks** deployed to [\`$rg\`](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$rg/overview)."
+          else
+            body="**Workbooks** deployment failed. [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          fi
+          gh pr comment "$pr" --repo "${{ github.repository }}" --body "$body"
+
+  deploy-alerts:
+    name: Alerts
+    needs: check-options
+    if: needs.check-options.outputs.deploy-alerts == 'true' && needs.check-options.outputs.templates-changed == 'true'
+    runs-on: ubuntu-latest
+    environment: ftk-pr
+    steps:
+      - name: Install Az modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Azure login
+        uses: azure/login@hf_447_release
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Deploy
+        shell: pwsh
+        run: |
+          ./src/scripts/Deploy-Toolkit "finops-alerts" `
+            -ResourceGroup "pr-${{ github.event.pull_request.number }}-alerts" -Build
+
+      - name: Post PR comment
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          rg="pr-$pr-alerts"
+          if [ "${{ job.status }}" = "success" ]; then
+            body="**Alerts** deployed to [\`$rg\`](https://portal.azure.com/#@/resource/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/$rg/overview)."
+          else
+            body="**Alerts** deployment failed. [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          fi
+          gh pr comment "$pr" --repo "${{ github.repository }}" --body "$body"
