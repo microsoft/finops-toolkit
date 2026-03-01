@@ -4,7 +4,7 @@
 name: 'PR Cleanup'
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
 
 permissions:
@@ -57,7 +57,7 @@ jobs:
               try
               {
                   Write-Host "Deleting $($rg.ResourceGroupName)..."
-                  Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force
+                  Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force -ErrorAction Stop
                   $deleted++
               }
               catch
@@ -87,8 +87,10 @@ jobs:
           failed="${{ steps.delete.outputs.failed }}"
           pr=${{ github.event.pull_request.number }}
           author=${{ github.event.pull_request.user.login }}
-          gh issue create \
+          issue_url=$(gh issue create \
             --repo "${{ github.repository }}" \
             --title "Cleanup failed for PR #$pr" \
-            --body "The following resource groups could not be deleted: $failed. Please delete them manually." \
-            --assignee "$author"
+            --body "The following resource groups could not be deleted: $failed. Please delete them manually. See #$pr.")
+          # Try to assign the PR author; ignore failure for external contributors
+          issue_number=$(echo "$issue_url" | grep -oE '[0-9]+$')
+          gh issue edit "$issue_number" --repo "${{ github.repository }}" --add-assignee "$author" || true

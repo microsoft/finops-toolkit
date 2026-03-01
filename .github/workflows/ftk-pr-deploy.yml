@@ -33,8 +33,8 @@ jobs:
     runs-on: ubuntu-latest
     # Skip fork PRs unless they have the deployment label
     if: >
-      github.event.action == 'labeled' && github.event.label.name == 'Needs: Deployment'
-      || github.event.pull_request.head.repo.full_name == github.repository
+      (github.event_name == 'pull_request_target' && github.event.label.name == 'Needs: Deployment')
+      || github.event_name == 'pull_request'
     outputs:
       deploy-adx: ${{ steps.parse.outputs.deploy-adx }}
       deploy-fabric: ${{ steps.parse.outputs.deploy-fabric }}
@@ -66,12 +66,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Block fork PRs that modify workflow files
+          # Block fork PRs that modify workflow or script files
           modified=$(gh pr diff ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --name-only \
-            | grep -E '^\.github/' \
+            | grep -E '^(\.github/|src/scripts/)' \
             | head -1)
           if [ -n "$modified" ]; then
-            echo "::error::Fork PRs that modify .github/ files cannot use deployment CI."
+            echo "::error::Fork PRs that modify .github/ or src/scripts/ files cannot use deployment CI."
             exit 1
           fi
 
@@ -160,6 +160,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: ftk-pr
     steps:
+      - name: Validate Fabric URI
+        run: |
+          uri="${{ needs.check-options.outputs.fabric-uri }}"
+          if [ -z "$uri" ]; then
+            echo "::error::Hubs + Fabric (manual) checkbox is checked but no URI was provided. Add the eventhouse query URI to the PR body."
+            exit 1
+          fi
+
       - name: Install Az modules
         shell: pwsh
         run: |
