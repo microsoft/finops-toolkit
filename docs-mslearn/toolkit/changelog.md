@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 02/27/2026
+ms.date: 03/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,6 +25,11 @@ This article summarizes the features and enhancements in each release of the Fin
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v14
+
+- **Removed**
+  - Removed all references to the FinOps e-book (`aka.ms/finops/ebook`) as the e-book is no longer available ([#1813](https://github.com/microsoft/finops-toolkit/issues/1813)).
 
 ### Bicep Registry module pending updates
 
