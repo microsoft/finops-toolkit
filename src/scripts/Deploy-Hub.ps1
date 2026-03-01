@@ -77,7 +77,7 @@
     Optional. Azure location. Default: westus.
 
     .PARAMETER PR
-    Use PR naming convention. Sets initials to "pr" so resources are named "pr-{name}".
+    Optional. Indicates the PR naming convention (e.g., "pr-123") should be used.
 
     .PARAMETER Scope
     Optional. Azure scope ID for cost data exports (e.g., "/subscriptions/{id}"). When specified with -ManagedExports, enables managed exports and grants the hub identity access. When specified without -ManagedExports, creates exports manually via New-FinOpsCostExport after deployment.
@@ -249,6 +249,7 @@ if ($ManagedExports -and $Scope)
 }
 elseif ($Scope)
 {
+    $params.enableManagedExports = $false
     Write-Host "  Manual exports: $Scope"
 }
 
@@ -291,8 +292,15 @@ if ($Scope -and -not $WhatIf -and $global:ftkDeployment)
                 $existing = Get-AzRoleAssignment -ObjectId $managedIdentityId -RoleDefinitionName $role -Scope $Scope -ErrorAction SilentlyContinue
                 if (-not $existing)
                 {
-                    New-AzRoleAssignment -ObjectId $managedIdentityId -RoleDefinitionName $role -Scope $Scope -ErrorAction SilentlyContinue | Out-Null
-                    Write-Host "  Granted: $role"
+                    $result = New-AzRoleAssignment -ObjectId $managedIdentityId -RoleDefinitionName $role -Scope $Scope -ErrorAction SilentlyContinue
+                    if ($result)
+                    {
+                        Write-Host "  Granted: $role"
+                    }
+                    else
+                    {
+                        Write-Warning "Failed to grant $role. You may need to assign it manually."
+                    }
                 }
             }
         }
@@ -309,7 +317,7 @@ if ($Scope -and -not $WhatIf -and $global:ftkDeployment)
         {
             Write-Host "Creating manual exports for $Scope..."
 
-            # Build the FinOps toolkit PowerShell module if not already loaded
+            # Import the FinOps toolkit PowerShell module if not already loaded
             if (-not (Get-Command New-FinOpsCostExport -ErrorAction SilentlyContinue))
             {
                 Import-Module "$PSScriptRoot/../powershell/FinOpsToolkit.psm1" -Force
