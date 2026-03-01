@@ -26,11 +26,6 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### [Implementing FinOps guide](../implementing-finops-guide.md) v14
-
-- **Removed**
-  - Removed all references to the FinOps e-book (`aka.ms/finops/ebook`) as the e-book is no longer available ([#1813](https://github.com/microsoft/finops-toolkit/issues/1813)).
-
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
@@ -39,6 +34,13 @@ The following section lists features and enhancements that are currently in deve
 <br>
 
 ## v14
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v14
+
+- **Fixed**
+  - Updated FinOps Foundation video on the overview page to use the latest public video ([#2026](https://github.com/microsoft/finops-toolkit/issues/2026)).
+- **Removed**
+  - Removed all references to the FinOps e-book (`aka.ms/finops/ebook`) as the e-book is no longer available ([#1813](https://github.com/microsoft/finops-toolkit/issues/1813)).
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
