@@ -36,7 +36,6 @@ jobs:
       github.event.action == 'labeled' && github.event.label.name == 'Needs: Deployment'
       || github.event.pull_request.head.repo.full_name == github.repository
     outputs:
-      any-selected: ${{ steps.parse.outputs.any-selected }}
       deploy-adx: ${{ steps.parse.outputs.deploy-adx }}
       deploy-fabric: ${{ steps.parse.outputs.deploy-fabric }}
       deploy-manual: ${{ steps.parse.outputs.deploy-manual }}
@@ -78,13 +77,13 @@ jobs:
 
       - name: Parse deployment checkboxes
         id: parse
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          body='${{ github.event.pull_request.body }}'
-
           parse_checkbox() {
             local pattern="$1"
             local output_name="$2"
-            if echo "$body" | grep -qE "\- \[x\] $pattern"; then
+            if echo "$PR_BODY" | grep -qE "\- \[x\] $pattern"; then
               echo "$output_name=true" >> "$GITHUB_OUTPUT"
               return 0
             else
@@ -93,19 +92,15 @@ jobs:
             fi
           }
 
-          any=false
-
-          parse_checkbox "Hubs + ADX \(managed\)" "deploy-adx" && any=true
-          parse_checkbox "Hubs + Fabric \(manual\)" "deploy-fabric" && any=true
-          parse_checkbox "Hubs \(manual\)" "deploy-manual" && any=true
-          parse_checkbox "Hubs \(no data\)" "deploy-nodata" && any=true
-          parse_checkbox "Workbooks" "deploy-workbooks" && any=true
-          parse_checkbox "Alerts" "deploy-alerts" && any=true
-
-          echo "any-selected=$any" >> "$GITHUB_OUTPUT"
+          parse_checkbox "Hubs \+ ADX \(managed\)" "deploy-adx"
+          parse_checkbox "Hubs \+ Fabric \(manual\)" "deploy-fabric"
+          parse_checkbox "Hubs \(manual\)" "deploy-manual"
+          parse_checkbox "Hubs \(no data\)" "deploy-nodata"
+          parse_checkbox "Workbooks" "deploy-workbooks"
+          parse_checkbox "Alerts" "deploy-alerts"
 
           # Extract Fabric URI from the checkbox line
-          fabric_uri=$(echo "$body" | grep -oP '(?<=Hubs + Fabric \(manual\) — URI: )\S+' || true)
+          fabric_uri=$(echo "$PR_BODY" | grep -oP '(?<=Hubs \+ Fabric \(manual\) — URI: )\S+' || true)
           echo "fabric-uri=$fabric_uri" >> "$GITHUB_OUTPUT"
 
   #----------------------------------------------------------------------------
@@ -131,7 +126,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Azure login
-        uses: azure/login@hf_447_release
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -178,7 +173,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Azure login
-        uses: azure/login@hf_447_release
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -207,7 +202,7 @@ jobs:
           gh pr comment "$pr" --repo "${{ github.repository }}" --body "$body"
 
   deploy-manual:
-    name: 'Hubs + (manual)'
+    name: 'Hubs (manual)'
     needs: check-options
     if: needs.check-options.outputs.deploy-manual == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
@@ -226,7 +221,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Azure login
-        uses: azure/login@hf_447_release
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -272,7 +267,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Azure login
-        uses: azure/login@hf_447_release
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -321,7 +316,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Azure login
-        uses: azure/login@hf_447_release
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -367,7 +362,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Azure login
-        uses: azure/login@hf_447_release
+        uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
