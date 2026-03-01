@@ -37,7 +37,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$appName = "FinOps toolkit CI"
+$appName = "FinOps toolkit CI ($Repository)"
 $environmentName = "ftk-pr"
 
 $scope = "/subscriptions/$SubscriptionId"
@@ -172,7 +172,8 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue))
 if ($PSCmdlet.ShouldProcess("$environmentName in $Repository", 'Create GitHub environment'))
 {
     # Create environment
-    gh api "repos/$Repository/environments/$environmentName" -X PUT --silent 2>$null
+    gh api "repos/$Repository/environments/$environmentName" -X PUT --silent
+    if ($LASTEXITCODE -ne 0) { throw "Failed to create GitHub environment '$environmentName'." }
     Write-Host "  Created environment '$environmentName'."
 
     # Get tenant ID from current context
@@ -189,6 +190,7 @@ if ($PSCmdlet.ShouldProcess("$environmentName in $Repository", 'Create GitHub en
     foreach ($name in $secrets.Keys)
     {
         $secrets[$name] | gh secret set $name --repo $Repository --env $environmentName
+        if ($LASTEXITCODE -ne 0) { throw "Failed to set secret '$name'." }
         Write-Host "  Set secret: $name"
     }
 }

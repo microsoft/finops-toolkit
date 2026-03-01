@@ -70,6 +70,11 @@ Examples:
 
 [Initialize-CI.ps1](./Initialize-CI.ps1) is a one-time setup script that creates the Azure AD app registration, service principal, federated credential, and GitHub environment needed for per-PR deployment CI.
 
+Prerequisites:
+
+- Logged into Azure (`Connect-AzAccount`) with permissions to create app registrations and grant subscription-level RBAC (Contributor + User Access Administrator).
+- Logged into GitHub CLI (`gh auth login`) with permissions to create environments and secrets in the target repository.
+
 | Parameter          | Description                                                                                    |
 | ------------------ | ---------------------------------------------------------------------------------------------- |
 | `‑SubscriptionId`  | Required. Azure subscription ID for PR deployments and cost exports.                           |
