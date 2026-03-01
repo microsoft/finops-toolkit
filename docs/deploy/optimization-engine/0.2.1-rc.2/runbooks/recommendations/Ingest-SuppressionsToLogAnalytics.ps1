@@ -75,7 +75,7 @@ Function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField
     }
     if ($AzureEnvironment -eq "AzureGermanCloud")
     {
-        throw "Azure Germany isn't suported for the Log Analytics Data Collector API"
+        throw "Azure Germany isn't supported for the Log Analytics Data Collector API"
     }
 
     $OMSheaders = @{
@@ -216,7 +216,7 @@ $logname = $lognamePrefix + $LogAnalyticsSuffix
 
 $res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($filtersJson)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
 If ($res -ge 200 -and $res -lt 300) {
-    Write-Output "Succesfully uploaded $($filterObjects.Count) $LogAnalyticsSuffix rows to Log Analytics"    
+    Write-Output "Successfully uploaded $($filterObjects.Count) $LogAnalyticsSuffix rows to Log Analytics"    
 }
 Else {
     Write-Warning "Failed to upload $($filterObjects.Count) $LogAnalyticsSuffix rows. Error code: $res"

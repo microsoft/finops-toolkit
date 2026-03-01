@@ -34,6 +34,9 @@ param enableInfrastructureEncryption bool = false
 ])
 param keyVaultSku string = 'premium'
 
+@description('Optional. Enable purge protection for the Key Vault. Default: false.')
+param enablePurgeProtection bool = false
+
 @description('Optional. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string = ''
 
@@ -179,6 +182,7 @@ var hub = newHub(
   tagsByResource,
   storageSku,
   keyVaultSku,
+  enablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
   virtualNetworkAddressPrefix,
@@ -349,6 +353,12 @@ module deleteOldResources 'fx/hub-deploymentScript.bicep' = {
 // Start all ADF triggers
 module startTriggers 'fx/hub-initialize.bicep' = {
   name: 'Microsoft.FinOpsHubs.StartTriggers'
+  dependsOn: [
+    analytics
+    deleteOldResources
+    remoteHub
+    cmManagedExports  
+  ]
   params: {
     app: core.outputs.app
     dataFactoryInstances: [

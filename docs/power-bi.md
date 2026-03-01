@@ -20,9 +20,9 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 FinOps toolkit Power BI reports provide a great starting point for FinOps reporting. Customize and augment reports with your own data to facilitate organizational requirements.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in August 2025<span class="ftk-version">v13</span></h3>
+    <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
     <p>
-        In August, Power BI reports added export requirements documentation to all report pages, added Azure Resource Graph as an explicit requirement for governance and workload optimization reports, and fixed tag expansion for tag names with special characters.
+        In January, Power BI reports added export requirements documentation to all report pages, added Azure Resource Graph as an explicit requirement for governance and workload optimization reports, and fixed tag expansion for tag names with special characters.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

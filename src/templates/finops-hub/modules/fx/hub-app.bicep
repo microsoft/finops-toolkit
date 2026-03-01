@@ -322,7 +322,7 @@ resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@
 ]
 
 // Stop all triggers before deploying triggers
-module stopTriggers 'hub-deploymentScript.bicep' = {
+module stopTriggers 'hub-deploymentScript.bicep' = if (usesDataFactory) {
   name: '${app.publisher}.${app.name}_ADF.StopTriggers'
   dependsOn: [
     // TODO: Do we need to make this optional only if private endpoints are enabled and telemetry is enabled? Will it fail when telemetry is disabled?
@@ -333,22 +333,11 @@ module stopTriggers 'hub-deploymentScript.bicep' = {
     app: app
     identityName: triggerManagerIdentity.name
     scriptContent: loadTextContent('./scripts/Init-DataFactory.ps1')
-    arguments: '-Stop'
-    environmentVariables: [
-      {
-        name: 'DataFactorySubscriptionId'
-        value: subscription().id
-      }
-      {
-        name: 'DataFactoryResourceGroup'
-        value: resourceGroup().name
-      }
-      {
-        name: 'DataFactoryName'
-        #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
-        value: dataFactory.name
-      }
-    ]
+    arguments: join([
+      '-DataFactoryResourceGroup "${resourceGroup().name}"'
+      '-DataFactoryName "${dataFactory.name}"'
+      '-StopTriggers'
+    ], ' ')
   }
 }
 
@@ -479,6 +468,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
     enabledForDiskEncryption: true
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
+    // Use null instead of false when purge protection is disabled - Azure requires null to indicate the property should not be set
+    enablePurgeProtection: app.hub.options.keyVaultEnablePurgeProtection ? true : null
     enableRbacAuthorization: false
     createMode: 'default'
     tenantId: subscription().tenantId
@@ -486,13 +477,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = if (usesKeyVault) {
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: app.hub.options.privateRouting ? 'Deny' : 'Allow'
-    }
-  }
-
-  resource keyVault_accessPolicies 'accessPolicies' = {
-    name: 'add'
-    properties: {
-      accessPolicies: keyVaultAccessPolicies
     }
   }
 }

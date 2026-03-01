@@ -38,11 +38,6 @@ module appRegistration '../../fx/hub-app.bicep' = {
       'Storage'      // msexports + schema files
       'DataFactory'  // Move files from msexports to ingestion
     ]
-    storageRoles: [
-      // User Access Administrator -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#user-access-administrator
-      // Used to create Cost Management exports (which require access to grant access)
-      '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9'
-    ]
   }
 }
 
@@ -118,8 +113,12 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
     name: '${INGESTION}_files'
   }
 
-  resource dataset_manifest 'datasets' = {
-    name: 'manifest'
+  resource dataset_ingestion_manifest 'datasets' existing = {
+    name: 'ingestion_manifest'
+  }
+
+  resource dataset_msexports_manifest 'datasets' = {
+    name: 'msexports_manifest'
     properties: {
       parameters: {
         fileName: {
@@ -146,7 +145,6 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
       }
       linkedServiceName: {
-        // TODO: Should linked service names/references be part of settings? Should datasets be hub modules?
         referenceName: app.storage
         type: 'LinkedServiceReference'
       }
@@ -289,7 +287,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               }
             }
             dataset: {
-              referenceName: dataFactory::dataset_manifest.name
+              referenceName: dataFactory::dataset_msexports_manifest.name
               type: 'DatasetReference'
               parameters: {
                 fileName: {
@@ -987,7 +985,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           }
           inputs: [
             {
-              referenceName: dataFactory::dataset_manifest.name
+              referenceName: dataFactory::dataset_msexports_manifest.name
               type: 'DatasetReference'
               parameters: {
                 fileName: 'manifest.json'
@@ -1000,7 +998,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           ]
           outputs: [
             {
-              referenceName: dataFactory::dataset_manifest.name
+              referenceName: dataFactory::dataset_ingestion_manifest.name
               type: 'DatasetReference'
               parameters: {
                 fileName: 'manifest.json'

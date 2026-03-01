@@ -20,3 +20,8 @@ $DeploymentScriptOutputs["deleteTriggers"] = $triggers | Remove-AzDataFactoryV2T
 $DeploymentScriptOutputs["pipelines"] = Get-AzDataFactoryV2Pipeline @adfParams -ErrorAction SilentlyContinue `
 | Where-Object { $_.Name -match '^(msexports_(backfill|extract|fill|get|run|setup|transform)|config_(BackfillData|ExportData|RunBackfill|RunExports))$' } `
 | Remove-AzDataFactoryV2Pipeline -Force -ErrorAction SilentlyContinue
+
+# Delete old datasets
+$DeploymentScriptOutputs["datasets"] = Get-AzDataFactoryV2Dataset @adfParams -ErrorAction SilentlyContinue `
+| Where-Object { $_.Name -eq 'manifest' } `
+| Remove-AzDataFactoryV2Dataset -Force -ErrorAction SilentlyContinue

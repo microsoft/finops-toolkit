@@ -43,15 +43,13 @@ Current board members:
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="150"><a href="https://github.com/nilson79"><img src="https://avatars.githubusercontent.com/u/3111022?v=4?s=100" width="100px;" alt="Nelson Pereira"/><br /><b>Nelson Pereira</b></a><br /><sup>Business sponsor</sup></td>
-      <td align="center" valign="top" width="150"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><b>Michael Flanakin</b></a><br /><sup>Product</sup></td>
-      <td align="center" valign="top" width="150"><a href="https://github.com/arthurclares"><img src="https://avatars.githubusercontent.com/u/53261392?v=4?s=100" width="100px;" alt="Arthur Clares"/><br /><b>Arthur Clares</b></a><br /><sup>Engineering</sup></td>
-      <td align="center" valign="top" width="150"><a href="https://github.com/scuffy"><img src="https://avatars.githubusercontent.com/u/41356020?v=4?s=100" width="100px;" alt="Sonia Cuff"/><br /><b>Sonia Cuff</b></a><br /><sup>Community</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/MSBrett"><img src="https://avatars.githubusercontent.com/u/24294904?v=4?s=100" width="100px;" alt="Brett Wilson"/><br /><b>Brett Wilson</b></a><br /><sup>Engineering</sup></td>
+      <td align="center" valign="top" width="209"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><b>Michael Flanakin</b></a><br /><sup>Product</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/RolandKrummenacher"><img src="https://avatars.githubusercontent.com/u/1803486?v=4?s=100" width="100px;" alt="Roland Krummenacher"/><br /><b>Roland Krummenacher</b></a><br /><sup>Consulting</sup></td>
     </tr>
     <tr>
-      <td align="center" valign="top" width="150"><img src="https://github.com/microsoft/finops-toolkit/assets/399533/164afda4-1960-499d-a621-afdf6f868903" width="100px;" alt="Manfred Simonis"/><br /><b>Manfred Simonis</b></a><br /><sup>Consulting</sup></td>
-      <td align="center" valign="top" width="150"><img src="https://github.com/microsoft/finops-toolkit/assets/399533/164afda4-1960-499d-a621-afdf6f868903" width="100px;" alt="Cedric Dupui"/><br /><b>Cedric Dupui</b></a><br /><sup>FinOps Certified Professional</sup></td>
-      <td align="center" valign="top" width="150"><a href="https://github.com/maggar"><img src="https://avatars.githubusercontent.com/u/55561955?v=4?s=100" width="100px;" alt="Mark Aggar"/><br /><b>Mark Aggar</b></a><br /><sup>Internal customer</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/DirkBrinkmann"><img src="https://avatars.githubusercontent.com/u/19854016?v=4?s=100" width="100px;" alt="Dirk Brinkmann"/><br /><b>Dirk Brinkmann</b></a><br /><sup>FinOps Certified Professional</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/scuffy"><img src="https://avatars.githubusercontent.com/u/41356020?v=4?s=100" width="100px;" alt="Sonia Cuff"/><br /><b>Sonia Cuff</b></a><br /><sup>Community</sup></td>
     </tr>
   </tbody>
 </div>
@@ -60,20 +58,19 @@ To learn more, see [[Governing board]].
 
 ### Advisory council
 
-The FinOps toolkit advisory council represents contributors, their contributions, and end consumers for each of the tools and resources included in the FinOps toolkit. The advisory council advocates for diverse perspectives and fosters a collaborative environment, bridging the gap between the governing board and the contributors and consumers. Advisory council members are typically owners of one or more tools and resources that have been contributed to the FinOps toolkit.
+The FinOps toolkit advisory council represents contributors, their contributions, and the practitioners for each of the tools and resources included in the FinOps toolkit. The advisory council advocates for diverse perspectives and fosters a collaborative environment, bridging the gap between the governing board and the contributors and practitioners. Advisory council members are typically owners of one or more tools and resources that have been contributed to the FinOps toolkit.
 
 Current advisory council members:
 
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="209"><a href="https://github.com/MSBrett"><img src="https://avatars.githubusercontent.com/u/24294904?v=4?s=100" width="100px;" alt="Brett Wilson"/><br /><b>Brett Wilson</b></a><br /><sup>FinOps hubs</sup></td>
-      <td align="center" valign="top" width="209"><a href="https://www.seifbassem.com/"><img src="https://avatars.githubusercontent.com/u/38246040?v=4?s=100" width="100px;" alt="Seif Bassem"/><br /><b>Seif Bassem</b></a><br /><sup>Cost opt workbook</sup></td>
-      <td align="center" valign="top" width="209"><a href="https://github.com/aromano2"><img src="https://avatars.githubusercontent.com/u/26576969?v=4?s=100" width="100px;" alt="Anthony Romano"/><br /><b>Anthony Romano</b></a><br /><sup>PowerShell</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://aka.ms/helderpinto"><img src="https://avatars.githubusercontent.com/u/10661605?v=4?s=100" width="100px;" alt="Hélder Pinto"/><br /><b>Hélder Pinto</b></a><br /><sup>Azure Opt Engine</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/arthurclares"><img src="https://avatars.githubusercontent.com/u/53261392?v=4?s=100" width="100px;" alt="Arthur Clares"/><br /><b>Arthur Clares</b></a><br /><sup>Cost opt workbook</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/nteyan"><img src="https://avatars.githubusercontent.com/u/8894656?v=4?s=100" width="100px;" alt="Nicolas Teyan"/><br /><b>Nicolas Teyan</b></a><br /><sup>Gov workbook</sup></td>
     </tr>
     <tr>
-      <td align="center" valign="top" width="209"><a href="https://github.com/nteyan"><img src="https://avatars.githubusercontent.com/u/8894656?v=4?s=100" width="100px;" alt="Nicolas Teyan"/><br /><b>Nicolas Teyan</b></a><br /><sup>Gov workbook</sup></td>
-      <td align="center" valign="top" width="209"><a href="https://aka.ms/helderpinto"><img src="https://avatars.githubusercontent.com/u/10661605?v=4?s=100" width="100px;" alt="Hélder Pinto"/><br /><b>Hélder Pinto</b></a><br /><sup>Azure Opt Engine</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/aromano2"><img src="https://avatars.githubusercontent.com/u/26576969?v=4?s=100" width="100px;" alt="Anthony Romano"/><br /><b>Anthony Romano</b></a><br /><sup>PowerShell</sup></td>
       <td align="center" valign="top" width="209"><img src="https://github.com/microsoft/finops-toolkit/assets/399533/164afda4-1960-499d-a621-afdf6f868903" width="100px;" alt="Fernando Vasconcellos"/><br /><b>Fernando Vasconcellos</b></a><br /><sup>Learning resources</sup></td>
     </tr>
   </tbody>

@@ -43,28 +43,12 @@ module initialize 'hub-deploymentScript.bicep' = [
       app: app
       identityName: identityName
       scriptContent: loadTextContent('./scripts/Init-DataFactory.ps1')
-      environmentVariables: [
-        {
-          name: 'DataFactorySubscriptionId'
-          value: subscription().id
-        }
-        {
-          name: 'DataFactoryResourceGroup'
-          value: resourceGroup().name
-        }
-        {
-          name: 'DataFactoryName'
-          value: adf
-        }
-        {
-          name: 'Pipelines'
-          value: join(startPipelines, '|')
-        }
-        {
-          name: 'StartAllTriggers'
-          value: string(startAllTriggers)
-        }
-      ]
+      arguments: join(filter([
+        '-DataFactoryResourceGroup "${resourceGroup().name}"'
+        '-DataFactoryName "${adf}"'
+        !empty(startPipelines) ? '-Pipelines "${join(startPipelines, '|')}"' : ''
+        startAllTriggers ? '-StartTriggers' : ''
+      ], arg => !empty(arg)), ' ')
     }
   }
 ]
