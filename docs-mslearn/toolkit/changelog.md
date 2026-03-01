@@ -25,7 +25,7 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### Documentation improvements
+### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
 - **Removed**
   - Removed all references to the FinOps e-book (`aka.ms/finops/ebook`) as the e-book is no longer available ([#1813](https://github.com/microsoft/finops-toolkit/issues/1813)).
