@@ -3,7 +3,7 @@ title: Get-FinOpsToolkitVersion command
 description: Get available versions from published FinOps toolkit releases using the Get-FinOpsToolkitVersion command.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/02/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

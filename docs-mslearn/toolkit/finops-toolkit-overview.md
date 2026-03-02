@@ -3,7 +3,7 @@ title: FinOps toolkit overview
 description: Learn how the FinOps toolkit helps you automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to improve FinOps practices.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/02/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

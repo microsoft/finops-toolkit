@@ -3,7 +3,7 @@ title: Bicep Registry modules for FinOps
 description: This article summarizes the Bicep modules available from the FinOps toolkit and provides guidance on how to reference them in your templates.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/02/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

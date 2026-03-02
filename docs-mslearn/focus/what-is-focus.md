@@ -3,7 +3,7 @@ title: What is FOCUS?
 description: Learn about FOCUS, a cloud-agnostic billing data specification that helps optimize cost and usage across cloud, SaaS, and on-premises providers.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/02/2026
 ms.topic: overview
 ms.service: finops
 ms.subservice: finops-learning-resources

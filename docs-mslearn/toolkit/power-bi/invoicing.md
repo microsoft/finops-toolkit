@@ -3,7 +3,7 @@ title: FinOps toolkit Invoicing and chargeback report
 description: Learn about the Invoicing and chargeback report in Power BI to review and reconcile billed charges compared to your Microsoft Cloud invoice.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/02/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
