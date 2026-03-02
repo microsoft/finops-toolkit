@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 03/01/2026
+ms.date: 03/02/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -64,11 +64,12 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
 
-### [FinOps workbooks](workbooks/finops-workbooks-overview.md)
+### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v14
 
 - **Fixed**
   - Excluded dev/test subscriptions from Azure Hybrid Benefit reports to align with licensing requirements ([#1819](https://github.com/microsoft/finops-toolkit/issues/1819)).
     - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
+  - Fixed Azure Hybrid Benefit reports to include Windows VMs from all publishers, not just Microsoft-published images ([#1793](https://github.com/microsoft/finops-toolkit/issues/1793)).
 
 <br>
 
