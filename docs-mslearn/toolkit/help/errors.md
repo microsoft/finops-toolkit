@@ -25,6 +25,21 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <br>
 
+## 403
+
+<sup>Severity: Critical</sup>
+
+You may see this error when using [Add-FinOpsServicePrincipal](../powershell/hubs/Add-FinOpsServicePrincipal.md) to assign EA enrollment reader permissions to a service principal. The billing role assignment API returns HTTP 403 when the request is rejected.
+
+**Mitigation**:
+
+1. Confirm you are using the service principal object ID from **Enterprise applications** in the Azure portal, not the application object ID from **App registrations**. See [Assign roles to EA service principals](https://learn.microsoft.com/azure/cost-management-billing/manage/assign-roles-azure-service-principals).
+2. Confirm your account has the **Enrollment writer** role in your Enterprise Agreement. See [Understand EA administrative roles](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles).
+3. Confirm the billing account ID matches your EA enrollment number exactly.
+4. If the error persists, try assigning the role directly through the [Billing Role Assignments REST API](https://learn.microsoft.com/rest/api/billing/2019-10-01-preview/role-assignments/put) using the **Try it** feature.
+
+<br>
+
 ## Access to the resource is forbidden
 
 <sup>Severity: Critical</sup>
