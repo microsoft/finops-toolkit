@@ -45,7 +45,7 @@ _Released March 2026_
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
 - **Added**
-  - Added EA enrollment 403 troubleshooting steps to the [common errors](../help/errors.md#403) page ([#1754](https://github.com/microsoft/finops-toolkit/issues/1754)).
+  - Added EA enrollment 403 troubleshooting steps to the [common errors](help/errors.md#403) page ([#1754](https://github.com/microsoft/finops-toolkit/issues/1754)).
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 

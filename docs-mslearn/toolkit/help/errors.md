@@ -29,7 +29,7 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <sup>Severity: Critical</sup>
 
-You may see this error when using [Add-FinOpsServicePrincipal](../powershell/hubs/Add-FinOpsServicePrincipal.md) to assign EA enrollment reader permissions to a service principal. The billing role assignment API returns HTTP 403 when the request is rejected.
+You may see this error when using [Add-FinOpsServicePrincipal](../powershell/cost/add-finopsserviceprincipal.md) to assign EA enrollment reader permissions to a service principal. The billing role assignment API returns HTTP 403 when the request is rejected.
 
 **Mitigation**:
 
