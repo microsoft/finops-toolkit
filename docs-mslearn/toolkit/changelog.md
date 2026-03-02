@@ -40,6 +40,8 @@ The following section lists features and enhancements that are currently in deve
 
 ## v14
 
+_Released March 2026_
+
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
 - **Added**
@@ -68,6 +70,13 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
   - Addressed minor lint warnings across PowerShell commands.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v14)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v13...v14)
+<!-- prettier-ignore-end -->
 
 <br>
 
