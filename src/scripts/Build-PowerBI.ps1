@@ -6,13 +6,13 @@
     Creates PBIT files for each Power BI project.
 
     .PARAMETER Name
-    Name of the report to build. Wildcards supported. Default = * (all).
+    Optional. Name of the report to build. Wildcards supported. Default = * (all).
 
-    .PARAMETER -KQL
-    Indicates if the KQL reports should be generated. Default = false (will build all if no types are selected).
+    .PARAMETER KQL
+    Optional. Indicates if the KQL reports should be generated. Default = false (will build all if no types are selected).
 
-    .PARAMETER -Storage
-    Indicates if the storage reports should be generated. Default = false (will build all if no types are selected).
+    .PARAMETER Storage
+    Optional. Indicates if the storage reports should be generated. Default = false (will build all if no types are selected).
 
     .EXAMPLE
     ./Build-PowerBI

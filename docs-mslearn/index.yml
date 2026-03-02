@@ -33,10 +33,6 @@ highlightedContent:
       itemType: whats-new
       url: https://techcommunity.microsoft.com/category/azure/blog/finopsblog
     # Card
-    - title: FinOps with Azure e-book
-      itemType: download
-      url: https://aka.ms/finops/ebook
-    # Card
     - title: FinOps review assessment
       itemType: learn
       url: https://learn.microsoft.com/assessments/ad1c0f6b-396b-44a4-924b-7a4c778a13d3
