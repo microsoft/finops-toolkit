@@ -360,10 +360,22 @@ Costs_v1_2()
 
 
 // Prices_final_v1_2
+// Commitment discount eligibility is computed here instead of in the update policy because ADX
+// update policies execute per-ingestion batch, not across the full table.
+// See https://github.com/microsoft/finops-toolkit/issues/1625
 .create-or-alter function
 with (docstring = 'Gets all prices aligned to FOCUS 1.2.', folder = 'Prices')
 Prices_v1_2()
 {
+    // Commitment discount eligibility -- computed here because the update policy only sees per-batch data
+    let commitmentMeters = database('Ingestion').Prices_final_v1_2
+        | union (database('Ingestion').Prices_final_v1_0)
+        | where x_SkuPriceType in ('ReservedInstance', 'SavingsPlan')
+        | distinct x_SkuMeterId, x_SkuPriceType;
+    let riMeters = commitmentMeters | where x_SkuPriceType == 'ReservedInstance' | project x_SkuMeterId;
+    let spMeters = commitmentMeters | where x_SkuPriceType == 'SavingsPlan' | project x_SkuMeterId;
+    //
+    // Calculate commitment discount eligibility
     database('Ingestion').Prices_final_v1_2
     | union (
         database('Ingestion').Prices_final_v1_0
@@ -381,12 +393,15 @@ Prices_v1_2()
             x_SkuIncludedQuantity                = toreal(x_SkuIncludedQuantity),
             x_SkuTier                            = toreal(x_SkuTier),
             x_TotalUnitPriceDiscount             = toreal(x_TotalUnitPriceDiscount),
-            x_TotalUnitPriceDiscountPercent      = toreal(x_TotalUnitPriceDiscountPercent) 
+            x_TotalUnitPriceDiscountPercent      = toreal(x_TotalUnitPriceDiscountPercent)
         // Rename columns
         | project-rename
             PricingCurrency = x_PricingCurrency,
             SkuMeter = x_SkuMeterName
     )
+    | extend x_CommitmentDiscountSpendEligibility = iff(x_SkuMeterId in (riMeters) and x_SkuPriceType == 'Consumption', 'Eligible', 'Not Eligible')
+    | extend x_CommitmentDiscountUsageEligibility = iff(x_SkuMeterId in (spMeters) and x_SkuPriceType == 'Consumption', 'Eligible', 'Not Eligible')
+    //
     | project
         BillingAccountId,
         BillingAccountName,
