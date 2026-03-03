@@ -3,11 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-<<<<<<< flanakin/fix-workbook-feedback-link
 ms.date: 03/03/2026
-=======
-ms.date: 03/03/2026
->>>>>>> dev
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -30,19 +26,21 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### [Implementing FinOps guide](../implementing-finops-guide.md) v14
-
-- **Removed**
-  - Removed all references to the FinOps e-book (`aka.ms/finops/ebook`) as the e-book is no longer available ([#1813](https://github.com/microsoft/finops-toolkit/issues/1813)).
-
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
 -->
 
-<br>
+<br><a name="latest"></a>
 
 ## v14
+
+### [Implementing FinOps guide](../implementing-finops-guide.md) v14
+
+- **Fixed**
+  - Updated FinOps Foundation video on the overview page to use the latest public video ([#2026](https://github.com/microsoft/finops-toolkit/issues/2026)).
+- **Removed**
+  - Removed all references to the FinOps e-book (`aka.ms/finops/ebook`) as the e-book is no longer available ([#1813](https://github.com/microsoft/finops-toolkit/issues/1813)).
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
@@ -50,21 +48,6 @@ The following section lists features and enhancements that are currently in deve
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
   - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
-
-### [PowerShell module](powershell/powershell-commands.md) v14
-
-- **Added**
-  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
-- **Fixed**
-  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
-  - Addressed minor lint warnings across PowerShell commands.
-
-<br><a name="latest"></a>
-
-## v14
-
-### [FinOps hubs](hubs/finops-hubs-overview.md) v14
-
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
 
@@ -76,6 +59,14 @@ The following section lists features and enhancements that are currently in deve
   - Excluded dev/test subscriptions from Azure Hybrid Benefit reports to align with licensing requirements ([#1819](https://github.com/microsoft/finops-toolkit/issues/1819)).
     - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
   - Fixed Azure Hybrid Benefit reports to include Windows VMs from all publishers, not just Microsoft-published images ([#1793](https://github.com/microsoft/finops-toolkit/issues/1793)).
+
+### [PowerShell module](powershell/powershell-commands.md) v14
+
+- **Added**
+  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
+- **Fixed**
+  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
+  - Addressed minor lint warnings across PowerShell commands.
 
 <br>
 
