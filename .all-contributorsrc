@@ -943,6 +943,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "pvansteenkiste",
+      "name": "pvansteenkiste",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35564924?v=4",
+      "profile": "https://github.com/pvansteenkiste",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",

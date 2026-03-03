@@ -3,7 +3,11 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
+<<<<<<< flanakin/fix-workbook-feedback-link
 ms.date: 03/03/2026
+=======
+ms.date: 03/02/2026
+>>>>>>> dev
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -71,6 +75,7 @@ The following section lists features and enhancements that are currently in deve
     - Removed the Office Forms feedback link and consolidated feedback to use the GitHub issues link.
   - Excluded dev/test subscriptions from Azure Hybrid Benefit reports to align with licensing requirements ([#1819](https://github.com/microsoft/finops-toolkit/issues/1819)).
     - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
+  - Fixed Azure Hybrid Benefit reports to include Windows VMs from all publishers, not just Microsoft-published images ([#1793](https://github.com/microsoft/finops-toolkit/issues/1793)).
 
 <br>
 
