@@ -31,7 +31,7 @@ The following section lists features and enhancements that are currently in deve
 - Cost Management export modules for subscriptions and resource groups.
 -->
 
-<br>
+<br><a name="latest"></a>
 
 ## v14
 
@@ -48,21 +48,6 @@ The following section lists features and enhancements that are currently in deve
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
   - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
-
-### [PowerShell module](powershell/powershell-commands.md) v14
-
-- **Added**
-  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
-- **Fixed**
-  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
-  - Addressed minor lint warnings across PowerShell commands.
-
-<br><a name="latest"></a>
-
-## v14
-
-### [FinOps hubs](hubs/finops-hubs-overview.md) v14
-
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
 
@@ -71,6 +56,14 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Excluded dev/test subscriptions from Azure Hybrid Benefit reports to align with licensing requirements ([#1819](https://github.com/microsoft/finops-toolkit/issues/1819)).
     - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
+
+### [PowerShell module](powershell/powershell-commands.md) v14
+
+- **Added**
+  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
+- **Fixed**
+  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
+  - Addressed minor lint warnings across PowerShell commands.
 
 <br>
 
