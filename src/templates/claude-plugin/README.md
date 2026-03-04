@@ -44,6 +44,7 @@ The plugin registers an [Azure MCP Server](https://github.com/Azure/azure-mcp) w
 | `/ftk-hubs-healthCheck` | Check deployed hub version against latest stable/dev releases and validate data freshness. |
 | `/ftk-mom-report` | Autonomous month-over-month cost analysis with anomaly detection, forecasting, and actionable recommendations. |
 | `/ftk-ytd-report` | Comprehensive fiscal year-to-date analysis with forecast through end of fiscal year (June 30). |
+| `/ftk-cost-optimization` | Cost optimization report using Azure Advisor, orphaned resources, and rightsizing analysis. |
 
 ### Output style
 

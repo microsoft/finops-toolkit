@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Azure CLI authentication (az login) and appropriate RBAC permissions for Cost Management APIs.
 metadata:
   author: microsoft
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Azure Cost Management
@@ -135,4 +135,56 @@ For detailed documentation: `references/azure-macc.md`
 - **Decision framework**: `references/azure-commitment-discount-decision.md`
 - **Budgets and alerts**: `references/azure-budgets.md`, `references/azure-anomaly-alerts.md`, `references/azure-cost-exports.md`
 - **Commitments**: `references/azure-credits.md`, `references/azure-macc.md`
+
 Load the appropriate reference file when detailed workflows, API examples, or troubleshooting are needed.
+
+## Best practices
+
+### Cost API queries
+
+Use `az rest` with a JSON body rather than `az costmanagement query` — it is more reliable and supports the full query schema:
+
+```bash
+az rest --method post \
+  --url "https://management.azure.com/subscriptions/<SUB_ID>/providers/Microsoft.CostManagement/query?api-version=2023-11-01" \
+  --body '@cost-query.json'
+```
+
+### Free tier awareness
+
+Many Azure services have generous free allowances that explain $0 cost lines. Do not flag these as anomalies. Examples:
+- Container Apps: 180K vCPU-sec and 360K GB-sec free per month
+- Azure Functions: 1M executions free per month
+- Log Analytics: first 5 GB/month free per workspace
+
+### Azure Quick Review (azqr)
+
+For broad orphaned resource scanning, [Azure Quick Review](https://azure.github.io/azqr/) (`azqr`) can scan entire subscriptions efficiently and identify orphaned resources, oversized SKUs, and missing tags in one pass. Complement the Resource Graph queries in `references/azure-orphaned-resources.md` with azqr for large environments.
+
+### Azure portal links
+
+Include deep links to resources when presenting recommendations. Use this format (includes tenant context):
+
+```
+https://portal.azure.com/#@<TENANT_ID>/resource/subscriptions/<SUB_ID>/resourceGroups/<RG>/providers/<PROVIDER>/<TYPE>/<NAME>/overview
+```
+
+## Data classification
+
+When presenting cost data, label the source clearly so recommendations are auditable:
+
+- **ACTUAL DATA** — Retrieved from Azure Cost Management API
+- **ACTUAL METRICS** — Retrieved from Azure Monitor
+- **VALIDATED PRICING** — Retrieved from official Azure pricing pages (`prices.azure.com`)
+- **ESTIMATED SAVINGS** — Calculated from actual data and validated pricing
+
+Never present estimates as actuals.
+
+## Common pitfalls
+
+- **Assuming costs**: Always query actual data from the Cost Management API before making recommendations.
+- **Ignoring free tiers**: Validate $0 cost lines against known free allowances before treating them as anomalies.
+- **Using `az costmanagement query`**: Prefer `az rest` — the CLI command has known reliability issues with complex queries.
+- **Wrong date ranges**: Use 30 days for cost analysis, 14 days for utilization metrics.
+- **Broken portal links**: Always include tenant ID in portal URLs.
+- **Presenting estimates as actuals**: Use the data classification labels above to be explicit about the source of every number.

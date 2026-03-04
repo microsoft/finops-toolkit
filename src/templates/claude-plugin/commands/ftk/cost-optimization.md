@@ -1,3 +1,8 @@
+---
+description: Generate a comprehensive cost optimization report for the current Azure environment using Advisor, orphaned resources, and rightsizing analysis.
+disable-model-invocation: true
+---
+
 # Cost optimization report
 
 Generate a comprehensive cost optimization report for the current Azure environment. Works with or without FinOps hubs.

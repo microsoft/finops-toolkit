@@ -1,3 +1,8 @@
+---
+description: Comprehensive fiscal year-to-date cost analysis with forecast through end of fiscal year (June 30).
+disable-model-invocation: true
+---
+
 # Instructions
 
 Our fiscal year ends on June 30th.

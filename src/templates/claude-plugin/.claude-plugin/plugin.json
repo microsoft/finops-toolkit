@@ -9,7 +9,7 @@
   "homepage": "https://learn.microsoft.com/en-us/cloud-computing/finops/toolkit/finops-toolkit-overview",
   "repository": "https://github.com/microsoft/finops-toolkit",
   "license": "MIT",
-  "keywords": ["finops", "cost-management", "reservations", "savings plans", "cloud-optimization", "commitments", "credits", "MACC"],
+  "keywords": ["finops", "cost-management", "reservations", "savings-plans", "cloud-optimization", "commitments", "credits", "macc"],
   "commands": "./commands/",
   "agents": ["./agents/chief-financial-officer.md", "./agents/finops-practitioner.md", "./agents/ftk-database-query.md", "./agents/ftk-hubs-agent.md"],
   "skills": "./skills/",
