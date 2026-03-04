@@ -35,6 +35,8 @@ The following section lists features and enhancements that are currently in deve
 
 ## v14
 
+_Released March 2026_
+
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
 - **Fixed**
@@ -92,7 +94,7 @@ This release is a minor patch to fix a bug in FinOps hub managed exports and the
 
 ## v13
 
-_Released January 2026_
+_Released January 31, 2026_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v13
 
