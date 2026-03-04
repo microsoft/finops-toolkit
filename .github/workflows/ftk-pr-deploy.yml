@@ -15,6 +15,11 @@ on:
   pull_request_target:
     types: [labeled]
 
+env:
+  AZ_ACCOUNTS_VERSION: '2.19.0'
+  AZ_RESOURCES_VERSION: '6.16.2'
+  AZ_STORAGE_VERSION: '6.2.0'
+
 concurrency:
   group: ftk-pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -75,6 +80,20 @@ jobs:
             exit 1
           fi
 
+      - name: Install Az modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion $env:AZ_ACCOUNTS_VERSION -Force
+          Install-Module -Name Az.Resources -RequiredVersion $env:AZ_RESOURCES_VERSION -Force
+          Install-Module -Name Az.Storage -RequiredVersion $env:AZ_STORAGE_VERSION -Force
+
+      - name: Cache Az modules
+        uses: actions/cache/save@v4
+        with:
+          path: /home/runner/.local/share/powershell/Modules
+          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+
       - name: Parse deployment checkboxes
         id: parse
         env:
@@ -106,20 +125,23 @@ jobs:
   #----------------------------------------------------------------------------
   # Hub deployments
   #----------------------------------------------------------------------------
+  # NOTE: The ftk-pr environment MUST have required reviewers configured in GitHub
+  # settings to gate fork PR deployments. Without this, fork PRs could deploy
+  # malicious ARM templates using CI credentials.
   deploy-adx:
     name: 'Hubs + ADX (managed)'
     needs: check-options
     if: needs.check-options.outputs.deploy-adx == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment: ftk-pr
     steps:
-      - name: Install Az modules
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
-          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
-          Install-Module -Name Az.Storage -RequiredVersion 6.2.0 -Force
+      - name: Restore Az modules
+        uses: actions/cache/restore@v4
+        with:
+          path: /home/runner/.local/share/powershell/Modules
+          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          fail-on-cache-miss: true
 
       - uses: actions/checkout@v4
         with:
@@ -136,7 +158,7 @@ jobs:
       - name: Deploy
         shell: pwsh
         run: |
-          ./src/scripts/Deploy-Hub -PR -Name "${{ github.event.pull_request.number }}-adx" `
+          ./src/scripts/Deploy-Hub -PR ${{ github.event.pull_request.number }} -Name "adx" `
             -Scope "${{ secrets.CI_SCOPE }}" -ManagedExports -Build
 
       - name: Post PR comment
@@ -158,23 +180,24 @@ jobs:
     needs: check-options
     if: needs.check-options.outputs.deploy-fabric == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment: ftk-pr
     steps:
       - name: Validate Fabric URI
+        env:
+          FABRIC_URI: ${{ needs.check-options.outputs.fabric-uri }}
         run: |
-          uri="${{ needs.check-options.outputs.fabric-uri }}"
-          if [ -z "$uri" ]; then
+          if [ -z "$FABRIC_URI" ]; then
             echo "::error::Hubs + Fabric (manual) checkbox is checked but no URI was provided. Add the eventhouse query URI to the PR body."
             exit 1
           fi
 
-      - name: Install Az modules
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
-          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
-          Install-Module -Name Az.Storage -RequiredVersion 6.2.0 -Force
+      - name: Restore Az modules
+        uses: actions/cache/restore@v4
+        with:
+          path: /home/runner/.local/share/powershell/Modules
+          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          fail-on-cache-miss: true
 
       - uses: actions/checkout@v4
         with:
@@ -190,9 +213,11 @@ jobs:
 
       - name: Deploy
         shell: pwsh
+        env:
+          FABRIC_URI: ${{ needs.check-options.outputs.fabric-uri }}
         run: |
-          ./src/scripts/Deploy-Hub -PR -Name "${{ github.event.pull_request.number }}-fabric" `
-            -Fabric "${{ needs.check-options.outputs.fabric-uri }}" `
+          ./src/scripts/Deploy-Hub -PR ${{ github.event.pull_request.number }} -Name "fabric" `
+            -Fabric "$env:FABRIC_URI" `
             -Scope "${{ secrets.CI_SCOPE }}" -Build
 
       - name: Post PR comment
@@ -214,15 +239,15 @@ jobs:
     needs: check-options
     if: needs.check-options.outputs.deploy-manual == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment: ftk-pr
     steps:
-      - name: Install Az modules
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
-          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
-          Install-Module -Name Az.Storage -RequiredVersion 6.2.0 -Force
+      - name: Restore Az modules
+        uses: actions/cache/restore@v4
+        with:
+          path: /home/runner/.local/share/powershell/Modules
+          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          fail-on-cache-miss: true
 
       - uses: actions/checkout@v4
         with:
@@ -239,7 +264,7 @@ jobs:
       - name: Deploy
         shell: pwsh
         run: |
-          ./src/scripts/Deploy-Hub -PR -Name "${{ github.event.pull_request.number }}-manual" `
+          ./src/scripts/Deploy-Hub -PR ${{ github.event.pull_request.number }} -Name "manual" `
             -StorageOnly -Scope "${{ secrets.CI_SCOPE }}" -Build
 
       - name: Post PR comment
@@ -261,14 +286,15 @@ jobs:
     needs: check-options
     if: needs.check-options.outputs.deploy-nodata == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment: ftk-pr
     steps:
-      - name: Install Az modules
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
-          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+      - name: Restore Az modules
+        uses: actions/cache/restore@v4
+        with:
+          path: /home/runner/.local/share/powershell/Modules
+          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          fail-on-cache-miss: true
 
       - uses: actions/checkout@v4
         with:
@@ -285,7 +311,7 @@ jobs:
       - name: Deploy
         shell: pwsh
         run: |
-          ./src/scripts/Deploy-Hub -PR -Name "${{ github.event.pull_request.number }}-nodata" `
+          ./src/scripts/Deploy-Hub -PR ${{ github.event.pull_request.number }} -Name "nodata" `
             -StorageOnly -Build
 
       - name: Post PR comment
@@ -310,14 +336,15 @@ jobs:
     needs: check-options
     if: needs.check-options.outputs.deploy-workbooks == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment: ftk-pr
     steps:
-      - name: Install Az modules
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
-          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+      - name: Restore Az modules
+        uses: actions/cache/restore@v4
+        with:
+          path: /home/runner/.local/share/powershell/Modules
+          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          fail-on-cache-miss: true
 
       - uses: actions/checkout@v4
         with:
@@ -356,14 +383,15 @@ jobs:
     needs: check-options
     if: needs.check-options.outputs.deploy-alerts == 'true' && needs.check-options.outputs.templates-changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     environment: ftk-pr
     steps:
-      - name: Install Az modules
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
-          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+      - name: Restore Az modules
+        uses: actions/cache/restore@v4
+        with:
+          path: /home/runner/.local/share/powershell/Modules
+          key: az-modules-${{ env.AZ_ACCOUNTS_VERSION }}-${{ env.AZ_RESOURCES_VERSION }}-${{ env.AZ_STORAGE_VERSION }}
+          fail-on-cache-miss: true
 
       - uses: actions/checkout@v4
         with:
