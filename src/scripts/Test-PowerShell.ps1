@@ -32,6 +32,9 @@
     .PARAMETER Toolkit
     Optional. Indicates whether to run FinOps toolkit tests.
 
+    .PARAMETER Workbooks
+    Optional. Indicates whether to run FinOps workbook tests.
+
     .PARAMETER Actions
     Optional. Indicates whether to run GitHub Actions tests.
 
@@ -72,6 +75,9 @@ param (
 
     [switch]
     $Toolkit,
+
+    [switch]
+    $Workbooks,
 
     [switch]
     $Actions,
@@ -125,6 +131,7 @@ else
     if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
     if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs.Tests.ps1' }
     if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
+    if ($Workbooks) { $testsToRun += '*Workbook*' }
     if ($Actions) { $testsToRun += 'Action.*.Tests.ps1' }
     if ($Private) { $testsToRun += (Get-ChildItem -Path "$PSScriptRoot/../powershell/Tests/$testType/Unit" -Exclude *-FinOps*, *-Hub*, *-OpenData* -Name *.Tests.ps1) }
     if (-not $testsToRun) { $testsToRun = "*" }
