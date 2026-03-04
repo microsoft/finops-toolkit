@@ -98,7 +98,7 @@ BeforeDiscovery {
     }
 
     # Known issues to skip before a specific version (remove entries as links are fixed)
-    $toolkitVersion = (Get-Content (Join-Path $repoRoot 'package.json') | ConvertFrom-Json).version
+    $toolkitVersion = (Get-Content (Join-Path $repoRoot 'package.json') | ConvertFrom-Json).version -replace '-.*$', ''
     $knownIssues = @(
         # configure-recommendations.md will be created as part of 14.0
         @{ MaxVersion = '14.0'; PathPattern = 'toolkit/hubs/data-processing.md'; LinkPattern = 'configure-recommendations.md' }
