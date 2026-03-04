@@ -17,6 +17,12 @@ param configContainerName string = 'config'
 @description('Optional. Name of the ingestion container. Default: ingestion.')
 param ingestionContainerName string = 'ingestion'
 
+@description('Optional. Whether to enable Azure Hybrid Benefit recommendations. These recommendations flag VMs and SQL VMs without Azure Hybrid Benefit enabled, which may generate noise if your organization does not have on-premises licenses. Default: false.')
+param enableAHBRecommendations bool = false
+
+@description('Optional. Whether to enable non-Spot AKS cluster recommendations. These recommendations flag AKS clusters that use autoscaling without Spot VMs, which may generate noise since Spot VMs are only appropriate for interruptible workloads. Default: false.')
+param enableSpotRecommendations bool = false
+
 
 //==============================================================================
 // Variables
@@ -27,19 +33,28 @@ var QUERIES = 'queries'
 // Separator used to separate ingestion ID from file name for ingested files
 var ingestionIdFileNameSeparator = '__'
 
-// Load query files
-var queryFiles = {
-  'HubsRecommendations-AdvisorCost': loadTextContent('queries/HubsRecommendations-AdvisorCost.json')
-  'HubsRecommendations-BackendlessAppGateways': loadTextContent('queries/HubsRecommendations-BackendlessAppGateways.json')
-  'HubsRecommendations-BackendlessLoadBalancers': loadTextContent('queries/HubsRecommendations-BackendlessLoadBalancers.json')
-  'HubsRecommendations-EmptySQLElasticPools': loadTextContent('queries/HubsRecommendations-EmptySQLElasticPools.json')
-  'HubsRecommendations-NonSpotAKSClusters': loadTextContent('queries/HubsRecommendations-NonSpotAKSClusters.json')
-  'HubsRecommendations-SQLVMsWithoutAHB': loadTextContent('queries/HubsRecommendations-SQLVMsWithoutAHB.json')
-  'HubsRecommendations-StoppedVMs': loadTextContent('queries/HubsRecommendations-StoppedVMs.json')
-  'HubsRecommendations-UnattachedDisks': loadTextContent('queries/HubsRecommendations-UnattachedDisks.json')
-  'HubsRecommendations-UnattachedPublicIPs': loadTextContent('queries/HubsRecommendations-UnattachedPublicIPs.json')
-  'HubsRecommendations-VMsWithoutAHB': loadTextContent('queries/HubsRecommendations-VMsWithoutAHB.json')
+// Load query files -- core recommendations are always included
+var coreQueryFiles = {
+  'Recommendations-Microsoft-AdvisorCost': loadTextContent('queries/Recommendations-Microsoft-AdvisorCost.json')
+  'Recommendations-Microsoft-BackendlessAppGateways': loadTextContent('queries/Recommendations-Microsoft-BackendlessAppGateways.json')
+  'Recommendations-Microsoft-BackendlessLoadBalancers': loadTextContent('queries/Recommendations-Microsoft-BackendlessLoadBalancers.json')
+  'Recommendations-Microsoft-EmptySQLElasticPools': loadTextContent('queries/Recommendations-Microsoft-EmptySQLElasticPools.json')
+  'Recommendations-Microsoft-StoppedVMs': loadTextContent('queries/Recommendations-Microsoft-StoppedVMs.json')
+  'Recommendations-Microsoft-UnattachedDisks': loadTextContent('queries/Recommendations-Microsoft-UnattachedDisks.json')
+  'Recommendations-Microsoft-UnattachedPublicIPs': loadTextContent('queries/Recommendations-Microsoft-UnattachedPublicIPs.json')
 }
+
+// Optional recommendations that require opt-in due to potential noise
+var ahbQueryFiles = enableAHBRecommendations ? {
+  'Recommendations-Microsoft-SQLVMsWithoutAHB': loadTextContent('queries/Recommendations-Microsoft-SQLVMsWithoutAHB.json')
+  'Recommendations-Microsoft-VMsWithoutAHB': loadTextContent('queries/Recommendations-Microsoft-VMsWithoutAHB.json')
+} : {}
+
+var spotQueryFiles = enableSpotRecommendations ? {
+  'Recommendations-Microsoft-NonSpotAKSClusters': loadTextContent('queries/Recommendations-Microsoft-NonSpotAKSClusters.json')
+} : {}
+
+var queryFiles = union(coreQueryFiles, ahbQueryFiles, spotQueryFiles)
 
 // Load schema files
 var schemaFiles = {
@@ -95,12 +110,6 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   dependsOn: [appRegistration]
 }
 
-// Get storage account instance
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: app.storage
-  dependsOn: [appRegistration]
-}
-
 //------------------------------------------------------------------------------
 // Linked Services
 //------------------------------------------------------------------------------
@@ -133,7 +142,7 @@ resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-
 //------------------------------------------------------------------------------
 
 // Resource Graph dataset
-resource dataset_resourcegraph 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
+resource dataset_resourceGraph 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: 'resourceGraph'
   parent: dataFactory
   properties: {
@@ -688,12 +697,12 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         userProperties: []
         typeProperties: {
           on: {
-            value: '@pipeline().parameters.inputDataset'
+            value: '@toLower(pipeline().parameters.inputDataset)'
             type: 'Expression'
           }
           cases: [
             {
-              value: dataset_resourcegraph.name
+              value: toLower(dataset_resourceGraph.name) // Case-insensitive: match against toLower() of the input
               activities: [
                 {
                   name: 'Execute ARG Query'
@@ -738,7 +747,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
                   }
                   inputs: [
                     {
-                      referenceName: dataset_resourcegraph.name
+                      referenceName: dataset_resourceGraph.name
                       type: 'DatasetReference'
                       parameters: {}
                     }

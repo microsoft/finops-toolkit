@@ -47,8 +47,14 @@ param remoteHubStorageKey string = ''
 @description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
-@description('Optional. Enable ARG-based recommendations ingestion. Requires Analytics (ADX or Fabric). Default: true.')
-param enableRecommendations bool = true
+@description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
+param enableRecommendations bool = false
+
+@description('Optional. Enable Azure Hybrid Benefit recommendations that flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses. Requires enableRecommendations. Default: false.')
+param enableAHBRecommendations bool = false
+
+@description('Optional. Enable non-Spot AKS cluster recommendations that flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads. Requires enableRecommendations. Default: false.')
+param enableSpotRecommendations bool = false
 
 // cSpell:ignore eventhouse
 @description('Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).')
@@ -313,7 +319,7 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
 // Recommendations app
 //------------------------------------------------------------------------------
 
-module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (enableRecommendations && (useFabric || useAzureDataExplorer)) {
+module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (enableRecommendations) {
   name: 'Microsoft.FinOpsHubs.Recommendations'
   dependsOn: [
     core
@@ -321,6 +327,8 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
   ]
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
+    enableAHBRecommendations: enableAHBRecommendations
+    enableSpotRecommendations: enableSpotRecommendations
   }
 }
 

@@ -597,6 +597,141 @@
         ]
       },
       {
+        "name": "recommendations",
+        "label": "🆕 Recommendations",
+        "elements": [
+          {
+            "name": "recommendationsIntro",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": true,
+            "options": {
+              "text": "Uncover hidden savings with FinOps hubs recommendations. FinOps hubs can automatically scan your environment using Azure Resource Graph to surface cost optimization opportunities like idle resources and missed discounts that aren't available in Microsoft Cost Management or Azure Advisor."
+            }
+          },
+          {
+            "name": "enableRecommendations",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable hubs recommendations (preview)"
+          },
+          {
+            "name": "included",
+            "type": "Microsoft.Common.Section",
+            "label": "Included recommendations",
+            "visible": "[steps('recommendations').enableRecommendations]",
+            "elements": [
+              {
+                "name": "includedIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "The following recommendations are always included when enabled:"
+                }
+              },
+              {
+                "name": "advisorCost",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Azure Advisor cost recommendations"
+                }
+              },
+              {
+                "name": "stoppedVMs",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Stopped (not deallocated) VMs"
+                }
+              },
+              {
+                "name": "unattachedDisks",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Unattached managed disks"
+                }
+              },
+              {
+                "name": "unattachedPublicIPs",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Unattached static public IPs"
+                }
+              },
+              {
+                "name": "emptySQLElasticPools",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Empty SQL elastic pools"
+                }
+              },
+              {
+                "name": "backendlessAppGateways",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Application Gateways with empty backend pools"
+                }
+              },
+              {
+                "name": "backendlessLoadBalancers",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "✅  Load Balancers without backends"
+                }
+              }
+            ]
+          },
+          {
+            "name": "optional",
+            "type": "Microsoft.Common.Section",
+            "label": "Optional recommendations",
+            "visible": "[steps('recommendations').enableRecommendations]",
+            "elements": [
+              {
+                "name": "optionalIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "The following recommendations do not apply in all cases and are optional:"
+                }
+              },
+              {
+                "name": "enableAHBRecommendations",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "➕  Azure Hybrid Benefit",
+                "toolTip": "Flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses."
+              },
+              {
+                "name": "enableSpotRecommendations",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "➕  Non-Spot AKS cluster",
+                "toolTip": "Flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads."
+              }
+            ]
+          },
+          {
+            "name": "permissions",
+            "type": "Microsoft.Common.Section",
+            "label": "Required permissions",
+            "visible": "[steps('recommendations').enableRecommendations]",
+            "elements": [
+              {
+                "name": "permissionsNote",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "The Data Factory managed identity requires Reader role on the management groups or subscriptions you want to scan. After deployment, grant the hub's managed identity Reader access to the desired scopes."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "advanced",
         "label": "Advanced",
         "elements": [
@@ -777,6 +912,9 @@
       "fabricCapacity": "[basics('fabric').fabricCapacity]",
       "enableInfrastructureEncryption": "[steps('advanced').storage.enableInfrastructureEncryption]",
       "enableManagedExports": "[steps('advanced').managedExports.enableManagedExports]",
+      "enableRecommendations": "[steps('recommendations').enableRecommendations]",
+      "enableAHBRecommendations": "[steps('recommendations').optional.enableAHBRecommendations]",
+      "enableSpotRecommendations": "[steps('recommendations').optional.enableSpotRecommendations]",
       "enablePublicAccess": "[steps('advanced').networking.enablePublicAccess]",
       "virtualNetworkAddressPrefix": "[steps('advanced').networking.virtualNetworkAddressPrefix]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
