@@ -304,7 +304,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         { // Set Has No Rows
           name: 'Set Has No Rows'
-          description: 'Check the row count '
+          description: 'Check if there are no blobs or no data rows in the export.'
           type: 'SetVariable'
           dependsOn: [
             {
@@ -322,7 +322,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           typeProperties: {
             variableName: 'hasNoRows'
             value: {
-              value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0))'
+              value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, null), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0))'
               type: 'Expression'
             }
           }
