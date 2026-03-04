@@ -77,7 +77,7 @@
     Optional. Azure location. Default: westus.
 
     .PARAMETER PR
-    Optional. Indicates the PR naming convention (e.g., "pr-123") should be used.
+    Optional. PR number for CI deployments. Resources are named "pr-{number}" or "pr-{number}-{name}" when -Name is also specified.
 
     .PARAMETER Scope
     Optional. Azure scope ID for cost data exports (e.g., "/subscriptions/{id}"). When specified with -ManagedExports, enables managed exports and grants the hub identity access. When specified without -ManagedExports, creates exports manually via New-FinOpsCostExport after deployment.
@@ -103,7 +103,7 @@ param(
     [string]$Fabric,
     [switch]$StorageOnly,
     [switch]$Remove,
-    [switch]$PR,
+    [int]$PR,
     [string]$Scope,
     [switch]$ManagedExports,
     [string]$Location,
@@ -137,7 +137,7 @@ function Get-Initials()
 
 if ($PR)
 {
-    $initials = "pr"
+    $initials = "pr-$PR"
 }
 else
 {
@@ -286,7 +286,7 @@ if ($Scope -and -not $WhatIf -and $global:ftkDeployment)
         if ($managedIdentityId)
         {
             Write-Host "Granting hub identity access to $Scope..."
-            $roles = @("Cost Management Contributor", "RBAC Administrator")
+            $roles = @("Cost Management Contributor")
             foreach ($role in $roles)
             {
                 $existing = Get-AzRoleAssignment -ObjectId $managedIdentityId -RoleDefinitionName $role -Scope $Scope -ErrorAction SilentlyContinue

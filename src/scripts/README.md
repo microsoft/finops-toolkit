@@ -157,7 +157,7 @@ All resources use an `{initials}-{name}` naming convention where initials are pu
 | `‑Fabric`          | Optional. Deploy with Microsoft Fabric. Provide the eventhouse query URI.                                                                                                            |
 | `‑StorageOnly`     | Optional. Deploy a storage-only hub (no Azure Data Explorer or Fabric).                                                                                                              |
 | `‑Remove`          | Optional. Remove test environments. With a name, deletes the target RG. Alone, lists all `{initials}-*`.                                                                             |
-| `‑PR`              | Optional. Use PR naming convention. Sets initials to `pr` so resources are named `pr-{name}`.                                                                                        |
+| `‑PR`              | Optional. PR number for CI deployments. Resources are named `pr-{number}` or `pr-{number}-{name}` when `-Name` is also specified.                                                    |
 | `‑Scope`           | Optional. Azure scope ID for cost data exports (e.g., `/subscriptions/{id}`). With `-ManagedExports`, enables managed exports. Without it, creates exports manually.                 |
 | `‑ManagedExports`  | Optional. Use managed exports instead of manual exports. Requires `-Scope`. Passes `scopesToMonitor` to the template and grants the hub identity required roles.                     |
 | `‑Location`        | Optional. Azure location. Default: `westus`.                                                                                                                                         |
@@ -208,16 +208,16 @@ Examples:
   ./Deploy-Hub -Remove
   ```
 
-- Deploy with PR naming convention (e.g., RG `pr-123`, ADX `pr-123`):
+- Deploy with PR naming convention (e.g., RG `pr-123-adx`, ADX `pr-123-adx`):
 
   ```powershell
-  ./Deploy-Hub -PR 123
+  ./Deploy-Hub -PR 123 -Name adx
   ```
 
 - Deploy with managed exports:
 
   ```powershell
-  ./Deploy-Hub -PR 123 -Scope "/subscriptions/{id}" -ManagedExports -Build
+  ./Deploy-Hub -PR 123 -Name adx -Scope "/subscriptions/{id}" -ManagedExports -Build
   ```
 
 - Deploy storage-only with manual exports:
