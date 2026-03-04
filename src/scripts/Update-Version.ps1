@@ -138,30 +138,28 @@ if ($update -or $Version)
         $anchorIndex = $changelogLines.IndexOf('<br><a name="latest"></a>')
         if ($anchorIndex -ge 0)
         {
-            # Find the first ## v heading after the anchor
-            $prevTag = $null
+            # Find the first ## v heading after the anchor to get the previous version tag
+            $prevTag = 'v0.0.1'
             for ($i = $anchorIndex + 1; $i -lt $changelogLines.Count; $i++)
             {
-                if ($changelogLines[$i] -match '^## v(.+)$')
+                if ($changelogLines[$i] -match '^## (v\S+)')
                 {
-                    $prevTag = $Matches[1] -replace '\s.*$', ''
+                    $prevTag = $Matches[1]
                     break
                 }
             }
 
-            $releaseTagName = $releaseTag.TrimStart('v')
-
             # Skip if this version section already exists
-            if ($prevTag -eq $releaseTagName)
+            if ($prevTag -eq $releaseTag)
             {
-                Write-Verbose "- Changelog already has v$releaseTagName section"
+                Write-Verbose "- Changelog already has $releaseTag section"
             }
             else
             {
                 $releaseDate = (Get-Date).AddMonths(1).ToString('MMMM yyyy')
                 $newSection = @(
                     ''
-                    "## v$releaseTagName"
+                    "## $releaseTag"
                     ''
                     "_Released ${releaseDate}_"
                     ''
@@ -169,7 +167,7 @@ if ($update -or $Version)
                     '> [!div class="nextstepaction"]'
                     "> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/$releaseTag)"
                     '> [!div class="nextstepaction"]'
-                    "> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v$prevTag...$releaseTag)"
+                    "> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/$prevTag...$releaseTag)"
                     '<!-- prettier-ignore-end -->'
                     ''
                     '<br>'
@@ -177,7 +175,7 @@ if ($update -or $Version)
 
                 $changelogLines = $changelogLines[0..$anchorIndex] + $newSection + $changelogLines[($anchorIndex + 1)..($changelogLines.Count - 1)]
                 $changelogLines | Out-File $changelogPath -Encoding utf8
-                Write-Verbose "- Added v$releaseTagName section to changelog"
+                Write-Verbose "- Added $releaseTag section to changelog"
             }
         }
     }
