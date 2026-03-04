@@ -3,7 +3,7 @@ title: Implementing FinOps guide
 description: Learn how FinOps can help you maintain business efficiency, empower new endeavors, and accelerate business growth through the cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -22,7 +22,6 @@ FinOps is an expansive area with branches that extend out into many cloud manage
 If you're new to FinOps, there are a few places you can get started:
 
 - [What is FinOps?](overview.md) &ndash; Quick introduction to FinOps.
-- [FinOps on Azure e-book](https://aka.ms/finops/ebook) &ndash; Executive walkthrough of the FinOps principles.
 - [Get started with FinOps](/training/modules/get-started-with-finops) &ndash; Self-paced FinOps introduction.
 
 <br>

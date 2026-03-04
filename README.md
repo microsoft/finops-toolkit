@@ -155,6 +155,8 @@ There are many ways to participate. From reporting bugs and requesting features 
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://codeserendipity.com/"><img src="https://avatars.githubusercontent.com/u/11653125?v=4?s=100" width="100px;" alt="Ana Del Campo"/><br /><sub><b>Ana Del Campo</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3AMarchingBug" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="http://www.codeisahighway.com"><img src="https://avatars.githubusercontent.com/u/1054412?v=4?s=100" width="100px;" alt="Stephane Lapointe"/><br /><sub><b>Stephane Lapointe</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=slapointe" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/pvansteenkiste"><img src="https://avatars.githubusercontent.com/u/35564924?v=4?s=100" width="100px;" alt="pvansteenkiste"/><br /><sub><b>pvansteenkiste</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Apvansteenkiste" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/arthursilvany"><img src="https://avatars.githubusercontent.com/u/31347467?v=4?s=100" width="100px;" alt="Arthur Silvany"/><br /><sub><b>Arthur Silvany</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aarthursilvany" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
