@@ -3,7 +3,7 @@ title: What is FinOps?
 description: FinOps combines financial management principles with engineering and operations to provide organizations with a better understanding of their cloud spending.
 author: flanakin
 ms.author: micflan
-ms.date: 04/25/2025
+ms.date: 03/03/2026
 ms.topic: overview
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 # customer intent: As a cloud customer, I want to understand what FinOps is so that can learn how to leverage it to accelerate my business growth through the cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # What is FinOps?
 
 FinOps is an operational framework and cultural practice that enhances the business value derived from cloud and technology. It promotes data-driven decision-making in a timely manner and fosters financial responsibility. It gets achieved through collaboration among engineering, finance, and business teams.
@@ -32,9 +31,9 @@ The word _FinOps_ is a blend of Finance and DevOps and is sometimes referred to 
 
 The FinOps Foundation, a non-profit organization focused on FinOps, offers a great video description:
 
-> [!VIDEO https://www.youtube.com/embed/VDrcgEne6lU]
+> [!VIDEO https://www.youtube.com/embed/Y-c_xw9bHFw]
 
-[FinOps: The operating model for the cloud](https://www.youtube.com/watch?v=VDrcgEne6lU)
+[FinOps: The operating model for the cloud](https://www.youtube.com/watch?v=Y-c_xw9bHFw)
 
 <br>
 
@@ -54,13 +53,17 @@ The FinOps Foundation, a non-profit organization focused on FinOps, offers a gre
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.General/featureName/Overview)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 
