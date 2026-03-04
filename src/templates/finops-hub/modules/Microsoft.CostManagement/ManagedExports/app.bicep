@@ -390,7 +390,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: core.settings.file
         }
         folderPath: {
           type: 'String'
@@ -646,7 +646,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: core.settings.file
         }
         folderPath: {
           type: 'String'
@@ -879,7 +879,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       variables: {
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: core.settings.file
         }
         folderPath: {
           type: 'String'
@@ -1684,7 +1684,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: core.settings.file
         }
         folderPath: {
           type: 'String'
@@ -1716,7 +1716,7 @@ module trigger_SettingsUpdated '../../fx/hub-eventTrigger.bicep' = {
     storageAccountName: app.storage
     storageContainer: core.containers.config
     // TODO: Change this to startswith
-    storagePathEndsWith: 'settings.json'
+    storagePathEndsWith: core.settings.file
   }
 }
 

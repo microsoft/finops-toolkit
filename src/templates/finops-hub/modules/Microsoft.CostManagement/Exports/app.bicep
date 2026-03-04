@@ -177,7 +177,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
             value: '@{dataset().blobPath}'
             type: 'Expression'
           }
-          fileSystem: exportContainer.outputs.containerName
+          fileSystem: MSEXPORTS
         }
         columnDelimiter: ','
         escapeChar: '"'

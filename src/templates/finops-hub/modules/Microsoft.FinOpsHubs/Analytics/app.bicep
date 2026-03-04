@@ -1686,7 +1686,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: 'ingestion_files'
+            referenceName: core.datasets.ingestionFiles
             type: 'DatasetReference'
             parameters: {
               folderPath: '@variables(\'containerFolderPath\')'
