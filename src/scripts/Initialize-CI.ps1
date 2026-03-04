@@ -53,7 +53,9 @@ Write-Host ""
 
 Write-Host "Step 1: Creating Azure AD app registration '$appName'..."
 
-$app = Get-AzADApplication -DisplayName $appName -ErrorAction SilentlyContinue | Select-Object -First 1
+$app = Get-AzADApplication -DisplayName $appName -ErrorAction SilentlyContinue `
+| Where-Object { $_.DisplayName -eq $appName } `
+| Select-Object -First 1
 
 if ($app)
 {
@@ -124,21 +126,20 @@ else
 Write-Host ""
 Write-Host "Step 3: Granting RBAC on subscription $SubscriptionId..."
 
-$subscriptionScope = "/subscriptions/$SubscriptionId"
 $roles = @("Contributor", "User Access Administrator")
 
 if ($sp)
 {
     foreach ($role in $roles)
     {
-        $existing = Get-AzRoleAssignment -ObjectId $sp.Id -RoleDefinitionName $role -Scope $subscriptionScope -ErrorAction SilentlyContinue
+        $existing = Get-AzRoleAssignment -ObjectId $sp.Id -RoleDefinitionName $role -Scope $scope -ErrorAction SilentlyContinue
         if ($existing)
         {
             Write-Host "  $role already assigned."
         }
-        elseif ($PSCmdlet.ShouldProcess("$role on $subscriptionScope", 'Grant role'))
+        elseif ($PSCmdlet.ShouldProcess("$role on $scope", 'Grant role'))
         {
-            New-AzRoleAssignment -ObjectId $sp.Id -RoleDefinitionName $role -Scope $subscriptionScope | Out-Null
+            New-AzRoleAssignment -ObjectId $sp.Id -RoleDefinitionName $role -Scope $scope | Out-Null
             Write-Host "  Granted $role."
         }
     }
@@ -147,7 +148,7 @@ else
 {
     foreach ($role in $roles)
     {
-        $PSCmdlet.ShouldProcess("$role on $subscriptionScope", 'Grant role') | Out-Null
+        $PSCmdlet.ShouldProcess("$role on $scope", 'Grant role') | Out-Null
     }
 }
 
