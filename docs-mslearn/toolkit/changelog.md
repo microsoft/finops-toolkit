@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 03/03/2026
+ms.date: 03/04/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -50,6 +50,7 @@ The following section lists features and enhancements that are currently in deve
   - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
+  - Added row count check in `msexports_ExecuteETL` pipeline to fix error when export files have no rows ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v14
 
