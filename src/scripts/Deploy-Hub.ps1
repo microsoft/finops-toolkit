@@ -55,8 +55,11 @@
     .PARAMETER Name
     Optional. First positional parameter. Suffix for the "{initials}-{name}" naming convention used for resource group and ADX cluster. Default: "adx".
 
+    .PARAMETER PR
+    Optional. PR number to include in the hub name for easy identification. Used with -Name to form the default hub name "{pr}{name}{initials}" when -HubName is not specified.
+
     .PARAMETER HubName
-    Optional. Name of the hub instance. Default: "hub".
+    Optional. Name of the hub instance. Default: "hub", or "{pr}{name}{initials}" when -PR or -Name is specified.
 
     .PARAMETER ADX
     Optional. Name of the Azure Data Explorer cluster. Overrides the "{initials}-{name}" convention. Only used when not using -StorageOnly or -Fabric.
@@ -97,6 +100,7 @@
 param(
     [Parameter(Position = 0)]
     [string]$Name,
+    [string]$PR,
     [string]$HubName,
     [string]$ADX,
     [string]$ResourceGroup,
@@ -216,8 +220,14 @@ if ($ManagedExports -and -not $Scope)
 # Build parameters
 $params = @{}
 
-# Hub name
+# Hub name — use "{pr}{name}{initials}" when -PR or -Name is specified, otherwise "hub"
 if ($HubName) { $params.hubName = $HubName }
+elseif ($PR -or $PSBoundParameters.ContainsKey('Name'))
+{
+    $explicitName = if ($PSBoundParameters.ContainsKey('Name')) { $Name } else { $null }
+    $hubParts = @($PR, $explicitName, $initials) | Where-Object { $_ }
+    $params.hubName = (($hubParts -join '') -replace '[^a-zA-Z0-9]', '').ToLower()
+}
 else { $params.hubName = "hub" }
 
 # Analytics backend
