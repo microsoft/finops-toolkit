@@ -314,7 +314,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         { // Set Has No Rows
           name: 'Set Has No Rows'
-          description: 'Check the row count '
+          description: 'Check if there are no blobs or no data rows in the export.'
           type: 'SetVariable'
           dependsOn: [
             {
@@ -332,7 +332,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
           typeProperties: {
             variableName: 'hasNoRows'
             value: {
-              value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0))'
+              value: '@or(equals(activity(\'Read Manifest\').output.firstRow.blobCount, null), equals(activity(\'Read Manifest\').output.firstRow.blobCount, 0), and(contains(activity(\'Read Manifest\').output.firstRow, \'dataRowCount\'), or(equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, null), equals(activity(\'Read Manifest\').output.firstRow.dataRowCount, 0))))'
               type: 'Expression'
             }
           }
@@ -952,8 +952,8 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         { // Copy Manifest
           name: 'Copy Manifest'
-          description: 'Copy the manifest to the ingestion container to trigger ADX ingestion'
-          type: 'Copy'
+          description: 'Copy the manifest to the ingestion container to trigger ADX ingestion. Skipped when there are no data rows to avoid triggering downstream ingestion with no parquet files.'
+          type: 'IfCondition'
           dependsOn: [
             {
               activity: 'For Each Blob'
@@ -962,63 +962,78 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               ]
             }
           ]
-          policy: {
-            timeout: '0.12:00:00'
-            retry: 0
-            retryIntervalInSeconds: 30
-            secureOutput: false
-            secureInput: false
-          }
           userProperties: []
           typeProperties: {
-            source: {
-              type: 'JsonSource'
-              storeSettings: {
-                type: 'AzureBlobFSReadSettings'
-                recursive: true
-                enablePartitionDiscovery: false
-              }
-              formatSettings: {
-                type: 'JsonReadSettings'
-              }
+            expression: {
+              value: '@not(variables(\'hasNoRows\'))'
+              type: 'Expression'
             }
-            sink: {
-              type: 'JsonSink'
-              storeSettings: {
-                type: 'AzureBlobFSWriteSettings'
+            ifTrueActivities: [
+              {
+                name: 'Copy Manifest to Ingestion'
+                description: 'Copy the manifest to the ingestion container to trigger ADX ingestion.'
+                type: 'Copy'
+                dependsOn: []
+                policy: {
+                  timeout: '0.12:00:00'
+                  retry: 0
+                  retryIntervalInSeconds: 30
+                  secureOutput: false
+                  secureInput: false
+                }
+                userProperties: []
+                typeProperties: {
+                  source: {
+                    type: 'JsonSource'
+                    storeSettings: {
+                      type: 'AzureBlobFSReadSettings'
+                      recursive: true
+                      enablePartitionDiscovery: false
+                    }
+                    formatSettings: {
+                      type: 'JsonReadSettings'
+                    }
+                  }
+                  sink: {
+                    type: 'JsonSink'
+                    storeSettings: {
+                      type: 'AzureBlobFSWriteSettings'
+                    }
+                    formatSettings: {
+                      type: 'JsonWriteSettings'
+                    }
+                  }
+                  enableStaging: false
+                }
+                inputs: [
+                  {
+                    referenceName: dataFactory::dataset_msexports_manifest.name
+                    type: 'DatasetReference'
+                    parameters: {
+                      fileName: 'manifest.json'
+                      folderPath: {
+                        value: '@pipeline().parameters.folderPath'
+                        type: 'Expression'
+                      }
+                    }
+                  }
+                ]
+                outputs: [
+                  {
+                    referenceName: dataFactory::dataset_ingestion_manifest.name
+                    type: 'DatasetReference'
+                    parameters: {
+                      fileName: 'manifest.json'
+                      folderPath: {
+                        value: '@concat(\'${INGESTION}/\', variables(\'destinationFolder\'))'
+                        type: 'Expression'
+                      }
+                    }
+                  }
+                ]
               }
-              formatSettings: {
-                type: 'JsonWriteSettings'
-              }
-            }
-            enableStaging: false
+            ]
           }
-          inputs: [
-            {
-              referenceName: dataFactory::dataset_msexports_manifest.name
-              type: 'DatasetReference'
-              parameters: {
-                fileName: 'manifest.json'
-                folderPath: {
-                  value: '@pipeline().parameters.folderPath'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-          outputs: [
-            {
-              referenceName: dataFactory::dataset_ingestion_manifest.name
-              type: 'DatasetReference'
-              parameters: {
-                fileName: 'manifest.json'
-                folderPath: {
-                  value: '@concat(\'${core.containers.ingestion}/\', variables(\'destinationFolder\'))'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
         }
       ]
       parameters: {

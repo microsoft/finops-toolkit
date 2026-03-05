@@ -51,6 +51,7 @@ The following section lists features and enhancements that are currently in deve
   - Added typed metadata contracts between hub apps to formalize dependency management and enable compile-time verification of inter-app interfaces.
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
+  - Added row count check in `msexports_ExecuteETL` pipeline to fix error when export files have no rows ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v14
 
