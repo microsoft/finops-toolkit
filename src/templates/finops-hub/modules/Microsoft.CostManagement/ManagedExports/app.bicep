@@ -13,7 +13,7 @@ metadata hubApp = {
     'Microsoft.FinOpsHubs.Core'
     'Microsoft.CostManagement.Exports'
   ]
-  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.CostManagement/ManagedExports/metadata.bicep'
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.CostManagement/ManagedExports/metadata.bicep'
 }
 
 
@@ -94,7 +94,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   }
 
   resource trigger_DailySchedule 'triggers' = {
-    name: '${core.datasets.config}_DailySchedule'
+    name: '${core.containers.config}_DailySchedule'
     properties: {
       pipelines: [
         {
@@ -120,7 +120,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   }
 
   resource trigger_MonthlySchedule 'triggers' = {
-    name: '${core.datasets.config}_MonthlySchedule'
+    name: '${core.containers.config}_MonthlySchedule'
     properties: {
       pipelines: [
         {
@@ -156,7 +156,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // config_StartBackfillProcess pipeline
   //----------------------------------------------------------------------------
   resource pipeline_StartBackfillProcess 'pipelines' = {
-    name: '${core.datasets.config}_StartBackfillProcess'
+    name: '${core.containers.config}_StartBackfillProcess'
     properties: {
       activities: [
         { // Get Config
@@ -417,7 +417,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by config_StartBackfillProcess pipeline
   //----------------------------------------------------------------------------
   resource pipeline_RunBackfillJob 'pipelines' = {
-    name: '${core.datasets.config}_RunBackfillJob'
+    name: '${core.containers.config}_RunBackfillJob'
     properties: {
       activities: [
         { // Get Config
@@ -664,7 +664,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by config_DailySchedule/MonthlySchedule triggers
   //----------------------------------------------------------------------------
   resource pipeline_StartExportProcess 'pipelines' = {
-    name: '${core.datasets.config}_StartExportProcess'
+    name: '${core.containers.config}_StartExportProcess'
     properties: {
       activities: [
         { // Get Config
@@ -905,7 +905,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by pipeline_StartExportProcess pipeline
   //----------------------------------------------------------------------------
   resource pipeline_RunExportJobs 'pipelines' = {
-    name: '${core.datasets.config}_RunExportJobs'
+    name: '${core.containers.config}_RunExportJobs'
     dependsOn: [
       dataset_config
     ]
@@ -1001,7 +1001,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by config_SettingsUpdated trigger
   //----------------------------------------------------------------------------
   resource pipeline_ConfigureExports 'pipelines' = {
-    name: '${core.datasets.config}_ConfigureExports'
+    name: '${core.containers.config}_ConfigureExports'
     properties: {
       activities: [
         { // Get Config
@@ -1707,7 +1707,7 @@ module trigger_SettingsUpdated '../../fx/hub-eventTrigger.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_SettingsUpdatedTrigger'
   params: {
     dataFactoryName: dataFactory.name
-    triggerName: '${core.datasets.config}_SettingsUpdated'
+    triggerName: '${core.containers.config}_SettingsUpdated'
 
     // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.SettingsUpdated'
     pipelineName: dataFactory::pipeline_ConfigureExports.name

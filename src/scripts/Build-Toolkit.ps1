@@ -294,7 +294,7 @@ $templates | ForEach-Object {
         if ($content -match '\$\$ftkver\$\$')
         {
             Write-Verbose "    Replacing version in: $($_.FullName.Replace($destDir, ''))"
-            $content -replace '\$\$ftkver\$\$', $ver | Out-File $_.FullName -NoNewline
+            $content -replace '\$\$ftkver\$\$', $ver | Out-File $_.FullName -NoNewline -Encoding utf8
             $replacedCount++
         }
     }

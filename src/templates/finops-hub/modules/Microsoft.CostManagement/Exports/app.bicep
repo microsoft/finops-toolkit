@@ -11,7 +11,7 @@ metadata hubApp = {
   dependencies: [
     'Microsoft.FinOpsHubs.Core'
   ]
-  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.CostManagement/Exports/metadata.bicep'
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.CostManagement/Exports/metadata.bicep'
 }
 
 
@@ -1591,7 +1591,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
               referenceName: dataFactory::dataset_config.name
               type: 'DatasetReference'
               parameters: {
-                fileName: 'settings.json'
+                fileName: core.settings.file
                 folderPath: core.containers.config
               }
             }

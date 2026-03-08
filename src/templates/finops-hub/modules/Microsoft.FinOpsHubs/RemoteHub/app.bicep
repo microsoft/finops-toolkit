@@ -8,7 +8,6 @@ metadata hubApp = {
   id: 'Microsoft.FinOpsHubs.RemoteHub'
   version: '$$ftkver$$'
   dependencies: ['Microsoft.FinOpsHubs.Core']
-  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.FinOpsHubs/RemoteHub/metadata.bicep'
 }
 
 

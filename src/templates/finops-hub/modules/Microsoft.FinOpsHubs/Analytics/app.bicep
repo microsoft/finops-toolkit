@@ -9,7 +9,7 @@ metadata hubApp = {
   id: 'Microsoft.FinOpsHubs.Analytics'
   version: '$$ftkver$$'
   dependencies: ['Microsoft.FinOpsHubs.Core']
-  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.FinOpsHubs/Analytics/metadata.bicep'
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.FinOpsHubs/Analytics/metadata.bicep'
 }
 
 
@@ -1215,7 +1215,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
             referenceName: core.datasets.config
             type: 'DatasetReference'
             parameters: {
-              fileName: 'settings.json'
+              fileName: core.settings.file
               folderPath: core.containers.config
             }
           }

@@ -162,10 +162,12 @@ function Copy-TemplateFiles()
                     {
                         throw "Package manifest references source folder '$($_.sourceFolder)' that does not exist: $srcFolder"
                     }
-                    Get-ChildItem $srcFolder -Include $_.source -Recurse:$_.recurse | ForEach-Object {
+                    Get-ChildItem "$srcFolder/*" -Include $_.source -Recurse:$_.recurse | ForEach-Object {
                         if ($destPath -eq '*')
                         {
-                            $relativeDest = "$targetDir/$($_.FullName.Replace($srcFolder, ''))"
+                            $normalizedSrc = $srcFolder.Replace('\', '/')
+                            $normalizedFull = $_.FullName.Replace('\', '/')
+                            $relativeDest = "$targetDir/$($normalizedFull.Replace($normalizedSrc, ''))"
                             $destDir = Split-Path $relativeDest -Parent
                             if ($destDir) { & "$PSScriptRoot/New-Directory" $destDir }
                             Copy-Item $_ $relativeDest -Force

@@ -8,7 +8,7 @@ metadata hubApp = {
   id: 'Microsoft.FinOpsHubs.Core'
   version: '$$ftkver$$'
   dependencies: []
-  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/$$ftkver$$/Microsoft.FinOpsHubs/Core/metadata.bicep'
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.FinOpsHubs/Core/metadata.bicep'
 }
 
 
@@ -44,6 +44,7 @@ param finalRetentionInMonths int = 13
 var CONFIG = 'config'
 var INGESTION = 'ingestion'
 var INGESTION_ID_SEPARATOR = '__'
+var SETTINGS_FILE = 'settings.json'
 
 // Workaround for Bicep warning when using "ResourceId" in property names
 var armEndpointPropertyName = 'aadResourceId'
@@ -183,7 +184,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       parameters: {
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: SETTINGS_FILE
         }
         folderPath: {
           type: 'String'
@@ -357,8 +358,7 @@ output metadata CoreMetadata = {
   }
   settings: {
     container: CONFIG
-    folder: ''
-    file: dataFactory::dataset_config.properties.parameters.fileName.defaultValue
+    file: SETTINGS_FILE
   }
 }
 

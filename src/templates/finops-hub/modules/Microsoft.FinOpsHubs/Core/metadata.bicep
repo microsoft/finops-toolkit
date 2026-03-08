@@ -46,8 +46,6 @@ type AppMetadata = {
   settings: {
     @description('Container name for the hub settings file.')
     container: string
-    @description('Folder path for the hub settings file within the container.')
-    folder: string
     @description('File name of the hub settings file.')
     file: string
   }
