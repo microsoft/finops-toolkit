@@ -384,7 +384,8 @@ Use the following ARG query to identify NAT gateways not associated with any sub
 
 ```kusto
 resources
-| where type == "microsoft.network/natgateways" and isnull(properties.subnets)
+| where type == "microsoft.network/natgateways"
+| where isnull(properties.subnets) or array_length(properties.subnets) == 0
 | project
     id,
     GWName = name,
@@ -392,7 +393,7 @@ resources
     SKUTier = tostring(sku.tier),
     Location = location,
     resourceGroup = tostring(strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)),
-    subnet = tostring(properties.subnet),
+    subnets = properties.subnets,
     subscriptionId
 ```
 
