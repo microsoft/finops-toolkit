@@ -26,6 +26,10 @@ configuration:
                   - payloadType: Pull_Request_Review
                   - isReviewState:
                       reviewState: Changes_requested
+              - and:
+                  - payloadType: Pull_Request_Review
+                  - isReviewState:
+                      reviewState: Commented
           - not:
               targetsBranch:
                 branch: main
