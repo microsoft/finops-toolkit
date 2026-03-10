@@ -1,7 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { finOpsToolkitVersion, HubAppProperties } from '../../fx/hub-types.bicep'
+import { finOpsToolkitVersion, HubAppProperties, privateRoutingForLinkedServices } from '../../fx/hub-types.bicep'
+import { AppMetadata as CoreMetadata } from './metadata.bicep'
+
+metadata hubApp = {
+  id: 'Microsoft.FinOpsHubs.Core'
+  version: '$$ftkver$$'
+  dependencies: []
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.FinOpsHubs/Core/metadata.bicep'
+}
 
 
 //==============================================================================
@@ -35,6 +43,11 @@ param finalRetentionInMonths int = 13
 
 var CONFIG = 'config'
 var INGESTION = 'ingestion'
+var INGESTION_ID_SEPARATOR = '__'
+var SETTINGS_FILE = 'settings.json'
+
+// Workaround for Bicep warning when using "ResourceId" in property names
+var armEndpointPropertyName = 'aadResourceId'
 
 
 //==============================================================================
@@ -133,7 +146,7 @@ module uploadSettings '../../fx/hub-deploymentScript.bicep' = {
       }
       {
         name: 'containerName'
-        value: 'config'
+        value: CONFIG
       }
     ]
   }
@@ -171,7 +184,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       parameters: {
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: SETTINGS_FILE
         }
         folderPath: {
           type: 'String'
@@ -238,7 +251,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   }
 
   resource dataset_ingestion_manifest 'datasets' = {
-    name: 'ingestion_manifest'
+    name: '${INGESTION}_manifest'
     properties: {
       annotations: []
       parameters: {
@@ -274,6 +287,34 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   }
 }
 
+//------------------------------------------------------------------------------
+// Shared linked services
+//------------------------------------------------------------------------------
+
+// Azure Resource Manager REST linked service
+// Shared by any app that needs to call ARM REST APIs (e.g., Azure Resource Graph, Resource Manager, etc.)
+resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+  name: 'azurerm'
+  parent: dataFactory
+  properties: {
+    annotations: []
+    parameters: {}
+    type: 'RestService'
+    typeProperties: union(
+      {
+        url: environment().resourceManager
+        authenticationType: 'ManagedServiceIdentity'
+        enableServerCertificateValidation: true
+      },
+      {
+        // Workaround: When bicep sees "ResourceId" in the property name, it raises a warning
+        '${armEndpointPropertyName}': environment().resourceManager
+      }
+    )
+    ...privateRoutingForLinkedServices(app.hub)
+  }
+}
+
 //==============================================================================
 // Outputs
 //==============================================================================
@@ -292,8 +333,32 @@ output storageAccountName string = app.storage
 @description('URL to use when connecting custom Power BI reports to your data.')
 output storageUrlForPowerBI string = 'https://${app.storage}.dfs.${environment().suffixes.storage}/${INGESTION}'
 
-@description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output principalId string = dataFactory.identity.principalId
-
 @description('Name of the managed identity used to create and stop ADF triggers.')
 output triggerManagerIdentityName string = appRegistration.outputs.triggerManagerIdentityName
+
+@description('Metadata describing shared resources created by the Core app.')
+output metadata CoreMetadata = {
+  id: 'Microsoft.FinOpsHubs.Core'
+  version: finOpsToolkitVersion
+  storageUrlForPowerBI: 'https://${app.storage}.dfs.${environment().suffixes.storage}/${INGESTION}'
+  principalId: dataFactory.identity.principalId
+  ingestionIdFileNameSeparator: INGESTION_ID_SEPARATOR
+  containers: {
+    config: configContainer.outputs.containerName
+    ingestion: ingestionContainer.outputs.containerName
+  }
+  datasets: {
+    config: dataFactory::dataset_config.name
+    ingestion: dataFactory::dataset_ingestion.name
+    ingestionFiles: dataFactory::dataset_ingestion_files.name
+    ingestionManifest: dataFactory::dataset_ingestion_manifest.name
+  }
+  linkedServices: {
+    azurerm: linkedService_arm.name
+  }
+  settings: {
+    container: CONFIG
+    file: SETTINGS_FILE
+  }
+}
+
