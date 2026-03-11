@@ -369,6 +369,7 @@ table PolicyAssignments
 				  query = "
 				    policyResources
 				    | where type =~'Microsoft.Authorization/PolicyAssignments'
+				    | extend subscriptionId = tostring(split(id, '/')[2])
 				    | extend
 				      ['properties.policyDefinitionId'] = properties.policyDefinitionId,
 				      ['properties.effectiveDefinitionVersion'] = properties.effectiveDefinitionVersion,
@@ -400,10 +401,10 @@ table PolicyAssignments
 				      ['identity.tenantId'] = identity.tenantId,
 				      ['identity.type'] = identity.type
 				    | mv-expand ['properties.notScopes']
-				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  ",
+				  Source = ftk_QueryARG(query, 2),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 							#table(
 								{ "id", "name", "location", "resourceGroup", "properties.policyDefinitionId", "properties.effectiveDefinitionVersion", "properties.latestDefinitionVersion", "properties.nonComplianceMessages", "properties.definitionVersion", "properties.resourceSelectors", "properties.enforcementMode", "properties.assignmentType", "properties.description", "properties.displayName", "properties.parameters", "properties.notScopes", "properties.overrides", "properties.metadata", "properties.scope", "properties.metadata.createdOn", "properties.metadata.createdBy", "properties.metadata.assignedBy", "properties.metadata.parameterScopes", "properties.metadata.updatedOn", "properties.metadata.updatedBy", "properties.metadata.category", "properties.metadata.managedByResourceId", "properties.metadata.securityCenter", "properties.metadata.excludedOutOfTheBoxStandards", "identity.userAssignedIdentities", "identity.principalId", "identity.tenantId", "identity.type" },
 								{}

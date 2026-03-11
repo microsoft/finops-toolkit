@@ -364,10 +364,10 @@ table SqlDatabases
 				      ['properties.currentSku'] = properties.currentSku,
 				      ['properties.readScale'] = properties.readScale,
 				      ['properties.maxLogSizeBytes'] = properties.maxLogSizeBytes
-				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  ",
+				  Source = ftk_QueryARG(query, 5),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 				      #table(
 				        { "id", "name", "sku.name", "sku.tier", "sku.capacity", "sku.family", "location", "resourceGroup", "properties.status", "properties.requestedBackupStorageRedundancy", "properties.currentBackupStorageRedundancy", "properties.requestedServiceObjectiveName", "properties.currentServiceObjectiveName", "properties.maintenanceConfigurationId", "properties.defaultSecondaryLocation", "properties.isInfraEncryptionEnabled", "properties.earliestRestoreDate", "properties.zoneRedundant", "properties.availabilityZone", "properties.catalogCollation", "properties.creationDate", "properties.collation", "properties.licenseType", "properties.maxSizeBytes", "properties.isLedgerOn", "properties.databaseId", "properties.currentSku", "properties.readScale", "properties.maxLogSizeBytes" },
 				        {}

@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 03/04/2026
+ms.date: 03/11/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -69,6 +69,11 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
   - Addressed minor lint warnings across PowerShell commands.
+
+### [Power BI reports](power-bi/reports.md) v14
+
+- **Fixed**
+  - Paginate Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)).
 
 <br>
 
