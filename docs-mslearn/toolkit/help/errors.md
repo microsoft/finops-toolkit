@@ -747,54 +747,51 @@ Azure Resource Graph queries in the Governance and Workload optimization Power B
 
 > _OLE DB or ODBC error: [Expression.Error] Please provide below info when asking for support: timestamp = {timestamp}, correlationId = {guid}. Details: Response payload size is {number}, and has exceeded the limit of 16777216. Please consider querying less data at a time and make paginated call if needed._
 
-This error means that you have more resources than are supported in an unfiltered Resource Graph query. This happens because FinOps toolkit reports are designed to show resource-level details and are not aggregated. They are designed for small and medium-sized environments and not designed to support organizations with millions of resources.
+Azure Resource Graph enforces a 16 MB response payload limit per query. FinOps toolkit reports automatically paginate queries in batches of subscriptions (default: 100 per batch) to stay within this limit, so most environments should not encounter this error. If you still see it, it means the resources in a single batch of subscriptions exceed the 16 MB limit.
 
-**Mitigation**: If you experience this error, there are several options:
+**Mitigation**: Try the following options in order:
 
-### Option 1: Filter by subscription
+### Option 1: Reduce the batch size
 
-Modify the Azure Resource Graph queries to filter by specific subscriptions:
+Reduce the number of subscriptions queried in each batch:
+
+1. Open Power BI Desktop and select **Transform data** from the ribbon.
+2. In the **Queries** pane on the left, expand the **Functions** folder.
+3. Select the **ftk_ARGBatchSize** function.
+4. Change the return value from `100` to a smaller number (e.g., `20` or `10`).
+5. Select **Close & Apply** to save changes.
+
+### Option 2: Filter by resource group or tags
+
+Add a filter clause to the failing query to reduce the number of resources returned:
 
 1. Open Power BI Desktop and select **Transform data** from the ribbon.
 2. In the **Queries** pane on the left, expand the **Resource Graph** folder.
 3. Select the query that's failing (e.g., **NetworkSecurityGroups**, **Resources**).
 4. In the query editor, find the `query = "` section in the formula bar.
-5. Add a filter clause to the query. For example, to filter by subscription:
+5. Add a filter clause after the `| where type` line and before any `| extend` clauses. For example:
 
    ```kusto
-   | where subscriptionId in~ ('subscription-id-1', 'subscription-id-2')
+   | where resourceGroup in~ ('rg-production', 'rg-staging')
    ```
 
-   Add this line after the `resources` line and before any `| extend` clauses.
+   Or filter by tags:
+
+   ```kusto
+   | where tags.Environment =~ 'Production'
+   ```
 
 6. Select **Close & Apply** to save changes.
-
-### Option 2: Filter by tags
-
-If your resources use tags to organize by environment, cost center, or other criteria, you can filter by tags:
-
-1. Follow steps 1-4 from Option 1.
-2. Add a tag filter to the query:
-
-   ```kusto
-   | where tags.Environment in~ ('Production', 'Staging')
-   ```
-
-   Or filter by multiple tag conditions:
-
-   ```kusto
-   | where tags.CostCenter == '12345' and tags.Environment =~ 'Production'
-   ```
 
 ### Option 3: Remove unnecessary columns
 
 Reduce the payload size by removing columns you don't need:
 
-1. Open the query in Power Query Editor (steps 1-3 from Option 1).
+1. Open the query in Power Query Editor (steps 1-3 from Option 2).
 2. In the query text, remove column names from the `extend` or `project` statements that you don't need for your analysis.
 3. Be careful not to remove columns that are used in report visuals or relationships.
 
-### Option 4: Disable problematic queries
+### Option 4: Disable the failing query
 
 If a specific query consistently fails and isn't critical to your needs:
 
@@ -802,9 +799,7 @@ If a specific query consistently fails and isn't critical to your needs:
 2. Uncheck **Enable load** to prevent the query from loading data.
 3. The query will remain in the report but won't execute during refresh.
 
-For more information about Azure Resource Graph limits and pagination, see:
-- [Working with large Azure resource data sets](/azure/governance/resource-graph/concepts/work-with-data)
-- [Troubleshoot errors using Azure Resource Graph](/azure/governance/resource-graph/troubleshoot/general)
+For more information about Azure Resource Graph limits, see [Working with large Azure resource data sets](/azure/governance/resource-graph/concepts/work-with-data).
 
 <br>
 

@@ -89,6 +89,45 @@ expression ftk_DemoFilter =
 
 	annotation PBI_ResultType = Function
 
+/// Number of subscriptions to include in each Azure Resource Graph query batch. Decrease if you experience payload limit errors. Default: 100.
+expression ftk_ARGBatchSize = () => 100
+	lineageTag: f7a1b2c3-d4e5-6789-0abc-def123456789
+	queryGroup: Functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+/// Queries Azure Resource Graph in batches of subscriptions and combines results to avoid the 16 MB payload limit.
+expression ftk_QueryARG =
+		(query as text) =>
+		    let
+		      batchSize = ftk_ARGBatchSize(),
+		      subQuery = "resourcecontainers | where type == 'microsoft.resources/subscriptions' | project subscriptionId" & ftk_DemoFilter(),
+		      Subscriptions = AzureResourceGraph.Query(subQuery, "Tenant", null, null, [resultTruncated = false]),
+		      SubscriptionIds = Subscriptions[subscriptionId],
+		      BatchCount = Number.RoundUp(List.Count(SubscriptionIds) / batchSize),
+		      Batches = List.Transform({0..BatchCount-1}, each
+		        let
+		          batchStart = _ * batchSize,
+		          batchIds = List.Range(SubscriptionIds, batchStart, List.Min({batchSize, List.Count(SubscriptionIds) - batchStart})),
+		          subFilter = " | where subscriptionId in (" & Text.Combine(List.Transform(batchIds, each "'" & _ & "'"), ",") & ")",
+		          fullQuery = query & subFilter,
+		          Source = AzureResourceGraph.Query(fullQuery, "Tenant", null, null, [resultTruncated = false])
+		        in
+		          if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then null else Source
+		      ),
+		      Filtered = List.RemoveNulls(Batches),
+		      Combined = if List.Count(Filtered) > 0 then Table.Combine(Filtered) else null
+		    in
+		      Combined
+	lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+	queryGroup: Functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
 /// URI of the FinOps hub Azure Data Explorer cluster to pull data from. Copy from the "clusterUri" deployment output.
 /// 
 /// Pro tip: As a shortcut, you can alternatively use the "{name}.{region}" subset of the URI.
@@ -114,14 +153,15 @@ expression PolicyDefinitions =
 		  query = "
 		  policyResources
 		  | where type =='microsoft.authorization/policydefinitions'
-		  | extend displayName = properties.displayName,
+		  | extend
+		      subscriptionId = tostring(split(id, '/')[2]),
+		      displayName = properties.displayName,
 		      description = properties.description,
 		      version = properties.version
-		    | project subscriptionId, id, name, displayName, description, version"
-		  & ftk_DemoFilter(),
-		  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+		    | project subscriptionId, id, name, displayName, description, version",
+		  Source = ftk_QueryARG(query),
 		  NullHandling =
-		    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+		    if Source = null then
 					#table(
 						{ "subscriptionId", "id", "name", "displayName", "description", "version" },
 						{}

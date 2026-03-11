@@ -344,6 +344,7 @@ table PolicyStates
 				  query = "
 				    policyResources
 				    | where type =~'Microsoft.PolicyInsights/PolicyStates'
+				    | extend subscriptionId = tostring(split(id, '/')[2])
 				    | extend
 				      ['properties.policyAssignmentParameters'] = properties.policyAssignmentParameters,
 				      ['properties.policyDefinitionAction'] = properties.policyDefinitionAction,
@@ -369,10 +370,10 @@ table PolicyStates
 				      ['properties.policyDefinitionGroupNames'] = properties.policyDefinitionGroupNames,
 				      ['properties.complianceReasonCode'] = properties.complianceReasonCode,
 				      ['properties.stateDetails'] = properties.stateDetails
-				  " & ftk_DemoFilter(),
-				  Source = AzureResourceGraph.Query(query, "Tenant", null, null, [resultTruncated = false]),
+				  ",
+				  Source = ftk_QueryARG(query),
 				  NullHandling =
-				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
+				    if Source = null then
 							#table(
 								{ "id", "name", "location", "resourceGroup", "properties.policyAssignmentParameters", "properties.policyDefinitionAction", "properties.policyAssignmentScope", "properties.policyAssignmentName", "properties.policyDefinitionName", "properties.policyDefinitionReferenceId", "properties.policyDefinitionId", "properties.managementGroupIds", "properties.policyAssignmentId", "properties.policySetDefinitionName", "properties.complianceState", "properties.policySetDefinitionId", "properties.subscriptionId", "properties.resourceType", "properties.stateWeight", "properties.resourceGroup", "properties.resourceId", "properties.timestamp", "properties.isDeleted", "properties.resourceLocation", "properties.policySetDefinitionCategory", "properties.policyDefinitionGroupNames", "properties.complianceReasonCode", "properties.stateDetails" },
 								{}

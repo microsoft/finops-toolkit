@@ -72,8 +72,8 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Power BI reports](power-bi/reports.md) v14
 
-- **Added**
-  - Document [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) mitigation guidance and known limitations to the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) report docs ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)).
+- **Fixed**
+  - Paginate Azure Resource Graph queries by subscription to mitigate [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) errors in the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) reports ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)).
 
 <br>
 

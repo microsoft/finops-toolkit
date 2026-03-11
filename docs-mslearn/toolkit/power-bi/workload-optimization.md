@@ -81,9 +81,9 @@ The chart shows the cost of each disk over time. The table shows the disks with 
 
 ## Known limitations
 
-The Workload optimization report uses Azure Resource Graph to query resource details. Azure Resource Graph has a response payload limit of 16 MB per query. The report is designed for small and medium-sized environments and may not work for organizations with millions of resources.
+The Workload optimization report uses Azure Resource Graph to query resource details. Azure Resource Graph has a response payload limit of 16 MB per query. The report automatically paginates queries in batches of subscriptions to stay within this limit, but may not work for large environments where a single batch exceeds the limit.
 
-If you experience a "Response payload size... exceeded the limit" error, try filtering queries to specific subscriptions or removing unnecessary columns. For detailed steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
+If you experience a "Response payload size... exceeded the limit" error, open the report in Power BI Desktop, go to the Power Query editor, and reduce the value returned by the `ftk_ARGBatchSize` function (default: 100). For detailed steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
 
 <br>
 
