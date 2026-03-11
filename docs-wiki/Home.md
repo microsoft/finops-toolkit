@@ -2,14 +2,16 @@
 
 **Welcome aboard!** 👋 If this is your first time to our repo, here are a few tips:
 
+> 💡 **Join us!** We host a weekly contributor sync on Wednesdays at 8 AM Pacific / 4 PM UTC. [Add to calendar][contributor-sync] to stay connected with the team.
+
 - Every folder has a README that explains its purpose.
 - If you want to know how to deploy a FinOps toolkit solution, start with the [documentation](https://aka.ms/finops/toolkit).
-- If you want to know how you can contribute, check out the [contribution guide](https://github.com/microsoft/finops-toolkit/tree/dev/CONTRIBUTING.md).
-- If you want to get started with the code, start in the [wiki](https://github.com/microsoft/finops-toolkit/wiki). &nbsp; **← YOU ARE HERE**
+- If you want to know how you can contribute, check out the [contribution guide](../tree/dev/CONTRIBUTING.md).
+- If you want to get started with the code, start in the [wiki](../wiki). &nbsp; **← YOU ARE HERE**
 - Read about our [[Architecture]] for context on technologies and structure.
 - Review our [[Coding guidelines]] before you write/review code.
 - Review the guidance below for how to contribute code.
-- When you're ready to dig into code, you'll check the [src](https://github.com/microsoft/finops-toolkit/tree/dev/src) folder.
+- When you're ready to dig into code, you'll check the [src](../tree/dev/src) folder.
 
 <br>
 
@@ -27,7 +29,7 @@ On this page:
 
 ## 🛫 Get started
 
-There are many ways to contribute to the FinOps toolkit project, like reporting issues, suggesting features, and submitting or reviewing pull requests. For an overview, refer to the [contribution guide](../CONTRIBUTING.md). This page covers how to contribute to the code.
+There are many ways to contribute to the FinOps toolkit project, like reporting issues, suggesting features, and submitting or reviewing pull requests. For an overview, refer to the [contribution guide](../tree/dev/CONTRIBUTING.md). This page covers how to contribute to the code.
 
 After cloning and building the repo, check out the [issues list](../issues):
 
@@ -185,3 +187,5 @@ As a reminder, smaller PRs are closed quicker. If your PR has less than 20 lines
 Congratulations on your first PR! Hopefully it won't be your last!
 
 Once your PR is merged, changes are usually deployed the following week in the Azure portal. Note that changes behind a feature flag must be manually enabled or enabled for rollout within the host portal. In general, all new features are rolled out via experimentation within the Azure portal, so they may not be available immediately.
+
+[contributor-sync]: https://aka.ms/ftk/contrib-sync

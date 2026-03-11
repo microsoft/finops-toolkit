@@ -1,4 +1,4 @@
-# Copyright (c) Microsoft Corporation.
+﻿# Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
 <#
@@ -53,7 +53,7 @@
 function Start-FinOpsCostExport
 {
     [OutputType([bool])]
-    [cmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -140,12 +140,18 @@ function Start-FinOpsCostExport
     $body = $null
     if ($StartDate)
     {
-        Write-Verbose "Exporting dates configured on the export definition"
+        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
     }
     else
     {
-        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
+        Write-Verbose "Exporting dates configured on the export definition"
     }
+
+    if (-not $PSCmdlet.ShouldProcess($Name, 'Run cost export'))
+    {
+        return $false
+    }
+
     do
     {
         # Report progress
@@ -173,7 +179,7 @@ function Start-FinOpsCostExport
                 $firstDay = $StartDate
                 $lastDay = $EndDate
             }
-            
+
             # Ensure end date is not in the future
             $today = (Get-Date).ToUniversalTime().Date
             if ($lastDay -ge $today)
@@ -181,7 +187,7 @@ function Start-FinOpsCostExport
                 Write-Verbose "Adjusting end date to yesterday as it cannot be in the future."
                 $lastDay = $today.AddDays(-1)
             }
-            
+
             $body = @{ timePeriod = @{ from = $firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'"); to = $lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } }
             Write-Verbose "Executing $($firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")) to $($lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")) export $runpath"
         }
@@ -195,7 +201,7 @@ function Start-FinOpsCostExport
         {
             Write-Verbose "Export executed successfully"
         }
-        else
+        elseif (-not $response.Throttled)
         {
             Write-Error "Export failed to execute: ($($response.Content.error.code)) $($response.Content.error.message)"
         }
@@ -224,7 +230,7 @@ function Start-FinOpsCostExport
         {
             # If not retrying, then track the success
             $success = $success -and $response.Success
-            
+
             # Only increment month if not throttled
             $monthToExport += 1
         }

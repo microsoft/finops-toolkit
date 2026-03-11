@@ -368,3 +368,5 @@ venv/
 ENV/
 env/
 
+# AI
+.claude/settings.local.json

@@ -32,7 +32,7 @@ cd "<repo-root>"
 src/scripts/Build-Toolkit "<template-name>"
 ```
 
-To build all templates and modules, simply remove the template name or run `npm run build`, if you have NPM setup. To learn more about the build script, see [Build-Toolkit](https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-toolkit).
+To build all templates and modules, simply remove the template name or run `npm run build`, if you have NPM setup. To learn more about the build script, see [Build-Toolkit](../tree/dev/src/scripts/README.md#-build-toolkit).
 
 To build and deploy templates, run:
 
@@ -41,9 +41,9 @@ cd "<repo-root>"
 src/scripts/Deploy-Toolkit "<template-name>" -Build
 ```
 
-For more local deployment options, see [Deploy-Toolkit](https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-toolkit).
+For more local deployment options, see [Deploy-Toolkit](../tree/dev/src/scripts/README.md#-deploy-toolkit).
 
-To learn more, see [FinOps toolkit templates](https://github.com/microsoft/finops-toolkit/blob/dev/src/templates/README.md).
+To learn more, see [FinOps toolkit templates](../tree/dev/src/templates/README.md).
 
 ### Building workbooks
 
@@ -65,7 +65,7 @@ src/scripts/Deploy-Toolkit "<workbook-name>-workbook" -Build
 
 The Build-Toolkit script calls an internal Build-Workbook script, which does all the work. You can also call this directly; however, we recommend running the Build-Toolkit script for a complete build process.
 
-To learn more, see [Workbook modules](https://github.com/microsoft/finops-toolkit/blob/dev/src/workbooks/README.md).
+To learn more, see [Workbook modules](../tree/dev/src/workbooks/README.md).
 
 ### Building Bicep Registry modules
 
@@ -92,7 +92,7 @@ cd "<repo-root>"
 src/scripts/Deploy-Toolkit "<module-name>" -Build -Test
 ```
 
-To learn more, see [Bicep Registry modules](https://github.com/microsoft/finops-toolkit/blob/dev/src/bicep-registry/README.md).
+To learn more, see [Bicep Registry modules](../tree/dev/src/bicep-registry/README.md).
 
 ### Building open data files
 
@@ -104,7 +104,7 @@ To build open data, run:
 src/Build-OpenData
 ```
 
-To learn more about open data, see [Open data](https://github.com/microsoft/finops-toolkit/blob/dev/src/open-data/README.md).
+To learn more about open data, see [Open data](../tree/dev/src/open-data/README.md).
 
 ### Building PowerShell
 

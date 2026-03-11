@@ -3,7 +3,7 @@ title: FinOps toolkit overview
 description: Learn how the FinOps toolkit helps you automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to improve FinOps practices.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 02/24/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what the FinOps toolkit is and how it help me automate and extend the Microsoft Cloud.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # FinOps toolkit overview
 
 The Microsoft FinOps toolkit is an open-source collection of learning resources and customizable tools to help you adopt and implement FinOps capabilities that automate and extend the Microsoft Cloud. It includes:
@@ -42,8 +41,10 @@ The FinOps toolkit is an ever-evolving collection of tools and resources. The fo
   - [Services](open-data.md#services) – Microsoft consumed services, resource types, and FOCUS service categories.
   - [Sample exports](open-data.md#dataset-examples) – Sample files from Cost Management exports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download](https://aka.ms/ftk/latest)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -61,8 +62,12 @@ If you have any questions or comments on past or future releases, [join the conv
 
 The FinOps toolkit is an open source project. We have many ideas on the long-term vision, but are more interested in learning from the community to drive the product direction. There are many ways you can contribute to the project. You can participate in discussions and request features to review and submitting pull requests.
 
+Join our [biweekly office hours](https://aka.ms/ftk/office-hours) to ask questions and get live help from the team. Contributors can also join the [weekly contributor sync](https://aka.ms/ftk/contrib-sync) on Wednesdays at 8 AM Pacific / 4 PM UTC.
+
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [How to contribute](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -70,8 +75,10 @@ The FinOps toolkit is an open source project. We have many ideas on the long-ter
 
 All the main changes are tracked in the changelog. For more information, see the commit history.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Explore the changelog](changelog.md)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -79,13 +86,17 @@ All the main changes are tracked in the changelog. For more information, see the
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Toolkit/featureName/Overview)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

@@ -71,10 +71,9 @@ Status icons:
   - [ ] Confirm all tests pass: `<root>/src/scripts/Test-PowerShell.ps1 -Unit -Integration -Build`.
   - [ ] Confirm if all features are code complete and not missing any functionality required for release.
     > _Once in `dev`, the feature is considered part of the next release and can be pushed out at any time. Any broken features will be reverted._
-  - [ ] Confirm new or updated functionality is documented in the [changelog](https://github.com/microsoft/finops-toolkit/blob/dev/docs/changelog.md).
-    > _See [Changelog guidance](#-changelog-guidance) for details about changelog requirements._
+  - [ ] Confirm new or updated functionality is documented in the [changelog](https://github.com/microsoft/finops-toolkit/blob/dev/docs-mslearn/toolkit/changelog.md).
   - [ ] Confirm new or updated functionality must be documented in the [documentation](https://github.com/microsoft/finops-toolkit/blob/dev/docs).
-  - [ ] If adding a new tool, update the [list of available tools](https://github.com/microsoft/finops-toolkit/tree/dev/docs#-available-tools) on the documentation home page.
+  - [ ] If adding a new tool, update the [list of available tools](https://aka.ms/finops/toolkit#available-tools) on the documentation home page.
 - [ ] Merge any feature branches that are ready to `dev`.
   - [ ] Create a PR to merge the feature branch into `dev`.
   - [ ] Follow the normal PR process to merge the PR.
@@ -83,7 +82,7 @@ Status icons:
 
 ## 🔜 Finalize release
 
-- [ ] Review the [changelog](../docs/_resources/changelog.md) to ensure it encapsulates all changes.
+- [ ] Review the [changelog](https://github.com/microsoft/finops-toolkit/blob/dev/docs-mslearn/toolkit/changelog.md) to ensure it encapsulates all changes.
   - Move all released changes to an official numbered version section.
   - If there are committed changes in a feature branch that you want to mention, add them to an "Unreleased" section.
 - [ ] Update the version.

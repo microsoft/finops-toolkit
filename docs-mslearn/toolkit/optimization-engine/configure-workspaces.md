@@ -3,7 +3,7 @@ title: Configure workspaces
 description: Include the VM performance logs available in your Log Analytics workspaces to get deeper insights and more accurate results.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 02/24/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to understand how to configure Log Analytics for Azure optimization engine.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Configure workspaces for Azure optimization engine
 
 This article explains how to configure Log Analytics workspaces for Azure optimization engine (AOE).
@@ -79,7 +78,7 @@ In summary, a Windows VM generates, in average, 245 bytes per performance counte
 
 ## Using multiple workspaces for performance logs
 
-To include VMs from multiple Log Analytics workspaces in the VM right-size recommendations report, add a new variable named `AzureOptimization_RightSizeAdditionalPerfWorkspaces` to the AOE Azure Automation account. You can add any workspace to the scope of AOE, provided the AOE Managed Identity has Reader permissions over that workspace. The workspace can be in the same subscription or in any other subscription in the same tenant or even in a different tenant ([with the help of Lighthouse](./customize.md#widen-the-engine-scope)).
+To include VMs from multiple Log Analytics workspaces in the VM right-size recommendations report, add a new variable named `AzureOptimization_RightSizeAdditionalPerfWorkspaces` to the AOE Azure Automation account. The variable value should be a comma-separated list of workspace IDs. You can add any workspace to the scope of AOE, provided the AOE Managed Identity has Reader permissions over that workspace. The workspace can be in the same subscription or in any other subscription in the same tenant or even in a different tenant ([with the help of Lighthouse](./customize.md#widen-the-engine-scope)).
 
 :::image type="content" source="./media/configure-workspaces/log-analytics-additional-performance-workspaces.png" border="true" alt-text="Screenshot showing adding an Automation Account variable with a list of additional workspace IDs VM right-size recommendations." lightbox="./media/configure-workspaces/log-analytics-additional-performance-workspaces.png":::
 

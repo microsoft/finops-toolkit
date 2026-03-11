@@ -161,12 +161,12 @@ table Subscriptions
 				  NullHandling =
 				    if Table.HasColumns(Source, "Results") and Table.RowCount(Source) = 1 then
 				      #table(
-				        { "id", "name", "subscriptionId", "tenantId", "properties.managementGroupAncestorsChain", "properties.state" },
+				        { "id", "name", "type", "subscriptionId", "tenantId", "properties.managementGroupAncestorsChain", "properties.state" },
 				        {}
 				      )
 				    else Source
 				in
-				  Source
+				  NullHandling
 				```
 
 	annotation PBI_NavigationStepName = Navigation

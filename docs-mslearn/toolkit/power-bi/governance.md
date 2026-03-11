@@ -3,7 +3,7 @@ title: FinOps toolkit Governance report
 description: Summarize cloud governance posture including areas like compliance, security, operations, and resource management in Power BI.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 02/24/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -12,7 +12,7 @@ ms.reviewer: micflan
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable-next-line MD025 -->
+
 # Governance report
 
 The **Governance report** summarizes your Microsoft Cloud governance posture. It offers standard metrics aligned with the Cloud Adoption Framework (CAF) to help identify issues, apply recommendations, and resolve compliance gaps.
@@ -30,26 +30,30 @@ This report pulls data from:
 
 The Governance report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../workbooks/optimization.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
-## Known limitations
-
-The Governance report uses Azure Resource Graph to query resource details. Azure Resource Graph has a response payload limit of 16 MB per query. The report is designed for small- and medium-sized environments and may not work for organizations with millions of resources.
-
-If you experience a "Response payload size... exceeded the limit" error, try the following:
-
-- **Filter by subscription or tags** – Update queries in Power Query Editor to filter resources by specific subscriptions or tags that are most important for your governance reporting.
-- **Remove unnecessary columns** – Edit queries to remove columns that aren't needed for your analysis to reduce the payload size.
-- **Disable problematic queries** – If a specific query consistently fails, you can disable it in Power Query Editor to allow other queries to load successfully.
-
-For detailed troubleshooting steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
-
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Download for KQL](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-kql.zip)
 > [!div class="nextstepaction"]
 > [Download for storage](https://github.com/microsoft/finops-toolkit/releases/latest/download/PowerBI-storage.zip)
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20understand%20and%20optimize%20cost%20and%20usage%20with%20the%20FinOps%20toolkit%20Policy%20and%20governance%20report%3F/cvaQuestion/How%20valuable%20is%20the%20Policy%20and%20governance%20report%3F/surveyId/FTK/bladeName/PowerBI.Governance/featureName/Documentation)
+<!-- prettier-ignore-end -->
 
 Power BI reports are provided as template (.PBIT) files. Template files are not preconfigured and do not include sample data. When you first open a Power BI template, you will be prompted to specify report parameters, then authenticate with each data source to view your data. To access visuals and queries without loading data, select Edit in the Load menu button.
+
+<br>
+
+## Export requirements
+
+Before using this report, you need to configure Cost Management exports to provide the necessary data. The following exports are required or recommended:
+
+| Dataset                | Version                          | Requirement  | Notes                                                                                           |
+| ---------------------- | -------------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| Cost and usage (FOCUS) | `1.0`, `1.0r2`, or `1.2-preview` | **Required** | Provides the primary cost and usage data for governance analysis.                               |
+| Price sheet            | `2023-05-01`                     | Recommended  | Required to populate missing prices for EA and MCA accounts to show accurate cost calculations. |
+| Azure Resource Graph   | Latest                           | **Required** | Required to gather resource metadata and governance information for compliance analysis.        |
+
+For instructions on how to create Cost Management exports, see [Create and manage exports](/azure/cost-management-billing/costs/tutorial-improved-exports). If using FinOps hubs, these exports can be configured automatically.
 
 <br>
 
@@ -115,12 +119,28 @@ The **Network security groups** page lists network security groups and network s
 
 <br>
 
+## Known limitations
+
+The Governance report uses Azure Resource Graph to query resource details. Azure Resource Graph has a response payload limit of 16 MB per query. The report is designed for small- and medium-sized environments and may not work for organizations with millions of resources.
+
+If you experience a "Response payload size... exceeded the limit" error, try the following:
+
+- **Filter by subscription or tags** – Update queries in Power Query Editor to filter resources by specific subscriptions or tags that are most important for your governance reporting.
+- **Remove unnecessary columns** – Edit queries to remove columns that aren't needed for your analysis to reduce the payload size.
+- **Disable problematic queries** – If a specific query consistently fails, you can disable it in Power Query Editor to allow other queries to load successfully.
+
+For detailed troubleshooting steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
+
+<br>
+
 ## Looking for more?
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Share feedback](https://aka.ms/ftk/ideas)
+<!-- prettier-ignore-end -->
 
 <br>
 
