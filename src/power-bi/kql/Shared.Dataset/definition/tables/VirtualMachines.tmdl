@@ -615,7 +615,7 @@ table VirtualMachines
 				      ['powerState.displayStatus'] = powerState.displayStatus
 				    | mv-expand ['zones']
 				    ",
-				  Source = ftk_QueryARG(query),
+				  Source = ftk_QueryARG(query, 5),
 				  NullHandling =
 				    if Source = null then
 				      #table(

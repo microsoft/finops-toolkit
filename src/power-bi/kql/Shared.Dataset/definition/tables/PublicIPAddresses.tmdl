@@ -211,7 +211,7 @@ table PublicIPAddresses
 				      ['properties.ipConfiguration'] = properties.ipConfiguration,
 				      ['properties.ipTags'] = properties.ipTags
 				  ",
-				  Source = ftk_QueryARG(query),
+				  Source = ftk_QueryARG(query, 5),
 				  NullHandling =
 				    if Source = null then
 							#table(

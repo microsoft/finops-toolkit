@@ -507,9 +507,9 @@ expression ftk_ARGBatchSize = () => 100
 
 /// Queries Azure Resource Graph in batches of subscriptions and combines results to avoid the 16 MB payload limit.
 expression ftk_QueryARG =
-		(query as text) =>
+		(query as text, optional batchMultiplier as number) =>
 		    let
-		      batchSize = ftk_ARGBatchSize(),
+		      batchSize = ftk_ARGBatchSize() * (if batchMultiplier <> null then batchMultiplier else 1),
 		      subQuery = "resourcecontainers | where type == 'microsoft.resources/subscriptions' | project subscriptionId" & ftk_DemoFilter(),
 		      Subscriptions = AzureResourceGraph.Query(subQuery, "Tenant", null, null, [resultTruncated = false]),
 		      SubscriptionIds = Subscriptions[subscriptionId],
@@ -566,7 +566,7 @@ expression PolicyDefinitions =
 		        description = properties.description,
 		        version = properties.version
 		    | project subscriptionId, id, name, displayName, description, version",
-		  Source = ftk_QueryARG(query),
+		  Source = ftk_QueryARG(query, 5),
 		  NullHandling =
 		    if Source = null then
 					#table(

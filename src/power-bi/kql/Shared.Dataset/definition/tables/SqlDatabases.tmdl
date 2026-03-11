@@ -365,7 +365,7 @@ table SqlDatabases
 				      ['properties.readScale'] = properties.readScale,
 				      ['properties.maxLogSizeBytes'] = properties.maxLogSizeBytes
 				  ",
-				  Source = ftk_QueryARG(query),
+				  Source = ftk_QueryARG(query, 5),
 				  NullHandling =
 				    if Source = null then
 				      #table(

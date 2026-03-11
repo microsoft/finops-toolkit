@@ -265,7 +265,7 @@ table NetworkSecurityGroups
 				      ['properties.securityRules.properties.priority'] = properties.securityRules.properties.priority,
 				      ['properties.securityRules.properties.access'] = properties.securityRules.properties.access
 				  ",
-				  Source = ftk_QueryARG(query),
+				  Source = ftk_QueryARG(query, 20),
 				  NullHandling =
 				    if Source = null then
 							#table(

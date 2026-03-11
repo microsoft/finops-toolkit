@@ -522,7 +522,7 @@ table AdvisorRecommendations
 				    ['properties.resourceMetadata.source'] = properties.resourceMetadata.source,
 				    SortOrder = case(properties.impact == 'High', 1, properties.impact == 'Medium', 2, properties.impact == 'Low', 3, 9)
 				  ",
-				  Source = ftk_QueryARG(query),
+				  Source = ftk_QueryARG(query, 5),
 				  NullHandling =
 				    if Source = null then
 							#table(

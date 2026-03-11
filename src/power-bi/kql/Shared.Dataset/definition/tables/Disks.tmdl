@@ -204,7 +204,7 @@ table Disks
 				      parentVM,
 				      diskType
 				  ",
-				  Source = ftk_QueryARG(query),
+				  Source = ftk_QueryARG(query, 2),
 				  NullHandling =
 				    if Source = null then
 							#table(

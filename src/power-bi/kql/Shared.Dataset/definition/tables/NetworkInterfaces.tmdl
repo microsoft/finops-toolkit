@@ -438,7 +438,7 @@ table NetworkInterfaces
 				      ['properties.ipConfigurations.properties.publicIPAddress.id'] = properties.ipConfigurations.properties.publicIPAddress.id,
 				      ['properties.networkSecurityGroup.id'] = properties.networkSecurityGroup.id
 				  ",
-				  Source = ftk_QueryARG(query),
+				  Source = ftk_QueryARG(query, 2),
 				  NullHandling =
 				    if Source = null then
 							#table(
