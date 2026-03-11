@@ -121,15 +121,9 @@ The **Network security groups** page lists network security groups and network s
 
 ## Known limitations
 
-The Governance report uses Azure Resource Graph to query resource details. Azure Resource Graph has a response payload limit of 16 MB per query. The report is designed for small- and medium-sized environments and may not work for organizations with millions of resources.
+The Governance report uses Azure Resource Graph to query resource details. Azure Resource Graph has a response payload limit of 16 MB per query. The report is designed for small and medium-sized environments and may not work for organizations with millions of resources.
 
-If you experience a "Response payload size... exceeded the limit" error, try the following:
-
-- **Filter by subscription or tags** – Update queries in Power Query Editor to filter resources by specific subscriptions or tags that are most important for your governance reporting.
-- **Remove unnecessary columns** – Edit queries to remove columns that aren't needed for your analysis to reduce the payload size.
-- **Disable problematic queries** – If a specific query consistently fails, you can disable it in Power Query Editor to allow other queries to load successfully.
-
-For detailed troubleshooting steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
+If you experience a "Response payload size... exceeded the limit" error, try filtering queries to specific subscriptions or removing unnecessary columns. For detailed steps, see [Response payload size exceeded the limit](../help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) in the error reference guide.
 
 <br>
 

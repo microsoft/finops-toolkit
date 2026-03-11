@@ -747,7 +747,7 @@ Azure Resource Graph queries in the Governance and Workload optimization Power B
 
 > _OLE DB or ODBC error: [Expression.Error] Please provide below info when asking for support: timestamp = {timestamp}, correlationId = {guid}. Details: Response payload size is {number}, and has exceeded the limit of 16777216. Please consider querying less data at a time and make paginated call if needed._
 
-This error means that you have more resources than are supported in an unfiltered Resource Graph query. This happens because FinOps toolkit reports are designed to show resource-level details and are not aggregated. They are designed for small- and medium-sized environments and not designed to support organizations with millions of resources.
+This error means that you have more resources than are supported in an unfiltered Resource Graph query. This happens because FinOps toolkit reports are designed to show resource-level details and are not aggregated. They are designed for small and medium-sized environments and not designed to support organizations with millions of resources.
 
 **Mitigation**: If you experience this error, there are several options:
 

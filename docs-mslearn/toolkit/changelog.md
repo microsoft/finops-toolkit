@@ -37,9 +37,6 @@ The following section lists features and enhancements that are currently in deve
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
-- **Added**
-  - Added detailed mitigation guidance for [Azure Resource Graph payload size limit errors](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) with step-by-step instructions for filtering by subscription, tags, and removing columns.
-  - Added "Known limitations" section to [Governance report](power-bi/governance.md) and [Workload optimization report](power-bi/workload-optimization.md) documentation explaining Azure Resource Graph payload limits and when to use filtering.
 - **Fixed**
   - Updated FinOps Foundation video on the overview page to use the latest public video ([#2026](https://github.com/microsoft/finops-toolkit/issues/2026)).
 - **Removed**
@@ -72,6 +69,11 @@ The following section lists features and enhancements that are currently in deve
 - **Fixed**
   - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
   - Addressed minor lint warnings across PowerShell commands.
+
+### [Power BI reports](power-bi/reports.md) v14
+
+- **Added**
+  - Document [payload size limit](help/errors.md#response-payload-size-is-and-has-exceeded-the-limit) mitigation guidance and known limitations to the [Governance](power-bi/governance.md) and [Workload optimization](power-bi/workload-optimization.md) report docs ([#1768](https://github.com/microsoft/finops-toolkit/issues/1768)).
 
 <br>
 
