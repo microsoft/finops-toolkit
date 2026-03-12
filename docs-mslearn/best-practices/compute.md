@@ -370,9 +370,8 @@ resourcecontainers
     resources
     | where type =~ 'microsoft.compute/virtualmachines'
         or type =~ 'microsoft.compute/virtualMachineScaleSets'
-    | where tostring(properties.storageProfile.imageReference.publisher) == 'MicrosoftWindowsServer'
+    | where tostring(properties.storageProfile.osDisk.osType) == 'Windows'
         or tostring(properties.virtualMachineProfile.storageProfile.osDisk.osType) == 'Windows'
-        or tostring(properties.storageProfile.imageReference.publisher) == 'microsoftsqlserver'
     | where tostring(properties.['licenseType']) !has 'Windows'
         and tostring(properties.virtualMachineProfile.['licenseType']) != 'Windows_Server'
     | project
