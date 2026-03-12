@@ -142,7 +142,7 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
             type: 'DatasetReference'
             parameters: {
               fileName: core.settings.file
-              folderPath: '${core.settings.container}/${core.settings.folder}'
+              folderPath: core.settings.container
             }
           }
           firstRowOnly: false

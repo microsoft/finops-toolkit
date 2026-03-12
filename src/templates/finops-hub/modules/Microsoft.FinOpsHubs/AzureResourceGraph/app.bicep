@@ -3,7 +3,6 @@
 
 import { finOpsToolkitVersion, HubAppProperties, isSupportedVersion } from '../../fx/hub-types.bicep'
 import { AppMetadata as CoreMetadata } from '../Core/metadata.bicep'
-import { AppMetadata as IngestionQueriesMetadata } from '../IngestionQueries/metadata.bicep'
 import { AppMetadata as AzureResourceGraphMetadata } from './metadata.bicep'
 
 metadata hubApp = {
@@ -28,9 +27,6 @@ param app HubAppProperties
 @validate(x => isSupportedVersion(x.version, '13.0', ''), 'Core app version must be 13.0 or higher.')
 param core CoreMetadata
 
-@description('Required. Metadata describing shared resources from the IngestionQueries app. Must be v13 or higher.')
-@validate(x => isSupportedVersion(x.version, '13.0', ''), 'IngestionQueries app version must be 13.0 or higher.')
-param ingestionQueries IngestionQueriesMetadata
 
 
 //==============================================================================

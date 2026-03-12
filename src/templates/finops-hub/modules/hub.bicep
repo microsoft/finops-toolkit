@@ -327,7 +327,6 @@ module azureResourceGraph 'Microsoft.FinOpsHubs/AzureResourceGraph/app.bicep' = 
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'AzureResourceGraph')
     core: core.outputs.metadata
-    ingestionQueries: ingestionQueries.outputs.metadata
   }
 }
 
@@ -343,7 +342,7 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
     core: core.outputs.metadata
-    ingestionQueries: ingestionQueries.outputs.metadata
+    ingestionQueries: ingestionQueries!.outputs.metadata
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
   }
