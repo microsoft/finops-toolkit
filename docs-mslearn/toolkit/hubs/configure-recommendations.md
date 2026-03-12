@@ -58,10 +58,6 @@ FinOps hubs include the following recommendations. Most are enabled by default. 
 
 ### Databases
 
-- **Azure Database for MySQL**
-  - [Migrate legacy MySQL servers](../../best-practices/databases.md#migrate-legacy-mysql-servers)
-- **Azure Database for PostgreSQL**
-  - [Migrate legacy PostgreSQL servers](../../best-practices/databases.md#migrate-legacy-postgresql-servers)
 - **Azure SQL Database**
   - [Remove unused elastic pools](../../best-practices/databases.md#remove-unused-elastic-pools)
 
