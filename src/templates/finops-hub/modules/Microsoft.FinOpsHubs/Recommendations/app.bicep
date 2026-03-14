@@ -81,7 +81,7 @@ module uploadQueries '../../fx/hub-storage.bicep' = {
   dependsOn: [appRegistration]
   params: {
     app: app
-    container: core.containers.config
+    container: ingestionQueries.queries.container
     files: reduce(items(queryFiles), {}, (acc, item) => union(acc, { '${ingestionQueries.queries.folder}/${item.key}.json': item.value }))
   }
 }
