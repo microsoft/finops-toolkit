@@ -41,7 +41,7 @@ advisorresources
 | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
     and properties.recommendationTypeId == '8b993855-1b3f-4392-8860-6ed4f5afd8a7'
 | order by id asc
-| project 
+| project
     id, subscriptionId, resourceGroup,
     CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
     DatabaseName = properties.extendedProperties.DatabaseName,
@@ -78,7 +78,7 @@ advisorresources
         ' 6aa7a0df-192f-4dfa-bd61-f43db4843e7d'
     )
 | order by id asc
-| project 
+| project
     id, subscriptionId, resourceGroup,
     CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
     DatabaseName = properties.extendedProperties.DatabaseName,
@@ -176,7 +176,7 @@ resources
     | where type == "microsoft.sql/servers/databases"
     | extend elasticPoolId = tolower(tostring(properties.elasticPoolId))
 ) on elasticPoolId
-| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by 
+| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by
     elasticPoolId,
     elasticPoolName,
     serverResourceGroup = resourceGroup,
