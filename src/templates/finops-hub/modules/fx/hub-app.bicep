@@ -56,10 +56,10 @@ var telemetryProps = {
   }
 }
 
-// Roles needed to auto-start Data Factory triggers
-var autoStartRbacRoles = [
+// Roles needed for Data Factory management (trigger start/stop, pipeline dispatch)
+var factoryManagementRoles = [
   // Data Factory contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
-  // Used to start/stop triggers and delete old pipelines/triggers
+  // Used to start/stop triggers, delete old pipelines/triggers, and execute pipelines via REST API
   '673868aa-7521-48a0-acc6-0f60742d39f5'
 ]
 
@@ -299,7 +299,7 @@ resource storageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04
 
 // Grant ADF identity access to execute its own pipelines (e.g., for dynamic pipeline dispatch via REST API)
 resource factorySelfRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
-  for role in autoStartRbacRoles: if (usesDataFactory) {
+  for role in factoryManagementRoles: if (usesDataFactory) {
     name: guid(dataFactory.id, role, dataFactory.id)
     scope: dataFactory
     properties: {
@@ -323,7 +323,7 @@ resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentitie
 }
 
 resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
-  for role in autoStartRbacRoles: if (usesDataFactory) {
+  for role in factoryManagementRoles: if (usesDataFactory) {
     name: guid(dataFactory.id, role, triggerManagerIdentity.id)
     scope: dataFactory
     properties: {
@@ -554,22 +554,22 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (
 // Outputs
 //==============================================================================
 
-@description('Resource ID of the Data Factory instance used by the FinOps hub app.')
+@description('Resource ID of the Data Factory instance used by the FinOps hub app. Empty when not deployed.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output dataFactoryId string = usesDataFactory ? dataFactory.id : ''
 
-@description('Resource ID of the Key Vault instance used by the FinOps hub app.')
+@description('Resource ID of the Key Vault instance used by the FinOps hub app. Empty when not deployed.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output keyVaultId string = usesKeyVault ? keyVault.id : ''
 
-@description('Resource ID of the storage account instance used by the FinOps hub app.')
+@description('Resource ID of the storage account instance used by the FinOps hub app. Empty when not deployed.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output storageAccountId string = usesStorage ? storageAccount.id : ''
 
-@description('Principal ID for the managed identity used by Data Factory.')
+@description('Principal ID for the managed identity used by Data Factory. Empty when not deployed.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output principalId string = usesDataFactory ? dataFactory.identity.principalId : ''
 
-@description('Name of the managed identity used to create and stop ADF triggers.')
+@description('Name of the managed identity used to create and stop ADF triggers. Empty when not deployed.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
 output triggerManagerIdentityName string = usesDataFactory ? triggerManagerIdentity.name : ''

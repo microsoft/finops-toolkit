@@ -70,6 +70,9 @@
     .PARAMETER StorageOnly
     Deploy a storage-only hub (no Azure Data Explorer or Fabric).
 
+    .PARAMETER Recommendations
+    Enable recommendations with all noisy recommendation types (AHB, Spot). Requires the hub template to have recommendation parameters.
+
     .PARAMETER Remove
     Remove test environments. With a name, deletes the target resource group. Alone, lists all resource groups matching "{initials}-*".
 
@@ -93,6 +96,7 @@ param(
     [string]$ResourceGroup,
     [string]$Fabric,
     [switch]$StorageOnly,
+    [switch]$Recommendations,
     [switch]$Remove,
     [string]$Location,
     [switch]$Build,
@@ -195,10 +199,13 @@ $params = @{}
 if ($HubName) { $params.hubName = $HubName }
 else { $params.hubName = "hub" }
 
-# Always enable recommendations for testing
-$params.enableRecommendations = $true
-$params.enableAHBRecommendations = $true
-$params.enableSpotRecommendations = $true
+# Recommendations (requires enableRecommendations param in hub template)
+if ($Recommendations)
+{
+    $params.enableRecommendations = $true
+    $params.enableAHBRecommendations = $true
+    $params.enableSpotRecommendations = $true
+}
 
 # Analytics backend
 if ($StorageOnly)
