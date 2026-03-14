@@ -98,7 +98,8 @@ parse_resourceid(resourceId: string) {
     // let ResourceId = tolower('/providers/Microsoft.BillingBenefits/savingsPlanOrders/2d2e284b-0638-427e-b8c6-1b874d4f17c8/sp/xxx');
     let SubAccountId = tostring(extract('/subscriptions/[^/]+', 1, ResourceId));
     let x_ResourceGroupName = tostring(extract('/resourcegroups/[^/]+', 1, ResourceId));
-    let providerPath = iff(ResourceId !contains '/providers/', '', split(iff(ResourceId startswith '/subscriptions/', strcat('/providers/microsoft.resources/', ResourceId), ResourceId), '/providers/')[-1]);
+    let tmp_ResourceId = iff(ResourceId !contains '/providers/' and ResourceId startswith '/subscriptions/', strcat('/providers/microsoft.resources', ResourceId), ResourceId);
+    let providerPath = iff(tmp_ResourceId !contains '/providers/', '', tostring(split(tmp_ResourceId, '/providers/')[-1]));
     let x_ResourceProvider = iff(isempty(providerPath), '', split(providerPath, '/')[0]);
     let tmp_ResourceProviderPath = iff(isempty(providerPath), '', substring(providerPath, strlen(x_ResourceProvider) + 1));
     let segments = split(tmp_ResourceProviderPath, '/');
