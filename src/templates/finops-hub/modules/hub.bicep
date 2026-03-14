@@ -271,21 +271,18 @@ module core 'Microsoft.FinOpsHubs/Core/app.bicep' = {
 
 module cmExports 'Microsoft.CostManagement/Exports/app.bicep' = {
   name: 'Microsoft.CostManagement.Exports'
-  dependsOn: [
-    core
-  ]
   params: {
     app: newApp(hub, 'Microsoft.CostManagement', 'Exports')
+    core: core.outputs.metadata
   }
 }
 
 module cmManagedExports 'Microsoft.CostManagement/ManagedExports/app.bicep' = if (enableManagedExports) {
   name: 'Microsoft.CostManagement.ManagedExports'
-  dependsOn: [
-    cmExports
-  ]
   params: {
     app: newApp(hub, 'Microsoft.CostManagement', 'ManagedExports')
+    core: core.outputs.metadata
+    exports: cmExports.outputs.metadata
   }
 }
 
@@ -296,15 +293,13 @@ module cmManagedExports 'Microsoft.CostManagement/ManagedExports/app.bicep' = if
 module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || useAzureDataExplorer) {
   name: 'Microsoft.FinOpsHubs.Analytics'
   dependsOn: hub.options.privateRouting ? [
-    core
     // When private endpoints are enabled, we need to explicitly block on anything that uses deployment scripts to guarantee only one deployment script runs at a time
     cmExports
     deleteOldResources
-  ] : [
-    core
-  ]
+  ] : []
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Analytics')
+    core: core.outputs.metadata
     fabricQueryUri: fabricQueryUri
     fabricCapacityUnits: fabricCapacityUnits
     clusterName: dataExplorerName
@@ -338,11 +333,9 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
 
 module remoteHub 'Microsoft.FinOpsHubs/RemoteHub/app.bicep' = if (!empty(remoteHubStorageKey)) {
   name: 'Microsoft.FinOpsHubs.RemoteHub'
-  dependsOn: [
-    core
-  ]
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'RemoteHub')
+    core: core.outputs.metadata
     remoteStorageKey: remoteHubStorageKey
     remoteHubStorageUri: remoteHubStorageUri
   }
@@ -417,26 +410,26 @@ output storageAccountId string = resourceId('Microsoft.Storage/storageAccounts',
 output storageAccountName string = core.outputs.storageAccountName
 
 @description('URL to use when connecting custom Power BI reports to your data.')
-output storageUrlForPowerBI string = core.outputs.storageUrlForPowerBI
+output storageUrlForPowerBI string = core.outputs.metadata.storageUrlForPowerBI
 
 @description('The resource ID of the Data Explorer cluster.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output clusterId string = !useAzureDataExplorer ? '' : analytics.outputs.clusterId
+output clusterId string = !useAzureDataExplorer ? '' : analytics.outputs.metadata.cluster.id
 
 @description('The URI of the Data Explorer cluster.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output clusterUri string = useFabric ? fabricQueryUri : (!useAzureDataExplorer ? '' : analytics.outputs.clusterUri)
+output clusterUri string = useFabric ? fabricQueryUri : (!useAzureDataExplorer ? '' : analytics.outputs.metadata.cluster.uri)
 
 @description('The name of the Data Explorer database used for ingesting data.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output ingestionDbName string = useFabric || useAzureDataExplorer ? analytics.outputs.ingestionDbName : ''
+output ingestionDbName string = useFabric || useAzureDataExplorer ? analytics.outputs.metadata.databases.ingestion : ''
 
 @description('The name of the Data Explorer database used for querying data.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output hubDbName string = useFabric || useAzureDataExplorer ? analytics.outputs.hubDbName : ''
+output hubDbName string = useFabric || useAzureDataExplorer ? analytics.outputs.metadata.databases.hub : ''
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output managedIdentityId string = core.outputs.principalId
+output managedIdentityId string = core.outputs.metadata.principalId
 
 @description('Azure AD tenant ID. This will be needed when configuring managed exports.')
 output managedIdentityTenantId string = tenant().tenantId

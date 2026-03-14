@@ -6,7 +6,22 @@
     Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.
 
     .PARAMETER Template
-    Optional. Name of the module or template to publish. Default = "*" (all templates and modules).
+    Optional. Name of the module or template to build. Default = * (all templates and modules).
+
+    .PARAMETER Major
+    Optional. Increments the major version number (x.0).
+
+    .PARAMETER Minor
+    Optional. Increments the minor version number (0.x).
+
+    .PARAMETER Patch
+    Optional. Increments the patch version number (0.0.x).
+
+    .PARAMETER Prerelease
+    Optional. Increments the prerelease version number (0.0.0-ooo.x).
+
+    .PARAMETER Label
+    Optional. Indicates the label to use for prerelease versions. Allowed: dev, rc, alpha, preview.
 
     .EXAMPLE
     ./Build-Toolkit
@@ -268,6 +283,24 @@ $templates | ForEach-Object {
                 Remove-Item -Path "$destDir/*" -Include ($_.ignore -join ',') -Force
             }
         }
+    }
+
+    # Replace $$ftkver$$ in all Bicep app.bicep files (for metadata version and URLs)
+    Write-Verbose "  Replacing version placeholders in app.bicep files..."
+    $hubAppFiles = Get-ChildItem "$destDir" -Include 'app.bicep' -Recurse -Force
+    $replacedCount = 0
+    $hubAppFiles | ForEach-Object {
+        $content = Get-Content $_.FullName -Raw
+        if ($content -match '\$\$ftkver\$\$')
+        {
+            Write-Verbose "    Replacing version in: $($_.FullName.Replace($destDir, ''))"
+            $content -replace '\$\$ftkver\$\$', $ver | Out-File $_.FullName -NoNewline -Encoding utf8
+            $replacedCount++
+        }
+    }
+    if ($replacedCount -gt 0)
+    {
+        Write-Verbose "    Replaced version placeholder in $replacedCount file(s)"
     }
 
     # Build main.bicep, if applicable

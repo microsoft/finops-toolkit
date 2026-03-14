@@ -83,7 +83,7 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
 
 function Copy-TemplateFiles()
 {
-    Write-Host "Packaging $(if ($Template) { "$Template v$version template" } else { "v$version templates" })..."
+    Write-Host "Packaging $(if ($Template -ne "*") { "$Template $version template" } else { "$version templates" })..."
 
     Write-Verbose "Removing existing ZIP files..."
     Remove-Item "$relDir/*.zip" -Force
@@ -112,10 +112,13 @@ function Copy-TemplateFiles()
             }
         }
         
-        $zip = if ($unversionedZip) {
+        $zip = if ($unversionedZip)
+        {
             Join-Path (Get-Item $relDir) "$templateName.zip"
-        } else {
-            Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
+        }
+        else
+        {
+            Join-Path (Get-Item $relDir) "$templateName-$tag.zip"
         }
 
         Write-Verbose "Checking for a nested version folder: $versionSubFolder"
@@ -152,7 +155,29 @@ function Copy-TemplateFiles()
                 & "$PSScriptRoot/New-Directory" $targetDir
 
                 # Copy files and directories
-                $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$srcPath/$($_.source)" "$targetDir/$($_.destination)" -Force }
+                $packageManifest.deployment.Files | ForEach-Object {
+                    $destPath = $_.destination
+                    $srcFolder = "$($srcPath.FullName)/$($_.sourceFolder)/".Replace("//", "/")
+                    if (-not (Test-Path $srcFolder))
+                    {
+                        throw "Package manifest references source folder '$($_.sourceFolder)' that does not exist: $srcFolder"
+                    }
+                    Get-ChildItem "$srcFolder/*" -Include $_.source -Recurse:$_.recurse | ForEach-Object {
+                        if ($destPath -eq '*')
+                        {
+                            $normalizedSrc = $srcFolder.Replace('\', '/')
+                            $normalizedFull = $_.FullName.Replace('\', '/')
+                            $relativeDest = "$targetDir/$($normalizedFull.Replace($normalizedSrc, ''))"
+                            $destDir = Split-Path $relativeDest -Parent
+                            if ($destDir) { & "$PSScriptRoot/New-Directory" $destDir }
+                            Copy-Item $_ $relativeDest -Force
+                        }
+                        else
+                        {
+                            Copy-Item $_ "$targetDir/$destPath" -Force
+                        }
+                    }
+                }
                 $packageManifest.deployment.Directories | ForEach-Object {
                     & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
                     Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
@@ -201,6 +226,7 @@ function Copy-OpenDataFolders()
 }
 
 $version = & "$PSScriptRoot/Get-Version"
+$tag = & "$PSScriptRoot/Get-Version" -AsTag
 
 if ($CopyFiles -or $Build -or $Preview -or -not ($OpenPBI -or $ZipPBI))
 {

@@ -108,6 +108,6 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Skill: Workbooks'
+                  label: 'Tool: Workbooks'
 onFailure:
 onSuccess:

@@ -91,5 +91,8 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 // Outputs
 //==============================================================================
 
+@description('Name of the trigger resource that was created.')
+output triggerName string = dataFactory::storageTrigger.name
+
 // @description('Fully-qualified event that is triggered when the configured event occurs.')
 // output event string = event
