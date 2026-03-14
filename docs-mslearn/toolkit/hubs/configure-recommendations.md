@@ -180,7 +180,7 @@ Your query must return the following columns:
   ```
 
 - Generate `x_RecommendationId` by combining the resource ID with a descriptive suffix (for example, `strcat(tolower(id), '-idle')`).
-- Build `x_RecommendationDetails` using `bag_pack()` to construct a dynamic object. You can also use `strcat()` to build a JSON string manually, but `bag_pack()` is recommended because it handles escaping and produces a proper dynamic type.
+- Build `x_RecommendationDetails` using `tostring(bag_pack(...))` to produce a JSON string. Wrapping with `tostring()` is required because the data pipeline can't serialize dynamic objects to parquet; the value must be a string. You can also use `strcat()` to build a JSON string manually, but `bag_pack()` is recommended because it handles escaping automatically.
 - Include `x_RecommendationTypeId` as a stable GUID to uniquely identify the recommendation type across runs.
 
 For examples, review the built-in query files in the [FinOps toolkit source code](https://github.com/microsoft/finops-toolkit/tree/dev/src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Recommendations/queries).
