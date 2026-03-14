@@ -1,7 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { finOpsToolkitVersion, HubAppProperties } from '../../fx/hub-types.bicep'
+import { finOpsToolkitVersion, HubAppProperties, isSupportedVersion } from '../../fx/hub-types.bicep'
+import { AppMetadata as CoreMetadata } from '../../Microsoft.FinOpsHubs/Core/metadata.bicep'
+import { AppMetadata as ExportsMetadata } from '../Exports/metadata.bicep'
+import { AppMetadata as ManagedExportsMetadata } from './metadata.bicep'
+
+metadata hubApp = {
+  id: 'Microsoft.CostManagement.ManagedExports'
+  version: '$$ftkver$$'
+  dependencies: [
+    'Microsoft.FinOpsHubs.Core'
+    'Microsoft.CostManagement.Exports'
+  ]
+  metadata: 'https://microsoft.github.io/finops-toolkit/deploy/finops-hub/$$ftkver$$/Microsoft.CostManagement/ManagedExports/metadata.bicep'
+}
 
 
 //==============================================================================
@@ -11,13 +24,18 @@ import { finOpsToolkitVersion, HubAppProperties } from '../../fx/hub-types.bicep
 @description('Required. FinOps hub app getting deployed.')
 param app HubAppProperties
 
+@description('Required. Metadata describing shared resources from the Core app. Must be v13 or higher.')
+@validate(x => isSupportedVersion(x.version, '13.0', ''), 'Cost Management Managed Exports requires FinOps hubs version 13.0 or higher.')
+param core CoreMetadata
+
+@description('Required. Metadata describing shared resources from the Exports app. Must be v13 or higher.')
+@validate(x => isSupportedVersion(x.version, '13.0', ''), 'Cost Management Managed Exports requires Cost Management Exports version 13.0 or higher.')
+param exports ExportsMetadata
+
 
 //==============================================================================
 // Variables
 //==============================================================================
-
-var CONFIG = 'config'
-var MSEXPORTS = 'msexports'
 
 var exportsApiVersion = '2023-07-01-preview'
 var exportDataVersions = {
@@ -72,11 +90,11 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: app.dataFactory
 
   resource dataset_config 'datasets' existing = {
-    name: CONFIG
+    name: core.datasets.config
   }
 
   resource trigger_DailySchedule 'triggers' = {
-    name: '${CONFIG}_DailySchedule'
+    name: '${core.containers.config}_DailySchedule'
     properties: {
       pipelines: [
         {
@@ -102,7 +120,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   }
 
   resource trigger_MonthlySchedule 'triggers' = {
-    name: '${CONFIG}_MonthlySchedule'
+    name: '${core.containers.config}_MonthlySchedule'
     properties: {
       pipelines: [
         {
@@ -138,7 +156,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // config_StartBackfillProcess pipeline
   //----------------------------------------------------------------------------
   resource pipeline_StartBackfillProcess 'pipelines' = {
-    name: '${CONFIG}_StartBackfillProcess'
+    name: '${core.containers.config}_StartBackfillProcess'
     properties: {
       activities: [
         { // Get Config
@@ -372,11 +390,11 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: core.settings.file
         }
         folderPath: {
           type: 'String'
-          defaultValue: CONFIG
+          defaultValue: core.containers.config
         }
         endDate: {
           type: 'String'
@@ -399,7 +417,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by config_StartBackfillProcess pipeline
   //----------------------------------------------------------------------------
   resource pipeline_RunBackfillJob 'pipelines' = {
-    name: '${CONFIG}_RunBackfillJob'
+    name: '${core.containers.config}_RunBackfillJob'
     properties: {
       activities: [
         { // Get Config
@@ -628,11 +646,11 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: core.settings.file
         }
         folderPath: {
           type: 'String'
-          defaultValue: CONFIG
+          defaultValue: core.containers.config
         }
         scopesArray: {
           type: 'Array'
@@ -646,7 +664,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by config_DailySchedule/MonthlySchedule triggers
   //----------------------------------------------------------------------------
   resource pipeline_StartExportProcess 'pipelines' = {
-    name: '${CONFIG}_StartExportProcess'
+    name: '${core.containers.config}_StartExportProcess'
     properties: {
       activities: [
         { // Get Config
@@ -861,11 +879,11 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
       variables: {
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: core.settings.file
         }
         folderPath: {
           type: 'String'
-          defaultValue: CONFIG
+          defaultValue: core.containers.config
         }
         finOpsHub: {
           type: 'String'
@@ -887,7 +905,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by pipeline_StartExportProcess pipeline
   //----------------------------------------------------------------------------
   resource pipeline_RunExportJobs 'pipelines' = {
-    name: '${CONFIG}_RunExportJobs'
+    name: '${core.containers.config}_RunExportJobs'
     dependsOn: [
       dataset_config
     ]
@@ -983,7 +1001,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   // Triggered by config_SettingsUpdated trigger
   //----------------------------------------------------------------------------
   resource pipeline_ConfigureExports 'pipelines' = {
-    name: '${CONFIG}_ConfigureExports'
+    name: '${core.containers.config}_ConfigureExports'
     properties: {
       activities: [
         { // Get Config
@@ -1181,7 +1199,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'FocusCost', false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'FocusCost', false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1221,7 +1239,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'FocusCost', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'FocusCost', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1261,7 +1279,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'Pricesheet', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'Pricesheet', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1338,7 +1356,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'ReservationDetails', false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'ReservationDetails', false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1378,7 +1396,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'ReservationTransactions', false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'ReservationTransactions', false, 'CSV', 'None', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1418,7 +1436,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'ReservationRecommendations', false, 'CSV', 'None', 'true', 'CreateNewReport', 'Shared', 'Last30Days', 'VirtualMachines')
+                              value: getExportBodyV2(exports.containers.msexports, 'ReservationRecommendations', false, 'CSV', 'None', 'true', 'CreateNewReport', 'Shared', 'Last30Days', 'VirtualMachines')
                               type: 'Expression'
                             }
                             headers: {
@@ -1459,7 +1477,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'FocusCost', false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'FocusCost', false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1499,7 +1517,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'FocusCost', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'FocusCost', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1540,7 +1558,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'FocusCost', false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'FocusCost', false, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1580,7 +1598,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                             }
                             method: 'PUT'
                             body: {
-                              value: getExportBodyV2(MSEXPORTS, 'FocusCost', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
+                              value: getExportBodyV2(exports.containers.msexports, 'FocusCost', true, 'Parquet', 'Snappy', 'true', 'CreateNewReport', '', '', '')
                               type: 'Expression'
                             }
                             headers: {
@@ -1666,11 +1684,11 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
         }
         fileName: {
           type: 'String'
-          defaultValue: 'settings.json'
+          defaultValue: core.settings.file
         }
         folderPath: {
           type: 'String'
-          defaultValue: CONFIG
+          defaultValue: core.containers.config
         }
       }
     }
@@ -1689,16 +1707,16 @@ module trigger_SettingsUpdated '../../fx/hub-eventTrigger.bicep' = {
   name: 'Microsoft.FinOpsHubs.Core_SettingsUpdatedTrigger'
   params: {
     dataFactoryName: dataFactory.name
-    triggerName: '${CONFIG}_SettingsUpdated'
+    triggerName: '${core.containers.config}_SettingsUpdated'
 
     // TODO: Replace pipeline with event: 'Microsoft.FinOpsHubs.Core.SettingsUpdated'
     pipelineName: dataFactory::pipeline_ConfigureExports.name
     pipelineParameters: {}
     
     storageAccountName: app.storage
-    storageContainer: CONFIG
+    storageContainer: core.containers.config
     // TODO: Change this to startswith
-    storagePathEndsWith: 'settings.json'
+    storagePathEndsWith: core.settings.file
   }
 }
 
@@ -1707,4 +1725,13 @@ module trigger_SettingsUpdated '../../fx/hub-eventTrigger.bicep' = {
 // Outputs
 //==============================================================================
 
-// None
+@description('Metadata describing resources created by the Cost Management Managed Exports app.')
+output metadata ManagedExportsMetadata = {
+  id: 'Microsoft.CostManagement.ManagedExports'
+  version: finOpsToolkitVersion
+  pipelines: {
+    configureExports: dataFactory::pipeline_ConfigureExports.name
+    startBackfillProcess: dataFactory::pipeline_StartBackfillProcess.name
+    startExportProcess: dataFactory::pipeline_StartExportProcess.name
+  }
+}
