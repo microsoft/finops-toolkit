@@ -3,7 +3,7 @@ title: Troubleshooting FinOps toolkit issues
 description: This article describes how to validate that FinOps toolkit solutions are deployed and configured correctly, including troubleshooting common errors.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/14/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit

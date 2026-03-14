@@ -3,7 +3,7 @@ title: Open data commands
 description: Learn about PowerShell commands available in the FinOpsToolkit module to work with FinOps open data and integrate datasets into your workflow.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/14/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

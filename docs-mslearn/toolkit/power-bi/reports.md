@@ -3,7 +3,7 @@ title: FinOps toolkit Power BI reports
 description: Learn about the Power BI reports in the FinOps toolkit to customize and enhance your FinOps reporting and connect to Cost Management exports or FinOps hubs.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/14/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit

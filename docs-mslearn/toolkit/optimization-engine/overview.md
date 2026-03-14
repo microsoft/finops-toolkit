@@ -3,7 +3,7 @@ title: Get started with the Azure Optimization Engine
 description: The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/14/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit

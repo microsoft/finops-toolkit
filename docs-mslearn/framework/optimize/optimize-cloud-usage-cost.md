@@ -3,7 +3,7 @@ title: Optimize usage and cost
 description: Learn about the FinOps capabilities that help you identify and implement the right mix of pricing models, services, and resources needed to meet business demands.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/14/2026
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources

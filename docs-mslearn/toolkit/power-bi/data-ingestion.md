@@ -3,7 +3,7 @@ title: Data ingestion report
 description: Learn about the Data Ingestion Report, which provides insights into the data ingested into your FinOps hub storage account.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/14/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

@@ -3,7 +3,7 @@ title: Anomaly management
 description: This article helps you understand the anomaly management capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/14/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources

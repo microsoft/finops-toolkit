@@ -3,7 +3,7 @@ title: Get-FinOpsRegion command
 description: Get an Azure region ID and name based on the specified resource location using the Get-FinOpsRegion command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/14/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
