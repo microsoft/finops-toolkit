@@ -3,14 +3,13 @@ title: Optimize usage and cost
 description: Learn about the FinOps capabilities that help you identify and implement the right mix of pricing models, services, and resources needed to meet business demands.
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2025
+ms.date: 03/14/2026
 ms.topic: conceptual
 ms.service: finops
 ms.subservice: finops-learning-resources
 ms.reviewer: kedelaro
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Optimize usage and cost
 
 This article helps you understand the **Optimize usage and cost** domain within the FinOps Framework and how to implement its capabilities in the Microsoft Cloud.
@@ -65,13 +64,17 @@ To learn more, see [Cloud sustainability](./sustainability.md).
 
 Let us know how we're doing with a quick review. We use these reviews to improve and expand FinOps tools and resources.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Give feedback](https://portal.azure.com/#view/HubsExtension/InProductFeedbackBlade/extensionName/FinOpsToolkit/cesQuestion/How%20easy%20or%20hard%20is%20it%20to%20use%20FinOps%20toolkit%20tools%20and%20resources%3F/cvaQuestion/How%20valuable%20is%20the%20FinOps%20toolkit%3F/surveyId/FTK/bladeName/Guide.Framework/featureName/Capabilities.Optimize)
+<!-- prettier-ignore-end -->
 
 If you're looking for something specific, vote for an existing or create a new idea. Share ideas with others to get more votes. We focus on ideas with the most votes.
 
+<!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
 > [Vote on or suggest ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%252B1-desc)
+<!-- prettier-ignore-end -->
 
 <br>
 

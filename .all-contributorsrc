@@ -934,6 +934,33 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "slapointe",
+      "name": "Stephane Lapointe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1054412?v=4",
+      "profile": "http://www.codeisahighway.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "pvansteenkiste",
+      "name": "pvansteenkiste",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35564924?v=4",
+      "profile": "https://github.com/pvansteenkiste",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "arthursilvany",
+      "name": "Arthur Silvany",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31347467?v=4",
+      "profile": "https://github.com/arthursilvany",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",

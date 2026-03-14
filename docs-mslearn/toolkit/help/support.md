@@ -3,15 +3,13 @@ title: Get support for FinOps toolkit issues
 description: This article explains how to get support for issues with FinOps toolkit solutions, including reporting security issues and troubleshooting.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 03/14/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what the support options I have for FinOps toolkit solutions.
 ---
-
-<!-- markdownlint-disable-next-line MD025 -->
 
 # How to get support for the FinOps toolkit
 

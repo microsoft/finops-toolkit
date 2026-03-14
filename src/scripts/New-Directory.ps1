@@ -2,10 +2,15 @@
 # Licensed under the MIT License.
 
 <#
-.SYNOPSIS
+    .SYNOPSIS
     Creates a new directory if it doesn't already exist. Does not return an object.
-.EXAMPLE
+
+    .PARAMETER Path
+    Path of the directory to create.
+
+    .EXAMPLE
     ./New-Directory foo
+
     Creates the "foo" directory.
 #>
 Param (

@@ -3,7 +3,7 @@ title: Help and support options
 description: This article summarizes the options for getting help and support for common issues you might experience in the FinOps toolkit.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 03/14/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how I can get help and support for the FinOps toolkit.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Help + support
 
 Have questions about implementing FinOps within your org? Start with [FinOps discussions](https://techcommunity.microsoft.com/category/azure/discussions/finops).

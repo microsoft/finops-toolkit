@@ -2,7 +2,7 @@
 ms.service: finops
 ms.author: flanakin
 author: flanakin
-ms.date: 11/01/2024
+ms.date: 03/14/2026
 ms.topic: how-to
 title: Configure remote hubs
 description: Learn how to configure FinOps hubs to collect cost data across multiple Azure tenants and clouds using remote hub functionality.
@@ -15,7 +15,7 @@ Remote hubs enable cross-tenant cost data collection scenarios where a central t
 Remote hubs work across different Azure clouds, supporting:
 - Azure Commercial
 - Azure Government 
-- Azure China
+- Azure operated by 21Vianet
 
 <br>
 
@@ -35,8 +35,8 @@ Consider remote hubs when you have:
 
 In a remote hub configuration:
 
-1. **Primary hub**: Central FinOps hub that receives and stores aggregated data from all tenants
-2. **Remote (satellite) hubs**: FinOps hubs in remote tenants that process local cost data and send it to the primary hub
+- **Primary hub**: Central FinOps hub that receives and stores aggregated data from all tenants
+- **Remote (satellite) hubs**: FinOps hubs in remote tenants that process local cost data and send it to the primary hub
 
 <br>
 

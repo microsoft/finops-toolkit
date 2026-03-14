@@ -3,7 +3,7 @@ title: Azure optimization engine FAQ
 description: This article covers frequently asked questions about the Azure Optimization Engine (AOE), including support, subscriptions, and currency.
 author: flanakin
 ms.author: micflan
-ms.date: 04/02/2025
+ms.date: 03/14/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -11,7 +11,6 @@ ms.reviewer: hepint
 #customer intent: As a FinOps user, I want to answer frequently asked questions about Azure optimization engine.
 ---
 
-<!-- markdownlint-disable-next-line MD025 -->
 # Azure optimization engine Frequently Asked Questions
 
 This article summarizes frequently asked questions about Azure optimization engine (AOE). It covers support, subscriptions, currency, and other common questions.

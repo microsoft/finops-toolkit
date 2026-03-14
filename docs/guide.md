@@ -34,11 +34,6 @@ If you're new to FinOps, there are a few places you can get started:
         <a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/overview">Read the doc</a>
     </div>
     <div class="ftk-tile">
-        <div>📑 Standardized reporting</div>
-        <div>Executive walkthrough of the FinOps principles for anyone.</div>
-        <a target="_blank" href="https://aka.ms/finops/ebook">Download the e-book</a>
-    </div>
-    <div class="ftk-tile">
         <div>🏫 Get started with FinOps</div>
         <div>Get introduced to FinOps with this self-paced learning module.</div>
         <a target="_blank" href="https://learn.microsoft.com/training/modules/get-started-with-finops">Start the module</a>
