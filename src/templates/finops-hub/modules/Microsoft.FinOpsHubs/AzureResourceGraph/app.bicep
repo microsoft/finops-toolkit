@@ -166,6 +166,7 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
                   httpRequestTimeout: '00:02:00'
                   requestInterval: '00.00:00:00.050'
                   requestMethod: 'POST'
+                  // Query text is from trusted config/queries/*.json files; no escaping needed.
                   requestBody: {
                     value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | extend x_SourceName=\\"\', pipeline().parameters.querySource, \'\\", x_SourceType=\\"\', pipeline().parameters.queryType, \'\\", x_SourceProvider=\\"\', pipeline().parameters.queryProvider, \'\\", x_SourceVersion=\\"\', pipeline().parameters.queryVersion, \'\\"" }\')'
                     type: 'Expression'

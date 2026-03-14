@@ -342,7 +342,7 @@ module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (en
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
     core: core.outputs.metadata
-    ingestionQueries: ingestionQueries!.outputs.metadata
+    ingestionQueries: ingestionQueries!.outputs.metadata // Safe: guarded by same enableRecommendations condition
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
   }

@@ -4,7 +4,7 @@ Query engine for Azure Resource Graph (ARG). Implements the `queries_{engineName
 
 ## What it provides
 
-- **`resourceGraph` dataset** — ADF REST dataset pointing to the ARG API (`/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01`)
+- **`azureResourceGraph` dataset** — ADF REST dataset pointing to the ARG API (`/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01`)
 - **`queries_ResourceGraph_ExecuteQuery` pipeline** — Executes a single ARG query via REST POST and writes results as Parquet to the ingestion container
 
 ## How it works

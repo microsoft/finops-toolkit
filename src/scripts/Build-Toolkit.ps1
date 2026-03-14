@@ -190,6 +190,10 @@ $templates | ForEach-Object {
             {
                 Write-Verbose "    Running: $_"
                 & $scriptPath -DestDir $destDir
+                if (-not $? -or ($LASTEXITCODE -and $LASTEXITCODE -ne 0))
+                {
+                    throw "Custom build script '$_' failed"
+                }
             }
             else
             {
