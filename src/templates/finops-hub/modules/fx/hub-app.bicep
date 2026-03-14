@@ -285,12 +285,26 @@ module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (u
 
 // Grant ADF identity access to storage
 resource storageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
-  for role in factoryStorageRoles: {
+  for role in factoryStorageRoles: if (usesDataFactory && usesStorage) {
     name: guid(storageAccount.id, role, dataFactory.id)
     scope: storageAccount
     properties: {
       roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-      #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access
+      #disable-next-line BCP318 // Null safety warning for conditional resource access
+      principalId: dataFactory.identity.principalId
+      principalType: 'ServicePrincipal'
+    }
+  }
+]
+
+// Grant ADF identity access to execute its own pipelines (e.g., for dynamic pipeline dispatch via REST API)
+resource factorySelfRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for role in autoStartRbacRoles: if (usesDataFactory) {
+    name: guid(dataFactory.id, role, dataFactory.id)
+    scope: dataFactory
+    properties: {
+      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+      #disable-next-line BCP318 // Null safety warning for conditional resource access
       principalId: dataFactory.identity.principalId
       principalType: 'ServicePrincipal'
     }
@@ -542,19 +556,20 @@ resource keyVaultEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (
 
 @description('Resource ID of the Data Factory instance used by the FinOps hub app.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output dataFactoryId string = dataFactory.id
+output dataFactoryId string = usesDataFactory ? dataFactory.id : ''
 
 @description('Resource ID of the Key Vault instance used by the FinOps hub app.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output keyVaultId string = keyVault.id
+output keyVaultId string = usesKeyVault ? keyVault.id : ''
 
 @description('Resource ID of the storage account instance used by the FinOps hub app.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output storageAccountId string = storageAccount.id
+output storageAccountId string = usesStorage ? storageAccount.id : ''
 
 @description('Principal ID for the managed identity used by Data Factory.')
 #disable-next-line BCP318 // Null safety warning for conditional resource access
-output principalId string = dataFactory.identity.principalId
+output principalId string = usesDataFactory ? dataFactory.identity.principalId : ''
 
 @description('Name of the managed identity used to create and stop ADF triggers.')
-output triggerManagerIdentityName string = triggerManagerIdentity.name
+#disable-next-line BCP318 // Null safety warning for conditional resource access
+output triggerManagerIdentityName string = usesDataFactory ? triggerManagerIdentity.name : ''

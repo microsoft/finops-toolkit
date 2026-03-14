@@ -195,6 +195,11 @@ $params = @{}
 if ($HubName) { $params.hubName = $HubName }
 else { $params.hubName = "hub" }
 
+# Always enable recommendations for testing
+$params.enableRecommendations = $true
+$params.enableAHBRecommendations = $true
+$params.enableSpotRecommendations = $true
+
 # Analytics backend
 if ($StorageOnly)
 {
