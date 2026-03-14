@@ -102,66 +102,115 @@ resource pipeline_ExecuteQuery 'Microsoft.DataFactory/factories/pipelines@2018-0
   properties: {
     activities: [
       {
-        name: 'Execute ARG Query'
-        description: 'Execute a single ARG query and write the result to the ingestion container as Parquet.'
-        type: 'Copy'
+        name: 'Check Query Has Results'
+        description: 'Run the query with | count to check if there are any results before attempting the full copy.'
+        type: 'WebActivity'
         dependsOn: []
         policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
+          timeout: '0.00:05:00'
+          retry: 1
+          retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
         }
         userProperties: []
         typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: {
-              value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | extend x_SourceName=\\"\', pipeline().parameters.querySource, \'\\", x_SourceType=\\"\', pipeline().parameters.queryType, \'\\", x_SourceProvider=\\"\', pipeline().parameters.queryProvider, \'\\", x_SourceVersion=\\"\', pipeline().parameters.queryVersion, \'\\"" }\')'
-              type: 'Expression'
-            }
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
+          url: '${environment().resourceManager}providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01'
+          method: 'POST'
+          headers: {
+            'Content-Type': 'application/json'
           }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@pipeline().parameters.translator'
+          body: {
+            value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | count" }\')'
             type: 'Expression'
           }
+          authentication: {
+            type: 'MSI'
+            resource: environment().resourceManager
+          }
         }
-        inputs: [
+      }
+      {
+        name: 'If Query Has Results'
+        description: 'Only run the copy if the query returned results to avoid schema mapping errors on empty result sets.'
+        type: 'IfCondition'
+        dependsOn: [
           {
-            referenceName: dataset_azureResourceGraph.name
-            type: 'DatasetReference'
-            parameters: {}
+            activity: 'Check Query Has Results'
+            dependencyConditions: ['Succeeded']
           }
         ]
-        outputs: [
-          {
-            referenceName: dataset_ingestion.name
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@pipeline().parameters.ingestionPath'
-                type: 'Expression'
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@greater(int(activity(\'Check Query Has Results\').output.data[0].Count), 0)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Execute ARG Query'
+              description: 'Execute a single ARG query and write the result to the ingestion container as Parquet.'
+              type: 'Copy'
+              dependsOn: []
+              policy: {
+                timeout: '0.00:10:00'
+                retry: 0
+                retryIntervalInSeconds: 60
+                secureOutput: false
+                secureInput: false
               }
+              userProperties: []
+              typeProperties: {
+                source: {
+                  type: 'RestSource'
+                  httpRequestTimeout: '00:02:00'
+                  requestInterval: '00.00:00:00.050'
+                  requestMethod: 'POST'
+                  requestBody: {
+                    value: '@concat(\'{ "query": "\', pipeline().parameters.query, \' | extend x_SourceName=\\"\', pipeline().parameters.querySource, \'\\", x_SourceType=\\"\', pipeline().parameters.queryType, \'\\", x_SourceProvider=\\"\', pipeline().parameters.queryProvider, \'\\", x_SourceVersion=\\"\', pipeline().parameters.queryVersion, \'\\"" }\')'
+                    type: 'Expression'
+                  }
+                  additionalHeaders: {
+                    'Content-Type': 'application/json'
+                  }
+                }
+                sink: {
+                  type: 'ParquetSink'
+                  storeSettings: {
+                    type: 'AzureBlobFSWriteSettings'
+                  }
+                  formatSettings: {
+                    type: 'ParquetWriteSettings'
+                  }
+                }
+                enableStaging: false
+                translator: {
+                  value: '@pipeline().parameters.translator'
+                  type: 'Expression'
+                }
+              }
+              inputs: [
+                {
+                  referenceName: dataset_azureResourceGraph.name
+                  type: 'DatasetReference'
+                  parameters: {}
+                }
+              ]
+              outputs: [
+                {
+                  referenceName: dataset_ingestion.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    blobPath: {
+                      value: '@pipeline().parameters.ingestionPath'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
             }
-          }
-        ]
+          ]
+        }
       }
     ]
     parameters: {

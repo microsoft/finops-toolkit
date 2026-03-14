@@ -141,8 +141,8 @@ resource pipeline_ExecuteQueries 'Microsoft.DataFactory/factories/pipelines@2018
             referenceName: dataFactory::dataset_config.name
             type: 'DatasetReference'
             parameters: {
-              fileName: core.settings.file
-              folderPath: core.settings.container
+              fileName: '*.json'
+              folderPath: '${core.containers.config}/${QUERIES}'
             }
           }
           firstRowOnly: false
@@ -334,7 +334,10 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
               folderPath: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'queryScope\'), \'/\', pipeline().parameters.queryType)'
             }
           }
-          fieldList: ['childItems']
+          fieldList: [
+            'exists'
+            'childItems'
+          ]
           storeSettings: {
             type: 'AzureBlobFSReadSettings'
             enablePartitionDiscovery: false
@@ -351,13 +354,13 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
         dependsOn: [
           {
             activity: 'Get Existing Parquet Files'
-            dependencyConditions: ['Completed']
+            dependencyConditions: ['Succeeded']
           }
         ]
         userProperties: []
         typeProperties: {
           items: {
-            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            value: '@if(and(activity(\'Get Existing Parquet Files\').output.exists, contains(activity(\'Get Existing Parquet Files\').output, \'childItems\')), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
             type: 'Expression'
           }
           condition: {
@@ -466,7 +469,7 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           }
           {
             activity: 'Delete Old Files Loop'
-            dependencyConditions: ['Completed']
+            dependencyConditions: ['Succeeded']
           }
           {
             activity: 'Load Schema Mappings'
@@ -581,13 +584,46 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           timeout: '0.00:30:00'
         }
       }
-      { // Create Manifest
-        name: 'Create Manifest'
-        description: 'Create a manifest file in the ingestion container to trigger ADX ingestion (if applicable).'
-        type: 'Copy'
+      { // Verify Query Engine Pipeline Succeeded
+        name: 'Verify Query Engine Pipeline Succeeded'
+        description: 'Fail the pipeline if the query engine run did not succeed.'
+        type: 'IfCondition'
         dependsOn: [
           {
             activity: 'Wait For Query Engine Pipeline'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@not(equals(variables(\'engineRunStatus\'), \'Succeeded\'))'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Query Engine Pipeline Failed'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@concat(\'Query engine pipeline finished with status: \', variables(\'engineRunStatus\'))'
+                  type: 'Expression'
+                }
+                errorCode: 'QueryEnginePipelineFailed'
+              }
+            }
+          ]
+        }
+      }
+      { // Check If Data Was Written
+        name: 'Check If Data Was Written'
+        description: 'Check if the query engine actually wrote output files before creating a manifest.'
+        type: 'GetMetadata'
+        dependsOn: [
+          {
+            activity: 'Verify Query Engine Pipeline Succeeded'
             dependencyConditions: ['Succeeded']
           }
         ]
@@ -595,56 +631,107 @@ resource pipeline_ExecuteQueries_query 'Microsoft.DataFactory/factories/pipeline
           timeout: '0.12:00:00'
           retry: 0
           retryIntervalInSeconds: 30
-          secureInput: false
           secureOutput: false
+          secureInput: false
         }
         userProperties: []
         typeProperties: {
-          source: {
-            type: 'JsonSource'
-            storeSettings: {
-              type: 'AzureBlobFSReadSettings'
-              recursive: true
-              enablePartitionDiscovery: false
-            }
-            formatSettings: {
-              type: 'JsonReadSettings'
+          dataset: {
+            referenceName: dataFactory::dataset_ingestion_files.name
+            type: 'DatasetReference'
+            parameters: {
+              folderPath: '@concat(pipeline().parameters.outputDataset, \'/\', variables(\'queryScope\'), \'/\', pipeline().parameters.queryType)'
             }
           }
-          sink: {
-            type: 'JsonSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'JsonWriteSettings'
-            }
+          fieldList: ['exists']
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            enablePartitionDiscovery: false
           }
-          enableStaging: false
+          formatSettings: {
+            type: 'ParquetReadSettings'
+          }
         }
-        inputs: [
+      }
+      { // Create Manifest If Data Exists
+        name: 'Create Manifest If Data Exists'
+        description: 'Only create a manifest file when query results were written, to avoid triggering ADX ingestion on empty folders.'
+        type: 'IfCondition'
+        dependsOn: [
           {
-            referenceName: dataFactory::dataset_config.name
-            type: 'DatasetReference'
-            parameters: {
-              fileName: 'manifest.json'
-              folderPath: core.containers.config
-            }
+            activity: 'Check If Data Was Written'
+            dependencyConditions: ['Succeeded']
           }
         ]
-        outputs: [
-          {
-            referenceName: dataFactory::dataset_manifest.name
-            type: 'DatasetReference'
-            parameters: {
-              fileName: 'manifest.json'
-              folderPath: {
-                value: '@concat(\'${core.containers.ingestion}/\', pipeline().parameters.outputDataset, \'/\', variables(\'queryScope\'), \'/\', pipeline().parameters.queryType)'
-                type: 'Expression'
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@activity(\'Check If Data Was Written\').output.exists'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            { // Create Manifest
+              name: 'Create Manifest'
+              description: 'Copy the settings file as manifest.json to the ingestion folder to trigger ADX ingestion.'
+              type: 'Copy'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureInput: false
+                secureOutput: false
               }
+              userProperties: []
+              typeProperties: {
+                source: {
+                  type: 'JsonSource'
+                  storeSettings: {
+                    type: 'AzureBlobFSReadSettings'
+                    recursive: true
+                    enablePartitionDiscovery: false
+                  }
+                  formatSettings: {
+                    type: 'JsonReadSettings'
+                  }
+                }
+                sink: {
+                  type: 'JsonSink'
+                  storeSettings: {
+                    type: 'AzureBlobFSWriteSettings'
+                  }
+                  formatSettings: {
+                    type: 'JsonWriteSettings'
+                  }
+                }
+                enableStaging: false
+              }
+              inputs: [
+                {
+                  referenceName: dataFactory::dataset_config.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    fileName: core.settings.file
+                    folderPath: core.settings.container
+                  }
+                }
+              ]
+              outputs: [
+                {
+                  referenceName: dataFactory::dataset_manifest.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    fileName: 'manifest.json'
+                    folderPath: {
+                      value: '@concat(\'${core.containers.ingestion}/\', pipeline().parameters.outputDataset, \'/\', variables(\'queryScope\'), \'/\', pipeline().parameters.queryType)'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
             }
-          }
-        ]
+          ]
+        }
       }
     ]
     parameters: {
