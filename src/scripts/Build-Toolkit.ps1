@@ -189,6 +189,7 @@ $templates | ForEach-Object {
             if (Test-Path $scriptPath)
             {
                 Write-Verbose "    Running: $_"
+                $LASTEXITCODE = 0
                 & $scriptPath -DestDir $destDir
                 if (-not $? -or ($LASTEXITCODE -and $LASTEXITCODE -ne 0))
                 {
@@ -197,7 +198,7 @@ $templates | ForEach-Object {
             }
             else
             {
-                Write-Warning "    Custom build script not found: $scriptPath"
+                throw "Custom build script not found: $scriptPath"
             }
         }
     }

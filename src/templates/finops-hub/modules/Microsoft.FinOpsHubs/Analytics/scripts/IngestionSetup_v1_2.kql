@@ -1689,8 +1689,10 @@ Recommendations_transform_v1_2()
     | extend x_RecommendationDetails = iff(gettype(x_RecommendationDetails) == 'string', parse_json(tostring(x_RecommendationDetails)), x_RecommendationDetails)
     //
     // Normalize x_RecommendationDetails keys to x_PascalCase (Advisor extendedProperties use camelCase)
+    // Guard: inject a placeholder key so mv-apply doesn't drop rows with null/empty bags
+    | extend x_RecommendationDetails = bag_merge(coalesce(x_RecommendationDetails, dynamic({})), bag_pack('__placeholder', ''))
     | mv-apply k = bag_keys(x_RecommendationDetails) on (
-        where isnotempty(tostring(k))
+        where isnotempty(tostring(k)) and tostring(k) != '__placeholder'
         | extend newKey = iff(tostring(k) startswith 'x_', tostring(k), strcat('x_', toupper(substring(tostring(k), 0, 1)), substring(tostring(k), 1)))
         | summarize x_RecommendationDetails = make_bag(bag_pack(newKey, x_RecommendationDetails[tostring(k)]))
     )

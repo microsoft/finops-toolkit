@@ -87,7 +87,7 @@ Describe 'HubsIngestionQueries' {
                     $firstResult = $results | Select-Object -First 1
                     $columns = $firstResult.PSObject.Properties.Name
 
-                    # These are the only columns recommendation queries should output (must match schema)
+                    # These are the columns ARG queries should output (x_Source* columns are added downstream by the ADF pipeline)
                     $expectedColumns = @(
                         'ResourceId'
                         'ResourceName'
