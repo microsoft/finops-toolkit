@@ -78,11 +78,11 @@ Prices_transform_v1_0()
     );
     //
     // NOTE: Commitment discount eligibility requires cross-row lookups and is deferred to the Hub
-    // view (Prices_v1_2) because ADX update policies execute per-ingestion batch, not across the
+    // view (Prices_v1_0) because ADX update policies execute per-ingestion batch, not across the
     // full table. See https://github.com/microsoft/finops-toolkit/issues/1625
     prices
     //
-    // Commitment discount eligibility is computed in the Hub view (Prices_v1_2)
+    // Commitment discount eligibility is computed in the Hub view (Prices_v1_0)
     | extend x_CommitmentDiscountSpendEligibility = ''
     | extend x_CommitmentDiscountUsageEligibility = ''
     //

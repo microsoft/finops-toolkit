@@ -47,8 +47,9 @@ The following section lists features and enhancements that are currently in deve
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
   - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
 - **Fixed**
-  - Fixed prices transform function producing incorrect results when price sheet data is split across multiple ingestion batches by moving cross-row operations (commitment discount eligibility) from the ingestion-time update policy to the query-time Hub view functions ([#1625](https://github.com/microsoft/finops-toolkit/issues/1625)).
-    - Stopped nulling savings plan price columns (`ContractedUnitPrice`, `ListUnitPrice`) since the raw values from Cost Management (`UnitPrice`, `MarketPrice`) already contain the correct contracted and retail rates for all price types, including savings plans.
+  - Fixed price data ingestion bugs when price sheet data is split across multiple files ([#1625](https://github.com/microsoft/finops-toolkit/issues/1625)).
+    - Commitment discount prices are now consistently set correctly using a full price sheet lookup.
+    - Commitment discount eligibility columns moved to the Prices* Hub functions rather than hard-coded in the `Prices_final_v*` tables.
 
 ### [PowerShell module](powershell/powershell-commands.md) v14
 
