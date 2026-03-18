@@ -111,7 +111,6 @@ param(
     [switch]$StorageOnly,
     [switch]$Recommendations,
     [switch]$Remove,
-    [int]$PR,
     [string]$Scope,
     [switch]$ManagedExports,
     [string]$Location,

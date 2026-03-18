@@ -1025,7 +1025,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
                     parameters: {
                       fileName: 'manifest.json'
                       folderPath: {
-                        value: '@concat(\'${INGESTION}/\', variables(\'destinationFolder\'))'
+                        value: '@concat(\'${core.containers.ingestion}/\', variables(\'destinationFolder\'))'
                         type: 'Expression'
                       }
                     }
