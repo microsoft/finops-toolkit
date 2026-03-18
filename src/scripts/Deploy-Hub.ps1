@@ -91,6 +91,12 @@
     .PARAMETER ManagedExports
     Optional. Use managed exports instead of manual exports. Requires -Scope. Grants the hub managed identity the required roles on the scope and passes scopesToMonitor to the template.
 
+    .PARAMETER EnablePublicAccess
+    Optional. Enable or disable public access. When false, deploys VNet and private endpoints. Default: true.
+
+    .PARAMETER VirtualNetworkAddressPrefix
+    Optional. Virtual network address prefix for private networking. Requires a /26 CIDR block. Default: "10.20.30.0/26".
+
     .PARAMETER Build
     Optional. Build the template before deploying.
 
@@ -113,6 +119,8 @@ param(
     [switch]$Remove,
     [string]$Scope,
     [switch]$ManagedExports,
+    [bool]$EnablePublicAccess = $true,
+    [string]$VirtualNetworkAddressPrefix,
     [string]$Location,
     [switch]$Build,
     [switch]$WhatIf
@@ -272,6 +280,17 @@ elseif ($Scope)
 {
     $params.enableManagedExports = $false
     Write-Host "  Manual exports: $Scope"
+}
+
+# Private networking
+$params.enablePublicAccess = $EnablePublicAccess
+if (-not $EnablePublicAccess)
+{
+    if ($VirtualNetworkAddressPrefix)
+    {
+        $params.virtualNetworkAddressPrefix = $VirtualNetworkAddressPrefix
+    }
+    Write-Host "  Private networking: enabled (VNet $($VirtualNetworkAddressPrefix ?? '10.20.30.0/26'))"
 }
 
 # Resource group
