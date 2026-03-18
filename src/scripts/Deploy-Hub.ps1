@@ -278,8 +278,11 @@ if ($ManagedExports -and $Scope)
 }
 elseif ($Scope)
 {
-    $params.enableManagedExports = $false
     Write-Host "  Manual exports: $Scope"
+}
+else
+{
+    $params.enableManagedExports = $false
 }
 
 # Private networking
