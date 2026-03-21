@@ -82,8 +82,41 @@
                 "sink": {
                     "path": "x_ResourceGroupName"
                 }
+            },
+            {
+                "source": {
+                    "path": "[['x_SourceName']"
+                },
+                "sink": {
+                    "path": "x_SourceName"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_SourceProvider']"
+                },
+                "sink": {
+                    "path": "x_SourceProvider"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_SourceType']"
+                },
+                "sink": {
+                    "path": "x_SourceType"
+                }
+            },
+            {
+                "source": {
+                    "path": "[['x_SourceVersion']"
+                },
+                "sink": {
+                    "path": "x_SourceVersion"
+                }
             }
         ],
-        "collectionReference": "$['data']"
+        "collectionReference": "$['data']",
+        "mapComplexValuesToString": true
     }
 }

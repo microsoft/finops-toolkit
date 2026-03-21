@@ -311,17 +311,38 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
 }
 
 //------------------------------------------------------------------------------
-// Recommendations app
+// Ingestion queries
+//------------------------------------------------------------------------------
+
+module ingestionQueries 'Microsoft.FinOpsHubs/IngestionQueries/app.bicep' = if (enableRecommendations) {
+  name: 'Microsoft.FinOpsHubs.IngestionQueries'
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'IngestionQueries')
+    core: core.outputs.metadata
+  }
+}
+
+module azureResourceGraph 'Microsoft.FinOpsHubs/AzureResourceGraph/app.bicep' = if (enableRecommendations) {
+  name: 'Microsoft.FinOpsHubs.AzureResourceGraph'
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'AzureResourceGraph')
+    core: core.outputs.metadata
+  }
+}
+
+//------------------------------------------------------------------------------
+// Custom recommendations
 //------------------------------------------------------------------------------
 
 module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (enableRecommendations) {
   name: 'Microsoft.FinOpsHubs.Recommendations'
   dependsOn: [
-    core
-    analytics
+    azureResourceGraph
   ]
   params: {
     app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
+    core: core.outputs.metadata
+    ingestionQueries: ingestionQueries!.outputs.metadata // Safe: guarded by same enableRecommendations condition
     enableAHBRecommendations: enableAHBRecommendations
     enableSpotRecommendations: enableSpotRecommendations
   }

@@ -1685,6 +1685,18 @@ Recommendations_transform_v1_2()
     | extend NetSavings                     = case(isnotempty(NetSavings),                     NetSavings,                     isnotempty(NetSavingsJson),                     toreal(extract(@'"value":([0-9\.]+)', 1, NetSavingsJson)),                     NetSavings)
     | extend TotalCostWithReservedInstances = case(isnotempty(TotalCostWithReservedInstances), TotalCostWithReservedInstances, isnotempty(TotalCostWithReservedInstancesJson), toreal(extract(@'"value":([0-9\.]+)', 1, TotalCostWithReservedInstancesJson)), TotalCostWithReservedInstances)
     //
+    // Parse x_RecommendationDetails from JSON string (ARG queries serialize to string for Parquet compatibility)
+    | extend x_RecommendationDetails = iff(gettype(x_RecommendationDetails) == 'string', parse_json(tostring(x_RecommendationDetails)), x_RecommendationDetails)
+    //
+    // Normalize x_RecommendationDetails keys to x_PascalCase (Advisor extendedProperties use camelCase)
+    // Guard: inject a placeholder key so mv-apply doesn't drop rows with null/empty bags
+    | extend x_RecommendationDetails = bag_merge(coalesce(x_RecommendationDetails, dynamic({})), bag_pack('__placeholder', ''))
+    | mv-apply k = bag_keys(x_RecommendationDetails) on (
+        where isnotempty(tostring(k)) and tostring(k) != '__placeholder'
+        | extend newKey = iff(tostring(k) startswith 'x_', tostring(k), strcat('x_', toupper(substring(tostring(k), 0, 1)), substring(tostring(k), 1)))
+        | summarize x_RecommendationDetails = make_bag(bag_pack(newKey, x_RecommendationDetails[tostring(k)]))
+    )
+    //
     // Build recommendation details
     | lookup kind=leftouter (Regions | summarize RegionName = make_set(RegionName)[0] by Location = RegionId) on Location
     | extend x_RecommendationDetails = case(
@@ -1719,20 +1731,27 @@ Recommendations_transform_v1_2()
     | extend x_RecommendationDate = coalesce(x_RecommendationDate, FirstUsageDate + (toint(extract(@'^P([0-9]+)D$', 1, tostring(x_RecommendationDetails.LookbackPeriodDuration))) * 1d))
     | extend x_RecommendationDate = iff(x_RecommendationDate > now(), startofday(now()), x_RecommendationDate)
     //
+    // Derive x_ResourceType from ResourceId
+    | extend tmp_ResourceType = tostring(parse_resourceid(ResourceId).x_ResourceType)
+    | extend x_RecommendationDetails = iff(isnotempty(tmp_ResourceType), bag_merge(bag_pack('x_ResourceType', tmp_ResourceType), x_RecommendationDetails), x_RecommendationDetails)
+    //
+    // Set ResourceType display name from x_ResourceType code
+    | extend ResourceType = coalesce(ResourceType, tostring(resource_type(tmp_ResourceType).SingularDisplayName), tmp_ResourceType)
+    //
     | project
         ProviderName,
         ResourceId = tolower(ResourceId),      // Force lowercase for consistent grouping/filtering
-        ResourceName = tolower(ResourceName),  // Force lowercase for consistent grouping/filtering
+        ResourceName = tolower(iff(tmp_ResourceType =~ 'microsoft.resources/subscriptions', coalesce(SubAccountName, ResourceName), ResourceName)),  // Use subscription name for subscription-level recommendations
         ResourceType,
         SubAccountId = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
         SubAccountName,
         x_EffectiveCostAfter = coalesce(x_EffectiveCostAfter, TotalCostWithReservedInstances),
         x_EffectiveCostBefore = coalesce(x_EffectiveCostBefore, CostWithNoReservedInstances),
-        x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings),
+        x_EffectiveCostSavings = coalesce(x_EffectiveCostSavings, NetSavings, toreal(x_RecommendationDetails.x_SavingsAmount), toreal(x_RecommendationDetails.x_AnnualSavingsAmount) / 12),
         x_IngestionTime,
         x_RecommendationCategory,  // TODO: Set for reservation recommendations
         x_RecommendationDate,
-        x_RecommendationDescription,
+        x_RecommendationDescription = coalesce(x_RecommendationDescription, tostring(x_RecommendationDetails.x_RecommendationSolution), tostring(x_RecommendationDetails.x_RecommendationSubCategory)),
         x_RecommendationDetails,
         x_RecommendationId = tolower(x_RecommendationId),    // TODO: Set for reservation recommendations; force lowercase for consistent grouping/filtering
         x_ResourceGroupName = tolower(x_ResourceGroupName),  // Force lowercase for consistent grouping/filtering
