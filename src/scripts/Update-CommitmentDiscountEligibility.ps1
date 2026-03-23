@@ -102,10 +102,7 @@ Get-RetailPricePages -Filter "priceType eq 'Reservation'" -MeterRegion 'primary'
     param($item)
     if (-not $riMeters.ContainsKey($item.meterId))
     {
-        $riMeters[$item.meterId] = @{
-            ServiceName   = $item.serviceName
-            ServiceFamily = $item.serviceFamily
-        }
+        $riMeters[$item.meterId] = $true
     }
 }
 
@@ -123,10 +120,7 @@ Get-RetailPricePages -Filter "priceType eq 'Consumption'" -MeterRegion 'primary'
     param($item)
     if ($item.savingsPlan -and $item.savingsPlan.Count -gt 0 -and -not $spMeters.ContainsKey($item.meterId))
     {
-        $spMeters[$item.meterId] = @{
-            ServiceName   = $item.serviceName
-            ServiceFamily = $item.serviceFamily
-        }
+        $spMeters[$item.meterId] = $true
     }
 }
 
@@ -139,16 +133,10 @@ $allMeterIds = @($riMeters.Keys) + @($spMeters.Keys) | Select-Object -Unique | S
 
 $rows = foreach ($meterId in $allMeterIds)
 {
-    $ri = $riMeters.ContainsKey($meterId)
-    $sp = $spMeters.ContainsKey($meterId)
-    $info = if ($ri) { $riMeters[$meterId] } else { $spMeters[$meterId] }
-
     [PSCustomObject]@{
         MeterId             = $meterId
-        ServiceName         = $info.ServiceName
-        ServiceFamily       = $info.ServiceFamily
-        ReservationEligible = $ri
-        SavingsPlanEligible = $sp
+        ReservationEligible = $riMeters.ContainsKey($meterId)
+        SavingsPlanEligible = $spMeters.ContainsKey($meterId)
     }
 }
 
