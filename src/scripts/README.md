@@ -5,6 +5,7 @@ FinOps toolkit scripts are used for local development, testing, and publishing o
 On this page:
 
 - [🆕 Init-Repo](#-init-repo)
+- [🔧 Initialize-CI](#-initialize-ci)
 - [🌐 Build-OpenData](#-build-opendata)
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Hub](#-deploy-hub)
@@ -61,6 +62,37 @@ Examples:
 
   ```powershell
   ./Init-Repo -All
+  ```
+
+<br>
+
+## 🔧 Initialize-CI
+
+[Initialize-CI.ps1](./Initialize-CI.ps1) is a one-time setup script that creates the Azure AD app registration, service principal, federated credential, and GitHub environment needed for per-PR deployment CI.
+
+Prerequisites:
+
+- Logged into Azure (`Connect-AzAccount`) with permissions to create app registrations and grant subscription-level RBAC (Contributor + User Access Administrator).
+- Logged into GitHub CLI (`gh auth login`) with permissions to create environments and secrets in the target repository.
+
+| Parameter          | Description                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| `‑SubscriptionId`  | Required. Azure subscription ID for PR deployments and cost exports.                           |
+| `‑Repository`      | Optional. GitHub repo in `owner/repo` format. Default: `microsoft/finops-toolkit`.             |
+| `‑WhatIf`          | Optional. Preview without making changes.                                                      |
+
+Examples:
+
+- Set up CI for a subscription:
+
+  ```powershell
+  ./Initialize-CI -SubscriptionId "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
+  ```
+
+- Preview what would be created:
+
+  ```powershell
+  ./Initialize-CI -SubscriptionId "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e" -WhatIf
   ```
 
 <br>
@@ -148,18 +180,21 @@ By default, deploys with Azure Data Explorer (dev SKU). Use `-StorageOnly` for s
 
 All resources use an `{initials}-{name}` naming convention where initials are pulled from `git config user.name` and name defaults to `adx`. Pass a name as the first positional parameter to use a custom value (e.g., `216` for Feb 16).
 
-| Parameter        | Description                                                                                                |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `‑Name`          | Optional. First positional parameter. Suffix for `{initials}-{name}` convention. Default: `adx`.           |
-| `‑HubName`       | Optional. Name of the hub instance. Default: `hub`.                                                        |
-| `‑ADX`           | Optional. Name of the Azure Data Explorer cluster. Overrides the `{initials}-{name}` convention.           |
-| `‑ResourceGroup` | Optional. Name of the resource group. Overrides the `{initials}-{name}` convention.                        |
-| `‑Fabric`        | Optional. Deploy with Microsoft Fabric. Provide the eventhouse query URI.                                  |
-| `‑StorageOnly`   | Optional. Deploy a storage-only hub (no Azure Data Explorer or Fabric).                                    |
-| `‑Remove`        | Optional. Remove test environments. With a name, deletes the target RG. Alone, lists all `{initials}-*`.   |
-| `‑Location`      | Optional. Azure location. Default: `westus`.                                                               |
-| `‑Build`         | Optional. Build the template before deploying.                                                             |
-| `‑WhatIf`        | Optional. Validate the deployment without making changes.                                                  |
+| Parameter          | Description                                                                                                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `‑Name`            | Optional. First positional parameter. Suffix for `{initials}-{name}` convention. Default: `adx`.                                                                                     |
+| `‑HubName`         | Optional. Name of the hub instance. Default: `hub`.                                                                                                                                  |
+| `‑ADX`             | Optional. Name of the Azure Data Explorer cluster. Overrides the `{initials}-{name}` convention.                                                                                     |
+| `‑ResourceGroup`   | Optional. Name of the resource group. Overrides the `{initials}-{name}` convention.                                                                                                  |
+| `‑Fabric`          | Optional. Deploy with Microsoft Fabric. Provide the eventhouse query URI.                                                                                                            |
+| `‑StorageOnly`     | Optional. Deploy a storage-only hub (no Azure Data Explorer or Fabric).                                                                                                              |
+| `‑Remove`          | Optional. Remove test environments. With a name, deletes the target RG. Alone, lists all `{initials}-*`.                                                                             |
+| `‑PR`              | Optional. PR number for CI deployments. Resources are named `pr-{number}` or `pr-{number}-{name}` when `-Name` is also specified.                                                    |
+| `‑Scope`           | Optional. Azure scope ID for cost data exports (e.g., `/subscriptions/{id}`). With `-ManagedExports`, enables managed exports. Without it, creates exports manually.                 |
+| `‑ManagedExports`  | Optional. Use managed exports instead of manual exports. Requires `-Scope`. Passes `scopesToMonitor` to the template and grants the hub identity required roles.                     |
+| `‑Location`        | Optional. Azure location. Default: `westus`.                                                                                                                                         |
+| `‑Build`           | Optional. Build the template before deploying.                                                                                                                                       |
+| `‑WhatIf`          | Optional. Validate the deployment without making changes.                                                                                                                            |
 
 Examples:
 
@@ -203,6 +238,24 @@ Examples:
 
   ```powershell
   ./Deploy-Hub -Remove
+  ```
+
+- Deploy with PR naming convention (e.g., RG `pr-123-adx`, ADX `pr-123-adx`):
+
+  ```powershell
+  ./Deploy-Hub -PR 123 -Name adx
+  ```
+
+- Deploy with managed exports:
+
+  ```powershell
+  ./Deploy-Hub -PR 123 -Name adx -Scope "/subscriptions/{id}" -ManagedExports -Build
+  ```
+
+- Deploy storage-only with manual exports:
+
+  ```powershell
+  ./Deploy-Hub -StorageOnly -Scope "/subscriptions/{id}" -Build
   ```
 
 <br>
