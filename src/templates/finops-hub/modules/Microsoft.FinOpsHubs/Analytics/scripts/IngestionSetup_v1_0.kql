@@ -46,6 +46,8 @@ Prices_transform_v1_0()
         | extend x_SkuProductId = coalesce(ProductId, ProductID)
         | extend x_SkuTerm = isoMonths(Term)
         | project-rename
+            ContractedUnitPrice = UnitPrice,
+            ListUnitPrice = MarketPrice,
             x_BaseUnitPrice = BasePrice,
             x_EffectivePeriodEnd = EffectiveEndDate,
             x_EffectivePeriodStart = EffectiveStartDate,
@@ -61,8 +63,6 @@ Prices_transform_v1_0()
             x_SkuRegion = MeterRegion,
             x_SkuServiceFamily = ServiceFamily,
             x_SkuTier = TierMinimumUnits
-        | extend ContractedUnitPrice = UnitPrice   // Negotiated rate for this price type (on-demand, RI, or SP)
-        | extend ListUnitPrice = MarketPrice       // Retail rate for this price type (on-demand, RI, or SP)
         | extend ChargeCategory = case(
             x_SkuPriceType == 'Consumption', 'Usage',
             x_SkuPriceType == 'ReservedInstance', 'Purchase',
@@ -90,7 +90,7 @@ Prices_transform_v1_0()
     // TODO: Compare join vs. lookup perf -- | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1
     | lookup kind=leftouter (PricingUnits | extend x_PricingBlockSize = todecimal(x_PricingBlockSize)) on x_PricingUnitDescription
     //
-    | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
+    | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', ContractedUnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
     | extend x_EffectiveUnitPriceDiscount = ContractedUnitPrice - x_EffectiveUnitPrice
     | extend x_ContractedUnitPriceDiscount = ListUnitPrice - ContractedUnitPrice
     | extend x_TotalUnitPriceDiscount = ListUnitPrice - x_EffectiveUnitPrice
