@@ -67,9 +67,9 @@ _Released March 2026_
 ### [PowerShell module](powershell/powershell-commands.md) v14
 
 - **Added**
-  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
+  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost/new-finopscostexport.md).
 - **Fixed**
-  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
+  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) that showed blank dates when a date range was specified.
   - Addressed minor lint warnings across PowerShell commands.
 
 <!-- prettier-ignore-start -->
