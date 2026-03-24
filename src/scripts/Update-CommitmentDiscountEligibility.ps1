@@ -64,13 +64,22 @@ function Get-RetailPricePages
             }
             catch
             {
+                $statusCode = [int]$_.Exception.Response.StatusCode
+                if ($statusCode -and $statusCode -lt 500 -and $statusCode -ne 429)
+                {
+                    throw "HTTP $statusCode on page $page`: $_"
+                }
+
                 $retries++
                 if ($retries -gt $maxRetries)
                 {
                     throw "Failed after $maxRetries retries on page $page`: $_"
                 }
-                $wait = [Math]::Pow(2, $retries) * 10  # 20s, 40s, 80s, 160s, 320s
-                Write-Host "  Rate limited on page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
+
+                $retryAfter = $_.Exception.Response.Headers['Retry-After']
+                $wait = if ($retryAfter) { [int]$retryAfter } else { [Math]::Pow(2, $retries) * 10 }
+                $reason = if ($statusCode -eq 429) { 'Rate limited' } else { "HTTP $statusCode" }
+                Write-Host "  $reason on page $page, retrying in ${wait}s (attempt $retries/$maxRetries)"
                 Start-Sleep -Seconds $wait
             }
         }
