@@ -134,9 +134,9 @@ $allMeterIds = @($riMeters.Keys) + @($spMeters.Keys) | Select-Object -Unique | S
 $rows = foreach ($meterId in $allMeterIds)
 {
     [PSCustomObject]@{
-        MeterId             = $meterId
-        ReservationEligible = $riMeters.ContainsKey($meterId)
-        SavingsPlanEligible = $spMeters.ContainsKey($meterId)
+        MeterId                              = $meterId
+        x_CommitmentDiscountSpendEligibility = if ($riMeters.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
+        x_CommitmentDiscountUsageEligibility = if ($spMeters.ContainsKey($meterId)) { 'Eligible' } else { 'Not Eligible' }
     }
 }
 

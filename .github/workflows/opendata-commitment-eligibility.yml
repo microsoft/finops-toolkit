@@ -2,7 +2,7 @@ name: Update Commitment Discount Eligibility
 
 on:
   schedule:
-    - cron: '0 6 1 * *'  # 1st of each month at 06:00 UTC
+    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -42,12 +42,12 @@ jobs:
           git push origin "$BRANCH"
 
           gh pr create \
-            --title "Update commitment discount eligibility data ($(date +'%B %Y'))" \
+            --title "[Open Data] Update commitment discount eligibility data ($(date +'%B %Y'))" \
             --base dev \
             --body "$(cat <<'EOF'
           ## Summary
 
-          Monthly automated update of commitment discount eligibility data from the
+          Weekly automated update of commitment discount eligibility data from the
           [Azure Retail Prices API](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices).
 
           This file lists Azure meters that are eligible for Reserved Instances and/or
