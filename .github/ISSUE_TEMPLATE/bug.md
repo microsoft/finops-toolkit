@@ -30,6 +30,13 @@ TODO: Add a clear and concise description of what you expected to happen.
 ## 📷 Screenshots
 TODO: If applicable, add screenshots to help explain your problem. Remove if not applicable.
 
+## 🔧 Environment
+TODO: Complete the following (remove any that are not applicable):
+- **FinOps hub version:** (e.g., 0.10, 0.11, 12.0, 13.0)
+- **Billing account type:** EA (Enterprise Agreement) / MCA (Microsoft Customer Agreement) / CSP (Cloud Solution Provider)
+- **Power BI report type:** Storage-based / ADX (Azure Data Explorer)
+- **Cost Management export:** (e.g., FOCUS 1.2-preview, FOCUS 1.0, actual, amortized)
+
 ## ℹ️ Additional context
 TODO: Add any other context about the problem here. Remove if not applicable.
 
