@@ -153,6 +153,32 @@ Most mappings can rely on resource type alone. In a future update, we will merge
 
 <br>
 
+## Commitment discount eligibility
+
+Azure meters can be eligible for commitment-based discounts such as reservations and savings plans. The commitment discount eligibility file provides a pre-computed lookup of which meters are eligible for each type, sourced from the [Azure Retail Prices API](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices).
+
+Sample data:
+
+| MeterId                              | x_CommitmentDiscountSpendEligibility | x_CommitmentDiscountUsageEligibility |
+| ------------------------------------ | ------------------------------------ | ------------------------------------ |
+| 00003b45-e996-5b04-b673-a2db710f9237 | Eligible                             | Eligible                             |
+| 00020329-e657-5687-9d1a-0be9876e5116 | Eligible                             | Not Eligible                         |
+| 0003c425-b1df-551f-a855-9c95a08cb4ae | Not Eligible                         | Eligible                             |
+
+A few important notes about the data:
+
+- `x_CommitmentDiscountSpendEligibility` indicates whether the meter has Reserved Instance pricing.
+- `x_CommitmentDiscountUsageEligibility` indicates whether the meter has Savings Plan pricing.
+- Only primary meter regions are included to avoid duplicates.
+- Data is updated weekly via a GitHub Actions workflow.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscountEligibility.csv)
+<!-- prettier-ignore-end -->
+
+<br>
+
 ## Dataset examples
 
 The following files are examples of what you see when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and aren't intended to be used for ingestion or reporting.
