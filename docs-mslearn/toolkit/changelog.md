@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 03/14/2026
+ms.date: 03/23/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -69,9 +69,9 @@ _Released March 2026_
 ### [PowerShell module](powershell/powershell-commands.md) v14
 
 - **Added**
-  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
+  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost/new-finopscostexport.md).
 - **Fixed**
-  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
+  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) that showed blank dates when a date range was specified.
   - Addressed minor lint warnings across PowerShell commands.
 
 <!-- prettier-ignore-start -->
