@@ -50,6 +50,7 @@ Current board members:
     <tr>
       <td align="center" valign="top" width="209"><a href="https://github.com/DirkBrinkmann"><img src="https://avatars.githubusercontent.com/u/19854016?v=4?s=100" width="100px;" alt="Dirk Brinkmann"/><br /><b>Dirk Brinkmann</b></a><br /><sup>FinOps Certified Professional</sup></td>
       <td align="center" valign="top" width="209"><a href="https://github.com/scuffy"><img src="https://avatars.githubusercontent.com/u/41356020?v=4?s=100" width="100px;" alt="Sonia Cuff"/><br /><b>Sonia Cuff</b></a><br /><sup>Community</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/kk09v"><img src="https://avatars.githubusercontent.com/u/133434112?v=4?s=100" width="100px;" alt="Karl Kraft"/><br /><b>Karl Kraft</b></a><br /><sup>Finance</sup></td>
     </tr>
   </tbody>
 </div>
@@ -65,11 +66,12 @@ Current advisory council members:
 <table>
   <tbody>
     <tr>
+      <td align="center" valign="top" width="209"><a href="https://github.com/bwatts64"><img src="https://avatars.githubusercontent.com/u/32721128?v=4?s=100" width="100px;" alt="Brad Watts"/><br /><b>Brad Watts</b></a><br /><sup>Azure Data Explorer</sup></td>
       <td align="center" valign="top" width="209"><a href="https://aka.ms/helderpinto"><img src="https://avatars.githubusercontent.com/u/10661605?v=4?s=100" width="100px;" alt="Hélder Pinto"/><br /><b>Hélder Pinto</b></a><br /><sup>Azure Opt Engine</sup></td>
       <td align="center" valign="top" width="209"><a href="https://github.com/arthurclares"><img src="https://avatars.githubusercontent.com/u/53261392?v=4?s=100" width="100px;" alt="Arthur Clares"/><br /><b>Arthur Clares</b></a><br /><sup>Cost opt workbook</sup></td>
-      <td align="center" valign="top" width="209"><a href="https://github.com/nteyan"><img src="https://avatars.githubusercontent.com/u/8894656?v=4?s=100" width="100px;" alt="Nicolas Teyan"/><br /><b>Nicolas Teyan</b></a><br /><sup>Gov workbook</sup></td>
     </tr>
     <tr>
+      <td align="center" valign="top" width="209"><a href="https://github.com/nteyan"><img src="https://avatars.githubusercontent.com/u/8894656?v=4?s=100" width="100px;" alt="Nicolas Teyan"/><br /><b>Nicolas Teyan</b></a><br /><sup>Gov workbook</sup></td>
       <td align="center" valign="top" width="209"><a href="https://github.com/aromano2"><img src="https://avatars.githubusercontent.com/u/26576969?v=4?s=100" width="100px;" alt="Anthony Romano"/><br /><b>Anthony Romano</b></a><br /><sup>PowerShell</sup></td>
       <td align="center" valign="top" width="209"><img src="https://github.com/microsoft/finops-toolkit/assets/399533/164afda4-1960-499d-a621-afdf6f868903" width="100px;" alt="Fernando Vasconcellos"/><br /><b>Fernando Vasconcellos</b></a><br /><sup>Learning resources</sup></td>
     </tr>
