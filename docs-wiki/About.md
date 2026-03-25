@@ -53,7 +53,7 @@ Current board members:
       <td align="center" valign="top" width="209"><a href="https://github.com/kk09v"><img src="https://avatars.githubusercontent.com/u/133434112?v=4?s=100" width="100px;" alt="Karl Kraft"/><br /><b>Karl Kraft</b></a><br /><sup>Finance</sup></td>
     </tr>
   </tbody>
-</div>
+</table>
 
 To learn more, see [[Governing board]].
 
@@ -73,10 +73,10 @@ Current advisory council members:
     <tr>
       <td align="center" valign="top" width="209"><a href="https://github.com/nteyan"><img src="https://avatars.githubusercontent.com/u/8894656?v=4?s=100" width="100px;" alt="Nicolas Teyan"/><br /><b>Nicolas Teyan</b></a><br /><sup>Gov workbook</sup></td>
       <td align="center" valign="top" width="209"><a href="https://github.com/aromano2"><img src="https://avatars.githubusercontent.com/u/26576969?v=4?s=100" width="100px;" alt="Anthony Romano"/><br /><b>Anthony Romano</b></a><br /><sup>PowerShell</sup></td>
-      <td align="center" valign="top" width="209"><img src="https://github.com/microsoft/finops-toolkit/assets/399533/164afda4-1960-499d-a621-afdf6f868903" width="100px;" alt="Fernando Vasconcellos"/><br /><b>Fernando Vasconcellos</b></a><br /><sup>Learning resources</sup></td>
+      <td align="center" valign="top" width="209"><img src="https://github.com/microsoft/finops-toolkit/assets/399533/164afda4-1960-499d-a621-afdf6f868903" width="100px;" alt="Fernando Vasconcellos"/><br /><b>Fernando Vasconcellos</b><br /><sup>Learning resources</sup></td>
     </tr>
   </tbody>
-</div>
+</table>
 
 To learn more, see [[Advisory council]].
 
