@@ -56,7 +56,7 @@
     Optional. First positional parameter. Suffix for the "{initials}-{name}" naming convention used for resource group and ADX cluster. Default: "adx".
 
     .PARAMETER PR
-    Optional. PR number to include in the hub name for easy identification. Used with -Name to form the default hub name "{pr}{name}{initials}" when -HubName is not specified.
+    Optional. PR number for CI deployments. Resources are named "pr-{number}" or "pr-{number}-{name}" when -Name is also specified.
 
     .PARAMETER HubName
     Optional. Name of the hub instance. Default: "hub", or "{pr}{name}{initials}" when -PR or -Name is specified.
@@ -82,14 +82,17 @@
     .PARAMETER Location
     Optional. Azure location. Default: westus.
 
-    .PARAMETER PR
-    Optional. PR number for CI deployments. Resources are named "pr-{number}" or "pr-{number}-{name}" when -Name is also specified.
-
     .PARAMETER Scope
     Optional. Azure scope ID for cost data exports (e.g., "/subscriptions/{id}"). When specified with -ManagedExports, enables managed exports and grants the hub identity access. When specified without -ManagedExports, creates exports manually via New-FinOpsCostExport after deployment.
 
     .PARAMETER ManagedExports
     Optional. Use managed exports instead of manual exports. Requires -Scope. Grants the hub managed identity the required roles on the scope and passes scopesToMonitor to the template.
+
+    .PARAMETER Private
+    Optional. Deploy with private networking (VNet and private endpoints). Default: false.
+
+    .PARAMETER VirtualNetworkAddressPrefix
+    Optional. Virtual network address prefix for private networking. Requires a /26 CIDR block. When set, also sets -Private. Default: "10.20.30.0/26".
 
     .PARAMETER Build
     Optional. Build the template before deploying.
@@ -103,7 +106,7 @@
 param(
     [Parameter(Position = 0)]
     [string]$Name,
-    [string]$PR,
+    [int]$PR,
     [string]$HubName,
     [string]$ADX,
     [string]$ResourceGroup,
@@ -111,9 +114,10 @@ param(
     [switch]$StorageOnly,
     [switch]$Recommendations,
     [switch]$Remove,
-    [int]$PR,
     [string]$Scope,
     [switch]$ManagedExports,
+    [switch]$Private,
+    [string]$VirtualNetworkAddressPrefix,
     [string]$Location,
     [switch]$Build,
     [switch]$WhatIf
@@ -273,6 +277,22 @@ elseif ($Scope)
 {
     $params.enableManagedExports = $false
     Write-Host "  Manual exports: $Scope"
+}
+else
+{
+    $params.enableManagedExports = $false
+}
+
+# Private networking (infer from VNet prefix if provided)
+if ($VirtualNetworkAddressPrefix) { $Private = $true }
+if ($Private)
+{
+    $params.enablePublicAccess = $false
+    if ($VirtualNetworkAddressPrefix)
+    {
+        $params.virtualNetworkAddressPrefix = $VirtualNetworkAddressPrefix
+    }
+    Write-Host "  Private networking: enabled (VNet $($VirtualNetworkAddressPrefix ?? '10.20.30.0/26'))"
 }
 
 # Resource group
