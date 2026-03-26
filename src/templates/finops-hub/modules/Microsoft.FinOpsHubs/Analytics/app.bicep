@@ -116,6 +116,11 @@ param fabricQueryUri string = ''
 @maxValue(2048)
 param fabricCapacityUnits int = 2
 
+@description('Optional. Base URL to use for FinOps Toolkit open data CSV files. Override this to point to a hub storage path when the CSV files are pre-loaded into the hub storage account. Default: The current FinOps Toolkit GitHub open-data path for this build.')
+param openDataBaseUrl string = contains(loadTextContent('../../fx/ftkver.txt'), '-dev')
+  ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
+  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/${loadTextContent('../../fx/ftktag.txt')}/src/open-data'
+
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
 param forceUpdateTag string = utcNow()
 
@@ -135,15 +140,22 @@ var HUB_DB = 'Hub'
 var INGESTION_DB = 'Ingestion'
 
 var ftkGitTag = loadTextContent('../../fx/ftktag.txt')  // cSpell:ignore ftktag
-var ftkReleaseUri = indexOf(finOpsToolkitVersion, '-dev') != -1
-  ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
-  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/${ftkGitTag}/src/open-data'
+var hubStorageBlobBaseUrl = 'https://${toLower(app.storage)}.blob.${toLower(environment().suffixes.storage)}'
+var hubStorageDfsBaseUrl = 'https://${toLower(app.storage)}.dfs.${toLower(environment().suffixes.storage)}'
+var useLocalOpenData = startsWith(toLower(openDataBaseUrl), hubStorageBlobBaseUrl) || startsWith(toLower(openDataBaseUrl), hubStorageDfsBaseUrl)
+var ftkReleaseUri = endsWith(openDataBaseUrl, '/') ? substring(openDataBaseUrl, 0, max(length(openDataBaseUrl) - 1, 0)) : openDataBaseUrl
 
 var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
 
 // cSpell:ignore ftkver, privatelink
-var dataExplorerPrivateDnsZoneName = replace('privatelink.${app.hub.location}.${replace(environment().suffixes.storage, 'core', 'kusto')}', '..', '.')
+var dataExplorerDnsSuffixLookup = {
+  AzureCloud: 'kusto.windows.net'
+  AzureUSGovernment: 'kusto.usgovcloudapi.net'
+  AzureChinaCloud: 'kusto.windows.cn'
+}
+var dataExplorerDnsSuffix = dataExplorerDnsSuffixLookup[?environment().name] ?? replace(environment().suffixes.storage, 'core', 'kusto')
+var dataExplorerPrivateDnsZoneName = replace('privatelink.${app.hub.location}.${dataExplorerDnsSuffix}', '..', '.')
 
 // Actual = Minimum(ClusterMaximumConcurrentOperations, Number of nodes in cluster * Maximum(1, Core count per node * CoreUtilizationCoefficient))
 var ingestionCapacity = {
@@ -219,7 +231,7 @@ var dataExplorerIngestionCapacity = useFabric
 
 // WORKAROUND: Direct property access fails on cluster updates due to ARM bug
 // See: https://github.com/Azure/azure-resource-manager-templates/issues/[issue-number]
-var dataExplorerUri = useFabric ? fabricQueryUri : 'https://${cluster.name}.${app.hub.location}.kusto.windows.net'
+var dataExplorerUri = useFabric ? fabricQueryUri : 'https://${cluster.name}.${app.hub.location}.${dataExplorerDnsSuffix}'
 
 //==============================================================================
 // Resources
@@ -546,7 +558,7 @@ resource dataFactoryVNet 'Microsoft.DataFactory/factories/managedVirtualNetworks
       #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
       privateLinkResourceId: cluster.id
       fqdns: [
-        'https://${replace(clusterName, '_', '-')}.${app.hub.location}.kusto.windows.net'
+        'https://${replace(clusterName, '_', '-')}.${app.hub.location}.${dataExplorerDnsSuffix}'
       ]
     }
   }
@@ -594,19 +606,14 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
   }
 }
 
-// GitHub repository linked service for FTK open data
-resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+// GitHub repository linked service for FTK release files
+resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!useLocalOpenData) {
   name: 'ftkRepo'
   parent: dataFactory
   properties: {
     type: 'HttpServer'
-    parameters: {
-      filePath: {
-        type: 'string'
-      }
-    }
     typeProperties: {
-      url: '@concat(\'https://gitapp.hub.com/microsoft/finops-toolkit/\', linkedService().filePath)'
+      url: 'https://github.com/microsoft/finops-toolkit/'
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
     }
@@ -642,11 +649,12 @@ resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-
   }
 }
 
-resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
+resource dataset_ftkReleaseFile 'Microsoft.DataFactory/factories/datasets@2018-06-01' = if (!useLocalOpenData) {
   name: 'ftkReleaseFile'
   parent: dataFactory
   properties: {
     linkedServiceName: {
+      #disable-next-line BCP318 // Null safety warning for conditional resource access
       referenceName: linkedService_ftkRepo.name
       type: 'LinkedServiceReference'
     }
@@ -1923,10 +1931,10 @@ output metadata AnalyticsMetadata = {
   }
   linkedServices: {
     hubDataExplorer: linkedService_dataExplorer.name
-    ftkRepo: linkedService_ftkRepo.name
+    ftkRepo: useLocalOpenData ? '' : linkedService_ftkRepo.name
   }
   datasets: {
     hubDataExplorer: dataset_dataExplorer.name
-    ftkReleaseFile: dataset_ftkReleaseFile.name
+    ftkReleaseFile: useLocalOpenData ? '' : dataset_ftkReleaseFile.name
   }
 }

@@ -23,6 +23,9 @@
     .PARAMETER Label
     Optional. Indicates the label to use for prerelease versions. Allowed: dev, rc, alpha, preview.
 
+    .PARAMETER PortalUrl
+    Optional. Portal URL used for dashboard feedback links. Default = https://portal.azure.com.
+
     .EXAMPLE
     ./Build-Toolkit
 
@@ -44,7 +47,8 @@ param(
     [switch]$Minor,
     [switch]$Patch,
     [switch]$Prerelease,
-    [string]$Label
+    [string]$Label,
+    [string]$PortalUrl = "https://portal.azure.com"
 )
 
 # Create output directory
@@ -254,6 +258,7 @@ $templates | ForEach-Object {
                     -replace '\$\$ftkver\$\$', $ver `
                     -replace '\$\$build-date\$\$', (Get-Date -Format 'yyyy-MM-dd') `
                     -replace '\$\$build-month\$\$', (Get-Date -Format 'MMMM yyyy') `
+                    -replace '\$\$defined-portal-url\$\$', $PortalUrl `
                 | Out-File "$destDir/$_" -Encoding utf8 -Force
                 $expandedCount++
             }
