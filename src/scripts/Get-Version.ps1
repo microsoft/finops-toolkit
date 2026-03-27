@@ -45,14 +45,14 @@ $ver = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-J
 
 if ($AsTag)
 {
-    return 'v' + ($ver -replace '\.0$', '')
+    return 'v' + (($ver -replace '-.*$', '') -replace '\.0$', '')
 }
 
 if ($AsDotNetVersion -and $ver.Contains('-'))
 {
     $arr = (($ver -replace '-[^\.0-9]+', '') -split '\.') + @(0, 0)
     $arr[3] += 1000000000
-    return $arr[0..3] -Join '.'
+    return $arr[0..3] -join '.'
 }
 
 return $ver

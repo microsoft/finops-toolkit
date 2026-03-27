@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 03/14/2026
+ms.date: 03/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -40,6 +40,8 @@ The following section lists features and enhancements that are currently in deve
 
 ## v14
 
+_Released March 2026_
+
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
 - **Fixed**
@@ -67,13 +69,27 @@ The following section lists features and enhancements that are currently in deve
     - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
   - Fixed Azure Hybrid Benefit reports to include Windows VMs from all publishers, not just Microsoft-published images ([#1793](https://github.com/microsoft/finops-toolkit/issues/1793)).
 
+### [Open data](open-data.md) v14
+
+**[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
+
+- **Added**
+  - Added a new [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) dataset with pre-computed reservation and savings plan eligibility per meter, sourced from the Azure Retail Prices API.
+
 ### [PowerShell module](powershell/powershell-commands.md) v14
 
 - **Added**
-  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost-management/New-FinOpsCostExport.md).
+  - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost/new-finopscostexport.md).
 - **Fixed**
-  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost-management/Start-FinOpsCostExport.md) that showed blank dates when a date range was specified.
+  - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) that showed blank dates when a date range was specified.
   - Addressed minor lint warnings across PowerShell commands.
+
+<!-- prettier-ignore-start -->
+> [!div class="nextstepaction"]
+> [Download](https://github.com/microsoft/finops-toolkit/releases/tag/v14)
+> [!div class="nextstepaction"]
+> [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v13...v14)
+<!-- prettier-ignore-end -->
 
 <br>
 
@@ -99,7 +115,7 @@ This release is a minor patch to fix a bug in FinOps hub managed exports and the
 
 ## v13
 
-_Released January 2026_
+_Released January 31, 2026_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v13
 
