@@ -188,6 +188,7 @@ All resources use an `{initials}-{name}` naming convention where initials are pu
 | `‑ResourceGroup`   | Optional. Name of the resource group. Overrides the `{initials}-{name}` convention.                                                                                                  |
 | `‑Fabric`          | Optional. Deploy with Microsoft Fabric. Provide the eventhouse query URI.                                                                                                            |
 | `‑StorageOnly`     | Optional. Deploy a storage-only hub (no Azure Data Explorer or Fabric).                                                                                                              |
+| `‑Recommendations` | Optional. Enable recommendations with all noisy recommendation types (AHB, Spot).                                                                                                    |
 | `‑Remove`          | Optional. Remove test environments. With a name, deletes the target RG. Alone, lists all `{initials}-*`.                                                                             |
 | `‑PR`              | Optional. PR number for CI deployments. Resources are named `pr-{number}` or `pr-{number}-{name}` when `-Name` is also specified.                                                    |
 | `‑Scope`           | Optional. Azure scope ID for cost data exports (e.g., `/subscriptions/{id}`). With `-ManagedExports`, enables managed exports. Without it, creates exports manually.                 |

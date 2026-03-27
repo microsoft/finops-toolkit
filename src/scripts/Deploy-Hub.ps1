@@ -59,7 +59,7 @@
     Optional. PR number for CI deployments. Resources are named "pr-{number}" or "pr-{number}-{name}" when -Name is also specified.
 
     .PARAMETER HubName
-    Optional. Name of the hub instance. Default: "hub", or "{pr}{name}{initials}" when -PR or -Name is specified.
+    Optional. Name of the hub instance. Default: "hub", or "{name}{initials}" when -PR or -Name is specified.
 
     .PARAMETER ADX
     Optional. Name of the Azure Data Explorer cluster. Overrides the "{initials}-{name}" convention. Only used when not using -StorageOnly or -Fabric.
@@ -228,12 +228,12 @@ if ($ManagedExports -and -not $Scope)
 # Build parameters
 $params = @{}
 
-# Hub name — use "{pr}{name}{initials}" when -PR or -Name is specified, otherwise "hub"
+# Hub name — use "{name}{initials}" when -PR or -Name is specified, otherwise "hub"
 if ($HubName) { $params.hubName = $HubName }
 elseif ($PR -or $PSBoundParameters.ContainsKey('Name'))
 {
     $explicitName = if ($PSBoundParameters.ContainsKey('Name')) { $Name } else { $null }
-    $hubParts = @($PR, $explicitName, $initials) | Where-Object { $_ }
+    $hubParts = @($explicitName, $initials) | Where-Object { $_ }
     $params.hubName = (($hubParts -join '') -replace '[^a-zA-Z0-9]', '').ToLower()
 }
 else { $params.hubName = "hub" }
