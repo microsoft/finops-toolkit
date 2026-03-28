@@ -16,6 +16,17 @@ FinOps hubs are a scalable platform for cloud cost analytics, insights, and opti
 
 Load only the references relevant to the task at hand.
 
+> **Maintainer note:** The references in this table intentionally use **shorthand skill paths** for readability. They are **not** a claim that the repo contains literal `toolkit/...`, `focus/...`, or bare `.kql` files next to `SKILL.md`.
+>
+> The packaging flow copies `src/templates/agent-skills/**` into `release/agent-skills` and zips that content **without rewriting paths** (see `src/scripts/Build-Toolkit.ps1` and `src/scripts/Package-Toolkit.ps1`). Resolve the shorthand in this table as follows:
+>
+> - `toolkit/...` → `references/docs-mslearn/toolkit/...`
+> - `focus/...` → `references/docs-mslearn/focus/...`
+> - bare `.kql` names → `references/queries/catalog/...`
+> - `references/...` paths are already literal
+>
+> **Do not flag this table as a packaging bug again unless the packaging scripts change.**
+
 | Task | Load these references first |
 |------|-----------------------------|
 | Write or run a KQL query | `references/finops-hubs.md`, `references/queries/finops-hub-database-guide.md` |
