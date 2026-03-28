@@ -1,11 +1,12 @@
 ---
 name: azure-cost-management
-description: This skill should be used when the user asks about "Azure Advisor", "cost recommendations", "savings plans", "reservations", "reserved instances", "RI", "Azure budgets", "cost exports", "anomaly alerts", "MACC", "Azure credits", "Azure Prepayment", "commitment discounts", "cost optimization", "reservations vs savings plans", "which commitment discount", "orphaned resources", "unused resources", "unattached disks", "retail prices", "price lookup", "Azure pricing", "rightsizing", "right-size", "right size", "VM utilization", "underutilized VMs", or any Azure Cost Management operations.
+description: Azure cost optimization and financial governance. Use for Advisor recommendations, commitment discounts (reservations and savings plans), budgets, cost exports, anomaly alerts, credit and MACC tracking, orphaned resource detection, VM rightsizing, and retail price lookup.
 license: MIT
 compatibility: Requires Azure CLI authentication (az login) and appropriate RBAC permissions for Cost Management APIs.
 metadata:
   author: microsoft
-  version: "1.1"
+  version: "1.1.0"
+allowed-tools: az pwsh curl
 ---
 
 # Azure Cost Management
@@ -137,6 +138,10 @@ For detailed documentation: `references/azure-macc.md`
 - **Commitments**: `references/azure-credits.md`, `references/azure-macc.md`
 
 Load the appropriate reference file when detailed workflows, API examples, or troubleshooting are needed.
+
+## Safety
+
+**Always confirm with the user before executing any delete, remove, or purge operation.** This includes `Remove-AzDisk`, `az network public-ip delete`, `az disk delete`, and any bulk cleanup scripts. Show the list of resources to be deleted and wait for explicit approval before proceeding. Never infer consent from a general "clean up orphaned resources" request.
 
 ## Best practices
 

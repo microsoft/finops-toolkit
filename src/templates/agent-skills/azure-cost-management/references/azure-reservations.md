@@ -17,6 +17,8 @@ description: Query the Azure Cost Management Benefit Recommendations API to retr
 
 The same Benefit Recommendations API endpoint used for savings plans also returns reservation recommendations. The key difference is the `kind` filter parameter.
 
+> **Authentication note:** Use `az rest` in practice — it handles token acquisition automatically. The raw HTTP examples in this file are for documentation purposes only.
+
 ### Request
 
 ```http
@@ -221,6 +223,8 @@ az consumption reservation summary list \
 ```
 
 ### REST API
+
+> **Authentication note:** Use `az rest` in practice — it handles token acquisition automatically.
 
 ```http
 GET https://management.azure.com/providers/Microsoft.Capacity/reservationOrders/{reservationOrderId}/providers/Microsoft.Consumption/reservationSummaries?grain=daily&$filter=properties/usageDate ge 2026-01-01 AND properties/usageDate le 2026-01-31&api-version=2024-08-01

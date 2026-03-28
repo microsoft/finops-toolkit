@@ -227,6 +227,8 @@ az network public-ip delete --name <name> --resource-group <rg>
 
 ### Bulk cleanup script
 
+> **Confirm before running.** Always show the list of resources to the user and get explicit approval before executing.
+
 ```powershell
 # Bulk delete unattached disks across subscriptions
 $disks = Search-AzGraph -Query "
@@ -235,6 +237,16 @@ resources
 | where properties.diskState == 'Unattached'
 | project name, resourceGroup, subscriptionId
 " -First 1000
+
+# Show what will be deleted and confirm
+Write-Host "Found $($disks.Count) unattached disk(s):"
+$disks | Format-Table name, resourceGroup, subscriptionId -AutoSize
+
+$confirm = Read-Host "Delete all $($disks.Count) disk(s)? Type 'yes' to confirm"
+if ($confirm -ne 'yes') {
+    Write-Host "Aborted."
+    return
+}
 
 $totalRemoved = 0
 foreach ($disk in $disks) {

@@ -52,6 +52,8 @@ Get-AzAdvisorRecommendation |
 
 ### REST API
 
+> **Authentication note:** Use `az rest` in practice — it handles token acquisition automatically. The raw HTTP examples below are for documentation purposes only.
+
 ```http
 GET https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Advisor/recommendations?api-version=2023-01-01&$filter=Category eq 'Cost'
 Authorization: Bearer {token}
@@ -91,6 +93,8 @@ Azure Policy cannot disable Advisor recommendations. Instead, use the Advisor su
 ```
 
 ### REST API Suppression
+
+> **Authentication note:** Use `az rest` in practice — it handles token acquisition automatically. The raw HTTP example below is for documentation purposes only.
 
 ```http
 PUT https://management.azure.com/{resourceUri}/providers/Microsoft.Advisor/recommendations/{recommendationId}/suppressions/{suppressionName}?api-version=2023-01-01

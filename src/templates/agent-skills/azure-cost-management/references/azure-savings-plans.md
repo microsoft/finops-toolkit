@@ -71,6 +71,8 @@ The API returns detailed financial projections:
 
 ## REST API
 
+> **Authentication note:** Use `az rest` in practice — it handles token acquisition automatically. The raw HTTP examples below are for documentation purposes only.
+
 ### Request
 
 ```http

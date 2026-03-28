@@ -40,7 +40,7 @@ Tell the user how many FinOps hub instances you found that matched their inputs,
 - `clusterShortUri`
 - Subscription name
 
-If you don't find any FinOps hub instances, inform the user that you couldn't find any FinOps hubs and ask them to provide a subscription or cluster URI to connect. If they provide a subscription, repeat step 2 with that subscriptioin name or ID. If they provide a cluster URI, use that for the session and skip to step 4.
+If you don't find any FinOps hub instances, inform the user that you couldn't find any FinOps hubs and ask them to provide a subscription or cluster URI to connect. If they provide a subscription, repeat step 2 with that subscription name or ID. If they provide a cluster URI, use that for the session and skip to step 4.
 
 ## Step 3: Ask which FinOps hub instance to use
 
@@ -58,7 +58,7 @@ Costs
 | summarize
     Cost = numberstring(sum(EffectiveCost)),
     Months = dcount(startofmonth(ChargePeriodStart)),
-    DataLastUpdated = datestring(max(ChargePeriodStart))
+    DataLastUpdated = daterange(max(ChargePeriodStart))
     by
         HubVersion = version,
         BillingCurrency
