@@ -136,6 +136,8 @@
           href: toolkit/hubs/configure-dashboards.md
         - name: Configure AI agents
           href: toolkit/hubs/configure-ai.md
+        - name: Configure AI in Copilot Studio
+          href: toolkit/hubs/configure-ai-copilot-studio.md
         - name: Configure remote hubs
           href: toolkit/hubs/configure-remote-hubs.md
         - name: Savings calculations

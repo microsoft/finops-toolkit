@@ -59,6 +59,12 @@ For details about the Azure MCP server, see [Azure MCP on GitHub](https://github
 
 <br>
 
+## Configure Microsoft Copilot Studio
+
+You can create a FinOps hub agent in Microsoft Copilot Studio that connects to your hub database via the Kusto Query MCP Server. This agent can be published to Microsoft Teams or Microsoft 365 Copilot, making cost insights available to your entire organization.
+
+For step-by-step instructions, see [Configure a FinOps hub agent in Microsoft Copilot Studio](configure-ai-copilot-studio.md).
+
 ## Connect from other AI platforms
 
 FinOps hubs use [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) to connect to and query your data in Azure Data Explorer using the Azure MCP server. Besides GitHub Copilot, there are many popular [clients that support MCP servers](https://modelcontextprotocol.io/clients), like Claude, Continue, and more. While we have not tested instructions with other clients, you may be able to reuse some or all of the [AI instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-copilot.zip) with other clients. Try the instructions with clients you use and [create a change request](https://aka.ms/ftk/ideas) or [submit a pull request](https://github.com/microsoft/finops-toolkit/pulls) if you discover any gaps or improvements.
