@@ -160,6 +160,13 @@ var finOpsToolkitVersion = loadTextContent('ftkver.txt')  // cSpell:ignore ftkve
 
 func safeStorageName(name string) string => replace(replace(toLower(name), '-', ''), '_', '')
 
+@description('Converts a version string (e.g., "13.0", "13.1", "14.0-dev") to a comparable integer using major * 1000 + minor. Prerelease suffixes (e.g., "-dev") and patch versions are ignored.')
+func versionToNumber(version string) int => int(split(split(version, '-')[0], '.')[0]) * 1000 + (length(split(split(version, '-')[0], '.')) > 1 ? int(split(split(version, '-')[0], '.')[1]) : 0)
+
+@export()
+@description('Checks if a version string falls within the specified range. Use empty string to skip a bound. Example: isSupportedVersion(\'13.1\', \'13.0\', \'\') checks >= 13.0 with no upper limit.')
+func isSupportedVersion(version string, minVersion string, maxVersion string) bool => (empty(minVersion) || versionToNumber(version) >= versionToNumber(minVersion)) && (empty(maxVersion) || versionToNumber(version) <= versionToNumber(maxVersion))
+
 func idName(name string, resourceType string) IdNameObject => {
   id: resourceId(resourceType, name)
   name: name

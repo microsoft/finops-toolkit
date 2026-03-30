@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 03/10/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -224,7 +224,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    - Use the following guides to assign access to each scope you want to monitor:
      - EA enrollments – [Assign enrollment reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - EA departments – [Assign department reader role permission](/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
-     - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](/azure/role-based-access-control/role-assignments-portal).
+     - Subscriptions and resource groups – Assign the **Cost Management Contributor** role to the hub managed identity on each scope. [Learn more](/azure/role-based-access-control/role-assignments-portal).
 
    <!--
    ### Enterprise agreement billing accounts and departments

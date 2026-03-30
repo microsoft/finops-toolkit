@@ -168,6 +168,28 @@ function Get-FinOpsCostExport
         }
         $exportdetails = @()
         $content | ForEach-Object {
+            # Extract run history before PSCustomObject creation to avoid nested
+            # ForEach-Object $_ collision within the hashtable expression
+            $runs = @()
+            foreach ($run in $_.properties.runHistory.value)
+            {
+                if ($null -eq $run) { continue }
+                $runs += [PSCustomObject]@{
+                    ResourceId     = $run.id
+                    RunId          = $run.name
+                    ExecutionType  = $run.properties.executionType
+                    Status         = $run.properties.status
+                    SubmittedBy    = $run.properties.submittedBy
+                    SubmittedTime  = $run.properties.submittedTime
+                    RunStartTime   = $run.properties.processingStartTime
+                    RunEndTime     = $run.properties.processingEndTime
+                    FileName       = $run.properties.fileName
+                    QueryStartDate = $run.properties.startDate
+                    QueryEndDate   = $run.properties.endDate
+                    ErrorCode      = $run.properties.error.code
+                    ErrorMessage   = $run.properties.error.message
+                }
+            }
             $item = [PSCustomObject]@{
                 Name                = $_.name
                 Id                  = $_.id
@@ -193,23 +215,7 @@ function Get-FinOpsCostExport
                 OverwriteData       = $_.properties.dataOverwriteBehavior -eq "OverwritePreviousReport"
                 PartitionData       = $_.properties.partitionData
                 CompressionMode     = $_.properties.compressionMode
-                RunHistory          = $_.properties.runHistory.value | Where-Object { $_ -ne $null } | ForEach-Object {
-                    [PSCustomObject]@{
-                        ResourceId     = $_.id
-                        RunId          = $_.name
-                        ExecutionType  = $_.properties.executionType
-                        Status         = $_.properties.status
-                        SubmittedBy    = $_.properties.submittedBy
-                        SubmittedTime  = $_.properties.submittedTime
-                        RunStartTime   = $_.properties.processingStartTime
-                        RunEndTime     = $_.properties.processingEndTime
-                        FileName       = $_.properties.fileName
-                        QueryStartDate = $_.properties.startDate
-                        QueryEndDate   = $_.properties.endDate
-                        ErrorCode      = $_.properties.error.code
-                        ErrorMessage   = $_.properties.error.message
-                    }
-                }
+                RunHistory          = $runs
             }
             $exportdetails += $item
         }
