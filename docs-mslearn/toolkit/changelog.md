@@ -35,12 +35,12 @@ The following section lists features and enhancements that are currently in deve
 
 ## v14
 
-### Claude Code plugin v14
+### Claude Code plugin v13.0.0
 
 - **Added**
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management.
-  - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 4 commands, and an output style.
-  - Moved KQL query catalog from `src/queries/` into the plugin.
+  - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
+  - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 

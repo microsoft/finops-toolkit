@@ -59,11 +59,11 @@ If a FinOps hub instance was identified in a previous step, run the following qu
 
 ```kusto
 let version = toscalar(database('Ingestion').HubSettings | project version);
-Costs
+Costs()
 | summarize
-    Cost = numberstring(sum(EffectiveCost)),
+    Cost = format_number(sum(EffectiveCost), 'N2'),
     Months = dcount(startofmonth(ChargePeriodStart)),
-    DataLastUpdated = daterange(max(ChargePeriodStart))
+    DataLastUpdated = format_datetime(max(ChargePeriodStart), 'yyyy-MM-dd')
     by
         HubVersion = version,
         BillingCurrency

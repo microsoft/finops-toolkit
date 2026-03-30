@@ -121,7 +121,7 @@ if ($update -or $Version)
         Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
         $json.version = $ver
-        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8NoBOM -NoNewline
     }
 
     # Update version in marketplace.json plugin entries
@@ -136,7 +136,7 @@ if ($update -or $Version)
                 $plugin.version = $ver
             }
         }
-        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8NoBOM -NoNewline
     }
 
     # Update version in PowerShell
