@@ -23,6 +23,27 @@ ms.reviewer: micflan
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
 - Database viewer or greater access to the Data Explorer **Hub** database. [Learn more](/kusto/management/manage-database-security-roles#database-level-security-roles).
 - Access to [Microsoft Copilot Studio](https://copilotstudio.microsoft.com).
+- A [Microsoft Copilot Studio license](/microsoft-copilot-studio/billing-licensing) or Microsoft 365 Copilot user license.
+
+<br>
+
+## Pricing
+
+Microsoft Copilot Studio uses a consumption-based billing model measured in **Copilot Credits**. Each interaction with the FinOps hub agent consumes credits depending on the features used:
+
+| Agent feature | Cost |
+|---------------|------|
+| Classic answer (predefined response) | 1 Copilot Credit |
+| Generative answer (AI-generated response) | 2 Copilot Credits |
+| Agent action (triggers, reasoning, topic transitions) | 5 Copilot Credits |
+| Tenant graph grounding | 10 Copilot Credits |
+
+A single cost analysis question typically consumes 2-7 Copilot Credits depending on complexity (generative answer + possible agent actions). Complex reports like the weekly anomaly report may consume more credits due to multiple query executions.
+
+> [!NOTE]
+> If the agent user has a **Microsoft 365 Copilot** license, employee-facing usage scenarios are included at no extra charge, subject to fair usage limits. For details, see [Copilot Studio billing rates and management](/microsoft-copilot-studio/requirements-messages-management#copilot-credits-billing-rates).
+
+Copilot Studio includes **25,000 messages per tenant per month** with the base license. Additional capacity can be purchased through prepaid message packs or pay-as-you-go billing. For full pricing details, see [Copilot Studio licensing](/microsoft-copilot-studio/billing-licensing).
 
 <br>
 
