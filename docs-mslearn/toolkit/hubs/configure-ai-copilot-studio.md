@@ -149,7 +149,7 @@ For details about publishing and channel configuration, see [Publish your agent]
 
 There are two licensing paths for using Copilot Studio agents:
 
-- **Microsoft 365 Copilot users** — Employee-facing usage of Copilot Studio agents is included at no extra charge, subject to fair usage limits. If your team already has Microsoft 365 Copilot licenses, you can get started without additional purchases.
+- **Microsoft 365 Copilot users** — Interactive, employee-facing usage of Copilot Studio agents is included at no extra charge, subject to fair usage limits. If your team already has Microsoft 365 Copilot licenses, you can get started without additional purchases. Note that scheduled actions and agent flows are not included and consume Copilot Credits separately.
 - **Standalone Copilot Studio license** — Uses a consumption-based billing model measured in **Copilot Credits**. The base license includes 25,000 messages per tenant per month. A generative answer costs 2 credits, agent actions cost 5 credits each, and a typical cost analysis question consumes 2-7 credits depending on complexity. Additional capacity is available through prepaid message packs or pay-as-you-go billing.
 
 For full pricing details, see [Copilot Studio billing rates and management](/microsoft-copilot-studio/requirements-messages-management#copilot-credits-billing-rates) and [Copilot Studio licensing](/microsoft-copilot-studio/billing-licensing).
