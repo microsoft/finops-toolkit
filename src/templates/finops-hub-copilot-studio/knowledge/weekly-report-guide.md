@@ -112,7 +112,7 @@ Costs_v1_2()
 | order by MonthlySavingsAtRisk desc
 ```
 
-### Q6: Marketplace usage
+### Q6: Marketplace costs
 
 ```kusto
 let LastWeekEnd = startofweek(now());
@@ -120,13 +120,16 @@ let LastWeekStart = datetime_add('day', -7, LastWeekEnd);
 let PriorWeekStart = datetime_add('day', -14, LastWeekEnd);
 Costs_v1_2()
 | where ChargePeriodStart >= PriorWeekStart and ChargePeriodStart < LastWeekEnd
-    and x_PublisherCategory == "Vendor" and ChargeCategory == "Usage"
+    and x_PublisherCategory == "Vendor"
 | extend Week = iff(ChargePeriodStart >= LastWeekStart, "LastWeek", "PriorWeek")
 | summarize Cost = round(sum(EffectiveCost), 2)
-    by ResourceId, ResourceName, x_ResourceGroupName, PublisherName, Week
+    by ResourceId, ResourceName, x_ResourceGroupName, PublisherName, ChargeCategory, Week
 | evaluate pivot(Week, sum(Cost))
-| where LastWeek > 10
-| order by LastWeek desc
+| extend LastWeek = coalesce(LastWeek, 0.0), PriorWeek = coalesce(PriorWeek, 0.0)
+| extend Change = round(LastWeek - PriorWeek, 2),
+    ChangePct = round((LastWeek - PriorWeek) / iff(PriorWeek == 0, real(null), PriorWeek) * 100, 1)
+| where LastWeek > 10 or PriorWeek > 10
+| order by Change desc
 ```
 
 ### Q7: Marketplace purchases (13-month lookback)
