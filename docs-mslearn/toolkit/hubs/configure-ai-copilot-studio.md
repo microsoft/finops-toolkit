@@ -3,7 +3,7 @@ title: Configure a FinOps hub agent in Microsoft Copilot Studio
 description: Learn how to create a FinOps hub AI agent in Microsoft Copilot Studio with the Kusto Query MCP Server.
 author: rkrummenacher
 ms.author: rkrummenacher
-ms.date: 03/29/2026
+ms.date: 03/30/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
