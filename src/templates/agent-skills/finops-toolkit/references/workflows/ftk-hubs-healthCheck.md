@@ -20,7 +20,7 @@ If the FinOps hub version is older than the development version and matches or i
 
 ## Step 2: Check the latest data refresh/update date
 
-If the last data refresh/update date less than 24 hours ago, skip this step.
+If the last data refresh/update date is less than 24 hours ago, skip this step.
 
 If the last data refresh/update date is more than 24 hours ago, inform the user that the data may be stale and they should check the Microsoft Cost Management exports and Azure Data Factory data ingestion pipelines to ensure they are running without errors.
 

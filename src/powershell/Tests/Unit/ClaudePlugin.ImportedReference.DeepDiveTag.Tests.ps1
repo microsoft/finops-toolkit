@@ -3,8 +3,9 @@
 
 BeforeAll {
     $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
-    $referencesRoot = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references'
-    $queryReferencesRoot = Join-Path $referencesRoot 'queries'
+    # Use actual paths instead of symlinks (symlinks don't resolve on Windows CI)
+    $referencesRoot = Join-Path $repoRoot 'src/templates/agent-skills/finops-toolkit/references'
+    $queryReferencesRoot = Join-Path $repoRoot 'src/queries'
     $catalogRoot = Join-Path $queryReferencesRoot 'catalog'
     $schemaGuidePath = Join-Path $queryReferencesRoot 'finops-hub-database-guide.md'
     $queryIndexPath = Join-Path $queryReferencesRoot 'INDEX.md'
@@ -40,8 +41,7 @@ BeforeAll {
         [pscustomobject]@{ Label = 'get_cost_data'; Pattern = '\bget_cost_data\s*\(' },
         [pscustomobject]@{ Label = 'get_available_dimensions'; Pattern = '\bget_available_dimensions\s*\(' },
         [pscustomobject]@{ Label = 'CZ:'; Pattern = 'CZ:' },
-        [pscustomobject]@{ Label = 'User:Defined:'; Pattern = 'User:Defined:' },
-
+        [pscustomobject]@{ Label = 'User:Defined:'; Pattern = 'User:Defined:' }
     )
 
     $honestQualifierPatterns = @(

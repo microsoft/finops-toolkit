@@ -3,11 +3,11 @@
 
 BeforeAll {
     $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
-    $referencePath = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references/understand-finops-hub-context.md'
-    $queryGuidePath = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references/queries/finops-hub-database-guide.md'
-    $queryIndexPath = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references/queries/INDEX.md'
-    $hubsConnectPath = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references/workflows/ftk-hubs-connect.md'
-    $hubsHealthCheckPath = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references/workflows/ftk-hubs-healthCheck.md'
+    $referencePath = Join-Path $repoRoot 'src/templates/agent-skills/finops-toolkit/references/understand-finops-hub-context.md'
+    $queryGuidePath = Join-Path $repoRoot 'src/queries/finops-hub-database-guide.md'
+    $queryIndexPath = Join-Path $repoRoot 'src/queries/INDEX.md'
+    $hubsConnectPath = Join-Path $repoRoot 'src/templates/agent-skills/finops-toolkit/references/workflows/ftk-hubs-connect.md'
+    $hubsHealthCheckPath = Join-Path $repoRoot 'src/templates/agent-skills/finops-toolkit/references/workflows/ftk-hubs-healthCheck.md'
     $environmentPath = '/Users/brett/src/trey/.ftk/environments.local.md'
     $testFilePath = Join-Path $repoRoot 'src/powershell/Tests/Unit/ClaudePlugin.ImportedReference.Foundation.Tests.ps1'
 

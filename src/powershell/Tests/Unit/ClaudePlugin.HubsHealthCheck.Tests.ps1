@@ -4,7 +4,7 @@
 BeforeAll {
     $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
     $commandPath = Join-Path $repoRoot 'src/templates/claude-plugin/commands/ftk/hubs-healthCheck.md'
-    $workflowPath = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references/workflows/ftk-hubs-healthCheck.md'
+    $workflowPath = Join-Path $repoRoot 'src/templates/agent-skills/finops-toolkit/references/workflows/ftk-hubs-healthCheck.md'
 
     function Get-TestFileContent
     {

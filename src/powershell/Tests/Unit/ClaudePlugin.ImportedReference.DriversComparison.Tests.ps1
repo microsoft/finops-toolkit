@@ -3,9 +3,9 @@
 
 BeforeAll {
     $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
-    $referencesRoot = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references'
-    $queryCatalogPath = Join-Path $referencesRoot 'queries/INDEX.md'
-    $schemaGuidePath = Join-Path $referencesRoot 'queries/finops-hub-database-guide.md'
+    $referencesRoot = Join-Path $repoRoot 'src/templates/agent-skills/finops-toolkit/references'
+    $queryCatalogPath = Join-Path $repoRoot 'src/queries/INDEX.md'
+    $schemaGuidePath = Join-Path $repoRoot 'src/queries/finops-hub-database-guide.md'
 
     function Get-TestFileContent
     {
@@ -121,7 +121,7 @@ Describe 'Claude plugin drivers and comparison imported reference post-change va
             $matchedQueries = @()
             foreach ($queryName in $reference.RelevantQueries)
             {
-                $catalogPath = Join-Path $referencesRoot "queries/catalog/$queryName.kql"
+                $catalogPath = Join-Path $repoRoot "src/queries/catalog/$queryName.kql"
                 $catalogPath | Should -Exist
                 $queryIndexContent | Should -Match ([regex]::Escape("[$queryName](./catalog/$queryName.kql)"))
 

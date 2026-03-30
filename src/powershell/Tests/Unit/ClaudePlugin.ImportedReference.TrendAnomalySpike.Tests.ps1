@@ -3,7 +3,7 @@
 
 BeforeAll {
     $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
-    $referencesRoot = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references'
+    $referencesRoot = Join-Path $repoRoot 'src/templates/agent-skills/finops-toolkit/references'
     $queriesRoot = Join-Path $repoRoot 'src/queries'
     $queryIndexPath = Join-Path $queriesRoot 'INDEX.md'
     $schemaGuidePath = Join-Path $queriesRoot 'finops-hub-database-guide.md'

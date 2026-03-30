@@ -3,9 +3,9 @@
 
 BeforeAll {
     $repoRoot = (Get-Item -Path $PSScriptRoot).Parent.Parent.Parent.Parent.FullName
-    $referencesRoot = Join-Path $repoRoot 'src/templates/claude-plugin/skills/finops-toolkit/references'
-    $schemaGuidePath = Join-Path $referencesRoot 'queries/finops-hub-database-guide.md'
-    $queryIndexPath = Join-Path $referencesRoot 'queries/INDEX.md'
+    $referencesRoot = Join-Path $repoRoot 'src/templates/agent-skills/finops-toolkit/references'
+    $schemaGuidePath = Join-Path $repoRoot 'src/queries/finops-hub-database-guide.md'
+    $queryIndexPath = Join-Path $repoRoot 'src/queries/INDEX.md'
     $testFilePath = Join-Path $repoRoot 'src/powershell/Tests/Unit/ClaudePlugin.ImportedCostAnalysisReferences.Tests.ps1'
     $expectedReferenceFiles = @(
         'cost-anomaly-detection.md',
