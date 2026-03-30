@@ -96,6 +96,9 @@ Knowledge files give the agent reference information for constructing accurate K
 1. In your agent, select the **Overview** tab.
 2. Under **Select your agent's model**, choose the model you want to use for reasoning and responding.
 
+   > [!NOTE]
+   > The agent instructions have been tested and validated with **Claude Opus 4.6**. Other models may produce lower-quality results, especially for complex KQL generation and structured report formatting. We recommend Claude Opus 4.6 for the best experience until additional models have been validated.
+
 <br>
 
 ## Test your agent
