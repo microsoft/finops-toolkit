@@ -27,26 +27,6 @@ ms.reviewer: micflan
 
 <br>
 
-## Pricing
-
-Microsoft Copilot Studio uses a consumption-based billing model measured in **Copilot Credits**. Each interaction with the FinOps hub agent consumes credits depending on the features used:
-
-| Agent feature | Cost |
-|---------------|------|
-| Classic answer (predefined response) | 1 Copilot Credit |
-| Generative answer (AI-generated response) | 2 Copilot Credits |
-| Agent action (triggers, reasoning, topic transitions) | 5 Copilot Credits |
-| Tenant graph grounding | 10 Copilot Credits |
-
-A single cost analysis question typically consumes 2-7 Copilot Credits depending on complexity (generative answer + possible agent actions). Complex reports like the weekly anomaly report may consume more credits due to multiple query executions.
-
-> [!NOTE]
-> If the agent user has a **Microsoft 365 Copilot** license, employee-facing usage scenarios are included at no extra charge, subject to fair usage limits. For details, see [Copilot Studio billing rates and management](/microsoft-copilot-studio/requirements-messages-management#copilot-credits-billing-rates).
-
-Copilot Studio includes **25,000 messages per tenant per month** with the base license. Additional capacity can be purchased through prepaid message packs or pay-as-you-go billing. For full pricing details, see [Copilot Studio licensing](/microsoft-copilot-studio/billing-licensing).
-
-<br>
-
 ## Create the agent
 
 1. Open [Microsoft Copilot Studio](https://copilotstudio.microsoft.com).
@@ -162,6 +142,19 @@ Once testing is complete, publish your agent to make it available to your team:
 2. Choose your preferred channel (Microsoft Teams, Microsoft 365 Copilot, or other supported channels).
 
 For details about publishing and channel configuration, see [Publish your agent](/microsoft-copilot-studio/publication-fundamentals-publish-channels).
+
+<br>
+
+## Pricing and licensing
+
+Microsoft Copilot Studio uses a consumption-based billing model measured in **Copilot Credits**. Each interaction with the agent consumes credits based on the features used. A generative answer costs 2 credits, and agent actions cost 5 credits each. A typical cost analysis question consumes 2-7 credits depending on complexity.
+
+Copilot Studio includes 25,000 messages per tenant per month with the base license. Additional capacity is available through prepaid message packs or pay-as-you-go billing.
+
+> [!NOTE]
+> If the agent user has a **Microsoft 365 Copilot** license, employee-facing usage of Copilot Studio agents is included at no extra charge, subject to fair usage limits.
+
+For full pricing details, see [Copilot Studio billing rates and management](/microsoft-copilot-studio/requirements-messages-management#copilot-credits-billing-rates) and [Copilot Studio licensing](/microsoft-copilot-studio/billing-licensing).
 
 <br>
 
