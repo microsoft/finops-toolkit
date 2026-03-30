@@ -19,7 +19,7 @@ ms.reviewer: micflan
 
 ## Prerequisites
 
-- [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer.
+- [Deployed a FinOps hub instance](finops-hubs-overview.md#create-a-new-hub) with Data Explorer running **FinOps hubs v12 or later**. The agent instructions use the `Costs_v1_2()` function, which is not available in earlier versions. [Learn how to upgrade](upgrade.md).
 - [Configured scopes](configure-scopes.md) and ingested data successfully.
 - Database viewer or greater access to the Data Explorer **Hub** database. [Learn more](/kusto/management/manage-database-security-roles#database-level-security-roles).
 - Access to [Microsoft Copilot Studio](https://copilotstudio.microsoft.com).
