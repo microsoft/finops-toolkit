@@ -189,11 +189,11 @@ All resources use an `{initials}-{name}` naming convention where initials are pu
 | `‑Fabric`          | Optional. Deploy with Microsoft Fabric. Provide the eventhouse query URI.                                                                                                            |
 | `‑StorageOnly`     | Optional. Deploy a storage-only hub (no Azure Data Explorer or Fabric).                                                                                                              |
 | `‑Recommendations` | Optional. Enable recommendations with all noisy recommendation types (AHB, Spot).                                                                                                    |
-| `‑Remove`          | Optional. Remove test environments. With a name, deletes the target RG. Alone, lists all `{initials}-*`.                                                                             |
-| `‑PR`              | Optional. PR number for CI deployments. Resources are named `pr-{number}` or `pr-{number}-{name}` when `-Name` is also specified.                                                    |
 | `‑Scope`           | Optional. Azure scope ID for cost data exports (e.g., `/subscriptions/{id}`). With `-ManagedExports`, enables managed exports. Without it, creates exports manually.                 |
 | `‑ManagedExports`  | Optional. Use managed exports instead of manual exports. Requires `-Scope`. Passes `scopesToMonitor` to the template and grants the hub identity required roles.                     |
+| `‑PR`              | Optional. PR number for CI deployments. Resources are named `pr-{number}` or `pr-{number}-{name}` when `-Name` is also specified.                                                    |
 | `‑Location`        | Optional. Azure location. Default: `westus`.                                                                                                                                         |
+| `‑Remove`          | Optional. Remove test environments. With a name, deletes the target RG. Alone, lists all `{initials}-*`.                                                                             |
 | `‑Build`           | Optional. Build the template before deploying.                                                                                                                                       |
 | `‑WhatIf`          | Optional. Validate the deployment without making changes.                                                                                                                            |
 
