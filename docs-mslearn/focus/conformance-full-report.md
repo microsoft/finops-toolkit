@@ -3,7 +3,7 @@ title: FOCUS conformance report
 description: Comprehensive analysis of the Microsoft Cost Management FOCUS dataset's adherence to FOCUS requirements.
 author: flanakin
 ms.author: micflan
-ms.date: 03/14/2026
+ms.date: 03/31/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-learning-resources

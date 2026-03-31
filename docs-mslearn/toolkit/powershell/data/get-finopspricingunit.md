@@ -3,7 +3,7 @@ title: Get-FinOpsPricingUnit command
 description: Get a pricing unit, distinct unit, and block size using the Get-FinOpsPricingUnit command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 03/14/2026
+ms.date: 03/31/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

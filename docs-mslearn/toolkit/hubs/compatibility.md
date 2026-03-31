@@ -3,7 +3,7 @@ title: Compatibility guide
 description: Learn which Power BI report versions are compatible with each FinOps hubs version to ensure seamless upgrades and data integrity.
 author: flanakin
 ms.author: micflan
-ms.date: 03/14/2026
+ms.date: 03/31/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

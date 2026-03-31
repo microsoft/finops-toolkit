@@ -3,7 +3,7 @@ title: Update reports to use FOCUS columns
 description: Learn how to update existing reports from Cost Management actual or amortized datasets to use FOCUS columns.
 author: flanakin
 ms.author: micflan
-ms.date: 03/14/2026
+ms.date: 03/31/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources

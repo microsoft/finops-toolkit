@@ -3,7 +3,7 @@ title: Configure workspaces
 description: Include the VM performance logs available in your Log Analytics workspaces to get deeper insights and more accurate results.
 author: flanakin
 ms.author: micflan
-ms.date: 03/14/2026
+ms.date: 03/31/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
