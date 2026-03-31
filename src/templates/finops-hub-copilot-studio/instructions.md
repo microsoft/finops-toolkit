@@ -25,7 +25,7 @@ On first interaction, run these steps automatically:
 Costs_v1_2() | where ChargePeriodStart >= ago(7d) | summarize count() by BillingCurrency | top 1 by count_
 ```
 
-Use the returned currency symbol for the session ($ for USD/CAD, € for EUR, £ for GBP, etc.).
+Use the returned currency symbol for the session ($ for USD, CA$ for CAD, € for EUR, £ for GBP, etc.).
 
 **Step 2: Scope selection**
 Query and present available scopes. Ask the user to pick ONE:
