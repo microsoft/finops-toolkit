@@ -97,32 +97,10 @@ BeforeDiscovery {
         return $urls
     }
 
-    # Known issues to skip before a specific version (remove entries as links are fixed)
-    $toolkitVersion = (Get-Content (Join-Path $repoRoot 'package.json') | ConvertFrom-Json).version -replace '-.*$', ''
-    $knownIssues = @(
-        # configure-recommendations.md will be created as part of 14.0
-        @{ MaxVersion = '14.0'; PathPattern = 'toolkit/hubs/data-processing.md'; LinkPattern = 'configure-recommendations.md' }
-    )
-
-    # Helper: Check if a link should be skipped as a known issue
-    function Test-KnownIssue([string]$sourceRel, [string]$linkTarget)
-    {
-        foreach ($issue in $knownIssues)
-        {
-            if ([version]$toolkitVersion -lt [version]$issue.MaxVersion -and
-                $sourceRel -match $issue.PathPattern -and
-                $linkTarget -match $issue.LinkPattern)
-            {
-                return $true
-            }
-        }
-        return $false
-    }
-
     #region docs-mslearn
     $mslearnRoot = Join-Path $repoRoot 'docs-mslearn'
     $mslearnFiles = Get-MarkdownFiles $mslearnRoot $mslearnRoot
-    $mslearnInternalLinks = Get-InternalMdLinks $mslearnFiles | Where-Object { -not (Test-KnownIssue $_.SourceRel $_.LinkTarget) }
+    $mslearnInternalLinks = Get-InternalMdLinks $mslearnFiles
     $mslearnUrls = Get-MarkdownUrls $mslearnFiles
     #endregion
 
@@ -213,6 +191,26 @@ Describe 'Documentation links' {
         {
             $wikiPageFileNames = Get-ChildItem -Path $wikiRoot -Filter '*.md' -File | ForEach-Object { $_.Name }
         }
+
+        # Helper: Extract anchors (from headings and HTML elements) from a file
+        function Get-FileAnchors([string]$filePath)
+        {
+            $content = Get-Content -Path $filePath -Raw
+            $headings = [regex]::Matches($content, '(?m)^#{1,6}\s+(.+)$')
+            $anchors = @($headings | ForEach-Object {
+                $heading = $_.Groups[1].Value.Trim()
+                $heading `
+                    -replace '<!--.*?-->', '' `
+                    -replace '\[([^\]]*)\]\([^)]*\)', '$1' `
+                    -replace '`([^`]*)`', '$1' `
+                    -replace '[^a-zA-Z0-9\s\-_]', '' `
+                    -replace '\s+', '-' `
+                    | ForEach-Object { $_.Trim('-').ToLower() }
+            })
+            $htmlAnchors = [regex]::Matches($content, '<a\s+(?:name|id)=[''"]([^''"]+)[''"]')
+            $anchors += @($htmlAnchors | ForEach-Object { $_.Groups[1].Value.ToLower() })
+            return $anchors
+        }
     }
 
     #region docs-mslearn
@@ -242,25 +240,7 @@ Describe 'Documentation links' {
                 return
             }
 
-            $targetContent = Get-Content -Path $resolvedPath -Raw
-
-            # Extract anchors from headings (e.g., ## My Heading -> my-heading)
-            $headings = [regex]::Matches($targetContent, '(?m)^#{1,6}\s+(.+)$')
-            $anchors = @($headings | ForEach-Object {
-                $heading = $_.Groups[1].Value.Trim()
-                $heading `
-                    -replace '<!--.*?-->', '' `
-                    -replace '\[([^\]]*)\]\([^)]*\)', '$1' `
-                    -replace '`([^`]*)`', '$1' `
-                    -replace '[^a-zA-Z0-9\s\-_]', '' `
-                    -replace '\s+', '-' `
-                    | ForEach-Object { $_.Trim('-').ToLower() }
-            })
-
-            # Extract anchors from HTML elements (e.g., <a name="datasets"> or <a id="datasets">)
-            $htmlAnchors = [regex]::Matches($targetContent, '<a\s+(?:name|id)=[''"]([^''"]+)[''"]')
-            $anchors += @($htmlAnchors | ForEach-Object { $_.Groups[1].Value.ToLower() })
-
+            $anchors = Get-FileAnchors $resolvedPath
             $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
         }
     }
@@ -308,23 +288,7 @@ Describe 'Documentation links' {
                 return
             }
 
-            $targetContent = Get-Content -Path $resolvedPath -Raw
-
-            $headings = [regex]::Matches($targetContent, '(?m)^#{1,6}\s+(.+)$')
-            $anchors = @($headings | ForEach-Object {
-                $heading = $_.Groups[1].Value.Trim()
-                $heading `
-                    -replace '<!--.*?-->', '' `
-                    -replace '\[([^\]]*)\]\([^)]*\)', '$1' `
-                    -replace '`([^`]*)`', '$1' `
-                    -replace '[^a-zA-Z0-9\s\-_]', '' `
-                    -replace '\s+', '-' `
-                    | ForEach-Object { $_.Trim('-').ToLower() }
-            })
-
-            $htmlAnchors = [regex]::Matches($targetContent, '<a\s+(?:name|id)=[''"]([^''"]+)[''"]')
-            $anchors += @($htmlAnchors | ForEach-Object { $_.Groups[1].Value.ToLower() })
-
+            $anchors = Get-FileAnchors $resolvedPath
             $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
         }
     }
@@ -385,6 +349,20 @@ Describe 'Documentation links' {
 
             $resolvedPath = Join-Path $sourceDir $PathPart | Resolve-Path -ErrorAction SilentlyContinue
             $resolvedPath | Should -Not -BeNullOrEmpty -Because "link target '$PathPart' in ${SourceRel}:${LineNumber} should resolve to an existing file"
+        }
+
+        It 'Should have a valid anchor: <SourceRel>:<LineNumber> [<LinkText>](<LinkTarget>)' -ForEach ($rootInternalLinks | Where-Object { $_.AnchorPart }) {
+            $sourceDir = Split-Path $SourceFile -Parent
+            $resolvedPath = Join-Path $sourceDir $PathPart
+
+            if (-not (Test-Path $resolvedPath))
+            {
+                Set-ItResult -Skipped -Because 'target file does not exist (covered by file resolution test)'
+                return
+            }
+
+            $anchors = Get-FileAnchors $resolvedPath
+            $anchors | Should -Contain $AnchorPart -Because "anchor '#$AnchorPart' should match a heading or HTML anchor in $(Split-Path $resolvedPath -Leaf) (link in ${SourceRel}:${LineNumber})"
         }
     }
 
