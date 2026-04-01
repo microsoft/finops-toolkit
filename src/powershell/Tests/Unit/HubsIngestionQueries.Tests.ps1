@@ -25,6 +25,12 @@ Describe 'HubsIngestionQueries' {
         $schemaFileCount = @(Get-ChildItem -Path $schemasPath -Filter '*.json' -ErrorAction SilentlyContinue).Count
         $knownEngines = @('ResourceGraph')
         $requiredQueryFields = @('dataset', 'provider', 'query', 'queryEngine', 'scope', 'source', 'type', 'version')
+
+        # Derive known groups from Recommendations/app.bicep parameters.
+        # Non-core groups need a corresponding "enable{Group}Recommendations" bool parameter in app.bicep.
+        $appBicepPath = Join-Path $repoRoot 'src/templates/finops-hub/modules/Microsoft.FinOpsHubs/Recommendations/app.bicep'
+        $appBicepContent = Get-Content -Path $appBicepPath -Raw
+        $knownGroups = @('core') + @([regex]::Matches($appBicepContent, 'param enable(\w+)Recommendations bool') | ForEach-Object { $_.Groups[1].Value.ToLower() })
     }
 
     Context 'Query files' {
@@ -60,6 +66,12 @@ Describe 'HubsIngestionQueries' {
 
         It 'Should match naming convention: <Name>' -ForEach $queryFiles {
             $Name | Should -Match '^[A-Za-z]+-[A-Za-z]+-[A-Za-z0-9]+\.json$' -Because "query file '$Name' should follow the '{Dataset}-{Provider}-{Name}.json' naming convention"
+        }
+
+        It 'Should use a known query group: <Name>' -ForEach $queryFiles {
+            $json = Get-Content -Path $FullName -Raw | ConvertFrom-Json
+            $group = if ($json.PSObject.Properties['group'] -and $json.group) { $json.group } else { 'core' }
+            $group | Should -BeIn $knownGroups -Because "query group '$group' in '$Name' is not a known group ($($knownGroups -join ', ')). Add the group to Build-HubIngestionQueries.ps1 `$groupConfig` and Recommendations/app.bicep before using it."
         }
 
         It 'Should be consistent with dataset field: <Name>' -ForEach $queryFiles {
