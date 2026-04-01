@@ -3,7 +3,7 @@ title: Configure AI agents for FinOps hubs
 description: Learn how to configure an AI agent to connect to your FinOps hub instance.
 author: flanakin
 ms.author: micflan
-ms.date: 03/31/2026
+ms.date: 04/01/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
