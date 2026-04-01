@@ -41,7 +41,7 @@ ms.reviewer: micflan
    > The agent instructions have been tested and validated with **Claude Opus 4.6**. Other models may produce lower-quality results, especially for complex KQL generation and structured report formatting.
 
 5. Download the [Copilot Studio instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-copilot-studio.zip) and extract the contents.
-6. Open the `instructions.md` file and update the **Environment** section with your cluster URI:
+6. Open the `agent-instructions.md` file and update the **Environment** section with your cluster URI:
 
    ```text
    Cluster URI: <your-cluster>.kusto.windows.net
@@ -51,7 +51,7 @@ ms.reviewer: micflan
    > [!NOTE]
    > Do not include `https://` in the cluster URI. Copilot Studio strips HTTP links from the Instructions field.
 
-7. In the **Instructions** section, select **Edit**, paste the full content of `instructions.md`, and select **Save**.
+7. In the **Instructions** section, select **Edit**, paste the full content of `agent-instructions.md`, and select **Save**.
 
 <br>
 
