@@ -3,7 +3,7 @@ title: Cost Management scheduled action bicep modules
 description: This article describes the Cost Management scheduled actions Bicep Registry modules that help you send an email on a schedule or when an anomaly is detected.
 author: flanakin
 ms.author: micflan
-ms.date: 03/31/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

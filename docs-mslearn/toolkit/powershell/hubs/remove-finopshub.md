@@ -3,7 +3,7 @@ title: Remove-FinOpsHub command
 description: Remove a FinOps hub instance using the Remove-FinOpsHub command in the FinOpsToolkit module, with an option to keep the storage account hosting cost data.
 author: flanakin
 ms.author: micflan
-ms.date: 03/31/2026
+ms.date: 04/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

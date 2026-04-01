@@ -3,7 +3,7 @@ title: Azure optimization engine reports
 description: Visualize the Azure Optimization Engine's rich recommendations and insights through various reporting options, including Power BI reports.
 author: flanakin
 ms.author: micflan
-ms.date: 03/31/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

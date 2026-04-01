@@ -2,7 +2,7 @@
 ms.service: finops
 ms.author: flanakin
 author: flanakin
-ms.date: 03/31/2026
+ms.date: 04/01/2026
 ms.topic: how-to
 title: Configure remote hubs
 description: Learn how to configure FinOps hubs to collect cost data across multiple Azure tenants and clouds using remote hub functionality.

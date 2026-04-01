@@ -3,7 +3,7 @@ title: Understanding savings calculations in FinOps toolkit
 description: Learn how savings values are calculated and displayed in FinOps toolkit reports, including negative savings and missing price scenarios.
 author: flanakin
 ms.author: micflan
-ms.date: 03/31/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

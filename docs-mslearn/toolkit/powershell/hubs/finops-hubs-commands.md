@@ -3,7 +3,7 @@ title: FinOps hubs automation
 description: Learn about PowerShell commands available in the FinOpsToolkit module that deploy and manage FinOps hubs.
 author: flanakin
 ms.author: micflan
-ms.date: 03/31/2026
+ms.date: 04/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
