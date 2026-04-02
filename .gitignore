@@ -370,3 +370,6 @@ env/
 
 # AI
 .claude/settings.local.json
+
+# Auto-generated build artifacts
+src/templates/finops-hub-copilot-studio/knowledge/query-catalog.md
