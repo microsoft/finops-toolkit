@@ -39,6 +39,15 @@ param remoteHubStorageKey string = ''
 @description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
+@description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
+param enableRecommendations bool = false
+
+@description('Optional. Enable Azure Hybrid Benefit recommendations that flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses. Requires enableRecommendations. Default: false.')
+param enableAHBRecommendations bool = false
+
+@description('Optional. Enable non-Spot AKS cluster recommendations that flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads. Requires enableRecommendations. Default: false.')
+param enableSpotRecommendations bool = false
+
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
 param dataExplorerName string = ''
 
@@ -168,6 +177,9 @@ module hub 'modules/hub.bicep' = {
     enableInfrastructureEncryption: enableInfrastructureEncryption
     enablePurgeProtection: enablePurgeProtection
     enableManagedExports: enableManagedExports
+    enableRecommendations: enableRecommendations
+    enableAHBRecommendations: enableAHBRecommendations
+    enableSpotRecommendations: enableSpotRecommendations
     dataExplorerName: dataExplorerName
     dataExplorerSku: dataExplorerSku
     dataExplorerCapacity: dataExplorerCapacity

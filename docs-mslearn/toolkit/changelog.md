@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 03/25/2026
+ms.date: 04/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -12,20 +12,25 @@ ms.reviewer: brettwil
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable MD036 -->
-<!-- markdownlint-disable MD025 -->
+<!-- markdownlint-disable no-emphasis-as-heading -->
 
 # FinOps toolkit changelog
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) vNext
+
+- **Added**
+  - Added ability to ingest recommendations from Azure Advisor and custom Azure Resource Graph queries.
+    - Custom recommendations include stopped VMs, unattached disks, underutilized resources, and more.
+
+<!--
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
