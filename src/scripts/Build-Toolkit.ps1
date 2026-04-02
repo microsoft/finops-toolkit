@@ -183,7 +183,7 @@ $templates | ForEach-Object {
     $buildConfig = Get-Content "$_/.build.config" -ErrorAction SilentlyContinue | ConvertFrom-Json -Depth 10
 
     # Backfill config options to avoid null references
-    (@{ ignore = @(); combineKql = @{}; rename = @{}; variableExpansion = @() }).PSObject.Properties | ForEach-Object {
+    (@{ ignore = @(); combineKql = @{}; rename = @{}; variableExpansion = @(); scripts = @() }).PSObject.Properties | ForEach-Object {
         if (-not $buildConfig.PSObject.Properties[$_.Name])
         {
             $buildConfig | Add-Member -MemberType NoteProperty -Name $_.Name -Value $_.Value
@@ -201,6 +201,30 @@ $templates | ForEach-Object {
     $sourceFiles = Get-ChildItem $srcDir | Where-Object { $_.Name -notin @(".build.config", ".buildignore", "scaffold.json") }
     Write-Verbose "    Copying $($sourceFiles.Count) items from source to destination"
     $sourceFiles | Copy-Item -Destination $destDir -Recurse
+
+    # Run custom build scripts after copying files (operates on release copy, not source)
+    if ($buildConfig.scripts.Count -gt 0)
+    {
+        Write-Host "  Running custom build scripts..."
+        Write-Verbose "    Processing $($buildConfig.scripts.Count) custom script(s)"
+        $buildConfig.scripts | ForEach-Object {
+            $scriptPath = "$PSScriptRoot/$_"
+            if (Test-Path $scriptPath)
+            {
+                Write-Verbose "    Running: $_"
+                $LASTEXITCODE = 0
+                & $scriptPath -DestDir $destDir
+                if (-not $? -or ($LASTEXITCODE -and $LASTEXITCODE -ne 0))
+                {
+                    throw "Custom build script '$_' failed"
+                }
+            }
+            else
+            {
+                throw "Custom build script not found: $scriptPath"
+            }
+        }
+    }
 
     # Remove ignored files
     $ignoredFiles = (Get-Content "$srcDir/.buildignore" -ErrorAction SilentlyContinue) + $buildConfig.ignore

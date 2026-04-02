@@ -132,6 +132,8 @@
           href: toolkit/hubs/private-networking.md
         - name: Configure scopes
           href: toolkit/hubs/configure-scopes.md
+        - name: Configure recommendations
+          href: toolkit/hubs/configure-recommendations.md
         - name: Configure dashboards
           href: toolkit/hubs/configure-dashboards.md
         - name: Configure AI agents
@@ -141,7 +143,7 @@
         - name: Configure remote hubs
           href: toolkit/hubs/configure-remote-hubs.md
         - name: Savings calculations
-          href: toolkit/hubs/savings-calculations.md          
+          href: toolkit/hubs/savings-calculations.md
         - name: Deployment template
           href: toolkit/hubs/template.md
         - name: Data model

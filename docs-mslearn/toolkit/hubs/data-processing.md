@@ -3,7 +3,7 @@ title: FinOps hubs data processing
 description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: flanakin
 ms.author: micflan
-ms.date: 03/23/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -54,7 +54,7 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
    4. After ingestion, the **ingestion_ETL_dataExplorer** pipeline performs some cleanup, including purging data in the final table that is past the data retention period.
       - As of 0.7, Data Explorer applies data retention in raw tables while data retention in final tables is applied by the ingestion pipeline. If data ingestion stops, historical data isn't purged.
       - Data retention can be configured during the template deployment or manually in the **config/settings.json** file in storage.
-6. (Optional) The **queries_DailySchedule** trigger runs the **queries_ExecuteETL** pipeline once per day to query Azure Resource Graph for additional recommendations and saves results to the **ingestion/Recommendations** folder. [Learn more](#recommendation-data-transforms).
+6. (Optional) The **queries_DailySchedule** trigger runs the **queries_ExecuteETL** pipeline once per day to query Azure Resource Graph for additional recommendations and saves results to the **ingestion/Recommendations** folder. [Learn more](#azure-resource-graph-recommendations).
 7. Reports and other tools like Power BI read data from Data Explorer or the **ingestion** container.
    - Data in Data Explorer can be read from the **Hub** database.
      - Use the `{dataset}()` function to use the latest schema.
@@ -66,6 +66,35 @@ The following diagram depicts the end-to-end data ingestion process within FinOp
      - Data should be read recursively from the dataset folder and optionally including more as needed for specificity.
      - Files in each dataset folder may have different schemas based on the data source and account type. Be prepared to transform data if ingesting in other systems, like Microsoft Fabric.
      - Reading from storage is discouraged due to performance reasons. Data Explorer is recommended when reporting on more than $1 million in cost.
+
+<br>
+
+## Azure Resource Graph recommendations
+
+When FinOps hubs are deployed with Azure Data Explorer or Microsoft Fabric, an additional pipeline runs daily to query Azure Resource Graph for cost optimization recommendations. This includes Azure Advisor cost recommendations and custom queries for common cost optimization scenarios.
+
+The following diagram depicts the HubsRecommendations data flow:
+
+1. The **queries_DailySchedule** trigger runs once per day.
+2. The **queries_ExecuteETL** pipeline iterates through all query files in the **config/queries** storage folder.
+3. The **queries_ETL_ingestion** pipeline executes each query against Azure Resource Graph, deduplicates results, and saves data as parquet in the **ingestion/Recommendations** folder.
+4. (If using Azure Data Explorer) Data is ingested into the `Recommendations_raw` table and transformed using the `Recommendations_transform_v1_2()` function.
+
+HubsRecommendations includes the following query types:
+
+- **Azure Advisor cost recommendations** - Cost optimization recommendations from Azure Advisor.
+- **Backendless Application Gateways** - Application Gateways without backend pools.
+- **Backendless Load Balancers** - Load Balancers without backend pools.
+- **Empty SQL Elastic Pools** - SQL Elastic Pools with no associated databases.
+- **Non-Spot AKS Clusters** - AKS clusters with autoscaling but not using Spot VMs.
+- **SQL VMs without Azure Hybrid Benefit** - SQL virtual machines not leveraging Azure Hybrid Benefit.
+- **Stopped VMs** - Virtual machines that are stopped but not deallocated.
+- **Unattached Disks** - Unattached (orphaned) managed disks.
+- **Unattached Public IPs** - Unattached static public IP addresses.
+- **VMs without Azure Hybrid Benefit** - Windows VMs not leveraging Azure Hybrid Benefit.
+
+> [!NOTE]
+> The Data Factory managed identity requires **Reader** role on management groups or subscriptions to execute Resource Graph queries. This permission must be configured separately from the FinOps hub deployment.
 
 <br>
 
@@ -194,6 +223,7 @@ Transforms:
 Supported datasets:
 
 - Microsoft ReservationRecommendations: `2023-05-01` (EA and MCA)
+- HubsRecommendations: `1.0` (Azure Advisor and Azure Resource Graph)
 
 Transforms:
 
@@ -202,6 +232,7 @@ Transforms:
     - Includes enforcing EA and MCA column name consistency.
     - Doesn't change the underlying values, which may differ across EA and MCA.
   - Add `x_SourceName`, `x_SourceProvider`, `x_SourceType`, and `x_SourceVersion` to identify the original ingested dataset.
+  - Preserve incoming `x_RecommendationDetails` from HubsRecommendations queries (contains recommendation metadata like provider, solution, type ID, and resource type).
 
 ### Transaction data transforms
 

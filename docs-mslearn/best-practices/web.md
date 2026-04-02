@@ -3,7 +3,7 @@ title: FinOps best practices for Web
 description: This article outlines a collection of proven FinOps practices for web services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
@@ -44,6 +44,38 @@ resources
     WebAppRG = resourceGroup,
     SubscriptionId = subscriptionId
 | order by id asc
+```
+
+### Remove empty App Service plans
+
+Recommendation: Remove App Service plans that have no apps or functions hosted to avoid unnecessary charges.
+
+#### About empty App Service plans
+
+App Service plans define the compute resources for your web apps. Paid plans incur charges based on their configured SKU and instance count, regardless of whether any apps are hosted on them. Empty plans can accumulate during development or when apps are moved between plans. Removing unused plans eliminates unnecessary costs.
+
+<!-- prettier-ignore-start -->
+> [!NOTE]
+> [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md) can automatically identify empty App Service plans. [Learn more](../toolkit/hubs/configure-recommendations.md).
+<!-- prettier-ignore-end -->
+
+#### Identify empty App Service plans
+
+Use the following ARG query to identify App Service plans with no hosted apps.
+
+```kusto
+resources
+| where type =~ 'microsoft.web/serverfarms'
+| where toint(properties.numberOfSites) == 0
+| where sku.tier !~ 'Free'
+| project
+    ResourceId = tolower(id),
+    ResourceName = name,
+    SKUName = tostring(sku.name),
+    SKUTier = tostring(sku.tier),
+    Region = location,
+    ResourceGroupName = resourceGroup,
+    SubscriptionId = subscriptionId
 ```
 
 ### Query: App Service plan details
