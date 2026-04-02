@@ -27,6 +27,15 @@ $ErrorActionPreference = 'Stop'
 $queriesDir = "$PSScriptRoot/../queries/catalog"
 $outputFile = "$PSScriptRoot/../templates/finops-hub-copilot-studio/knowledge/query-catalog.md"
 
+# Queries that require cross-database references or special setup
+$excludeFiles = @('costs-enriched-base')
+
+if (-not (Test-Path $queriesDir))
+{
+    Write-Error "Queries directory not found: $queriesDir"
+    return
+}
+
 Write-Host "Building query catalog..."
 
 # Start with the header
@@ -41,7 +50,14 @@ All queries use the ``Costs_v1_2()`` function unless noted otherwise.
 "@
 
 # Process each KQL file
-$kqlFiles = Get-ChildItem "$queriesDir/*.kql" | Sort-Object Name
+$kqlFiles = Get-ChildItem "$queriesDir/*.kql" -ErrorAction SilentlyContinue `
+    | Where-Object { $excludeFiles -notcontains $_.BaseName } `
+    | Sort-Object Name
+if (-not $kqlFiles -or $kqlFiles.Count -eq 0)
+{
+    Write-Warning "No .kql files found in $queriesDir"
+    return
+}
 Write-Verbose "Found $($kqlFiles.Count) KQL file(s) to process"
 
 foreach ($file in $kqlFiles)
@@ -55,6 +71,13 @@ foreach ($file in $kqlFiles)
 
     # Replace Costs() with Costs_v1_2()
     $content = $content -replace '\bCosts\(\)', 'Costs_v1_2()'
+
+    # Guard against triple backticks in KQL content breaking the markdown code fence
+    if ($content -match '``````')
+    {
+        Write-Warning "Skipping $($file.Name): contains triple backticks that would break markdown"
+        continue
+    }
 
     # Build the section
     $output += "`n`n## $title`n`n``````kusto`n$content`n``````"

@@ -4,7 +4,7 @@ This document lists all columns available in the `Costs_v1_2()` function in the 
 
 **IMPORTANT: This is a SCHEMA REFERENCE for constructing KQL queries. Do NOT use values from this document to answer questions. Always EXECUTE a KQL query to get actual data.**
 
-Based on FOCUS 1.2 (FinOps Open Cost and Usage Specification). Columns with `x_` prefix are Azure extensions. 155 columns total.
+Based on FOCUS 1.2 (FinOps Open Cost and Usage Specification). Columns with `x_` prefix are Azure extensions.
 
 ## Time
 

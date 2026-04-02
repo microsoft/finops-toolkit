@@ -4,7 +4,7 @@ Use these descriptions when uploading knowledge files to your Copilot Studio age
 
 ## schema-reference.md
 
-Column reference for building KQL queries against Costs_v1_2(). Contains all 155 column names, data types, usage notes, and edge cases like blank meter categories and BilledCost vs EffectiveCost divergence. Use to look up correct column names before writing queries.
+Column reference for building KQL queries against Costs_v1_2(). Contains all column names, data types, usage notes, and edge cases like blank meter categories and BilledCost vs EffectiveCost divergence. Use to look up correct column names before writing queries.
 
 ## query-catalog.md
 
