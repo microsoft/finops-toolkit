@@ -3,7 +3,7 @@ title: Configure AI agents for FinOps hubs
 description: Learn how to configure an AI agent to connect to your FinOps hub instance.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 04/02/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -58,6 +58,12 @@ The simplest way to get started with an AI-powered FinOps hub is with [GitHub Co
 For details about the Azure MCP server, see [Azure MCP on GitHub](https://github.com/Azure/azure-mcp?tab=readme-ov-file#-azure-mcp-server).
 
 <br>
+
+## Configure Microsoft Copilot Studio
+
+You can create a FinOps hub agent in Microsoft Copilot Studio that connects to your hub database via the Kusto Query MCP Server. This agent can be published to Microsoft Teams or Microsoft 365 Copilot, making cost insights available to your entire organization.
+
+For step-by-step instructions, see [Configure a FinOps hub agent in Microsoft Copilot Studio](configure-ai-copilot-studio.md).
 
 ## Connect from other AI platforms
 

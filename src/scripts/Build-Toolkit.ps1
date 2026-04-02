@@ -143,6 +143,14 @@ else
     Write-Verbose "No workbook templates found matching pattern: $Template"
 }
 
+# Generate query catalog
+if ($Template -eq "*" -or $Template -eq "finops-hub-copilot-studio")
+{
+    Write-Host "Building query catalog..."
+    Write-Verbose "Generating query-catalog.md from KQL source files"
+    & "$PSScriptRoot/Build-QueryCatalog.ps1"
+}
+
 # Package templates
 Write-Verbose "Searching for templates to package..."
 $templates = Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimization-engine*" -Directory -ErrorAction SilentlyContinue
