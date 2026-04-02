@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/01/2026
+ms.date: 04/02/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -53,6 +53,7 @@ _Released March 2026_
 
 - **Added**
   - Added [Microsoft Sovereign Cloud](/azure/azure-sovereign-clouds/microsoft-sovereign-cloud) support with environment-aware DNS suffix handling for Azure Government, Azure China, and other sovereign environments ([#2072](https://github.com/microsoft/finops-toolkit/pull/2072)).
+  - Added [Copilot Studio agent template](hubs/configure-ai-copilot-studio.md) with instructions, schema reference, query catalog, and weekly report guide for creating a FinOps Hub Agent in Microsoft Copilot Studio using the Kusto Query MCP Server.
 - **Changed**
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
