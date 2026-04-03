@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 03/23/2026
+ms.date: 04/02/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -12,20 +12,25 @@ ms.reviewer: brettwil
 ---
 
 <!-- cSpell:ignore nextstepaction -->
-<!-- markdownlint-disable MD036 -->
-<!-- markdownlint-disable MD025 -->
+<!-- markdownlint-disable no-emphasis-as-heading -->
 
 # FinOps toolkit changelog
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
-<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
+### [FinOps hubs](hubs/finops-hubs-overview.md) vNext
+
+- **Added**
+  - Added ability to ingest recommendations from Azure Advisor and custom Azure Resource Graph queries.
+    - Custom recommendations include stopped VMs, unattached disks, underutilized resources, and more.
+
+<!--
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
@@ -46,6 +51,8 @@ _Released March 2026_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
+- **Added**
+  - Added [Copilot Studio agent template](hubs/configure-ai-copilot-studio.md) with instructions, schema reference, query catalog, and weekly report guide for creating a FinOps Hub Agent in Microsoft Copilot Studio using the Kusto Query MCP Server.
 - **Changed**
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
@@ -63,6 +70,13 @@ _Released March 2026_
   - Excluded dev/test subscriptions from Azure Hybrid Benefit reports to align with licensing requirements ([#1819](https://github.com/microsoft/finops-toolkit/issues/1819)).
     - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
   - Fixed Azure Hybrid Benefit reports to include Windows VMs from all publishers, not just Microsoft-published images ([#1793](https://github.com/microsoft/finops-toolkit/issues/1793)).
+
+### [Open data](open-data.md) v14
+
+**[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
+
+- **Added**
+  - Added a new [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) dataset with pre-computed reservation and savings plan eligibility per meter, sourced from the Azure Retail Prices API.
 
 ### [PowerShell module](powershell/powershell-commands.md) v14
 

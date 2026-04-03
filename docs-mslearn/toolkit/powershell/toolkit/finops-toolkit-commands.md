@@ -3,7 +3,7 @@ title: Toolkit commands
 description: This article summarizes PowerShell commands available for general FinOps toolkit operations, including getting details about toolkit releases.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 04/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

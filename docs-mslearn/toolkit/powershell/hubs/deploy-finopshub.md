@@ -3,7 +3,7 @@ title: Deploy-FinOpsHub command
 description: Deploy a new or update an existing FinOps hub instance using the Deploy-FinOpsHub command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 04/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

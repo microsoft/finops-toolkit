@@ -3,7 +3,7 @@ title: Cost Management connector report
 description: Understand the Power BI report for the Cost Management connector, including cost overviews, commitment discounts, and savings insights.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

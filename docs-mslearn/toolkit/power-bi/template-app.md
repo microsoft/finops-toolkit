@@ -3,7 +3,7 @@ title: Cost Management template app for Enterprise Agreement
 description: Learn about the Cost Management template app for Enterprise Agreement accounts, including its features, usage insights, and available reports.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit

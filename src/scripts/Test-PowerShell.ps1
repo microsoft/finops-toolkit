@@ -136,7 +136,7 @@ else
     if ($Docs) { $testsToRun += '*Docs*' }
     if ($Exports) { $testsToRun += '*-FinOpsCostExport*', 'CostExports.Tests.ps1' }
     if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
-    if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs.Tests.ps1' }
+    if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs*.Tests.ps1' }
     if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
     if ($Workbooks) { $testsToRun += '*Workbook*' }
     if ($Actions) { $testsToRun += 'Action.*.Tests.ps1' }

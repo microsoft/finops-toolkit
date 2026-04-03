@@ -47,6 +47,15 @@ param remoteHubStorageKey string = ''
 @description('Optional. Enable managed exports where your FinOps hub instance will create and run Cost Management exports on your behalf. Not supported for Microsoft Customer Agreement (MCA) billing profiles. Requires the ability to grant User Access Administrator role to FinOps hubs, which is required to create Cost Management exports. Default: true.')
 param enableManagedExports bool = true
 
+@description('Optional. Enable recommendations ingested from Azure Resource Graph based on configurable queries. The Data Factory managed identity requires Reader role on management groups or subscriptions to execute Resource Graph queries. Default: false.')
+param enableRecommendations bool = false
+
+@description('Optional. Enable Azure Hybrid Benefit recommendations that flag VMs and SQL VMs without Azure Hybrid Benefit enabled. May generate noise if your organization does not have on-premises licenses. Requires enableRecommendations. Default: false.')
+param enableAHBRecommendations bool = false
+
+@description('Optional. Enable non-Spot AKS cluster recommendations that flag AKS clusters with autoscaling but not using Spot VMs. May generate noise since Spot VMs are only appropriate for interruptible workloads. Requires enableRecommendations. Default: false.')
+param enableSpotRecommendations bool = false
+
 // cSpell:ignore eventhouse
 @description('Optional. Microsoft Fabric eventhouse query URI. Default: "" (do not use).')
 param fabricQueryUri string = ''
@@ -302,6 +311,44 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
 }
 
 //------------------------------------------------------------------------------
+// Ingestion queries
+//------------------------------------------------------------------------------
+
+module ingestionQueries 'Microsoft.FinOpsHubs/IngestionQueries/app.bicep' = if (enableRecommendations) {
+  name: 'Microsoft.FinOpsHubs.IngestionQueries'
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'IngestionQueries')
+    core: core.outputs.metadata
+  }
+}
+
+module azureResourceGraph 'Microsoft.FinOpsHubs/AzureResourceGraph/app.bicep' = if (enableRecommendations) {
+  name: 'Microsoft.FinOpsHubs.AzureResourceGraph'
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'AzureResourceGraph')
+    core: core.outputs.metadata
+  }
+}
+
+//------------------------------------------------------------------------------
+// Custom recommendations
+//------------------------------------------------------------------------------
+
+module recommendations 'Microsoft.FinOpsHubs/Recommendations/app.bicep' = if (enableRecommendations) {
+  name: 'Microsoft.FinOpsHubs.Recommendations'
+  dependsOn: [
+    azureResourceGraph
+  ]
+  params: {
+    app: newApp(hub, 'Microsoft.FinOpsHubs', 'Recommendations')
+    core: core.outputs.metadata
+    ingestionQueries: ingestionQueries!.outputs.metadata // Safe: guarded by same enableRecommendations condition
+    enableAHBRecommendations: enableAHBRecommendations
+    enableSpotRecommendations: enableSpotRecommendations
+  }
+}
+
+//------------------------------------------------------------------------------
 // Remote hub app
 //------------------------------------------------------------------------------
 
@@ -348,9 +395,10 @@ module startTriggers 'fx/hub-initialize.bicep' = {
   name: 'Microsoft.FinOpsHubs.StartTriggers'
   dependsOn: [
     analytics
+    recommendations
     deleteOldResources
     remoteHub
-    cmManagedExports  
+    cmManagedExports
   ]
   params: {
     app: core.outputs.app
