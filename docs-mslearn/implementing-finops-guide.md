@@ -3,7 +3,7 @@ title: Implementing FinOps guide
 description: Learn how FinOps can help you maintain business efficiency, empower new endeavors, and accelerate business growth through the cloud.
 author: flanakin
 ms.author: micflan
-ms.date: 03/01/2026
+ms.date: 04/01/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-learning-resources
