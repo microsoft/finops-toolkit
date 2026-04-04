@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/02/2026
+ms.date: 04/04/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -44,6 +44,8 @@ _Released March 2026_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
+- **Added**
+  - Added EA enrollment 403 troubleshooting steps to the [common errors](help/errors.md#403) page ([#1754](https://github.com/microsoft/finops-toolkit/issues/1754)).
 - **Fixed**
   - Updated FinOps Foundation video on the overview page to use the latest public video ([#2026](https://github.com/microsoft/finops-toolkit/issues/2026)).
 - **Removed**
