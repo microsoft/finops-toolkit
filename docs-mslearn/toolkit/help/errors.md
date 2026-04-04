@@ -38,6 +38,8 @@ You may see this error when using [Add-FinOpsServicePrincipal](../powershell/cos
 3. Confirm the billing account ID matches your EA enrollment number exactly.
 4. If the error persists, try assigning the role directly through the [Billing Role Assignments REST API](https://learn.microsoft.com/rest/api/billing/2019-10-01-preview/role-assignments/put) using the **Try it** feature.
 
+If this is not an EA enrollment scenario, see [Access to the resource is forbidden](#access-to-the-resource-is-forbidden).
+
 <br>
 
 ## Access to the resource is forbidden
@@ -47,6 +49,8 @@ You may see this error when using [Add-FinOpsServicePrincipal](../powershell/cos
 This error generally means the account you are connected with does not have access to the resource you're attempting to use.
 
 **Mitigation**: Confirm you are using the correct account in the correct Microsoft Entra ID tenant.
+
+If this is an EA enrollment scenario, see [403](#403).
 
 <br>
 
