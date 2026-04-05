@@ -163,7 +163,33 @@ if (-not $milestone)
 {
     Write-Warning "No open milestone found matching '$versionTag' or '$version'. Skipping milestone query."
 }
-else
+
+# Ensure at least 2 future milestones exist (for pushing items to next or next+1 release)
+$currentMajor = [int]($version -replace '\..*$', '')
+$futureTitles = @("v$($currentMajor + 1)", "v$($currentMajor + 2)")
+foreach ($futureTitle in $futureTitles)
+{
+    $existing = $milestones | Where-Object { $_.title -eq $futureTitle }
+    if ($existing)
+    {
+        Write-Host "  $futureTitle already exists" -ForegroundColor Gray
+    }
+    else
+    {
+        Write-Host "  Creating milestone: $futureTitle" -ForegroundColor Gray
+        gh api 'repos/{owner}/{repo}/milestones' --method POST --field title=$futureTitle 2>&1 | Out-Null
+        if ($LASTEXITCODE -eq 0)
+        {
+            Write-Host "  Created milestone: $futureTitle" -ForegroundColor Green
+        }
+        else
+        {
+            Write-Warning "Failed to create milestone: $futureTitle"
+        }
+    }
+}
+
+if ($milestone)
 {
     $milestoneNumber = $milestone.number
     Write-Host "Found milestone: $($milestone.title) (#$milestoneNumber) — $($milestone.open_issues) open issue(s)" -ForegroundColor Green
@@ -186,7 +212,8 @@ else
                 $_ -notmatch '^#{1,3}\s' -and
                 $_ -notmatch '^[-*]\s*\[' -and
                 $_ -notmatch '^\*\*Changes' -and
-                $_ -notmatch '^[⚠️|>|---]'
+                $_ -notmatch '^[>⚠]' -and
+                $_ -notmatch '^---'
             }
             if ($lines.Count -gt 0)
             {
