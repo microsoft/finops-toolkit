@@ -34,28 +34,24 @@ After setup completes, do the following in parallel:
 
 #### Milestone triage
 
-Group the milestone issues and PRs into logical categories based on their titles and labels. Then present them to the user in a layered AskUserQuestion flow:
+Analyze all milestone items and recommend keep vs push for each. The release is expected within ~7 days, so push anything complex unless it's a bug fix or a feature explicitly targeting this release. Use labels, titles, and summaries to judge — don't over-explain your reasoning in questions.
 
-**Round 1: Bulk triage by group.**
+Group items by topic, then present via AskUserQuestion. Use the version tag from the JSON (e.g., "v14") and the next milestone title (e.g., "v15") in option labels.
 
-For each logical group of issues/PRs (e.g., "DevOps improvements", "Documentation updates", "Feature X"):
+**Round 1: Bulk triage by group** (up to 4 groups per AskUserQuestion call).
 
-- Write a concise question (max 100 words) summarizing what the group is about. Include issue/PR numbers, short titles, and their Summary field from the JSON data to give the user enough context to decide without reading each issue.
-- Options: "Keep all in this release (Recommended)", "Push all to next release", "Review individually"
-- Do NOT do deep analysis of each issue. Use the title, labels, and summary excerpt from the data.
-- Present up to 4 groups per AskUserQuestion call.
+- **Header:** 1-3 word group name
+- **Question:** Plain text, no formatting. "{count} items: #{number} {short title}, #{number} {short title}, ..." Titles 3-5 words each.
+- **Options:** Recommendation first with "(Recommended)". Always include: "Keep all", "Push all", "Review individually".
 
-**Round 2: Individual review (only for groups where user chose "Review individually").**
+**Round 2: Individual review** (only for groups where user chose "Review individually").
 
-For each issue/PR in that group:
+- **Header:** "#{number}: {1-3 word title}"
+- **Question:** Plain text summary from JSON data, up to 100 words. State your recommendation and why.
+- **Options:** "Keep in {version} (Recommended)" or "Push to {next version} (Recommended)" (whichever you recommend first), the other option, and "Investigate further".
+- If "Investigate further" is chosen, fetch details via `gh issue view {number}`, provide deeper analysis, and re-present.
 
-- Summarize in one line what the issue is about.
-- Options: "Keep in this release", "Push to next release", "Investigate further"
-- If "Investigate further" is chosen, read the issue body and comments via `gh issue view {number}`, then provide a deeper analysis and re-present the decision.
-
-**After triage:**
-
-Report which items are staying and which are being pushed. Do NOT move milestones automatically — just report the recommendations for the user to act on.
+**After triage:** Report which items are staying and which are being pushed. Do NOT move milestones — just report for the user to act on.
 
 #### Build/test results
 

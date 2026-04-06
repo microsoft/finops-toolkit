@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "allow": [
-    ]
+    "allow": ["Bash(pwsh -Command \"./src/scripts/:*)", "Bash(pwsh -Command './src/scripts/:*)"]
   }
 }
