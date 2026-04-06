@@ -134,11 +134,6 @@ param dataExplorerSku string = 'Dev(No SLA)_Standard_D11_v2'
 @maxValue(1000)
 param dataExplorerCapacity int = 1
 
-@description('Optional. Base URL to use for FinOps Toolkit open data CSV files. Override this to point to a hub storage path when the CSV files are pre-loaded into the hub storage account. Default: The current FinOps Toolkit GitHub open-data path for this build.')
-param openDataBaseUrl string = contains(loadTextContent('fx/ftkver.txt'), '-dev')
-  ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
-  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/${loadTextContent('fx/ftktag.txt')}/src/open-data'
-
 // @description('Optional. Array of external tenant IDs that should have access to the cluster. Default: empty (no external access).')
 // param dataExplorerTrustedExternalTenants string[] = []
 
@@ -298,7 +293,6 @@ module analytics 'Microsoft.FinOpsHubs/Analytics/app.bicep' = if (useFabric || u
     core: core.outputs.metadata
     fabricQueryUri: fabricQueryUri
     fabricCapacityUnits: fabricCapacityUnits
-    openDataBaseUrl: openDataBaseUrl
     clusterName: dataExplorerName
     clusterSku: dataExplorerSku
     clusterCapacity: dataExplorerCapacity

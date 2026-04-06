@@ -126,11 +126,6 @@ param fabricQueryUri string = ''
 @maxValue(2048)
 param fabricCapacityUnits int = 2
 
-@description('Optional. Base URL to use for FinOps Toolkit open data CSV files. Override this to point to a hub storage path when the CSV files are pre-loaded into the hub storage account. Default: The current FinOps Toolkit GitHub open-data path for this build.')
-param openDataBaseUrl string = contains(loadTextContent('modules/fx/ftkver.txt'), '-dev')
-  ? 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/open-data'
-  : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/tags/${loadTextContent('modules/fx/ftktag.txt')}/src/open-data'
-
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -178,7 +173,6 @@ module hub 'modules/hub.bicep' = {
     dataExplorerCapacity: dataExplorerCapacity
     fabricQueryUri: fabricQueryUri
     fabricCapacityUnits: fabricCapacityUnits
-    openDataBaseUrl: openDataBaseUrl
     tags: tags
     tagsByResource: tagsByResource
     scopesToMonitor: scopesToMonitor

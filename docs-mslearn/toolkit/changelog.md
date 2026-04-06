@@ -46,22 +46,18 @@ _Released March 2026_
 
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
+- **Added**
+  - Added [Microsoft Sovereign Cloud](/azure/azure-sovereign-clouds/microsoft-sovereign-cloud) support with environment-aware DNS suffix handling for Azure Government, Azure China, and other sovereign environments ([#2072](https://github.com/microsoft/finops-toolkit/pull/2072)).
 - **Changed**
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
   - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
   - Added typed metadata contracts between hub apps to formalize dependency management and enable compile-time verification of inter-app interfaces.
-- **Added**
-  - Added sovereign cloud deployment support for Azure US Government, Azure China (21Vianet), and other sovereign environments ([#2072](https://github.com/microsoft/finops-toolkit/pull/2072)).
-  - Added `openDataBaseUrl` parameter to support open-data ingestion from a local storage account in sovereign environments without internet access.
-  - Added `-PortalUrl` parameter to `Build-Toolkit.ps1` for sovereign cloud dashboard feedback links.
-  - Added [sovereign cloud deployment guide](hubs/deploy-sovereign.md) with build, deployment, and configuration steps.
 - **Fixed**
-  - Fixed hardcoded Kusto DNS suffix to use an environment-aware lookup map with correct suffixes for all supported clouds ([#2072](https://github.com/microsoft/finops-toolkit/pull/2072)).
-  - Fixed incorrect China ADX DNS suffix derivation (`kusto.chinacloudapi.cn` → `kusto.windows.cn`).
-  - Fixed `createUiDefinition.json` storage URL validation to accept all cloud storage suffixes.
-  - Fixed hardcoded `portal.azure.com` URLs in `dashboard.json` to use build-time parameterization.
-  - Fixed `gitapp.hub.com` typo in ADF linked service URL.
+  - Fixed hardcoded Kusto DNS suffix to use an environment-aware lookup map with correct values for all supported clouds ([#2072](https://github.com/microsoft/finops-toolkit/pull/2072)).
+  - Fixed incorrect Azure China ADX DNS suffix (`kusto.chinacloudapi.cn` → `kusto.windows.cn`) ([#2072](https://github.com/microsoft/finops-toolkit/pull/2072)).
+  - Fixed `createUiDefinition.json` storage URL validation to accept sovereign cloud storage suffixes ([#2072](https://github.com/microsoft/finops-toolkit/pull/2072)).
+  - Fixed `gitapp.hub.com` typo in ADF linked service URL ([#2072](https://github.com/microsoft/finops-toolkit/pull/2072)).
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
   - Added row count check in `msexports_ExecuteETL` pipeline to fix error when export files have no rows ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
 
