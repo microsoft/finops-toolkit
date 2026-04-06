@@ -1,5 +1,10 @@
 {
   "permissions": {
-    "allow": ["Bash(pwsh -Command \"./src/scripts/:*)", "Bash(pwsh -Command './src/scripts/:*)"]
+    "allow": [
+      "Bash(pwsh -Command \"./src/scripts/Start-Release.ps1 -OutputFile (Join-Path ([System.IO.Path]::GetTempPath()) 'ftk-release.json')\")",
+      "Bash(pwsh -Command \"./src/scripts/Test-PowerShell.ps1 :*)",
+      "Bash(pwsh -Command \"./src/scripts/:*)",
+      "Bash(pwsh -Command './src/scripts/:*)"
+    ]
   }
 }

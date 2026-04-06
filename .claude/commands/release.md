@@ -1,38 +1,32 @@
 ---
 description: Walk through the release checklist interactively
-allowed-tools: Read, Grep, Bash(gh issue view *), Bash(pwsh -Command ./src/scripts/*)
+allowed-tools: Read, Grep, Bash(gh issue view *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*)
 ---
 
 # Release
 
-Assists in the FinOps toolkit release process.
-
-## Process
-
-### Phase 1: Setup
-
-Run the setup script and capture its return object to a temp JSON file:
+## Phase 1: Setup
 
 ```bash
-pwsh -Command "./src/scripts/Start-Release.ps1 | ConvertTo-Json -Depth 5 | Set-Content /tmp/ftk-release.json"
+pwsh -Command "./src/scripts/Start-Release.ps1 -OutputFile (Join-Path ([System.IO.Path]::GetTempPath()) 'ftk-release.json')"
 ```
 
-Then read `/tmp/ftk-release.json` with the Read tool to get the structured result. Report the release issue URL and milestone summary to the user.
+Read the JSON file from the temp path printed in the output. Report the release issue URL and milestone summary to the user.
 
-### Phase 2: Core features
+## Phase 2: Core features
 
-After setup completes, do the following in parallel:
+Do the following in parallel:
 
-1. **Launch background build/test agents.** Use the Task tool to spin up subagents that run these commands. Each agent should capture the full output but ONLY return text to you if there was a failure. On success, return a single short confirmation line (e.g., "Build succeeded" or "Unit tests passed: 342 tests").
+1. **Launch background build/test agents.** Use the Task tool for each. Only return output on failure; on success return a one-line confirmation.
 
-   - **Build agent:** `pwsh -Command ./src/scripts/Build-Toolkit.ps1`
-   - **Unit test agent:** `pwsh -Command "./src/scripts/Test-PowerShell.ps1 -Unit"`
-   - **Lint test agent:** `pwsh -Command "./src/scripts/Test-PowerShell.ps1 -Lint"`
-   - **Integration test agent:** `pwsh -Command "./src/scripts/Test-PowerShell.ps1 -Integration"`
+   - `pwsh -Command ./src/scripts/Build-Toolkit.ps1`
+   - `pwsh -Command "./src/scripts/Test-PowerShell.ps1 -Unit"`
+   - `pwsh -Command "./src/scripts/Test-PowerShell.ps1 -Lint"`
+   - `pwsh -Command "./src/scripts/Test-PowerShell.ps1 -Integration"`
 
-2. **Triage milestone items** (while build/tests run). Use the milestone data from the JSON file to triage issues and PRs using the layered approach below.
+2. **Triage milestone items** using the layered approach below.
 
-#### Milestone triage
+### Milestone triage
 
 Analyze all milestone items and recommend keep vs push for each. The release is expected within ~7 days, so push anything complex unless it's a bug fix or a feature explicitly targeting this release. Use labels, titles, and summaries to judge — don't over-explain your reasoning in questions.
 
@@ -53,9 +47,20 @@ Group items by topic, then present via AskUserQuestion. Use the version tag from
 
 **After triage:** Report which items are staying and which are being pushed. Do NOT move milestones — just report for the user to act on.
 
-#### Build/test results
+### Untriaged issues
 
-After triage is complete (or if triage finishes quickly), check on the background agents. Report results:
+If `NeedsReview` in the JSON contains any issues, present them for quick triage using the same Round 1/Round 2 pattern. These are issues with the "Needs: Review 👀" label that haven't been triaged yet.
 
-- If all passed, report a brief summary.
-- If any failed, show the failure output and ask the user how to proceed.
+### Build/test results
+
+After triage, check on the background agents. If all passed, report a brief summary. For each failure, show the error output and present via AskUserQuestion with options: "Investigate and fix", "Skip for now".
+
+### Next actions
+
+After all triage and build/test results are reported, analyze the kept milestone items and suggest concrete next actions:
+
+- PRs from others awaiting the user's review
+- The user's PRs that have reviewer feedback to address
+- Issues with no open PRs and no one actively working them
+
+Present as a prioritized list — no AUQ needed, just a summary the user can act on.

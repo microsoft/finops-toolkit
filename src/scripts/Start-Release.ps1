@@ -13,6 +13,9 @@
     Optional. Number of days until the expected release date. Used to determine the release month when running
     near the end of a month. Default = 7.
 
+    .PARAMETER OutputFile
+    Optional. Path to write JSON output to. If not specified, results are only returned as a PowerShell object.
+
     .EXAMPLE
     ./Start-Release
 
@@ -26,11 +29,47 @@
 #>
 param(
     [int]
-    $DaysUntilRelease = 7
+    $DaysUntilRelease = 7,
+
+    [string]
+    $OutputFile
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+
+function ConvertTo-ItemEntry($item)
+{
+    # Extract a short summary from the body for triage context
+    $summary = ''
+    if ($item.body)
+    {
+        # Strip HTML comments, then grab first non-empty, non-header, non-checkbox line
+        $cleanBody = $item.body -replace '(?s)<!--.*?-->', ''
+        $lines = $cleanBody -split '\r?\n' | ForEach-Object { $_.Trim() } | Where-Object {
+            $_ -ne '' -and
+            $_ -notmatch '^#{1,3}\s' -and
+            $_ -notmatch '^[-*]\s*\[' -and
+            $_ -notmatch '^\*\*Changes' -and
+            $_ -notmatch '^[>⚠]' -and
+            $_ -notmatch '^---'
+        }
+        if ($lines.Count -gt 0)
+        {
+            $summary = ($lines | Select-Object -First 2) -join ' '
+            if ($summary.Length -gt 200) { $summary = $summary.Substring(0, 200) + '...' }
+        }
+    }
+
+    return @{
+        Number    = $item.number
+        Title     = $item.title
+        Summary   = $summary
+        Labels    = @($item.labels | ForEach-Object { $_.name })
+        Assignees = @($item.assignees | ForEach-Object { $_.login })
+        Url       = $item.html_url
+    }
+}
 
 # Get version from package.json
 $version = & (Join-Path $PSScriptRoot 'Get-Version.ps1')
@@ -201,36 +240,7 @@ if ($milestone)
     $milestonePRs = @()
     foreach ($item in $milestoneItems)
     {
-        # Extract a short summary from the body for triage context
-        $summary = ''
-        if ($item.body)
-        {
-            # Strip HTML comments, then grab first non-empty, non-header, non-checkbox line
-            $cleanBody = $item.body -replace '(?s)<!--.*?-->', ''
-            $lines = $cleanBody -split '\r?\n' | ForEach-Object { $_.Trim() } | Where-Object {
-                $_ -ne '' -and
-                $_ -notmatch '^#{1,3}\s' -and
-                $_ -notmatch '^[-*]\s*\[' -and
-                $_ -notmatch '^\*\*Changes' -and
-                $_ -notmatch '^[>⚠]' -and
-                $_ -notmatch '^---'
-            }
-            if ($lines.Count -gt 0)
-            {
-                $summary = ($lines | Select-Object -First 2) -join ' '
-                if ($summary.Length -gt 200) { $summary = $summary.Substring(0, 200) + '...' }
-            }
-        }
-
-        $entry = @{
-            Number    = $item.number
-            Title     = $item.title
-            Summary   = $summary
-            Labels    = @($item.labels | ForEach-Object { $_.name })
-            Assignees = @($item.assignees | ForEach-Object { $_.login })
-            Url       = $item.html_url
-        }
-
+        $entry = ConvertTo-ItemEntry $item
         if ($item.pull_request)
         {
             $milestonePRs += $entry
@@ -244,15 +254,34 @@ if ($milestone)
     Write-Host "  Issues: $($milestoneIssues.Count)  PRs: $($milestonePRs.Count)" -ForegroundColor Gray
 }
 
+# --- Step 4: Query untriaged issues ---
+
+Write-Host ""
+Write-Host "Querying untriaged issues..." -ForegroundColor Cyan
+
+$untriagedLabel = [System.Uri]::EscapeDataString("Needs: Review 👀")
+$untriagedItems = gh api "repos/{owner}/{repo}/issues?state=open&labels=$untriagedLabel&per_page=100" 2>&1 | ConvertFrom-Json
+$untriagedIssues = @()
+foreach ($item in $untriagedItems)
+{
+    if (-not $item.pull_request)
+    {
+        $untriagedIssues += ConvertTo-ItemEntry $item
+    }
+}
+
+Write-Host "  Untriaged issues: $($untriagedIssues.Count)" -ForegroundColor Gray
+
 # --- Return result object ---
 
-return @{
-    Version      = $version
-    VersionTag   = $versionTag
-    Month        = $Month
-    Year         = $Year
-    ReleaseIssue = if ($releaseIssue) { @{ Number = $releaseIssue.number; Title = $releaseIssue.title; Url = $releaseIssue.url } } else { $null }
-    Milestone    = if ($milestone) {
+$result = @{
+    Version        = $version
+    VersionTag     = $versionTag
+    Month          = $Month
+    Year           = $Year
+    ReleaseIssue   = if ($releaseIssue) { @{ Number = $releaseIssue.number; Title = $releaseIssue.title; Url = $releaseIssue.url } } else { $null }
+    NeedsReview    = $untriagedIssues
+    Milestone      = if ($milestone) {
         @{
             Number     = $milestoneNumber
             Title      = $milestone.title
@@ -262,3 +291,13 @@ return @{
         }
     } else { $null }
 }
+
+# Write JSON output if requested
+if ($OutputFile)
+{
+    $result | ConvertTo-Json -Depth 5 | Set-Content $OutputFile
+    Write-Host ""
+    Write-Host "Results written to $OutputFile" -ForegroundColor Green
+}
+
+return $result
