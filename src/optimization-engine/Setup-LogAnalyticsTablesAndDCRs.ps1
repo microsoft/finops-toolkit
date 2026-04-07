@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 Creates or updates the custom Log Analytics tables and Data Collection Rules (DCRs) required
 for DCR-based ingestion in the Azure Optimization Engine.
@@ -80,10 +80,7 @@ param (
     [string] $SqlDatabaseName,
 
     [Parameter(Mandatory = $false)]
-    [string] $CloudEnvironment = "AzureCloud",
-
-    [Parameter(Mandatory = $false)]
-    [string] $AzureEnvironment
+    [string] $CloudEnvironment = "AzureCloud"
 )
 
 $ErrorActionPreference = "Stop"
@@ -100,13 +97,6 @@ if ([string]::IsNullOrEmpty($WorkspaceResourceGroupName))
 }
 
 #region Resolve Monitor audience URL per cloud
-switch ($CloudEnvironment)
-{
-    "AzureChinaCloud" { $monitorAudience = "https://monitor.azure.cn/" }
-    "AzureUSGovernment" { $monitorAudience = "https://monitor.azure.us/" }
-    default { $monitorAudience = "https://monitor.azure.com/" }
-}
-
 switch ($CloudEnvironment)
 {
     "AzureChinaCloud" { $armEndpoint = "https://management.chinacloudapi.cn" }
@@ -152,14 +142,14 @@ $dceLogsIngestionEndpoint = $dceVar.Value
 Write-Host "DCE Logs Ingestion endpoint: $dceLogsIngestionEndpoint" -ForegroundColor Cyan
 
 # Discover the DCE resource ID by searching for DCEs in the resource group whose logsIngestion endpoint matches
-$dceListUri = "$armEndpoint/subscriptions/$currentSubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Insights/dataCollectionEndpoints?api-version=$dcrApiVersion"
-$dceListResponse = Invoke-RestMethod -Method GET -Uri $dceListUri -Headers $armHeaders
-$matchedDce = $dceListResponse.value | Where-Object { $_.properties.logsIngestion.endpoint -eq $dceLogsIngestionEndpoint }
+
+$dceListResponse = Get-AzDataCollectionEndpoint -ResourceGroupName $ResourceGroupName -ErrorAction SilentlyContinue
+$matchedDce = $dceListResponse | Where-Object { $_.LogIngestionEndpoint -eq $dceLogsIngestionEndpoint }
 if ($null -eq $matchedDce)
 {
     throw "Could not find a Data Collection Endpoint in resource group $ResourceGroupName with logsIngestion endpoint '$dceLogsIngestionEndpoint'."
 }
-$dceResourceId = $matchedDce.id
+$dceResourceId = $matchedDce.Id
 Write-Host "DCE resource ID: $dceResourceId" -ForegroundColor Cyan
 #endregion
 
@@ -301,6 +291,7 @@ $tableSchemas = @{
         @{ name = "RecommendationText_s"; type = "string" }
         @{ name = "RecommendationTypeId_g"; type = "string" }
         @{ name = "InstanceId_s"; type = "string" }
+        @{ name = "InstanceName_g"; type = "string" }
         @{ name = "InstanceName_s"; type = "string" }
         @{ name = "Tags_s"; type = "string" }
         @{ name = "AdditionalInfo_s"; type = "string" }
@@ -474,6 +465,7 @@ $tableSchemas = @{
         @{ name = "TenantGuid_g"; type = "string" }
         @{ name = "Cloud_s"; type = "string" }
         @{ name = "Model_s"; type = "string" }
+        @{ name = "PrincipalId_g"; type = "string" }
         @{ name = "PrincipalId_s"; type = "string" }
         @{ name = "Scope_s"; type = "string" }
         @{ name = "RoleDefinition_s"; type = "string" }
@@ -897,30 +889,23 @@ $containerSuffixMap = @{
 }
 #endregion
 
-#region Get ARM access token (used for Log Analytics Tables API and DCR API)
-$tableApiVersion = "2023-01-01-preview"
 $dcrApiVersion = "2022-06-01"
 $lognamePrefix = "AzureOptimization"
-
-$armToken = (Get-AzAccessToken -ResourceUrl "$armEndpoint/").Token
-$armHeaders = @{
-    "Authorization" = "Bearer $armToken"
-    "Content-Type"  = "application/json"
-}
-#endregion
+$tableSchemaApiVersion = "2023-01-01-preview"   # Tables API (GET/PUT schema)
+$tableMigrateApiVersion = "2021-12-01-preview"  # Tables migrate endpoint
 
 #region Get Log Analytics workspace resource ID in the target subscription context
 if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
 {
     Write-Host "Switching to workspace subscription $WorkspaceSubscriptionId..." -ForegroundColor Cyan
     Set-AzContext -SubscriptionId $WorkspaceSubscriptionId | Out-Null
-    $armToken = (Get-AzAccessToken -ResourceUrl "$armEndpoint/").Token
-    $armHeaders["Authorization"] = "Bearer $armToken"
 }
 #endregion
 
 #region Create/update custom Log Analytics tables and DCRs
 Write-Host "Processing $($tableSchemas.Keys.Count) custom Log Analytics tables and DCRs..." -ForegroundColor Green
+
+$existingTables = Get-AzOperationalInsightsTable -ResourceGroupName $WorkspaceResourceGroupName -WorkspaceName $WorkspaceName
 
 $dcrSuffixToImmutableId = @{}
 
@@ -948,32 +933,62 @@ foreach ($suffix in $tableSchemas.Keys)
         }
     } | ConvertTo-Json -Depth 10
 
-    $tableUri = "$armEndpoint$workspaceResourceId/tables/$tableName`?api-version=$tableApiVersion"
-
-    # Check if the table already exists and whether it is a classic (Data Collector API) table.
-    # Classic tables cannot be updated via PUT directly; they must first be migrated to DCR-based.
     $existingTable = $null
     try
     {
-        $existingTable = Invoke-RestMethod -Method GET -Uri $tableUri -Headers $armHeaders -ErrorAction Stop
+        Write-Host "    Checking if table $tableName exists and its type..." -ForegroundColor Yellow
+        $existingTable = $existingTables | Where-Object { $_.Name -eq $tableName }
     }
     catch
     {
         # Table does not yet exist; the PUT below will create it as a DCR-based table.
     }
 
-    if ($null -ne $existingTable -and $existingTable.properties.schema.tableSubType -eq "ClassicAPI")
+    if ($null -ne $existingTable -and $existingTable.Schema.TableSubType -eq "Classic")
     {
         # Migrate the classic table to DCR-based before updating the schema.
         # This call is idempotent; it has no effect if the table has already been converted.
         Write-Host "    Table $tableName is a classic (Data Collector API) table. Migrating to DCR-based..." -ForegroundColor Yellow
-        $migrateUri = "$armEndpoint$workspaceResourceId/tables/$tableName/migrate?api-version=2021-12-01-preview"
-        Invoke-RestMethod -Method POST -Uri $migrateUri -Headers $armHeaders -Body "{}" | Out-Null
+        $migrateUri = "$armEndpoint$workspaceResourceId/tables/$tableName/migrate?api-version=$tableMigrateApiVersion"
+        Invoke-AzRestMethod -Method POST -Uri $migrateUri -Payload "{}" | Out-Null
         Write-Host "    Migration completed for $tableName." -ForegroundColor Gray
     }
 
-    $tableResponse = Invoke-RestMethod -Method PUT -Uri $tableUri -Headers $armHeaders -Body $tablePayload
-    Write-Host "    Table $tableName created/updated (subType: $($tableResponse.properties.schema.tableSubType))" -ForegroundColor Gray
+    # Build the DCR transform KQL. DCR stream declarations do not support the 'guid' type,
+    # so _g columns are declared as 'string' in the stream. For existing tables whose _g columns
+    # are already typed as Guid (created by the legacy Data Collector API), we must cast each
+    # such column back to guid inside the transform so the output matches the table schema.
+    # For new tables (where we create the schema with 'string' for _g columns) no casting is needed.
+    $transformKql = "source"
+    if ($null -ne $existingTable)
+    {
+        $guidColumns = @($existingTable.Schema.Columns | Where-Object { $_.Type -eq "Guid" })
+        if ($guidColumns.Count -gt 0)
+        {
+            $extends = ($guidColumns | ForEach-Object { "$($_.Name) = toguid($($_.Name))" }) -join ", "
+            $transformKql = "source | extend $extends"
+            Write-Host "    Existing guid columns detected ($($guidColumns.Count)). Using toguid() transform." -ForegroundColor Gray
+        }
+    }
+
+    # Only create/update the table schema for new (non-existing) tables.
+    # Existing tables preserve their schema to avoid column type conflicts
+    # (e.g. Guid columns cannot be changed to string).
+    $tablePath = "/subscriptions/$WorkspaceSubscriptionId/resourceGroups/$WorkspaceResourceGroupName/providers/Microsoft.OperationalInsights/workspaces/$WorkspaceName/tables/$tableName`?api-version=$tableSchemaApiVersion"
+    if ($null -eq $existingTable)
+    {
+        $tableResponse = Invoke-AzRestMethod -Method PUT -Path $tablePath -Payload $tablePayload
+        Write-Host "    Table $tableName created with status code $($tableResponse.StatusCode)." -ForegroundColor Gray
+        if ($tableResponse.StatusCode -ne 200 -and $tableResponse.StatusCode -ne 201)
+        {
+            $errorMessage = $tableResponse.Content | ConvertFrom-Json | Select-Object -ExpandProperty error | Select-Object -ExpandProperty message
+            throw "    Failed to create table ${tableName}: ${errorMessage}"
+        }
+    }
+    else
+    {
+        Write-Host "    Table $tableName already exists, skipping schema update." -ForegroundColor Gray
+    }
     #endregion
 
     #region Create DCR for this table
@@ -1000,7 +1015,7 @@ foreach ($suffix in $tableSchemas.Keys)
                 @{
                     streams      = @($streamName)
                     destinations = @("laDest")
-                    transformKql = "source"
+                    transformKql = $transformKql
                     outputStream = "Custom-$tableName"
                 }
             )
@@ -1011,14 +1026,23 @@ foreach ($suffix in $tableSchemas.Keys)
     if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
     {
         Set-AzContext -SubscriptionId $currentSubscriptionId | Out-Null
-        $armToken = (Get-AzAccessToken -ResourceUrl "$armEndpoint/").Token
-        $armHeaders["Authorization"] = "Bearer $armToken"
     }
 
     $dcrUri = "$armEndpoint/subscriptions/$currentSubscriptionId/resourceGroups/$ResourceGroupName/providers/Microsoft.Insights/dataCollectionRules/$dcrName`?api-version=$dcrApiVersion"
-    $dcrResponse = Invoke-RestMethod -Method PUT -Uri $dcrUri -Headers $armHeaders -Body $dcrPayload
-    $dcrImmutableId = $dcrResponse.properties.immutableId
-    $dcrResourceId = $dcrResponse.id
+    $dcrResponse = Invoke-AzRestMethod -Method PUT -Uri $dcrUri -Payload $dcrPayload
+    Write-Host "    DCR $dcrName creation request completed with status code $($dcrResponse.StatusCode)." -ForegroundColor Gray
+    if ($dcrResponse.StatusCode -ne 200 -and $dcrResponse.StatusCode -ne 201)
+    {
+        $errorMessage = $dcrResponse.Content | ConvertFrom-Json | Select-Object -ExpandProperty error | Select-Object -ExpandProperty message
+        throw "    Failed to create DCR ${dcrName}: ${errorMessage}"
+    }
+    else
+    {
+        $dcrResponseContent = $dcrResponse.Content | ConvertFrom-Json
+    }
+    Write-Host "    DCR $dcrName created." -ForegroundColor Gray
+    $dcrImmutableId = $dcrResponseContent.properties.immutableId
+    $dcrResourceId = $dcrResponseContent.id
     $dcrSuffixToImmutableId[$suffix] = $dcrImmutableId
     Write-Host "    DCR immutable ID: $dcrImmutableId" -ForegroundColor Gray
 
@@ -1026,8 +1050,6 @@ foreach ($suffix in $tableSchemas.Keys)
     if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
     {
         Set-AzContext -SubscriptionId $WorkspaceSubscriptionId | Out-Null
-        $armToken = (Get-AzAccessToken -ResourceUrl "$armEndpoint/").Token
-        $armHeaders["Authorization"] = "Bearer $armToken"
     }
     #endregion
 
@@ -1059,8 +1081,6 @@ foreach ($suffix in $tableSchemas.Keys)
     if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
     {
         Set-AzContext -SubscriptionId $WorkspaceSubscriptionId | Out-Null
-        $armToken = (Get-AzAccessToken -ResourceUrl "$armEndpoint/").Token
-        $armHeaders["Authorization"] = "Bearer $armToken"
     }
     #endregion
 }
@@ -1076,7 +1096,7 @@ if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
 #region Update LogAnalyticsIngestControl SQL table with DCR immutable IDs
 Write-Host "Updating SQL LogAnalyticsIngestControl with DCR immutable IDs..." -ForegroundColor Green
 
-$sqlToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net/").Token
+$sqlToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net/").Token | ConvertFrom-SecureString -AsPlainText
 $sqlConnectionString = "Server=tcp:$SqlServerName,1433;Initial Catalog=$SqlDatabaseName;Persist Security Info=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Authentication=Active Directory Default;"
 
 try
