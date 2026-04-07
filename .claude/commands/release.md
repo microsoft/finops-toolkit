@@ -17,7 +17,7 @@ Read the JSON file from the temp path printed in the output. Report the release 
 
 Do the following in parallel:
 
-1. **Launch background build/test agents.** Use the Task tool for each. Only return output on failure; on success return a one-line confirmation.
+1. **Launch background build/test commands.** Use Bash with `run_in_background` for each:
 
    - `pwsh -Command ./src/scripts/Build-Toolkit.ps1`
    - `pwsh -Command "./src/scripts/Test-PowerShell.ps1 -Unit"`
@@ -54,6 +54,23 @@ If `NeedsReview` in the JSON contains any issues, present them for quick triage 
 ### Build/test results
 
 After triage, check on the background agents. If all passed, report a brief summary. For each failure, show the error output and present via AskUserQuestion with options: "Investigate and fix", "Skip for now".
+
+### Changelog review
+
+Read @docs-mslearn/toolkit/changelog.md and review the current version section against the changelog standard in @docs-wiki/Coding-guidelines.md. Apply fixes directly — no AUQ needed. Specific checks:
+
+- Only one version section for this release (no duplicates).
+- Unreleased section should be empty (we release from dev). Flag any content there.
+- Tool sections match the order from the previous release. Flag any new tools or reordering.
+- Categories in order: Added, Changed, Fixed, Deprecated, Removed. Empty categories omitted.
+- Every entry starts with a past-tense verb, ends with a period, follows content guidelines.
+- Entries are concise. Trim verbose or implementation-detail-heavy text.
+- Issue links present where applicable, formatted as `([#{number}](url))`.
+- Breaking changes prefixed with `**Breaking:**` and listed first in their category.
+- No filler entries ("various bug fixes", "minor improvements").
+- Entries placed in the correct category (e.g., new things under Added, not Changed).
+
+After applying fixes, show a summary of what was changed so the user can review.
 
 ### Next actions
 
