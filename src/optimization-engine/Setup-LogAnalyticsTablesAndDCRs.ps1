@@ -962,7 +962,7 @@ foreach ($suffix in $tableSchemas.Keys)
     $transformKql = "source"
     if ($null -ne $existingTable)
     {
-        $guidColumns = @($existingTable.Schema.Columns | Where-Object { $_.Type -eq "Guid" })
+        $guidColumns = @($existingTable.Schema.Columns | Where-Object { $_.Type -eq "Guid" -and $_.Name -in $columns.name })
         if ($guidColumns.Count -gt 0)
         {
             $extends = ($guidColumns | ForEach-Object { "$($_.Name) = toguid($($_.Name))" }) -join ", "
@@ -1096,8 +1096,11 @@ if ($WorkspaceSubscriptionId -ne $currentSubscriptionId)
 #region Update LogAnalyticsIngestControl SQL table with DCR immutable IDs
 Write-Host "Updating SQL LogAnalyticsIngestControl with DCR immutable IDs..." -ForegroundColor Green
 
-$sqlToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net/").Token | ConvertFrom-SecureString -AsPlainText
-$sqlConnectionString = "Server=tcp:$SqlServerName,1433;Initial Catalog=$SqlDatabaseName;Persist Security Info=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Authentication=Active Directory Default;"
+$cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
+$azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
+$sqlToken = (Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString).Token | ConvertFrom-SecureString -AsPlainText
+
+$sqlConnectionString = "Server=tcp:$SqlServerName,1433;Database=$SqlDatabaseName;Encrypt=True;Connection Timeout=$SqlTimeout;"
 
 try
 {
@@ -1127,14 +1130,14 @@ try
         $suppImmutableId = $dcrSuffixToImmutableId["SuppressionsV1"]
         $sqlCommand = $sqlConnection.CreateCommand()
         $sqlCommand.CommandText = @"
-IF NOT EXISTS (SELECT 1 FROM [dbo].[LogAnalyticsIngestControl] WHERE StorageContainerName = 'suppressions')
+IF NOT EXISTS (select 1 FROM [dbo].[LogAnalyticsIngestControl] WHERE StorageContainerName = 'suppressions')
 BEGIN
-    INSERT INTO [dbo].[LogAnalyticsIngestControl] (StorageContainerName, LastProcessedDateTime, LastProcessedLine, LogAnalyticsSuffix, CollectedType, DCRImmutableId)
-    VALUES ('suppressions', '1901-01-01T00:00:00Z', -1, 'SuppressionsV1', 'Suppressions', @id)
+INSERT INTO [dbo].[LogAnalyticsIngestControl] (StorageContainerName, LastProcessedDateTime, LastProcessedLine, LogAnalyticsSuffix, CollectedType, DCRImmutableId)
+VALUES ('suppressions', '1901-01-01T00:00:00Z', -1, 'SuppressionsV1', 'Suppressions', @id)
 END
 ELSE
 BEGIN
-    UPDATE [dbo].[LogAnalyticsIngestControl] SET DCRImmutableId = @id WHERE StorageContainerName = 'suppressions'
+UPDATE [dbo].[LogAnalyticsIngestControl] SET DCRImmutableId = @id WHERE StorageContainerName = 'suppressions'
 END
 "@
         $sqlCommand.Parameters.AddWithValue("@id", $suppImmutableId) | Out-Null
