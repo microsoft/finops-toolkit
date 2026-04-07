@@ -21,8 +21,7 @@ if ([string]::IsNullOrEmpty($sqldatabase))
 {
     $sqldatabase = "azureoptimization"
 }
-$workspaceId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsWorkspaceId"
-$sharedKey = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsWorkspaceKey"
+$dceEndpoint = Get-AutomationVariable -Name  "AzureOptimization_DCEIngestionEndpoint"
 $LogAnalyticsChunkSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsChunkSize" -ErrorAction SilentlyContinue)
 if (-not($LogAnalyticsChunkSize -gt 0))
 {
@@ -53,80 +52,18 @@ if (-not($StorageBlobsPageSize -gt 0))
 
 #region Functions
 
-# Function to create the authorization signature
-function Build-OMSSignature ($workspaceId, $sharedKey, $date, $contentLength, $method, $contentType, $resource)
+# Sends data to a Log Analytics custom table via the DCR-based Logs Ingestion API.
+function Send-LogIngestionData($accessToken, $dceEndpoint, $dcrImmutableId, $streamName, $body)
 {
-    $xHeaders = "x-ms-date:" + $date
-    $stringToHash = $method + "`n" + $contentLength + "`n" + $contentType + "`n" + $xHeaders + "`n" + $resource
-    $bytesToHash = [Text.Encoding]::UTF8.GetBytes($stringToHash)
-    $keyBytes = [Convert]::FromBase64String($sharedKey)
-    $sha256 = New-Object System.Security.Cryptography.HMACSHA256
-    $sha256.Key = $keyBytes
-    $calculatedHash = $sha256.ComputeHash($bytesToHash)
-    $encodedHash = [Convert]::ToBase64String($calculatedHash)
-    $authorization = 'SharedKey {0}:{1}' -f $workspaceId, $encodedHash
-    return $authorization
-}
-
-# Function to create and post the request
-function Post-OMSData($workspaceId, $sharedKey, $body, $logType, $TimeStampField, $AzureEnvironment)
-{
-    $method = "POST"
-    $contentType = "application/json"
-    $resource = "/api/logs"
-    $rfc1123date = [DateTime]::UtcNow.ToString("r")
-    $contentLength = $body.Length
-    $signature = Build-OMSSignature `
-        -workspaceId $workspaceId `
-        -sharedKey $sharedKey `
-        -date $rfc1123date `
-        -contentLength $contentLength `
-        -method $method `
-        -contentType $contentType `
-        -resource $resource
-
-    $uri = "https://" + $workspaceId + ".ods.opinsights.azure.com" + $resource + "?api-version=2016-04-01"
-    if ($AzureEnvironment -eq "AzureChinaCloud")
-    {
-        $uri = "https://" + $workspaceId + ".ods.opinsights.azure.cn" + $resource + "?api-version=2016-04-01"
+    $uri = "$dceEndpoint/dataCollectionRules/$dcrImmutableId/streams/$streamName`?api-version=2023-01-01"
+    $headers = @{
+        "Authorization" = "Bearer $accessToken"
+        "Content-Type"  = "application/json"
     }
-    if ($AzureEnvironment -eq "AzureUSGovernment")
-    {
-        $uri = "https://" + $workspaceId + ".ods.opinsights.azure.us" + $resource + "?api-version=2016-04-01"
-    }
-    if ($AzureEnvironment -eq "AzureGermanCloud")
-    {
-        throw "Azure Germany isn't supported for the Log Analytics Data Collector API"
-    }
-
-    $OMSheaders = @{
-        "Authorization"        = $signature
-        "Log-Type"             = $logType
-        "x-ms-date"            = $rfc1123date
-        "time-generated-field" = $TimeStampField
-    }
-
-    try
-    {
-
-        $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
-    }
-    catch
-    {
-        if ($_.Exception.Response.StatusCode.Value__ -eq 401)
-        {
-            "REAUTHENTICATING"
-
-            $response = Invoke-WebRequest -Uri $uri -Method POST  -ContentType $contentType -Headers $OMSheaders -Body $body -UseBasicParsing -TimeoutSec 1000
-        }
-        else
-        {
-            return $_.Exception.Response.StatusCode.Value__
-        }
-    }
-
+    $response = Invoke-WebRequest -Uri $uri -Method POST -Headers $headers -Body $body -UseBasicParsing -TimeoutSec 1000
     return $response.StatusCode
 }
+
 #endregion Functions
 
 
@@ -215,9 +152,25 @@ $controlRow = $controlRows[0]
 $lastProcessedLine = $controlRow.LastProcessedLine
 $lastProcessedDateTime = $controlRow.LastProcessedDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
 $LogAnalyticsSuffix = $controlRow.LogAnalyticsSuffix
+$dcrImmutableId = $controlRow.DCRImmutableId
 $logname = $lognamePrefix + $LogAnalyticsSuffix
+$streamName = "Custom-$lognamePrefix$LogAnalyticsSuffix"
 
-Write-Output "Processing blobs modified after $lastProcessedDateTime (line $lastProcessedLine) and ingesting them into the $($logname)_CL table..."
+if ([string]::IsNullOrEmpty($dcrImmutableId))
+{
+    throw "DCRImmutableId is not set for container $storageAccountSinkContainer. Run Setup-LogAnalyticsTablesAndDCRs.ps1 first."
+}
+
+# Obtain a bearer token for the Logs Ingestion API
+switch ($cloudEnvironment)
+{
+    "AzureChinaCloud"    { $monitorAudience = "https://monitor.azure.cn/" }
+    "AzureUSGovernment"  { $monitorAudience = "https://monitor.azure.us/" }
+    default              { $monitorAudience = "https://monitor.azure.com/" }
+}
+$monitorToken = (Get-AzAccessToken -ResourceUrl $monitorAudience).Token
+
+Write-Output "Processing blobs modified after $lastProcessedDateTime (line $lastProcessedLine) and ingesting them into the $($logname)_CL table (stream $streamName)..."
 
 $newProcessedTime = $null
 
@@ -289,10 +242,16 @@ foreach ($blob in $unprocessedBlobs)
                     $jsonObjectSplitted[$j][$i].RecommendationAction = $jsonObjectSplitted[$j][$i].RecommendationAction.Replace("'", "")
                     $jsonObjectSplitted[$j][$i].AdditionalInfo = $jsonObjectSplitted[$j][$i].AdditionalInfo | ConvertTo-Json -Compress
                     $jsonObjectSplitted[$j][$i].Tags = $jsonObjectSplitted[$j][$i].Tags | ConvertTo-Json -Compress
+                    # Rename Timestamp to TimeGenerated as required by Log Analytics custom tables
+                    $jsonObjectSplitted[$j][$i] | Add-Member -MemberType NoteProperty -Name 'TimeGenerated' -Value $jsonObjectSplitted[$j][$i].Timestamp -Force
                 }
 
                 $jsonObject = ConvertTo-Json -InputObject $jsonObjectSplitted[$j]
-                $res = Post-OMSData -workspaceId $workspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($jsonObject)) -logType $logname -TimeStampField "Timestamp" -AzureEnvironment $cloudEnvironment
+                # Refresh token before each chunk upload
+                $monitorToken = (Get-AzAccessToken -ResourceUrl $monitorAudience).Token
+                $res = Send-LogIngestionData -accessToken $monitorToken -dceEndpoint $dceEndpoint `
+                    -dcrImmutableId $dcrImmutableId -streamName $streamName `
+                    -body ([System.Text.Encoding]::UTF8.GetBytes($jsonObject))
                 if ($res -ge 200 -and $res -lt 300)
                 {
                     Write-Output "Successfully uploaded $currentObjectLines $LogAnalyticsSuffix rows to Log Analytics"

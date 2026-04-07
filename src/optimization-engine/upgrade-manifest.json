@@ -304,7 +304,7 @@
         {
             "runbook": {
                 "name": "runbooks/data-collection/Ingest-OptimizationCSVExportsToLogAnalytics.ps1",
-                "version": "1.6.2.0"
+                "version": "2.0.0.0"
             },
             "source": "dataCollection"
         },
@@ -319,7 +319,7 @@
         {
             "runbook": {
                 "name": "runbooks/recommendations/Ingest-RecommendationsToLogAnalytics.ps1",
-                "version": "1.1.1.0"
+                "version": "2.0.0.0"
             },
             "source": "recommendations",
             "schedule": "AzureOptimization_IngestRecommendationsWeekly"
@@ -327,7 +327,7 @@
         {
             "runbook": {
                 "name": "runbooks/recommendations/Ingest-SuppressionsToLogAnalytics.ps1",
-                "version": "1.1.0.0"
+                "version": "2.0.0.0"
             },
             "source": "recommendations",
             "schedule": "AzureOptimization_IngestSuppressionsWeekly"
@@ -1052,7 +1052,7 @@
     "overwriteVariables": [
         {
             "name": "AzureOptimization_LogAnalyticsChunkSize",
-            "value": 6000
+            "value": 150
         }
     ]
 }

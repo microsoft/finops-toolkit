@@ -1274,7 +1274,7 @@ var automationVariables = [
   {
     name: 'AzureOptimization_LogAnalyticsChunkSize'
     description: 'The size (in rows) for each chunk of Log Analytics ingestion request'
-    value: 6000
+    value: 150
   }
   {
     name: 'AzureOptimization_StorageBlobsPageSize'
@@ -1567,6 +1567,17 @@ resource logAnalyticsWorkspace 'microsoft.operationalinsights/workspaces@2020-08
       name: 'pergb2018'
     }
     retentionInDays: logAnalyticsRetentionDays
+  }
+}
+
+resource dataCollectionEndpoint 'Microsoft.Insights/dataCollectionEndpoints@2022-06-01' = {
+  name: '${automationAccountName}-dce'
+  location: projectLocation
+  tags: resourceTags
+  properties: {
+    networkAcls: {
+      publicNetworkAccess: 'Enabled'
+    }
   }
 }
 
@@ -1893,6 +1904,15 @@ resource automationVariables_LogAnalyticsWorkspaceKey 'Microsoft.Automation/auto
   }
 }
 
+resource automationVariables_DCEIngestionEndpoint 'Microsoft.Automation/automationAccounts/variables@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'AzureOptimization_DCEIngestionEndpoint'
+  properties: {
+    description: 'The Logs Ingestion endpoint URL of the Data Collection Endpoint used for DCR-based ingestion'
+    value: '"${dataCollectionEndpoint.properties.logsIngestion.endpoint}"'
+  }
+}
+
 resource automationSchedules_csvExports 'Microsoft.Automation/automationAccounts/schedules@2020-01-13-preview' = [for item in csvExportsSchedules: {
   parent: automationAccount
   name: item.exportSchedule
@@ -2156,3 +2176,5 @@ resource contributorRoleAssignmentGuid_resource 'Microsoft.Authorization/roleAss
 }
 
 output automationPrincipalId string = reference(automationAccount.id, '2019-06-01', 'Full').identity.principalId
+output dceLogsIngestionEndpoint string = dataCollectionEndpoint.properties.logsIngestion.endpoint
+output dceResourceId string = dataCollectionEndpoint.id

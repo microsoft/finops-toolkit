@@ -547,7 +547,8 @@ if ("N", "n" -contains $workspaceReuse)
     $laWorkspaceResourceGroup = $resourceGroupName
 
     $la = Get-AzOperationalInsightsWorkspace -ResourceGroupName $resourceGroupName -Name $laWorkspaceName -ErrorAction SilentlyContinue
-    if ($null -ne $la) {
+    if ($null -ne $la)
+    {
         Write-Host "(The Log Analytics Workspace was already deployed)" -ForegroundColor Green
     }
 }
@@ -1403,6 +1404,26 @@ if ("Y", "y" -contains $continueInput)
                 Write-Host "Failed to deploy the workbook. If you are upgrading AOE, please remove first the $workbookFileName workbook from the $laWorkspaceName Log Analytics workspace and then re-deploy." -ForegroundColor Yellow
             }
         }
+    }
+    #endregion
+
+    #region DCR-based ingestion setup
+    Write-Host "Setting up Log Analytics custom tables and Data Collection Rules for DCR-based ingestion..." -ForegroundColor Green
+    try
+    {
+        .\Setup-LogAnalyticsTablesAndDCRs.ps1 `
+            -ResourceGroupName $resourceGroupName `
+            -AutomationAccountName $automationAccountName `
+            -WorkspaceName $laWorkspaceName `
+            -WorkspaceResourceGroupName $laWorkspaceResourceGroup `
+            -SqlServerName $sqlServerName `
+            -SqlDatabaseName $sqlDatabaseName `
+            -CloudEnvironment $cloudEnvironment
+    }
+    catch
+    {
+        Write-Host "Could not complete the Log Analytics tables and DCR setup: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "You can re-run Setup-LogAnalyticsTablesAndDCRs.ps1 manually after resolving the issue." -ForegroundColor Yellow
     }
     #endregion
 
