@@ -1,11 +1,13 @@
 ---
 description: Walk through the release checklist interactively
-allowed-tools: Read, Grep, Bash(gh issue view *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*)
+allowed-tools: Read, Grep, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(git status*), Bash(git branch *), Bash(gh issue view *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*)
 ---
 
 # Release
 
 ## Phase 1: Setup
+
+Fetch origin and create a release prep branch from `origin/dev` (e.g., `{username}/v14`). If the branch already exists locally, switch to it and pull.
 
 ```bash
 pwsh -Command "./src/scripts/Start-Release.ps1 -OutputFile (Join-Path ([System.IO.Path]::GetTempPath()) 'ftk-release.json')"
@@ -71,6 +73,12 @@ Read @docs-mslearn/toolkit/changelog.md and review the current version section a
 - Entries placed in the correct category (e.g., new things under Added, not Changed).
 
 After applying fixes, show a summary of what was changed so the user can review.
+
+### What's new blurbs
+
+Find all `<div id="whats-new">` blocks in `/docs/`. For each: if the tool has a section in the changelog, uncomment the block (if needed) and update the month, year, version tag, and paragraph with a 1-2 sentence summary. If the tool has no changelog section, comment out the block.
+
+Show a summary of all changelog and what's new changes for the user to review, then ask via AskUserQuestion whether to commit and push to the prep branch.
 
 ### Next actions
 
