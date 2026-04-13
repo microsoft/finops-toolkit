@@ -26,19 +26,24 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-function Authenticate-AzureWithOption {
+function Authenticate-AzureWithOption
+{
     param (
         [string] $authOption = "ManagedIdentity",
         [string] $cloudEnv = "AzureCloud",
         [string] $clientID
     )
 
-    switch ($authOption) {
-        "UserAssignedManagedIdentity" {
+    switch ($authOption)
+    {
+        "UserAssignedManagedIdentity"
+        {
             Connect-AzAccount -Identity -EnvironmentName $cloudEnv -AccountId $clientID
             break
         }
-        Default { #ManagedIdentity
+        Default
+        {
+            #ManagedIdentity
             Connect-AzAccount -Identity -EnvironmentName $cloudEnv
             break
         }
@@ -149,7 +154,8 @@ if ([string]::IsNullOrEmpty($BillingAccountID))
 {
     throw "Billing Account ID undefined. Use either the AzureOptimization_BillingAccountID variable or the BillingAccountID parameter"
 }
-else {
+else
+{
     if ($BillingAccountID -match $mcaBillingAccountIdRegex)
     {
         if ([string]::IsNullOrEmpty($BillingProfileID))
@@ -186,7 +192,8 @@ if (-not([string]::IsNullOrEmpty($meterRegions)))
     $meterRegionFilters = $meterRegions.Split(',')
 }
 
-function Generate-Pricesheet {
+function Generate-Pricesheet
+{
     param (
         [string] $InputCSVPath,
         [string] $OutputCSVPath,
@@ -195,35 +202,36 @@ function Generate-Pricesheet {
 
     # header normalization between MCA and EA
     $headerConversion = @{
-        'Meter ID' = "MeterID";
-        meterId = "MeterID";
-        'Meter name' = "MeterName";
-        meterName = "MeterName";
-        'Meter category' = "MeterCategory";
-        meterCategory = "MeterCategory";
-        'Meter sub-category' = "MeterSubCategory";
-        meterSubCategory = "MeterSubCategory";
-        'Meter region' = "MeterRegion";
-        meterRegion = "MeterRegion";
-        'Unit of measure' = "UnitOfMeasure";
-        unitOfMeasure = "UnitOfMeasure";
-        'Part number' = "PartNumber";
-        'Unit price' = "UnitPrice";
-        unitPrice = "UnitPrice";
-        'Currency code' = "CurrencyCode";
-        currency = "CurrencyCode";
-        'Included quantity' = "IncludedQuantity";
-        includedQuantity = "IncludedQuantity";
-        'Offer Id' = "OfferId";
-        Term = "Term";
-        'Price type' = "PriceType";
-        priceType = "PriceType"
+        'Meter ID'           = "MeterID"
+        meterId              = "MeterID"
+        'Meter name'         = "MeterName"
+        meterName            = "MeterName"
+        'Meter category'     = "MeterCategory"
+        meterCategory        = "MeterCategory"
+        'Meter sub-category' = "MeterSubCategory"
+        meterSubCategory     = "MeterSubCategory"
+        'Meter region'       = "MeterRegion"
+        meterRegion          = "MeterRegion"
+        'Unit of measure'    = "UnitOfMeasure"
+        unitOfMeasure        = "UnitOfMeasure"
+        'Part number'        = "PartNumber"
+        'Unit price'         = "UnitPrice"
+        unitPrice            = "UnitPrice"
+        'Currency code'      = "CurrencyCode"
+        currency             = "CurrencyCode"
+        'Included quantity'  = "IncludedQuantity"
+        includedQuantity     = "IncludedQuantity"
+        'Offer Id'           = "OfferId"
+        Term                 = "Term"
+        'Price type'         = "PriceType"
+        priceType            = "PriceType"
     }
 
     $r = [IO.File]::OpenText($InputCSVPath)
     $w = [System.IO.StreamWriter]::new($OutputCSVPath)
     $lineCounter = 0
-    while ($r.Peek() -ge 0) {
+    while ($r.Peek() -ge 0)
+    {
         $line = $r.ReadLine()
         $lineCounter++
         if ($lineCounter -eq $HeaderLine)
@@ -286,7 +294,7 @@ function Generate-Pricesheet {
     $w.Close()
 
     $csvBlobName = [System.IO.Path]::GetFileName($OutputCSVPath)
-    $csvProperties = @{"ContentType" = "text/csv"};
+    $csvProperties = @{"ContentType" = "text/csv" }
     Set-AzStorageBlobContent -File $OutputCSVPath -Container $storageAccountSinkContainer -Properties $csvProperties -Blob $csvBlobName -Context $saCtx -Force
 
     $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
@@ -314,12 +322,12 @@ if ($BillingAccountID -match $mcaBillingAccountIdRegex)
 }
 else
 {
-    $PriceSheetApiPath = "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingPeriods/$billingPeriod/providers/Microsoft.Consumption/pricesheets/download?api-version=2022-06-01&ln=en"
+    $PriceSheetApiPath = "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingPeriods/$billingPeriod/providers/Microsoft.Consumption/pricesheets/download?api-version=2023-11-01&ln=en"
     $result = Invoke-AzRestMethod -Path $PriceSheetApiPath -Method GET
 }
 
 $requestResultPath = $result.Headers.Location.PathAndQuery
-if ($result.StatusCode -in (200,202))
+if ($result.StatusCode -in (200, 202))
 {
     $tries = 0
     $requestSuccess = $false
