@@ -373,3 +373,7 @@ env/
 
 # Auto-generated build artifacts
 src/templates/finops-hub-copilot-studio/knowledge/query-catalog.md
+.gate/
+todo/
+done/
+release/scloud-occurrence-report.md

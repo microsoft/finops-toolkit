@@ -143,7 +143,13 @@ var useFabric = !empty(fabricQueryUri)
 var useAzure = !useFabric && !empty(clusterName)
 
 // cSpell:ignore ftkver, privatelink
-var dataExplorerPrivateDnsZoneName = replace('privatelink.${app.hub.location}.${replace(environment().suffixes.storage, 'core', 'kusto')}', '..', '.')
+var dataExplorerDnsSuffixLookup = {
+  AzureCloud: 'kusto.windows.net'
+  AzureUSGovernment: 'kusto.usgovcloudapi.net'
+  AzureChinaCloud: 'kusto.windows.cn'
+}
+var dataExplorerDnsSuffix = dataExplorerDnsSuffixLookup[?environment().name] ?? replace(environment().suffixes.storage, 'core', 'kusto')
+var dataExplorerPrivateDnsZoneName = replace('privatelink.${app.hub.location}.${dataExplorerDnsSuffix}', '..', '.')
 
 // Actual = Minimum(ClusterMaximumConcurrentOperations, Number of nodes in cluster * Maximum(1, Core count per node * CoreUtilizationCoefficient))
 var ingestionCapacity = {
@@ -219,7 +225,7 @@ var dataExplorerIngestionCapacity = useFabric
 
 // WORKAROUND: Direct property access fails on cluster updates due to ARM bug
 // See: https://github.com/Azure/azure-resource-manager-templates/issues/[issue-number]
-var dataExplorerUri = useFabric ? fabricQueryUri : 'https://${cluster.name}.${app.hub.location}.kusto.windows.net'
+var dataExplorerUri = useFabric ? fabricQueryUri : 'https://${cluster.name}.${app.hub.location}.${dataExplorerDnsSuffix}'
 
 //==============================================================================
 // Resources
@@ -546,7 +552,7 @@ resource dataFactoryVNet 'Microsoft.DataFactory/factories/managedVirtualNetworks
       #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
       privateLinkResourceId: cluster.id
       fqdns: [
-        'https://${replace(clusterName, '_', '-')}.${app.hub.location}.kusto.windows.net'
+        'https://${replace(clusterName, '_', '-')}.${app.hub.location}.${dataExplorerDnsSuffix}'
       ]
     }
   }
@@ -594,19 +600,14 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
   }
 }
 
-// GitHub repository linked service for FTK open data
+// GitHub repository linked service for FTK release files
 resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'ftkRepo'
   parent: dataFactory
   properties: {
     type: 'HttpServer'
-    parameters: {
-      filePath: {
-        type: 'string'
-      }
-    }
     typeProperties: {
-      url: '@concat(\'https://gitapp.hub.com/microsoft/finops-toolkit/\', linkedService().filePath)'
+      url: 'https://github.com/microsoft/finops-toolkit/'
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
     }
