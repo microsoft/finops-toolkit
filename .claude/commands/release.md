@@ -7,7 +7,7 @@ allowed-tools: Read, Grep, Bash(git fetch *), Bash(git checkout *), Bash(git swi
 
 ## Phase 1: Setup
 
-Fetch origin and create a release prep branch from `origin/dev` (e.g., `{username}/v14`). If the branch already exists locally, switch to it and pull.
+Fetch origin and create a release prep branch (`{username}/{versionTag}-prep`, e.g., `flanakin/v14-prep`) from `origin/dev`. If the branch already exists locally, switch to it and pull. Push the release prep branch. DO NOT push to origin/dev directly!
 
 ```bash
 pwsh -Command "./src/scripts/Start-Release.ps1 -OutputFile (Join-Path ([System.IO.Path]::GetTempPath()) 'ftk-release.json')"
@@ -89,3 +89,66 @@ After all triage and build/test results are reported, analyze the kept milestone
 - Issues with no open PRs and no one actively working them
 
 Present as a prioritized list — no AUQ needed, just a summary the user can act on.
+
+### New tool check
+
+If `NewTools` in the JSON lists any new tools (tool sections in this release's changelog that weren't in the previous release), present via AskUserQuestion:
+
+- **Header:** "New tools"
+- **Question:** "{count} new tool(s) in this release: {names}. These may need marketing pages, MS Learn docs, TOC entries, and an advisory council update. Are all set up?"
+- **Options:** "Yes, all done", "No, help me set them up", "Skip for now"
+
+If the user chooses "No, help me set them up":
+
+1. For each new tool, ask via AskUserQuestion what type it is (new standalone tool, new open data file, new sub-tool like a PBI report or workbook or hub add-on).
+2. Based on the type, check if MS Learn and marketing pages exist. Report what's missing.
+3. Enter plan mode to create missing pages and update TOC/advisory council. After plan mode executes, commit only the files changed during that phase to the prep branch.
+4. After committing, summarize what was added and say "Review changes and say 'done' when ready to proceed."
+
+If the user chooses "Skip for now", note it in the release readiness summary as an outstanding item so it isn't forgotten.
+
+---
+
+## Release readiness
+
+Update the release tracking issue checkboxes:
+
+1. Run `gh issue view {number} --json body --jq .body > /tmp/release-issue-body.md` to save the issue body.
+2. Read the file with the Read tool. Replace `- [ ]` with `- [x]` for completed items (match on a unique substring of the checkbox text). Write the updated body back to the file.
+3. Run `gh issue edit {number} --body-file /tmp/release-issue-body.md` to push the updates.
+
+Then present a summary and next action via AskUserQuestion:
+
+- **Header:** "Next step"
+- **Question:** Summary of release status: triage results, build/test results, changelog and docs updates, items still outstanding (including any skipped new tool setup). End with "What would you like to do next?"
+- **Options:** "Continue to finalize release", "Work on outstanding items", "Done for now"
+
+If there are outstanding items (build/test failures not resolved, skipped new tool setup, etc.), recommend "Work on outstanding items" or "Done for now" and explain what needs to be completed before finalizing.
+
+---
+
+## Phase 3: Finalize release
+
+This phase ONLY runs if ALL prerequisites are met (build passes, tests pass, changelog reviewed, docs updated) and the user chooses "Continue to finalize release".
+
+### Package release
+
+Run the packaging command:
+
+```bash
+pwsh -Command "./src/scripts/Package-Toolkit.ps1 -Build -CopyFiles"
+```
+
+If it fails, show the error and ask whether to investigate or skip.
+
+### Manual steps reminder
+
+After packaging succeeds, inform the user of remaining manual steps documented in the release checklist issue (include a link):
+
+1. Power BI packaging
+2. Publish release
+3. Publish announcements
+
+### Final issue update
+
+Update the release tracking issue checkboxes for all finalize-phase items using the same process as Release readiness (save body, update checkboxes, push). Then report completion and wish the user well.
