@@ -59,7 +59,7 @@ Status icons:
 
 ## 🔜 Core features
 
-- [ ] Run the `/release` command in Claude Code (or run `Start-Release.ps1` and complete the following manually).
+- [ ] <!-- release:core --> Run the `/release` command in Claude Code (or run `Start-Release.ps1` and complete the following manually).
   - Create or find the release tracking issue.
   - Bump the version number (strip prerelease label): `Update-Version.ps1 -Version {x.y.z}`
   - Update commitment discount eligibility data: `Update-CommitmentDiscountEligibility.ps1`
@@ -101,7 +101,7 @@ Status icons:
 
 ## 🔜 Finalize release
 
-- [ ] Run the `/release` command again in Claude Code (or complete the following manually).
+- [ ] <!-- release:finalize --> Run the `/release` command again in Claude Code (or complete the following manually).
   - Review the [changelog](../docs/_resources/changelog.md) to ensure it encapsulates all changes.
     - Move all released changes to an official numbered version section.
     - If there are committed changes in a feature branch that you want to mention, add them to an "Unreleased" section.
@@ -109,7 +109,7 @@ Status icons:
   - Build all toolkit templates and resolve any issues: `<root>/src/scripts/Build-Toolkit`
     > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
   - Ensure all tests pass: `<root>/src/scripts/Test-PowerShell -Unit -Integration`
-- [ ] Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
+- [ ] <!-- release:package --> Package all release files (except Power BI): `<root>/src/scripts/Package-Toolkit.ps1 -Build -CopyFiles` script
 - [ ] Package Power BI files
   - [ ] Run `Package-Toolkit.ps1 -OpenPBI` script.
   - [ ] Save and close each Power BI project:

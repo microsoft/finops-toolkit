@@ -1,6 +1,6 @@
 ---
 description: Walk through the release checklist interactively
-allowed-tools: Read, Grep, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(git status*), Bash(git branch *), Bash(gh issue view *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*)
+allowed-tools: Read, Grep, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(git status*), Bash(git branch *), Bash(gh issue view *), Bash(gh issue edit *), Bash(gh pr view *), Bash(gh pr list *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*)
 ---
 
 # Release
@@ -78,17 +78,14 @@ After applying fixes, show a summary of what was changed so the user can review.
 
 Find all `<div id="whats-new">` blocks in `/docs/`. For each: if the tool has a section in the changelog, uncomment the block (if needed) and update the month, year, version tag, and paragraph with a 1-2 sentence summary. If the tool has no changelog section, comment out the block.
 
-Show a summary of all changelog and what's new changes for the user to review, then ask via AskUserQuestion whether to commit and push to the prep branch.
+### FinOps hubs documentation
 
-### Next actions
+Review the changelog's FinOps hubs section and update the following files for any applicable changes. Hub schema version changes (e.g., v1_0 → v1_2) are the primary trigger — update the upgrade guide (steps 7 and 8), data model, data processing, and compatibility chart. Also review for other changelog-driven updates like new datasets, renamed columns, or deprecated functions.
 
-After all triage and build/test results are reported, analyze the kept milestone items and suggest concrete next actions:
-
-- PRs from others awaiting the user's review
-- The user's PRs that have reviewer feedback to address
-- Issues with no open PRs and no one actively working them
-
-Present as a prioritized list — no AUQ needed, just a summary the user can act on.
+- @docs-mslearn/toolkit/hubs/upgrade.md
+- @docs-mslearn/toolkit/hubs/data-model.md
+- @docs-mslearn/toolkit/hubs/data-processing.md
+- @docs-mslearn/toolkit/hubs/compatibility.md
 
 ### New tool check
 
@@ -102,10 +99,24 @@ If the user chooses "No, help me set them up":
 
 1. For each new tool, ask via AskUserQuestion what type it is (new standalone tool, new open data file, new sub-tool like a PBI report or workbook or hub add-on).
 2. Based on the type, check if MS Learn and marketing pages exist. Report what's missing.
-3. Enter plan mode to create missing pages and update TOC/advisory council. After plan mode executes, commit only the files changed during that phase to the prep branch.
-4. After committing, summarize what was added and say "Review changes and say 'done' when ready to proceed."
+3. Enter plan mode to create missing pages and update TOC/advisory council. Stage these changes for the upcoming Commit and push step (don't commit separately).
+4. After plan mode executes, summarize what was added and say "Review changes and say 'done' when ready to proceed."
 
 If the user chooses "Skip for now", note it in the release readiness summary as an outstanding item so it isn't forgotten.
+
+### Commit and push
+
+Show a summary of all changelog, what's new, hubs docs, and any new tool page changes for the user to review, then ask via AskUserQuestion whether to commit and push to the prep branch. This must happen AFTER the new tool check so any plan-mode-created files land in the same commit.
+
+### Next actions
+
+After commit and push, analyze the kept milestone items and suggest concrete next actions:
+
+- PRs from others awaiting the user's review
+- The user's PRs that have reviewer feedback to address
+- Issues with no open PRs and no one actively working them
+
+Present as a prioritized list — no AUQ needed, just a summary the user can act on.
 
 ---
 
@@ -114,7 +125,7 @@ If the user chooses "Skip for now", note it in the release readiness summary as 
 Update the release tracking issue checkboxes:
 
 1. Run `gh issue view {number} --json body --jq .body > /tmp/release-issue-body.md` to save the issue body.
-2. Read the file with the Read tool. Replace `- [ ]` with `- [x]` for completed items (match on a unique substring of the checkbox text). Write the updated body back to the file.
+2. Read the file with the Read tool. Each `/release`-managed checkbox in the template has an HTML comment label like `<!-- release:core -->`, `<!-- release:finalize -->`, or `<!-- release:package -->`. To mark a step complete, find the line containing the matching label and change its `- [ ]` to `- [x]`. Write the updated body back to the file. In Phase 2 Release readiness, mark `release:core` complete.
 3. Run `gh issue edit {number} --body-file /tmp/release-issue-body.md` to push the updates.
 
 Then present a summary and next action via AskUserQuestion:
@@ -151,4 +162,4 @@ After packaging succeeds, inform the user of remaining manual steps documented i
 
 ### Final issue update
 
-Update the release tracking issue checkboxes for all finalize-phase items using the same process as Release readiness (save body, update checkboxes, push). Then report completion and wish the user well.
+Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Then report completion and wish the user well.
