@@ -18,19 +18,13 @@ ms.reviewer: brettwil
 
 This article summarizes the features and enhancements in each release of the FinOps toolkit.
 
+<!--
 <br>
 
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
 
-### [FinOps hubs](hubs/finops-hubs-overview.md) vNext
-
-- **Added**
-  - Added ability to ingest recommendations from Azure Advisor and custom Azure Resource Graph queries.
-    - Custom recommendations include stopped VMs, unattached disks, underutilized resources, and more.
-
-<!--
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
@@ -40,13 +34,13 @@ The following section lists features and enhancements that are currently in deve
 
 ## v14
 
-_Released March 2026_
+_Released April 2026_
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
 - **Added**
   - Added EA enrollment 403 troubleshooting steps to the [common errors](help/errors.md#403) page ([#1754](https://github.com/microsoft/finops-toolkit/issues/1754)).
-- **Fixed**
+- **Changed**
   - Updated FinOps Foundation video on the overview page to use the latest public video ([#2026](https://github.com/microsoft/finops-toolkit/issues/2026)).
 - **Removed**
   - Removed all references to the FinOps e-book (`aka.ms/finops/ebook`) as the e-book is no longer available ([#1813](https://github.com/microsoft/finops-toolkit/issues/1813)).
@@ -54,12 +48,14 @@ _Released March 2026_
 ### [FinOps hubs](hubs/finops-hubs-overview.md) v14
 
 - **Added**
+  - Added ability to ingest recommendations from Azure Advisor and custom Azure Resource Graph queries ([#2011](https://github.com/microsoft/finops-toolkit/issues/2011)).
+    - Custom recommendations include stopped VMs, unattached disks, underutilized resources, and more.
   - Added [Copilot Studio agent template](hubs/configure-ai-copilot-studio.md) with instructions, schema reference, query catalog, and weekly report guide for creating a FinOps Hub Agent in Microsoft Copilot Studio using the Kusto Query MCP Server.
+  - Added typed metadata contracts between hub apps to formalize dependency management and enable compile-time verification of inter-app interfaces.
 - **Changed**
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
   - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
-  - Added typed metadata contracts between hub apps to formalize dependency management and enable compile-time verification of inter-app interfaces.
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
   - Added row count check in `msexports_ExecuteETL` pipeline to fix error when export files have no rows ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
@@ -86,7 +82,6 @@ _Released March 2026_
   - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost/new-finopscostexport.md).
 - **Fixed**
   - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) that showed blank dates when a date range was specified.
-  - Addressed minor lint warnings across PowerShell commands.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]

@@ -19,6 +19,7 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 
 FinOps toolkit Power BI reports provide a great starting point for FinOps reporting. Customize and augment reports with your own data to facilitate organizational requirements.
 
+<!--
 <div id="whats-new" class="ftk-new">
     <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
     <p>
@@ -26,6 +27,7 @@ FinOps toolkit Power BI reports provide a great starting point for FinOps report
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
+-->
 <a name="features"></a>
 
 ## Gain critical insights on a familiar platform
