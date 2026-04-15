@@ -556,7 +556,7 @@ function Start-CostRecommendations {
                 return
             }
             Write-Host "Prerequisites script downloaded successfully." -ForegroundColor Green
-
+            return
         }
 
         try {
