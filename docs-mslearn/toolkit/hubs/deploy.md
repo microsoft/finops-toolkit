@@ -372,8 +372,8 @@ To ingest data from other data providers that support FOCUS, such as Amazon Web 
    >
    > Tools that produce partitioned parquet output (for example BigQuery `EXPORT DATA` or Spark `write.parquet`) often emit header-only empty shards. Data Explorer rejects these with `BadRequest_NoRecordsOrWrongFormat`, and each failure is retried three times at 120-second intervals, adding several minutes of delay per empty file. Filter out shards that contain no rows before copying them to the **ingestion** container.
    <!-- prettier-ignore-end -->
-3. Create a `manifest.json` file in the same folder. The file must contain at least `{}` — a zero-byte file is ignored by the storage event trigger (`ignoreEmptyBlobs: true`) and won't start ingestion.
-   - Data Explorer ingestion is triggered when manifest.json files are added or updated.
+3. Upload the `manifest.json` file **after** all parquet files have finished uploading. The file must contain at least `{}` — a zero-byte file is ignored by the storage event trigger (`ignoreEmptyBlobs: true`) and won't start ingestion.
+   - Data Explorer ingestion is triggered when manifest.json files are added or updated. The pipeline waits 60 seconds and then enumerates the folder; any parquet files that arrive after that enumeration are skipped by the current run.
    - The pipeline doesn't parse the manifest content, so any valid JSON is accepted. You can embed audit metadata such as the `ingestionId` or an export timestamp if useful.
 4. If there are any columns not covered in the current ingestion process, update the **Costs_raw** and **Costs_final_v1_2** tables, and **Costs_transform_v1_2**, **Costs_v1_2**, and **Costs** functions accordingly.
    - Submit a [feature request](https://aka.ms/ftk/ideas) to add new columns to the default ingestion code to ensure customizations don't block future upgrades.
