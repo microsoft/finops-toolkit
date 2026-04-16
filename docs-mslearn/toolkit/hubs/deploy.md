@@ -365,6 +365,10 @@ To ingest data from other data providers that support FOCUS, such as Amazon Web 
    > The pre-ingest cleanup drops every extent tagged with the current folder path that doesn't share the run's `ingestionId`. Uploading only incremental rows into a folder that was already ingested results in silent data loss — only the new rows survive in Data Explorer.
    >
    > If a provider emits nonoverlapping deltas, give each delta its own folder path using a `dd` or `dd/hh` subfolder as described above. Each folder is then independently replaced on its next run instead of being merged.
+   >
+   > **Remove parquet files from previous runs before each upload**
+   >
+   > Before uploading a new run's files, delete every `.parquet` file already in the target folder. If files with a different `ingestionId` remain, the pipeline processes them alongside the new ones and each file's pre-ingest cleanup drops extents tagged with a different `ingestionId` — only the files sharing the last `ingestionId` processed survive in Data Explorer. The managed Cost Management export pipeline handles this cleanup automatically, but custom ingestion workflows must implement it themselves.
    <!-- prettier-ignore-end -->
    <!-- prettier-ignore-start -->
    > [!TIP]
