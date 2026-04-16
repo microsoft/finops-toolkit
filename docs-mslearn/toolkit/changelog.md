@@ -59,6 +59,7 @@ _Released April 2026_
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
   - Added row count check in `msexports_ExecuteETL` pipeline to fix error when export files have no rows ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
+  - Fixed hub deployment failure in US Government cloud regions caused by missing region-to-time-zone mappings and an invalid default value for Data Factory schedule triggers ([#2087](https://github.com/microsoft/finops-toolkit/issues/2087)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v14
 

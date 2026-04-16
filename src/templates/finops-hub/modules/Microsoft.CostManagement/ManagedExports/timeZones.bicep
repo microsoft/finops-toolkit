@@ -1,6 +1,11 @@
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
 
+// Maps Azure region names to Windows time zone IDs accepted by Data Factory schedule triggers.
+// The timeZone field requires a Windows time zone ID (e.g. 'UTC'), not the display name
+// (e.g. 'Universal Coordinated Time'). An invalid value causes trigger activation to fail with:
+//   ErrorCode=InvalidWorkflowTriggerRecurrence, ErrorMessage=The recurrence of trigger has an invalid time zone '...'.
+// See: https://learn.microsoft.com/azure/data-factory/how-to-create-schedule-trigger#time-zone-option
 param timezoneobject object = {
   australiaeast: 'AUS Eastern Standard Time'
   australiacentral: 'AUS Eastern Standard Time'
@@ -32,6 +37,13 @@ param timezoneobject object = {
   switzerlandwest: 'W. Europe Standard Time'
   uksouth: 'GMT Standard Time'
   ukwest: 'GMT Standard Time'
+  // US Government cloud regions. USGov Arizona does not observe DST — use 'US Mountain Standard Time'.
+  usgovvirginia: 'Eastern Standard Time'
+  usgovtexas: 'Central Standard Time'
+  usgovarizona: 'US Mountain Standard Time'
+  usgoviowa: 'Central Standard Time'
+  usdodcentral: 'Central Standard Time'
+  usdodeast: 'Eastern Standard Time'
   westcentralus: 'Central Standard Time'
   westeurope: 'W. Europe Standard Time'
   westindia: 'India Standard Time'
@@ -45,7 +57,10 @@ param utcsecs string = utcNow('ss')
 
 var loc = toLower(replace(location, ' ', ''))
 
-var timezone = timezoneobject[?loc] ?? 'Universal Coordinated Time'
+// Fallback to 'UTC' — the valid Windows time zone ID. The display name 'Universal Coordinated Time'
+// is rejected by Data Factory trigger validation.
+// See: https://learn.microsoft.com/azure/data-factory/how-to-create-schedule-trigger#time-zone-option
+var timezone = timezoneobject[?loc] ?? 'UTC'
 
 output AzureRegion string = location
 
