@@ -354,9 +354,26 @@ To ingest data from other data providers that support FOCUS, such as Amazon Web 
      - `{scope}` represents a logical, consistent identifier for the dataset. This value can be any valid path using one or more nested folders.
    - If the provider generates nonoverlapping deltas in each dataset, add an extra folder for the day and/or hour (`dd` or `dd/hh`) between the month and scope folders.
      - The goal is to ensure that overriding datasets should consistently land in the same folder path so they're overwritten each time. Nonoverlapping datasets should be pushed to a new folder path.
-3. Create an empty `manifest.json` file in the same folder.
+   - Name every parquet file using the pattern `<ingestionId>__<originalFileName>.parquet` (two underscores separating the two parts).
+     - `ingestionId` identifies a single logical ingestion run and must be identical on all files produced by that run (for example a timestamp or GUID).
+     - `originalFileName` is any identifier unique within that run (for example a shard or partition number).
+     - The pipeline derives the ingestion ID by splitting the file name on `__`. Every file that shares the same `ingestionId` is treated as part of the same run; extents from previous runs in the same folder are dropped once the new run succeeds.
+   <!-- prettier-ignore-start -->
+   > [!IMPORTANT]
+   > **Each upload must contain the complete month**
+   >
+   > When new rows arrive for a month that was already ingested, you must rewrite the full month's data in the folder under a new `ingestionId`. The pre-ingest cleanup drops every extent in the folder that doesn't share the current run's `ingestionId`, so uploading only incremental deltas results in silent data loss — only the delta survives in Data Explorer.
+   <!-- prettier-ignore-end -->
+   <!-- prettier-ignore-start -->
+   > [!TIP]
+   > **Filter out empty parquet shards before upload**
+   >
+   > Tools that produce partitioned parquet output (for example BigQuery `EXPORT DATA` or Spark `write.parquet`) often emit header-only empty shards. Data Explorer rejects these with `BadRequest_NoRecordsOrWrongFormat`, and each failure is retried three times at 120-second intervals, adding several minutes of delay per empty file. Filter out shards that contain no rows before copying them to the **ingestion** container.
+   <!-- prettier-ignore-end -->
+3. Create a `manifest.json` file in the same folder. The file must contain at least `{}` — a zero-byte file is ignored by the storage event trigger (`ignoreEmptyBlobs: true`) and won't start ingestion.
    - Data Explorer ingestion is triggered when manifest.json files are added or updated.
-4. If there are any columns not covered in the current ingestion process, update the **Costs_raw** and **Costs_final_v1_0** tables, and **Costs_transform_v1_0**, **Costs_v1_0**, and **Costs** functions accordingly.
+   - The pipeline doesn't parse the manifest content, so any valid JSON is accepted. You can embed audit metadata such as the `ingestionId` or an export timestamp if useful.
+4. If there are any columns not covered in the current ingestion process, update the **Costs_raw** and **Costs_final_v1_2** tables, and **Costs_transform_v1_2**, **Costs_v1_2**, and **Costs** functions accordingly.
    - Submit a [feature request](https://aka.ms/ftk/ideas) to add new columns to the default ingestion code to ensure customizations don't block future upgrades.
 
 <br>
