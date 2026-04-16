@@ -360,9 +360,11 @@ To ingest data from other data providers that support FOCUS, such as Amazon Web 
      - The pipeline derives the ingestion ID by splitting the file name on `__`. Every file that shares the same `ingestionId` is treated as part of the same run; extents from previous runs in the same folder are dropped once the new run succeeds.
    <!-- prettier-ignore-start -->
    > [!IMPORTANT]
-   > **Each upload must contain the complete month**
+   > **Each run must rewrite the full contents of its folder path**
    >
-   > When new rows arrive for a month that was already ingested, you must rewrite the full month's data in the folder under a new `ingestionId`. The pre-ingest cleanup drops every extent in the folder that doesn't share the current run's `ingestionId`, so uploading only incremental deltas results in silent data loss — only the delta survives in Data Explorer.
+   > The pre-ingest cleanup drops every extent tagged with the current folder path that doesn't share the run's `ingestionId`. Uploading only incremental rows into a folder that was already ingested results in silent data loss — only the new rows survive in Data Explorer.
+   >
+   > If a provider emits nonoverlapping deltas, give each delta its own folder path using a `dd` or `dd/hh` subfolder as described above. Each folder is then independently replaced on its next run instead of being merged.
    <!-- prettier-ignore-end -->
    <!-- prettier-ignore-start -->
    > [!TIP]
