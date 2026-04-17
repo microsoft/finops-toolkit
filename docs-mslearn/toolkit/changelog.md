@@ -69,6 +69,11 @@ _Released April 2026_
     - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
   - Fixed Azure Hybrid Benefit reports to include Windows VMs from all publishers, not just Microsoft-published images ([#1793](https://github.com/microsoft/finops-toolkit/issues/1793)).
 
+### [Optimization engine](optimization-engine/overview.md) v14
+
+- **Changed**
+  - Upgraded the Azure EA/MCA Pricesheet download API version used by the pricesheet export runbook (previously used version is being deprecated in June 1, 2026).
+
 ### [Open data](open-data.md) v14
 
 **[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**

@@ -313,11 +313,11 @@ function Generate-Pricesheet
 
 Write-Output "Starting pricesheet export process for $billingPeriod billing period for Billing Account $BillingAccountID..."
 
-$MaxTries = 30 # The typical Retry-After is set to 20 seconds. We'll give 10 minutes overall to download the pricesheet report
+$MaxTries = 50 # The typical Retry-After is set to 20 seconds. We'll give ~15 minutes overall to download the pricesheet report
 
 if ($BillingAccountID -match $mcaBillingAccountIdRegex)
 {
-    $PriceSheetApiPath = "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingProfiles/$BillingProfileID/providers/Microsoft.CostManagement/pricesheets/default/download?api-version=2023-03-01&format=csv"
+    $PriceSheetApiPath = "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingProfiles/$BillingProfileID/providers/Microsoft.CostManagement/pricesheets/default/download?api-version=2023-11-01&format=csv"
     $result = Invoke-AzRestMethod -Path $PriceSheetApiPath -Method POST
 }
 else
