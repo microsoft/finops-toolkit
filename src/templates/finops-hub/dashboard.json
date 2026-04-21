@@ -2787,9 +2787,9 @@
       "description": "Filter costs to a single billing currency. Aggregating values across currencies without conversion produces incorrect totals and savings rates.",
       "variableName": "selectedBillingCurrency",
       "selectionType": "scalar",
-      "includeAllOption": true,
-      "defaultValue": { "kind": "all" },
-      "dataSource": { "kind": "query", "columns": { "value": "BillingCurrency" }, "queryRef": { "kind": "query", "queryId": "f2a8c4d6-3b5e-4a7f-9c2d-8e5b1f4a7d9c" } },
+      "includeAllOption": false,
+      "defaultValue": { "kind": "query-result" },
+      "dataSource": { "kind": "query", "columns": { "value": "BillingCurrency", "label": "Label" }, "queryRef": { "kind": "query", "queryId": "f2a8c4d6-3b5e-4a7f-9c2d-8e5b1f4a7d9c" } },
       "showOnPages": { "kind": "all" }
     }
   ],
@@ -3324,7 +3324,7 @@
     },
     {
       "dataSource": { "kind": "inline", "dataSourceId": "23540be2-ffc9-4b61-8c4c-05e493e682a6" },
-      "text": "let months = toscalar(database('Ingestion').HubSettings | project toint(retention.final.months));\nCosts_v1_2\n| where ChargePeriodStart >= monthsago(iff(isempty(months), 24, months))\n| where isnotempty(BillingCurrency)\n| distinct BillingCurrency\n| order by BillingCurrency asc\n",
+      "text": "let months = toscalar(database('Ingestion').HubSettings | project toint(retention.final.months));\nlet currencies = Costs_v1_2\n    | where ChargePeriodStart >= monthsago(iff(isempty(months), 24, months))\n    | where isnotempty(BillingCurrency)\n    | distinct BillingCurrency;\nlet currencyCount = toscalar(currencies | count);\ncurrencies\n| extend Label = BillingCurrency, _Order = 1\n| union (\n    print BillingCurrency = '', Label = '⚠️ All', _Order = 0\n    | where currencyCount > 1\n)\n| order by _Order asc, Label asc\n| project BillingCurrency, Label\n",
       "id": "f2a8c4d6-3b5e-4a7f-9c2d-8e5b1f4a7d9c",
       "usedVariables": []
     }
