@@ -1,7 +1,6 @@
 ---
 name: ftk-hubs-agent
 description: "Use this agent when the user needs to deploy, maintain, upgrade, troubleshoot, or configure FinOps Hubs from the FinOps Toolkit. This includes initial hub deployments, version upgrades, configuration changes, troubleshooting deployment failures, managing Cost Management exports, and understanding hub architecture. This agent should also be used when the user asks questions about FinOps Hubs capabilities, prerequisites, or best practices."
-mode: subagent
 skills:
   - finops-toolkit
   - azure-cost-management

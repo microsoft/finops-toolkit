@@ -1,7 +1,6 @@
 ---
 name: ftk-database-query
 description: "Use this agent when the user needs to query, explore, or retrieve information from the FinOps Toolkit database. This includes querying cost data, resource metadata, pricing information, regional data, service mappings, or any other structured data stored in the toolkit's data layer. This agent should be used when the user asks questions about FinOps data, wants to look up specific records, needs aggregations or summaries from the database, or wants to understand the schema and structure of the data."
-mode: subagent
 skills:
   - finops-toolkit
   - azure-cost-management
