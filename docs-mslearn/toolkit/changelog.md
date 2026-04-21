@@ -25,6 +25,13 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [Optimization engine](optimization-engine/overview.md) v14
+
+- **Fixed**
+  - Improved retail prices export runbook resilience by adding API request retry logic (up to 3 attempts) before failing the runbook.
+  - Streaming each retail prices API response page directly to CSV instead of collecting the full dataset in memory, reducing memory usage during long exports.
+  - Added periodic progress logging during long retail prices exports, configurable via the `AzureOptimization_RetailPricesProgressEveryPages` automation variable (default: 25 pages).
+
 ### Bicep Registry module pending updates
 
 - Cost Management export modules for subscriptions and resource groups.
@@ -83,7 +90,10 @@ _Released January 2026_
 - **Fixed**
   - Fixed reservations-related workbooks by replacing Instance Size Flexibility ratios CSV vanity URL ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
   - Fixed underutilized disks recommendations not being generated for Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
+  - Fixed retail prices export runbook to fail explicitly when the API returns no records for the configured filter, avoiding silent no-op runs.
   - Small documentation improvements and fixes to broken links.
+- **Changed**
+  - Improved retail prices export runbook resilience by adding API request retry logic and streaming each response page directly to CSV to reduce memory usage. Added periodic progress logging during long exports.
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v13
 
