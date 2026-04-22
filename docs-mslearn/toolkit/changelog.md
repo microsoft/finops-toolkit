@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/21/2026
+ms.date: 04/22/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -24,6 +24,13 @@ This article summarizes the features and enhancements in each release of the Fin
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
+
+### [Optimization engine](optimization-engine/overview.md) v14
+
+- **Fixed**
+  - Improved retail prices export runbook resilience by adding API request retry logic (up to 3 attempts) before failing the runbook.
+  - Streaming each retail prices API response page directly to CSV instead of collecting the full dataset in memory, reducing memory usage during long exports.
+  - Added periodic progress logging during long retail prices exports, configurable via the `AzureOptimization_RetailPricesProgressEveryPages` automation variable (default: 25 pages).
 
 ### Bicep Registry module pending updates
 
@@ -56,10 +63,12 @@ _Released April 2026_
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
   - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
   - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
+  - Documented the `<ingestionId>__<originalFileName>.parquet` filename convention, full-folder replacement requirement, and manifest content rules for ingesting custom FOCUS datasets to prevent silent data loss ([#2096](https://github.com/microsoft/finops-toolkit/issues/2096)).
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
   - Added row count check in `msexports_ExecuteETL` pipeline to fix error when export files have no rows ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
   - Fixed Data Explorer dashboard cost totals and savings KPIs producing invalid sums in multi-billing-currency tenants by adding a Currency parameter that scopes all tile queries to a single currency, with a warning indicator when multiple currencies are present ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
+  - Fixed hub deployment failure in US Government cloud regions caused by missing region-to-time-zone mappings and an invalid default value for Data Factory schedule triggers ([#2087](https://github.com/microsoft/finops-toolkit/issues/2087)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v14
 
@@ -69,6 +78,11 @@ _Released April 2026_
   - Excluded dev/test subscriptions from Azure Hybrid Benefit reports to align with licensing requirements ([#1819](https://github.com/microsoft/finops-toolkit/issues/1819)).
     - Azure Hybrid Benefit doesn't apply to Dev/Test resources as Windows licenses are already covered by Visual Studio subscriptions.
   - Fixed Azure Hybrid Benefit reports to include Windows VMs from all publishers, not just Microsoft-published images ([#1793](https://github.com/microsoft/finops-toolkit/issues/1793)).
+
+### [Optimization engine](optimization-engine/overview.md) v14
+
+- **Changed**
+  - Upgraded the Azure EA/MCA Pricesheet download API version used by the pricesheet export runbook (previously used version is being deprecated in June 1, 2026).
 
 ### [Open data](open-data.md) v14
 
@@ -166,7 +180,10 @@ _Released January 31, 2026_
 - **Fixed**
   - Fixed reservations-related workbooks by replacing Instance Size Flexibility ratios CSV vanity URL ([#1810](https://github.com/microsoft/finops-toolkit/issues/1810)).
   - Fixed underutilized disks recommendations not being generated for Premium SSD V2 disks ([#1831](https://github.com/microsoft/finops-toolkit/issues/1831)).
+  - Fixed retail prices export runbook to fail explicitly when the API returns no records for the configured filter, avoiding silent no-op runs.
   - Small documentation improvements and fixes to broken links.
+- **Changed**
+  - Improved retail prices export runbook resilience by adding API request retry logic and streaming each response page directly to CSV to reduce memory usage. Added periodic progress logging during long exports.
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v13
 
