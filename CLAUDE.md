@@ -164,6 +164,7 @@ The PowerShell-based build system:
 - **`dev`** - Main integration branch
 - Feature branches merge into `dev`
 - Releases are tagged from `dev`
+- Branch names must be prefixed with the GitHub username (e.g., `{username}/my-feature`)
 
 ### File Organization
 
