@@ -47,11 +47,7 @@ Group items by topic, then present via AskUserQuestion. Use the version tag from
 - **Options:** "Keep in {version} (Recommended)" or "Push to {next version} (Recommended)" (whichever you recommend first), the other option, and "Investigate further".
 - If "Investigate further" is chosen, fetch details via `gh issue view {number}`, provide deeper analysis, and re-present.
 
-**After triage:** Report which items are staying and which are being pushed. Do NOT move milestones — just report for the user to act on.
-
-### Untriaged issues
-
-If `NeedsReview` in the JSON contains any issues, present them for quick triage using the same Round 1/Round 2 pattern. These are issues with the "Needs: Review 👀" label that haven't been triaged yet.
+**After triage:** Report which items are staying, pushed, or skipped. Apply changes via `gh issue edit {number} --milestone {version}` — this works for BOTH issues and PRs. Do NOT use `gh pr edit` (not in allowed-tools). Run one command per item, not chained with `&&`.
 
 ### Build/test results
 
@@ -76,7 +72,7 @@ After applying fixes, show a summary of what was changed so the user can review.
 
 ### What's new blurbs
 
-Find all `<div id="whats-new">` blocks in `/docs/`. For each: if the tool has a section in the changelog, uncomment the block (if needed) and update the month, year, version tag, and paragraph with a 1-2 sentence summary. If the tool has no changelog section, comment out the block.
+Use Grep to find all `<div id="whats-new">` blocks in `/docs/`, then use the Read tool to inspect each match. Do NOT use `sed`, `cat`, `head`, or `tail` — they are not in allowed-tools. For each block: if the tool has a section in the changelog, uncomment the block (if needed) and update the month, year, version tag, and paragraph with a 1-2 sentence summary. If the tool has no changelog section, comment out the block.
 
 ### FinOps hubs documentation
 
@@ -124,8 +120,8 @@ Present as a prioritized list — no AUQ needed, just a summary the user can act
 
 Update the release tracking issue checkboxes:
 
-1. Run `gh issue view {number} --json body --jq .body > /tmp/release-issue-body.md` to save the issue body.
-2. Read the file with the Read tool. Each `/release`-managed checkbox in the template has an HTML comment label like `<!-- release:core -->`, `<!-- release:finalize -->`, or `<!-- release:package -->`. To mark a step complete, find the line containing the matching label and change its `- [ ]` to `- [x]`. Write the updated body back to the file. In Phase 2 Release readiness, mark `release:core` complete.
+1. Run `gh issue view {number} --json body` and capture the output. Parse the JSON to extract the `body` field, then write it to `/tmp/release-issue-body.md` using the Write tool (not shell redirection).
+2. Read the file with the Read tool. Each `/release`-managed checkbox in the template has an HTML comment label like `<!-- release:core -->`, `<!-- release:finalize -->`, or `<!-- release:package -->`. To mark a step complete, find the line containing the matching label and change its `- [ ]` to `- [x]`. Use the Edit tool to write the updated body back to the file. In Phase 2 Release readiness, mark `release:core` complete.
 3. Run `gh issue edit {number} --body-file /tmp/release-issue-body.md` to push the updates.
 
 Then present a summary and next action via AskUserQuestion:
