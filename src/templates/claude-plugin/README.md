@@ -1,6 +1,6 @@
 # FinOps Toolkit plugin for Claude Code
 
-A Claude Code plugin that provides AI-powered cloud financial management using the [FinOps Toolkit](https://github.com/microsoft/finops-toolkit) and [Azure Cost Management](https://learn.microsoft.com/en-us/cost-management-billing/).
+A Claude Code plugin that provides AI-powered cloud financial management using the [FinOps Toolkit](https://github.com/microsoft/finops-toolkit) and [Azure Cost Management](https://learn.microsoft.com/azure/cost-management-billing/).
 
 ## Prerequisites
 

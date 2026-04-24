@@ -36,7 +36,7 @@ Notes about the columns:
 - Use the `clusterShortUri` to refer to the FinOps hub instance.
 - Also accept the `hubName`, `clusterName`, or `resourceGroup` to refer to the FinOps hub instance as long as they are unique. If there are multiple FinOps hub instances with the same identifier, list them and ask which the user should use.
 - Use the `clusterUri` to connect to the cluster using `#azmcp-kusto-query`.
-- The `hubVersion` is the version of the FinOps hub instance. Format this value is a string using Semantic Versioning (SemVer) format (e.g., `major.minor` or `major.minor.patch` or `major.minor-prerelease`).
+- The `hubVersion` is the version of the FinOps hub instance. This value is formatted as a Semantic Versioning (SemVer) string (e.g., `major.minor` or `major.minor.patch` or `major.minor-prerelease`).
 
 Tell the user how many FinOps hub instances you found that matched their inputs, if provided. If there is only one FinOps hub instance, announce that you will use that FinOps hub instance for this session and skip to step 4. If there are multiple FinOps hub instances, list them with the following details:
 
