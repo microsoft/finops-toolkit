@@ -20,8 +20,6 @@ configuration:
                   - payloadType: Pull_Request_Review_Comment
                   - isAction:
                       action: Created
-                  - isActivitySender:
-                      issueAuthor: False
               - and:
                   - payloadType: Pull_Request_Review
                   - isReviewState:
@@ -30,8 +28,10 @@ configuration:
                   - payloadType: Pull_Request_Review
                   - isReviewState:
                       reviewState: Commented
-                  - isActivitySender:
-                      issueAuthor: False
+              - and:
+                  - payloadType: Issue_Comment
+                  - isAction:
+                      action: Created
           - not:
               targetsBranch:
                 branch: main
