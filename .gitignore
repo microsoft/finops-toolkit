@@ -376,3 +376,6 @@ env/
 /PRD.md
 /RTM.md
 /RETROSPECTIVES.md
+
+# Auto-generated build artifacts
+src/templates/finops-hub-copilot-studio/knowledge/query-catalog.md

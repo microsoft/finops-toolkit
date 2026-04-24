@@ -19,15 +19,13 @@ Leverage open data to normalize and enhance your FinOps reporting.
 
 FinOps toolkit open data is used to transform Cost Management actual and amortized data into FOCUS. Use the same mappings to clean your FinOps datasets.
 
-<!--
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
+    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
     <p>
-        No open data changes in v13.
+        In April, open data added a new commitment discount eligibility dataset with pre-computed reservation and savings plan eligibility per meter, sourced from the Azure Retail Prices API.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
--->
 
 <a name="features"></a>
 <a name="deploy"></a>

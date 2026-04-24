@@ -4,5 +4,5 @@
 function Get-VersionNumber
 {
     param()
-    return '14.0-dev'
+    return '14.0'
 }

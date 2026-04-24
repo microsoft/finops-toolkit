@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 02/24/2026
+ms.date: 04/04/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,6 +25,23 @@ If the information provided doesn't help you, [Create a support request](/azure/
 
 <br>
 
+## 403
+
+<sup>Severity: Critical</sup>
+
+You may see this error when using [Add-FinOpsServicePrincipal](../powershell/cost/add-finopsserviceprincipal.md) to assign EA enrollment reader permissions to a service principal. The billing role assignment API returns HTTP 403 when the request is rejected.
+
+**Mitigation**:
+
+1. Confirm you are using the service principal object ID from **Enterprise applications** in the Azure portal, not the application object ID from **App registrations**. See [Assign roles to EA service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals).
+2. Confirm your account has the **Enrollment writer** role in your Enterprise Agreement. See [Understand EA administrative roles](/azure/cost-management-billing/manage/understand-ea-roles).
+3. Confirm the billing account ID matches your EA enrollment number exactly.
+4. If the error persists, try assigning the role directly through the [Billing Role Assignments REST API](/rest/api/billing/2019-10-01-preview/role-assignments/put) using the **Try it** feature.
+
+If this is not an EA enrollment scenario, see [Access to the resource is forbidden](#access-to-the-resource-is-forbidden).
+
+<br>
+
 ## Access to the resource is forbidden
 
 <sup>Severity: Critical</sup>
@@ -32,6 +49,8 @@ If the information provided doesn't help you, [Create a support request](/azure/
 This error generally means the account you are connected with does not have access to the resource you're attempting to use.
 
 **Mitigation**: Confirm you are using the correct account in the correct Microsoft Entra ID tenant.
+
+If this is an EA enrollment scenario, see [403](#403).
 
 <br>
 

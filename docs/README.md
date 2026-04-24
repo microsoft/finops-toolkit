@@ -18,9 +18,9 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 ---
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
+    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
     <p>
-        January brings modular Bicep reorganization, enhanced multi-cloud documentation, comprehensive troubleshooting for Data Explorer ingestion errors, Optimization Engine bug fixes, Power BI export requirements documentation, and Data Lake connectivity guides covering tools like Azure Data Explorer, Microsoft Fabric, and Azure Synapse Analytics.
+        April adds recommendations ingestion and a Copilot Studio agent template for FinOps hubs, a new commitment discount eligibility open dataset, simplified hub deployment UI, workbook feedback and Azure Hybrid Benefit fixes, and PowerShell improvements.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

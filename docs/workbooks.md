@@ -20,9 +20,9 @@ Engineering hub to maximize cloud ROI through FinOps.
 FinOps workbooks are Azure workbooks that provide a series of tools to help engineers perform targeted FinOps tasks, modeled after the Well-Architected Framework guidance.
 
 <div id="whats-new" class="ftk-new">
-    <h3>What's new in January 2026<span class="ftk-version">v13</span></h3>
+    <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
     <p>
-        In January, the optimization workbook fixed SQL Managed Instance vCores displaying incorrect values.
+        In April, FinOps workbooks fixed the broken feedback link in the Optimization workbook, excluded dev/test subscriptions from Azure Hybrid Benefit reports, and fixed AHB reports to include Windows VMs from all publishers.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>
