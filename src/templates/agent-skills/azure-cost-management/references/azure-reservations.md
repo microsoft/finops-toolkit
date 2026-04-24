@@ -7,7 +7,7 @@ description: Query the Azure Cost Management Benefit Recommendations API to retr
 - Up to 72% savings vs pay-as-you-go pricing for stable workloads
 - Resource-type specific (VMs, SQL DB, Cosmos DB, App Service, Synapse, Storage, etc.)
 - Instance size flexibility within VM series
-- Self-service returns (up to $50K/year) and exchanges within product family
+- Self-service returns (up to $50K/year at time of writing; see [current limits](https://learn.microsoft.com/azure/cost-management-billing/reservations/exchange-and-refund-azure-reservations)) and exchanges within product family
 - 1-year and 3-year terms
 - Applied before savings plans in the benefit stack
 

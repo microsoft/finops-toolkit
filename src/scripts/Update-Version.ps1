@@ -121,13 +121,13 @@ if ($update -or $Version)
         Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
         $json.version = $ver
-        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8NoBOM -NoNewline
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
     }
 
     # Update version in marketplace.json plugin entries
     Write-Verbose "Updating marketplace.json files..."
     Get-ChildItem $repoRoot -Include "marketplace.json" -Recurse -Force `
-    | Where-Object { $_.FullName -like "*.claude-plugin*" } `
+    | Where-Object { $_.Directory.Name -eq '.claude-plugin' }`
     | ForEach-Object {
         Write-Verbose "- $($_.FullName.Replace($repoRoot + [IO.Path]::DirectorySeparatorChar, ''))"
         $json = Get-Content $_ -Raw | ConvertFrom-Json
@@ -136,7 +136,7 @@ if ($update -or $Version)
                 $plugin.version = $ver
             }
         }
-        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8NoBOM -NoNewline
+        $json | ConvertTo-Json -Depth 10 | Out-File $_ -Encoding utf8 -NoNewline
     }
 
     # Update version in PowerShell

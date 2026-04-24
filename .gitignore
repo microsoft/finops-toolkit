@@ -372,7 +372,7 @@ env/
 .claude/settings.local.json
 
 # Internal planning docs
-TODO.md
-PRD.md
-RTM.md
-RETROSPECTIVES.md
+/TODO.md
+/PRD.md
+/RTM.md
+/RETROSPECTIVES.md

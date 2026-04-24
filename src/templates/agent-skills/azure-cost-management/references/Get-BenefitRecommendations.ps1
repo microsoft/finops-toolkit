@@ -60,7 +60,7 @@ param (
     $Term = 'P3Y'
 )
 
-$url="https://management.azure.com/{0}/providers/Microsoft.CostManagement/benefitRecommendations?`$filter=properties/lookBackPeriod eq '{1}' AND properties/term eq '{2}'&`$expand=properties/usage,properties/allRecommendationDetails&api-version=2024-08-01" -f $BillingScope, $lookBackPeriod, $term
+$url="https://management.azure.com/{0}/providers/Microsoft.CostManagement/benefitRecommendations?`$filter=properties/lookBackPeriod eq '{1}' AND properties/term eq '{2}'&`$expand=properties/usage,properties/allRecommendationDetails&api-version=2024-08-01" -f $BillingScope, $LookBackPeriod, $Term
 $uri=[uri]::new($url)
 $result = Invoke-AzRestMethod -Uri $uri.AbsoluteUri -Method GET
 $jsonResult = $result.Content | ConvertFrom-Json
