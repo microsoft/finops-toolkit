@@ -93,10 +93,10 @@ All KQL queries are located in `references/queries/`:
 
 1. **Default**: 30 days (`ago(30d)`)
 2. **Max**: 90 days without approval
-3. **Freshness check**: `Costs | where ChargePeriodStart >= ago(7d) | summarize max(ChargePeriodStart)`
+3. **Freshness check**: `Costs() | where ChargePeriodStart >= ago(7d) | summarize max(ChargePeriodStart)`
 
-**Bad**: `Costs | summarize sum(BilledCost)`
-**Good**: `Costs | where ChargePeriodStart >= ago(30d) | summarize sum(BilledCost)`
+**Bad**: `Costs() | summarize sum(BilledCost)`
+**Good**: `Costs() | where ChargePeriodStart >= ago(30d) | summarize sum(BilledCost)`
 
 ---
 

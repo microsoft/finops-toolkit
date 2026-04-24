@@ -307,7 +307,7 @@ After deployment, retrieve these values from **Deployments → hub → Outputs:*
 ### Verify Connectivity
 
 ```kusto
-Costs | summarize count(), max(ChargePeriodStart)
+Costs() | summarize count(), max(ChargePeriodStart)
 ```
 
 ---
