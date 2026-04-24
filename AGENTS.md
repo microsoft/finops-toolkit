@@ -191,7 +191,7 @@ This repository supports production infrastructure managing significant revenue.
 
 **Common conflict patterns in this repository:**
 
-- **`ms.date` fields in `docs-mslearn/` files** — Microsoft Learn docs use `ms.date` in YAML front matter. Always take the more recent date when both sides have changed this field.
+- **`ms.date` fields in `docs-mslearn/` files** — Microsoft Learn docs use `ms.date` in YAML front matter. A CI workflow (`.github/workflows/update-mslearn-dates.yml`) automatically updates `ms.date` to today's date for any changed `docs-mslearn/**/*.md` files. On protected branches where the bot cannot push, you must update `ms.date` to today's date (`MM/DD/YYYY` format) manually in every `docs-mslearn/` markdown file you modify. When resolving merge conflicts on `ms.date`, always set the date to today — not either side's value.
 - **`.gitignore` additions** — Both sides may add new ignore entries to the end of the file. Keep entries from both sides; they are additive and independent.
 - **`src/scripts/Update-Version.ps1`** — This script has multiple independent version-update blocks (PowerShell, Bicep, plugin.json, survey IDs, etc.). When both sides add new blocks, keep both — they operate on different file sets and do not conflict logically.
 - **`docs-mslearn/toolkit/changelog.md`** — Both sides may add entries under the same version heading. Keep entries from both sides in logical order (plugin entries, then component entries).
