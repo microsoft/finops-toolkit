@@ -371,5 +371,11 @@ env/
 # AI
 .claude/settings.local.json
 
+# Internal planning docs
+/TODO.md
+/PRD.md
+/RTM.md
+/RETROSPECTIVES.md
+
 # Auto-generated build artifacts
 src/templates/finops-hub-copilot-studio/knowledge/query-catalog.md

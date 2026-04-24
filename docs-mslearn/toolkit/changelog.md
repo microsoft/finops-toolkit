@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/22/2026
+ms.date: 04/24/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -42,6 +42,13 @@ The following section lists features and enhancements that are currently in deve
 ## v14
 
 _Released April 2026_
+
+### Claude Code plugin v13.0.0
+
+- **Added**
+  - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management.
+  - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
+  - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
 
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
