@@ -165,6 +165,32 @@ The PowerShell-based build system:
 - Feature branches merge into `dev`
 - Releases are tagged from `dev`
 
+### Git Operations Policy
+
+This repository supports production infrastructure managing significant revenue. All git operations must be non-destructive and preserve full commit history.
+
+**Permitted operations:**
+
+- `git add`, `git commit`, `git push` (standard push only)
+- `git merge` (merge commits to integrate branches — the only permitted way to sync with `dev` or resolve conflicts)
+- `git checkout`, `git switch`, `git branch` (branch creation and switching)
+- `git worktree add`, `git worktree remove`, `git worktree prune` (worktree lifecycle)
+- `git fetch`, `git pull` (with merge, not rebase)
+- `git stash`, `git stash pop` (temporary local state management)
+- `git status`, `git log`, `git diff`, `git show` (read-only inspection)
+
+**Prohibited operations:**
+
+- `git rebase` — rewrites commit history. Never permitted on shared branches. Not permitted as a conflict resolution strategy.
+- `git push --force` / `git push --force-with-lease` — destructive remote update. Never permitted.
+- `git reset --hard` to a state behind the remote (discarding pushed commits)
+- `git filter-branch`, `git reflog`-based history manipulation
+- Any operation that rewrites, reorders, squashes, or deletes commits that have been pushed to the remote
+
+**Conflict resolution:** When a branch has merge conflicts with `dev`, the only permitted approach is `git merge origin/dev` into the feature branch. This creates a merge commit and preserves all history.
+
+**AI agents must ask for explicit approval** before executing any git write operation (`commit`, `push`, `merge`). Read-only git commands (`status`, `log`, `diff`, `branch --list`, `worktree list`) do not require approval.
+
 ### File Organization
 
 - Templates follow namespace/module/component structure
