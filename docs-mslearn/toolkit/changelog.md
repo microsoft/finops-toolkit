@@ -25,6 +25,11 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
+### [Power BI reports](power-bi/reports.md)
+
+- **Fixed**
+  - Fixed Power BI storage report refresh errors caused by unrecognized `Term` values like `P10Y` (10-year reservations) in pricesheet exports. The `Prices` and `ReservationRecommendations` queries now handle `P10Y` explicitly and fall back to a generic ISO-8601 `PnY`/`PnM` parser for any future term values, preventing row-level refresh errors ([#2106](https://github.com/microsoft/finops-toolkit/issues/2106)).
+
 ### [Optimization engine](optimization-engine/overview.md) v14
 
 - **Fixed**
@@ -76,11 +81,6 @@ _Released April 2026_
   - Added row count check in `msexports_ExecuteETL` pipeline to fix error when export files have no rows ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
   - Fixed Data Explorer dashboard cost totals and savings KPIs producing invalid sums in multi-billing-currency tenants by adding a Currency parameter that scopes all tile queries to a single currency, with a warning indicator when multiple currencies are present ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
   - Fixed hub deployment failure in US Government cloud regions caused by missing region-to-time-zone mappings and an invalid default value for Data Factory schedule triggers ([#2087](https://github.com/microsoft/finops-toolkit/issues/2087)).
-
-### [Power BI reports](power-bi/reports.md) v14
-
-- **Fixed**
-  - Fixed Power BI storage report refresh errors caused by unrecognized `Term` values like `P10Y` (10-year reservations) in pricesheet exports. The `Prices` and `ReservationRecommendations` queries now handle `P10Y` explicitly and fall back to a generic ISO-8601 `PnY`/`PnM` parser for any future term values, preventing row-level refresh errors ([#2106](https://github.com/microsoft/finops-toolkit/issues/2106)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v14
 
