@@ -39,7 +39,7 @@ apply_agents() {
   # Pass 1: agents without handoffs (safe to create in any order)
   for f in "$dir"/*.yaml "$dir"/*.yml; do
     [ -f "$f" ] || continue
-    if python3 -c "import yaml,sys; d=yaml.safe_load(open(sys.argv[1])); h=d.get('spec',{}).get('handoffs',[]); sys.exit(0 if not h else 1)" "$f"; then
+    if ! grep -q '^  handoffs:' "$f" 2>/dev/null; then
       log "Applying agent: $(basename "$f")"
       srectl apply-yaml --file "$f"
     fi
@@ -48,7 +48,7 @@ apply_agents() {
   # Pass 2: agents with handoffs (their targets now exist)
   for f in "$dir"/*.yaml "$dir"/*.yml; do
     [ -f "$f" ] || continue
-    if ! python3 -c "import yaml,sys; d=yaml.safe_load(open(sys.argv[1])); h=d.get('spec',{}).get('handoffs',[]); sys.exit(0 if not h else 1)" "$f"; then
+    if grep -q '^  handoffs:' "$f" 2>/dev/null; then
       log "Applying agent: $(basename "$f")"
       srectl apply-yaml --file "$f"
     fi

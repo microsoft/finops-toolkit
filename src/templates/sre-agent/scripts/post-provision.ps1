@@ -55,14 +55,8 @@ function Apply-Agents {
 
     # Pass 1: agents without handoffs
     foreach ($f in Get-ChildItem $agentsDir -Include '*.yaml','*.yml' -File) {
-        $hasHandoffs = python3 -c @"
-import yaml, sys
-with open(sys.argv[1]) as fh:
-    d = yaml.safe_load(fh)
-h = d.get('spec',{}).get('handoffs',[])
-print('yes' if h else 'no')
-"@ $f.FullName
-        if ($hasHandoffs -eq 'no') {
+        $hasHandoffs = (Select-String -Path $f.FullName -Pattern '^\s{2}handoffs:' -Quiet) -eq $true
+        if (-not $hasHandoffs) {
             Write-Log "Applying agent: $($f.Name)"
             srectl apply-yaml --file $f.FullName
             if ($LASTEXITCODE -ne 0) { throw "Failed to apply $($f.Name)" }
@@ -71,14 +65,8 @@ print('yes' if h else 'no')
 
     # Pass 2: agents with handoffs
     foreach ($f in Get-ChildItem $agentsDir -Include '*.yaml','*.yml' -File) {
-        $hasHandoffs = python3 -c @"
-import yaml, sys
-with open(sys.argv[1]) as fh:
-    d = yaml.safe_load(fh)
-h = d.get('spec',{}).get('handoffs',[])
-print('yes' if h else 'no')
-"@ $f.FullName
-        if ($hasHandoffs -eq 'yes') {
+        $hasHandoffs = (Select-String -Path $f.FullName -Pattern '^\s{2}handoffs:' -Quiet) -eq $true
+        if ($hasHandoffs) {
             Write-Log "Applying agent: $($f.Name)"
             srectl apply-yaml --file $f.FullName
             if ($LASTEXITCODE -ne 0) { throw "Failed to apply $($f.Name)" }

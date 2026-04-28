@@ -1,6 +1,6 @@
-# Agent Instructions
+# Agent instructions
 
-Target resource group: `/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/SRE`
+Target resource group: `/subscriptions/<subscription-id>/resourceGroups/SRE`
 
 Load the `azure-sre-agent` and `test-driven-development` skills at session start and after every compaction or summarization.
 
@@ -9,8 +9,8 @@ Load the `azure-sre-agent` and `test-driven-development` skills at session start
 ```yaml
 :default: finops-hubenvironments:
   finops-hub:
-    cluster-uri: https://msbw-finops-hub.westus.kusto.windows.net
-    tenant: 16b3c013-d300-468d-ac64-7eda0820b6d3
-    subscription: cab7feeb-759d-478c-ade6-9326de0651ff
-    resource-group: finops-hub
+    cluster-uri: https://<your-cluster>.kusto.windows.net
+    tenant: <tenant-id>
+    subscription: <subscription-id>
+    resource-group: <resource-group>
 ```

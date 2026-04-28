@@ -25,7 +25,7 @@ spec:
     ## Phase 1: Data Collection
 
 
-    Execute these Kusto tools in sequence. Use #remember to note key data points as you go.
+    Execute these Kusto tools in sequence. Use #remember to note operational observations (tool errors, data quality issues, query patterns) as you go — never financial figures.
 
 
     ### 1.1 Verify Connectivity

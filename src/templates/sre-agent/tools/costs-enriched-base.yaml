@@ -23,7 +23,7 @@ spec:
     | extend x_SkuImageType = iff(tmp_IsVMUsage, tostring(x_SkuDetails.ImageType), '')
     | extend x_SkuType      = iff(tmp_IsVMUsage, tostring(x_SkuDetails.ServiceType), '')
     | extend tmp_IsSQLAHB = tolower(x_SkuDetails.AHB) == 'true'
-    | extend x_ConsumedCoreHours = iff(tmp_IsVMUsage and isnotempty(x_SkuCoreCount), toreal(x_SkuCoreCount * ConsumedQuantity), toreal(''))
+    | extend x_ConsumedCoreHours = iff(tmp_IsVMUsage and isnotnull(x_SkuCoreCount), toreal(x_SkuCoreCount * ConsumedQuantity), toreal(''))
     | extend x_SkuLicenseStatus = case(
         (isnotempty(x_SkuDetails.ImageType) and x_SkuDetails.ImageType contains 'Windows Server BYOL') or tmp_IsSQLAHB or (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Azure Hybrid Benefit'), 'Enabled',
         (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Windows') or not(tmp_IsSQLAHB), 'Not enabled',
@@ -35,12 +35,12 @@ spec:
         ''
     )
     | extend x_SkuLicenseQuantity = case(
-        isempty(x_SkuCoreCount), toint(''),
+        isnull(x_SkuCoreCount), toint(''),
         x_SkuCoreCount <= 8, 8,
         x_SkuCoreCount > 8, x_SkuCoreCount,
         toint('')
     )
-    | extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')
+    | extend x_SkuLicenseUnit = iff(isnotnull(x_SkuLicenseQuantity), 'Cores', '')
     | extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
     | extend x_CommitmentDiscountUtilizationPotential = case(
         ChargeCategory == 'Purchase', toreal(0),

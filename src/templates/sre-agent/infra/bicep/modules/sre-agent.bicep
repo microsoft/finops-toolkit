@@ -3,7 +3,8 @@
 // =============================================================================
 // Creates the FinOps SRE Agent by using the Microsoft.App/agents API and
 // assigns the deploying principal the SRE Agent Administrator role. The action
-// mode is intentionally set to Review based on live deployment validation.
+// mode is intentionally set to Autonomous based on live deployment validation
+// so that scheduled tasks can deliver reports to Teams without human approval.
 // =============================================================================
 
 @description('Required. Resource location.')

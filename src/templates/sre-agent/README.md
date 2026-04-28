@@ -173,7 +173,7 @@ azd up
   │   ├── resources.bicep (RG-scoped orchestrator)
   │   │   ├── identity.bicep → User-assigned managed identity
   │   │   ├── monitoring.bicep → Log Analytics + Application Insights
-  │   │   └── sre-agent.bicep → SRE Agent (Review mode)
+  │   │   └── sre-agent.bicep → SRE Agent (Autonomous mode)
   │   ├── subscription-rbac.bicep → Reader + Monitoring Contributor
   │   └── adx-role.bicep (conditional) → AllDatabasesViewer on ADX cluster
   └── postprovision hook (srectl)
