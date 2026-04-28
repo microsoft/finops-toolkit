@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/24/2026
+ms.date: 04/27/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -24,6 +24,11 @@ This article summarizes the features and enhancements in each release of the Fin
 ## Unreleased
 
 The following section lists features and enhancements that are currently in development.
+
+### [Power BI reports](power-bi/reports.md)
+
+- **Fixed**
+  - Fixed Power BI storage report refresh errors caused by unrecognized `Term` values like `P10Y` (10-year reservations) in pricesheet exports. The `Prices` and `ReservationRecommendations` queries now handle `P10Y` explicitly and fall back to a generic ISO-8601 `PnY`/`PnM` parser for any future term values, preventing row-level refresh errors ([#2106](https://github.com/microsoft/finops-toolkit/issues/2106)).
 
 ### [Optimization engine](optimization-engine/overview.md) v14
 
