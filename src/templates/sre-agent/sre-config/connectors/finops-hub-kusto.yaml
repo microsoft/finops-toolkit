@@ -1,0 +1,24 @@
+# T-9: RTM FR-3.1
+# Source: AGENTS.md
+# Source: submodules/finops-toolkit/src/templates/claude-plugin/skills/finops-toolkit/references/settings-format.md
+# Source: submodules/finops-toolkit/src/templates/claude-plugin/skills/finops-toolkit/references/workflows/ftk-hubs-connect.md
+# Source: submodules/finops-toolkit/src/templates/claude-plugin/skills/finops-toolkit/references/finops-hubs.md
+# Source: submodules/finops-toolkit/src/templates/finops-hub/README.md
+# Documented schema/version exception: repo-owned agents and tools use azuresre.ai/v2,
+# but connector YAML remains the current DataConnector contract (azuresre.ai/v1) in the
+# SRE Agent docs and local azure-sre-agent reference content.
+#
+# FinOps Hub connection contract:
+# - cluster-uri: the active FinOps Hub Azure Data Explorer cluster URI. Deployment automation
+#   substitutes ##finopsHubClusterUri## with the customer's cluster-uri value.
+# - tenant: required for live FinOps Hub queries and must be supplied by the caller from the
+#   active FinOps Hub environment. The connector schema has no tenant field, so it must not be
+#   hidden in connector metadata.
+# - database: all FinOps analytics queries must target the Hub database, not Ingestion.
+api_version: azuresre.ai/v1
+kind: DataConnector
+spec:
+  name: finops-hub-kusto
+  dataConnectorType: Kusto
+  dataSource: "##finopsHubClusterUri##"
+  identity: system

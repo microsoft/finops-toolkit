@@ -1,0 +1,106 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: costs-enriched-base
+spec:
+  type: KustoTool
+  connector: finops-hub-kusto
+  toolMode: Auto
+  description: |-
+    Returns an enriched, analytics-ready cost and usage dataset with toolkit metadata, savings calculations, commitment discount fields, resource helpers, and zero-cost reason enrichment. Use it as the broad base query for detailed FinOps analysis, dashboards, or custom filtering. Available parameters: startDate, endDate.
+  database: hub
+  query: |-
+    Costs()
+    | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##
+    | as filteredCosts
+    | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
+    | extend x_ReportingDate = startofmonth(ChargePeriodStart)
+    | extend x_SkuVMProperties = tostring(x_SkuDetails.VMProperties)
+    | extend x_CapacityReservationId = tostring(x_SkuDetails.VMCapacityReservationId)
+    | extend tmp_IsVMUsage  = x_SkuMeterCategory in ('Virtual Machines', 'Virtual Machine Licenses') and ChargeCategory == 'Usage'
+    | extend x_SkuCoreCount = iff(tmp_IsVMUsage, toint(coalesce(x_SkuDetails.VCPUs, x_SkuDetails.vCores)), toint(''))
+    | extend x_SkuUsageType = tostring(x_SkuDetails.UsageType)
+    | extend x_SkuImageType = iff(tmp_IsVMUsage, tostring(x_SkuDetails.ImageType), '')
+    | extend x_SkuType      = iff(tmp_IsVMUsage, tostring(x_SkuDetails.ServiceType), '')
+    | extend tmp_IsSQLAHB = tolower(x_SkuDetails.AHB) == 'true'
+    | extend x_ConsumedCoreHours = iff(tmp_IsVMUsage and isnotempty(x_SkuCoreCount), toreal(x_SkuCoreCount * ConsumedQuantity), toreal(''))
+    | extend x_SkuLicenseStatus = case(
+        (isnotempty(x_SkuDetails.ImageType) and x_SkuDetails.ImageType contains 'Windows Server BYOL') or tmp_IsSQLAHB or (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Azure Hybrid Benefit'), 'Enabled',
+        (isnotempty(x_SkuMeterSubcategory) and x_SkuMeterSubcategory contains 'Windows') or not(tmp_IsSQLAHB), 'Not enabled',
+        ''
+    )
+    | extend x_SkuLicenseType = case(
+        x_SkuDetails.ImageType contains 'Windows Server BYOL', 'Windows Server',
+        x_SkuMeterSubcategory == 'SQL Server Azure Hybrid Benefit', 'SQL Server',
+        ''
+    )
+    | extend x_SkuLicenseQuantity = case(
+        isempty(x_SkuCoreCount), toint(''),
+        x_SkuCoreCount <= 8, 8,
+        x_SkuCoreCount > 8, x_SkuCoreCount,
+        toint('')
+    )
+    | extend x_SkuLicenseUnit = iff(isnotempty(x_SkuLicenseQuantity), 'Cores', '')
+    | extend x_CommitmentDiscountKey = iff(tmp_IsVMUsage and isnotempty(x_SkuDetails.ServiceType), strcat(x_SkuDetails.ServiceType, x_SkuMeterId), '')
+    | extend x_CommitmentDiscountUtilizationPotential = case(
+        ChargeCategory == 'Purchase', toreal(0),
+        ProviderName == 'Microsoft' and isnotempty(CommitmentDiscountCategory), toreal(EffectiveCost),
+        CommitmentDiscountCategory == 'Usage', toreal(ConsumedQuantity),
+        CommitmentDiscountCategory == 'Spend', toreal(EffectiveCost),
+        toreal(0)
+    )
+    | extend x_CommitmentDiscountUtilizationAmount = iff(CommitmentDiscountStatus == 'Used', x_CommitmentDiscountUtilizationPotential, toreal(0))
+    | extend x_SkuTermLabel = case(isempty(x_SkuTerm) or x_SkuTerm <= 0, '', x_SkuTerm < 12, strcat(x_SkuTerm, ' month', iff(x_SkuTerm != 1, 's', '')), strcat(x_SkuTerm / 12, ' year', iff(x_SkuTerm != 12, 's', '')))
+    | extend BilledCost = round(toreal(BilledCost), 6)
+    | extend EffectiveCost = round(toreal(EffectiveCost), 6)
+    | extend ContractedCost = round(toreal(ContractedCost), 6)
+    | extend ListCost = round(toreal(ListCost), 6)
+    | extend ConsumedQuantity = round(toreal(ConsumedQuantity), 6)
+    | extend ListUnitPrice = round(toreal(ListUnitPrice), 6)
+    | extend ContractedUnitPrice = round(toreal(ContractedUnitPrice), 6)
+    | extend x_EffectiveUnitPrice = round(toreal(x_EffectiveUnitPrice), 6)
+    | extend x_BilledUnitPrice = round(toreal(x_BilledUnitPrice), 6)
+    | extend PricingQuantity = round(toreal(PricingQuantity), 6)
+    | extend x_CommitmentDiscountSavings = iff(ContractedCost < EffectiveCost, toreal(0), round(toreal(ContractedCost - EffectiveCost), 6))
+    | extend x_NegotiatedDiscountSavings = iff(ListCost < ContractedCost, toreal(0), round(toreal(ListCost - ContractedCost), 6))
+    | extend x_TotalSavings              = iff(ListCost < EffectiveCost, toreal(0), round(toreal(ListCost - EffectiveCost), 6))
+    | extend x_CommitmentDiscountPercent = iff(ContractedUnitPrice == 0,        toreal(0), round(toreal((ContractedUnitPrice - x_EffectiveUnitPrice) / ContractedUnitPrice), 6))
+    | extend x_NegotiatedDiscountPercent = iff(ListUnitPrice == 0,              toreal(0), round(toreal((ListUnitPrice - ContractedUnitPrice) / ListUnitPrice), 6))
+    | extend x_TotalDiscountPercent      = iff(ListUnitPrice == 0,              toreal(0), round(toreal((ListUnitPrice - x_EffectiveUnitPrice) / ListUnitPrice), 6))
+    | extend x_ToolkitTool = tostring(Tags['ftk-tool'])
+    | extend x_ToolkitVersion = tostring(Tags['ftk-version'])
+    | extend tmp_ResourceParent = database('Ingestion').parse_resourceid(Tags['cm-resource-parent'])
+    | extend x_ResourceParentId = tostring(tmp_ResourceParent.ResourceId)
+    | extend x_ResourceParentName = tostring(tmp_ResourceParent.ResourceName)
+    | extend x_ResourceParentType = tostring(tmp_ResourceParent.ResourceType)
+    | extend CommitmentDiscountNameUnique = iff(isempty(CommitmentDiscountId), '', strcat(CommitmentDiscountName, ' (', CommitmentDiscountType, ')'))
+    | extend ResourceNameUnique           = iff(isempty(ResourceId),           '', strcat(ResourceName,           ' (', ResourceType, ')'))
+    | extend x_ResourceGroupNameUnique    = iff(isempty(x_ResourceGroupName),  '', strcat(x_ResourceGroupName,    ' (', SubAccountName, ')'))
+    | extend SubAccountNameUnique         = iff(isempty(SubAccountId),         '', strcat(SubAccountName,         ' (', split(SubAccountId, '/')[3], ')'))
+    | extend x_FreeReason = case(
+        BilledCost != 0.0 or EffectiveCost != 0.0, '',
+        PricingCategory == 'Committed', strcat('Unknown ', CommitmentDiscountStatus, ' Commitment'),
+        x_BilledUnitPrice == 0.0 and x_EffectiveUnitPrice == 0.0 and ContractedUnitPrice == 0.0 and ListUnitPrice == 0.0 and isempty(CommitmentDiscountType), case(
+            x_SkuDescription contains 'Trial', 'Trial',
+            x_SkuDescription contains 'Preview', 'Preview',
+            'Other'
+        ),
+        x_BilledUnitPrice > 0.0 or x_EffectiveUnitPrice > 0.0, case(
+            PricingQuantity > 0.0, 'Low Usage',
+            PricingQuantity == 0.0, 'No Usage',
+            'Unknown Negative Quantity'
+        ),
+        'Unknown'
+    )
+    | extend Tags = tostring(Tags)
+    | extend x_SkuDetails = tostring(x_SkuDetails)
+    | project-away tmp_IsSQLAHB, tmp_IsVMUsage, tmp_ResourceParent
+  parameters:
+  - name: startDate
+    type: string
+    description: "Start date for the enriched cost reporting window (e.g., startofmonth(ago(30d))). Default: startofmonth(ago(30d))"
+    required: true
+  - name: endDate
+    type: string
+    description: "End date for the enriched cost reporting window (e.g., startofmonth(now())). Default: startofmonth(now())"
+    required: true

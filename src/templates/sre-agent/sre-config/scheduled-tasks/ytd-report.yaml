@@ -1,0 +1,162 @@
+api_version: azuresre.ai/v2
+kind: ScheduledTask
+metadata:
+  name: YTD
+spec:
+  description: Fiscal year-to-date analysis with forecast through end of fiscal year
+  cronExpression: 0 9 1 * *
+  agentMode: autonomous
+  agent: chief-financial-officer
+  agentPrompt: '# Fiscal Year-to-Date Analysis
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+
+    Load your finops-toolkit and azure-cost-management skills.
+
+
+    Our fiscal year runs July through June. Perform a comprehensive year-to-date analysis with forecast through June 30.
+
+
+    ## Phase 1: Data Collection
+
+
+    ### 1.1 Verify Connectivity
+
+    Run `costs-enriched-base` with startDate=startofmonth(ago(1d)), endDate=startofmonth(now()). Confirm data freshness < 24 hours.
+
+
+    ### 1.2 Full Fiscal Year Trends
+
+    Run `monthly-cost-trend` with startDate set to the start of the current fiscal year (July 1). Get month-by-month billed and effective cost for the entire fiscal year.
+
+
+    ### 1.3 Service Portfolio Analysis
+
+    Run `top-services-by-cost` with N=20 and fiscal-year date range. Identify the top services driving fiscal year spend.
+
+
+    ### 1.4 Quarterly Resource Group Trends
+
+    Run `quarterly-cost-by-resource-group` with N=10, covering the full fiscal year. Identify quarterly growth patterns.
+
+
+    ### 1.5 Fiscal Year Anomalies
+
+    Run `cost-anomaly-detection` with the full fiscal year as lookback. Use deep investigation on any significant anomalies.
+
+
+    ### 1.6 Savings Realization
+
+    Run `savings-summary-report` with the full fiscal year date range. Calculate fiscal-year ESR and total savings.
+
+
+    ### 1.7 Commitment Performance
+
+    Run `commitment-discount-utilization` with fiscal-year date range. Assess how commitment purchases have performed this fiscal year.
+
+
+    ### 1.8 Financial Hierarchy
+
+    Run `cost-by-financial-hierarchy` with N=10, fiscal-year date range. Understand cost allocation across billing profiles, teams, and applications.
+
+
+    **Checkpoint:** Confirm fiscal year data collection is complete.
+
+
+    ### 1.9 End-of-Year Forecast
+
+    Run `cost-forecasting-model` with the full fiscal year as historical data and forecastPeriods covering through June 30. Project total fiscal year spend.
+
+
+    ### 1.10 Reservation Recommendations
+
+    Run `reservation-recommendation-breakdown`. Identify commitments that could save money before fiscal year end.
+
+
+    ### 1.11 Regional Analysis
+
+    Run `cost-by-region-trend` with fiscal-year date range. Identify regional cost shifts.
+
+
+    ### 1.12 Resource Type Efficiency
+
+    Run `top-resource-types-by-cost` with N=20, fiscal-year date range. Track resource type evolution.
+
+
+    ### 1.13 Price Benchmarking
+
+    Run `service-price-benchmarking` with fiscal-year date range. Benchmark pricing effectiveness over the year.
+
+
+    ### 1.14 Month-over-Month Volatility
+
+    Run `monthly-cost-change-percentage` covering the fiscal year. Identify the most volatile months.
+
+
+    ### 1.15 Commitment Transactions
+
+    Run `top-commitment-transactions` with N=20, fiscal-year date range. Track major RI/SP purchases.
+
+
+    ### 1.16 Other Transactions
+
+    Run `top-other-transactions` with N=20, fiscal-year date range. Identify non-usage spend patterns.
+
+
+    **Checkpoint:** ALL data collected. Proceed to strategic analysis.
+
+
+    ## Phase 2: Strategic Analysis
+
+
+    ### 2.1 Fiscal Year Scorecard
+
+    Grade performance (A+ to F) across: cost management, savings realization, commitment coverage, tag compliance, forecast accuracy.
+
+
+    ### 2.2 End-of-Year Forecast
+
+    Project total fiscal year spend with Conservative/Expected/Optimistic scenarios. Compare to annual budget.
+
+
+    ### 2.3 Savings Opportunities Before June 30
+
+    Identify quick-win optimization that can reduce costs before fiscal year end. Prioritize by days remaining and implementation effort.
+
+
+    ### 2.4 Next Fiscal Year Planning
+
+    Based on trends, recommend next fiscal year budget, commitment purchase strategy, and optimization roadmap.
+
+
+    ### 2.5 Detailed Findings
+
+    7 sections: Cost Analysis, Savings Analysis, Optimization, Governance, Market Positioning, Temporal Themes, Implementation Roadmap.
+
+
+    ### 2.6 Recommendations
+
+    Prioritized actions: Before FY end, Q1 next FY, Full next FY. Dollar amounts and owners for each.
+
+
+    ## Phase 3: Report
+
+
+    Professional executive report with tables, charts, emoji indicators. Include fiscal year timeline, forecast scenarios, grade card, and next-year planning recommendations.
+
+
+    Do not stop or yield until the report is complete and ready for the FinOps team.
+
+
+    ## Phase 4: Deliver
+
+
+    **Teams (financial results only):** Post the final report to our Teams channel. Include the fiscal year scorecard, forecast scenarios, and next-year planning recommendations. Do not post intermediate results — only the completed report.
+
+
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — tool errors encountered, workarounds discovered, data quality observations, query patterns that worked or failed. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

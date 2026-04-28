@@ -1,0 +1,25 @@
+# Azure Developer CLI (azd) template for FinOps SRE Agent
+# T-12 / FR-4.1: infrastructure-only azd workflow with post-provision SRE configuration.
+name: finops-sre-agent
+metadata:
+  template: finops-sre-agent@1.0.0
+
+infra:
+  provider: bicep
+  path: infra/bicep
+
+workflows:
+  up:
+    steps:
+      - azd: provision
+
+hooks:
+  postprovision:
+    windows:
+      shell: pwsh
+      run: pwsh -NoProfile -File ./scripts/post-provision.ps1
+      interactive: false
+    posix:
+      shell: sh
+      run: bash ./scripts/post-provision.sh
+      interactive: false
