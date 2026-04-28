@@ -1,12 +1,12 @@
 # FinOps SRE Agent
 
-Deploy and configure an Azure SRE Agent with FinOps and capacity management capabilities. `azd up` provisions the Azure infrastructure, creates the SRE Agent in Review mode, assigns the required permissions, and runs the post-provision hook to apply agents, skills, knowledge, and the FinOps Hub Kusto connector. Outlook and Teams notification connectors are supported, but Microsoft Learn currently documents them as portal-based OAuth setup after deployment rather than `azd`/`srectl` automation.
+Deploy and configure an Azure SRE Agent with FinOps and capacity management capabilities. `azd up` provisions the Azure infrastructure, creates the SRE Agent in Autonomous mode, assigns the required permissions, and runs the post-provision hook to apply agents, skills, knowledge, and the FinOps Hub Kusto connector. Outlook and Teams notification connectors are supported, but Microsoft Learn currently documents them as portal-based OAuth setup after deployment rather than `azd`/`srectl` automation.
 
 ## What you get
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| SRE Agent | 1 | `Microsoft.App/agents` resource (Review mode) |
+| SRE Agent | 1 | `Microsoft.App/agents` resource (Autonomous mode) |
 | Managed identity | 1 | User-assigned managed identity for the agent |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics for monitoring |

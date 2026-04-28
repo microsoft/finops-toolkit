@@ -25,7 +25,7 @@ spec:
     ## Phase 1: Data Collection
 
 
-    Execute these Kusto tools in sequence. Save all results to your knowledge base as you go.
+    Execute these Kusto tools in sequence. Use #remember to note key data points as you go.
 
 
     ### 1.1 Verify Connectivity

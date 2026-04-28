@@ -89,7 +89,7 @@ spec:
     ## Output
 
 
-    Save findings to knowledge base. Escalate:
+    Use #remember to note key findings. Escalate:
 
     - 🔴 CRITICAL: Any quota at >95% or CRG billing waste >$1000/day
 

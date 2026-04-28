@@ -34,7 +34,7 @@ spec:
     ## Phase 2: Data collection
 
 
-    Run these data collection steps in parallel where possible. Save intermediate results as you go.
+    Run these data collection steps in parallel where possible. Use #remember to note key intermediate findings as you go.
 
 
     ### 2a: Orphaned resources
@@ -330,7 +330,7 @@ spec:
 
     - If FinOps hubs are not connected, recommend `/ftk-hubs-connect` for deeper analysis
 
-    - Save the report to `ftk/results/cost-optimization-{date}.md`
+    - Do not save reports to the git repository — use #remember for key operational findings instead
 
 
     ## Phase 5: Deliver

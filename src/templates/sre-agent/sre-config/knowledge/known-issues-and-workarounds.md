@@ -2,6 +2,20 @@
 
 Use this guidance when executing scheduled tasks or investigating task execution failures. These issues were identified during UAT of all 9 scheduled tasks on April 28, 2026.
 
+## 0. Correct persistence model — memories, not git
+
+**CRITICAL:** Do not commit files to the git repository. Do not use git push, git commit, or write files to the repo working tree. The git connector is read-only for code search.
+
+Use the SRE Agent memory system instead:
+- **`#remember`** — save discrete operational facts (e.g., "quota API requires az vm list-usage fallback")
+- **`memories/synthesizedKnowledge/`** — the agent's persistent knowledge files, updated automatically after each session
+- **Session insights** — automatically captured 30 minutes after a thread goes quiet
+- **Teams channel** — the delivery destination for all financial reports and status results
+
+The split is:
+- **Financial data (costs, savings, forecasts, grades)** → Teams channel only. Never persist financial figures.
+- **Operational learnings (tool errors, workarounds, patterns)** → `#remember` or synthesized knowledge. Never include dollar amounts.
+
 ## 1. Teams tool discovery
 
 **Symptom:** Subagents report "PostTeamsChannelMessage tool wasn't available" or "couldn't locate the Teams posting function."
