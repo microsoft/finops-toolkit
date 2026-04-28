@@ -50,6 +50,19 @@ _Released April 2026_
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
 
+### [SRE agent](hubs/configure-sre.md)
+
+- **Added**
+  - Added Azure SRE Agent template with packaged deployment scripts (`deploy.sh`, `deploy.ps1`), Bicep infrastructure, and `azd` integration.
+  - Added 5 subagents (`finops-practitioner`, `azure-capacity-manager`, `chief-financial-officer`, `ftk-database-query`, `ftk-hubs-agent`), 3 skills, 21 Kusto tools, and 1 Kusto MCP connector.
+  - Added 9 scheduled tasks (daily, weekly, monthly, and quarterly cadences) with Teams channel delivery.
+  - Added 3 knowledge documents for agent onboarding, Teams notification patterns, and known issues.
+  - Added `configure-sre.md` documentation page for Microsoft Learn.
+- **Changed**
+  - Set agent action mode to Autonomous so scheduled tasks can deliver reports without human approval.
+  - Switched scheduled task persistence from `srectl scheduledtask create` to `apply` for idempotent re-runs.
+  - Replaced "save to knowledge base" instructions with `#remember` for operational notes across all scheduled tasks.
+
 ### [Implementing FinOps guide](../implementing-finops-guide.md) v14
 
 - **Added**
