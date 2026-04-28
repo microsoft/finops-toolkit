@@ -1,0 +1,110 @@
+api_version: azuresre.ai/v2
+kind: ScheduledTask
+metadata:
+  name: CapacityDailyMonitor
+spec:
+  description: Daily capacity supply chain health check — quota usage, CRG utilization, zone capacity
+  cronExpression: 30 6 * * *
+  agentMode: autonomous
+  agent: azure-capacity-manager
+  agentPrompt: '# Daily Capacity Supply Chain Monitor
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting any checks, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+
+    Load your azure-capacity-management skill.
+
+
+    The capacity supply chain has four steps: Forecast → Procure → Allocate → Monitor. This daily check covers the Monitor step — detecting issues before they block deployments.
+
+
+    ## 1. Quota Health
+
+
+    Use `az quota usage list` against each active subscription and region to check:
+
+    - VM family quota usage vs limits
+
+    - Flag any family at >80% utilization — these are deployment risks
+
+    - Flag any family at >95% — these are imminent blockers
+
+    - Check quota groups if configured — report group-level headroom
+
+
+    Reference: `references/docs/operations/quota/README.md`
+
+
+    ## 2. Capacity Reservation Utilization
+
+
+    For each active CRG:
+
+    - Check reserved vs allocated VM count
+
+    - Flag any CRG where utilization < 50% (paying for unused capacity)
+
+    - Flag any CRG where overallocation exceeds 2x reservation
+
+    - Check zone alignment for shared CRGs
+
+
+    Reference: `references/docs/operations/capacity-reservations/README.md`
+
+
+    ## 3. AKS Node Pool Capacity
+
+
+    For AKS clusters with CRG associations:
+
+    - Verify node pool CRG association is still active
+
+    - Check if autoscaler is hitting quota limits
+
+    - Report node pool scale events in last 24 hours
+
+
+    Reference: `references/docs/operations/aks-capacity/README.md`
+
+
+    ## 4. Alert Status
+
+
+    Check for any fired alerts in last 24 hours:
+
+    - Quota threshold alerts
+
+    - Budget alerts
+
+    - Cost anomaly alerts
+
+
+    Reference: `references/docs/operations/monitoring-alerting/README.md`
+
+
+    ## Output
+
+
+    Save findings to knowledge base. Escalate:
+
+    - 🔴 CRITICAL: Any quota at >95% or CRG billing waste >$1000/day
+
+    - 🟡 WARNING: Any quota at >80% or CRG utilization <50%
+
+    - 🟢 HEALTHY: All within thresholds
+
+
+    Do not stop until all checks are complete.
+
+
+    ## Deliver
+
+
+    **Teams (status results only):** Post the final daily capacity health check to our Teams channel. Include the overall status (🔴🟡🟢), any critical or warning items, and recommended actions. Do not post intermediate results — only the completed summary.
+
+
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — CLI command failures, quota API workarounds, CRG query patterns, zone mapping discoveries. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

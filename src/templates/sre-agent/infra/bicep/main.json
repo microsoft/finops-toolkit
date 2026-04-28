@@ -1,0 +1,910 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.38.33.27573",
+      "templateHash": "2912377120903234796"
+    }
+  },
+  "parameters": {
+    "environmentName": {
+      "type": "string",
+      "metadata": {
+        "description": "Required. Name of the azd environment."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus2",
+      "allowedValues": [
+        "swedencentral",
+        "eastus2",
+        "australiaeast"
+      ],
+      "metadata": {
+        "description": "Optional. Primary location for all resources."
+      }
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "[format('rg-{0}', parameters('environmentName'))]",
+      "metadata": {
+        "description": "Optional. Resource group name override. Defaults to rg-{environmentName}."
+      }
+    },
+    "adxClusterName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional. ADX cluster name for conditional FinOps Hub role assignment."
+      }
+    },
+    "adxClusterResourceGroupName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional. Resource group containing the ADX cluster."
+      }
+    },
+    "deployerPrincipalType": {
+      "type": "string",
+      "defaultValue": "User",
+      "allowedValues": [
+        "User",
+        "ServicePrincipal"
+      ],
+      "metadata": {
+        "description": "Optional. Principal type of the deploying identity. Use ServicePrincipal for CI/CD pipelines."
+      }
+    },
+    "finopsHubClusterUri": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional. FinOps Hub ADX cluster URI with database name (e.g. https://cluster.region.kusto.windows.net/hub)."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "resources-deployment",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "environmentName": {
+            "value": "[parameters('environmentName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "deployerObjectId": {
+            "value": "[deployer().objectId]"
+          },
+          "deployerPrincipalType": {
+            "value": "[parameters('deployerPrincipalType')]"
+          },
+          "finopsHubClusterUri": {
+            "value": "[parameters('finopsHubClusterUri')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "18124079594459843965"
+            }
+          },
+          "parameters": {
+            "environmentName": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Environment name used to generate unique resource names."
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Resource location."
+              }
+            },
+            "deployerObjectId": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Object ID of the deploying principal assigned the SRE Agent Administrator role."
+              }
+            },
+            "deployerPrincipalType": {
+              "type": "string",
+              "defaultValue": "User",
+              "allowedValues": [
+                "User",
+                "ServicePrincipal"
+              ],
+              "metadata": {
+                "description": "Optional. Principal type of the deploying principal."
+              }
+            },
+            "finopsHubClusterUri": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Optional. FinOps Hub ADX cluster URI with database name for Kusto connector."
+              }
+            }
+          },
+          "variables": {
+            "uniqueSuffix": "[uniqueString(resourceGroup().id, parameters('environmentName'))]",
+            "identityName": "[format('id-sre-{0}', variables('uniqueSuffix'))]",
+            "logAnalyticsName": "[format('law-{0}', variables('uniqueSuffix'))]",
+            "appInsightsName": "[format('appi-{0}', variables('uniqueSuffix'))]",
+            "agentName": "[format('sre-agent-{0}', variables('uniqueSuffix'))]"
+          },
+          "resources": {
+            "identity": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "identity",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "identityName": {
+                    "value": "[variables('identityName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.38.33.27573",
+                      "templateHash": "5402428154089841833"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Resource location."
+                      }
+                    },
+                    "identityName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Identity resource name."
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                      "apiVersion": "2023-01-31",
+                      "name": "[parameters('identityName')]",
+                      "location": "[parameters('location')]"
+                    }
+                  ],
+                  "outputs": {
+                    "identityId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Resource ID of the user-assigned managed identity."
+                      },
+                      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+                    },
+                    "identityName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Name of the user-assigned managed identity."
+                      },
+                      "value": "[parameters('identityName')]"
+                    },
+                    "identityPrincipalId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Principal ID of the user-assigned managed identity."
+                      },
+                      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2023-01-31').principalId]"
+                    },
+                    "identityClientId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Client ID of the user-assigned managed identity."
+                      },
+                      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2023-01-31').clientId]"
+                    }
+                  }
+                }
+              }
+            },
+            "monitoring": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "monitoring",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "logAnalyticsName": {
+                    "value": "[variables('logAnalyticsName')]"
+                  },
+                  "appInsightsName": {
+                    "value": "[variables('appInsightsName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "2.0",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.38.33.27573",
+                      "templateHash": "7316893656403533317"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Resource location."
+                      }
+                    },
+                    "logAnalyticsName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Log Analytics workspace resource name."
+                      }
+                    },
+                    "appInsightsName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Application Insights resource name."
+                      }
+                    }
+                  },
+                  "resources": {
+                    "logAnalyticsWorkspace": {
+                      "type": "Microsoft.OperationalInsights/workspaces",
+                      "apiVersion": "2023-09-01",
+                      "name": "[parameters('logAnalyticsName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "sku": {
+                          "name": "PerGB2018"
+                        },
+                        "retentionInDays": 30
+                      }
+                    },
+                    "applicationInsights": {
+                      "type": "Microsoft.Insights/components",
+                      "apiVersion": "2020-02-02",
+                      "name": "[parameters('appInsightsName')]",
+                      "location": "[parameters('location')]",
+                      "kind": "web",
+                      "properties": {
+                        "Application_Type": "web",
+                        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsName'))]"
+                      },
+                      "dependsOn": [
+                        "logAnalyticsWorkspace"
+                      ]
+                    }
+                  },
+                  "outputs": {
+                    "logAnalyticsWorkspaceId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Resource ID of the Log Analytics workspace."
+                      },
+                      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsName'))]"
+                    },
+                    "appInsightsId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Resource ID of the Application Insights component."
+                      },
+                      "value": "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
+                    },
+                    "appInsightsAppId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Application ID of the Application Insights component."
+                      },
+                      "value": "[reference('applicationInsights').AppId]"
+                    },
+                    "appInsightsConnectionString": {
+                      "type": "securestring",
+                      "metadata": {
+                        "description": "Connection string for the Application Insights component."
+                      },
+                      "value": "[reference('applicationInsights').ConnectionString]"
+                    }
+                  }
+                }
+              }
+            },
+            "sreAgent": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2025-04-01",
+              "name": "sre-agent",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "agentName": {
+                    "value": "[variables('agentName')]"
+                  },
+                  "identityId": {
+                    "value": "[reference('identity').outputs.identityId.value]"
+                  },
+                  "appInsightsAppId": {
+                    "value": "[reference('monitoring').outputs.appInsightsAppId.value]"
+                  },
+                  "appInsightsConnectionString": {
+                    "value": "[listOutputsWithSecureValues('monitoring', '2025-04-01').appInsightsConnectionString]"
+                  },
+                  "appInsightsId": {
+                    "value": "[reference('monitoring').outputs.appInsightsId.value]"
+                  },
+                  "deployerObjectId": {
+                    "value": "[parameters('deployerObjectId')]"
+                  },
+                  "deployerPrincipalType": {
+                    "value": "[parameters('deployerPrincipalType')]"
+                  },
+                  "finopsHubClusterUri": {
+                    "value": "[parameters('finopsHubClusterUri')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.38.33.27573",
+                      "templateHash": "14623649991936382541"
+                    }
+                  },
+                  "parameters": {
+                    "location": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Resource location."
+                      }
+                    },
+                    "agentName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Agent resource name."
+                      }
+                    },
+                    "identityId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Full ARM resource ID of the user-assigned managed identity."
+                      }
+                    },
+                    "appInsightsAppId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Application ID of the Application Insights component."
+                      }
+                    },
+                    "appInsightsConnectionString": {
+                      "type": "securestring",
+                      "metadata": {
+                        "description": "Required. Connection string for the Application Insights component."
+                      }
+                    },
+                    "appInsightsId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Resource ID of the Application Insights component used for the hidden-link tag."
+                      }
+                    },
+                    "deployerObjectId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Required. Object ID of the deploying principal."
+                      }
+                    },
+                    "deployerPrincipalType": {
+                      "type": "string",
+                      "defaultValue": "User",
+                      "allowedValues": [
+                        "User",
+                        "ServicePrincipal"
+                      ],
+                      "metadata": {
+                        "description": "Optional. Principal type of the deploying principal."
+                      }
+                    },
+                    "finopsHubClusterUri": {
+                      "type": "string",
+                      "defaultValue": "",
+                      "metadata": {
+                        "description": "Optional. FinOps Hub ADX cluster URI with database name (e.g. https://cluster.region.kusto.windows.net/hub)."
+                      }
+                    }
+                  },
+                  "variables": {
+                    "sreAgentAdminRoleId": "e79298df-d852-4c6d-84f9-5d13249d1e55"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.App/agents",
+                      "apiVersion": "2025-05-01-preview",
+                      "name": "[parameters('agentName')]",
+                      "location": "[parameters('location')]",
+                      "tags": {
+                        "hidden-link: /app-insights-resource-id": "[parameters('appInsightsId')]"
+                      },
+                      "identity": {
+                        "type": "SystemAssigned, UserAssigned",
+                        "userAssignedIdentities": {
+                          "[format('{0}', parameters('identityId'))]": {}
+                        }
+                      },
+                      "properties": {
+                        "knowledgeGraphConfiguration": {
+                          "managedResources": [
+                            "[resourceGroup().id]"
+                          ],
+                          "identity": "[parameters('identityId')]"
+                        },
+                        "experimentalSettings": {
+                          "EnableV2AgentLoop": true,
+                          "EnableWorkspaceTools": true
+                        },
+                        "actionConfiguration": {
+                          "mode": "Review",
+                          "identity": "[parameters('identityId')]"
+                        },
+                        "logConfiguration": {
+                          "applicationInsightsConfiguration": {
+                            "appId": "[parameters('appInsightsAppId')]",
+                            "connectionString": "[parameters('appInsightsConnectionString')]"
+                          }
+                        },
+                        "mcpServers": []
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "scope": "[format('Microsoft.App/agents/{0}', parameters('agentName'))]",
+                      "name": "[guid(resourceId('Microsoft.App/agents', parameters('agentName')), parameters('deployerObjectId'), variables('sreAgentAdminRoleId'))]",
+                      "properties": {
+                        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('sreAgentAdminRoleId'))]",
+                        "principalId": "[parameters('deployerObjectId')]",
+                        "principalType": "[parameters('deployerPrincipalType')]"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.App/agents', parameters('agentName'))]"
+                      ]
+                    },
+                    {
+                      "condition": "[not(empty(parameters('finopsHubClusterUri')))]",
+                      "type": "Microsoft.App/agents/dataConnectors",
+                      "apiVersion": "2025-05-01-preview",
+                      "name": "[format('{0}/{1}', parameters('agentName'), 'finops-hub-kusto')]",
+                      "properties": {
+                        "dataConnectorType": "Kusto",
+                        "dataSource": "[parameters('finopsHubClusterUri')]",
+                        "identity": "system"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.App/agents', parameters('agentName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "agentName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Name of the SRE Agent resource."
+                      },
+                      "value": "[parameters('agentName')]"
+                    },
+                    "agentId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Resource ID of the SRE Agent resource."
+                      },
+                      "value": "[resourceId('Microsoft.App/agents', parameters('agentName'))]"
+                    },
+                    "agentEndpoint": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Endpoint of the SRE Agent resource."
+                      },
+                      "value": "[reference(resourceId('Microsoft.App/agents', parameters('agentName')), '2025-05-01-preview').agentEndpoint]"
+                    },
+                    "systemPrincipalId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Principal ID of the system-assigned managed identity."
+                      },
+                      "value": "[reference(resourceId('Microsoft.App/agents', parameters('agentName')), '2025-05-01-preview', 'full').identity.principalId]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "identity",
+                "monitoring"
+              ]
+            }
+          },
+          "outputs": {
+            "agentName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the SRE Agent resource."
+              },
+              "value": "[reference('sreAgent').outputs.agentName.value]"
+            },
+            "agentEndpoint": {
+              "type": "string",
+              "metadata": {
+                "description": "Endpoint of the SRE Agent resource."
+              },
+              "value": "[reference('sreAgent').outputs.agentEndpoint.value]"
+            },
+            "identityPrincipalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Principal ID of the SRE Agent user-assigned managed identity."
+              },
+              "value": "[reference('identity').outputs.identityPrincipalId.value]"
+            },
+            "systemPrincipalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Principal ID of the SRE Agent system-assigned managed identity."
+              },
+              "value": "[reference('sreAgent').outputs.systemPrincipalId.value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "subscription-rbac",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "principalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.identityPrincipalId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "8393591062244733596"
+            }
+          },
+          "parameters": {
+            "principalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Principal ID of the identity to assign roles to."
+              }
+            },
+            "principalType": {
+              "type": "string",
+              "defaultValue": "ServicePrincipal",
+              "allowedValues": [
+                "User",
+                "ServicePrincipal",
+                "Group"
+              ],
+              "metadata": {
+                "description": "Optional. Principal type of the assignee. Managed identities (system- or user-assigned) are ServicePrincipal in Azure RBAC."
+              }
+            }
+          },
+          "variables": {
+            "roles": [
+              {
+                "name": "Reader",
+                "id": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+              },
+              {
+                "name": "Monitoring Contributor",
+                "id": "749f88d5-cbae-40b8-bcfc-e573ddc772fa"
+              }
+            ]
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "roleAssignments",
+                "count": "[length(variables('roles'))]"
+              },
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "name": "[guid(subscription().id, parameters('principalId'), variables('roles')[copyIndex()].id)]",
+              "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('roles')[copyIndex()].id)]",
+                "principalId": "[parameters('principalId')]",
+                "principalType": "[parameters('principalType')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment')]"
+      ]
+    },
+    {
+      "condition": "[and(not(empty(parameters('adxClusterName'))), not(empty(parameters('adxClusterResourceGroupName'))))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "adx-role",
+      "resourceGroup": "[parameters('adxClusterResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "clusterName": {
+            "value": "[parameters('adxClusterName')]"
+          },
+          "principalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.identityPrincipalId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "13596010692633732676"
+            }
+          },
+          "parameters": {
+            "clusterName": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Name of the target Azure Data Explorer cluster."
+              }
+            },
+            "principalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Object (principal) ID of the SRE Agent managed identity to grant access to."
+              }
+            },
+            "principalTenantId": {
+              "type": "string",
+              "defaultValue": "[tenant().tenantId]",
+              "metadata": {
+                "description": "Optional. Microsoft Entra tenant ID for the SRE Agent managed identity."
+              }
+            }
+          },
+          "variables": {
+            "principalAssignmentName": "[guid(resourceId('Microsoft.Kusto/clusters', parameters('clusterName')), parameters('principalId'), parameters('principalTenantId'), 'AllDatabasesViewer')]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Kusto/clusters/principalAssignments",
+              "apiVersion": "2024-04-13",
+              "name": "[format('{0}/{1}', parameters('clusterName'), variables('principalAssignmentName'))]",
+              "properties": {
+                "principalType": "App",
+                "principalId": "[parameters('principalId')]",
+                "tenantId": "[parameters('principalTenantId')]",
+                "role": "AllDatabasesViewer"
+              }
+            }
+          ],
+          "outputs": {
+            "clusterId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the target Azure Data Explorer cluster."
+              },
+              "value": "[resourceId('Microsoft.Kusto/clusters', parameters('clusterName'))]"
+            },
+            "principalAssignmentName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the cluster-level principal assignment."
+              },
+              "value": "[variables('principalAssignmentName')]"
+            },
+            "principalAssignmentId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the cluster-level principal assignment."
+              },
+              "value": "[resourceId('Microsoft.Kusto/clusters/principalAssignments', parameters('clusterName'), variables('principalAssignmentName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment')]"
+      ]
+    },
+    {
+      "condition": "[and(not(empty(parameters('adxClusterName'))), not(empty(parameters('adxClusterResourceGroupName'))))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "adx-role-system",
+      "resourceGroup": "[parameters('adxClusterResourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "clusterName": {
+            "value": "[parameters('adxClusterName')]"
+          },
+          "principalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.systemPrincipalId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.38.33.27573",
+              "templateHash": "13596010692633732676"
+            }
+          },
+          "parameters": {
+            "clusterName": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Name of the target Azure Data Explorer cluster."
+              }
+            },
+            "principalId": {
+              "type": "string",
+              "metadata": {
+                "description": "Required. Object (principal) ID of the SRE Agent managed identity to grant access to."
+              }
+            },
+            "principalTenantId": {
+              "type": "string",
+              "defaultValue": "[tenant().tenantId]",
+              "metadata": {
+                "description": "Optional. Microsoft Entra tenant ID for the SRE Agent managed identity."
+              }
+            }
+          },
+          "variables": {
+            "principalAssignmentName": "[guid(resourceId('Microsoft.Kusto/clusters', parameters('clusterName')), parameters('principalId'), parameters('principalTenantId'), 'AllDatabasesViewer')]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Kusto/clusters/principalAssignments",
+              "apiVersion": "2024-04-13",
+              "name": "[format('{0}/{1}', parameters('clusterName'), variables('principalAssignmentName'))]",
+              "properties": {
+                "principalType": "App",
+                "principalId": "[parameters('principalId')]",
+                "tenantId": "[parameters('principalTenantId')]",
+                "role": "AllDatabasesViewer"
+              }
+            }
+          ],
+          "outputs": {
+            "clusterId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the target Azure Data Explorer cluster."
+              },
+              "value": "[resourceId('Microsoft.Kusto/clusters', parameters('clusterName'))]"
+            },
+            "principalAssignmentName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the cluster-level principal assignment."
+              },
+              "value": "[variables('principalAssignmentName')]"
+            },
+            "principalAssignmentId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the cluster-level principal assignment."
+              },
+              "value": "[resourceId('Microsoft.Kusto/clusters/principalAssignments', parameters('clusterName'), variables('principalAssignmentName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "AZURE_RESOURCE_GROUP": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure resource group containing the SRE Agent resources."
+      },
+      "value": "[parameters('resourceGroupName')]"
+    },
+    "AZURE_LOCATION": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure location used for the SRE Agent resources."
+      },
+      "value": "[parameters('location')]"
+    },
+    "SRE_AGENT_NAME": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the deployed SRE Agent resource."
+      },
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentName.value]"
+    },
+    "SRE_AGENT_ENDPOINT": {
+      "type": "string",
+      "metadata": {
+        "description": "Endpoint of the deployed SRE Agent resource."
+      },
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'resources-deployment'), '2025-04-01').outputs.agentEndpoint.value]"
+    }
+  }
+}

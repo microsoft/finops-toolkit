@@ -1,0 +1,3 @@
+[submodule "src/templates/sre-agent/submodules/azcapman"]
+	path = src/templates/sre-agent/submodules/azcapman
+	url = https://github.com/microsoft/azcapman.git

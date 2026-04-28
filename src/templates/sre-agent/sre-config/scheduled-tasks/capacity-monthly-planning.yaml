@@ -1,0 +1,145 @@
+api_version: azuresre.ai/v2
+kind: ScheduledTask
+metadata:
+  name: CapacityMonthlyPlanning
+spec:
+  description: Monthly capacity planning cycle — forecast demand, procurement pipeline, governance review
+  cronExpression: 0 9 1 * *
+  agentMode: autonomous
+  agent: azure-capacity-manager
+  agentPrompt: '# Monthly Capacity Planning Cycle
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+
+    Load your azure-capacity-management skill.
+
+
+    Monthly planning covers all four supply chain steps: Forecast → Procure → Allocate → Monitor.
+
+
+    ## 1. Demand Forecast
+
+
+    Run `cost-forecasting-model` Kusto tool with 180-day historical, 90-day forecast.
+
+    Filter to compute services. Project:
+
+    - VM core demand by family for next 3 months
+
+    - Growth rate by region
+
+    - Seasonal patterns (if detectable)
+
+
+    Cross-reference with business targets:
+
+    - New customer deployments planned?
+
+    - Stamp scale-out events expected?
+
+
+    Reference: `references/docs/operations/capacity-planning/README.md`
+
+
+    ## 2. Procurement Pipeline
+
+
+    Based on the demand forecast, build a procurement pipeline:
+
+    - Quota increases needed (by subscription, region, family)
+
+    - Region access requests needed
+
+    - Zonal enablement requests needed
+
+    - Quota group limit increases needed
+
+    - Estimated lead times for each request type
+
+
+    Reference: `references/docs/operations/quota/README.md` and skill section on procurement
+
+
+    ## 3. Allocation Review
+
+
+    Review current CRG portfolio:
+
+    - Utilization trends over the past month (from daily checks)
+
+    - Rightsizing recommendations (reduce or increase reservations)
+
+    - New CRGs needed based on demand forecast
+
+    - CRG sharing opportunities across subscriptions
+
+    - Overallocation policy review
+
+
+    Reference: `references/docs/operations/capacity-reservations/README.md`
+
+
+    ## 4. Cost Impact
+
+
+    Run `commitment-discount-utilization` and `savings-summary-report` Kusto tools.
+
+    Calculate:
+
+    - Monthly cost of unused CRG capacity
+
+    - Savings from Azure Reservations paired with CRGs
+
+    - Potential savings from new commitment purchases aligned with capacity needs
+
+    - ESR impact of capacity decisions
+
+
+    ## 5. Governance Review
+
+
+    Check adherence to the governance program:
+
+    - Are all subscriptions in quota groups?
+
+    - Are anomaly alerts deployed across all subscriptions?
+
+    - Are budget alerts configured?
+
+    - Any post-incident reviews needed from scaling failures?
+
+
+    Reference: `references/docs/operations/capacity-governance/README.md` and `references/docs/operations/monitoring-alerting/README.md`
+
+
+    ## Output
+
+
+    Produce a monthly capacity planning report:
+
+    - Demand forecast table (VM family × region × month)
+
+    - Procurement pipeline with status and lead times
+
+    - CRG portfolio review with cost impact
+
+    - Governance compliance scorecard
+
+    - Recommended actions with owners and deadlines
+
+
+    Use deep investigation for any critical capacity gaps. Save to knowledge base.
+
+
+    ## Deliver
+
+
+    **Teams (capacity results only):** Post the final monthly capacity planning report to our Teams channel. Include the demand forecast, procurement pipeline, CRG portfolio review, governance scorecard, and recommended actions. Do not post intermediate results — only the completed report.
+
+
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — forecasting model accuracy, procurement lead time observations, governance gaps discovered, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

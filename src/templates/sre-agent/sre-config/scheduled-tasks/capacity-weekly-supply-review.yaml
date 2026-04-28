@@ -1,0 +1,125 @@
+api_version: azuresre.ai/v2
+kind: ScheduledTask
+metadata:
+  name: CapacityWeeklySupplyReview
+spec:
+  description: Weekly capacity supply chain review — quota headroom, CRG cost optimization, zone mapping, benefit recommendations
+  cronExpression: 0 8 * * 1
+  agentMode: autonomous
+  agent: azure-capacity-manager
+  agentPrompt: '# Weekly Capacity Supply Chain Review
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+
+    Load your azure-capacity-management skill.
+
+
+    Weekly review covering Forecast, Procure, and Allocate steps of the capacity supply chain.
+
+
+    ## 1. Quota Headroom Analysis
+
+
+    Run comprehensive quota analysis across all subscriptions:
+
+    - Aggregate quota usage by VM family across subscriptions
+
+    - Identify families with <20% headroom across the estate
+
+    - Check quota group balances — any group near its limit?
+
+    - Identify quota transfer opportunities between subscriptions
+
+    - Flag subscriptions not yet added to quota groups
+
+
+    Reference: `references/docs/operations/quota/README.md` and `references/docs/operations/quota-groups/README.md`
+
+
+    ## 2. CRG Cost-Waste Audit
+
+
+    For all capacity reservations:
+
+    - Calculate weekly cost of unused reserved capacity (reserved minus allocated × pay-as-you-go rate)
+
+    - Compare CRG cost against equivalent Azure Reservation or savings plan cost
+
+    - Identify CRGs that could be rightsized (reduce reservation quantity)
+
+    - Check for CRGs without matching Azure Reservations (paying both capacity guarantee AND full price)
+
+
+    Key distinction from skill: Capacity reservations guarantee supply. Azure Reservations reduce cost. Best practice is to pair both.
+
+
+    Reference: `references/docs/operations/capacity-reservations/README.md`
+
+
+    ## 3. Zone Mapping Validation
+
+
+    Check logical-to-physical zone mapping for shared CRGs:
+
+    - Verify that cross-subscription CRG sharing targets the correct physical zones
+
+    - Flag any zone mapping drift since last check
+
+
+    Reference: Skill section on zone alignment and `Get-AzAvailabilityZoneMapping.ps1`
+
+
+    ## 4. Benefit Recommendations
+
+
+    Run `reservation-recommendation-breakdown` Kusto tool to get current RI/SP recommendations.
+
+    Cross-reference with capacity reservation strategy:
+
+    - Do recommended reservations overlap with existing CRGs? (Good — pair pricing with capacity)
+
+    - Are there high-savings recommendations in regions without CRGs? (May need capacity too)
+
+
+    ## 5. Region and SKU Availability
+
+
+    Check for any new region access or zonal enablement needs:
+
+    - Upcoming deployments that need new regions?
+
+    - SKU restrictions blocking planned scaling?
+
+
+    Reference: `references/docs/operations/capacity-planning/README.md`
+
+
+    ## Output
+
+
+    Produce a weekly capacity supply chain briefing with:
+
+    - Quota headroom scorecard (🔴🟡🟢 by VM family)
+
+    - CRG utilization and waste summary with dollar amounts
+
+    - Benefit recommendation highlights
+
+    - Action items for procurement team
+
+
+    Save to knowledge base. Use deep investigation if any quota is critically low.
+
+
+    ## Deliver
+
+
+    **Teams (capacity results only):** Post the final weekly capacity briefing to our Teams channel. Include the quota headroom scorecard, CRG waste summary, benefit recommendations, and procurement action items. Do not post intermediate results — only the completed briefing.
+
+
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — quota API failures, zone mapping discoveries, CRG query patterns, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

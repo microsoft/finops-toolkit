@@ -1,0 +1,172 @@
+api_version: azuresre.ai/v2
+kind: ScheduledTask
+metadata:
+  name: AIWorkloadCostAnalysis
+spec:
+  description: Monthly AI workload cost analysis — token economics, model efficiency, and cost allocation for Azure OpenAI
+  cronExpression: 0 10 1 * *
+  agentMode: autonomous
+  agent: chief-financial-officer
+  agentPrompt: '# AI Workload Cost Analysis
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+
+    Load your finops-toolkit and azure-cost-management skills.
+
+
+    Azure OpenAI charges based on token usage — a fundamentally different cost model from traditional compute. This analysis tracks token economics, model efficiency, and AI cost allocation aligned with
+    the FinOps Foundation AI Working Group guidance and FOCUS specification.
+
+
+    ## FOCUS Alignment
+
+
+    AI cost data uses these FOCUS columns:
+
+    - ConsumedQuantity = token count
+
+    - ConsumedUnit = tokens
+
+    - x_SkuMeterCategory = Azure OpenAI
+
+    - x_SkuMeterSubcategory = model version + direction (e.g., "gpt 4o 0513 Input global Tokens")
+
+    - Unit economics = EffectiveCost / ConsumedQuantity
+
+
+    ## Phase 1: Token Economics
+
+
+    ### 1.1 Token Usage Breakdown
+
+    Run `ai-token-usage-breakdown` with startDate=startofmonth(ago(30d)), endDate=startofmonth(now()). Record per-model, per-direction (input/output):
+
+    - Total tokens consumed
+
+    - Effective cost
+
+    - Unit cost per token
+
+    - Cost per 1K tokens
+
+
+    ### 1.2 Model Cost Comparison
+
+    Run `ai-model-cost-comparison` with the same date range. Compare cost per 1K tokens across model versions. Identify:
+
+    - Which models are most expensive per token
+
+    - Which models have the best discount (list vs effective)
+
+    - Opportunities to switch to cheaper models for equivalent tasks
+
+
+    ### 1.3 Daily Trend
+
+    Run `ai-daily-trend` with startDate=ago(30d). Look for:
+
+    - Usage pattern (weekday vs weekend)
+
+    - Cost spikes (any day > 2x the 7-day rolling average)
+
+    - Growth trajectory (are AI costs accelerating?)
+
+    - If spikes detected, use deep investigation to hypothesize causes
+
+
+    ### 1.4 Cost Allocation
+
+    Run `ai-cost-by-application` with the same date range. Break down by:
+
+    - Application tag — which apps consume the most tokens?
+
+    - Team/CostCenter — who should be charged?
+
+    - Environment — production vs dev/test ratio
+
+    - ResourceName — which Azure OpenAI deployments are driving cost?
+
+
+    **Checkpoint:** Token economics collected. Proceed to month-over-month comparison.
+
+
+    ## Phase 2: Month-over-Month AI Analysis
+
+
+    ### 2.1 Prior Month Comparison
+
+    Run `ai-token-usage-breakdown` again with the PRIOR month (startDate=startofmonth(ago(60d)), endDate=startofmonth(ago(30d))). Compare:
+
+    - Token volume change (% growth)
+
+    - Cost change (% growth)
+
+    - Unit cost change (are we getting cheaper or more expensive per token?)
+
+    - Model mix shift (are we using more expensive models?)
+
+
+    ### 2.2 Input/Output Ratio
+
+    Calculate the input-to-output token ratio for each model. Long prompts with short responses indicate potential prompt optimization. Flag any model where input tokens > 10x output tokens.
+
+
+    ## Phase 3: Optimization Recommendations
+
+
+    ### 3.1 Model Substitution
+
+    For each high-cost model, check if a cheaper model could handle the same workload. Reference the model cost comparison data. Calculate potential savings from model downgrades.
+
+
+    ### 3.2 Prompt Engineering Impact
+
+    If input tokens are disproportionately high, recommend prompt optimization. Shorter context windows = fewer tokens = lower cost.
+
+
+    ### 3.3 Environment Rightsizing
+
+    If dev/test environments are using production-tier models, recommend cheaper models for non-production.
+
+
+    ### 3.4 Commitment Coverage
+
+    Check if Azure OpenAI Provisioned Throughput Units (PTUs) would be cheaper than pay-as-you-go for high-volume workloads.
+
+
+    ## Phase 4: Report
+
+
+    Format as a professional AI cost report:
+
+    - Executive summary with total AI spend, token volume, and cost per 1K tokens
+
+    - Model efficiency table (cost per 1K tokens by model, input vs output)
+
+    - Application allocation table (cost by app/team/environment)
+
+    - Month-over-month trend chart description
+
+    - Top 3 optimization recommendations with dollar savings estimates
+
+    - FOCUS compliance note (all metrics use standard FOCUS columns)
+
+
+    Use 🤖 for AI metrics, 💰 for savings, 📊 for trends, 🎯 for recommendations.
+
+
+    Save to knowledge base. Do not stop until the report is complete.
+
+
+    ## Phase 5: Deliver
+
+
+    **Teams (financial results only):** Post the final AI workload cost report to our Teams channel. Include the executive summary, token economics, model efficiency table, and top optimization recommendations. Do not post intermediate results — only the completed report.
+
+
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — model availability changes, query patterns for AI billing data, FOCUS column mappings discovered, tool errors encountered. Never save financial figures, cost amounts, token costs, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
