@@ -3,7 +3,7 @@
 # and scheduled tasks via srectl.
 # OAuth-based Outlook and Teams connectors are intentionally excluded here:
 # Microsoft Learn currently documents them as interactive portal setup only.
-set -euo pipefail
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -31,28 +31,45 @@ ensure_srectl() {
   command -v srectl >/dev/null 2>&1 || fail "srectl installation failed."
 }
 
-# Apply agents in dependency order (agents without handoffs first, then agents with handoffs)
+# Apply agents — copies to workspace, multiple passes to resolve handoff deps.
 apply_agents() {
   local dir="$REPO_ROOT/sre-config/agents"
   [ -d "$dir" ] || return 0
 
-  # Pass 1: agents without handoffs (safe to create in any order)
+  # Copy agent YAMLs into srectl workspace
+  cp "$dir"/*.yaml "$dir"/*.yml agents/ 2>/dev/null || true
+
+  local max_passes=3
+  local pass=1
+  local pending=()
+  local failed=()
+
   for f in "$dir"/*.yaml "$dir"/*.yml; do
     [ -f "$f" ] || continue
-    if ! grep -q '^  handoffs:' "$f" 2>/dev/null; then
-      log "Applying agent: $(basename "$f")"
-      srectl apply-yaml --file "$f"
-    fi
+    pending+=("$(basename "$f" .yaml)")
   done
 
-  # Pass 2: agents with handoffs (their targets now exist)
-  for f in "$dir"/*.yaml "$dir"/*.yml; do
-    [ -f "$f" ] || continue
-    if grep -q '^  handoffs:' "$f" 2>/dev/null; then
-      log "Applying agent: $(basename "$f")"
-      srectl apply-yaml --file "$f"
-    fi
+  while [ "$pass" -le "$max_passes" ] && [ "${#pending[@]}" -gt 0 ]; do
+    log "Agent apply pass $pass (${#pending[@]} remaining)..."
+    failed=()
+    for name in "${pending[@]}"; do
+      log "Applying agent: $name"
+      if srectl agent apply --name "$name" --quiet 2>&1; then
+        true
+      else
+        log "  Deferred: $name (will retry)"
+        failed+=("$name")
+      fi
+    done
+    pending=("${failed[@]+"${failed[@]}"}")
+    pass=$((pass + 1))
   done
+
+  if [ "${#pending[@]}" -gt 0 ]; then
+    for name in "${pending[@]}"; do
+      log "WARNING: Failed to apply agent after $max_passes passes: $name"
+    done
+  fi
 }
 
 # Apply skills (srectl skill apply reads from workspace/skills/)
@@ -75,14 +92,19 @@ apply_skills() {
   done
 }
 
-# Apply tools
+# Apply tools — copies tool YAMLs into the srectl workspace tools/ dir
+# then applies each by name (srectl tool apply --name reads from the workspace).
 apply_tools() {
   local dir="$REPO_ROOT/tools"
   [ -d "$dir" ] || return 0
+  cp "$dir"/*.yaml "$dir"/*.yml tools/ 2>/dev/null || true
   for f in "$dir"/*.yaml "$dir"/*.yml; do
     [ -f "$f" ] || continue
-    log "Applying tool: $(basename "$f")"
-    srectl apply-yaml --file "$f"
+    local name
+    name="$(basename "$f" .yaml)"
+    name="$(echo "$name" | sed 's/\.yml$//')"
+    log "Applying tool: $name"
+    srectl tool apply --name "$name" --quiet 2>&1 || log "WARNING: Failed to apply tool $name"
   done
 }
 
