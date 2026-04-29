@@ -105,12 +105,10 @@ apply_scheduled_tasks() {
   done
 }
 
-# Add repo connector (idempotent — srectl handles existing)
-add_repo_connector() {
-  log "Adding finops-toolkit repository connector..."
-  srectl repo add --name finops-toolkit --url https://github.com/microsoft/finops-toolkit 2>&1 || \
-    log "Repository connector may already exist."
-}
+# Repo connector intentionally removed — the agent was searching the full
+# codebase and attempting git commits. Knowledge docs provide the reference
+# material the agent needs without repo access.
+# add_repo_connector() { ... }
 
 # Ensure the UAMI has the custom permissions needed by Python tools.
 # Creates a custom role with Microsoft.Resources/checkZonePeers/action
@@ -187,7 +185,6 @@ main() {
   apply_tools
   apply_knowledge
   apply_scheduled_tasks
-  add_repo_connector
 
   log "Post-provision complete."
 }
