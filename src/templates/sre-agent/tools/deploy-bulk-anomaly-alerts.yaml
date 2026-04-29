@@ -1,0 +1,162 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: deploy-bulk-anomaly-alerts
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Discovers enabled subscriptions in a management group with Azure Resource Graph
+    and creates or updates Cost Management anomaly alert scheduled actions per subscription.
+  functionCode: |-
+    def main(**kwargs):
+        from azure.mgmt.resourcegraph import ResourceGraphClient
+        from azure.mgmt.resourcegraph.models import QueryRequest
+        import re
+        import requests
+
+        management_group = kwargs.get("management_group")
+        email_recipients = kwargs.get("email_recipients")
+        scheduled_action_name = kwargs.get("scheduled_action_name") or "cost-anomaly-alert"
+        guid_pattern = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+        if not isinstance(management_group, str) or not management_group.strip():
+            return {"status": "failed", "error": "management_group is required", "deployments": []}
+        if not email_recipients:
+            return {"status": "failed", "error": "email_recipients is required", "deployments": []}
+        management_group = management_group.strip()
+
+        if isinstance(email_recipients, str):
+            recipients = [item.strip() for item in email_recipients.split(",") if item.strip()]
+        else:
+            recipients = [str(item).strip() for item in email_recipients if str(item).strip()]
+        if not recipients:
+            return {"status": "failed", "error": "email_recipients must contain at least one email", "deployments": []}
+        invalid_emails = [email for email in recipients if not re.match(email_pattern, email)]
+        if invalid_emails:
+            return {"status": "failed", "error": f"invalid email address: {invalid_emails[0]}", "deployments": []}
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            graph_client = ResourceGraphClient(credential)
+            token = credential.get_token("https://management.azure.com/.default").token
+        except Exception as exc:
+            return {"status": "failed", "error": f"failed to acquire Azure credential: {exc}", "deployments": []}
+        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+        query = (
+            "ResourceContainers "
+            "| where type =~ 'microsoft.resources/subscriptions' "
+            "| where properties.state =~ 'Enabled' "
+            "| project subscriptionId, name"
+        )
+        subscriptions = []
+        skip = 0
+        page_size = 1000
+        while True:
+            request = QueryRequest(
+                management_groups=[management_group],
+                query=query,
+                options={"$top": page_size, "$skip": skip},
+            )
+            try:
+                response = graph_client.resources(request)
+            except Exception as exc:
+                return {"status": "failed", "error": f"Resource Graph query failed: {exc}", "deployments": []}
+            data = getattr(response, "data", None) or []
+            rows = data if isinstance(data, list) else data.get("data", data.get("rows", []))
+            subscriptions.extend(rows)
+            if len(rows) < page_size:
+                break
+            skip += page_size
+
+        deployments = []
+        for sub in subscriptions:
+            subscription_id = sub.get("subscriptionId") or sub.get("subscription_id")
+            subscription_name = sub.get("name")
+            if not subscription_id:
+                continue
+            if not isinstance(subscription_id, str) or not re.match(guid_pattern, subscription_id):
+                deployments.append({
+                    "subscription_id": subscription_id,
+                    "subscription_name": subscription_name,
+                    "scheduled_action_name": scheduled_action_name,
+                    "status": "failed",
+                    "error": "subscription_id must be a valid GUID",
+                })
+                continue
+
+            body = {
+                "kind": "InsightAlert",
+                "properties": {
+                    "displayName": "Cost anomaly alert",
+                    "status": "Enabled",
+                    "viewId": (
+                        f"/subscriptions/{subscription_id}/providers/Microsoft.CostManagement/"
+                        "views/ms:DailyAnomalyByResourceGroup"
+                    ),
+                    "schedule": {"frequency": "Daily", "hourOfDay": 8, "daysOfWeek": [], "weeksOfMonth": []},
+                    "notification": {"subject": "Azure cost anomaly detected", "to": recipients, "language": "en-us"},
+                },
+            }
+            url = (
+                f"https://management.azure.com/subscriptions/{subscription_id}"
+                f"/providers/Microsoft.CostManagement/scheduledActions/{scheduled_action_name}"
+                "?api-version=2022-10-01"
+            )
+            try:
+                put_response = requests.put(url, headers=headers, json=body, timeout=120)
+                deployments.append({
+                    "subscription_id": subscription_id,
+                    "subscription_name": subscription_name,
+                    "scheduled_action_name": scheduled_action_name,
+                    "status": "created" if put_response.status_code == 201 else "updated" if put_response.status_code == 200 else "failed",
+                    "status_code": put_response.status_code,
+                    "error": None if put_response.status_code in (200, 201) else put_response.text,
+                })
+            except Exception as exc:
+                deployments.append({
+                    "subscription_id": subscription_id,
+                    "subscription_name": subscription_name,
+                    "scheduled_action_name": scheduled_action_name,
+                    "status": "failed",
+                    "error": str(exc),
+                })
+
+        return {
+            "management_group": management_group,
+            "email_recipients": recipients,
+            "subscription_count": len(subscriptions),
+            "created_or_updated": sum(1 for item in deployments if item["status"] in ("created", "updated")),
+            "failed": sum(1 for item in deployments if item["status"] == "failed"),
+            "deployments": deployments,
+        }
+  timeoutSeconds: 600
+  dependencies:
+    - azure-identity
+    - requests
+    - azure-mgmt-resourcegraph
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: management_group
+      type: string
+      description: Management group ID used to discover enabled subscriptions.
+      required: true
+    - name: email_recipients
+      type: string
+      description: Comma-separated email recipients for anomaly alert notifications.
+      required: true

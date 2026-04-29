@@ -1,0 +1,195 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: spot-placement-scores
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Checks Azure Spot VM placement scores by availability zone for a requested VM
+    SKU and region. Use it before Spot VM deployments to compare zonal placement
+    viability, quota availability, and SKU restriction signals.
+  functionCode: |-
+    def main(**kwargs):
+        import requests
+
+        subscription_id = kwargs.get("subscription_id")
+        location = kwargs.get("location")
+        sku_name = kwargs.get("sku_name")
+
+        result = {
+            "subscription_id": subscription_id,
+            "location": location,
+            "sku_name": sku_name,
+            "placement_scores": [],
+            "placement_scores_by_zone": {},
+            "viability": {
+                "assessment": "unknown",
+                "recommended_zones": [],
+                "avoid_zones": [],
+                "reason": None,
+            },
+        }
+
+        if not subscription_id:
+            result["error"] = "subscription_id is required"
+            return result
+
+        if not location:
+            result["error"] = "location is required"
+            return result
+
+        if not sku_name:
+            result["error"] = "sku_name is required"
+            return result
+
+        endpoint = (
+            f"https://management.azure.com/subscriptions/{subscription_id}"
+            f"/providers/Microsoft.Compute/locations/{location}"
+            "/placementScores/spot/generate?api-version=2024-11-01"
+        )
+        body = {
+            "availabilityZones": True,
+            "desiredCount": 1,
+            "desiredLocations": [location],
+            "desiredSizes": [{"sku": sku_name}],
+        }
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token("https://management.azure.com/.default")
+        except Exception as exc:
+            result["error"] = f"Failed to acquire ARM token: {exc}"
+            return result
+
+        try:
+            response = requests.post(
+                endpoint,
+                headers={
+                    "Authorization": f"Bearer {token.token}",
+                    "Content-Type": "application/json",
+                },
+                json=body,
+                timeout=210,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except Exception as exc:
+            result["error"] = f"Failed to get Spot VM placement scores: {exc}"
+            return result
+
+        scores = (
+            payload.get("placementScores")
+            or payload.get("placementScore")
+            or payload.get("value")
+            or []
+        )
+        if isinstance(scores, dict):
+            scores = [scores]
+
+        normalized_scores = []
+        high_zones = []
+        medium_zones = []
+        avoid_zones = []
+        stale_or_unknown_zones = []
+
+        for item in scores:
+            if not isinstance(item, dict):
+                continue
+
+            zone = (
+                item.get("availabilityZone")
+                or item.get("AvailabilityZone")
+                or item.get("zone")
+            )
+            score = item.get("score") or item.get("Score")
+            score_text = str(score or "Unknown")
+            is_quota_available = item.get("isQuotaAvailable")
+            if is_quota_available is None:
+                is_quota_available = item.get("IsQuotaAvailable")
+
+            score_record = {
+                "availability_zone": zone,
+                "region": item.get("region") or item.get("Region") or location,
+                "sku": item.get("sku") or item.get("Sku") or sku_name,
+                "score": score,
+                "is_quota_available": is_quota_available,
+            }
+            normalized_scores.append(score_record)
+
+            if zone is not None:
+                result["placement_scores_by_zone"][str(zone)] = score_record
+
+            score_key = score_text.lower()
+            quota_ok = is_quota_available is not False
+            if quota_ok and score_key == "high":
+                high_zones.append(str(zone))
+            elif quota_ok and score_key == "medium":
+                medium_zones.append(str(zone))
+            elif "notfound" in score_key or "stale" in score_key:
+                stale_or_unknown_zones.append(str(zone))
+            else:
+                avoid_zones.append(str(zone))
+
+        result["placement_scores"] = normalized_scores
+        result["raw_response"] = payload
+
+        recommended_zones = [zone for zone in high_zones + medium_zones if zone and zone != "None"]
+        avoid_zones = [zone for zone in avoid_zones if zone and zone != "None"]
+        stale_or_unknown_zones = [
+            zone for zone in stale_or_unknown_zones if zone and zone != "None"
+        ]
+
+        if high_zones:
+            assessment = "high_viability"
+            reason = "At least one zone returned a High Spot placement score."
+        elif medium_zones:
+            assessment = "moderate_viability"
+            reason = "No High scores returned, but at least one zone returned Medium."
+        elif stale_or_unknown_zones and not avoid_zones:
+            assessment = "insufficient_data"
+            reason = "Placement score data was not found, stale, or inconclusive."
+        else:
+            assessment = "low_viability"
+            reason = "No zones returned a High or Medium Spot placement score."
+
+        result["viability"] = {
+            "assessment": assessment,
+            "recommended_zones": recommended_zones,
+            "avoid_zones": avoid_zones,
+            "stale_or_unknown_zones": stale_or_unknown_zones,
+            "reason": reason,
+        }
+
+        return result
+  timeoutSeconds: 240
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: subscription_id
+      type: string
+      description: Azure subscription ID used to query Compute Spot VM placement scores.
+      required: true
+    - name: location
+      type: string
+      description: Azure region to query for zonal Spot VM placement scores.
+      required: true
+    - name: sku_name
+      type: string
+      description: Azure VM SKU name to score for Spot placement, such as Standard_D2s_v5.
+      required: true

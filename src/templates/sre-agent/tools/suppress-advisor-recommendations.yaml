@@ -1,0 +1,170 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: suppress-advisor-recommendations
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Suppresses selected Azure Advisor recommendations across subscriptions under
+    a management group by creating Microsoft.Advisor suppressions with a TTL.
+  functionCode: |-
+    def main(**kwargs):
+        from uuid import uuid4
+        from azure.mgmt.resourcegraph import ResourceGraphClient
+        from azure.mgmt.resourcegraph.models import QueryRequest
+        import re
+        import requests
+
+        management_group_id = kwargs.get("management_group_id")
+        days = kwargs.get("days") or 30
+        recommendation_type_ids = kwargs.get("recommendation_type_ids")
+        guid_pattern = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+
+        if not isinstance(management_group_id, str) or not management_group_id.strip():
+            return {"status": "failed", "error": "management_group_id is required"}
+        management_group_id = management_group_id.strip()
+        try:
+            days_number = int(days)
+        except (TypeError, ValueError):
+            return {"status": "failed", "error": "days must be an integer"}
+        if days_number < 1 or days_number > 90:
+            return {"status": "failed", "error": "days must be between 1 and 90"}
+
+        if recommendation_type_ids:
+            if isinstance(recommendation_type_ids, str):
+                type_ids = [item.strip() for item in recommendation_type_ids.split(",") if item.strip()]
+            else:
+                type_ids = [str(item).strip() for item in recommendation_type_ids if str(item).strip()]
+        else:
+            type_ids = [
+                "89515250-1243-43d1-b4e7-f9437cedffd8",
+                "84b1a508-fc21-49da-979e-96894f1665df",
+                "48eda464-1485-4dcf-a674-d0905df5054a",
+            ]
+        invalid_type_ids = [item for item in type_ids if not re.match(guid_pattern, item)]
+        if invalid_type_ids:
+            return {
+                "status": "failed",
+                "error": f"recommendation_type_ids must be GUIDs; invalid value: {invalid_type_ids[0]}",
+            }
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            graph_client = ResourceGraphClient(credential)
+            token = credential.get_token("https://management.azure.com/.default").token
+        except Exception as exc:
+            return {"status": "failed", "error": f"failed to acquire Azure credential: {exc}"}
+        headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+        # Recommendation type IDs are validated as GUIDs before interpolation to avoid KQL injection.
+        escaped_ids = ", ".join([f"'{item}'" for item in type_ids])
+        query = (
+            "advisorresources "
+            "| where type =~ 'microsoft.advisor/recommendations' "
+            f"| where properties.recommendationTypeId in~ ({escaped_ids}) "
+            "| project id, name, subscriptionId, recommendationTypeId=tostring(properties.recommendationTypeId), "
+            "problem=tostring(properties.shortDescription.problem)"
+        )
+
+        recommendations = []
+        skip = 0
+        page_size = 1000
+        while True:
+            request = QueryRequest(
+                management_groups=[management_group_id],
+                query=query,
+                options={"$top": page_size, "$skip": skip},
+            )
+            try:
+                response = graph_client.resources(request)
+            except Exception as exc:
+                return {"status": "failed", "error": f"Resource Graph query failed: {exc}"}
+            data = getattr(response, "data", None) or []
+            rows = data if isinstance(data, list) else data.get("data", data.get("rows", []))
+            recommendations.extend(rows)
+            if len(rows) < page_size:
+                break
+            skip += page_size
+
+        ttl = f"P{days_number}D"
+        suppressions = []
+        for recommendation in recommendations:
+            recommendation_id = recommendation.get("id")
+            if not recommendation_id or "/providers/Microsoft.Advisor/recommendations/" not in recommendation_id:
+                continue
+            suppression_id = str(uuid4())
+            url = (
+                f"https://management.azure.com{recommendation_id}"
+                f"/suppressions/{suppression_id}?api-version=2023-01-01"
+            )
+            try:
+                response = requests.put(
+                    url,
+                    headers=headers,
+                    json={"properties": {"ttl": ttl}},
+                    timeout=120,
+                )
+                suppressions.append({
+                    "subscription_id": recommendation.get("subscriptionId"),
+                    "recommendation_id": recommendation_id,
+                    "recommendation_type_id": recommendation.get("recommendationTypeId"),
+                    "suppression_id": suppression_id,
+                    "ttl": ttl,
+                    "status": "suppressed" if response.status_code in (200, 201) else "failed",
+                    "status_code": response.status_code,
+                    "error": None if response.status_code in (200, 201) else response.text,
+                })
+            except Exception as exc:
+                suppressions.append({
+                    "subscription_id": recommendation.get("subscriptionId"),
+                    "recommendation_id": recommendation_id,
+                    "recommendation_type_id": recommendation.get("recommendationTypeId"),
+                    "ttl": ttl,
+                    "status": "failed",
+                    "error": str(exc),
+                })
+
+        return {
+            "management_group_id": management_group_id,
+            "days": days_number,
+            "ttl": ttl,
+            "recommendation_type_ids": type_ids,
+            "found_count": len(recommendations),
+            "suppressed_count": sum(1 for item in suppressions if item["status"] == "suppressed"),
+            "failed_count": sum(1 for item in suppressions if item["status"] == "failed"),
+            "suppressions": suppressions,
+        }
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+    - azure-mgmt-resourcegraph
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: management_group_id
+      type: string
+      description: Management group ID whose subscriptions should have Advisor recommendations suppressed.
+      required: true
+    - name: days
+      type: string
+      description: |-
+        Advisor suppression TTL in days. Default: 30. Maximum: 90.
+      required: false
+    - name: recommendation_type_ids
+      type: string
+      description: Optional comma-separated Advisor recommendation type IDs to suppress.
+      required: false

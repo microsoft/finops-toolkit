@@ -1,0 +1,361 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: non-compute-quotas
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Checks non-compute Azure service quota utilization for a subscription.
+    The tool uses ARM provider usages APIs where Azure exposes service-specific
+    usage and quota payloads, and only falls back to Azure Resource Graph counts
+    with clearly marked estimated limits for services without a direct usages API.
+  functionCode: |-
+    def main(**kwargs):
+        import requests
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        ARM_SCOPE = "https://management.azure.com/.default"
+
+        subscription_id = kwargs.get("subscription_id")
+        location = kwargs.get("location")
+
+        result = {
+            "subscription_id": subscription_id,
+            "services": [],
+            "at_risk_count": 0,
+            "api_reported_limit_count": 0,
+            "estimated_limit_count": 0,
+        }
+
+        if not subscription_id:
+            result["error"] = "subscription_id is required"
+            return result
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token("https://management.azure.com/.default").token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+        except Exception as exc:
+            result["error"] = f"Failed to initialize Azure ARM credential: {exc}"
+            return result
+
+        estimated_services = [
+            {
+                "service_name": "App Service plans",
+                "resource_type": "microsoft.web/serverfarms",
+                "arm_resource_type": "Microsoft.Web/serverfarms",
+                "estimated_limit": 1000,
+                "limit_note": "Estimated subscription-level default from Azure service limits documentation; no direct provider usages API was used for this resource type.",
+            },
+            {
+                "service_name": "SQL servers",
+                "resource_type": "microsoft.sql/servers",
+                "arm_resource_type": "Microsoft.Sql/servers",
+                "estimated_limit": 250,
+                "limit_note": "Estimated subscription-level default from Azure service limits documentation; no direct provider usages API was used for this resource type.",
+            },
+            {
+                "service_name": "Service Bus namespaces",
+                "resource_type": "microsoft.servicebus/namespaces",
+                "arm_resource_type": "Microsoft.ServiceBus/namespaces",
+                "estimated_limit": 1000,
+                "limit_note": "Estimated subscription-level default from Azure service limits documentation; no direct provider usages API was used for this resource type.",
+            },
+            {
+                "service_name": "Key Vault vaults",
+                "resource_type": "microsoft.keyvault/vaults",
+                "arm_resource_type": "Microsoft.KeyVault/vaults",
+                "estimated_limit": 5000,
+                "limit_note": "Current count is calculated with Azure Resource Graph. Limit is an estimated subscription-level default from Azure service limits documentation because Key Vault does not expose a subscription usages API for vault count.",
+            },
+        ]
+
+        def to_number(value, default=0):
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return float(default)
+
+        def normalize_name(name):
+            if isinstance(name, dict):
+                return (
+                    name.get("localizedValue")
+                    or name.get("localized_value")
+                    or name.get("value")
+                    or str(name)
+                )
+
+            localized = getattr(name, "localized_value", None) or getattr(name, "localizedValue", None)
+            value = getattr(name, "value", None)
+            return localized or value or str(name)
+
+        def request_arm_json(url, timeout=60):
+            response = requests.get(url, headers=headers, timeout=timeout)
+            response.raise_for_status()
+            return response.json()
+
+        def post_arm_json(url, body, timeout=120):
+            response = requests.post(url, headers=headers, json=body, timeout=timeout)
+            response.raise_for_status()
+            return response.json()
+
+        def add_usage_item(
+            service_name,
+            resource_type,
+            quota_name,
+            current_count,
+            limit,
+            count_source,
+            limit_source,
+            limit_type,
+            source_endpoint,
+            location_name=None,
+            limit_note=None,
+        ):
+            limit_number = to_number(limit, 0)
+            if current_count is None:
+                current_value = None
+                utilization_pct = None
+                at_risk = None
+            else:
+                current_number = to_number(current_count, 0)
+                current_value = int(current_number) if current_number.is_integer() else current_number
+                utilization_pct = round((current_number / limit_number) * 100, 2) if limit_number > 0 else None
+                at_risk = bool(utilization_pct is not None and utilization_pct >= 80)
+
+            item = {
+                "service_name": service_name,
+                "resource_type": resource_type,
+                "quota_name": quota_name,
+                "current_count": current_value,
+                "limit": int(limit_number) if limit_number.is_integer() else limit_number,
+                "utilization_pct": utilization_pct,
+                "at_risk": at_risk,
+                "count_source": count_source,
+                "limit_source": limit_source,
+                "limit_type": limit_type,
+                "source_endpoint": source_endpoint,
+            }
+
+            if location_name:
+                item["location"] = location_name
+            if limit_note:
+                item["limit_note"] = limit_note
+
+            if at_risk:
+                result["at_risk_count"] += 1
+            if limit_type == "api_reported":
+                result["api_reported_limit_count"] += 1
+            elif limit_type == "estimated":
+                result["estimated_limit_count"] += 1
+
+            result["services"].append(item)
+
+        def add_usage_payload(service_name, resource_type, payload, source_endpoint, location_name=None):
+            for usage in payload.get("value", []):
+                quota_name = normalize_name(usage.get("name"))
+                current_count = usage.get("currentValue", usage.get("current_value", 0))
+                limit = usage.get("limit", 0)
+
+                add_usage_item(
+                    service_name=service_name,
+                    resource_type=resource_type,
+                    quota_name=quota_name,
+                    current_count=current_count,
+                    limit=limit,
+                    count_source="arm_provider_usages_api",
+                    limit_source="api_reported_limit",
+                    limit_type="api_reported",
+                    source_endpoint=source_endpoint,
+                    location_name=location_name,
+                )
+
+        def parse_locations():
+            if location:
+                if isinstance(location, str):
+                    return [item.strip() for item in location.split(",") if item.strip()]
+                if isinstance(location, (list, tuple, set)):
+                    return [str(item).strip() for item in location if str(item).strip()]
+                return [str(location).strip()]
+
+            url = f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/locations?api-version=2022-12-01"
+            payload = request_arm_json(url)
+            return [
+                item.get("name")
+                for item in payload.get("value", [])
+                if item.get("name")
+            ]
+
+        def count_with_resource_graph(services):
+            types = ",\n".join(f"'{service['resource_type']}'" for service in services)
+            query = f"""
+            Resources
+            | where type in~ (
+                {types}
+            )
+            | summarize current_count = count() by type = tolower(type)
+            """
+            graph_url = (
+                f"{ARM_ENDPOINT}/providers/Microsoft.ResourceGraph/resources"
+                "?api-version=2022-10-01"
+            )
+            response = post_arm_json(
+                graph_url,
+                {"subscriptions": [subscription_id], "query": query},
+            )
+
+            data = response.get("data") or []
+            if isinstance(data, dict):
+                columns = data.get("columns") or data.get("Columns") or []
+                rows = data.get("rows") or data.get("Rows") or []
+                column_names = [
+                    column.get("name") or column.get("Name") or column.get("ColumnName")
+                    for column in columns
+                    if isinstance(column, dict)
+                ]
+                normalized_rows = []
+                for row in rows:
+                    if isinstance(row, dict):
+                        normalized_rows.append(row)
+                    elif isinstance(row, (list, tuple)):
+                        normalized_rows.append({
+                            column_names[index]: row[index]
+                            for index in range(min(len(column_names), len(row)))
+                            if column_names[index]
+                        })
+                data = normalized_rows
+
+            counts = {}
+            for row in data:
+                if isinstance(row, dict):
+                    resource_type = str(row.get("type", "")).lower()
+                    current_count = row.get("current_count", 0)
+                else:
+                    resource_type = str(getattr(row, "type", "")).lower()
+                    current_count = getattr(row, "current_count", 0)
+
+                try:
+                    counts[resource_type] = int(current_count or 0)
+                except (TypeError, ValueError):
+                    counts[resource_type] = 0
+
+            return counts
+
+        errors = []
+
+        try:
+            service_locations = parse_locations()
+        except Exception as exc:
+            service_locations = []
+            errors.append({
+                "service_name": "Storage and Network",
+                "source": "subscription_locations",
+                "error": str(exc),
+            })
+
+        for storage_location in service_locations:
+            storage_usage_endpoint = (
+                "https://management.azure.com/"
+                f"subscriptions/{subscription_id}/providers/Microsoft.Storage/locations/{storage_location}/usages"
+                "?api-version=2023-05-01"
+            )
+            try:
+                storage_payload = request_arm_json(storage_usage_endpoint)
+                add_usage_payload(
+                    service_name="Storage",
+                    resource_type="Microsoft.Storage/locations/usages",
+                    payload=storage_payload,
+                    source_endpoint=storage_usage_endpoint,
+                    location_name=storage_location,
+                )
+            except Exception as exc:
+                errors.append({
+                    "service_name": "Storage",
+                    "location": storage_location,
+                    "source": "arm_provider_usages_api",
+                    "endpoint": storage_usage_endpoint,
+                    "error": str(exc),
+                })
+
+        for network_location in service_locations:
+            network_usage_endpoint = (
+                "https://management.azure.com/"
+                f"subscriptions/{subscription_id}/providers/Microsoft.Network/locations/{network_location}/usages"
+                "?api-version=2023-11-01"
+            )
+            try:
+                network_payload = request_arm_json(network_usage_endpoint)
+                add_usage_payload(
+                    service_name="Network",
+                    resource_type="Microsoft.Network/locations/usages",
+                    payload=network_payload,
+                    source_endpoint=network_usage_endpoint,
+                    location_name=network_location,
+                )
+            except Exception as exc:
+                errors.append({
+                    "service_name": "Network",
+                    "location": network_location,
+                    "source": "arm_provider_usages_api",
+                    "endpoint": network_usage_endpoint,
+                    "error": str(exc),
+                })
+
+        try:
+            counts = count_with_resource_graph(estimated_services)
+        except Exception as exc:
+            counts = None
+            errors.append({"source": "resource_graph", "error": str(exc)})
+
+        for service in estimated_services:
+            resource_type = service["resource_type"]
+            resource_graph_failed = counts is None
+            current_count = None if resource_graph_failed else counts.get(resource_type, 0)
+            add_usage_item(
+                service_name=service["service_name"],
+                resource_type=service["arm_resource_type"],
+                quota_name=f"{service['service_name']} estimated subscription limit",
+                current_count=current_count,
+                limit=service["estimated_limit"],
+                count_source="resource_graph_failed" if resource_graph_failed else "resource_graph",
+                limit_source="estimated_default_service_limit",
+                limit_type="estimated",
+                source_endpoint="Azure Resource Graph",
+                limit_note=service["limit_note"],
+            )
+
+        if errors:
+            result["errors"] = errors
+
+        return result
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: subscription_id
+      type: string
+      description: Azure subscription ID to query for non-compute service quota utilization.
+      required: true
+    - name: location
+      type: string
+      description: Optional Azure region or comma-separated regions for Storage and Network usages. If omitted, all subscription locations are queried.
+      required: false

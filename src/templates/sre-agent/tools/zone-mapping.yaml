@@ -1,0 +1,187 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: zone-mapping
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Returns Azure availability zone mapping details for a location across subscriptions.
+    The tool calls the ARM checkZonePeers REST API to compare logical zones and returns
+    a per-subscription logical-to-physical zone mapping view for cross-subscription
+    placement planning.
+  functionCode: |-
+    def main(**kwargs):
+        import requests
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        ARM_SCOPE = "https://management.azure.com/.default"
+        API_VERSION = "2022-12-01"
+
+        def normalize_subscription_ids(value):
+            if value is None:
+                return []
+            if isinstance(value, str):
+                return [item.strip() for item in value.split(",") if item.strip()]
+            if isinstance(value, (list, tuple, set)):
+                return [str(item).strip() for item in value if str(item).strip()]
+            return [str(value).strip()] if str(value).strip() else []
+
+        def auth_headers(credential):
+            token = credential.get_token(ARM_SCOPE).token
+            return {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+
+        def list_accessible_subscriptions(headers):
+            url = f"{ARM_ENDPOINT}/subscriptions?api-version={API_VERSION}"
+            response = requests.get(url, headers=headers, timeout=60)
+            response.raise_for_status()
+            payload = response.json()
+            return [
+                item.get("subscriptionId")
+                for item in payload.get("value", [])
+                if item.get("subscriptionId")
+            ]
+
+        def build_mapping(subscription_id, zone_peers):
+            logical_to_physical_mapping = {}
+            peer_mappings = {}
+
+            for zone_peer in zone_peers or []:
+                logical_zone = str(zone_peer.get("availabilityZone", "")).strip()
+                if not logical_zone:
+                    continue
+
+                logical_to_physical_mapping.setdefault(logical_zone, logical_zone)
+
+                for peer in zone_peer.get("peers", []) or []:
+                    peer_subscription_id = peer.get("subscriptionId") or subscription_id
+                    peer_zone = str(peer.get("availabilityZone", "")).strip()
+                    if not peer_zone:
+                        continue
+
+                    peer_mappings.setdefault(
+                        peer_subscription_id,
+                        {"logical_to_physical_mapping": {}},
+                    )["logical_to_physical_mapping"][logical_zone] = peer_zone
+
+            return logical_to_physical_mapping, peer_mappings
+
+        location = kwargs.get("location")
+        if not location or not str(location).strip():
+            return {
+                "error": "location is required",
+                "location": location,
+                "subscriptions": {},
+            }
+        location = str(location).strip()
+
+        requested_subscription_ids = normalize_subscription_ids(kwargs.get("subscription_ids"))
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            headers = auth_headers(credential)
+        except Exception as exc:
+            return {
+                "error": f"Failed to authenticate to Azure Resource Manager: {exc}",
+                "location": location,
+                "subscriptions": {},
+            }
+
+        if requested_subscription_ids:
+            subscription_ids = requested_subscription_ids
+        else:
+            try:
+                subscription_ids = list_accessible_subscriptions(headers)
+            except Exception as exc:
+                return {
+                    "error": f"Failed to list Azure subscriptions: {exc}",
+                    "location": location,
+                    "subscriptions": {},
+                }
+
+        if not subscription_ids:
+            return {
+                "error": "subscription_ids did not contain any subscription IDs",
+                "location": location,
+                "subscriptions": {},
+            }
+
+        result = {
+            "location": location,
+            "subscription_ids": subscription_ids,
+            "subscriptions": {},
+            "errors": [],
+        }
+
+        body = {"location": location, "subscriptionIds": subscription_ids}
+
+        for subscription_id in subscription_ids:
+            url = (
+                f"{ARM_ENDPOINT}/subscriptions/{subscription_id}"
+                f"/providers/Microsoft.Resources/checkZonePeers"
+                f"?api-version={API_VERSION}"
+            )
+
+            try:
+                response = requests.post(url, headers=headers, json=body, timeout=60)
+                response.raise_for_status()
+                payload = response.json()
+                zone_peers = payload.get("availabilityZonePeers", [])
+                logical_to_physical_mapping, peer_mappings = build_mapping(subscription_id, zone_peers)
+
+                result["subscriptions"].setdefault(
+                    subscription_id,
+                    {"logical_to_physical_mapping": {}},
+                )["logical_to_physical_mapping"].update(logical_to_physical_mapping)
+
+                for peer_subscription_id, mapping in peer_mappings.items():
+                    result["subscriptions"].setdefault(
+                        peer_subscription_id,
+                        {"logical_to_physical_mapping": {}},
+                    )["logical_to_physical_mapping"].update(
+                        mapping["logical_to_physical_mapping"]
+                    )
+
+                result["subscriptions"][subscription_id]["raw_check_zone_peers"] = zone_peers
+            except Exception as exc:
+                result["errors"].append(
+                    {
+                        "subscription_id": subscription_id,
+                        "error": str(exc),
+                    }
+                )
+
+        if not result["errors"]:
+            result.pop("errors")
+
+        return result
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: location
+      type: string
+      description: Azure region name to check for availability zone mapping, such as eastus.
+      required: true
+    - name: subscription_ids
+      type: string
+      description: Optional comma-separated Azure subscription IDs to compare. If omitted, all accessible subscriptions are queried.
+      required: false

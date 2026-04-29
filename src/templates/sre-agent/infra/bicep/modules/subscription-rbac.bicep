@@ -56,3 +56,33 @@ resource roleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = 
     principalType: principalType
   }
 }]
+
+// Custom role for checkZonePeers — not included in Reader.
+// Required by the zone-mapping Python tool for cross-subscription zone alignment.
+resource zonePeersRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' = {
+  name: guid(subscription().id, 'finops-sre-zone-peers')
+  properties: {
+    roleName: 'FinOps SRE Zone Peers Reader'
+    description: 'Allows checking availability zone peer mappings across subscriptions. Used by the zone-mapping Python tool.'
+    type: 'CustomRole'
+    permissions: [
+      {
+        actions: [
+          'Microsoft.Resources/checkZonePeers/action'
+        ]
+      }
+    ]
+    assignableScopes: [
+      subscription().id
+    ]
+  }
+}
+
+resource zonePeersAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(subscription().id, principalId, zonePeersRole.id)
+  properties: {
+    roleDefinitionId: zonePeersRole.id
+    principalId: principalId
+    principalType: principalType
+  }
+}

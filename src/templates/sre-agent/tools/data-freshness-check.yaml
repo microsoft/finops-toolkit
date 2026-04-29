@@ -1,0 +1,200 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: data-freshness-check
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Checks FinOps Hub function data freshness in an Azure Data Explorer hub database.
+    The tool reports the latest data date, staleness in days, and whether each
+    function is stale using a 2-day threshold.
+  functionCode: |-
+    def main(**kwargs):
+        from datetime import datetime, timezone
+
+        import requests
+
+        cluster_uri = kwargs.get("cluster_uri")
+        database = kwargs.get("database") or "hub"
+
+        result = {
+            "cluster_uri": cluster_uri,
+            "database": database,
+            "functions": [],
+            "total_functions": 0,
+            "stale_count": 0,
+            "freshest_function": None,
+            "stalest_function": None,
+        }
+
+        if not cluster_uri:
+            result["error"] = "cluster_uri is required"
+            return result
+
+        cluster_uri = str(cluster_uri).strip().rstrip("/")
+        if not cluster_uri.startswith("https://"):
+            cluster_uri = f"https://{cluster_uri}"
+        result["cluster_uri"] = cluster_uri
+
+        def _to_utc(value):
+            if value is None:
+                return None
+            if isinstance(value, datetime):
+                parsed = value
+            else:
+                parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed.astimezone(timezone.utc)
+
+        def _iso(value):
+            if value is None:
+                return None
+            return value.isoformat().replace("+00:00", "Z")
+
+        def _table_rows(payload):
+            tables = payload.get("Tables") or payload.get("tables") or []
+            if not tables:
+                return [], []
+            table = tables[0]
+            rows = table.get("Rows") or table.get("rows") or []
+            columns = table.get("Columns") or table.get("columns") or []
+            column_names = [
+                column.get("ColumnName") or column.get("columnName") or column.get("name")
+                for column in columns
+                if isinstance(column, dict)
+            ]
+            return rows, column_names
+
+        def _row_value(row, column_names, name, index):
+            if isinstance(row, dict):
+                return row.get(name)
+            if isinstance(row, (list, tuple)):
+                if name in column_names:
+                    column_index = column_names.index(name)
+                    if column_index < len(row):
+                        return row[column_index]
+                if index < len(row):
+                    return row[index]
+            return None
+
+        def _execute_kusto(csl):
+            response = requests.post(
+                f"{cluster_uri}/v1/rest/query",
+                headers=headers,
+                json={"db": database, "csl": csl},
+                timeout=120,
+            )
+            response.raise_for_status()
+            return response.json()
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token(f"{cluster_uri}/.default").token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+        except Exception as exc:
+            result["error"] = f"Failed to initialize Azure Data Explorer REST credential: {exc}"
+            return result
+
+        now = datetime.now(timezone.utc)
+        errors = []
+        freshness_queries = [
+            (
+                "Costs()",
+                "Costs() | summarize LatestData=max(ChargePeriodStart) | project LatestData",
+                True,
+            ),
+            (
+                "Prices()",
+                "Prices() | summarize LatestData=max(ChargePeriodStart) | project LatestData",
+                True,
+            ),
+            (
+                "Recommendations()",
+                "Recommendations() | take 1",
+                False,
+            ),
+            (
+                "Transactions()",
+                "Transactions() | summarize LatestData=max(ChargePeriodStart) | project LatestData",
+                True,
+            ),
+        ]
+
+        for function_name, query, has_freshness_date in freshness_queries:
+            latest_data = None
+            staleness_days = None
+            is_stale = True
+            has_data = False
+
+            try:
+                freshness_payload = _execute_kusto(query)
+                freshness_rows, freshness_columns = _table_rows(freshness_payload)
+                has_data = bool(freshness_rows)
+                if has_freshness_date:
+                    if freshness_rows:
+                        raw_latest = _row_value(freshness_rows[0], freshness_columns, "LatestData", 0)
+                        latest_data = _to_utc(raw_latest)
+                        if latest_data is not None:
+                            staleness_days = round((now - latest_data).total_seconds() / 86400, 2)
+                            is_stale = staleness_days > 2
+                else:
+                    is_stale = not has_data
+            except Exception as exc:
+                errors.append({"function_name": function_name, "error": str(exc)})
+
+            result["functions"].append(
+                {
+                    "function_name": function_name,
+                    "latest_data_date": _iso(latest_data),
+                    "staleness_days": staleness_days,
+                    "is_stale": is_stale,
+                    "has_data": has_data,
+                }
+            )
+
+        result["total_functions"] = len(result["functions"])
+        result["stale_count"] = sum(1 for function in result["functions"] if function["is_stale"])
+
+        functions_with_data_dates = [
+            function for function in result["functions"] if function["latest_data_date"] is not None
+        ]
+        if functions_with_data_dates:
+            result["freshest_function"] = min(functions_with_data_dates, key=lambda function: function["staleness_days"])
+            result["stalest_function"] = max(functions_with_data_dates, key=lambda function: function["staleness_days"])
+
+        if errors:
+            result["errors"] = errors
+
+        return result
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: cluster_uri
+      type: string
+      description: Azure Data Explorer cluster URI to query for ingestion freshness.
+      required: true
+    - name: database
+      type: string
+      description: Optional Azure Data Explorer database name. Defaults to hub.
+      required: false

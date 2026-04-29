@@ -1,0 +1,180 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: vm-quota-usage
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Reports Azure VM family quota usage for one or more regions in a subscription.
+    The tool queries Azure Compute usages through ARM REST, calculates utilization
+    percentages, and flags quota families that are at risk above 80% or 95% usage.
+  functionCode: |-
+    def main(**kwargs):
+        import requests
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        ARM_SCOPE = "https://management.azure.com/.default"
+        LOCATIONS_API_VERSION = "2022-12-01"
+        USAGES_API_VERSION = "2023-07-01"
+
+        subscription_id = kwargs.get("subscription_id")
+        location = kwargs.get("location")
+
+        if not subscription_id:
+            return {
+                "error": "subscription_id is required",
+                "quotas": [],
+                "warning_count": 0,
+                "critical_count": 0,
+            }
+
+        if location:
+            if isinstance(location, str):
+                locations = [item.strip() for item in location.split(",") if item.strip()]
+            elif isinstance(location, (list, tuple, set)):
+                locations = [str(item).strip() for item in location if str(item).strip()]
+            else:
+                locations = [str(location).strip()]
+        else:
+            locations = []
+
+        result = {
+            "subscription_id": subscription_id,
+            "quotas": [],
+            "warning_count": 0,
+            "critical_count": 0,
+        }
+
+        errors = []
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token(ARM_SCOPE).token
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+        except Exception as exc:
+            result["error"] = f"Failed to initialize Azure ARM credential: {exc}"
+            return result
+
+        if not location:
+            try:
+                url = (
+                    f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/locations"
+                    f"?api-version={LOCATIONS_API_VERSION}"
+                )
+                response = requests.get(url, headers=headers, timeout=60)
+                response.raise_for_status()
+                payload = response.json()
+                locations = [
+                    item.get("name")
+                    for item in payload.get("value", [])
+                    if item.get("name")
+                ]
+            except Exception as exc:
+                result["error"] = f"Failed to list Azure subscription locations: {exc}"
+                return result
+
+        if not locations:
+            result["error"] = "location did not contain any valid region names"
+            return result
+
+        if len(locations) == 1:
+            result["location"] = locations[0]
+        else:
+            result["locations"] = locations
+
+        for region in locations:
+            try:
+                url = (
+                    f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/providers/Microsoft.Compute"
+                    f"/locations/{region}/usages?api-version={USAGES_API_VERSION}"
+                )
+                response = requests.get(url, headers=headers, timeout=60)
+                response.raise_for_status()
+                payload = response.json()
+
+                for usage in payload.get("value", []):
+                    name_obj = usage.get("name")
+                    if isinstance(name_obj, dict):
+                        name = (
+                            name_obj.get("localizedValue")
+                            or name_obj.get("localized_value")
+                            or name_obj.get("value")
+                            or str(name_obj)
+                        )
+                    else:
+                        name = str(name_obj)
+                    current = usage.get("currentValue", usage.get("current_value", 0))
+                    limit = usage.get("limit", 0)
+
+                    try:
+                        current_number = float(current or 0)
+                    except (TypeError, ValueError):
+                        current_number = 0.0
+
+                    try:
+                        limit_number = float(limit or 0)
+                    except (TypeError, ValueError):
+                        limit_number = 0.0
+
+                    utilization_pct = None
+                    if limit_number > 0:
+                        utilization_pct = round((current_number / limit_number) * 100, 2)
+
+                    at_risk_80 = bool(utilization_pct is not None and utilization_pct > 80)
+                    at_risk_95 = bool(utilization_pct is not None and utilization_pct > 95)
+
+                    if utilization_pct is not None and utilization_pct > 80 and utilization_pct <= 95:
+                        result["warning_count"] += 1
+                    if at_risk_95:
+                        result["critical_count"] += 1
+
+                    quota = {
+                        "name": name,
+                        "current": current,
+                        "limit": limit,
+                        "utilization_pct": utilization_pct,
+                        "at_risk_80": at_risk_80,
+                        "at_risk_95": at_risk_95,
+                    }
+                    if len(locations) > 1:
+                        quota["location"] = region
+
+                    result["quotas"].append(quota)
+            except Exception as exc:
+                errors.append({"location": region, "error": str(exc)})
+
+        if errors:
+            result["errors"] = errors
+
+        return result
+  timeoutSeconds: 300
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: subscription_id
+      type: string
+      description: Azure subscription ID to query for VM quota usage.
+      required: true
+    - name: location
+      type: string
+      description: Optional Azure region to query. If omitted, all subscription locations are queried.
+      required: false

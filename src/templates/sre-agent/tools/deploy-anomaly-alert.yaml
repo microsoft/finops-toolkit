@@ -1,0 +1,124 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: deploy-anomaly-alert
+spec:
+  type: PythonTool
+  connector: ''
+  toolMode: Auto
+  description: |-
+    Creates or updates a Cost Management scheduled action for anomaly detection
+    in a subscription and sends anomaly alert notifications to email recipients.
+  functionCode: |-
+    def main(**kwargs):
+        import re
+        import requests
+
+        subscription_id = kwargs.get("subscription_id")
+        email_recipients = kwargs.get("email_recipients")
+        scheduled_action_name = kwargs.get("scheduled_action_name") or "cost-anomaly-alert"
+        guid_pattern = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+        if not subscription_id:
+            return {"status": "failed", "error": "subscription_id is required"}
+        if not isinstance(subscription_id, str) or not re.match(guid_pattern, subscription_id):
+            return {"status": "failed", "error": "subscription_id must be a valid GUID"}
+        if not email_recipients:
+            return {"status": "failed", "error": "email_recipients is required"}
+
+        if isinstance(email_recipients, str):
+            recipients = [item.strip() for item in email_recipients.split(",") if item.strip()]
+        else:
+            recipients = [str(item).strip() for item in email_recipients if str(item).strip()]
+        if not recipients:
+            return {"status": "failed", "error": "email_recipients must contain at least one email"}
+        invalid_emails = [email for email in recipients if not re.match(email_pattern, email)]
+        if invalid_emails:
+            return {"status": "failed", "error": f"invalid email address: {invalid_emails[0]}"}
+
+        body = {
+            "kind": "InsightAlert",
+            "properties": {
+                "displayName": "Cost anomaly alert",
+                "status": "Enabled",
+                "viewId": (
+                    f"/subscriptions/{subscription_id}/providers/Microsoft.CostManagement/"
+                    "views/ms:DailyAnomalyByResourceGroup"
+                ),
+                "schedule": {
+                    "frequency": "Daily",
+                    "hourOfDay": 8,
+                    "daysOfWeek": [],
+                    "weeksOfMonth": [],
+                },
+                "notification": {
+                    "subject": "Azure cost anomaly detected",
+                    "to": recipients,
+                    "language": "en-us",
+                },
+            },
+        }
+
+        try:
+            client_id = kwargs.get("client_id")
+            if client_id:
+                from azure.identity import ManagedIdentityCredential
+                credential = ManagedIdentityCredential(client_id=client_id)
+            else:
+                from azure.identity import DefaultAzureCredential
+                credential = DefaultAzureCredential()
+            token = credential.get_token("https://management.azure.com/.default").token
+        except Exception as exc:
+            return {"status": "failed", "error": f"failed to acquire Azure credential: {exc}"}
+        url = (
+            f"https://management.azure.com/subscriptions/{subscription_id}"
+            f"/providers/Microsoft.CostManagement/scheduledActions/{scheduled_action_name}"
+            "?api-version=2022-10-01"
+        )
+        try:
+            response = requests.put(
+                url,
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json=body,
+                timeout=120,
+            )
+        except Exception as exc:
+            return {"status": "failed", "error": f"anomaly alert PUT request failed: {exc}"}
+
+        result = {
+            "subscription_id": subscription_id,
+            "scheduled_action_name": scheduled_action_name,
+            "email_recipients": recipients,
+            "status_code": response.status_code,
+        }
+        try:
+            result["anomaly_alert"] = response.json()
+        except ValueError:
+            result["response_text"] = response.text
+        if response.status_code in (200, 201):
+            result["status"] = "created" if response.status_code == 201 else "updated"
+        else:
+            result["status"] = "failed"
+            result["error"] = response.text
+        return result
+  timeoutSeconds: 240
+  dependencies:
+    - azure-identity
+    - requests
+  authScopes:
+    - ARM
+  parameters:
+    - name: client_id
+      type: string
+      description: |-
+        Optional UAMI client ID for managed identity authentication. If omitted, uses DefaultAzureCredential.
+      required: false
+    - name: subscription_id
+      type: string
+      description: Azure subscription ID where the anomaly alert scheduled action will be created.
+      required: true
+    - name: email_recipients
+      type: string
+      description: Comma-separated email recipients for anomaly notifications.
+      required: true
