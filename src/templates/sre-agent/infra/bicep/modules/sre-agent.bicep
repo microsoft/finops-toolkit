@@ -68,10 +68,7 @@ resource sreAgent 'Microsoft.App/agents@2025-05-01-preview' = {
     // - Use Code Interpreter: the portal exposes this through the Early access toggle.
     // Keep workspace tools enabled in IaC so code-interpreter-backed workflows are available by default.
     experimentalSettings: {
-      EnableV2AgentLoop: true
       EnableWorkspaceTools: true
-      EnableCodeInterpreter: true
-      EnableMemory: true
     }
     actionConfiguration: {
       mode: 'Autonomous'

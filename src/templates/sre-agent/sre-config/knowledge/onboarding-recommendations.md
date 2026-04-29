@@ -7,9 +7,20 @@ Use this guidance when the user finishes deployment, enters the **Team onboardin
 Prioritize these setup steps in order:
 
 1. Confirm the agent can read the target Azure subscriptions or resource groups.
-2. Confirm the FinOps Toolkit repository is connected so the agent can learn the codebase.
+2. Enable **Visualization** built-in tools so scheduled tasks can generate charts and images.
 3. Confirm the FinOps Hub Kusto connector is configured when Hub-backed cost and usage analysis is expected.
 4. Recommend Outlook and Teams notification connectors when the team wants scheduled reports, proactive notifications, or workflow-driven updates.
+
+## Enable visualization tools
+
+The Visualization tool category (5 tools including chart generation and Grafana integration) is **not enabled by default** and cannot be set via Bicep or ARM. It must be enabled in the portal:
+
+1. Open the agent in [sre.azure.com](https://sre.azure.com).
+2. Go to **Capabilities** > **Tools** > **Built-in tools**.
+3. Check the **Visualization** checkbox (0/5 tools).
+4. Click **Save changes**.
+
+Without this, scheduled tasks cannot generate inline charts or images in their Teams reports.
 
 ## Outlook and Teams connector guidance
 
@@ -52,7 +63,7 @@ For Teams:
 
 If the user asks what to do next after deployment, recommend something like:
 
-> Your core FinOps SRE Agent is deployed. Next, connect the FinOps data sources you need and add Outlook plus Teams notification connectors so scheduled tasks and investigations can deliver email and channel updates. In Azure SRE Agent, go to **Builder** > **Connectors** and add **Outlook Tools (Office 365 Outlook)** and **Send notification (Microsoft Teams)**.
+> Your core FinOps SRE Agent is deployed. Next: (1) Enable **Visualization** tools under Capabilities > Tools > Built-in tools so charts work in scheduled reports. (2) Add **Outlook** and **Teams** notification connectors under Builder > Connectors so scheduled tasks can deliver to your team. (3) Connect your FinOps Hub data sources if not already wired.
 
 ## Microsoft Learn references
 

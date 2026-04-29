@@ -20,6 +20,14 @@ Deploy and configure an Azure SRE Agent with FinOps and capacity management capa
 | Connector | 1 | Kusto MCP connector to FinOps Hub ADX cluster |
 | Notification connectors (optional) | 0 by default | Outlook and Teams can be added after deployment in the portal; not provisioned by `azd up` because setup requires interactive OAuth |
 
+## Post-deploy manual steps
+
+The following capabilities require portal configuration after `azd up` completes:
+
+1. **Enable Visualization tools** — open the agent in [sre.azure.com](https://sre.azure.com), go to **Capabilities** > **Tools** > **Built-in tools**, check **Visualization**, and save. Required for chart generation in scheduled task reports.
+2. **Add Teams connector** — go to **Builder** > **Connectors**, add **Send notification (Microsoft Teams)**, sign in with OAuth, and paste your channel URL. Required for scheduled task delivery to Teams.
+3. **Add Outlook connector** (optional) — go to **Builder** > **Connectors**, add **Outlook Tools (Office 365 Outlook)**, and sign in. Required for email delivery.
+
 ## Deployment options
 
 ### Recommended: deploy with the packaged script
