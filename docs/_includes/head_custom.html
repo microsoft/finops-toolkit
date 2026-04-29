@@ -28,5 +28,187 @@
         event.target.parentElement.classList.toggle('ftk-active');
       });
     }
+
+    // Power BI Wizard functionality
+    initPowerBIWizard();
   });
+
+  function initPowerBIWizard() {
+    const wizard = document.querySelector('.ftk-wizard');
+    if (!wizard) return;
+
+    const beginnerBtn = wizard.querySelector('.ftk-wizard-beginner');
+    const advancedBtn = wizard.querySelector('.ftk-wizard-advanced');
+    const beginnerContent = wizard.querySelector('.ftk-beginner-mode');
+    const advancedContent = wizard.querySelector('.ftk-advanced-mode');
+    
+    let currentStep = 1;
+    const totalSteps = 4;
+    let selectedPath = '';
+
+    // Mode switching
+    if (beginnerBtn && advancedBtn) {
+      beginnerBtn.addEventListener('click', () => {
+        setMode('beginner');
+      });
+
+      advancedBtn.addEventListener('click', () => {
+        setMode('advanced');
+      });
+    }
+
+    function setMode(mode) {
+      if (mode === 'beginner') {
+        beginnerBtn?.classList.add('btn-primary');
+        beginnerBtn?.classList.remove('btn');
+        advancedBtn?.classList.add('btn');
+        advancedBtn?.classList.remove('btn-primary');
+        beginnerContent.style.display = 'block';
+        advancedContent.style.display = 'none';
+      } else {
+        advancedBtn?.classList.add('btn-primary');
+        advancedBtn?.classList.remove('btn');
+        beginnerBtn?.classList.add('btn');
+        beginnerBtn?.classList.remove('btn-primary');
+        beginnerContent.style.display = 'none';
+        advancedContent.style.display = 'block';
+      }
+    }
+
+    // Step navigation
+    const steps = wizard.querySelectorAll('.ftk-wizard-step');
+    const nextBtns = wizard.querySelectorAll('.ftk-next');
+    const backBtns = wizard.querySelectorAll('.ftk-back');
+    const restartBtn = wizard.querySelector('.ftk-restart');
+
+    // Option selection
+    const options = wizard.querySelectorAll('input[name="use-case"]');
+    options.forEach(option => {
+      option.addEventListener('change', () => {
+        selectedPath = option.value;
+        updateNextButton();
+        showPathContent();
+      });
+    });
+
+    // Progress tracking
+    const progressCheckboxes = wizard.querySelectorAll('.ftk-progress-checkbox');
+    progressCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', updateProgress);
+    });
+
+    function updateProgress() {
+      const checked = wizard.querySelectorAll('.ftk-progress-checkbox:checked').length;
+      const total = progressCheckboxes.length;
+      const percentage = total > 0 ? (checked / total) * 100 : 0;
+      
+      const progressFill = wizard.querySelector('.ftk-progress-fill');
+      if (progressFill) {
+        progressFill.style.width = percentage + '%';
+      }
+    }
+
+    function updateNextButton() {
+      const currentStepEl = wizard.querySelector('.ftk-wizard-step.ftk-active');
+      const nextBtn = currentStepEl?.querySelector('.ftk-next');
+      
+      if (currentStep === 1) {
+        if (nextBtn) {
+          nextBtn.disabled = !selectedPath;
+        }
+      } else {
+        if (nextBtn) {
+          nextBtn.disabled = false;
+        }
+      }
+    }
+
+    function showPathContent() {
+      // Hide all path-specific content
+      wizard.querySelectorAll('[class*="ftk-path-"]').forEach(el => {
+        el.style.display = 'none';
+      });
+
+      // Show content for selected path
+      if (selectedPath) {
+        wizard.querySelectorAll(`.ftk-path-${selectedPath}`).forEach(el => {
+          el.style.display = 'block';
+        });
+      }
+    }
+
+    function goToStep(step) {
+      // Hide all steps
+      steps.forEach(s => s.classList.remove('ftk-active'));
+      
+      // Show target step
+      const targetStep = wizard.querySelector(`.ftk-step-${step}`);
+      if (targetStep) {
+        targetStep.classList.add('ftk-active');
+        currentStep = step;
+        updateStepProgress();
+        updateNextButton();
+        showPathContent();
+      }
+    }
+
+    function updateStepProgress() {
+      const progressFill = wizard.querySelector('.ftk-progress-fill');
+      const currentStepSpan = wizard.querySelector('.current-step');
+      const totalStepsSpan = wizard.querySelector('.total-steps');
+      
+      if (progressFill) {
+        const percentage = (currentStep / totalSteps) * 100;
+        progressFill.style.width = percentage + '%';
+      }
+      
+      if (currentStepSpan) {
+        currentStepSpan.textContent = currentStep;
+      }
+      
+      if (totalStepsSpan) {
+        totalStepsSpan.textContent = totalSteps;
+      }
+    }
+
+    // Navigation event listeners
+    nextBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (currentStep < totalSteps) {
+          goToStep(currentStep + 1);
+        }
+      });
+    });
+
+    backBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (currentStep > 1) {
+          goToStep(currentStep - 1);
+        }
+      });
+    });
+
+    if (restartBtn) {
+      restartBtn.addEventListener('click', () => {
+        currentStep = 1;
+        selectedPath = '';
+        goToStep(1);
+        
+        // Reset form
+        options.forEach(option => {
+          option.checked = false;
+        });
+        
+        progressCheckboxes.forEach(checkbox => {
+          checkbox.checked = false;
+        });
+        
+        updateProgress();
+      });
+    }
+
+    // Initialize
+    updateStepProgress();
+    updateNextButton();
+  }
 </script>
