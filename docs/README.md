@@ -20,7 +20,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 <div id="whats-new" class="ftk-new">
     <h3>What's new in April 2026<span class="ftk-version">v14</span></h3>
     <p>
-        April adds recommendations ingestion and a Copilot Studio agent template for FinOps hubs, a new commitment discount eligibility open dataset, simplified hub deployment UI, workbook feedback and Azure Hybrid Benefit fixes, and PowerShell improvements.
+        April adds recommendations ingestion and a Copilot Studio agent template for FinOps hubs, a new commitment discount eligibility open dataset, simplified hub deployment UI, Azure Optimization Engine pricesheet API upgrade, and minor improvements in Power BI, FinOps workbooks, and the PowerShell module.
     </p>
     <p><a target="_blank" href="https://learn.microsoft.com/cloud-computing/finops/toolkit/changelog">See all changes</a></p>
 </div>

@@ -370,6 +370,7 @@ env/
 
 # AI
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Internal planning docs
 /TODO.md

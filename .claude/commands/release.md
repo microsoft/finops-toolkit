@@ -1,13 +1,13 @@
 ---
 description: Walk through the release checklist interactively
-allowed-tools: Read, Grep, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(git status*), Bash(git branch *), Bash(gh issue view *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*)
+allowed-tools: Read, Grep, Write, Edit, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(git status*), Bash(git diff*), Bash(git log*), Bash(git branch *), Bash(gh issue view *), Bash(gh issue edit *), Bash(gh issue comment *), Bash(gh issue close *), Bash(gh pr view *), Bash(gh pr list *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*")
 ---
 
 # Release
 
 ## Phase 1: Setup
 
-Fetch origin and create a release prep branch from `origin/dev` (e.g., `{username}/v14`). If the branch already exists locally, switch to it and pull.
+Fetch origin and create a release prep branch (`{username}/{versionTag}-prep`, e.g., `flanakin/v14-prep`) from `origin/dev`. If the branch already exists locally, switch to it and pull. Push the release prep branch. DO NOT push to origin/dev directly!
 
 ```bash
 pwsh -Command "./src/scripts/Start-Release.ps1 -OutputFile (Join-Path ([System.IO.Path]::GetTempPath()) 'ftk-release.json')"
@@ -47,11 +47,7 @@ Group items by topic, then present via AskUserQuestion. Use the version tag from
 - **Options:** "Keep in {version} (Recommended)" or "Push to {next version} (Recommended)" (whichever you recommend first), the other option, and "Investigate further".
 - If "Investigate further" is chosen, fetch details via `gh issue view {number}`, provide deeper analysis, and re-present.
 
-**After triage:** Report which items are staying and which are being pushed. Do NOT move milestones — just report for the user to act on.
-
-### Untriaged issues
-
-If `NeedsReview` in the JSON contains any issues, present them for quick triage using the same Round 1/Round 2 pattern. These are issues with the "Needs: Review 👀" label that haven't been triaged yet.
+**After triage:** Report which items are staying, pushed, or skipped. Apply changes via `gh issue edit {number} --milestone {version}` — this works for BOTH issues and PRs. Do NOT use `gh pr edit` (not in allowed-tools). Run one command per item, not chained with `&&`.
 
 ### Build/test results
 
@@ -76,16 +72,90 @@ After applying fixes, show a summary of what was changed so the user can review.
 
 ### What's new blurbs
 
-Find all `<div id="whats-new">` blocks in `/docs/`. For each: if the tool has a section in the changelog, uncomment the block (if needed) and update the month, year, version tag, and paragraph with a 1-2 sentence summary. If the tool has no changelog section, comment out the block.
+Use Grep to find all `<div id="whats-new">` blocks in `/docs/`, then use the Read tool to inspect each match. Do NOT use `sed`, `cat`, `head`, or `tail` — they are not in allowed-tools. For each block: if the tool has a section in the changelog, uncomment the block (if needed) and update the month, year, version tag, and paragraph with a 1-2 sentence summary. If the tool has no changelog section, comment out the block.
 
-Show a summary of all changelog and what's new changes for the user to review, then ask via AskUserQuestion whether to commit and push to the prep branch.
+### FinOps hubs documentation
+
+Review the changelog's FinOps hubs section and update the following files for any applicable changes. Hub schema version changes (e.g., v1_0 → v1_2) are the primary trigger — update the upgrade guide (steps 7 and 8), data model, data processing, and compatibility chart. Also review for other changelog-driven updates like new datasets, renamed columns, or deprecated functions.
+
+- @docs-mslearn/toolkit/hubs/upgrade.md
+- @docs-mslearn/toolkit/hubs/data-model.md
+- @docs-mslearn/toolkit/hubs/data-processing.md
+- @docs-mslearn/toolkit/hubs/compatibility.md
+
+### New tool check
+
+If `NewTools` in the JSON lists any new tools (tool sections in this release's changelog that weren't in the previous release), present via AskUserQuestion:
+
+- **Header:** "New tools"
+- **Question:** "{count} new tool(s) in this release: {names}. These may need marketing pages, MS Learn docs, TOC entries, and an advisory council update. Are all set up?"
+- **Options:** "Yes, all done", "No, help me set them up", "Skip for now"
+
+If the user chooses "No, help me set them up":
+
+1. For each new tool, ask via AskUserQuestion what type it is (new standalone tool, new open data file, new sub-tool like a PBI report or workbook or hub add-on).
+2. Based on the type, check if MS Learn and marketing pages exist. Report what's missing.
+3. Enter plan mode to create missing pages and update TOC/advisory council. Stage these changes for the upcoming Commit and push step (don't commit separately).
+4. After plan mode executes, summarize what was added and say "Review changes and say 'done' when ready to proceed."
+
+If the user chooses "Skip for now", note it in the release readiness summary as an outstanding item so it isn't forgotten.
+
+### Commit and push
+
+Show a summary of all changelog, what's new, hubs docs, and any new tool page changes for the user to review, then ask via AskUserQuestion whether to commit and push to the prep branch. This must happen AFTER the new tool check so any plan-mode-created files land in the same commit.
 
 ### Next actions
 
-After all triage and build/test results are reported, analyze the kept milestone items and suggest concrete next actions:
+After commit and push, analyze the kept milestone items and suggest concrete next actions:
 
 - PRs from others awaiting the user's review
 - The user's PRs that have reviewer feedback to address
 - Issues with no open PRs and no one actively working them
 
 Present as a prioritized list — no AUQ needed, just a summary the user can act on.
+
+---
+
+## Release readiness
+
+Update the release tracking issue checkboxes:
+
+1. Run `gh issue view {number} --json body` and capture the output. Parse the JSON to extract the `body` field, then write it to `/tmp/release-issue-body.md` using the Write tool (not shell redirection).
+2. Read the file with the Read tool. Each `/release`-managed checkbox in the template has an HTML comment label like `<!-- release:core -->`, `<!-- release:finalize -->`, or `<!-- release:package -->`. To mark a step complete, find the line containing the matching label and change its `- [ ]` to `- [x]`. Use the Edit tool to write the updated body back to the file. In Phase 2 Release readiness, mark `release:core` complete.
+3. Run `gh issue edit {number} --body-file /tmp/release-issue-body.md` to push the updates.
+
+Then present a summary and next action via AskUserQuestion:
+
+- **Header:** "Next step"
+- **Question:** Summary of release status: triage results, build/test results, changelog and docs updates, items still outstanding (including any skipped new tool setup). End with "What would you like to do next?"
+- **Options:** "Continue to finalize release", "Work on outstanding items", "Done for now"
+
+If there are outstanding items (build/test failures not resolved, skipped new tool setup, etc.), recommend "Work on outstanding items" or "Done for now" and explain what needs to be completed before finalizing.
+
+---
+
+## Phase 3: Finalize release
+
+This phase ONLY runs if ALL prerequisites are met (build passes, tests pass, changelog reviewed, docs updated) and the user chooses "Continue to finalize release".
+
+### Package release
+
+Run the packaging command:
+
+```bash
+pwsh -Command "./src/scripts/Package-Toolkit.ps1 -Build -CopyFiles"
+```
+
+If it fails, show the error and ask whether to investigate or skip.
+
+### Manual steps reminder
+
+After packaging succeeds, inform the user of remaining manual steps documented in the release checklist issue (include a link):
+
+1. Power BI packaging
+2. Publish release
+3. Publish announcements
+
+### Final issue update
+
+Update the release tracking issue checkboxes for finalize-phase items using the same label-based process as Release readiness. Mark `release:finalize` and `release:package` complete. Then report completion and wish the user well.
