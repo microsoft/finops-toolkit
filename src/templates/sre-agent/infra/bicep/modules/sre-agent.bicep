@@ -70,6 +70,8 @@ resource sreAgent 'Microsoft.App/agents@2025-05-01-preview' = {
     experimentalSettings: {
       EnableV2AgentLoop: true
       EnableWorkspaceTools: true
+      EnableCodeInterpreter: true
+      EnableMemory: true
     }
     actionConfiguration: {
       mode: 'Autonomous'

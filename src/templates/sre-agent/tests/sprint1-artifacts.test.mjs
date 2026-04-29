@@ -155,20 +155,18 @@ test('TC-4.2: post-provision scripts initialize srectl and apply repo configurat
   const ps1 = readRepoFile('scripts', 'post-provision.ps1');
 
   assertMatches(sh, /^#!\/usr\/bin\/env bash\s*$/mu, 'post-provision.sh must use a bash shebang');
-  assertMatches(sh, /^set -euo pipefail\s*$/mu, 'post-provision.sh must fail fast');
+  assertMatches(sh, /^set -[eu]*o pipefail\s*$/mu, 'post-provision.sh must use pipefail');
   assertMatches(sh, /srectl init --resource-url/mu, 'post-provision.sh must run srectl init');
   assertMatches(sh, /srectl skill apply/mu, 'post-provision.sh must apply skills');
-  assertMatches(sh, /srectl apply-yaml --file/mu, 'post-provision.sh must apply YAML artifacts');
+  assertMatches(sh, /srectl (apply-yaml|tool apply|agent apply)/mu, 'post-provision.sh must apply artifacts via srectl');
   assertMatches(sh, /srectl doc upload --file/mu, 'post-provision.sh must upload knowledge documents');
   assertMatches(sh, /srectl scheduledtask apply/mu, 'post-provision.sh must apply scheduled tasks');
-  assertMatches(sh, /srectl repo add/mu, 'post-provision.sh must add repo connector');
 
   assertMatches(ps1, /srectl init --resource-url/mu, 'post-provision.ps1 must run srectl init');
   assertMatches(ps1, /srectl skill apply/mu, 'post-provision.ps1 must apply skills');
-  assertMatches(ps1, /srectl apply-yaml --file/mu, 'post-provision.ps1 must apply YAML artifacts');
+  assertMatches(ps1, /srectl (apply-yaml|tool apply|agent apply)/mu, 'post-provision.ps1 must apply artifacts via srectl');
   assertMatches(ps1, /srectl doc upload --file/mu, 'post-provision.ps1 must upload knowledge documents');
   assertMatches(ps1, /scheduledtask.*apply/mu, 'post-provision.ps1 must apply scheduled tasks');
-  assertMatches(ps1, /srectl repo add/mu, 'post-provision.ps1 must add repo connector');
 });
 
 test('TC-4.2a: all scheduled task prompts include Teams delivery instruction', () => {

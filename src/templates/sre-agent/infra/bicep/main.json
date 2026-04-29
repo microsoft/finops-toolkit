@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.33.27573",
-      "templateHash": "2580778980099700428"
+      "templateHash": "3110630161721403336"
     }
   },
   "parameters": {
@@ -109,7 +109,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "4586100436539615450"
+              "templateHash": "15104250771026719694"
             }
           },
           "parameters": {
@@ -397,7 +397,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.38.33.27573",
-                      "templateHash": "11699306817985479264"
+                      "templateHash": "16920964990300199531"
                     }
                   },
                   "parameters": {
@@ -489,7 +489,9 @@
                         },
                         "experimentalSettings": {
                           "EnableV2AgentLoop": true,
-                          "EnableWorkspaceTools": true
+                          "EnableWorkspaceTools": true,
+                          "EnableCodeInterpreter": true,
+                          "EnableMemory": true
                         },
                         "actionConfiguration": {
                           "mode": "Autonomous",
