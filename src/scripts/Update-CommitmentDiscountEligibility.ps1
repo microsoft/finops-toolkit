@@ -44,14 +44,14 @@ function Get-RetailPricePages
         [scriptblock]$OnItem
     )
 
+    $pageSize = 1000
+    $overlap = 10
     $url = $apiBase
     if ($Filter) { $url += "&`$filter=$Filter" }
     if ($MeterRegion) { $url += "&meterRegion='$MeterRegion'" }
     if ($OrderBy) { $url += "&`$orderby=$OrderBy" }
+    $url += "&`$top=$pageSize"
     Write-Verbose "  API URL: $url"
-
-    $pageSize = 1000
-    $overlap = 10
     $page = 0
     $totalItems = 0
     $driftDetected = 0
@@ -156,15 +156,17 @@ function Get-RetailPricePages
             $prevTail = $items
         }
 
-        # Build next page URL with overlap: back up by $overlap items
+        # Build next page URL with overlap: back up by $overlap items.
+        # Advance by actual returned count (minus overlap) to stay aligned even
+        # if the API returns fewer items than $top requested.
         if ($response.NextPageLink)
         {
-            $skip += $pageSize - $overlap
+            $skip += [Math]::Max(0, $items.Count - $overlap)
             $url = $apiBase
             if ($Filter) { $url += "&`$filter=$Filter" }
             if ($MeterRegion) { $url += "&meterRegion='$MeterRegion'" }
             if ($OrderBy) { $url += "&`$orderby=$OrderBy" }
-            $url += "&`$skip=$skip"
+            $url += "&`$top=$pageSize&`$skip=$skip"
         }
         else
         {
@@ -223,11 +225,12 @@ if (Test-Path $OutputPath)
 Write-Host "Fetching Reservation prices..."
 $riMeters = @{}
 
-Get-RetailPricePages -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -OrderBy 'meterId' -ActivityName 'Fetching Reservation prices' -EstimatedItems ($cachedRi.Count * 2) -OnItem {
+Get-RetailPricePages -Filter "priceType eq 'Reservation'" -MeterRegion 'primary' -OrderBy 'meterId asc, skuId asc' -ActivityName 'Fetching Reservation prices' -EstimatedItems ($cachedRi.Count * 2) -OnItem {
     param($item)
-    if (-not $riMeters.ContainsKey($item.meterId))
+    $key = $item.meterId.ToLowerInvariant()
+    if (-not $riMeters.ContainsKey($key))
     {
-        $riMeters[$item.meterId] = $true
+        $riMeters[$key] = $true
     }
 }
 
@@ -241,11 +244,15 @@ Write-Host "  RI-eligible meters: $($riMeters.Count)"
 Write-Host "Fetching Consumption prices (checking for Savings Plan eligibility)..."
 $spMeters = @{}
 
-Get-RetailPricePages -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -OrderBy 'meterId' -ActivityName 'Fetching Consumption prices' -EstimatedItems ($cachedTotal * 5) -OnItem {
+Get-RetailPricePages -Filter "priceType eq 'Consumption'" -MeterRegion 'primary' -OrderBy 'meterId asc, skuId asc' -ActivityName 'Fetching Consumption prices' -EstimatedItems ($cachedTotal * 5) -OnItem {
     param($item)
-    if ($item.savingsPlan -and $item.savingsPlan.Count -gt 0 -and -not $spMeters.ContainsKey($item.meterId))
+    if ($item.savingsPlan -and $item.savingsPlan.Count -gt 0)
     {
-        $spMeters[$item.meterId] = $true
+        $key = $item.meterId.ToLowerInvariant()
+        if (-not $spMeters.ContainsKey($key))
+        {
+            $spMeters[$key] = $true
+        }
     }
 }
 

@@ -85,7 +85,7 @@ Status icons:
 - [ ] Complete [open PRs](https://github.com/microsoft/finops-toolkit/pulls) that are ready to be resolved.
 - [ ] Review remaining [milestone](https://github.com/microsoft/finops-toolkit/milestones) issues and PRs. Move any stragglers that won't make the release.
 - [ ] Update feature branches and confirm if they're ready for release.
-  - [ ] Confirm there are no pending changes in `dev`: `cd "<root>" && checkout dev && git status`
+  - [ ] Confirm there are no pending changes in `dev`: `cd "<root>" && git checkout dev && git status`
   - [ ] Auto-merge feature branch with `dev`: `<root>/src/scripts/Merge-DevBranch.ps1 *`
   - ❌ Manually update remaining feature branches: `<root>/src/scripts/Merge-DevBranch.ps1 features/<name>`
 - [ ] Build and deploy templates: `<root>/src/scripts/Build-Toolkit.ps1`.

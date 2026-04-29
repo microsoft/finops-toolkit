@@ -1,6 +1,6 @@
 ---
 description: Walk through the release checklist interactively
-allowed-tools: Read, Grep, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(git status*), Bash(git branch *), Bash(gh issue view *), Bash(gh issue edit *), Bash(gh pr view *), Bash(gh pr list *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*)
+allowed-tools: Read, Grep, Write, Edit, Bash(git fetch *), Bash(git checkout *), Bash(git switch *), Bash(git pull *), Bash(git add *), Bash(git commit *), Bash(git push *), Bash(git status*), Bash(git diff*), Bash(git log*), Bash(git branch *), Bash(gh issue view *), Bash(gh issue edit *), Bash(gh issue comment *), Bash(gh issue close *), Bash(gh pr view *), Bash(gh pr list *), Bash(pwsh -Command ./src/scripts/*), Bash(pwsh -Command "./src/scripts/*")
 ---
 
 # Release
