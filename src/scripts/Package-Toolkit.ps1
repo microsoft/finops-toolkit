@@ -95,7 +95,7 @@ function Copy-TemplateFiles()
         $srcPath = $_
         $templateName = $srcPath.Name
         $versionSubFolder = (Join-Path $srcPath $version)
-        
+
         # Check if template should use an unversioned ZIP filename
         $buildConfigPath = Join-Path $PSScriptRoot ".." "templates" $templateName ".build.config"
         $unversionedZip = $false
@@ -111,7 +111,7 @@ function Copy-TemplateFiles()
                 Write-Warning "Failed to read .build.config for $templateName : $_"
             }
         }
-        
+
         $zip = if ($unversionedZip)
         {
             Join-Path (Get-Item $relDir) "$templateName.zip"
@@ -162,7 +162,10 @@ function Copy-TemplateFiles()
                     {
                         throw "Package manifest references source folder '$($_.sourceFolder)' that does not exist: $srcFolder"
                     }
-                    Get-ChildItem "$srcFolder/*" -Include $_.source -Recurse:$_.recurse | ForEach-Object {
+                    $filesToCopy = @(Get-ChildItem "$srcFolder/*" -Include $_.source -Recurse:$_.recurse)
+                    Write-Debug "Found $($filesToCopy.Count) files matching '$($_.source)' in $srcFolder"
+                    $filesToCopy | ForEach-Object {
+                        Write-Debug "Copying file: $($_.Name)"
                         if ($destPath -eq '*')
                         {
                             $normalizedSrc = $srcFolder.Replace('\', '/')
@@ -178,9 +181,18 @@ function Copy-TemplateFiles()
                         }
                     }
                 }
-                $packageManifest.deployment.Directories | ForEach-Object {
-                    & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
-                    Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                if ($packageManifest.deployment.Directories)
+                {
+                    Write-Debug "Processing $($packageManifest.deployment.Directories.Count) directory entries"
+                    $packageManifest.deployment.Directories | ForEach-Object {
+                        Write-Debug "Copying directory: $($_.source) -> $($_.destination)"
+                        & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
+                        Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                    }
+                }
+                else
+                {
+                    Write-Debug "No directory entries in manifest"
                 }
             }
             elseif (Test-Path "$srcPath/azuredeploy.json")
