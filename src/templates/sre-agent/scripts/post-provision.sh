@@ -8,9 +8,29 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SRECTL_SOURCE="https://pkgs.dev.azure.com/msazure/One/_packaging/SREAgentCli/nuget/v3/index.json"
+DRY_RUN=0
 
 log() { printf '[post-provision] %s\n' "$*"; }
 fail() { printf '[post-provision] ERROR: %s\n' "$*" >&2; exit 1; }
+dry_run_log() { printf '[DRY-RUN] %s\n' "$*"; }
+
+run_cmd() {
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    dry_run_log "would run: $*"
+    return 0
+  fi
+
+  "$@"
+}
+
+run_output_cmd() {
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    dry_run_log "would run: $*" >&2
+    return 0
+  fi
+
+  "$@"
+}
 
 # Resolve SRE Agent endpoint from azd outputs or environment
 resolve_endpoint() {
@@ -24,7 +44,7 @@ resolve_endpoint() {
 
 # Ensure srectl is installed
 ensure_srectl() {
-  if command -v srectl >/dev/null 2>&1 && srectl --version >/dev/null 2>&1; then return; fi
+  if command -v srectl >/dev/null 2>&1 && run_cmd srectl --version >/dev/null 2>&1; then return; fi
   command -v dotnet >/dev/null 2>&1 || fail ".NET SDK required for srectl."
   log "Installing srectl..."
   dotnet tool install --global sreagent.cli --add-source "$SRECTL_SOURCE" >/dev/null
@@ -35,6 +55,18 @@ ensure_srectl() {
 apply_agents() {
   local dir="$REPO_ROOT/sre-config/agents"
   [ -d "$dir" ] || return 0
+
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    for f in "$dir"/*.yaml "$dir"/*.yml; do
+      [ -f "$f" ] || continue
+      local name
+      name="$(basename "$f")"
+      name="${name%.yaml}"
+      name="${name%.yml}"
+      dry_run_log "Would apply agent: $name"
+    done
+    return 0
+  fi
 
   # Copy agent YAMLs into srectl workspace
   cp "$dir"/*.yaml "$dir"/*.yml agents/ 2>/dev/null || true
@@ -54,7 +86,7 @@ apply_agents() {
     failed=()
     for name in "${pending[@]}"; do
       log "Applying agent: $name"
-      if srectl agent apply --name "$name" --quiet 2>&1; then
+      if run_cmd srectl agent apply --name "$name" --quiet 2>&1; then
         true
       else
         log "  Deferred: $name (will retry)"
@@ -77,6 +109,16 @@ apply_skills() {
   local skills_dir="$REPO_ROOT/sre-config/skills"
   [ -d "$skills_dir" ] || return 0
 
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    for skill in "$skills_dir"/*/; do
+      [ -d "$skill" ] || continue
+      local name
+      name="$(basename "$skill")"
+      dry_run_log "Would apply skill: $name"
+    done
+    return 0
+  fi
+
   # Copy resolved skills into srectl workspace (dereference symlinks, text only)
   rsync -rL \
     --exclude='docs-mslearn' \
@@ -88,7 +130,7 @@ apply_skills() {
     local name
     name="$(basename "$skill")"
     log "Applying skill: $name"
-    srectl skill apply --name "$name"
+    run_cmd srectl skill apply --name "$name"
   done
 }
 
@@ -97,6 +139,18 @@ apply_skills() {
 apply_tools() {
   local dir="$REPO_ROOT/tools"
   [ -d "$dir" ] || return 0
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    for f in "$dir"/*.yaml "$dir"/*.yml; do
+      [ -f "$f" ] || continue
+      local name
+      name="$(basename "$f")"
+      name="${name%.yaml}"
+      name="${name%.yml}"
+      dry_run_log "Would apply tool: $name"
+    done
+    return 0
+  fi
+
   cp "$dir"/*.yaml "$dir"/*.yml tools/ 2>/dev/null || true
   for f in "$dir"/*.yaml "$dir"/*.yml; do
     [ -f "$f" ] || continue
@@ -104,7 +158,7 @@ apply_tools() {
     name="$(basename "$f" .yaml)"
     name="$(echo "$name" | sed 's/\.yml$//')"
     log "Applying tool: $name"
-    srectl tool apply --name "$name" --quiet 2>&1 || log "WARNING: Failed to apply tool $name"
+    run_cmd srectl tool apply --name "$name" --quiet 2>&1 || log "WARNING: Failed to apply tool $name"
   done
 }
 
@@ -112,8 +166,13 @@ apply_tools() {
 apply_knowledge() {
   local dir="$REPO_ROOT/sre-config/knowledge"
   [ -d "$dir" ] || return 0
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    dry_run_log "Would upload knowledge from sre-config/knowledge"
+    return 0
+  fi
+
   log "Uploading knowledge documents from sre-config/knowledge..."
-  srectl doc upload --file "$dir"
+  run_cmd srectl doc upload --file "$dir"
 }
 
 # Apply scheduled tasks using srectl scheduledtask apply (idempotent upsert)
@@ -122,8 +181,12 @@ apply_scheduled_tasks() {
   [ -d "$tasks_dir" ] || return 0
   for f in "$tasks_dir"/*.yaml "$tasks_dir"/*.yml; do
     [ -f "$f" ] || continue
+    if [ "${DRY_RUN:-0}" = "1" ]; then
+      dry_run_log "Would apply scheduled task: $(basename "$f")"
+      continue
+    fi
     log "Applying scheduled task: $(basename "$f")"
-    srectl scheduledtask apply --file "$f" --quiet 2>&1 || log "WARNING: Failed to apply $(basename "$f")"
+    run_cmd srectl scheduledtask apply --file "$f" --quiet 2>&1 || log "WARNING: Failed to apply $(basename "$f")"
   done
 }
 
@@ -139,7 +202,7 @@ apply_scheduled_tasks() {
 # management group level so the agent can map zones across all child subscriptions.
 ensure_custom_permissions() {
   local sub_id rg_name uami_principal_id role_name role_exists
-  sub_id="${AZURE_SUBSCRIPTION_ID:-$(az account show --query id -o tsv 2>/dev/null)}"
+  sub_id="${AZURE_SUBSCRIPTION_ID:-$(run_output_cmd az account show --query id -o tsv 2>/dev/null)}"
   rg_name="${AZURE_RESOURCE_GROUP:-$(azd env get-value AZURE_RESOURCE_GROUP --no-prompt 2>/dev/null || true)}"
 
   if [ -z "$sub_id" ] || [ -z "$rg_name" ]; then
@@ -148,7 +211,7 @@ ensure_custom_permissions() {
   fi
 
   # Find the UAMI principal ID from the resource group
-  uami_principal_id="$(az identity list --resource-group "$rg_name" --query '[0].principalId' -o tsv 2>/dev/null || true)"
+  uami_principal_id="$(run_output_cmd az identity list --resource-group "$rg_name" --query '[0].principalId' -o tsv 2>/dev/null || true)"
   if [ -z "$uami_principal_id" ]; then
     log "WARNING: No managed identity found in $rg_name — skipping custom permissions."
     return 0
@@ -158,10 +221,10 @@ ensure_custom_permissions() {
   scope="/subscriptions/${sub_id}"
 
   # Create custom role (idempotent — update if exists)
-  role_exists="$(az role definition list --name "$role_name" --scope "$scope" --query 'length(@)' -o tsv 2>/dev/null || echo 0)"
+  role_exists="$(run_output_cmd az role definition list --name "$role_name" --scope "$scope" --query 'length(@)' -o tsv 2>/dev/null || echo 0)"
   if [ "$role_exists" = "0" ]; then
     log "Creating custom role: $role_name"
-    az role definition create --role-definition "{
+    run_cmd az role definition create --role-definition "{
       \"Name\": \"${role_name}\",
       \"Description\": \"Allows checking availability zone peer mappings across subscriptions. Used by the zone-mapping Python tool.\",
       \"Actions\": [\"Microsoft.Resources/checkZonePeers/action\"],
@@ -173,7 +236,7 @@ ensure_custom_permissions() {
 
   # Assign the custom role to the UAMI (idempotent — az handles existing assignments)
   log "Assigning $role_name to UAMI ($uami_principal_id)"
-  az role assignment create \
+  run_cmd az role assignment create \
     --assignee-object-id "$uami_principal_id" \
     --assignee-principal-type ServicePrincipal \
     --role "$role_name" \
@@ -182,16 +245,40 @@ ensure_custom_permissions() {
 }
 
 main() {
-  local endpoint
-  endpoint="$(resolve_endpoint)"
+  for arg in "$@"; do
+    case "$arg" in
+      --dry-run)
+        DRY_RUN=1
+        ;;
+      *)
+        fail "Unknown argument: $arg"
+        ;;
+    esac
+  done
 
-  ensure_srectl
+  local endpoint
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    endpoint="${SRE_AGENT_ENDPOINT:-https://dry-run.invalid}"
+    dry_run_log "Dry-run mode enabled; skipping endpoint validation."
+  else
+    endpoint="$(resolve_endpoint)"
+  fi
+
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    dry_run_log "Skipping srectl installation check."
+  else
+    ensure_srectl
+  fi
 
   # Grant the UAMI any permissions that require custom role definitions.
   # This is done in post-provision rather than Bicep because custom role
   # definitions require management-group-level assignableScopes for multi-sub
   # capacity management, which Bicep subscription-scoped deployments cannot express.
-  ensure_custom_permissions
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    dry_run_log "Skipping custom Azure permission checks."
+  else
+    ensure_custom_permissions
+  fi
 
   # Work from a temp directory so srectl init doesn't pollute the repo
   local workdir
@@ -199,8 +286,12 @@ main() {
   trap "rm -rf '$workdir'" EXIT
   cd "$workdir"
 
-  log "Initializing srectl..."
-  srectl init --resource-url "$endpoint"
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    dry_run_log "Skipping srectl init for endpoint: $endpoint"
+  else
+    log "Initializing srectl..."
+    run_cmd srectl init --resource-url "$endpoint"
+  fi
 
   apply_skills
   apply_agents
