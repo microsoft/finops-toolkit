@@ -140,8 +140,6 @@
           href: toolkit/hubs/configure-ai.md
         - name: Configure AI in Copilot Studio
           href: toolkit/hubs/configure-ai-copilot-studio.md
-        - name: Configure an SRE agent
-          href: toolkit/hubs/configure-sre.md
         - name: Configure remote hubs
           href: toolkit/hubs/configure-remote-hubs.md
         - name: Savings calculations
@@ -156,6 +154,26 @@
           href: toolkit/hubs/upgrade.md
         - name: Compatibility guide
           href: toolkit/hubs/compatibility.md
+    - name: FinOps SRE Agent
+      items:
+        - name: Overview
+          href: toolkit/sre-agent/overview.md
+        - name: Deploy
+          href: toolkit/sre-agent/deploy.md
+        - name: Agents and skills
+          href: toolkit/sre-agent/agents.md
+        - name: Tools
+          href: toolkit/sre-agent/tools.md
+        - name: Scheduled tasks
+          href: toolkit/sre-agent/scheduled-tasks.md
+        - name: Knowledge and memory
+          href: toolkit/sre-agent/knowledge.md
+        - name: Security and permissions
+          href: toolkit/sre-agent/security.md
+        - name: Troubleshooting
+          href: toolkit/sre-agent/troubleshooting.md
+        - name: Template reference
+          href: toolkit/sre-agent/template.md
     - name: Power BI
       items:
         - name: Overview
