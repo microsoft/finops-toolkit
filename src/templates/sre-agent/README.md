@@ -15,6 +15,8 @@ Deploy and configure an Azure SRE Agent with FinOps and capacity management capa
 | ADX role (optional) | 1 | `AllDatabasesViewer` when ADX params provided |
 | Subagents | 5 | `azure-capacity-manager`, `chief-financial-officer`, `finops-practitioner`, `ftk-database-query`, `ftk-hubs-agent` |
 | Skills | 3 | `azure-capacity-management`, `azure-cost-management`, `finops-toolkit` |
+| Tools | 33 | 21 Kusto (KQL queries against FinOps Hub) + 12 Python (ARM REST API via UAMI) |
+| Scheduled tasks | 18 | 9 core (daily/weekly/monthly/quarterly reporting) + 9 capacity/governance audits |
 | Connector | 1 | Kusto MCP connector to FinOps Hub ADX cluster |
 | Notification connectors (optional) | 0 by default | Outlook and Teams can be added after deployment in the portal; not provisioned by `azd up` because setup requires interactive OAuth |
 

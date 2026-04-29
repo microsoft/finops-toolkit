@@ -1,0 +1,77 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: StoragePaasGrowthForecast
+spec:
+  name: StoragePaasGrowthForecast
+  description: Monthly storage and PaaS quota growth forecast across active subscriptions
+  cron_expression: 0 8 1 * *
+  agent_mode: autonomous
+  agent: azure-capacity-manager
+  agent_prompt: '# Storage and PaaS Growth Forecast
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to prior non-compute quota notes, known service limit assumptions, and subscription scope guidance.
+
+
+    Load your relevant capacity management skill. Note the `client_id` for Python tool authentication.
+
+
+    ## Python tools available
+
+
+    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+
+
+    - `resource-graph-query`: Run with `query` and optional `subscription_ids` to inventory storage accounts, network resources, App Service plans, SQL servers, Service Bus namespaces, Key Vaults, and other PaaS resources.
+
+    - `non-compute-quotas`: Run with `subscription_id` and optional `location` to retrieve storage, network, and estimated PaaS quota utilization.
+
+
+    ## 1. Establish scope
+
+
+    Use `resource-graph-query` to list active subscriptions and count current storage and PaaS resources by type, region, and subscription. Identify resource types with meaningful month-over-month growth or high operational importance.
+
+
+    ## 2. Collect current non-compute quotas
+
+
+    For each active subscription, run `non-compute-quotas` with `subscription_id`, optional `location`, and `client_id`. Capture API-reported limits separately from estimated limits and preserve limit source notes.
+
+
+    ## 3. Forecast growth
+
+
+    Compare current resource counts and quota utilization against prior #remember findings or prior monthly reports. Forecast expected utilization for the next 30, 60, and 90 days using observed growth where prior data exists.
+
+
+    ## 4. Flag subscriptions approaching limits
+
+
+    Flag subscriptions where storage, network, or PaaS quota utilization is at or above 80%, where estimated limits are uncertain, or where growth trends indicate a likely limit breach before the next monthly cycle.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, a quota risk table by subscription and service, a growth forecast table, explicit API-reported versus estimated limit notes, and recommended owner actions.
+
+
+    ## Persistence
+
+
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit to git. Never save financial figures, cost amounts, or customer financial data to the knowledge base. Financial detail goes to Teams only.
+
+
+    ## Visualizations
+
+
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a 90-day forecast chart and a quota utilization comparison chart where the data supports it. Embed chart images inline in the Teams message alongside the text tables.'
+

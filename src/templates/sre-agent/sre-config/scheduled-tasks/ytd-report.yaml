@@ -1,13 +1,14 @@
-api_version: azuresre.ai/v2
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: YTD
 spec:
+  name: YTD
   description: Fiscal year-to-date analysis with forecast through end of fiscal year
-  cronExpression: 0 9 1 * *
-  agentMode: autonomous
+  cron_expression: 0 9 1 * *
+  agent_mode: autonomous
   agent: chief-financial-officer
-  agentPrompt: '# Fiscal Year-to-Date Analysis
+  agent_prompt: '# Fiscal Year-to-Date Analysis
 
 
     ## Phase 0: Preparation
@@ -20,6 +21,13 @@ spec:
 
 
     Our fiscal year runs July through June. Perform a comprehensive year-to-date analysis with forecast through June 30.
+
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
+    - `resource-graph-query`: Run with query and subscriptions to execute Azure Resource Graph KQL
 
 
     ## Phase 1: Data Collection
@@ -75,7 +83,7 @@ spec:
 
     ### 1.10 Reservation Recommendations
 
-    Run `reservation-recommendation-breakdown`. Identify commitments that could save money before fiscal year end.
+    Run `benefit-recommendations` and `reservation-recommendation-breakdown`. Identify commitments that could save money before fiscal year end.
 
 
     ### 1.11 Regional Analysis
@@ -85,7 +93,7 @@ spec:
 
     ### 1.12 Resource Type Efficiency
 
-    Run `top-resource-types-by-cost` with N=20, fiscal-year date range. Track resource type evolution.
+    Run `resource-graph-query` for current Azure resource inventory, then run `top-resource-types-by-cost` with N=20, fiscal-year date range. Track resource type evolution.
 
 
     ### 1.13 Price Benchmarking

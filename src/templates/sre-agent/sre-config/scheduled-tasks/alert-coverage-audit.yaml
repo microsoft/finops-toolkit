@@ -1,0 +1,75 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: AlertCoverageAudit
+spec:
+  name: AlertCoverageAudit
+  description: Monthly audit of cost anomaly alert coverage across active subscriptions
+  cron_expression: 0 8 16 * *
+  agent_mode: autonomous
+  agent: finops-practitioner
+  agent_prompt: '# Alert Coverage Audit
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to anomaly detection standards, monitoring ownership notes, and prior alert coverage gaps.
+
+
+    Load your relevant FinOps practitioner skill. Note the `client_id` for Python tool authentication.
+
+
+    ## Python tools available
+
+
+    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+
+
+    - `resource-graph-query`: Run with `query`, optional `subscription_ids`, and `client_id` to find active subscriptions, cost anomaly alerts, action groups, alert rules, and monitoring metadata.
+
+
+    ## 1. Establish subscription inventory
+
+
+    Run `resource-graph-query` to identify active subscriptions and ownership metadata. Exclude subscriptions explicitly documented as out of scope.
+
+
+    ## 2. Find anomaly alert coverage
+
+
+    Run `resource-graph-query` to detect cost anomaly alerts, scheduled query rules, metric alerts, action groups, and any documented alerting resources that implement cost anomaly detection.
+
+
+    ## 3. Identify missing anomaly detection
+
+
+    Compare active subscriptions with detected anomaly alert coverage. Flag subscriptions missing anomaly detection, subscriptions with disabled or incomplete alerts, and subscriptions missing notification routing.
+
+
+    ## 4. Recommend remediation
+
+
+    Recommend alert deployment, action group updates, ownership remediation, or follow-up validation. Prioritize production and business-critical subscriptions.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, an alert coverage table, a missing anomaly detection table, disabled or incomplete alert findings, and recommended remediation actions.
+
+
+    ## Persistence
+
+
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit to git. Never save financial figures, cost amounts, alert threshold amounts, or customer financial data to the knowledge base. Financial detail goes to Teams only.
+
+
+    ## Visualizations
+
+
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum an anomaly alert coverage chart and a missing alert count by owner or environment chart where the data supports it. Embed chart images inline in the Teams message alongside the text tables.'
+

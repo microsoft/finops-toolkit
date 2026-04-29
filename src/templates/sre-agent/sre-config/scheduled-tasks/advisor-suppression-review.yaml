@@ -1,0 +1,75 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: AdvisorSuppressionReview
+spec:
+  name: AdvisorSuppressionReview
+  description: Monthly review of active Advisor recommendation suppressions for stale or expired decisions
+  cron_expression: 0 9 1 * *
+  agent_mode: autonomous
+  agent: finops-practitioner
+  agent_prompt: '# Advisor Suppression Review
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to Advisor suppression governance, prior suppression decisions, and exception review cadence.
+
+
+    Load your relevant FinOps practitioner skill. Note the `client_id` for Python tool authentication.
+
+
+    ## Python tools available
+
+
+    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+
+
+    - `resource-graph-query`: Run with `query`, optional `subscription_ids`, and `client_id` to find active Advisor recommendation suppressions, suppression metadata, owners, expiration dates, and related resources.
+
+
+    ## 1. Establish suppression inventory
+
+
+    Run `resource-graph-query` to find active Advisor recommendation suppressions across in-scope subscriptions. Capture suppression name, subscription, resource, recommendation category, owner metadata, creation date, expiration date, and justification where available.
+
+
+    ## 2. Classify suppression status
+
+
+    Classify suppressions as active and current, expired, stale without expiration, missing owner, missing justification, or no longer linked to an active recommendation or resource.
+
+
+    ## 3. Review stale or expired suppressions
+
+
+    Flag suppressions that should be reconsidered because they are expired, older than the governance review window, missing justification, suppressing high-value recommendations, or attached to resources that changed materially.
+
+
+    ## 4. Recommend actions
+
+
+    Recommend renew, remove, update justification, assign owner, or validate recommendation state for each flagged suppression. Prioritize suppressions that hide optimization, reliability, or security recommendations.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, an active suppression table, a stale or expired suppression table, missing metadata findings, and recommended owner actions.
+
+
+    ## Persistence
+
+
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit to git. Never save financial figures, cost amounts, recommendation savings amounts, or customer financial data to the knowledge base. Financial detail goes to Teams only.
+
+
+    ## Visualizations
+
+
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a suppression status chart and a stale suppression age chart where the data supports it. Embed chart images inline in the Teams message alongside the text tables.'
+

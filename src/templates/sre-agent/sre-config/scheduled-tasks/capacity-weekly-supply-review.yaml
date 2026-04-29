@@ -1,13 +1,14 @@
-api_version: azuresre.ai/v2
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CapacityWeeklySupplyReview
 spec:
-  description: Weekly capacity supply chain review — quota headroom, CRG cost optimization, zone mapping, benefit recommendations
-  cronExpression: 0 8 * * 1
-  agentMode: autonomous
+  name: CapacityWeeklySupplyReview
+  description: Weekly capacity supply chain review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations
+  cron_expression: 0 8 * * 1
+  agent_mode: autonomous
   agent: azure-capacity-manager
-  agentPrompt: '# Weekly Capacity Supply Chain Review
+  agent_prompt: '# Weekly Capacity Supply Chain Review
 
 
     ## Phase 0: Preparation
@@ -21,11 +22,21 @@ spec:
 
     Weekly review covering Forecast, Procure, and Allocate steps of the capacity supply chain.
 
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
+    - `non-compute-quotas`: Run with subscription_id and location to get Storage and Network quota usage
+    - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
+    - `sku-availability`: Run with subscription_id and location to get Compute SKU availability and restrictions
+    - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
+
 
     ## 1. Quota Headroom Analysis
 
 
-    Run comprehensive quota analysis across all subscriptions:
+    Run comprehensive quota analysis across all subscriptions using `vm-quota-usage` and `non-compute-quotas`:
 
     - Aggregate quota usage by VM family across subscriptions
 
@@ -44,7 +55,7 @@ spec:
     ## 2. CRG Cost-Waste Audit
 
 
-    For all capacity reservations:
+    Use `capacity-reservation-groups` for all capacity reservations:
 
     - Calculate weekly cost of unused reserved capacity (reserved minus allocated × pay-as-you-go rate)
 
@@ -61,23 +72,23 @@ spec:
     Reference: `references/docs/operations/capacity-reservations/README.md`
 
 
-    ## 3. Zone Mapping Validation
+    ## 3. SKU and Zone Availability Validation
 
 
-    Check logical-to-physical zone mapping for shared CRGs:
+    Use `sku-availability` to validate SKU and zone availability for shared CRGs and upcoming deployments:
 
-    - Verify that cross-subscription CRG sharing targets the correct physical zones
+    - Verify that planned SKUs are available in the required locations and zones
 
-    - Flag any zone mapping drift since last check
+    - Flag any SKU restrictions that could block planned scaling
 
 
-    Reference: Skill section on zone alignment and `Get-AzAvailabilityZoneMapping.ps1`
+    Reference: Skill section on zone alignment and `references/docs/operations/capacity-planning/README.md`
 
 
     ## 4. Benefit Recommendations
 
 
-    Run `reservation-recommendation-breakdown` Kusto tool to get current RI/SP recommendations.
+    Run `benefit-recommendations` to get current RI/SP recommendations. Keep using `reservation-recommendation-breakdown` Kusto tool where Hub cost context is available.
 
     Cross-reference with capacity reservation strategy:
 
@@ -89,7 +100,7 @@ spec:
     ## 5. Region and SKU Availability
 
 
-    Check for any new region access or zonal enablement needs:
+    Use `sku-availability` to check for any new region access or zonal enablement needs:
 
     - Upcoming deployments that need new regions?
 
@@ -125,4 +136,4 @@ spec:
     **Teams (capacity results only):** Post the final weekly capacity briefing to our Teams channel. Include the quota headroom scorecard, CRG waste summary, benefit recommendations, and procurement action items. Do not post intermediate results — only the completed briefing.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — quota API failures, zone mapping discoveries, CRG query patterns, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — quota API failures, SKU availability discoveries, CRG query patterns, Python tool workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

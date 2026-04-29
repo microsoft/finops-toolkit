@@ -1,13 +1,14 @@
-api_version: azuresre.ai/v2
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CapacityQuarterlyStrategy
 spec:
+  name: CapacityQuarterlyStrategy
   description: Quarterly capacity strategy review — supply chain maturity, commitment alignment, architecture evolution
-  cronExpression: 0 9 1 1,4,7,10 *
-  agentMode: autonomous
+  cron_expression: 0 9 1 1,4,7,10 *
+  agent_mode: autonomous
   agent: azure-capacity-manager
-  agentPrompt: '# Quarterly Capacity Strategy Review
+  agent_prompt: '# Quarterly Capacity Strategy Review
 
 
     ## Phase 0: Preparation
@@ -20,6 +21,14 @@ spec:
 
 
     Quarterly strategic review bridging capacity management with FinOps rate optimization.
+
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
+    - `resource-graph-query`: Run with query and subscriptions to execute Azure Resource Graph KQL
+    - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
 
 
     ## 1. Supply Chain Maturity Assessment
@@ -47,7 +56,7 @@ spec:
     ## 2. Commitment Alignment
 
 
-    Run `reservation-recommendation-breakdown`, `commitment-discount-utilization`, and `savings-summary-report` Kusto tools with quarterly scope.
+    Run `benefit-recommendations`, `reservation-recommendation-breakdown`, `commitment-discount-utilization`, and `savings-summary-report` Kusto tools with quarterly scope.
 
 
     Align capacity reservations with commitment purchases:
@@ -67,7 +76,7 @@ spec:
     ## 3. Architecture Review
 
 
-    Review deployment patterns:
+    Review deployment patterns using `resource-graph-query` for resource inventory and `vm-quota-usage` for multi-subscription quota distribution:
 
     - Stamp-based isolation health — any stamps at capacity?
 
@@ -84,7 +93,7 @@ spec:
     ## 4. Non-Compute Quotas
 
 
-    Review non-compute service quotas:
+    Review non-compute service quotas from available Hub data and resource inventory:
 
     - Storage account limits
 

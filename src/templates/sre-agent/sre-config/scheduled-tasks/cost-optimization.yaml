@@ -1,13 +1,14 @@
-api_version: azuresre.ai/v2
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CostOptimization
 spec:
+  name: CostOptimization
   description: Comprehensive cost optimization report with orphaned resources, rightsizing, and commitment analysis
-  cronExpression: 0 8 * * 1
-  agentMode: autonomous
+  cron_expression: 0 8 * * 1
+  agent_mode: autonomous
   agent: finops-practitioner
-  agentPrompt: '# Cost optimization report
+  agent_prompt: '# Cost optimization report
 
 
     ## Phase 0: Preparation
@@ -18,13 +19,21 @@ spec:
 
     Generate a comprehensive cost optimization report for the current Azure environment. Works with or without FinOps hubs.
 
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `resource-graph-query`: Run with query and subscriptions to execute Azure Resource Graph KQL for orphaned resource detection
+    - `non-compute-quotas`: Run with subscription_id and location to get Storage and Network quota usage
+    - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
+
 
     ## Phase 1: Discovery
 
 
-    1. Determine scope: Ask the user for subscription(s) or management group, or use the current `az account show` context.
+    1. Determine scope: Ask the user for subscription(s) or management group, or use the current authenticated context.
 
-    2. Verify authentication: `az account show` — confirm logged in and correct tenant.
+    2. Verify authentication: confirm the SRE Agent has a `client_id` available for UAMI authentication and pass it to each Python tool.
 
     3. Check permissions: Reader role is sufficient for all detection queries. Note if elevated permissions are available.
 
@@ -43,7 +52,7 @@ spec:
     Detect unused resources generating waste with zero workload value.
 
 
-    Use the queries from `references/azure-orphaned-resources.md` to scan for:
+    Use `resource-graph-query` with the queries from `references/azure-orphaned-resources.md` to scan for:
 
     - Unattached managed disks
 
@@ -68,17 +77,10 @@ spec:
     ### 2b: Advisor cost recommendations
 
 
-    Query Azure Advisor for all cost recommendations.
+    Query Azure Advisor for all cost recommendations. Use `resource-graph-query` for any Advisor recommendation Resource Graph queries in the references.
 
 
     Use `references/azure-advisor.md` for query patterns:
-
-
-    ```bash
-
-    az advisor recommendation list --category Cost --output json
-
-    ```
 
 
     Categorize recommendations by type: right-size VMs, shutdown idle VMs, reserved instances, delete unused disks, and other.
@@ -90,7 +92,7 @@ spec:
     ### 2c: Commitment discount status
 
 
-    Analyze current commitment discount coverage and opportunities.
+    Analyze current commitment discount coverage and opportunities. Use `benefit-recommendations` for new reservation and savings plan purchase recommendations.
 
 
     Use `references/azure-savings-plans.md` and `references/azure-reservations.md` for:
@@ -179,6 +181,8 @@ spec:
 
 
     ### 3c: Categorize by effort and risk
+
+    Before categorizing, use `non-compute-quotas` to identify Storage and Network quota pressure that may affect optimization feasibility.
 
 
     Organize all findings into four categories:

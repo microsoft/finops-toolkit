@@ -1,13 +1,14 @@
-api_version: azuresre.ai/v2
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: MOM
 spec:
+  name: MOM
   description: Autonomous month-over-month cost analysis with all 17 Kusto tools
-  cronExpression: 15 17 * * *
-  agentMode: autonomous
+  cron_expression: 15 17 * * *
+  agent_mode: autonomous
   agent: finops-practitioner
-  agentPrompt: '# Month-Over-Month Cost Analysis
+  agent_prompt: '# Month-Over-Month Cost Analysis
 
 
     ## Phase 0: Preparation
@@ -21,6 +22,13 @@ spec:
 
     Perform a comprehensive autonomous analysis for the last fiscal month and a forecast for the next fiscal month. Each run builds on previous runs — prior research, notes, and results carry forward.
 
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `data-freshness-check`: Run with cluster_uri and database to check Hub data staleness
+    - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
+
 
     ## Phase 1: Data Collection
 
@@ -30,7 +38,7 @@ spec:
 
     ### 1.1 Verify Connectivity
 
-    Run `costs-enriched-base` with startDate=startofmonth(ago(1d)) and endDate=startofmonth(now()) to verify data freshness. Confirm data is less than 24 hours old before proceeding.
+    Run `data-freshness-check` first, then run `costs-enriched-base` with startDate=startofmonth(ago(1d)) and endDate=startofmonth(now()) to verify data freshness. Confirm data is less than 24 hours old before proceeding.
 
 
     ### 1.2 Fiscal Trends
@@ -84,6 +92,8 @@ spec:
     ### 1.11 Resource Types
 
     Run `top-resource-types-by-cost` with N=20. Identify legacy or inefficient resource types.
+
+    Run `vm-quota-usage` for subscriptions and locations with significant compute cost to identify VM family quota risks that could affect optimization or forecast assumptions.
 
 
     ### 1.12 Tag Coverage

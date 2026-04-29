@@ -1,13 +1,14 @@
-api_version: azuresre.ai/v2
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: AIWorkloadCostAnalysis
 spec:
+  name: AIWorkloadCostAnalysis
   description: Monthly AI workload cost analysis — token economics, model efficiency, and cost allocation for Azure OpenAI
-  cronExpression: 0 10 1 * *
-  agentMode: autonomous
+  cron_expression: 0 10 1 * *
+  agent_mode: autonomous
   agent: chief-financial-officer
-  agentPrompt: '# AI Workload Cost Analysis
+  agent_prompt: '# AI Workload Cost Analysis
 
 
     ## Phase 0: Preparation
@@ -21,6 +22,13 @@ spec:
 
     Azure OpenAI charges based on token usage — a fundamentally different cost model from traditional compute. This analysis tracks token economics, model efficiency, and AI cost allocation aligned with
     the FinOps Foundation AI Working Group guidance and FOCUS specification.
+
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `resource-graph-query`: Run with query and subscriptions to execute Azure Resource Graph KQL for AI resource discovery
+    - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds for GPU capacity
 
 
     ## FOCUS Alignment
@@ -81,7 +89,7 @@ spec:
 
     ### 1.4 Cost Allocation
 
-    Run `ai-cost-by-application` with the same date range. Break down by:
+    Run `resource-graph-query` to discover Azure OpenAI, AI Foundry, Machine Learning, and GPU compute resources, then run `ai-cost-by-application` with the same date range. Break down by:
 
     - Application tag — which apps consume the most tokens?
 
@@ -137,6 +145,8 @@ spec:
     ### 3.4 Commitment Coverage
 
     Check if Azure OpenAI Provisioned Throughput Units (PTUs) would be cheaper than pay-as-you-go for high-volume workloads.
+
+    Use `vm-quota-usage` in GPU-capable regions to identify GPU quota constraints for AI workloads that rely on VM-hosted inference or training.
 
 
     ## Phase 4: Report

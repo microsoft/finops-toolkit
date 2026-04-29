@@ -1,13 +1,14 @@
-api_version: azuresre.ai/v2
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CapacityMonthlyPlanning
 spec:
+  name: CapacityMonthlyPlanning
   description: Monthly capacity planning cycle — forecast demand, procurement pipeline, governance review
-  cronExpression: 0 9 1 * *
-  agentMode: autonomous
+  cron_expression: 0 9 1 * *
+  agent_mode: autonomous
   agent: azure-capacity-manager
-  agentPrompt: '# Monthly Capacity Planning Cycle
+  agent_prompt: '# Monthly Capacity Planning Cycle
 
 
     ## Phase 0: Preparation
@@ -20,6 +21,15 @@ spec:
 
 
     Monthly planning covers all four supply chain steps: Forecast → Procure → Allocate → Monitor.
+
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
+    - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
+    - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
+    - `resource-graph-query`: Run with query and subscriptions to execute Azure Resource Graph KQL
 
 
     ## 1. Demand Forecast
@@ -49,7 +59,7 @@ spec:
     ## 2. Procurement Pipeline
 
 
-    Based on the demand forecast, build a procurement pipeline:
+    Based on the demand forecast, use `vm-quota-usage` and build a procurement pipeline:
 
     - Quota increases needed (by subscription, region, family)
 
@@ -68,7 +78,7 @@ spec:
     ## 3. Allocation Review
 
 
-    Review current CRG portfolio:
+    Use `capacity-reservation-groups` to review current CRG portfolio:
 
     - Utilization trends over the past month (from daily checks)
 
@@ -87,7 +97,7 @@ spec:
     ## 4. Cost Impact
 
 
-    Run `commitment-discount-utilization` and `savings-summary-report` Kusto tools.
+    Run `benefit-recommendations`, `commitment-discount-utilization`, and `savings-summary-report` Kusto tools.
 
     Calculate:
 
@@ -103,7 +113,7 @@ spec:
     ## 5. Governance Review
 
 
-    Check adherence to the governance program:
+    Check adherence to the governance program. Use `resource-graph-query` for subscription, alert, budget, and governance inventory where ARM resource data is needed:
 
     - Are all subscriptions in quota groups?
 

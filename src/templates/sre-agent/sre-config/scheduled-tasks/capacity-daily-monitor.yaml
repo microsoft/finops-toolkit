@@ -1,13 +1,14 @@
-api_version: azuresre.ai/v2
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CapacityDailyMonitor
 spec:
+  name: CapacityDailyMonitor
   description: Daily capacity supply chain health check — quota usage, CRG utilization, zone capacity
-  cronExpression: 30 6 * * *
-  agentMode: autonomous
+  cron_expression: 30 6 * * *
+  agent_mode: autonomous
   agent: azure-capacity-manager
-  agentPrompt: '# Daily Capacity Supply Chain Monitor
+  agent_prompt: '# Daily Capacity Supply Chain Monitor
 
 
     ## Phase 0: Preparation
@@ -21,11 +22,20 @@ spec:
 
     The capacity supply chain has four steps: Forecast → Procure → Allocate → Monitor. This daily check covers the Monitor step — detecting issues before they block deployments.
 
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
+    - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
+    - `data-freshness-check`: Run with cluster_uri and database to check Hub data staleness
+    - `non-compute-quotas`: Run with subscription_id and location to get Storage and Network quota usage
+
 
     ## 1. Quota Health
 
 
-    Use `az quota usage list` against each active subscription and region to check:
+    Use `vm-quota-usage` against each active subscription and region to check:
 
     - VM family quota usage vs limits
 
@@ -35,6 +45,8 @@ spec:
 
     - Check quota groups if configured — report group-level headroom
 
+    Use `non-compute-quotas` for Storage and Network quota usage so non-compute limits are included in the daily capacity status.
+
 
     Reference: `references/docs/operations/quota/README.md`
 
@@ -42,7 +54,7 @@ spec:
     ## 2. Capacity Reservation Utilization
 
 
-    For each active CRG:
+    Use `capacity-reservation-groups` for each active CRG:
 
     - Check reserved vs allocated VM count
 
@@ -82,6 +94,8 @@ spec:
 
     - Cost anomaly alerts
 
+    Run `data-freshness-check` to verify Hub data health before trusting alert and cost context.
+
 
     Reference: `references/docs/operations/monitoring-alerting/README.md`
 
@@ -110,4 +124,4 @@ spec:
     **Teams (status results only):** Post the final daily capacity health check to our Teams channel. Include the overall status (🔴🟡🟢), any critical or warning items, and recommended actions. Do not post intermediate results — only the completed summary.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — CLI command failures, quota API workarounds, CRG query patterns, zone mapping discoveries. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — Python tool failures, quota API workarounds, CRG query patterns, zone alignment discoveries. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

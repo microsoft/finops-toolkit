@@ -1,0 +1,75 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: BenefitRecommendationReview
+spec:
+  name: BenefitRecommendationReview
+  description: Weekly executive review of reservation and savings plan recommendations
+  cron_expression: 0 8 * * 5
+  agent_mode: autonomous
+  agent: chief-financial-officer
+  agent_prompt: '# Benefit Recommendation Review
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to commitment discount strategy, reservation governance, savings plan policy, and prior recommendation review notes.
+
+
+    Load your relevant CFO and FinOps skill. Note the `client_id` for Python tool authentication.
+
+
+    ## Python tools available
+
+
+    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+
+
+    - `benefit-recommendations`: Run with `billing_scope`, optional `lookback_period`, optional `term`, and `client_id` to retrieve reservation and savings plan recommendations.
+
+
+    ## 1. Establish billing scope
+
+
+    Identify the billing scope or subscription scope from knowledge base guidance. If multiple scopes are documented, run the review for each and keep results separated by scope.
+
+
+    ## 2. Retrieve latest recommendations
+
+
+    Run `benefit-recommendations` with `billing_scope`, `lookback_period`, `term`, and `client_id`. Review both reservation and savings plan recommendation types where available.
+
+
+    ## 3. Summarize savings opportunity
+
+
+    Summarize estimated savings, recommended cost, term, break-even information, and recommendation count. Separate recommendations by type and highlight assumptions or missing fields in the source payload.
+
+
+    ## 4. Recommend executive actions
+
+
+    Recommend which opportunities need purchase approval, deeper workload validation, commitment adjustment, or no action. Highlight governance risks such as over-commitment, insufficient utilization history, or missing owner accountability.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, a reservation recommendation table, a savings plan recommendation table, total potential savings summary, key risks, and recommended executive decisions.
+
+
+    ## Persistence
+
+
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit to git. Never save financial figures, savings amounts, cost amounts, or customer financial data to the knowledge base. Financial detail goes to Teams only.
+
+
+    ## Visualizations
+
+
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a savings by recommendation type chart and a cost versus savings chart where the data supports it. Embed chart images inline in the Teams message alongside the text tables.'
+
