@@ -368,6 +368,9 @@ venv/
 ENV/
 env/
 
+# macOS
+.DS_Store
+
 # AI
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
