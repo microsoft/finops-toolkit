@@ -1,13 +1,15 @@
-api_version: azuresre.ai/v2
+﻿api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CapacityMonthlyPlanning
+  owner: 
+  version: 
+  tags: 
 spec:
-  description: Monthly capacity planning cycle — forecast demand, procurement pipeline, governance review
-  cronExpression: 0 9 1 * *
-  agentMode: autonomous
-  agent: azure-capacity-manager
-  agentPrompt: '# Monthly Capacity Planning Cycle
+  name: CapacityMonthlyPlanning
+  cron_expression: ''
+  agent_prompt: >-
+    # Monthly Capacity Planning Cycle
 
 
     ## Phase 0: Preparation
@@ -145,4 +147,13 @@ spec:
     **Teams (capacity results only):** Post the final monthly capacity planning report to our Teams channel. Include the demand forecast, procurement pipeline, CRG portfolio review, governance scorecard, and recommended actions. Do not post intermediate results — only the completed report.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — forecasting model accuracy, procurement lead time observations, governance gaps discovered, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — forecasting model accuracy, procurement lead time observations, governance gaps discovered, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
+  description: ''
+  agent: azure-capacity-manager
+  start_time: 2026-04-29T00:26:35.9007010Z
+  end_time: 
+  duration_hours: 
+  thread_id: 
+  max_executions: 
+  notification_channel: 
+  cron: 0 9 1 * *

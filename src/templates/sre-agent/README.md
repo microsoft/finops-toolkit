@@ -11,6 +11,7 @@ Deploy and configure an Azure SRE Agent with FinOps and capacity management capa
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics for monitoring |
 | Subscription RBAC | 2 | Reader + Monitoring Contributor role assignments |
+| Custom role (post-provision) | 1 | `FinOps SRE Zone Peers Reader` for cross-subscription zone mapping; created by `post-provision.sh` so the assignable scope can be elevated to management group level for multi-subscription capacity management |
 | ADX role (optional) | 1 | `AllDatabasesViewer` when ADX params provided |
 | Subagents | 5 | `azure-capacity-manager`, `chief-financial-officer`, `finops-practitioner`, `ftk-database-query`, `ftk-hubs-agent` |
 | Skills | 3 | `azure-capacity-management`, `azure-cost-management`, `finops-toolkit` |
@@ -96,7 +97,7 @@ Unlike `azd up`, the portal button does **not** run the `postprovision` hook fro
 
 - After `azd up`, confirm the ARM deployment succeeds and the `postprovision` hook completes without errors.
 - Open [sre.azure.com](https://sre.azure.com) and confirm the SRE Agent has the 5 subagents, 3 skills, and `finops-hub-kusto` connector.
-- Confirm the base SRE Agent has workspace tools enabled so built-in code execution and visualization flows are available by default. In the deployed ARM resource this is `properties.experimentalSettings.EnableWorkspaceTools = true`.
+- Confirm the base SRE Agent has workspace tools and visualization enabled so built-in code execution, chart generation, and PDF report creation are available by default. In the deployed ARM resource this is `properties.experimentalSettings.EnableWorkspaceTools = true` and `properties.experimentalSettings.EnableVisualization = true`.
 - Confirm the default analytical subagents include `execute_python`: `azure-capacity-manager`, `finops-practitioner`, `chief-financial-officer`, and `ftk-database-query`.
 - If you enabled the ADX role assignment, confirm the target ADX cluster shows an `AllDatabasesViewer` principal assignment for the agent managed identity.
 - If you need notifications, add Outlook and Teams connectors manually in the portal and send one test email plus one test Teams post from the agent chat.
@@ -126,9 +127,9 @@ Per Microsoft Learn, Azure SRE Agent already includes built-in documentation acc
 
 For this template, "enabled by default" means:
 
-1. The deployed `Microsoft.App/agents` resource turns on workspace tools in `experimentalSettings`, which is the live resource setting behind the portal's **Early access** code-interpreter experience.
+1. The deployed `Microsoft.App/agents` resource turns on workspace tools and visualization in `experimentalSettings` (`EnableWorkspaceTools = true`, `EnableVisualization = true`).
 2. The default analytical subagents ship with `execute_python` so they can turn Azure and FinOps data into charts, tables, and downloadable report artifacts without extra manual setup.
-3. Built-in visualization and DocsGuide capabilities come from the SRE platform itself, so they don't require separate YAML tool definitions in this repo.
+3. Built-in DocsGuide capabilities come from the SRE platform itself, so they don't require separate YAML tool definitions in this repo.
 
 ### Enable Outlook and Teams notifications
 
@@ -220,6 +221,13 @@ finops-sre-agent/
 - A deployed [FinOps Hub](https://learn.microsoft.com/en-us/azure/cost-management-billing/finops/toolkit/hubs/finops-hubs-overview) with an ADX cluster
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) for `srectl`
 - `python3` and `bash` available locally for `scripts/post-provision.sh`
+- **For zone-mapping:** The `AvailabilityZonePeering` feature must be registered on the subscription. The `checkZonePeers` API returns 404 without it. Register at the management group level if the agent manages capacity across multiple subscriptions:
+
+  ```bash
+  az feature register --namespace Microsoft.Resources --name AvailabilityZonePeering
+  # Wait for registration to propagate (~5 min), then re-register the provider:
+  az provider register --namespace Microsoft.Resources
+  ```
 
 ## Supported regions
 
@@ -230,7 +238,8 @@ The SRE Agent deployment is supported in `swedencentral`, `eastus2`, and `austra
 1. **Bicep** creates the resource group, user-assigned managed identity, Log Analytics workspace, Application Insights resource, and SRE Agent.
 2. **Bicep** assigns Reader and Monitoring Contributor at the subscription scope to the agent managed identity.
 3. **Bicep** optionally assigns `AllDatabasesViewer` on the target ADX cluster when ADX parameters are provided.
-4. **`post-provision.sh`** installs `srectl`, initializes it with the `SRE_AGENT_ENDPOINT` deployment output, and pushes all configuration:
+4. **`post-provision.sh`** creates a custom role (`FinOps SRE Zone Peers Reader`) with `Microsoft.Resources/checkZonePeers/action` and assigns it to the managed identity. This enables the zone-mapping tool to check availability zone alignment across subscriptions. For multi-subscription capacity management, elevate the assignable scope to a management group so the agent can map zones across all child subscriptions.
+5. **`post-provision.sh`** installs `srectl`, initializes it with the `SRE_AGENT_ENDPOINT` deployment output, and pushes all configuration:
    - 3 skills (capacity management, cost management, FinOps toolkit)
    - 5 subagents (capacity manager, CFO, FinOps practitioner, database query, hubs agent)
    - Knowledge documents under `sre-config/knowledge/`

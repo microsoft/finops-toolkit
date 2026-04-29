@@ -1,13 +1,15 @@
-api_version: azuresre.ai/v2
+﻿api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CapacityDailyMonitor
+  owner: 
+  version: 
+  tags: 
 spec:
-  description: Daily capacity supply chain health check — quota usage, CRG utilization, zone capacity
-  cronExpression: 30 6 * * *
-  agentMode: autonomous
-  agent: azure-capacity-manager
-  agentPrompt: '# Daily Capacity Supply Chain Monitor
+  name: CapacityDailyMonitor
+  cron_expression: ''
+  agent_prompt: >-
+    # Daily Capacity Supply Chain Monitor
 
 
     ## Phase 0: Preparation
@@ -110,4 +112,13 @@ spec:
     **Teams (status results only):** Post the final daily capacity health check to our Teams channel. Include the overall status (🔴🟡🟢), any critical or warning items, and recommended actions. Do not post intermediate results — only the completed summary.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — CLI command failures, quota API workarounds, CRG query patterns, zone mapping discoveries. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — CLI command failures, quota API workarounds, CRG query patterns, zone mapping discoveries. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
+  description: ''
+  agent: azure-capacity-manager
+  start_time: 2026-04-29T00:26:34.7969490Z
+  end_time: 
+  duration_hours: 
+  thread_id: 
+  max_executions: 
+  notification_channel: 
+  cron: 30 6 * * *

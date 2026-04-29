@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.38.33.27573",
-      "templateHash": "15968936132543772152"
+      "templateHash": "2580778980099700428"
     }
   },
   "parameters": {
@@ -629,7 +629,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.38.33.27573",
-              "templateHash": "9968597146269247746"
+              "templateHash": "8393591062244733596"
             }
           },
           "parameters": {
@@ -678,39 +678,6 @@
                 "principalId": "[parameters('principalId')]",
                 "principalType": "[parameters('principalType')]"
               }
-            },
-            {
-              "type": "Microsoft.Authorization/roleDefinitions",
-              "apiVersion": "2022-04-01",
-              "name": "[guid(subscription().id, 'finops-sre-zone-peers')]",
-              "properties": {
-                "roleName": "FinOps SRE Zone Peers Reader",
-                "description": "Allows checking availability zone peer mappings across subscriptions. Used by the zone-mapping Python tool.",
-                "type": "CustomRole",
-                "permissions": [
-                  {
-                    "actions": [
-                      "Microsoft.Resources/checkZonePeers/action"
-                    ]
-                  }
-                ],
-                "assignableScopes": [
-                  "[subscription().id]"
-                ]
-              }
-            },
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
-              "name": "[guid(subscription().id, parameters('principalId'), subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'finops-sre-zone-peers')))]",
-              "properties": {
-                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'finops-sre-zone-peers'))]",
-                "principalId": "[parameters('principalId')]",
-                "principalType": "[parameters('principalType')]"
-              },
-              "dependsOn": [
-                "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(subscription().id, 'finops-sre-zone-peers'))]"
-              ]
             }
           ]
         }

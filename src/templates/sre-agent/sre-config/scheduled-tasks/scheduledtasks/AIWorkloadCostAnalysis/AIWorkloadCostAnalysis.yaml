@@ -1,13 +1,15 @@
-api_version: azuresre.ai/v2
+﻿api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: AIWorkloadCostAnalysis
+  owner: 
+  version: 
+  tags: 
 spec:
-  description: Monthly AI workload cost analysis — token economics, model efficiency, and cost allocation for Azure OpenAI
-  cronExpression: 0 10 1 * *
-  agentMode: autonomous
-  agent: chief-financial-officer
-  agentPrompt: '# AI Workload Cost Analysis
+  name: AIWorkloadCostAnalysis
+  cron_expression: ''
+  agent_prompt: >-
+    # AI Workload Cost Analysis
 
 
     ## Phase 0: Preparation
@@ -19,8 +21,7 @@ spec:
     Load your finops-toolkit and azure-cost-management skills.
 
 
-    Azure OpenAI charges based on token usage — a fundamentally different cost model from traditional compute. This analysis tracks token economics, model efficiency, and AI cost allocation aligned with
-    the FinOps Foundation AI Working Group guidance and FOCUS specification.
+    Azure OpenAI charges based on token usage — a fundamentally different cost model from traditional compute. This analysis tracks token economics, model efficiency, and AI cost allocation aligned with the FinOps Foundation AI Working Group guidance and FOCUS specification.
 
 
     ## FOCUS Alignment
@@ -172,4 +173,13 @@ spec:
     **Teams (financial results only):** Post the final AI workload cost report to our Teams channel. Include the executive summary, token economics, model efficiency table, and top optimization recommendations. Do not post intermediate results — only the completed report.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — model availability changes, query patterns for AI billing data, FOCUS column mappings discovered, tool errors encountered. Never save financial figures, cost amounts, token costs, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — model availability changes, query patterns for AI billing data, FOCUS column mappings discovered, tool errors encountered. Never save financial figures, cost amounts, token costs, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
+  description: ''
+  agent: chief-financial-officer
+  start_time: 2026-04-29T00:26:33.6818350Z
+  end_time: 
+  duration_hours: 
+  thread_id: 
+  max_executions: 
+  notification_channel: 
+  cron: 0 10 1 * *

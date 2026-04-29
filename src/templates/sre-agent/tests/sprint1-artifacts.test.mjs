@@ -386,36 +386,6 @@ test('TC-6.1: vm-quota-usage PythonTool meets contract', () => {
   assert.ok(!/functionCode:[\s\S]*blocking_count/mu.test(text), 'functionCode must not return obsolete blocking_count');
 });
 
-test('TC-6.2: zone-mapping PythonTool meets contract', () => {
-  assertFileExists('tools', 'zone-mapping.yaml');
-  const text = readRepoFile('tools', 'zone-mapping.yaml');
-
-  assertMatches(text, /^api_version:\s*azuresre\.ai\/v2\s*$/mu, 'zone-mapping.yaml must use azuresre.ai/v2');
-  assertMatches(text, /^kind:\s*ExtendedAgentTool\s*$/mu, 'zone-mapping.yaml must declare ExtendedAgentTool kind');
-  assertMatches(text, /^\s{2}type:\s*PythonTool\s*$/mu, 'zone-mapping.yaml must declare PythonTool type');
-  assertMatches(text, /authScopes:[\s\S]*?^\s*-\s*ARM\s*$/mu, 'zone-mapping.yaml must request ARM auth scope');
-  assertMatches(text, /functionCode:[\s\S]*DefaultAzureCredential/mu, 'functionCode must use DefaultAzureCredential');
-  assertMatches(text, /functionCode:[\s\S]*(checkZonePeers|check_zone_peers)/mu, 'functionCode must call checkZonePeers or check_zone_peers');
-  assertMatches(text, /functionCode:[\s\S]*requests/mu, 'functionCode must use requests for ARM REST calls');
-  assertMatches(
-    text,
-    /-\s*name:\s*location\b[\s\S]*?required:\s*true\b/mu,
-    'zone-mapping.yaml must require the location parameter',
-  );
-  assertMatches(text, /-\s*name:\s*subscription_ids\b/mu, 'zone-mapping.yaml must declare the subscription_ids parameter');
-  assertMatches(text, /description:\s*(\|[-+]?\s*)?[\s\S]*zone mapping/imu, 'description must mention zone mapping');
-
-  const timeoutMatch = text.match(/^\s{2}timeoutSeconds:\s*(\d+)\s*$/mu);
-  assert.ok(timeoutMatch, 'zone-mapping.yaml must set timeoutSeconds');
-  assert.ok(Number(timeoutMatch[1]) >= 120, 'zone-mapping.yaml timeoutSeconds must be at least 120');
-
-  assertMatches(
-    text,
-    /functionCode:[\s\S]*(logical[\s\S]*physical[\s\S]*mapping|physical[\s\S]*logical[\s\S]*mapping)/mu,
-    'functionCode must return logical-to-physical mapping',
-  );
-});
-
 test('TC-6.4: sku-availability PythonTool meets contract', () => {
   assertFileExists('tools', 'sku-availability.yaml');
   const text = readRepoFile('tools', 'sku-availability.yaml');
@@ -518,42 +488,6 @@ test('TC-6.5: data-freshness-check PythonTool meets contract', () => {
     /functionCode:[\s\S]*(staleness|is_stale|isStale|stale)/mu,
     'functionCode must return a staleness indicator',
   );
-});
-
-test('TC-6.9: spot-placement-scores PythonTool meets contract', () => {
-  assertFileExists('tools', 'spot-placement-scores.yaml');
-  const text = readRepoFile('tools', 'spot-placement-scores.yaml');
-
-  assertMatches(text, /^api_version:\s*azuresre\.ai\/v2\s*$/mu, 'spot-placement-scores.yaml must use azuresre.ai/v2');
-  assertMatches(text, /^kind:\s*ExtendedAgentTool\s*$/mu, 'spot-placement-scores.yaml must declare ExtendedAgentTool kind');
-  assertMatches(text, /^\s{2}type:\s*PythonTool\s*$/mu, 'spot-placement-scores.yaml must declare PythonTool type');
-  assertMatches(text, /authScopes:[\s\S]*?^\s*-\s*ARM\s*$/mu, 'spot-placement-scores.yaml must request ARM auth scope');
-  assertMatches(text, /functionCode:[\s\S]*DefaultAzureCredential/mu, 'functionCode must use DefaultAzureCredential');
-  assertMatches(
-    text,
-    /functionCode:[\s\S]*(spotPlacement|spot_placement|placement)/mu,
-    'functionCode must reference spot placement scoring',
-  );
-  assertMatches(
-    text,
-    /-\s*name:\s*subscription_id\b[\s\S]*?required:\s*true\b/mu,
-    'spot-placement-scores.yaml must require the subscription_id parameter',
-  );
-  assertMatches(
-    text,
-    /-\s*name:\s*location\b[\s\S]*?required:\s*true\b/mu,
-    'spot-placement-scores.yaml must require the location parameter',
-  );
-  assertMatches(
-    text,
-    /-\s*name:\s*sku_name\b[\s\S]*?required:\s*true\b/mu,
-    'spot-placement-scores.yaml must require the sku_name parameter',
-  );
-  assertMatches(text, /description:\s*(\|[-+]?\s*)?[\s\S]*spot/imu, 'description must mention spot');
-
-  const timeoutMatch = text.match(/^\s{2}timeoutSeconds:\s*(\d+)\s*$/mu);
-  assert.ok(timeoutMatch, 'spot-placement-scores.yaml must set timeoutSeconds');
-  assert.ok(Number(timeoutMatch[1]) >= 120, 'spot-placement-scores.yaml timeoutSeconds must be at least 120');
 });
 
 test('TC-6.7: benefit-recommendations PythonTool meets contract', () => {

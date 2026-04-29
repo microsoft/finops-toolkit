@@ -112,11 +112,66 @@ add_repo_connector() {
     log "Repository connector may already exist."
 }
 
+# Ensure the UAMI has the custom permissions needed by Python tools.
+# Creates a custom role with Microsoft.Resources/checkZonePeers/action
+# (not in the built-in Reader role) and assigns it to the UAMI.
+# For multi-subscription capacity management, deploy this custom role at the
+# management group level so the agent can map zones across all child subscriptions.
+ensure_custom_permissions() {
+  local sub_id rg_name uami_principal_id role_name role_exists
+  sub_id="${AZURE_SUBSCRIPTION_ID:-$(az account show --query id -o tsv 2>/dev/null)}"
+  rg_name="${AZURE_RESOURCE_GROUP:-$(azd env get-value AZURE_RESOURCE_GROUP --no-prompt 2>/dev/null || true)}"
+
+  if [ -z "$sub_id" ] || [ -z "$rg_name" ]; then
+    log "WARNING: Cannot determine subscription or resource group — skipping custom permissions."
+    return 0
+  fi
+
+  # Find the UAMI principal ID from the resource group
+  uami_principal_id="$(az identity list --resource-group "$rg_name" --query '[0].principalId' -o tsv 2>/dev/null || true)"
+  if [ -z "$uami_principal_id" ]; then
+    log "WARNING: No managed identity found in $rg_name — skipping custom permissions."
+    return 0
+  fi
+
+  role_name="FinOps SRE Zone Peers Reader"
+  scope="/subscriptions/${sub_id}"
+
+  # Create custom role (idempotent — update if exists)
+  role_exists="$(az role definition list --name "$role_name" --scope "$scope" --query 'length(@)' -o tsv 2>/dev/null || echo 0)"
+  if [ "$role_exists" = "0" ]; then
+    log "Creating custom role: $role_name"
+    az role definition create --role-definition "{
+      \"Name\": \"${role_name}\",
+      \"Description\": \"Allows checking availability zone peer mappings across subscriptions. Used by the zone-mapping Python tool.\",
+      \"Actions\": [\"Microsoft.Resources/checkZonePeers/action\"],
+      \"AssignableScopes\": [\"${scope}\"]
+    }" --output none 2>&1 || log "WARNING: Failed to create custom role (may require elevated permissions)."
+  else
+    log "Custom role $role_name already exists."
+  fi
+
+  # Assign the custom role to the UAMI (idempotent — az handles existing assignments)
+  log "Assigning $role_name to UAMI ($uami_principal_id)"
+  az role assignment create \
+    --assignee-object-id "$uami_principal_id" \
+    --assignee-principal-type ServicePrincipal \
+    --role "$role_name" \
+    --scope "$scope" \
+    --output none 2>&1 || log "WARNING: Role assignment may already exist or require elevated permissions."
+}
+
 main() {
   local endpoint
   endpoint="$(resolve_endpoint)"
 
   ensure_srectl
+
+  # Grant the UAMI any permissions that require custom role definitions.
+  # This is done in post-provision rather than Bicep because custom role
+  # definitions require management-group-level assignableScopes for multi-sub
+  # capacity management, which Bicep subscription-scoped deployments cannot express.
+  ensure_custom_permissions
 
   # Work from a temp directory so srectl init doesn't pollute the repo
   local workdir

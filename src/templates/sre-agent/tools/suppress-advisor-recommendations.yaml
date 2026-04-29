@@ -12,10 +12,11 @@ spec:
   functionCode: |-
     def main(**kwargs):
         from uuid import uuid4
-        from azure.mgmt.resourcegraph import ResourceGraphClient
-        from azure.mgmt.resourcegraph.models import QueryRequest
         import re
         import requests
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        GRAPH_API_VERSION = "2022-10-01"
 
         management_group_id = kwargs.get("management_group_id")
         days = kwargs.get("days") or 30
@@ -58,7 +59,6 @@ spec:
             else:
                 from azure.identity import DefaultAzureCredential
                 credential = DefaultAzureCredential()
-            graph_client = ResourceGraphClient(credential)
             token = credential.get_token("https://management.azure.com/.default").token
         except Exception as exc:
             return {"status": "failed", "error": f"failed to acquire Azure credential: {exc}"}
@@ -74,21 +74,23 @@ spec:
             "problem=tostring(properties.shortDescription.problem)"
         )
 
+        graph_url = f"{ARM_ENDPOINT}/providers/Microsoft.ResourceGraph/resources?api-version={GRAPH_API_VERSION}"
         recommendations = []
         skip = 0
         page_size = 1000
         while True:
-            request = QueryRequest(
-                management_groups=[management_group_id],
-                query=query,
-                options={"$top": page_size, "$skip": skip},
-            )
+            body = {
+                "managementGroups": [management_group_id],
+                "query": query,
+                "options": {"$top": page_size, "$skip": skip},
+            }
             try:
-                response = graph_client.resources(request)
+                response = requests.post(graph_url, headers=headers, json=body, timeout=60)
+                response.raise_for_status()
+                payload = response.json()
             except Exception as exc:
                 return {"status": "failed", "error": f"Resource Graph query failed: {exc}"}
-            data = getattr(response, "data", None) or []
-            rows = data if isinstance(data, list) else data.get("data", data.get("rows", []))
+            rows = payload.get("data", [])
             recommendations.extend(rows)
             if len(rows) < page_size:
                 break
@@ -146,7 +148,6 @@ spec:
   dependencies:
     - azure-identity
     - requests
-    - azure-mgmt-resourcegraph
   authScopes:
     - ARM
   parameters:

@@ -1,13 +1,15 @@
-api_version: azuresre.ai/v2
+﻿api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: MOM
+  owner: 
+  version: 
+  tags: 
 spec:
-  description: Autonomous month-over-month cost analysis with all 17 Kusto tools
-  cronExpression: 15 17 * * *
-  agentMode: autonomous
-  agent: finops-practitioner
-  agentPrompt: '# Month-Over-Month Cost Analysis
+  name: MOM
+  cron_expression: ''
+  agent_prompt: >-
+    # Month-Over-Month Cost Analysis
 
 
     ## Phase 0: Preparation
@@ -93,8 +95,7 @@ spec:
 
     ### 1.13 Price Benchmarking
 
-    Run `service-price-benchmarking` with startDate=startofmonth(ago(30d)). Compare list, contracted, and effective costs. Identify negative savings anomalies. Compare variance to the 3-5% industry average
-    benchmark.
+    Run `service-price-benchmarking` with startDate=startofmonth(ago(30d)). Compare list, contracted, and effective costs. Identify negative savings anomalies. Compare variance to the 3-5% industry average benchmark.
 
 
     ### 1.14 Cost Volatility
@@ -120,8 +121,7 @@ spec:
 
     ### 2.1 ROI and Business Impact
 
-    Calculate ROI = Annual Savings / Implementation Cost for each optimization opportunity. Determine payback period. Compare against industry benchmarks (cost variance 3-5%, RI coverage 60-70%). Create
-    opportunity matrix.
+    Calculate ROI = Annual Savings / Implementation Cost for each optimization opportunity. Determine payback period. Compare against industry benchmarks (cost variance 3-5%, RI coverage 60-70%). Create opportunity matrix.
 
 
     ### 2.2 Quick Wins
@@ -131,14 +131,12 @@ spec:
 
     ### 2.3 Detailed Findings
 
-    Document 7 sections: (1) Cost Analysis, (2) Savings Analysis, (3) Optimization Opportunities, (4) Governance & Risk, (5) Strategic Market Positioning, (6) Temporal Themes, (7) Implementation Roadmap.
-    No raw JSON references — executive-level language only.
+    Document 7 sections: (1) Cost Analysis, (2) Savings Analysis, (3) Optimization Opportunities, (4) Governance & Risk, (5) Strategic Market Positioning, (6) Temporal Themes, (7) Implementation Roadmap. No raw JSON references — executive-level language only.
 
 
     ### 2.4 Recommendations with Performance Grading
 
-    Assign a letter grade (A+ to F) with percentile ranking. Build prioritized actions: Immediate (<30 days), Short-term (30-90 days), Long-term (90+ days). Include dollar savings amount, confidence %,
-    and clear owner for each.
+    Assign a letter grade (A+ to F) with percentile ranking. Build prioritized actions: Immediate (<30 days), Short-term (30-90 days), Long-term (90+ days). Include dollar savings amount, confidence %, and clear owner for each.
 
 
     ### 2.5 Implementation Roadmap
@@ -152,8 +150,7 @@ spec:
     ## Phase 3: Report Formatting
 
 
-    Format as a professional, scannable report. Use tables, emoji indicators (📊 💰 🚨 🎯 🏆), bold dollar amounts. Include multi-scenario forecasts (Conservative/Expected/Optimistic), YoY/MoM comparisons, and
-    percentile positioning.
+    Format as a professional, scannable report. Use tables, emoji indicators (📊 💰 🚨 🎯 🏆), bold dollar amounts. Include multi-scenario forecasts (Conservative/Expected/Optimistic), YoY/MoM comparisons, and percentile positioning.
 
 
     Do not stop or yield until the report is complete and ready for the FinOps team.
@@ -168,4 +165,13 @@ spec:
     **Teams (financial results only):** Post the final report to our Teams channel. Include the executive summary, key findings, grade card, and top recommendations. Do not post intermediate results — only the completed report.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — tool errors encountered, workarounds discovered, data quality observations, query patterns that worked or failed. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — tool errors encountered, workarounds discovered, data quality observations, query patterns that worked or failed. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
+  description: ''
+  agent: finops-practitioner
+  start_time: 2026-04-29T00:26:41.2991470Z
+  end_time: 
+  duration_hours: 
+  thread_id: 
+  max_executions: 
+  notification_channel: 
+  cron: 15 17 * * *

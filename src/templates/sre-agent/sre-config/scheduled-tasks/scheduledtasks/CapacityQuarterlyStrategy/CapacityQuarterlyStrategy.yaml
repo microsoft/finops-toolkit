@@ -1,13 +1,15 @@
-api_version: azuresre.ai/v2
+﻿api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CapacityQuarterlyStrategy
+  owner: 
+  version: 
+  tags: 
 spec:
-  description: Quarterly capacity strategy review — supply chain maturity, commitment alignment, architecture evolution
-  cronExpression: 0 9 1 1,4,7,10 *
-  agentMode: autonomous
-  agent: azure-capacity-manager
-  agentPrompt: '# Quarterly Capacity Strategy Review
+  name: CapacityQuarterlyStrategy
+  cron_expression: ''
+  agent_prompt: >-
+    # Quarterly Capacity Strategy Review
 
 
     ## Phase 0: Preparation
@@ -56,7 +58,7 @@ spec:
 
     - Which CRGs are paying full price? (needs reservation)
 
-    - Which reservations don''t have CRG capacity? (supply risk)
+    - Which reservations don't have CRG capacity? (supply risk)
 
     - RI/SP purchase recommendations for next quarter
 
@@ -143,4 +145,13 @@ spec:
     **Teams (strategy results only):** Post the final quarterly capacity strategy brief to our Teams channel. Include the maturity scorecard, commitment alignment matrix, quarterly roadmap, and key risks. Do not post intermediate results — only the completed strategy brief.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — maturity assessment methodology refinements, commitment alignment patterns, architecture observations, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — maturity assessment methodology refinements, commitment alignment patterns, architecture observations, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
+  description: ''
+  agent: azure-capacity-manager
+  start_time: 2026-04-29T00:26:37.0762520Z
+  end_time: 
+  duration_hours: 
+  thread_id: 
+  max_executions: 
+  notification_channel: 
+  cron: 0 9 1 1,4,7,10 *

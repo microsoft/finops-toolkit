@@ -1,13 +1,15 @@
-api_version: azuresre.ai/v2
+﻿api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CostOptimization
+  owner: 
+  version: 
+  tags: 
 spec:
-  description: Comprehensive cost optimization report with orphaned resources, rightsizing, and commitment analysis
-  cronExpression: 0 8 * * 1
-  agentMode: autonomous
-  agent: finops-practitioner
-  agentPrompt: '# Cost optimization report
+  name: CostOptimization
+  cron_expression: ''
+  agent_prompt: >-
+    # Cost optimization report
 
 
     ## Phase 0: Preparation
@@ -157,7 +159,7 @@ spec:
     For the top 5 Advisor right-size VM recommendations (by savings amount), validate with the Retail Prices API.
 
 
-    Use `references/azure-retail-prices.md` to look up current and target SKU prices. Compare Advisor''s estimated savings against actual retail price deltas.
+    Use `references/azure-retail-prices.md` to look up current and target SKU prices. Compare Advisor's estimated savings against actual retail price deltas.
 
 
     ### 3b: VM utilization deep dive (if VM Insights available)
@@ -342,4 +344,13 @@ spec:
     **Teams (financial results only):** Post the final cost optimization report to our Teams channel. Include the executive summary, total identified savings, quick wins, and prioritized next steps. Do not post intermediate results — only the completed report.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — query failures, Resource Graph workarounds, Advisor API patterns, tool errors encountered. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — query failures, Resource Graph workarounds, Advisor API patterns, tool errors encountered. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
+  description: ''
+  agent: finops-practitioner
+  start_time: 2026-04-29T00:26:39.1935250Z
+  end_time: 
+  duration_hours: 
+  thread_id: 
+  max_executions: 
+  notification_channel: 
+  cron: 0 8 * * 1

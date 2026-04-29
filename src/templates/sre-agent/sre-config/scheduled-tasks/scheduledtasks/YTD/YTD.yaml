@@ -1,13 +1,15 @@
-api_version: azuresre.ai/v2
+﻿api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: YTD
+  owner: 
+  version: 
+  tags: 
 spec:
-  description: Fiscal year-to-date analysis with forecast through end of fiscal year
-  cronExpression: 0 9 1 * *
-  agentMode: autonomous
-  agent: chief-financial-officer
-  agentPrompt: '# Fiscal Year-to-Date Analysis
+  name: YTD
+  cron_expression: ''
+  agent_prompt: >-
+    # Fiscal Year-to-Date Analysis
 
 
     ## Phase 0: Preparation
@@ -162,4 +164,13 @@ spec:
     **Teams (financial results only):** Post the final report to our Teams channel. Include the fiscal year scorecard, forecast scenarios, and next-year planning recommendations. Do not post intermediate results — only the completed report.
 
 
-    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — tool errors encountered, workarounds discovered, data quality observations, query patterns that worked or failed. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — tool errors encountered, workarounds discovered, data quality observations, query patterns that worked or failed. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
+  description: ''
+  agent: chief-financial-officer
+  start_time: 2026-04-29T00:26:42.4342150Z
+  end_time: 
+  duration_hours: 
+  thread_id: 
+  max_executions: 
+  notification_channel: 
+  cron: 0 9 1 * *

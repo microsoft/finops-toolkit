@@ -12,17 +12,17 @@ spec:
   functionCode: |-
     def main(**kwargs):
         from datetime import date
-        from azure.mgmt.resourcegraph import ResourceGraphClient
-        from azure.mgmt.resourcegraph.models import QueryRequest
         import re
         import requests
+
+        ARM_ENDPOINT = "https://management.azure.com"
+        GRAPH_API_VERSION = "2022-10-01"
 
         management_group = kwargs.get("management_group")
         amount = kwargs.get("amount")
         contact_emails = kwargs.get("contact_emails")
         budget_name = kwargs.get("budget_name") or "SubscriptionBudget"
         time_grain = kwargs.get("time_grain") or "Monthly"
-        guid_pattern = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
         email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 
         if not isinstance(management_group, str) or not management_group.strip():
@@ -67,7 +67,6 @@ spec:
             else:
                 from azure.identity import DefaultAzureCredential
                 credential = DefaultAzureCredential()
-            graph_client = ResourceGraphClient(credential)
             token = credential.get_token("https://management.azure.com/.default").token
         except Exception as exc:
             return {"status": "failed", "error": f"failed to acquire Azure credential: {exc}", "deployments": []}
@@ -79,21 +78,23 @@ spec:
             "| where properties.state =~ 'Enabled' "
             "| project subscriptionId, name"
         )
+        graph_url = f"{ARM_ENDPOINT}/providers/Microsoft.ResourceGraph/resources?api-version={GRAPH_API_VERSION}"
         subscriptions = []
         skip = 0
         page_size = 1000
         while True:
-            request = QueryRequest(
-                management_groups=[management_group],
-                query=query,
-                options={"$top": page_size, "$skip": skip},
-            )
+            body = {
+                "managementGroups": [management_group],
+                "query": query,
+                "options": {"$top": page_size, "$skip": skip},
+            }
             try:
-                response = graph_client.resources(request)
+                response = requests.post(graph_url, headers=headers, json=body, timeout=60)
+                response.raise_for_status()
+                payload = response.json()
             except Exception as exc:
                 return {"status": "failed", "error": f"Resource Graph query failed: {exc}", "deployments": []}
-            data = getattr(response, "data", None) or []
-            rows = data if isinstance(data, list) else data.get("data", data.get("rows", []))
+            rows = payload.get("data", [])
             subscriptions.extend(rows)
             if len(rows) < page_size:
                 break
@@ -179,7 +180,6 @@ spec:
   dependencies:
     - azure-identity
     - requests
-    - azure-mgmt-resourcegraph
   authScopes:
     - ARM
   parameters:
