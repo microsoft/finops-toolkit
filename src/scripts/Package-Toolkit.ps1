@@ -91,7 +91,7 @@ function Copy-TemplateFiles()
     return Get-ChildItem "$relDir/$Template*" -Directory `
     | Where-Object { @('pbit', 'pbix', 'FinOpsToolkit') -notcontains $_.Name } `
     | ForEach-Object {
-        Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
+        Write-Verbose ("Packaging $_" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
         $srcPath = $_
         $templateName = $srcPath.Name
         $versionSubFolder = (Join-Path $srcPath $version)
@@ -201,7 +201,7 @@ function Copy-TemplateFiles()
             Copy-DeploymentFiles "latest"
         }
 
-        Write-Verbose ("Compressing $srcPath to $zip" -replace (Get-Item $relDir).FullName, '.')
+        Write-Verbose ("Compressing $srcPath to $zip" -replace [regex]::Escape((Get-Item $relDir).FullName), '.')
         Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
         return $zip
     }
