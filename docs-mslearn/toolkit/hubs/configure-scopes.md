@@ -3,7 +3,7 @@ title: Configure scopes for FinOps hubs
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 04/30/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -266,6 +266,9 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    #### Option 1: Using config_RunBackfillJob pipeline
 
    Use the **config_RunBackfillJob** pipeline to process historical data after it's been exported. For more information about running Azure Data Factory pipelines, see [Azure Data Factory pipelines](/azure/data-factory/concepts-pipelines-activities).
+
+   > [!IMPORTANT]
+   > This option relies on managed exports and is **not supported for Microsoft Customer Agreement (MCA) billing accounts or billing profiles**. The pipeline calls the Cost Management `exports/run` API using the Data Factory managed identity, which Cost Management rejects on MCA scopes regardless of role assignments — typically with an `RBACAccessDenied` error. For MCA, use [Option 2](#option-2-using-cost-management-exports) or [Option 3](#option-3-using-start-finopscostexport-powershell-command) instead.
 
    To run the pipeline from the Azure portal:
 
