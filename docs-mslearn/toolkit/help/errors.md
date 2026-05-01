@@ -3,7 +3,7 @@ title: Troubleshoot common FinOps toolkit errors
 description: This article describes common FinOps toolkit errors and provides solutions to help you resolve issues you might encounter.
 author: flanakin
 ms.author: micflan
-ms.date: 04/04/2026
+ms.date: 05/01/2026
 ms.topic: troubleshooting
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -904,6 +904,30 @@ The export manifest in hub storage indicates the export was for an unsupported d
 <sup>Severity: Minor</sup>
 
 Open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the resource provider row (for example, Microsoft.EventGrid), then select the **Register** command at the top of the page. Registration might take a few minutes.
+
+<br>
+
+## The sku {SkuName} is not supported in {region}
+
+<sup>Severity: Critical</sup>
+
+The Azure Data Explorer cluster deployment failed because the selected SKU isn't available in the target region for your subscription. Not all Data Explorer SKUs are available in every region.
+
+**Mitigation**: Check which SKUs are available in your region and choose one that's supported.
+
+Using Azure PowerShell (requires the [Az.Kusto](/powershell/module/az.kusto) module):
+
+```powershell
+Get-AzKustoSku -Location "westus"
+```
+
+Using Azure REST API:
+
+```http
+GET https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Kusto/locations/{location}/skus?api-version=2024-04-13
+```
+
+If your preferred SKU isn't listed, choose a different SKU or deploy to a region where it's available. The default dev/test SKU (`Dev(No SLA)_Standard_E2a_v4`) is available in most regions. For help choosing a SKU, see [Select a SKU for your Azure Data Explorer cluster](/azure/data-explorer/manage-cluster-choose-sku).
 
 <br>
 
