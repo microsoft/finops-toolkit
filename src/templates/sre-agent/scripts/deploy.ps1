@@ -128,6 +128,13 @@ if (-not $Subscription) { Fail 'Azure subscription could not be resolved. Use -S
 if ($DeployHubValue -eq 'true' -and $FinopsHubClusterUri) {
     Fail '-DeployHub and -FinopsHubClusterUri are mutually exclusive. Use one or the other.'
 }
+if ($FinopsHubClusterUri) {
+    $uri = [System.Uri]$FinopsHubClusterUri
+    if (-not $uri.AbsolutePath -or $uri.AbsolutePath -eq '/') {
+        Write-Host "[deploy] WARNING: -FinopsHubClusterUri has no database name. Appending '/hub' as default."
+        $FinopsHubClusterUri = "$($FinopsHubClusterUri.TrimEnd('/'))/hub"
+    }
+}
 if ($DeployHubValue -eq 'false' -and -not $FinopsHubClusterUri) {
     Write-Log 'WARNING: No FinOps hub cluster URI provided. Kusto connector will not be configured. You can connect a hub later.'
 }

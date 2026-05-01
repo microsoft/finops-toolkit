@@ -39,7 +39,7 @@ The redistribution-safe entrypoint for this template is a single wrapper script 
 ```bash
 bash ./scripts/deploy.sh \
   --environment ftk-sre-test3 \
-  --finops-hub-cluster-uri https://<your-finops-hub-cluster>.kusto.windows.net
+  --finops-hub-cluster-uri https://<your-finops-hub-cluster>.kusto.windows.net/hub
 ```
 
 #### PowerShell
@@ -47,7 +47,7 @@ bash ./scripts/deploy.sh \
 ```powershell
 pwsh ./scripts/deploy.ps1 `
   -Environment ftk-sre-test3 `
-  -FinopsHubClusterUri https://<your-finops-hub-cluster>.kusto.windows.net
+  -FinopsHubClusterUri https://<your-finops-hub-cluster>.kusto.windows.net/hub
 ```
 
 Helpful options:
@@ -97,7 +97,7 @@ The wrapper uses the Azure Developer CLI environment flow documented by Microsof
 azd env new <environment-name>
 
 # Required for post-provision connector configuration
-azd env set FINOPS_HUB_CLUSTER_URI https://<your-finops-hub-cluster>.kusto.windows.net
+azd env set FINOPS_HUB_CLUSTER_URI https://<your-finops-hub-cluster>.kusto.windows.net/hub
 
 # Optional: enable ADX AllDatabasesViewer role assignment
 azd env set FINOPS_HUB_CLUSTER_NAME <your-adx-cluster-name>

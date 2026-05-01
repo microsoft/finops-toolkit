@@ -30,7 +30,10 @@ Options:
   --subscription <subscription-id>        Azure subscription ID. Defaults to current az account.
   --resource-group <name>                 Azure resource group. Defaults to the environment name.
   --principal-type <type>                 Deployer principal type. Default: User.
-  --finops-hub-cluster-uri <uri>          Optional. Existing FinOps Hub Kusto cluster URI.
+  --finops-hub-cluster-uri <uri>          Optional. Existing FinOps Hub Kusto cluster URI
+                                           (must include database name, e.g.
+                                           https://cluster.region.kusto.windows.net/hub).
+                                           If the database suffix is missing, '/hub' is appended.
   --finops-hub-cluster-name <name>        Optional. ADX cluster name for AllDatabasesViewer (external hub).
   --finops-hub-cluster-resource-group <name>
                                            Optional. ADX cluster resource group (external hub).
@@ -158,6 +161,15 @@ fi
 [ -n "$SUBSCRIPTION" ] || fail "Azure subscription could not be resolved. Use --subscription or sign in with az."
 if $DEPLOY_HUB && [ -n "$FINOPS_HUB_CLUSTER_URI" ]; then
   fail "--deploy-hub and --finops-hub-cluster-uri are mutually exclusive. Use one or the other."
+fi
+if [ -n "$FINOPS_HUB_CLUSTER_URI" ]; then
+  # Strip protocol and check for path component after hostname.
+  uri_path="${FINOPS_HUB_CLUSTER_URI#https://}"
+  uri_path="${uri_path#*/}"
+  if [ -z "$uri_path" ] || [ "$uri_path" = "${FINOPS_HUB_CLUSTER_URI#https://}" ]; then
+    log "WARNING: --finops-hub-cluster-uri has no database name. Appending '/hub' as default."
+    FINOPS_HUB_CLUSTER_URI="${FINOPS_HUB_CLUSTER_URI%/}/hub"
+  fi
 fi
 if ! $DEPLOY_HUB && [ -z "$FINOPS_HUB_CLUSTER_URI" ]; then
   log "Deploying agent only — no FinOps hub. Kusto connector will not be configured."
