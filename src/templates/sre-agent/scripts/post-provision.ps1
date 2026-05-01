@@ -42,6 +42,28 @@ function Resolve-Endpoint {
     return $ep
 }
 
+function Resolve-SubscriptionId {
+    $subscriptionId = $env:AZURE_SUBSCRIPTION_ID
+    if (-not $subscriptionId) {
+        $subscriptionId = az account show --query id -o tsv 2>$null
+    }
+    if (-not $subscriptionId -or $subscriptionId -match '^ERROR') {
+        throw 'AZURE_SUBSCRIPTION_ID is required for RBAC assignment.'
+    }
+    return $subscriptionId.Trim()
+}
+
+function Resolve-IdentityPrincipalId {
+    $principalId = $env:IDENTITY_PRINCIPAL_ID
+    if (-not $principalId -and (Get-Command azd -ErrorAction SilentlyContinue)) {
+        $principalId = azd env get-value IDENTITY_PRINCIPAL_ID --no-prompt 2>$null
+    }
+    if (-not $principalId -or $principalId -match '^ERROR') {
+        throw 'IDENTITY_PRINCIPAL_ID is required for RBAC assignment. Run azd env refresh after provisioning if this output is missing.'
+    }
+    return $principalId.Trim()
+}
+
 function Install-Srectl {
     if (Get-Command srectl -ErrorAction SilentlyContinue) {
         Invoke-SrectlOrDryRun --version | Out-Null
@@ -55,6 +77,54 @@ function Install-Srectl {
     if (-not (Get-Command srectl -ErrorAction SilentlyContinue)) {
         throw 'srectl installation failed.'
     }
+}
+
+function Add-RoleAssignmentIfMissing {
+    param(
+        [string]$PrincipalId,
+        [string]$RoleId,
+        [string]$RoleName,
+        [string]$Scope
+    )
+
+    $existing = az role assignment list --assignee $PrincipalId --role $RoleId --scope $Scope --query 'length(@)' -o tsv 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to check $RoleName assignment for $PrincipalId at $Scope."
+    }
+
+    if ([int]$existing -gt 0) {
+        Write-Log "$RoleName already assigned to UAMI ($PrincipalId) at subscription scope."
+        return
+    }
+
+    Write-Log "Assigning $RoleName to UAMI ($PrincipalId) at subscription scope..."
+    az role assignment create `
+        --assignee-object-id $PrincipalId `
+        --assignee-principal-type ServicePrincipal `
+        --role $RoleId `
+        --scope $Scope `
+        --output none
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to assign $RoleName to $PrincipalId at $Scope."
+    }
+}
+
+function Add-SubscriptionRbac {
+    $subscriptionId = Resolve-SubscriptionId
+    $principalId = Resolve-IdentityPrincipalId
+    $scope = "/subscriptions/$subscriptionId"
+
+    Add-RoleAssignmentIfMissing `
+        -PrincipalId $principalId `
+        -RoleId 'acdd72a7-3385-48ef-bd42-f606fba81ae7' `
+        -RoleName 'Reader' `
+        -Scope $scope
+
+    Add-RoleAssignmentIfMissing `
+        -PrincipalId $principalId `
+        -RoleId '749f88d5-cbae-40b8-bcfc-e573ddc772fa' `
+        -RoleName 'Monitoring Contributor' `
+        -Scope $scope
 }
 
 function Get-YamlFiles($Dir) {
@@ -185,6 +255,7 @@ if ($script:DryRun) {
 } else {
     $endpoint = Resolve-Endpoint
     Install-Srectl
+    Add-SubscriptionRbac
 }
 
 $workdir = Join-Path ([System.IO.Path]::GetTempPath()) "finops-sre-$(New-Guid)"

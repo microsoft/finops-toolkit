@@ -40,6 +40,8 @@ spec:
 
     - Logical availability-zone mappings are subscription-specific, so verify physical zone alignment before cross-subscription sharing decisions.
 
+    - Azure Data Explorer / Kusto SKU eligibility is service-specific and can differ from Microsoft.Compute SKU availability. Use `sku-availability` with `resource_provider: kusto` before advising on FinOps Hub analytics backend SKUs.
+
 
     Decision framework:
 
@@ -69,6 +71,10 @@ spec:
   - RunAzCliWriteCommands
   - GetAzCliHelp
   - execute_python
+  - sku-availability
+  - vm-quota-usage
+  - non-compute-quotas
+  - capacity-reservation-groups
   - commitment-discount-utilization
   - cost-forecasting-model
   - costs-enriched-base

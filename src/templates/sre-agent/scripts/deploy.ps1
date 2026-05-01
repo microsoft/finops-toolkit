@@ -14,10 +14,10 @@ param(
     [string]$FinopsHubClusterUri,
     [string]$FinopsHubClusterName,
     [string]$FinopsHubClusterResourceGroup,
+    [switch]$DeployHub,
+    [string]$HubSku,
     [string]$EnvFile,
     [string]$CloneEnv,
-    [switch]$Replace,
-    [switch]$Destroy,
     [switch]$Help
 )
 
@@ -31,7 +31,7 @@ function Fail($Message) { throw $Message }
 function Show-Usage {
     @"
 Usage:
-  pwsh ./scripts/deploy.ps1 -Environment <name> -FinopsHubClusterUri <uri> [options]
+  pwsh ./scripts/deploy.ps1 -Environment <name> [options]
 
 Options:
   -Environment <name>                    Target azd environment name.
@@ -39,13 +39,13 @@ Options:
   -Subscription <subscription-id>        Azure subscription ID. Defaults to current az account.
   -ResourceGroup <name>                  Azure resource group. Defaults to the environment name.
   -PrincipalType <type>                  Deployer principal type. Default: User.
-  -FinopsHubClusterUri <uri>             Required FinOps Hub Kusto cluster URI.
+  -FinopsHubClusterUri <uri>             Optional. FinOps Hub Kusto cluster URI. Kusto connector is skipped if omitted.
   -FinopsHubClusterName <name>           Optional ADX cluster name for AllDatabasesViewer assignment.
   -FinopsHubClusterResourceGroup <name>  Optional ADX cluster resource group.
+  -DeployHub                             Deploy a FinOps hub alongside the SRE agent.
+  -HubSku <sku>                          ADX SKU for the deployed hub. Default: Standard_E2ads_v5.
   -EnvFile <path>                        Load azd-style values from a .env file before applying overrides.
   -CloneEnv <name>                       Load values from .azure/<name>/.env before applying overrides.
-  -Replace                               Delete Azure resources for the target environment first, then recreate.
-  -Destroy                               Tear down the target environment and remove it. No deployment.
 "@ | Write-Host
 }
 
@@ -115,6 +115,8 @@ if (-not $PrincipalType) { $PrincipalType = if ($env:AZURE_PRINCIPAL_TYPE) { $en
 if (-not $FinopsHubClusterUri) { $FinopsHubClusterUri = $env:FINOPS_HUB_CLUSTER_URI }
 if (-not $FinopsHubClusterName) { $FinopsHubClusterName = $env:FINOPS_HUB_CLUSTER_NAME }
 if (-not $FinopsHubClusterResourceGroup) { $FinopsHubClusterResourceGroup = $env:FINOPS_HUB_CLUSTER_RESOURCE_GROUP }
+if (-not $HubSku) { $HubSku = if ($env:FINOPS_HUB_DATA_EXPLORER_SKU) { $env:FINOPS_HUB_DATA_EXPLORER_SKU } else { 'Standard_E2ads_v5' } }
+$DeployHubValue = if ($DeployHub.IsPresent -or $env:DEPLOY_FINOPS_HUB -eq 'true') { 'true' } else { 'false' }
 
 # Resource group defaults to the environment name unless explicitly overridden.
 $ResourceGroupExplicit = $PSBoundParameters.ContainsKey('ResourceGroup')
@@ -122,36 +124,16 @@ if (-not $ResourceGroupExplicit) { $ResourceGroup = $Environment }
 
 if (-not $Environment) { Fail '-Environment is required.' }
 
-# Destroy mode: tear down and remove, then exit.
-if ($Destroy) {
-    Push-Location $RepoRoot
-    try {
-        if (Test-EnvExists -Name $Environment) {
-            Write-Log "Tearing down Azure resources for environment $Environment..."
-            azd down --environment $Environment --force --purge --no-prompt
-            Write-Log "Removing local azd environment $Environment..."
-            azd env remove $Environment --force --no-prompt
-            Write-Log "Environment $Environment destroyed."
-        } else {
-            Write-Log "Environment $Environment does not exist locally. Nothing to destroy."
-        }
-    }
-    finally { Pop-Location }
-    return
-}
-
 if (-not $Subscription) { Fail 'Azure subscription could not be resolved. Use -Subscription or sign in with az.' }
-if (-not $FinopsHubClusterUri) { Fail '-FinopsHubClusterUri is required.' }
+if ($DeployHubValue -eq 'true' -and $FinopsHubClusterUri) {
+    Fail '-DeployHub and -FinopsHubClusterUri are mutually exclusive. Use one or the other.'
+}
+if ($DeployHubValue -eq 'false' -and -not $FinopsHubClusterUri) {
+    Write-Log 'WARNING: No FinOps hub cluster URI provided. Kusto connector will not be configured. You can connect a hub later.'
+}
 
 Push-Location $RepoRoot
 try {
-    if ((Test-EnvExists -Name $Environment) -and $Replace) {
-        Write-Log "Deleting Azure resources for environment $Environment..."
-        azd down --environment $Environment --force --purge --no-prompt
-        Write-Log "Removing local azd environment $Environment..."
-        azd env remove $Environment --force --no-prompt
-    }
-
     if (-not (Test-EnvExists -Name $Environment)) {
         Write-Log "Creating azd environment $Environment..."
         azd env new $Environment --subscription $Subscription --location $Location --no-prompt
@@ -169,7 +151,9 @@ try {
         "AZURE_PRINCIPAL_TYPE=$PrincipalType",
         "AZURE_RESOURCE_GROUP=$ResourceGroup",
         "AZURE_SUBSCRIPTION_ID=$Subscription",
-        "FINOPS_HUB_CLUSTER_URI=$FinopsHubClusterUri"
+        "FINOPS_HUB_CLUSTER_URI=$FinopsHubClusterUri",
+        "DEPLOY_FINOPS_HUB=$DeployHubValue",
+        "FINOPS_HUB_DATA_EXPLORER_SKU=$HubSku"
     )
 
     if ($FinopsHubClusterName) {

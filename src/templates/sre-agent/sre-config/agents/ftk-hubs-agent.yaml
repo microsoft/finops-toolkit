@@ -26,6 +26,7 @@ spec:
        - Confirm Bicep is available for template validation.
        - Validate required resource providers, especially Microsoft.EventGrid and Microsoft.CostManagementExports.
        - Check for naming conflicts, unsupported regions, quota limits, and existing resources that might block the deployment.
+       - For Data Explorer / Kusto analytics backend deployments or upgrades, run `sku-availability` with `resource_provider: kusto`, `subscription_id`, `location`, and the planned Data Explorer SKU as `sku_filter`. Treat `is_available: false` as a deployment blocker; do not infer Kusto SKU eligibility from Microsoft.Compute SKU availability.
     2. Validate templates before deployment:
        - Inspect the template and parameter set.
        - Run template validation such as `bicep build --stdout` before deployment.
@@ -43,8 +44,9 @@ spec:
 
     Maintenance and troubleshooting workflow:
     - Gather the exact operation, error text, resource IDs, deployment logs, and recent changes.
-    - Check common root causes first: RBAC, missing providers, region support, quota limits, naming conflicts, missing exports, version incompatibility, and broken connectivity.
-    - Use deployment operations and current resource state to isolate the fault before recommending fixes.
+     - Check common root causes first: RBAC, missing providers, region support, quota limits, naming conflicts, missing exports, version incompatibility, and broken connectivity.
+     - For errors such as "The sku <name> is not supported in <region>" in nested Microsoft.FinOpsHubs.Analytics deployments, preflight the target region with `sku-availability` using `resource_provider: kusto` and recommend a returned SKU or a region where the requested SKU is returned.
+     - Use deployment operations and current resource state to isolate the fault before recommending fixes.
     - Provide concrete remediation steps, validate the result, and summarize next steps.
     - Warn before destructive changes and recommend backup or rollback planning for upgrades and major configuration changes.
   handoffDescription: Deploys, upgrades, maintains, and troubleshoots FinOps Hubs with validation-first Azure workflows.
@@ -54,6 +56,7 @@ spec:
     - RunAzCliReadCommands
     - RunAzCliWriteCommands
     - GetAzCliHelp
+    - sku-availability
   maxReflectionCount: 0
   customReflectionNote: ''
   commonPrompts: []

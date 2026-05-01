@@ -7,26 +7,36 @@ spec:
   connector: ''
   toolMode: Auto
   description: |-
-    Lists Azure Compute SKU availability for a region, including available zones
-    and SKU availability restrictions with reason codes. Use it to identify VM
-    SKU availability, zone support, and regional restriction causes before
-    capacity planning or deployment.
+    Lists regional SKU availability for Azure Compute or Azure Data Explorer
+    (Kusto). Compute is the default and includes available zones and SKU
+    availability restrictions with reason codes. Kusto mode queries the
+    Microsoft.Kusto regional SKU API so FinOps Hub analytics deployments can
+    preflight whether a Data Explorer SKU is eligible in the target region and
+    subscription before deployment.
   functionCode: |-
     def main(**kwargs):
         import requests
 
         ARM_ENDPOINT = "https://management.azure.com"
         ARM_SCOPE = "https://management.azure.com/.default"
-        API_VERSION = "2021-07-01"
+        COMPUTE_API_VERSION = "2021-07-01"
+        KUSTO_API_VERSION = "2024-04-13"
 
         subscription_id = kwargs.get("subscription_id")
         location = kwargs.get("location")
         sku_filter = kwargs.get("sku_filter")
+        resource_provider = str(kwargs.get("resource_provider") or "compute").strip().lower()
+
+        if resource_provider in ("microsoft.compute", "compute"):
+            resource_provider = "compute"
+        elif resource_provider in ("microsoft.kusto", "kusto", "adx", "azuredataexplorer", "azure data explorer"):
+            resource_provider = "kusto"
 
         result = {
             "subscription_id": subscription_id,
             "location": location,
             "sku_filter": sku_filter,
+            "resource_provider": resource_provider,
             "skus": [],
             "restriction_summary": {
                 "total_skus": 0,
@@ -44,7 +54,11 @@ spec:
             result["error"] = "location is required"
             return result
 
-        normalized_filter = str(sku_filter).lower() if sku_filter else None
+        if resource_provider not in ("compute", "kusto"):
+            result["error"] = "resource_provider must be 'compute' or 'kusto'"
+            return result
+
+        normalized_filter = str(sku_filter).strip().lower() if sku_filter else None
 
         try:
             client_id = kwargs.get("client_id")
@@ -64,13 +78,16 @@ spec:
             return result
 
         try:
-            url = f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/providers/Microsoft.Compute/skus"
-            resource_skus = []
-            params = {
-                "api-version": API_VERSION,
-                "$filter": f"location eq '{location}'",
-            }
-            while url:
+            if resource_provider == "kusto":
+                # Microsoft Learn documents Get-AzKustoSku and Kusto Skus_List as
+                # the authoritative regional eligibility surface for Azure Data
+                # Explorer SKUs. Do not infer Kusto availability from Compute SKUs.
+                url = f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/providers/Microsoft.Kusto/locations/{location}/skus"
+                params = {"api-version": KUSTO_API_VERSION}
+                result["service"] = "Azure Data Explorer"
+                result["source_endpoint"] = f"{url}?api-version={KUSTO_API_VERSION}"
+                result["requested_sku"] = str(sku_filter).strip() if sku_filter else None
+
                 response = requests.get(
                     url,
                     headers=headers,
@@ -79,59 +96,133 @@ spec:
                 )
                 response.raise_for_status()
                 payload = response.json()
-                resource_skus.extend(payload.get("value", []))
-                url = payload.get("nextLink")
-                params = None
+                resource_skus = payload.get("value", [])
 
-            for sku in resource_skus:
-                name = sku.get("name")
-                if normalized_filter and normalized_filter not in str(name or "").lower():
-                    continue
+                def kusto_value(sku, *keys):
+                    for key in keys:
+                        if key in sku and sku[key] is not None:
+                            return sku[key]
+                    properties = sku.get("properties")
+                    if isinstance(properties, dict):
+                        for key in keys:
+                            if key in properties and properties[key] is not None:
+                                return properties[key]
+                    return None
 
-                restrictions = []
-                for restriction in sku.get("restrictions") or []:
-                    reason_code = restriction.get("reasonCode", restriction.get("reason_code"))
-                    restriction_item = {
-                        "type": restriction.get("type"),
-                        "values": list(restriction.get("values") or []),
-                        "reason_code": reason_code,
+                exact_match_found = False
+                for sku in resource_skus:
+                    name = kusto_value(sku, "name")
+                    if normalized_filter and str(name or "").lower() == normalized_filter:
+                        exact_match_found = True
+
+                    sku_item = {
+                        "name": name,
+                        "tier": kusto_value(sku, "tier"),
+                        "resource_type": kusto_value(sku, "resourceType", "resource_type"),
                     }
 
-                    restriction_info = restriction.get("restrictionInfo") or restriction.get("restriction_info")
-                    if restriction_info:
-                        restriction_item["restriction_info"] = {
-                            "locations": list(restriction_info.get("locations") or []),
-                            "zones": list(restriction_info.get("zones") or []),
+                    for output_key, source_keys in (
+                        ("size", ("size",)),
+                        ("capacity", ("capacity",)),
+                        ("locations", ("locations",)),
+                        ("restrictions", ("restrictions",)),
+                    ):
+                        value = kusto_value(sku, *source_keys)
+                        if value is not None:
+                            sku_item[output_key] = value
+
+                    result["skus"].append(sku_item)
+
+                result["is_available"] = bool(exact_match_found) if normalized_filter else True
+                if normalized_filter and not exact_match_found:
+                    result["guidance"] = (
+                        "The requested Azure Data Explorer SKU was not returned by the Microsoft.Kusto "
+                        "regional SKU API for this subscription and region. Choose one of the returned "
+                        "SKUs in this region/subscription, or deploy to a region where the requested SKU "
+                        "is returned. Do not infer ADX/Kusto SKU eligibility from Microsoft.Compute SKU results."
+                    )
+
+                result["restriction_summary"]["total_skus"] = len(result["skus"])
+                result["restriction_summary"]["restricted_skus"] = sum(
+                    1 for sku in result["skus"] if sku.get("restrictions")
+                )
+                result["restriction_summary"]["restriction_count"] = sum(
+                    len(sku.get("restrictions") or []) for sku in result["skus"]
+                )
+
+            else:
+                url = f"{ARM_ENDPOINT}/subscriptions/{subscription_id}/providers/Microsoft.Compute/skus"
+                resource_skus = []
+                params = {
+                    "api-version": COMPUTE_API_VERSION,
+                    "$filter": f"location eq '{location}'",
+                }
+                result["service"] = "Azure Compute"
+                result["source_endpoint"] = (
+                    f"{url}?api-version={COMPUTE_API_VERSION}&$filter=location eq '{location}'"
+                )
+                while url:
+                    response = requests.get(
+                        url,
+                        headers=headers,
+                        params=params,
+                        timeout=120,
+                    )
+                    response.raise_for_status()
+                    payload = response.json()
+                    resource_skus.extend(payload.get("value", []))
+                    url = payload.get("nextLink")
+                    params = None
+
+                for sku in resource_skus:
+                    name = sku.get("name")
+                    if normalized_filter and normalized_filter not in str(name or "").lower():
+                        continue
+
+                    restrictions = []
+                    for restriction in sku.get("restrictions") or []:
+                        reason_code = restriction.get("reasonCode", restriction.get("reason_code"))
+                        restriction_item = {
+                            "type": restriction.get("type"),
+                            "values": list(restriction.get("values") or []),
+                            "reason_code": reason_code,
                         }
 
-                    restrictions.append(restriction_item)
-                    result["restriction_summary"]["restriction_count"] += 1
+                        restriction_info = restriction.get("restrictionInfo") or restriction.get("restriction_info")
+                        if restriction_info:
+                            restriction_item["restriction_info"] = {
+                                "locations": list(restriction_info.get("locations") or []),
+                                "zones": list(restriction_info.get("zones") or []),
+                            }
 
-                    reason_key = str(reason_code or "Unknown")
-                    reason_codes = result["restriction_summary"]["reason_codes"]
-                    reason_codes[reason_key] = reason_codes.get(reason_key, 0) + 1
+                        restrictions.append(restriction_item)
+                        result["restriction_summary"]["restriction_count"] += 1
 
-                zones = set()
-                for location_info in sku.get("locationInfo", sku.get("location_info", [])) or []:
-                    info_location = location_info.get("location")
-                    if not info_location or str(info_location).lower() == str(location).lower():
-                        zones.update(str(zone) for zone in (location_info.get("zones") or []))
+                        reason_key = str(reason_code or "Unknown")
+                        reason_codes = result["restriction_summary"]["reason_codes"]
+                        reason_codes[reason_key] = reason_codes.get(reason_key, 0) + 1
 
-                result["skus"].append({
-                    "name": name,
-                    "family": sku.get("family"),
-                    "size": sku.get("size"),
-                    "zones_available": sorted(zones),
-                    "restrictions": restrictions,
-                })
+                    zones = set()
+                    for location_info in sku.get("locationInfo", sku.get("location_info", [])) or []:
+                        info_location = location_info.get("location")
+                        if not info_location or str(info_location).lower() == str(location).lower():
+                            zones.update(str(zone) for zone in (location_info.get("zones") or []))
 
-            result["restriction_summary"]["total_skus"] = len(result["skus"])
-            result["restriction_summary"]["restricted_skus"] = sum(
-                1 for sku in result["skus"] if sku["restrictions"]
-            )
+                    result["skus"].append({
+                        "name": name,
+                        "family": sku.get("family"),
+                        "size": sku.get("size"),
+                        "zones_available": sorted(zones),
+                        "restrictions": restrictions,
+                    })
+
+                result["restriction_summary"]["total_skus"] = len(result["skus"])
+                result["restriction_summary"]["restricted_skus"] = sum(
+                    1 for sku in result["skus"] if sku["restrictions"]
+                )
 
         except Exception as exc:
-            result["error"] = f"Failed to list Azure Compute resource SKUs: {exc}"
+            result["error"] = f"Failed to list Azure {resource_provider} resource SKUs: {exc}"
 
         return result
   timeoutSeconds: 240
@@ -148,13 +239,19 @@ spec:
       required: false
     - name: subscription_id
       type: string
-      description: Azure subscription ID to query for regional Compute SKU availability.
+      description: Azure subscription ID to query for regional SKU availability.
       required: true
     - name: location
       type: string
       description: Azure region to query for SKU availability and restrictions.
       required: true
+    - name: resource_provider
+      type: string
+      description: |-
+        Optional service selector. Use `compute` (default) for Microsoft.Compute SKU availability, zones, and restrictions. Use `kusto` for Microsoft.Kusto/Azure Data Explorer regional SKU eligibility before FinOps Hub analytics backend deployments or upgrades. Kusto availability must be checked through Microsoft.Kusto and must not be inferred from Compute SKU results.
+      required: false
     - name: sku_filter
       type: string
-      description: Optional case-insensitive substring filter applied to SKU names.
+      description: |-
+        Optional SKU name filter. In Compute mode this remains a case-insensitive substring filter to preserve existing behavior. In Kusto mode this is an exact case-insensitive requested SKU check; the result includes requested_sku, is_available, source_endpoint, and guidance when the requested SKU is absent.
       required: false

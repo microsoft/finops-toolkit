@@ -42,6 +42,48 @@ resolve_endpoint() {
   echo "$ep"
 }
 
+resolve_subscription_id() {
+  local sub_id="${AZURE_SUBSCRIPTION_ID:-}"
+  if [ -z "$sub_id" ]; then
+    sub_id="$(run_output_cmd az account show --query id -o tsv 2>/dev/null || true)"
+  fi
+
+  [ -n "$sub_id" ] && ! echo "$sub_id" | grep -q '^ERROR' || fail "AZURE_SUBSCRIPTION_ID is required for RBAC assignment."
+  echo "$sub_id"
+}
+
+resolve_identity_principal_id() {
+  local principal_id="${IDENTITY_PRINCIPAL_ID:-}"
+  if [ -z "$principal_id" ] && command -v azd >/dev/null 2>&1; then
+    principal_id="$(azd env get-value IDENTITY_PRINCIPAL_ID --no-prompt 2>/dev/null || true)"
+  fi
+
+  [ -n "$principal_id" ] && ! echo "$principal_id" | grep -q '^ERROR' || fail "IDENTITY_PRINCIPAL_ID is required for RBAC assignment. Run azd env refresh after provisioning if this output is missing."
+  echo "$principal_id"
+}
+
+assign_role_if_missing() {
+  local principal_id="$1"
+  local role_id="$2"
+  local role_name="$3"
+  local scope="$4"
+  local existing
+
+  existing="$(run_output_cmd az role assignment list --assignee "$principal_id" --role "$role_id" --scope "$scope" --query 'length(@)' -o tsv 2>/dev/null)" || fail "Failed to check $role_name assignment for $principal_id at $scope."
+  if [ "${existing:-0}" != "0" ]; then
+    log "$role_name already assigned to UAMI ($principal_id) at subscription scope."
+    return 0
+  fi
+
+  log "Assigning $role_name to UAMI ($principal_id) at subscription scope..."
+  run_cmd az role assignment create \
+    --assignee-object-id "$principal_id" \
+    --assignee-principal-type ServicePrincipal \
+    --role "$role_id" \
+    --scope "$scope" \
+    --output none || fail "Failed to assign $role_name to $principal_id at $scope."
+}
+
 # Ensure srectl is installed
 ensure_srectl() {
   if command -v srectl >/dev/null 2>&1 && run_cmd srectl --version >/dev/null 2>&1; then return; fi
@@ -201,21 +243,9 @@ apply_scheduled_tasks() {
 # For multi-subscription capacity management, deploy this custom role at the
 # management group level so the agent can map zones across all child subscriptions.
 ensure_custom_permissions() {
-  local sub_id rg_name uami_principal_id role_name role_exists
-  sub_id="${AZURE_SUBSCRIPTION_ID:-$(run_output_cmd az account show --query id -o tsv 2>/dev/null)}"
-  rg_name="${AZURE_RESOURCE_GROUP:-$(azd env get-value AZURE_RESOURCE_GROUP --no-prompt 2>/dev/null || true)}"
-
-  if [ -z "$sub_id" ] || [ -z "$rg_name" ]; then
-    log "WARNING: Cannot determine subscription or resource group — skipping custom permissions."
-    return 0
-  fi
-
-  # Find the UAMI principal ID from the resource group
-  uami_principal_id="$(run_output_cmd az identity list --resource-group "$rg_name" --query '[0].principalId' -o tsv 2>/dev/null || true)"
-  if [ -z "$uami_principal_id" ]; then
-    log "WARNING: No managed identity found in $rg_name — skipping custom permissions."
-    return 0
-  fi
+  local sub_id uami_principal_id role_name role_exists
+  sub_id="$(resolve_subscription_id)"
+  uami_principal_id="$(resolve_identity_principal_id)"
 
   role_name="FinOps SRE Zone Peers Reader"
   scope="/subscriptions/${sub_id}"
@@ -242,6 +272,20 @@ ensure_custom_permissions() {
     --role "$role_name" \
     --scope "$scope" \
     --output none 2>&1 || log "WARNING: Role assignment may already exist or require elevated permissions."
+}
+
+# Assign subscription-level RBAC (Reader + Monitoring Contributor) to the UAMI.
+# Moved from Bicep subscription-scoped deployment to post-provision so the
+# template can be resource-group scoped.
+assign_subscription_rbac() {
+  local sub_id uami_principal_id
+  sub_id="$(resolve_subscription_id)"
+  uami_principal_id="$(resolve_identity_principal_id)"
+
+  local scope="/subscriptions/${sub_id}"
+
+  assign_role_if_missing "$uami_principal_id" "acdd72a7-3385-48ef-bd42-f606fba81ae7" "Reader" "$scope"
+  assign_role_if_missing "$uami_principal_id" "749f88d5-cbae-40b8-bcfc-e573ddc772fa" "Monitoring Contributor" "$scope"
 }
 
 main() {
@@ -276,8 +320,10 @@ main() {
   # capacity management, which Bicep subscription-scoped deployments cannot express.
   if [ "${DRY_RUN:-0}" = "1" ]; then
     dry_run_log "Skipping custom Azure permission checks."
+    dry_run_log "Skipping subscription RBAC assignments."
   else
     ensure_custom_permissions
+    assign_subscription_rbac
   fi
 
   # Work from a temp directory so srectl init doesn't pollute the repo

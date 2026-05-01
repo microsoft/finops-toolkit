@@ -8,9 +8,6 @@
     "location": {
       "value": "${AZURE_LOCATION}"
     },
-    "resourceGroupName": {
-      "value": "${AZURE_RESOURCE_GROUP}"
-    },
     "adxClusterName": {
       "value": "${FINOPS_HUB_CLUSTER_NAME}"
     },
@@ -22,6 +19,12 @@
     },
     "finopsHubClusterUri": {
       "value": "${FINOPS_HUB_CLUSTER_URI}"
+    },
+    "DEPLOY_FINOPS_HUB": {
+      "value": "${DEPLOY_FINOPS_HUB}"
+    },
+    "FINOPS_HUB_DATA_EXPLORER_SKU": {
+      "value": "${FINOPS_HUB_DATA_EXPLORER_SKU}"
     }
   }
 }

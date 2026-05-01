@@ -29,7 +29,7 @@ spec:
     - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
     - `non-compute-quotas`: Run with subscription_id and location to get Storage and Network quota usage
     - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
-    - `sku-availability`: Run with subscription_id and location to get Compute SKU availability and restrictions
+    - `sku-availability`: Run with subscription_id and location to get Compute SKU availability and restrictions by default. Use `resource_provider: kusto` with a planned Data Explorer SKU in `sku_filter` to preflight Azure Data Explorer / Kusto eligibility for FinOps Hub analytics deployments; never infer Kusto availability from Compute SKU results.
     - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
 
 
@@ -80,6 +80,8 @@ spec:
     - Verify that planned SKUs are available in the required locations and zones
 
     - Flag any SKU restrictions that could block planned scaling
+
+    - For FinOps Hub Data Explorer backend work, run `sku-availability` with `resource_provider: kusto` and the planned ADX SKU as `sku_filter`; treat `is_available: false` as a deploy or upgrade blocker.
 
 
     Reference: Skill section on zone alignment and `references/docs/operations/capacity-planning/README.md`

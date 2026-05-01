@@ -1,0 +1,86 @@
+{
+  "predictedResources": [
+    {
+      "id": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-sre-5gm3m6nffs2oc",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "name": "id-sre-5gm3m6nffs2oc",
+      "apiVersion": "2023-01-31",
+      "location": "eastus2"
+    },
+    {
+      "id": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.OperationalInsights/workspaces/law-5gm3m6nffs2oc",
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "name": "law-5gm3m6nffs2oc",
+      "apiVersion": "2023-09-01",
+      "location": "eastus2",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30
+      }
+    },
+    {
+      "id": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.Insights/components/appi-5gm3m6nffs2oc",
+      "type": "Microsoft.Insights/components",
+      "name": "appi-5gm3m6nffs2oc",
+      "apiVersion": "2020-02-02",
+      "location": "eastus2",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.OperationalInsights/workspaces/law-5gm3m6nffs2oc"
+      }
+    },
+    {
+      "id": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.App/agents/sre-agent-5gm3m6nffs2oc",
+      "type": "Microsoft.App/agents",
+      "name": "sre-agent-5gm3m6nffs2oc",
+      "apiVersion": "2025-05-01-preview",
+      "location": "eastus2",
+      "identity": {
+        "type": "SystemAssigned, UserAssigned",
+        "userAssignedIdentities": {
+          "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-sre-5gm3m6nffs2oc": {}
+        }
+      },
+      "tags": {
+        "hidden-link: /app-insights-resource-id": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.Insights/components/appi-5gm3m6nffs2oc"
+      },
+      "properties": {
+        "knowledgeGraphConfiguration": {
+          "managedResources": [
+            "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo"
+          ],
+          "identity": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-sre-5gm3m6nffs2oc"
+        },
+        "experimentalSettings": {
+          "EnableWorkspaceTools": true
+        },
+        "actionConfiguration": {
+          "mode": "Autonomous",
+          "identity": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-sre-5gm3m6nffs2oc"
+        },
+        "logConfiguration": {
+          "applicationInsightsConfiguration": {
+            "appId": "[reference('/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.Insights/components/appi-5gm3m6nffs2oc', '2020-02-02').AppId]",
+            "connectionString": "[listOutputsWithSecureValues('/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.Resources/deployments/monitoring', '2025-04-01').appInsightsConnectionString]"
+          }
+        },
+        "mcpServers": []
+      }
+    },
+    {
+      "id": "[CONCAT('/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.App/agents/sre-agent-5gm3m6nffs2oc/providers/', concat('Microsoft.Authorization/roleAssignments/', guid('/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.App/agents/sre-agent-5gm3m6nffs2oc', deployer().objectId, 'e79298df-d852-4c6d-84f9-5d13249d1e55')))]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "[guid('/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/resourceGroups/ftk-sre-demo/providers/Microsoft.App/agents/sre-agent-5gm3m6nffs2oc', deployer().objectId, 'e79298df-d852-4c6d-84f9-5d13249d1e55')]",
+      "apiVersion": "2022-04-01",
+      "properties": {
+        "roleDefinitionId": "/subscriptions/cab7feeb-759d-478c-ade6-9326de0651ff/providers/Microsoft.Authorization/roleDefinitions/e79298df-d852-4c6d-84f9-5d13249d1e55",
+        "principalId": "[deployer().objectId]",
+        "principalType": "User"
+      }
+    }
+  ],
+  "diagnostics": []
+}

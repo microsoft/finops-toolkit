@@ -17,7 +17,12 @@ fail() { printf '[deploy] ERROR: %s\n' "$*" >&2; exit 1; }
 usage() {
   cat <<'EOF'
 Usage:
-  bash ./scripts/deploy.sh --environment <name> --finops-hub-cluster-uri <uri> [options]
+  bash ./scripts/deploy.sh --environment <name> [options]
+
+Deployment modes:
+  Agent only:           omit --finops-hub-cluster-uri and --deploy-hub
+  Agent + existing hub: set --finops-hub-cluster-uri
+  Agent + new hub:      set --deploy-hub (optionally --hub-sku)
 
 Options:
   --environment <name>                    Target azd environment name.
@@ -25,25 +30,26 @@ Options:
   --subscription <subscription-id>        Azure subscription ID. Defaults to current az account.
   --resource-group <name>                 Azure resource group. Defaults to the environment name.
   --principal-type <type>                 Deployer principal type. Default: User.
-  --finops-hub-cluster-uri <uri>          Required FinOps Hub Kusto cluster URI.
-  --finops-hub-cluster-name <name>        Optional ADX cluster name for AllDatabasesViewer assignment.
+  --finops-hub-cluster-uri <uri>          Optional. Existing FinOps Hub Kusto cluster URI.
+  --finops-hub-cluster-name <name>        Optional. ADX cluster name for AllDatabasesViewer (external hub).
   --finops-hub-cluster-resource-group <name>
-                                           Optional ADX cluster resource group.
+                                           Optional. ADX cluster resource group (external hub).
+  --deploy-hub                            Deploy a FinOps hub alongside the SRE agent.
+  --hub-sku <sku>                         ADX SKU for the deployed hub. Default: Standard_E2ads_v5.
   --env-file <path>                       Load azd-style values from a .env file before applying overrides.
   --clone-env <name>                      Load values from .azure/<name>/.env before applying overrides.
-  --replace                               Delete Azure resources for the target environment first, then recreate.
-  --destroy                               Tear down the target environment and remove it. No deployment.
   -h, --help                              Show this help.
 
 Examples:
-  bash ./scripts/deploy.sh \
-    --environment ftk-sre-test3 \
+  # Agent only
+  bash ./scripts/deploy.sh --environment ftk-sre-demo
+
+  # Agent + existing hub
+  bash ./scripts/deploy.sh --environment ftk-sre-demo \
     --finops-hub-cluster-uri https://cluster.region.kusto.windows.net
 
-  bash ./scripts/deploy.sh \
-    --environment ftk-sre-test3 \
-    --clone-env ftk-sre-test2 \
-    --replace
+  # Agent + new hub (batteries included)
+  bash ./scripts/deploy.sh --environment ftk-sre-demo --deploy-hub
 EOF
 }
 
@@ -79,8 +85,8 @@ FINOPS_HUB_CLUSTER_NAME=''
 FINOPS_HUB_CLUSTER_RESOURCE_GROUP=''
 ENV_FILE=''
 CLONE_ENV=''
-REPLACE=false
-DESTROY=false
+DEPLOY_HUB=false
+HUB_SKU='Standard_E2ads_v5'
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -100,14 +106,14 @@ while [[ $# -gt 0 ]]; do
       FINOPS_HUB_CLUSTER_NAME="${2:-}"; shift 2 ;;
     --finops-hub-cluster-resource-group)
       FINOPS_HUB_CLUSTER_RESOURCE_GROUP="${2:-}"; shift 2 ;;
+    --deploy-hub)
+      DEPLOY_HUB=true; shift ;;
+    --hub-sku)
+      HUB_SKU="${2:-}"; shift 2 ;;
     --env-file)
       ENV_FILE="${2:-}"; shift 2 ;;
     --clone-env)
       CLONE_ENV="${2:-}"; shift 2 ;;
-    --replace)
-      REPLACE=true; shift ;;
-    --destroy)
-      DESTROY=true; shift ;;
     -h|--help)
       usage; exit 0 ;;
     *)
@@ -149,32 +155,15 @@ fi
 
 [ -n "$ENV_NAME" ] || fail "--environment is required."
 
-# Destroy mode: tear down and remove the environment, then exit.
-if $DESTROY; then
-  cd "$REPO_ROOT"
-  if env_exists "$ENV_NAME"; then
-    log "Tearing down Azure resources for environment $ENV_NAME..."
-    azd down --environment "$ENV_NAME" --force --purge --no-prompt
-    log "Removing local azd environment $ENV_NAME..."
-    azd env remove "$ENV_NAME" --force --no-prompt
-    log "Environment $ENV_NAME destroyed."
-  else
-    log "Environment $ENV_NAME does not exist locally. Nothing to destroy."
-  fi
-  exit 0
-fi
-
 [ -n "$SUBSCRIPTION" ] || fail "Azure subscription could not be resolved. Use --subscription or sign in with az."
-[ -n "$FINOPS_HUB_CLUSTER_URI" ] || fail "--finops-hub-cluster-uri is required."
+if $DEPLOY_HUB && [ -n "$FINOPS_HUB_CLUSTER_URI" ]; then
+  fail "--deploy-hub and --finops-hub-cluster-uri are mutually exclusive. Use one or the other."
+fi
+if ! $DEPLOY_HUB && [ -z "$FINOPS_HUB_CLUSTER_URI" ]; then
+  log "Deploying agent only — no FinOps hub. Kusto connector will not be configured."
+fi
 
 cd "$REPO_ROOT"
-
-if env_exists "$ENV_NAME" && $REPLACE; then
-  log "Deleting Azure resources for environment $ENV_NAME..."
-  azd down --environment "$ENV_NAME" --force --purge --no-prompt
-  log "Removing local azd environment $ENV_NAME..."
-  azd env remove "$ENV_NAME" --force --no-prompt
-fi
 
 if ! env_exists "$ENV_NAME"; then
   log "Creating azd environment $ENV_NAME..."
@@ -193,6 +182,8 @@ env_args=(
   "AZURE_RESOURCE_GROUP=$RESOURCE_GROUP"
   "AZURE_SUBSCRIPTION_ID=$SUBSCRIPTION"
   "FINOPS_HUB_CLUSTER_URI=$FINOPS_HUB_CLUSTER_URI"
+  "DEPLOY_FINOPS_HUB=$DEPLOY_HUB"
+  "FINOPS_HUB_DATA_EXPLORER_SKU=$HUB_SKU"
 )
 
 if [ -n "$FINOPS_HUB_CLUSTER_NAME" ]; then

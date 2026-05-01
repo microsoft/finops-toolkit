@@ -262,7 +262,7 @@ The UAT effort is credible only if:
 ### Completed — Packaging and redistribution
 
 - ✅ `scripts/deploy.sh` and `scripts/deploy.ps1` — single packaged entrypoint
-- ✅ `--clone-env`, `--replace`, `--destroy` modes
+- ✅ `--clone-env` mode
 - ✅ B2B tenant fix: `az account set --subscription` before `azd up`
 - ✅ Clone-env identity leak fixed
 - ✅ Tests enforce packaged deploy scripts (TC-4.1a)

@@ -107,6 +107,32 @@ The split is:
 
 **Status:** Some tools may need query updates for specific Hub versions.
 
+## 8. Azure Data Explorer SKU not supported in target region
+
+**Symptom:** A FinOps Hub deployment or upgrade fails in the nested `Microsoft.FinOpsHubs.Analytics` deployment with an Azure Data Explorer / Kusto validation error such as:
+
+> The sku Standard_E4d_v5 is not supported in westus
+
+**Cause:** Azure Data Explorer SKU eligibility is determined by the Microsoft.Kusto resource provider and can differ by Azure region and subscription. A VM size appearing in Microsoft.Compute SKU results does not prove that the equivalent Azure Data Explorer cluster SKU is eligible for Microsoft.Kusto in the target region.
+
+**Workaround:**
+- Before using `--deploy-hub`, upgrading a Hub analytics backend, or selecting a FinOps Hub Data Explorer SKU, run the `sku-availability` tool with `resource_provider: kusto`, the target `subscription_id`, target `location`, and the planned SKU in `sku_filter`.
+- If `is_available` is `false`, choose one of the SKUs returned by the Microsoft.Kusto regional SKU API for that subscription and region, or deploy to a region where the requested SKU is returned.
+- Do not infer ADX/Kusto SKU eligibility from `resource_provider: compute` results.
+
+**Validation surfaces:**
+- SRE Agent tool: `sku-availability` with `resource_provider: kusto`.
+- ARM REST API: `GET /subscriptions/{subscriptionId}/providers/Microsoft.Kusto/locations/{location}/skus?api-version=2024-04-13`.
+- PowerShell: `Get-AzKustoSku -SubscriptionId <subscription-id> -Location <region>` lists eligible region SKUs for the Kusto resource provider.
+- Azure SDK: `KustoExtensions.GetSkus` / `Skus_List` uses the Microsoft.Kusto regional SKU request path.
+
+**Microsoft Learn references:**
+- https://learn.microsoft.com/powershell/module/az.kusto/get-azkustosku?view=azps-15.5.0
+- https://learn.microsoft.com/dotnet/api/azure.resourcemanager.kusto.kustoextensions.getskus?view=azure-dotnet
+- https://learn.microsoft.com/azure/data-explorer/manage-cluster-choose-sku
+
+**Status:** Operational preflight requirement for FinOps Hub analytics deployments in regions where the planned ADX SKU may not be eligible.
+
 ## Summary of agent resilience
 
 All 9 scheduled tasks completed despite encountering errors. Key resilience patterns observed:

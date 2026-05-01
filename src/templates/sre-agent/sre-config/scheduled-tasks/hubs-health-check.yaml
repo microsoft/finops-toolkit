@@ -79,7 +79,7 @@ spec:
 
 
 
-    **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
+    **Visualizations:** Include a trend chart of data freshness (hours since last update) if degradation is detected. Version status should be reported as a table. Skip charts if all checks pass.
 
     **Teams (status results only):** Post the final health check results to our Teams channel. Include version status, data freshness status, and any action items. Do not post intermediate results — only the completed health check summary.
 

@@ -26,31 +26,36 @@ spec:
     Pass `client_id` as a parameter to each Python tool for UAMI authentication.
 
 
-    - `sku-availability`: Run with `subscription_id`, `location`, optional `sku_filter`, and `client_id` to list Compute SKU availability, zones, and restrictions.
+    - `sku-availability`: Run with `subscription_id`, `location`, optional `sku_filter`, optional `resource_provider`, and `client_id`. Use the default `resource_provider: compute` to list Compute SKU availability, zones, and restrictions. Use `resource_provider: kusto` for Azure Data Explorer / Kusto SKU eligibility checks before FinOps Hub analytics backend deployments or upgrades.
 
 
     ## 1. Establish region and SKU scope
 
 
-    Identify deployment regions and priority VM SKU families from knowledge base notes and prior reports. If no priority SKU list exists, audit commonly deployed VM families and explicitly state the assumed scope.
+    Identify deployment regions, priority VM SKU families, and any planned FinOps Hub Data Explorer SKUs from knowledge base notes and prior reports. If no priority SKU list exists, audit commonly deployed VM families and explicitly state the assumed scope. If no Data Explorer SKU list exists, include the currently planned or default Hub analytics backend SKU where documented; otherwise state that ADX scope is unknown.
 
 
     ## 2. Collect SKU availability
 
 
-    Run `sku-availability` for each scoped subscription and region using `subscription_id`, `location`, optional `sku_filter`, and `client_id`. Capture total SKUs, restricted SKUs, restriction reason codes, zone availability, and restriction values.
+    Run `sku-availability` for each scoped subscription and region using `subscription_id`, `location`, optional `sku_filter`, `resource_provider`, and `client_id`.
+
+
+    - For Compute, use `resource_provider: compute` or omit it to preserve the default behavior. Capture total SKUs, restricted SKUs, restriction reason codes, zone availability, and restriction values.
+
+    - For Azure Data Explorer / Kusto, use `resource_provider: kusto`. Capture `source_endpoint`, returned SKUs, `requested_sku`, `is_available`, and any guidance. ADX Kusto SKU eligibility must use the Microsoft.Kusto regional SKU API and must not be inferred from Microsoft.Compute SKU results.
 
 
     ## 3. Analyze deployment blockers
 
 
-    Identify restricted SKUs that could block future deployments, scaling, zone alignment, or capacity reservation planning. Group restrictions by reason code, region, zone, subscription, and family.
+    Identify restricted Compute SKUs that could block future deployments, scaling, zone alignment, or capacity reservation planning. Identify Kusto SKUs that are absent from the Microsoft.Kusto regional SKU response and could block FinOps Hub analytics deployments. Group findings by provider, reason code when available, region, zone, subscription, and family or SKU name.
 
 
     ## 4. Recommend actions
 
 
-    Recommend whether to request quota, change SKU family, change region, adjust deployment zone, or escalate to Azure capacity planning. Include uncertainty where planned demand is not documented.
+    Recommend whether to request quota, change SKU family, change region, adjust deployment zone, select a returned ADX SKU, or escalate to Azure capacity planning. Include uncertainty where planned demand is not documented.
 
 
     ## Report format
@@ -72,4 +77,3 @@ spec:
 
 
     Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a restricted SKU count by region chart and a restriction reason-code chart where the data supports it. Embed chart images inline in the Teams message alongside the text tables.'
-

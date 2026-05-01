@@ -383,3 +383,13 @@ env/
 
 # Auto-generated build artifacts
 src/templates/finops-hub-copilot-studio/knowledge/query-catalog.md
+.gate/
+
+# Gate pipeline files (runtime, not source)
+/todo/
+/done/
+
+# Ralph autonomous iteration loop
+/ralph.sh
+/ralph-meta.sh
+/ralph/

@@ -53,16 +53,40 @@ pwsh ./scripts/deploy.ps1 `
 Helpful options:
 
 - `--clone-env <name>` / `-CloneEnv <name>` to copy values from an existing local `azd` environment.
-- `--replace` / `-Replace` to tear down the target environment and recreate it before deployment.
 - `--finops-hub-cluster-name` and `--finops-hub-cluster-resource-group` when you also want the optional ADX `AllDatabasesViewer` role assignment.
+- `--deploy-hub` / `-DeployHub` to co-deploy a FinOps Hub analytics backend with the SRE Agent.
+- `--hub-sku <sku>` / `-HubSku <sku>` to choose the FinOps Hub Data Explorer SKU when `--deploy-hub` is used.
 
-Example for a clean evaluation rollout derived from an existing local environment:
+#### Required: preflight the FinOps Hub Data Explorer SKU
+
+Before using `--deploy-hub` or changing `--hub-sku`, verify the planned Azure Data Explorer SKU is eligible for the target subscription and region. ADX/Kusto SKU eligibility is service-specific and can differ by region and subscription; do **not** infer it from Microsoft.Compute VM SKU availability.
+
+Use the read-only Microsoft.Kusto regional SKU API:
+
+```bash
+az rest \
+  --method get \
+  --uri "https://management.azure.com/subscriptions/<subscription-id>/providers/Microsoft.Kusto/locations/<location>/skus?api-version=2024-04-13" \
+  --query "value[].{name:name,tier:tier,resourceType:resourceType}" \
+  --output table
+```
+
+Or use Azure PowerShell:
+
+```powershell
+Get-AzKustoSku -SubscriptionId <subscription-id> -Location "<region>"
+```
+
+If the planned SKU is not returned, deployment can fail in the nested `Microsoft.FinOpsHubs.Analytics` deployment with an error like `The sku Standard_E4d_v5 is not supported in westus`. Choose a returned SKU for that region/subscription or deploy the hub to a region where the requested SKU is returned.
+
+After deployment, the SRE Agent also has this operational IP through the `sku-availability` tool. Ask `azure-capacity-manager` or `ftk-hubs-agent` to run `sku-availability` with `resource_provider: kusto`, `subscription_id`, `location`, and the planned SKU in `sku_filter`.
+
+Example rollout derived from an existing local environment:
 
 ```bash
 bash ./scripts/deploy.sh \
   --environment ftk-sre-test3 \
-  --clone-env ftk-sre-test2 \
-  --replace
+  --clone-env ftk-sre-test2
 ```
 
 The wrapper uses the Azure Developer CLI environment flow documented by Microsoft Learn and follows the same `azure.yaml` + `post-provision.sh` packaging pattern used by the official `microsoft/sre-agent` examples.
@@ -219,8 +243,6 @@ finops-sre-agent/
 │   ├── deploy.sh                          # Single packaged deployment entrypoint (Bash)
 │   ├── deploy.ps1                         # Single packaged deployment entrypoint (PowerShell)
 │   └── post-provision.sh                   # srectl automation
-├── tests/
-│   └── sprint1-artifacts.test.mjs          # Template validation tests
 └── README.md
 ```
 
