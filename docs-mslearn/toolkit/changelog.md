@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/28/2026
+ms.date: 04/29/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -25,12 +25,12 @@ This article summarizes the features and enhancements in each release of the Fin
 
 The following section lists features and enhancements that are currently in development.
 
-### [Optimization engine](optimization-engine/overview.md) v14
+### Claude Code plugin v15.0.0
 
-- **Fixed**
-  - Improved retail prices export runbook resilience by adding API request retry logic (up to 3 attempts) before failing the runbook.
-  - Streaming each retail prices API response page directly to CSV instead of collecting the full dataset in memory, reducing memory usage during long exports.
-  - Added periodic progress logging during long retail prices exports, configurable via the `AzureOptimization_RetailPricesProgressEveryPages` automation variable (default: 25 pages).
+- **Added**
+  - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
+  - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
+  - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
 
 ### Bicep Registry module pending updates
 
@@ -81,14 +81,19 @@ _Released April 2026_
   - Added typed metadata contracts between hub apps to formalize dependency management and enable compile-time verification of inter-app interfaces.
 - **Changed**
   - Improved deployment UI to consolidate hub mode selection into a single radio button group with four mutually exclusive options: None (storage only for Power BI reports), Azure Data Explorer, Microsoft Fabric, or Remote Hub ([#1929](https://github.com/microsoft/finops-toolkit/issues/1929)).
-  - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
-  - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
+    - Remote Hub configuration (storage URI, storage key, and purge protection) is now displayed in the Basics tab when Remote Hub mode is selected, making the mutual exclusivity clear.
+    - Data Explorer SKU and retention settings are now only visible when Azure Data Explorer mode is selected.
   - Documented the `<ingestionId>__<originalFileName>.parquet` filename convention, full-folder replacement requirement, and manifest content rules for ingesting custom FOCUS datasets to prevent silent data loss ([#2096](https://github.com/microsoft/finops-toolkit/issues/2096)).
 - **Fixed**
   - Fixed Init-DataFactory deployment script failing when an Event Grid subscription is already provisioning by checking subscription status before attempting subscribe/unsubscribe and polling separately for completion ([#1996](https://github.com/microsoft/finops-toolkit/issues/1996)).
-  - Added row count check in `msexports_ExecuteETL` pipeline to fix error when export files have no rows ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
-  - Fixed Data Explorer dashboard cost totals and savings KPIs producing invalid sums in multi-billing-currency tenants by adding a Currency parameter that scopes all tile queries to a single currency, with a warning indicator when multiple currencies are present ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
+  - Fixed `msexports_ExecuteETL` pipeline failing on empty export files by adding a row count check ([#1535](https://github.com/microsoft/finops-toolkit/issues/1535)).
+  - Fixed Data Explorer dashboard cost and savings KPIs producing invalid sums in multi-billing-currency tenants by adding a Currency parameter that scopes tile queries to a single currency ([#2093](https://github.com/microsoft/finops-toolkit/issues/2093)).
   - Fixed hub deployment failure in US Government cloud regions caused by missing region-to-time-zone mappings and an invalid default value for Data Factory schedule triggers ([#2087](https://github.com/microsoft/finops-toolkit/issues/2087)).
+
+### [Power BI reports](power-bi/reports.md) v14
+
+- **Fixed**
+  - Fixed Power BI storage report refresh errors caused by unrecognized `Term` values like `P10Y` (10-year reservations) in pricesheet exports ([#2106](https://github.com/microsoft/finops-toolkit/issues/2106)).
 
 ### [FinOps workbooks](workbooks/finops-workbooks-overview.md) v14
 
@@ -102,14 +107,10 @@ _Released April 2026_
 ### [Optimization engine](optimization-engine/overview.md) v14
 
 - **Changed**
-  - Upgraded the Azure EA/MCA Pricesheet download API version used by the pricesheet export runbook (previously used version is being deprecated in June 1, 2026).
-
-### [Open data](open-data.md) v14
-
-**[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
-
-- **Added**
-  - Added a new [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) dataset with pre-computed reservation and savings plan eligibility per meter, sourced from the Azure Retail Prices API.
+  - Upgraded the Azure EA/MCA Pricesheet download API version used by the pricesheet export runbook (previously used version is being deprecated June 1, 2026).
+  - Improved retail prices export runbook resilience with API request retry logic, streaming each response page directly to CSV to reduce memory usage, and periodic progress logging during long exports ([#2102](https://github.com/microsoft/finops-toolkit/pull/2102)).
+  - Streaming each retail prices API response page directly to CSV instead of collecting the full dataset in memory, reducing memory usage during long exports.
+  - Added periodic progress logging during long retail prices exports, configurable via the `AzureOptimization_RetailPricesProgressEveryPages` automation variable (default: 25 pages).
 
 ### [PowerShell module](powershell/powershell-commands.md) v14
 
@@ -117,6 +118,13 @@ _Released April 2026_
   - Added `-WhatIf` support for resource provider registration in [New-FinOpsCostExport](powershell/cost/new-finopscostexport.md).
 - **Fixed**
   - Fixed inverted verbose logging in [Start-FinOpsCostExport](powershell/cost/start-finopscostexport.md) that showed blank dates when a date range was specified.
+
+### [Open data](open-data.md) v14
+
+**[Commitment discount eligibility](open-data.md#commitment-discount-eligibility)**
+
+- **Added**
+  - Added a new [Commitment discount eligibility](open-data.md#commitment-discount-eligibility) dataset with pre-computed reservation and savings plan eligibility per meter, sourced from the Azure Retail Prices API.
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]

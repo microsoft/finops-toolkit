@@ -325,9 +325,18 @@ table Prices
 				    HackToWorkAroundDateParsingBug = Table.Sort(RawData,{{"EffectiveStartDate", Order.Ascending}}),
 				
 				    FixTypes = Table.TransformColumnTypes(
-				        Table.ReplaceValue(HackToWorkAroundDateParsingBug, 
-				            // Fix inconsistent Microsoft term values
-				            each [Term], each if [Term] = "P1M" then 1 else if [Term] = "P1Y" then 12 else if [Term] = "P3Y" then 36 else if [Term] = "P5Y" then 60 else [Term], Replacer.ReplaceValue, {"Term"}),
+				        Table.ReplaceValue(HackToWorkAroundDateParsingBug,
+				            // Fix inconsistent Microsoft term values. Known mappings + ISO-8601 PnY/PnM fallback for future values (e.g. P10Y).
+				            each [Term], each
+				                if [Term] = "P1M" then 1
+				                else if [Term] = "P1Y" then 12
+				                else if [Term] = "P3Y" then 36
+				                else if [Term] = "P5Y" then 60
+				                else if [Term] = "P10Y" then 120
+				                else if [Term] <> null and Text.StartsWith([Term], "P") and Text.EndsWith([Term], "Y") then try Number.FromText(Text.Range([Term], 1, Text.Length([Term]) - 2)) * 12 otherwise null
+				                else if [Term] <> null and Text.StartsWith([Term], "P") and Text.EndsWith([Term], "M") then try Number.FromText(Text.Range([Term], 1, Text.Length([Term]) - 2)) otherwise null
+				                else null,
+				            Replacer.ReplaceValue, {"Term"}),
 				        {
 				            // Date columns
 				            {"EffectiveEndDate",   type datetime},
