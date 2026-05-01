@@ -3,7 +3,7 @@ title: How to create and update FinOps hubs
 description: This tutorial helps you create a new or update an existing FinOps hubs instance in Azure or Microsoft Fabric.
 author: flanakin
 ms.author: micflan
-ms.date: 04/21/2026
+ms.date: 05/01/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -157,7 +157,7 @@ The core engine for FinOps hubs is deployed via an Azure Resource Manager deploy
    - We don't recommend changing either setting for your initial deployment.
    - If using Data Explorer, the storage account is a temporary data store and shouldn't need geo-redundancy.
    - Most deployments doesn't require a larger Data Explorer SKU. We recommend starting with the dev/test cluster and monitoring performance before scaling up or out.
-   - For details about scaling Data Explorer, see [Select a SKU for your cluster](/azure/data-explorer/manage-cluster-choose-sku).
+   - Not all Data Explorer SKUs are available in every region. If you change the SKU, confirm it's available in your target region first. See [Select a SKU for your cluster](/azure/data-explorer/manage-cluster-choose-sku) for guidance and [common errors](../help/errors.md) if deployment fails.
 8. Select the **Next** button at the bottom of the form.
 9. Set the desired data retention periods.
    - Raw data retention refers to data added to Data Explorer, but not normalized into the final tables. Use 0 unless you need to troubleshoot ingestion issues. This number indicates retention in days.

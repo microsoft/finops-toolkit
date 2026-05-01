@@ -67,6 +67,8 @@ Deploy using one of these links:
 | Storage SKU | `Premium_LRS` or `Premium_ZRS` | Default (LRS) for initial deploy |
 | Data Explorer SKU | Cluster size | `Dev(No SLA)_Standard_E2a_v4` to start |
 
+**Data Explorer SKU availability:** Not all SKUs are available in every region. To check availability, use `Get-AzKustoSku -Location "{region}"` or query `GET https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Kusto/locations/{location}/skus?api-version=2024-04-13`. If the selected SKU isn't available, deployment fails with `"The sku {SkuName} is not supported in {region}"`.
+
 ### PowerShell
 
 ```powershell

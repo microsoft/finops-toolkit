@@ -3,7 +3,7 @@ title: Deploy-FinOpsHub command
 description: Deploy a new or update an existing FinOps hub instance using the Deploy-FinOpsHub command in the FinOpsToolkit module.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/01/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -50,6 +50,9 @@ Deploy-FinOpsHub `
 | `‑RemoteHubStorageUri`   | Optional. Data Lake storage endpoint from the remote hub storage account. Used for cross-tenant cost data collection scenarios. Example: `https://primaryhub.dfs.core.windows.net/` |
 | `‑RemoteHubStorageKey`   | Optional. Storage account access key for the remote hub. Used for cross-tenant cost data collection scenarios. Must be kept secure as it provides full storage access. |
 | `‑Tags`                  | Optional. Tags for all resources.                                                                                                                                                   |
+
+> [!NOTE]
+> Not all Data Explorer SKUs are available in every region. If deployment fails with a SKU error, see [common errors](../../help/errors.md).
 
 <br>
 
