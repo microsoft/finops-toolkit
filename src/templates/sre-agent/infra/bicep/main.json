@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "862170050131353146"
+      "templateHash": "13444880851733351837"
     }
   },
   "parameters": {
@@ -62,14 +62,14 @@
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Optional. ADX cluster name for an external FinOps Hub role assignment. Only used when connecting to an existing hub in a different resource group."
+        "description": "Optional for Bicep, required for manual azd deployments that connect to an existing FinOps Hub. The packaged wrapper resolves this from finopsHubClusterUri."
       }
     },
     "adxClusterResourceGroupName": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
-        "description": "Optional. Resource group containing the external ADX cluster. Only used with adxClusterName."
+        "description": "Optional for Bicep, required for manual azd deployments that connect to an existing FinOps Hub. The packaged wrapper resolves this from finopsHubClusterUri."
       }
     }
   },

@@ -43,10 +43,10 @@ param DEPLOY_FINOPS_HUB string = 'false'
 @description('Optional. ADX cluster SKU for the deployed FinOps hub. Only used when DEPLOY_FINOPS_HUB is true.')
 param FINOPS_HUB_DATA_EXPLORER_SKU string = 'Standard_E2ads_v5'
 
-@description('Optional. ADX cluster name for an external FinOps Hub role assignment. Only used when connecting to an existing hub in a different resource group.')
+@description('Optional for Bicep, required for manual azd deployments that connect to an existing FinOps Hub. The packaged wrapper resolves this from finopsHubClusterUri.')
 param adxClusterName string = ''
 
-@description('Optional. Resource group containing the external ADX cluster. Only used with adxClusterName.')
+@description('Optional for Bicep, required for manual azd deployments that connect to an existing FinOps Hub. The packaged wrapper resolves this from finopsHubClusterUri.')
 param adxClusterResourceGroupName string = ''
 
 

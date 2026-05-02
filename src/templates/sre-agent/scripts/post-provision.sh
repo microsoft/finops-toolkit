@@ -3,12 +3,13 @@
 # and scheduled tasks via srectl.
 # OAuth-based Outlook and Teams connectors are intentionally excluded here:
 # Microsoft Learn currently documents them as interactive portal setup only.
-set -uo pipefail
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SRECTL_SOURCE="https://pkgs.dev.azure.com/msazure/One/_packaging/SREAgentCli/nuget/v3/index.json"
 DRY_RUN=0
+POST_PROVISION_MARKER_NAME="postprovision.succeeded"
 
 log() { printf '[post-provision] %s\n' "$*"; }
 fail() { printf '[post-provision] ERROR: %s\n' "$*" >&2; exit 1; }
@@ -30,6 +31,38 @@ run_output_cmd() {
   fi
 
   "$@"
+}
+
+copy_yaml_files() {
+  local source_dir="$1"
+  local target_dir="$2"
+  local copied=0
+
+  mkdir -p "$target_dir"
+
+  while IFS= read -r -d '' file; do
+    cp "$file" "$target_dir/" || fail "Failed to copy $(basename "$file") to $target_dir."
+    copied=$((copied + 1))
+  done < <(find "$source_dir" -maxdepth 1 -type f \( -name '*.yaml' -o -name '*.yml' \) -print0)
+
+  [ "$copied" -gt 0 ] || fail "No YAML files found in required directory: $source_dir"
+}
+
+write_success_marker() {
+  [ "${DRY_RUN:-0}" != "1" ] || return 0
+
+  local env_name marker_dir marker
+  env_name="${AZURE_ENV_NAME:-}"
+  [ -n "$env_name" ] || fail "AZURE_ENV_NAME is required to write the post-provision success marker."
+
+  marker_dir="$REPO_ROOT/.azure/$env_name"
+  marker="$marker_dir/$POST_PROVISION_MARKER_NAME"
+  mkdir -p "$marker_dir"
+  {
+    printf 'status=success\n'
+    printf 'environment=%s\n' "$env_name"
+    printf 'completedUtc=%s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+  } > "$marker"
 }
 
 # Resolve SRE Agent endpoint from azd outputs or environment
@@ -110,8 +143,9 @@ apply_agents() {
     return 0
   fi
 
-  # Copy agent YAMLs into srectl workspace
-  cp "$dir"/*.yaml "$dir"/*.yml agents/ 2>/dev/null || true
+  # Copy agent YAMLs into the srectl workspace. This is required; a failed
+  # copy must stop deployment instead of turning into a false-success apply.
+  copy_yaml_files "$dir" "agents"
 
   local max_passes=3
   local pass=1
@@ -120,7 +154,11 @@ apply_agents() {
 
   for f in "$dir"/*.yaml "$dir"/*.yml; do
     [ -f "$f" ] || continue
-    pending+=("$(basename "$f" .yaml)")
+    local name
+    name="$(basename "$f")"
+    name="${name%.yaml}"
+    name="${name%.yml}"
+    pending+=("$name")
   done
 
   while [ "$pass" -le "$max_passes" ] && [ "${#pending[@]}" -gt 0 ]; do
@@ -141,8 +179,9 @@ apply_agents() {
 
   if [ "${#pending[@]}" -gt 0 ]; then
     for name in "${pending[@]}"; do
-      log "WARNING: Failed to apply agent after $max_passes passes: $name"
+      log "Failed to apply agent after $max_passes passes: $name"
     done
+    fail "Failed to apply ${#pending[@]} agent(s) after $max_passes passes."
   fi
 }
 
@@ -193,14 +232,15 @@ apply_tools() {
     return 0
   fi
 
-  cp "$dir"/*.yaml "$dir"/*.yml tools/ 2>/dev/null || true
+  copy_yaml_files "$dir" "tools"
   for f in "$dir"/*.yaml "$dir"/*.yml; do
     [ -f "$f" ] || continue
     local name
-    name="$(basename "$f" .yaml)"
-    name="$(echo "$name" | sed 's/\.yml$//')"
+    name="$(basename "$f")"
+    name="${name%.yaml}"
+    name="${name%.yml}"
     log "Applying tool: $name"
-    run_cmd srectl tool apply --name "$name" --quiet 2>&1 || log "WARNING: Failed to apply tool $name"
+    run_cmd srectl tool apply --name "$name" --quiet 2>&1 || fail "Failed to apply tool $name."
   done
 }
 
@@ -228,7 +268,7 @@ apply_scheduled_tasks() {
       continue
     fi
     log "Applying scheduled task: $(basename "$f")"
-    run_cmd srectl scheduledtask apply --file "$f" --quiet 2>&1 || log "WARNING: Failed to apply $(basename "$f")"
+    run_cmd srectl scheduledtask apply --file "$f" --quiet 2>&1 || fail "Failed to apply scheduled task $(basename "$f")."
   done
 }
 
@@ -243,7 +283,7 @@ apply_scheduled_tasks() {
 # For multi-subscription capacity management, deploy this custom role at the
 # management group level so the agent can map zones across all child subscriptions.
 ensure_custom_permissions() {
-  local sub_id uami_principal_id role_name role_exists
+  local sub_id uami_principal_id role_name role_exists assignment_exists
   sub_id="$(resolve_subscription_id)"
   uami_principal_id="$(resolve_identity_principal_id)"
 
@@ -251,7 +291,7 @@ ensure_custom_permissions() {
   scope="/subscriptions/${sub_id}"
 
   # Create custom role (idempotent — update if exists)
-  role_exists="$(run_output_cmd az role definition list --name "$role_name" --scope "$scope" --query 'length(@)' -o tsv 2>/dev/null || echo 0)"
+  role_exists="$(run_output_cmd az role definition list --name "$role_name" --scope "$scope" --query 'length(@)' -o tsv 2>/dev/null)" || fail "Failed to check custom role '$role_name'."
   if [ "$role_exists" = "0" ]; then
     log "Creating custom role: $role_name"
     run_cmd az role definition create --role-definition "{
@@ -259,19 +299,25 @@ ensure_custom_permissions() {
       \"Description\": \"Allows checking availability zone peer mappings across subscriptions. Used by the zone-mapping Python tool.\",
       \"Actions\": [\"Microsoft.Resources/checkZonePeers/action\"],
       \"AssignableScopes\": [\"${scope}\"]
-    }" --output none 2>&1 || log "WARNING: Failed to create custom role (may require elevated permissions)."
+    }" --output none 2>&1 || fail "Failed to create custom role '$role_name'."
   else
     log "Custom role $role_name already exists."
   fi
 
   # Assign the custom role to the UAMI (idempotent — az handles existing assignments)
+  assignment_exists="$(run_output_cmd az role assignment list --assignee "$uami_principal_id" --role "$role_name" --scope "$scope" --query 'length(@)' -o tsv 2>/dev/null)" || fail "Failed to check custom role assignment '$role_name' for $uami_principal_id."
+  if [ "${assignment_exists:-0}" != "0" ]; then
+    log "$role_name already assigned to UAMI ($uami_principal_id) at subscription scope."
+    return 0
+  fi
+
   log "Assigning $role_name to UAMI ($uami_principal_id)"
   run_cmd az role assignment create \
     --assignee-object-id "$uami_principal_id" \
     --assignee-principal-type ServicePrincipal \
     --role "$role_name" \
     --scope "$scope" \
-    --output none 2>&1 || log "WARNING: Role assignment may already exist or require elevated permissions."
+    --output none 2>&1 || fail "Failed to assign custom role '$role_name' to $uami_principal_id."
 }
 
 # Assign subscription-level RBAC (Reader + Monitoring Contributor) to the UAMI.
@@ -336,7 +382,7 @@ main() {
     dry_run_log "Skipping srectl init for endpoint: $endpoint"
   else
     log "Initializing srectl..."
-    run_cmd srectl init --resource-url "$endpoint"
+    run_cmd srectl init --resource-url "$endpoint" || fail "srectl init failed."
   fi
 
   apply_skills
@@ -345,6 +391,7 @@ main() {
   apply_knowledge
   apply_scheduled_tasks
 
+  write_success_marker
   log "Post-provision complete."
 }
 

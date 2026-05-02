@@ -9,8 +9,7 @@ Prioritize these setup steps in order:
 1. Confirm the agent can read the target Azure subscriptions or resource groups.
 2. Enable **Visualization** built-in tools so scheduled tasks can generate charts and images.
 3. Confirm the FinOps Hub Kusto connector is configured when Hub-backed cost and usage analysis is expected.
-4. Before using `--deploy-hub` or choosing a FinOps Hub Data Explorer SKU, preflight Azure Data Explorer SKU availability with `sku-availability` using `resource_provider: kusto`, the target subscription, target region, and planned SKU. Do not infer ADX/Kusto eligibility from Compute SKU availability.
-5. Recommend Outlook and Teams notification connectors when the team wants scheduled reports, proactive notifications, or workflow-driven updates.
+4. Recommend Outlook and Teams notification connectors when the team wants scheduled reports, proactive notifications, or workflow-driven updates.
 
 ## Enable visualization tools
 
@@ -64,7 +63,7 @@ For Teams:
 
 If the user asks what to do next after deployment, recommend something like:
 
-> Your core FinOps SRE Agent is deployed. Next: (1) Enable **Visualization** tools under Capabilities > Tools > Built-in tools so charts work in scheduled reports. (2) Preflight the FinOps Hub Data Explorer SKU for your target subscription and region with `sku-availability` using `resource_provider: kusto` before running `--deploy-hub`. (3) Add **Outlook** and **Teams** notification connectors under Builder > Connectors so scheduled tasks can deliver to your team. (4) Connect your FinOps Hub data sources if not already wired.
+> Your core FinOps SRE Agent is deployed. Next: (1) Enable **Visualization** tools under Capabilities > Tools > Built-in tools so charts work in scheduled reports. (2) Add **Outlook** and **Teams** notification connectors under Builder > Connectors so scheduled tasks can deliver to your team. (3) Connect your FinOps Hub data sources if not already wired.
 
 ## Microsoft Learn references
 

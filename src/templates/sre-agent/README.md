@@ -1,6 +1,6 @@
 # FinOps SRE Agent
 
-Deploy and configure an Azure SRE Agent with FinOps and capacity management capabilities. `azd up` provisions the Azure infrastructure, creates the SRE Agent in Autonomous mode, assigns the required permissions, and runs the post-provision hook to apply agents, skills, knowledge, and the FinOps Hub Kusto connector. Outlook and Teams notification connectors are supported, but Microsoft Learn currently documents them as portal-based OAuth setup after deployment rather than `azd`/`srectl` automation.
+Deploy and configure an Azure SRE Agent with FinOps and capacity management capabilities. `azd up` provisions the Azure infrastructure, creates the SRE Agent in Autonomous mode, assigns the required permissions, creates the FinOps Hub Kusto connector when a hub URI is supplied, and runs the post-provision hook to apply agents, skills, tools, knowledge, and scheduled tasks. Outlook and Teams notification connectors are supported, but Microsoft Learn currently documents them as portal-based OAuth setup after deployment rather than `azd`/`srectl` automation.
 
 ## What you get
 
@@ -53,33 +53,17 @@ pwsh ./scripts/deploy.ps1 `
 Helpful options:
 
 - `--clone-env <name>` / `-CloneEnv <name>` to copy values from an existing local `azd` environment.
-- `--finops-hub-cluster-name` and `--finops-hub-cluster-resource-group` when you also want the optional ADX `AllDatabasesViewer` role assignment.
-- `--deploy-hub` / `-DeployHub` to co-deploy a FinOps Hub analytics backend with the SRE Agent.
-- `--hub-sku <sku>` / `-HubSku <sku>` to choose the FinOps Hub Data Explorer SKU when `--deploy-hub` is used.
+- `--finops-hub-cluster-name` and `--finops-hub-cluster-resource-group` only when the cluster URI is ambiguous or Resource Graph cannot resolve it automatically.
 
-#### Required: preflight the FinOps Hub Data Explorer SKU
+#### Existing FinOps Hub write requirement
 
-Before using `--deploy-hub` or changing `--hub-sku`, verify the planned Azure Data Explorer SKU is eligible for the target subscription and region. ADX/Kusto SKU eligibility is service-specific and can differ by region and subscription; do **not** infer it from Microsoft.Compute VM SKU availability.
+Supplying `--finops-hub-cluster-uri` / `-FinopsHubClusterUri` does not deploy FinOps Hub, but it does require control-plane writes on the existing FinOps Hub ADX cluster. The deployment creates Kusto `Microsoft.Kusto/clusters/principalAssignments` for the SRE Agent's user-assigned and system-assigned managed identities so the `finops-hub-kusto` connector can query the hub database with `AllDatabasesViewer`.
 
-Use the read-only Microsoft.Kusto regional SKU API:
+Those principal assignments are child resources of the existing ADX cluster, so ARM writes them under the FinOps Hub cluster's resource group. The deploying principal must be allowed to write those Kusto principal assignments, and the FinOps Hub resource group or ADX cluster cannot have a `ReadOnly` Azure management lock. A `CanNotDelete` lock is compatible with this path because it blocks deletion, not updates. If the hub scope must remain `ReadOnly`, do not use the wrapper with a hub URI; deploy the agent without the URI or grant ADX access through a separate controlled process before connecting the hub.
 
-```bash
-az rest \
-  --method get \
-  --uri "https://management.azure.com/subscriptions/<subscription-id>/providers/Microsoft.Kusto/locations/<location>/skus?api-version=2024-04-13" \
-  --query "value[].{name:name,tier:tier,resourceType:resourceType}" \
-  --output table
-```
+When a hub URI is supplied, the wrapper treats the existing hub connection as a required deployment contract. It resolves the ADX cluster from the URI before deployment, checks for ReadOnly Azure management locks on the required write scopes, passes the cluster name and resource group into Bicep, verifies the `azure.yaml` `postprovision` hook wrote its success marker, verifies the `finops-hub-kusto` connector resource, and confirms both SRE Agent managed identities have `AllDatabasesViewer` on the ADX cluster. If any step cannot be verified, the script exits non-zero instead of reporting success.
 
-Or use Azure PowerShell:
-
-```powershell
-Get-AzKustoSku -SubscriptionId <subscription-id> -Location "<region>"
-```
-
-If the planned SKU is not returned, deployment can fail in the nested `Microsoft.FinOpsHubs.Analytics` deployment with an error like `The sku Standard_E4d_v5 is not supported in westus`. Choose a returned SKU for that region/subscription or deploy the hub to a region where the requested SKU is returned.
-
-After deployment, the SRE Agent also has this operational IP through the `sku-availability` tool. Ask `azure-capacity-manager` or `ftk-hubs-agent` to run `sku-availability` with `resource_provider: kusto`, `subscription_id`, `location`, and the planned SKU in `sku_filter`.
+The wrappers use bounded polling for platform eventual consistency: connector provisioning is checked up to 30 times with a 10-second delay, and ADX principal assignment visibility is checked up to 30 times with a 10-second delay. `Failed`/`Canceled` connector states, missing connectors, connector `deploymentError`, and timeouts are fatal.
 
 Example rollout derived from an existing local environment:
 
@@ -99,7 +83,7 @@ azd env new <environment-name>
 # Required for post-provision connector configuration
 azd env set FINOPS_HUB_CLUSTER_URI https://<your-finops-hub-cluster>.kusto.windows.net/hub
 
-# Optional: enable ADX AllDatabasesViewer role assignment
+# Required when using manual azd up with an existing hub: enable ADX AllDatabasesViewer role assignment
 azd env set FINOPS_HUB_CLUSTER_NAME <your-adx-cluster-name>
 azd env set FINOPS_HUB_CLUSTER_RESOURCE_GROUP <adx-cluster-resource-group>
 
@@ -108,7 +92,7 @@ azd up
 
 `azd up` is the primary automation path. It deploys `infra/bicep/main.bicep`, publishes the SRE Agent endpoint as the `SRE_AGENT_ENDPOINT` output, and runs `bash ./scripts/post-provision.sh` as the `postprovision` hook.
 
-The ADX role assignment is optional. Set `FINOPS_HUB_CLUSTER_NAME` and `FINOPS_HUB_CLUSTER_RESOURCE_GROUP` when you want the deployment to grant the agent managed identity `AllDatabasesViewer` on your FinOps Hub ADX cluster.
+The packaged wrapper resolves `FINOPS_HUB_CLUSTER_NAME` and `FINOPS_HUB_CLUSTER_RESOURCE_GROUP` for you from `FINOPS_HUB_CLUSTER_URI` and verifies the deployment before reporting success. If you bypass the wrapper and run `azd up` manually with an existing hub, you must set all three values: `FINOPS_HUB_CLUSTER_URI`, `FINOPS_HUB_CLUSTER_NAME`, and `FINOPS_HUB_CLUSTER_RESOURCE_GROUP`. Otherwise the connector resource can be created without the ADX role assignment the agent needs to query the hub, and manual `azd up` will not perform the wrapper's URI resolution or post-deployment verification.
 
 ### Portal: Deploy to Azure button
 
@@ -216,7 +200,7 @@ azd up
        ├── srectl skill apply (3 skills)
        ├── srectl agent apply (5 subagents)
        ├── srectl doc upload (knowledge docs)
-       └── srectl connector apply (Kusto MCP → FinOps Hub)
+       └── srectl scheduledtask apply (18 scheduled tasks)
 ```
 
 ## Repository structure

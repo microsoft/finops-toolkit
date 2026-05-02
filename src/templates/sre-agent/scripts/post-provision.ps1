@@ -12,9 +12,28 @@ $script:DryRun = $DryRun.IsPresent
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = Split-Path -Parent $ScriptDir
 $SrectlSource = 'https://pkgs.dev.azure.com/msazure/One/_packaging/SREAgentCli/nuget/v3/index.json'
+$PostProvisionMarkerName = 'postprovision.succeeded'
 
 function Write-Log($Message) { Write-Host "[post-provision] $Message" }
 function Write-DryRun($Message) { Write-Host "[DRY-RUN] $Message" }
+
+function Write-SuccessMarker {
+    if ($script:DryRun) { return }
+
+    $environmentName = $env:AZURE_ENV_NAME
+    if (-not $environmentName) {
+        throw 'AZURE_ENV_NAME is required to write the post-provision success marker.'
+    }
+
+    $markerDir = Join-Path $RepoRoot ".azure/$environmentName"
+    $marker = Join-Path $markerDir $PostProvisionMarkerName
+    New-Item -ItemType Directory -Path $markerDir -Force | Out-Null
+    @(
+        'status=success'
+        "environment=$environmentName"
+        "completedUtc=$((Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ'))"
+    ) | Set-Content -Path $marker -Encoding utf8
+}
 
 function Invoke-SrectlOrDryRun {
     param(
@@ -109,6 +128,66 @@ function Add-RoleAssignmentIfMissing {
     }
 }
 
+function Add-CustomRoleAssignmentIfMissing {
+    param(
+        [string]$PrincipalId,
+        [string]$RoleName,
+        [string]$Scope
+    )
+
+    $existing = az role assignment list --assignee $PrincipalId --role $RoleName --scope $Scope --query 'length(@)' -o tsv 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to check custom role assignment $RoleName for $PrincipalId at $Scope."
+    }
+
+    if ([int]$existing -gt 0) {
+        Write-Log "$RoleName already assigned to UAMI ($PrincipalId) at subscription scope."
+        return
+    }
+
+    Write-Log "Assigning $RoleName to UAMI ($PrincipalId)"
+    az role assignment create `
+        --assignee-object-id $PrincipalId `
+        --assignee-principal-type ServicePrincipal `
+        --role $RoleName `
+        --scope $Scope `
+        --output none
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to assign custom role $RoleName to $PrincipalId at $Scope."
+    }
+}
+
+function Add-CustomPermissions {
+    $subscriptionId = Resolve-SubscriptionId
+    $principalId = Resolve-IdentityPrincipalId
+    $roleName = 'FinOps SRE Zone Peers Reader'
+    $scope = "/subscriptions/$subscriptionId"
+
+    $roleExists = az role definition list --name $roleName --scope $scope --query 'length(@)' -o tsv 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to check custom role $roleName."
+    }
+
+    if ([int]$roleExists -eq 0) {
+        Write-Log "Creating custom role: $roleName"
+        $roleDefinition = @{
+            Name = $roleName
+            Description = 'Allows checking availability zone peer mappings across subscriptions. Used by the zone-mapping Python tool.'
+            Actions = @('Microsoft.Resources/checkZonePeers/action')
+            AssignableScopes = @($scope)
+        } | ConvertTo-Json -Compress
+
+        az role definition create --role-definition $roleDefinition --output none
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create custom role $roleName."
+        }
+    } else {
+        Write-Log "Custom role $roleName already exists."
+    }
+
+    Add-CustomRoleAssignmentIfMissing -PrincipalId $principalId -RoleName $roleName -Scope $scope
+}
+
 function Add-SubscriptionRbac {
     $subscriptionId = Resolve-SubscriptionId
     $principalId = Resolve-IdentityPrincipalId
@@ -154,34 +233,35 @@ function Apply-Agents {
     $agentsDir = Join-Path $RepoRoot 'sre-config/agents'
     if (-not (Test-Path $agentsDir)) { return }
 
-    # Pass 1: agents without handoffs
-    foreach ($f in Get-YamlFiles $agentsDir) {
-        $hasHandoffs = (Select-String -Path $f.FullName -Pattern '^\s{2}handoffs:' -Quiet) -eq $true
-        if (-not $hasHandoffs) {
-            if ($script:DryRun) {
-                Write-DryRun "Would apply agent: $($f.BaseName)"
-                continue
-            }
-
-            Write-Log "Applying agent: $($f.Name)"
-            Invoke-SrectlOrDryRun apply-yaml --file $f.FullName
-            if ($LASTEXITCODE -ne 0) { throw "Failed to apply $($f.Name)" }
+    $files = @(Get-YamlFiles $agentsDir)
+    if ($script:DryRun) {
+        foreach ($f in $files) {
+            Write-DryRun "Would apply agent: $($f.BaseName)"
         }
+        return
     }
 
-    # Pass 2: agents with handoffs
-    foreach ($f in Get-YamlFiles $agentsDir) {
-        $hasHandoffs = (Select-String -Path $f.FullName -Pattern '^\s{2}handoffs:' -Quiet) -eq $true
-        if ($hasHandoffs) {
-            if ($script:DryRun) {
-                Write-DryRun "Would apply agent: $($f.BaseName)"
-                continue
-            }
-
+    $maxPasses = 3
+    $pending = @($files)
+    for ($pass = 1; $pass -le $maxPasses -and $pending.Count -gt 0; $pass++) {
+        Write-Log "Agent apply pass $pass ($($pending.Count) remaining)..."
+        $failed = @()
+        foreach ($f in $pending) {
             Write-Log "Applying agent: $($f.Name)"
             Invoke-SrectlOrDryRun apply-yaml --file $f.FullName
-            if ($LASTEXITCODE -ne 0) { throw "Failed to apply $($f.Name)" }
+            if ($LASTEXITCODE -ne 0) {
+                Write-Log "  Deferred: $($f.Name) (will retry)"
+                $failed += $f
+            }
         }
+        $pending = @($failed)
+    }
+
+    if ($pending.Count -gt 0) {
+        foreach ($f in $pending) {
+            Write-Log "Failed to apply agent after $maxPasses passes: $($f.Name)"
+        }
+        throw "Failed to apply $($pending.Count) agent(s) after $maxPasses passes."
     }
 }
 
@@ -237,7 +317,7 @@ function Apply-ScheduledTasks {
         Write-Log "Applying scheduled task: $($f.Name)"
         Invoke-SrectlOrDryRun scheduledtask apply --file $f.FullName --quiet 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) {
-            Write-Log "WARNING: Failed to apply $($f.Name)"
+            throw "Failed to apply scheduled task $($f.Name)"
         }
     }
 }
@@ -255,6 +335,7 @@ if ($script:DryRun) {
 } else {
     $endpoint = Resolve-Endpoint
     Install-Srectl
+    Add-CustomPermissions
     Add-SubscriptionRbac
 }
 
@@ -267,6 +348,7 @@ try {
     } else {
         Write-Log 'Initializing srectl...'
         Invoke-SrectlOrDryRun init --resource-url $endpoint
+        if ($LASTEXITCODE -ne 0) { throw 'srectl init failed.' }
     }
 
     Apply-Skills
@@ -275,6 +357,7 @@ try {
     Apply-Knowledge
     Apply-ScheduledTasks
 
+    Write-SuccessMarker
     Write-Log 'Post-provision complete.'
 } finally {
     Pop-Location

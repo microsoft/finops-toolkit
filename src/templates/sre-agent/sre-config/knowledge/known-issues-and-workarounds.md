@@ -116,7 +116,7 @@ The split is:
 **Cause:** Azure Data Explorer SKU eligibility is determined by the Microsoft.Kusto resource provider and can differ by Azure region and subscription. A VM size appearing in Microsoft.Compute SKU results does not prove that the equivalent Azure Data Explorer cluster SKU is eligible for Microsoft.Kusto in the target region.
 
 **Workaround:**
-- Before using `--deploy-hub`, upgrading a Hub analytics backend, or selecting a FinOps Hub Data Explorer SKU, run the `sku-availability` tool with `resource_provider: kusto`, the target `subscription_id`, target `location`, and the planned SKU in `sku_filter`.
+- Before upgrading a Hub analytics backend or selecting a FinOps Hub Data Explorer SKU, run the `sku-availability` tool with `resource_provider: kusto`, the target `subscription_id`, target `location`, and the planned SKU in `sku_filter`.
 - If `is_available` is `false`, choose one of the SKUs returned by the Microsoft.Kusto regional SKU API for that subscription and region, or deploy to a region where the requested SKU is returned.
 - Do not infer ADX/Kusto SKU eligibility from `resource_provider: compute` results.
 
