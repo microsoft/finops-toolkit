@@ -71,6 +71,7 @@ spec:
   - RunAzCliWriteCommands
   - GetAzCliHelp
   - execute_python
+  - data-freshness-check
   - sku-availability
   - vm-quota-usage
   - non-compute-quotas
@@ -81,3 +82,35 @@ spec:
   - reservation-recommendation-breakdown
   - savings-summary-report
   - cost-anomaly-detection
+  - PostTeamsMessage
+  - ReplyToTeamsMessage
+  - GetTeamsMessages
+  hooks:
+    PostToolUse:
+    - type: command
+      matcher: Bash|ExecuteShellCommand|Terminal|RunAzCliReadCommands|RunAzCliWriteCommands|execute_python|ExecutePythonCode
+      timeout: 30
+      failMode: block
+      script: |
+        #!/usr/bin/env python3
+        import json
+        import re
+        import sys
+
+        context = json.load(sys.stdin)
+        tool_payload = json.dumps({
+            "tool_input": context.get("tool_input", {}),
+            "tool_result": context.get("tool_result", ""),
+        })
+        blocked = [
+            (r"https://[^\s\"']+@github\.com", "Do not use authenticated GitHub remote URLs in shell commands. Use the configured credential provider or GitHub connector."),
+            (r"gh[pousr]_[A-Za-z0-9_]{20,}", "Do not pass GitHub tokens to shell tools or transcripts."),
+              (r"github_pat_[A-Za-z0-9_]{20,}", "GitHub PATs are forbidden. Do not pass personal access tokens to shell tools or transcripts."),
+        ]
+
+        for pattern, reason in blocked:
+            if re.search(pattern, tool_payload):
+                print(json.dumps({"decision": "block", "reason": reason}))
+                sys.exit(0)
+
+        print(json.dumps({"decision": "allow"}))

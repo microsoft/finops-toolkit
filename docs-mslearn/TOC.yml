@@ -154,7 +154,7 @@
           href: toolkit/hubs/upgrade.md
         - name: Compatibility guide
           href: toolkit/hubs/compatibility.md
-    - name: FinOps SRE Agent
+    - name: FinOps toolkit SRE Agent
       items:
         - name: Overview
           href: toolkit/sre-agent/overview.md

@@ -1,4 +1,4 @@
-# FinOps SRE Agent — Scheduled Task Catalog
+# FinOps toolkit SRE Agent — Scheduled Task Catalog
 
 > The definitive reference implementation for autonomous FinOps and capacity management automation.
 > Aligned with the [FinOps Framework](https://finops.org/framework) and [FOCUS specification](https://focus.finops.org).
@@ -257,7 +257,7 @@ AI cost reporting should use standard FOCUS measures first, with FinOps Hub enri
 
 ## Competitive Positioning
 
-This catalog positions the FinOps SRE Agent as the reference layer above cost data, not another dashboard.
+This catalog positions the FinOps toolkit SRE Agent as the reference layer above cost data, not another dashboard.
 
 What cloud-native and commercial platforms already do well:
 

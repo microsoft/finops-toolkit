@@ -46,6 +46,17 @@ function readJsoncFile(...segments) {
   return JSON.parse(stripJsoncComments(readRepoFile(...segments)));
 }
 
+function listFilesRecursive(directoryPath, predicate) {
+  return fs.readdirSync(directoryPath, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = path.join(directoryPath, entry.name);
+    if (entry.isDirectory()) {
+      return listFilesRecursive(entryPath, predicate);
+    }
+
+    return predicate(entryPath) ? [entryPath] : [];
+  });
+}
+
 function escapeRegex(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -77,6 +88,64 @@ test('TC-1.1–TC-1.5: agent YAML files use azuresre.ai/v2 and required fields',
     assertMatches(text, /^\s{2}handoffDescription:\s*/mu, `${fileName} must include spec.handoffDescription`);
     assertMatches(text, /^\s{2}tools:\s*/mu, `${fileName} must include spec.tools`);
   }
+});
+
+test('TC-1.6: Kusto query agents avoid az rest and expose freshness tool', () => {
+  const databaseQuery = readRepoFile('sre-config', 'agents', 'ftk-database-query.yaml');
+  const hubsAgent = readRepoFile('sre-config', 'agents', 'ftk-hubs-agent.yaml');
+
+  assertMatches(
+    databaseQuery,
+    /Never use RunAzCliReadCommands[\s\S]*`az rest`[\s\S]*Azure Data Explorer[\s\S]*data-freshness-check[\s\S]*ManagedIdentityCredential/mu,
+    'ftk-database-query must steer Kusto execution away from az rest and toward managed identity REST or repository tools',
+  );
+  assertMatches(
+    hubsAgent,
+    /data-freshness-check[\s\S]*Do not use Azure CLI or `az rest` against Azure Data Explorer/mu,
+    'ftk-hubs-agent must use data-freshness-check instead of az rest for Hub freshness checks',
+  );
+
+  const tasksDir = repoPath('sre-config', 'scheduled-tasks');
+  const freshnessTaskFiles = listFilesRecursive(tasksDir, file => /\.ya?ml$/iu.test(file)).filter(file =>
+    fs.readFileSync(file, 'utf8').includes('data-freshness-check'),
+  );
+  const agentsRequiringFreshness = new Set();
+
+  for (const file of freshnessTaskFiles) {
+    const text = fs.readFileSync(file, 'utf8');
+    const agentMatch = text.match(/^\s{2}agent:\s*([A-Za-z0-9_-]+)\s*$/mu);
+    if (agentMatch) {
+      agentsRequiringFreshness.add(`${agentMatch[1]}.yaml`);
+    }
+  }
+
+  assert.ok(agentsRequiringFreshness.size > 0, 'Expected scheduled tasks to require data-freshness-check');
+
+  for (const fileName of agentsRequiringFreshness) {
+    const text = readRepoFile('sre-config', 'agents', fileName);
+    assertMatches(text, /^\s*-\s*data-freshness-check\s*$/mu, `${fileName} must expose data-freshness-check`);
+  }
+});
+
+test('TC-1.6a: costs-enriched-base rejects broad raw detail windows', () => {
+  const text = readRepoFile('tools', 'costs-enriched-base.yaml');
+
+  assertMatches(text, /description:[\s\S]*row-level cost and usage sample/imu, 'costs-enriched-base must be documented as row-level detail');
+  assertMatches(text, /description:[\s\S]*Do not use it for full-month[\s\S]*aggregation tools/imu, 'costs-enriched-base must direct reporting workflows to aggregate tools');
+  assertMatches(text, /let\s+_startDate\s*=\s*todatetime\(##startDate##\);/mu, 'costs-enriched-base must parse startDate once');
+  assertMatches(text, /let\s+_endDate\s*=\s*todatetime\(##endDate##\);/mu, 'costs-enriched-base must parse endDate once');
+  assertMatches(text, /let\s+_maxRawWindow\s*=\s*1d;/mu, 'costs-enriched-base must cap raw detail windows at one day');
+  assertMatches(text, /assert\(_endDate\s*>\s*_startDate/mu, 'costs-enriched-base must reject inverted windows');
+  assertMatches(
+    text,
+    /assert\(_endDate\s*-\s*_startDate\s*<=\s*_maxRawWindow[\s\S]*Use aggregated cost tools for full-month or scheduled reports/imu,
+    'costs-enriched-base must reject broad windows with aggregate-tool guidance',
+  );
+  assertMatches(
+    text,
+    /ChargePeriodStart\s*>=\s*_startDate\s+and\s+ChargePeriodStart\s*<\s*_endDate/mu,
+    'costs-enriched-base must filter with the guarded date variables',
+  );
 });
 
 test('TC-2.1–TC-2.3: skill packages include frontmatter with name and description', () => {
@@ -169,33 +238,255 @@ test('TC-4.2: post-provision scripts initialize srectl and apply repo configurat
   assertMatches(ps1, /scheduledtask.*apply/mu, 'post-provision.ps1 must apply scheduled tasks');
 });
 
+test('TC-4.2e: knowledge package includes a listable document index sentinel', () => {
+  const knowledgeDir = repoPath('sre-config', 'knowledge');
+  const knowledgeFiles = fs.readdirSync(knowledgeDir).filter(f => f.endsWith('.md')).sort();
+  const indexText = readRepoFile('sre-config', 'knowledge', 'document-index.md');
+  const sh = readRepoFile('scripts', 'post-provision.sh');
+  const ps1 = readRepoFile('scripts', 'post-provision.ps1');
+
+  assert.ok(knowledgeFiles.includes('document-index.md'), 'knowledge package must include document-index.md');
+  assert.ok(knowledgeFiles.length >= 4, `Expected at least 4 knowledge documents, found ${knowledgeFiles.length}`);
+  assertMatches(indexText, /srectl doc get/mu, 'document-index.md must document the supported document-list command');
+  assertMatches(indexText, /List uploaded documents|listing uploaded knowledge documents/imu, 'document-index.md must explain that doc get lists uploaded documents');
+  assertMatches(indexText, /srectl doc search[\s\S]*not a reliable replacement/imu, 'document-index.md must prevent using search as a list substitute');
+  assertMatches(indexText, /If `srectl doc get` returns no output[\s\S]*empty knowledge base/imu, 'document-index.md must classify empty doc get output as no visible uploaded documents');
+  assertMatches(sh, /srectl doc get/mu, 'post-provision.sh must verify knowledge documents are listable after upload');
+  assertMatches(sh, /max_attempts=3[\s\S]*sleep 5/mu, 'post-provision.sh must use a bounded retry for document listing visibility');
+  assertMatches(sh, /document-index\.md/mu, 'post-provision.sh must verify the knowledge document index was uploaded');
+  assertMatches(ps1, /srectl doc get/mu, 'post-provision.ps1 must verify knowledge documents are listable after upload');
+  assertMatches(ps1, /\$attempt = 1; \$attempt -le 3[\s\S]*Start-Sleep -Seconds 5/mu, 'post-provision.ps1 must use a bounded retry for document listing visibility');
+  assertMatches(ps1, /document-index\.md/mu, 'post-provision.ps1 must verify the knowledge document index was uploaded');
+
+  for (const fileName of knowledgeFiles) {
+    assertMatches(
+      indexText,
+      new RegExp(`\`${escapeRegex(fileName)}\``, 'mu'),
+      `document-index.md must include ${fileName}`,
+    );
+  }
+});
+
 test('TC-4.2a: all scheduled task prompts include Teams delivery instruction', () => {
   const tasksDir = repoPath('sre-config', 'scheduled-tasks');
-  const files = fs.readdirSync(tasksDir).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
+  const files = listFilesRecursive(tasksDir, file => /\.ya?ml$/iu.test(file));
   assert.ok(files.length >= 9, `Expected at least 9 scheduled task files, found ${files.length}`);
 
   for (const file of files) {
-    const text = fs.readFileSync(path.join(tasksDir, file), 'utf8');
+    const text = fs.readFileSync(file, 'utf8');
+    const displayName = path.relative(repoRoot, file);
     assertMatches(
       text,
       /Post the final .+ to our Teams channel/iu,
-      `${file} must instruct the agent to post final results to the Teams channel`,
+      `${displayName} must instruct the agent to post final results to the Teams channel`,
     );
     assertMatches(
       text,
       /Do not post intermediate results/iu,
-      `${file} must explicitly exclude intermediate results from Teams posts`,
+      `${displayName} must explicitly exclude intermediate results from Teams posts`,
     );
     assertMatches(
       text,
       /read all documents in the knowledge base/iu,
-      `${file} must instruct the agent to read knowledge base before starting`,
+      `${displayName} must instruct the agent to read knowledge base before starting`,
     );
     assertMatches(
       text,
-      /Never save financial figures/iu,
-      `${file} must enforce the knowledge vs Teams data split`,
+      /Never save financial figures|Do not commit task reports, financial figures/iu,
+      `${displayName} must enforce the knowledge vs Teams data split`,
     );
+    assertMatches(
+      text,
+      /Teams delivery guard:[\s\S]*exactly once per run[\s\S]*PostTeamsMessage/iu,
+      `${displayName} must check Teams delivery availability once per run`,
+    );
+    assertMatches(
+      text,
+      /Do not call `PostTeamsMessage`[\s\S]*just to test availability/iu,
+      `${displayName} must not probe Teams by calling delivery tools`,
+    );
+    assertMatches(
+      text,
+      /If no Teams connector\/channel is configured[\s\S]*do not retry or probe alternate delivery paths/iu,
+      `${displayName} must limit local-output degradation to runs without a configured Teams connector/channel`,
+    );
+    assertMatches(
+      text,
+      /When a Teams connector\/channel is configured[\s\S]*Teams delivery is mandatory[\s\S]*if configured Teams delivery fails[\s\S]*mark the task\/run failed/iu,
+      `${displayName} must fail when configured Teams delivery fails`,
+    );
+  }
+});
+
+test('TC-4.2c: scheduled task agents keep Teams connector tools enabled', () => {
+  const tasksDir = repoPath('sre-config', 'scheduled-tasks');
+  const files = listFilesRecursive(tasksDir, file => /\.ya?ml$/iu.test(file));
+  const agentNames = new Set();
+
+  for (const file of files) {
+    const text = fs.readFileSync(file, 'utf8');
+    const match = text.match(/^\s{2}agent:\s*([a-z0-9-]+)\s*$/mu);
+    if (match) {
+      agentNames.add(match[1]);
+    }
+  }
+
+  assert.ok(agentNames.size > 0, 'Scheduled tasks must specify agents');
+
+  for (const expectedAgentName of ['finops-practitioner', 'azure-capacity-manager', 'ftk-hubs-agent', 'chief-financial-officer']) {
+    assert.ok(agentNames.has(expectedAgentName), `Scheduled tasks must include ${expectedAgentName}`);
+  }
+
+  for (const agentName of agentNames) {
+    const text = readRepoFile('sre-config', 'agents', `${agentName}.yaml`);
+    for (const toolName of ['PostTeamsMessage', 'ReplyToTeamsMessage', 'GetTeamsMessages']) {
+      assertMatches(
+        text,
+        new RegExp(`^\\s+-\\s+${escapeRegex(toolName)}\\s*$`, 'mu'),
+        `${agentName}.yaml must include ${toolName} so production Teams delivery works when the connector is available`,
+      );
+    }
+  }
+});
+
+test('TC-4.2d: Teams notification guidance documents once-per-run degradation', () => {
+  const docs = [
+    ['teams-notification-guide.md', readRepoFile('sre-config', 'knowledge', 'teams-notification-guide.md')],
+    ['known-issues-and-workarounds.md', readRepoFile('sre-config', 'knowledge', 'known-issues-and-workarounds.md')],
+  ];
+
+  for (const [name, text] of docs) {
+    assertMatches(text, /Teams delivery guard|Teams tool discovery and availability/iu, `${name} must describe Teams availability handling`);
+    assertMatches(text, /exactly once per run/iu, `${name} must require a single Teams availability check per run`);
+    assertMatches(text, /PostTeamsMessage/iu, `${name} must preserve the production PostTeamsMessage path`);
+    assertMatches(text, /do not retry/iu, `${name} must prevent repeated Teams probing`);
+    assertMatches(text, /no Teams connector\/channel is configured/iu, `${name} must limit local-output degradation to missing Teams configuration`);
+    assertMatches(text, /configured Teams delivery fails|configured delivery failed/iu, `${name} must define configured Teams delivery failure`);
+    assertMatches(text, /task\/run fail/iu, `${name} must fail runs when configured Teams delivery fails`);
+  }
+});
+
+test('TC-4.2e-teams: repository guidance requires configured Teams delivery', () => {
+  const text = readRepoFile('AGENTS.md');
+
+  assertMatches(text, /PostTeamsMessage[\s\S]*ReplyToTeamsMessage[\s\S]*GetTeamsMessages/iu, 'AGENTS.md must require the Teams connector tools');
+  assertMatches(text, /When a Teams connector\/channel is configured[\s\S]*results must be delivered through that configured Teams channel/iu, 'AGENTS.md must require configured Teams delivery');
+  assertMatches(text, /Failure to deliver through a configured Teams channel means the task\/run fails/iu, 'AGENTS.md must fail configured delivery failures');
+  assertMatches(text, /degraded local-output behavior is allowed only when no Teams connector\/channel is configured/iu, 'AGENTS.md must limit degradation to missing Teams configuration');
+  assertMatches(text, /Check Teams capability exactly once per scheduled-task run/iu, 'AGENTS.md must require one Teams capability check per run');
+  assertMatches(text, /Do not use repeated probing, retry loops/iu, 'AGENTS.md must prohibit repeated Teams probing');
+});
+
+test('TC-4.2f: chart-producing scheduled tasks require non-visual artifact verification', () => {
+  const tasksDir = repoPath('sre-config', 'scheduled-tasks');
+  const files = listFilesRecursive(tasksDir, file => /\.ya?ml$/iu.test(file));
+  const unavailableVisualTool = 'View' + 'Image';
+  const chartFiles = files.filter(file => {
+    const text = fs.readFileSync(file, 'utf8');
+    return /Visualizations|generate charts|chart images|trend chart|comparison chart/iu.test(text);
+  });
+  const knowledgeText = readRepoFile('sre-config', 'knowledge', 'chart-artifact-verification.md');
+
+  assert.ok(chartFiles.length >= 18, `Expected at least 18 chart-producing scheduled task files, found ${chartFiles.length}`);
+
+  for (const file of chartFiles) {
+    const text = fs.readFileSync(file, 'utf8');
+    const displayName = path.relative(repoRoot, file);
+
+    assert.ok(!text.includes(unavailableVisualTool), `${displayName} must not rely on unavailable visual chart verification`);
+    assertMatches(text, /Verify each generated chart non-visually/iu, `${displayName} must require non-visual chart checks`);
+    assertMatches(text, /file exists/iu, `${displayName} must check chart file existence`);
+    assertMatches(text, /non-zero size/iu, `${displayName} must check chart file size`);
+    assertMatches(text, /opens as an image/iu, `${displayName} must check image readability`);
+    assertMatches(text, /dimensions/iu, `${displayName} must check chart dimensions`);
+    assertMatches(text, /metadata/iu, `${displayName} must check chart metadata`);
+    assertMatches(
+      text,
+      /Do not use visual inspection as the verification gate/iu,
+      `${displayName} must not use visual inspection as the chart verification gate`,
+    );
+  }
+
+  assert.ok(!knowledgeText.includes(unavailableVisualTool), 'chart artifact knowledge must not rely on unavailable visual chart verification');
+  assertMatches(knowledgeText, /non-visual checks/iu, 'chart artifact knowledge must require non-visual checks');
+  assertMatches(knowledgeText, /file exists[\s\S]*non-zero size[\s\S]*metadata[\s\S]*dimensions/iu, 'chart artifact knowledge must cover file, size, metadata, and dimensions');
+  assertMatches(knowledgeText, /Do not use visual inspection as the verification gate/iu, 'chart artifact knowledge must prohibit visual inspection as the verification gate');
+});
+
+test('TC-4.2b: scheduled task reports use complete-month date windows', () => {
+  const tasksDir = repoPath('sre-config', 'scheduled-tasks');
+  const files = listFilesRecursive(tasksDir, file => /\.ya?ml$/iu.test(file));
+  const unsafeEarlyMonthStart = /startofmonth\(ago\(1d\)\)/iu;
+  const safeReportWindowGuidance = /Do not run `costs-enriched-base` for freshness checks or (?:month-level|fiscal-period) reports; use aggregated Kusto tools for complete-month reporting windows/iu;
+  const reportFiles = [
+    'sre-config/scheduled-tasks/mom-report.yaml',
+    'sre-config/scheduled-tasks/ytd-report.yaml',
+    'sre-config/scheduled-tasks/scheduledtasks/MOM/MOM.yaml',
+    'sre-config/scheduled-tasks/scheduledtasks/YTD/YTD.yaml',
+  ];
+
+  assert.ok(files.length >= 18, `Expected at least 18 scheduled task files, found ${files.length}`);
+
+  for (const file of files) {
+    const text = fs.readFileSync(file, 'utf8');
+    assert.doesNotMatch(
+      text,
+      unsafeEarlyMonthStart,
+      `${path.relative(repoRoot, file)} must not use a one-day-ago month-start window because it can create a zero-length month window`,
+    );
+  }
+
+  for (const file of reportFiles) {
+    const text = readRepoFile(...file.split('/'));
+    assertMatches(
+      text,
+      safeReportWindowGuidance,
+      `${file} must route report windows away from row-level freshness checks`,
+    );
+  }
+});
+
+test('TC-4.2h: scheduled cost reports avoid raw full-window cost detail exports', () => {
+  const tasksDir = repoPath('sre-config', 'scheduled-tasks');
+  const files = listFilesRecursive(tasksDir, file => /\.ya?ml$/iu.test(file));
+  const reportFiles = [
+    'sre-config/scheduled-tasks/mom-report.yaml',
+    'sre-config/scheduled-tasks/ytd-report.yaml',
+    'sre-config/scheduled-tasks/scheduledtasks/MOM/MOM.yaml',
+    'sre-config/scheduled-tasks/scheduledtasks/YTD/YTD.yaml',
+  ];
+
+  assert.ok(files.length >= 18, `Expected at least 18 scheduled task files, found ${files.length}`);
+
+  for (const file of files) {
+    const text = fs.readFileSync(file, 'utf8');
+    const displayName = path.relative(repoRoot, file);
+
+    for (const line of text.split(/\r?\n/u).filter(line => /costs-enriched-base/iu.test(line))) {
+      assertMatches(
+        line,
+        /Do not run|one-day drill-downs only/iu,
+        `${displayName} must mention costs-enriched-base only as a guardrail, not as scheduled report evidence`,
+      );
+    }
+  }
+
+  for (const file of reportFiles) {
+    const text = readRepoFile(...file.split('/'));
+    assertMatches(text, /data-freshness-check/iu, `${file} must use data-freshness-check for freshness`);
+    assertMatches(text, /aggregated? Kusto tools?|cost-by-financial-hierarchy/iu, `${file} must prefer aggregate Kusto tools for report windows`);
+    assertMatches(text, /one-day drill-downs only/iu, `${file} must limit row-level detail to one-day drill-downs`);
+  }
+});
+
+test('TC-4.2g: non-compute quota reports use normalized rows and safe accessors', () => {
+  for (const file of ['non-compute-quota-audit.yaml', 'storage-paas-growth-forecast.yaml']) {
+    const text = readRepoFile('sre-config', 'scheduled-tasks', file);
+
+    assertMatches(text, /normalized `quotas` array/iu, `${file} must tell reports to use normalized quota rows`);
+    assertMatches(text, /safe accessors/iu, `${file} must require safe accessors for quota schema variants`);
+    assertMatches(text, /default missing `location` to `subscription`/iu, `${file} must define a location fallback`);
+    assertMatches(text, /\.get\(\).*safe-access/iu, `${file} must tell chart code not to index optional fields directly`);
   }
 });
 
@@ -371,6 +662,13 @@ test('TC-6.1: vm-quota-usage PythonTool meets contract', () => {
   );
   assertMatches(text, /functionCode:[\s\S]*warning_count/mu, 'functionCode must return warning_count for >80% and <=95% utilization');
   assertMatches(text, /functionCode:[\s\S]*critical_count/mu, 'functionCode must return critical_count for >95% utilization');
+  assertMatches(text, /functionCode:[\s\S]*suppressed_error_count/mu, 'functionCode must return suppressed_error_count for expected regional noise');
+  assertMatches(text, /functionCode:[\s\S]*suppressed_from_failure_summary/mu, 'functionCode must mark expected regional errors as suppressed from failure summaries');
+  assertMatches(
+    text,
+    /functionCode:[\s\S]*is_expected_preview_region[\s\S]*stage[\s\S]*preview[\s\S]*canary[\s\S]*euap/mu,
+    'functionCode must suppress VM quota errors from stage, preview, canary, and EUAP regions',
+  );
   assertMatches(
     text,
     /functionCode:[\s\S]*>\s*80[\s\S]*<=\s*95[\s\S]*warning_count/mu,
@@ -458,9 +756,41 @@ test('TC-6.5: data-freshness-check PythonTool meets contract', () => {
   assertMatches(text, /functionCode:[\s\S]*DefaultAzureCredential/mu, 'functionCode must use DefaultAzureCredential');
   assertMatches(text, /functionCode:[\s\S]*ManagedIdentityCredential/mu, 'functionCode must support managed identity client ID authentication');
   assertMatches(text, /functionCode:[\s\S]*requests/mu, 'functionCode must use requests for Kusto REST calls');
-  assertMatches(text, /functionCode:[\s\S]*\/v1\/rest\/query/mu, 'functionCode must call the Kusto REST query endpoint');
+  assertMatches(text, /functionCode:[\s\S]*KUSTO_SCOPE\s*=\s*"https:\/\/api\.kusto\.windows\.net\/\.default"/mu, 'functionCode must request the canonical Kusto token scope');
+  assertMatches(text, /functionCode:[\s\S]*\/v2\/rest\/query/mu, 'functionCode must call the Kusto v2 REST query endpoint');
+  assertMatches(text, /source_of_truth[\s\S]*direct_adx_rest_query[\s\S]*KUSTO_QUERY_PATH/mu, 'functionCode must identify direct ADX REST as the freshness source of truth');
+  assertMatches(text, /source_of_truth[\s\S]*authoritative_function[\s\S]*Costs\(\)/mu, 'functionCode must make Costs() the authoritative freshness function');
+  assertMatches(text, /supersedes[\s\S]*stale memory conclusions[\s\S]*raw KQL freshness rollups[\s\S]*Kusto ingestion timestamp checks/mu, 'functionCode must mark stale memory/raw KQL/ingestion timestamp checks as superseded');
+  assertMatches(text, /authoritative_freshness_signal[\s\S]*Costs\(\)[\s\S]*latest_data_date[\s\S]*is_stale/mu, 'functionCode must return an authoritative Costs() freshness signal');
+  assert.doesNotMatch(
+    text,
+    /get_token\(\s*f["']\{cluster_uri\}\/\.default["']\s*\)/mu,
+    'functionCode must not request cluster-specific token scopes',
+  );
+  assertMatches(text, /functionCode:[\s\S]*urlparse[\s\S]*parsed_cluster_uri\.path/mu, 'functionCode must normalize cluster URIs that include a database path');
   assertMatches(text, /functionCode:[\s\S]*Costs\(\)/mu, 'functionCode must query the Costs() function for freshness checks');
   assertMatches(text, /functionCode:[\s\S]*ChargePeriodStart/mu, 'functionCode must use ChargePeriodStart for freshness checks');
+  assertMatches(
+    text,
+    /Prices\(\)\s*\|\s*summarize\s+(?:RowCount=count\(\),\s*)?LatestData=max\(x_EffectivePeriodStart\)/mu,
+    'Prices() freshness checks must use x_EffectivePeriodStart',
+  );
+  assert.doesNotMatch(
+    text,
+    /Prices\(\)\s*\|\s*summarize\s+LatestData=max\(ChargePeriodStart\)/mu,
+    'Prices() freshness checks must not use ChargePeriodStart',
+  );
+  assertMatches(
+    text,
+    /Transactions\(\)\s*\|[\s\S]*RowCount=count\(\)[\s\S]*LatestData=max\(ChargePeriodStart\)/mu,
+    'Transactions() freshness checks must return row count and latest ChargePeriodStart',
+  );
+  assertMatches(text, /functionCode:[\s\S]*TRANSACTIONS_ZERO_ROWS/mu, 'functionCode must emit a precise Transactions() zero-row diagnostic');
+  assertMatches(text, /functionCode:[\s\S]*reservationtransactions/mu, 'functionCode must name the expected reservationtransactions export dataset');
+  assertMatches(text, /schema_query[\s\S]*Transactions\(\) \| getschema/mu, 'functionCode must verify the Transactions() stored-function schema');
+  assertMatches(text, /has_data\s*=\s*row_count is not None and row_count > 0/mu, 'functionCode must use RowCount to decide whether a function has data');
+  assert.doesNotMatch(text, /has_data\s*=\s*bool\(freshness_rows\)/mu, 'functionCode must not treat summarize output rows as data presence');
+  assertMatches(text, /attention_required/mu, 'functionCode must expose attention_required for non-healthy diagnostics');
   assertMatches(
     text,
     /-\s*name:\s*cluster_uri\b[\s\S]*?required:\s*true\b/mu,
@@ -486,6 +816,81 @@ test('TC-6.5: data-freshness-check PythonTool meets contract', () => {
     /functionCode:[\s\S]*(staleness|is_stale|isStale|stale)/mu,
     'functionCode must return a staleness indicator',
   );
+});
+
+test('TC-6.5a: freshness source of truth supersedes stale memory and raw KQL', () => {
+  const knowledgeText = readRepoFile('sre-config', 'knowledge', 'known-issues-and-workarounds.md');
+  assertMatches(knowledgeText, /Superseded data freshness conclusions/mu, 'knowledge must mark old freshness conclusions as superseded');
+  assertMatches(knowledgeText, /Costs current through 2026-05-01/mu, 'knowledge must call out the reconciled current Costs() evidence');
+  assertMatches(knowledgeText, /data-freshness-check[\s\S]*authoritative source/mu, 'knowledge must make data-freshness-check authoritative');
+  assertMatches(knowledgeText, /stale-memory[\s\S]*raw-KQL[\s\S]*superseded and unsafe/mu, 'knowledge must mark stale memory/raw KQL claims unsafe when not revalidated');
+
+  for (const taskPath of [
+    ['sre-config', 'scheduled-tasks', 'hubs-health-check.yaml'],
+    ['sre-config', 'scheduled-tasks', 'mom-report.yaml'],
+    ['sre-config', 'scheduled-tasks', 'ytd-report.yaml'],
+    ['sre-config', 'scheduled-tasks', 'scheduledtasks', 'HubsHealthCheck', 'HubsHealthCheck.yaml'],
+    ['sre-config', 'scheduled-tasks', 'scheduledtasks', 'MOM', 'MOM.yaml'],
+    ['sre-config', 'scheduled-tasks', 'scheduledtasks', 'YTD', 'YTD.yaml'],
+  ]) {
+    const taskText = readRepoFile(...taskPath);
+    assertMatches(taskText, /data-freshness-check/mu, `${taskPath.join('/')} must run data-freshness-check`);
+    assertMatches(taskText, /Costs\(\)|`Costs\(\)`/mu, `${taskPath.join('/')} must treat Costs() as the freshness signal`);
+    assertMatches(taskText, /3 days old or newer/mu, `${taskPath.join('/')} must use the 3-day freshness threshold`);
+    assertMatches(taskText, /stale-memory[\s\S]*raw-KQL[\s\S]*(superseded|stale-data remediation)/imu, `${taskPath.join('/')} must supersede stale memory/raw KQL freshness claims`);
+  }
+});
+
+test('TC-6.5b: transaction zero rows require explicit diagnostics before success', () => {
+  for (const toolPath of [
+    ['tools', 'top-other-transactions.yaml'],
+    ['tools', 'top-commitment-transactions.yaml'],
+  ]) {
+    const toolText = readRepoFile(...toolPath);
+    assertMatches(toolText, /ZERO_ROWS_RETURNED/mu, `${toolPath.join('/')} must document the empty-result sentinel`);
+    assertMatches(toolText, /data-freshness-check[\s\S]*Transactions\(\)[\s\S]*diagnostic_code/imu, `${toolPath.join('/')} must require transaction diagnostics before success`);
+    assertMatches(toolText, /TRANSACTIONS_ZERO_ROWS/mu, `${toolPath.join('/')} must surface TRANSACTIONS_ZERO_ROWS`);
+    assert.doesNotMatch(toolText, /successful empty result set/imu, `${toolPath.join('/')} must not classify the sentinel as false success`);
+  }
+
+  for (const fileName of [
+    'chief-financial-officer.yaml',
+    'finops-practitioner.yaml',
+    'ftk-database-query.yaml',
+  ]) {
+    const agentText = readRepoFile('sre-config', 'agents', fileName);
+    assertMatches(
+      agentText,
+      /top-other-transactions[\s\S]*ZERO_ROWS_RETURNED[\s\S]*data-freshness-check[\s\S]*TRANSACTIONS_ZERO_ROWS/imu,
+      `${fileName} must require data-freshness-check before reporting transaction zero rows as success`,
+    );
+  }
+
+  for (const taskPath of [
+    ['sre-config', 'scheduled-tasks', 'hubs-health-check.yaml'],
+    ['sre-config', 'scheduled-tasks', 'mom-report.yaml'],
+    ['sre-config', 'scheduled-tasks', 'ytd-report.yaml'],
+    ['sre-config', 'scheduled-tasks', 'scheduledtasks', 'HubsHealthCheck', 'HubsHealthCheck.yaml'],
+    ['sre-config', 'scheduled-tasks', 'scheduledtasks', 'MOM', 'MOM.yaml'],
+    ['sre-config', 'scheduled-tasks', 'scheduledtasks', 'YTD', 'YTD.yaml'],
+  ]) {
+    const taskText = readRepoFile(...taskPath);
+    assertMatches(
+      taskText,
+      /Transactions\(\)[\s\S]*(TRANSACTIONS_ZERO_ROWS|data-freshness-check)[\s\S]*(export|ingestion|stored-function)/imu,
+      `${taskPath.join('/')} must surface Transactions() export/ingestion/stored-function diagnostics`,
+    );
+    assert.doesNotMatch(
+      taskText,
+      /ZERO_ROWS_RETURNED[\s\S]*successful empty result set/imu,
+      `${taskPath.join('/')} must not treat transaction zero rows as false success`,
+    );
+  }
+
+  const knowledgeText = readRepoFile('sre-config', 'knowledge', 'known-issues-and-workarounds.md');
+  assertMatches(knowledgeText, /Transactions\(\) zero rows/imu, 'knowledge must document Transactions() zero rows');
+  assertMatches(knowledgeText, /TRANSACTIONS_ZERO_ROWS[\s\S]*data quality action item/imu, 'knowledge must require explicit transaction diagnostics');
+  assert.doesNotMatch(knowledgeText, /ZERO_ROWS_RETURNED[\s\S]*successful empty result set/imu, 'knowledge must not classify transaction sentinels as false success');
 });
 
 test('TC-6.7: benefit-recommendations PythonTool meets contract', () => {
@@ -532,6 +937,25 @@ test('TC-6.8: non-compute-quotas PythonTool meets contract', () => {
     /functionCode:[\s\S]*(storage|app service|service bus|key vault|sql|service|quota)/imu,
     'functionCode must reference non-compute service quota concepts',
   );
+  assertMatches(text, /"quotas":\s*\[\]/mu, 'non-compute-quotas.yaml must return a normalized quotas array for reporting');
+  assertMatches(text, /def\s+safe_get\(/mu, 'non-compute-quotas.yaml must include a safe accessor for variable quota schemas');
+  assertMatches(text, /def\s+normalize_quota_record\(/mu, 'non-compute-quotas.yaml must normalize quota records before reporting');
+  assertMatches(
+    text,
+    /\["current_count",\s*"currentValue",\s*"current_value",\s*"current"/mu,
+    'non-compute-quotas.yaml must normalize current usage across common key variants',
+  );
+  assertMatches(
+    text,
+    /\["location",\s*"location_name",\s*"region",\s*"regionName",\s*"region_name"\]/mu,
+    'non-compute-quotas.yaml must normalize location across common key variants',
+  );
+  assertMatches(text, /return\s+"subscription"/mu, 'non-compute-quotas.yaml must provide a subscription-level location fallback');
+  assertMatches(
+    text,
+    /result\["quotas"\]\.append\(normalized_item\)/mu,
+    'non-compute-quotas.yaml must append normalized quota records for chart/report consumers',
+  );
   assertMatches(
     text,
     /-\s*name:\s*subscription_id\b[\s\S]*?required:\s*true\b/mu,
@@ -546,6 +970,13 @@ test('TC-6.8: non-compute-quotas PythonTool meets contract', () => {
   const timeoutMatch = text.match(/^\s{2}timeoutSeconds:\s*(\d+)\s*$/mu);
   assert.ok(timeoutMatch, 'non-compute-quotas.yaml must set timeoutSeconds');
   assert.ok(Number(timeoutMatch[1]) >= 120, 'non-compute-quotas.yaml timeoutSeconds must be at least 120');
+  assertMatches(text, /functionCode:[\s\S]*suppressed_count/mu, 'functionCode must return suppressed_count for expected quota defaults');
+  assertMatches(text, /functionCode:[\s\S]*suppressed_from_risk_summary/mu, 'functionCode must mark expected defaults as suppressed from risk summaries');
+  assertMatches(
+    text,
+    /functionCode:[\s\S]*is_expected_network_watcher_default[\s\S]*networkwatchers[\s\S]*current_count[\s\S]*==\s*1[\s\S]*limit[\s\S]*==\s*1/mu,
+    'functionCode must suppress Network Watcher 1/1 Azure default entries from actionable risk',
+  );
 });
 
 test('TC-6.6: resource-graph-query PythonTool meets contract', () => {

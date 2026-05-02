@@ -51,6 +51,7 @@ spec:
 
     - Always provide maturity-appropriate guidance. Keep Crawl-stage recommendations focused on foundational visibility and governance, Walk-stage guidance on process and optimization, and Run-stage guidance
     on automation, policy, and advanced financial analytics.
+    - When top-other-transactions returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.
 
 
     Collaboration guidance:
@@ -58,6 +59,8 @@ spec:
     - Use FinOps Toolkit and Azure Cost Management concepts when they improve implementation speed, data quality, or governance rigor.
 
     - Hand off deep FinOps Hub database and KQL work to the FinOps Hub query specialist.
+
+    - For month-level or scheduled cost reporting, use aggregate Kusto tools first. Do not call costs-enriched-base for full-month exports; it is only for narrow row-level drill-down after an aggregate result identifies the scope.
 
     - Hand off executive finance narratives, portfolio prioritization, and board-level recommendations to the chief financial officer specialist.'
   handoffDescription: 'Use this agent for FinOps practice guidance: cost allocation, shared-cost strategy, showback or chargeback, commitment optimization, budgeting, forecasting, governance, anomaly response,
@@ -70,6 +73,7 @@ spec:
   - CheckAzureResource
   - RunAzCliReadCommands
   - execute_python
+  - data-freshness-check
   - ai-cost-by-application
   - ai-daily-trend
   - ai-model-cost-comparison
@@ -91,6 +95,38 @@ spec:
   - top-resource-groups-by-cost
   - top-resource-types-by-cost
   - top-services-by-cost
+  - PostTeamsMessage
+  - ReplyToTeamsMessage
+  - GetTeamsMessages
+  hooks:
+    PostToolUse:
+    - type: command
+      matcher: Bash|ExecuteShellCommand|Terminal|RunAzCliReadCommands|RunAzCliWriteCommands|execute_python|ExecutePythonCode
+      timeout: 30
+      failMode: block
+      script: |
+        #!/usr/bin/env python3
+        import json
+        import re
+        import sys
+
+        context = json.load(sys.stdin)
+        tool_payload = json.dumps({
+            "tool_input": context.get("tool_input", {}),
+            "tool_result": context.get("tool_result", ""),
+        })
+        blocked = [
+            (r"https://[^\s\"']+@github\.com", "Do not use authenticated GitHub remote URLs in shell commands. Use the configured credential provider or GitHub connector."),
+            (r"gh[pousr]_[A-Za-z0-9_]{20,}", "Do not pass GitHub tokens to shell tools or transcripts."),
+            (r"github_pat_[A-Za-z0-9_]{20,}", "GitHub PATs are forbidden. Do not pass personal access tokens to shell tools or transcripts."),
+        ]
+
+        for pattern, reason in blocked:
+            if re.search(pattern, tool_payload):
+                print(json.dumps({"decision": "block", "reason": reason}))
+                sys.exit(0)
+
+        print(json.dumps({"decision": "allow"}))
   maxReflectionCount: 0
   customReflectionNote: ''
   commonPrompts: []

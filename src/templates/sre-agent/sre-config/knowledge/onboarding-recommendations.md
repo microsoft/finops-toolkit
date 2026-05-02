@@ -1,4 +1,4 @@
-# FinOps SRE Agent onboarding recommendations
+# FinOps toolkit SRE Agent onboarding recommendations
 
 Use this guidance when the user finishes deployment, enters the **Team onboarding** thread, types `/learn`, or asks questions such as **"What should I do next?"** or **"Where do I start?"**
 
@@ -52,6 +52,8 @@ For Teams:
 - Select the agent managed identity.
 - Post a test message from chat.
 
+Scheduled tasks use the Teams delivery guard from `teams-notification-guide.md`: they check whether `PostTeamsMessage` is available once per run, post the final report when it is available, and otherwise return the completed report in the run output without retrying or probing alternate delivery paths.
+
 ## Required prerequisites to call out
 
 - The configuring user needs **Contributor** on the agent resource group.
@@ -63,7 +65,7 @@ For Teams:
 
 If the user asks what to do next after deployment, recommend something like:
 
-> Your core FinOps SRE Agent is deployed. Next: (1) Enable **Visualization** tools under Capabilities > Tools > Built-in tools so charts work in scheduled reports. (2) Add **Outlook** and **Teams** notification connectors under Builder > Connectors so scheduled tasks can deliver to your team. (3) Connect your FinOps Hub data sources if not already wired.
+> Your core FinOps toolkit SRE Agent is deployed. Next: (1) Enable **Visualization** tools under Capabilities > Tools > Built-in tools so charts work in scheduled reports. (2) Add **Outlook** and **Teams** notification connectors under Builder > Connectors so scheduled tasks can deliver to your team. (3) Connect your FinOps Hub data sources if not already wired.
 
 ## Microsoft Learn references
 

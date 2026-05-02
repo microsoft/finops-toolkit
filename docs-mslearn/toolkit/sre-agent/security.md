@@ -1,6 +1,6 @@
 ---
-title: Security and permissions for FinOps SRE Agent
-description: Review the permissions, identities, run modes, and data flows used by FinOps SRE Agent before you deploy it in your environment.
+title: Security and permissions for FinOps toolkit SRE Agent
+description: Review the permissions, identities, run modes, and data flows used by FinOps toolkit SRE Agent before you deploy it in your environment.
 author: msbrett
 ms.author: brettwil
 ms.date: 04/29/2026
@@ -8,15 +8,15 @@ ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps hub admin, I want to understand FinOps SRE Agent security and permissions so that I can deploy it with least privilege.
+#customer intent: As a FinOps hub admin, I want to understand FinOps toolkit SRE Agent security and permissions so that I can deploy it with least privilege.
 ---
 
-# Security and permissions for FinOps SRE Agent
+# Security and permissions for FinOps toolkit SRE Agent
 
-FinOps SRE Agent uses Azure SRE Agent, managed identity, Azure RBAC, Azure Data Explorer permissions, and optional Microsoft Teams or Outlook connectors to run FinOps and capacity workflows. Review these permissions before deployment so you can keep the agent scoped to the data and actions it needs.
+FinOps toolkit SRE Agent uses Azure SRE Agent, managed identity, Azure RBAC, Azure Data Explorer permissions, and optional Microsoft Teams or Outlook connectors to run FinOps and capacity workflows. Review these permissions before deployment so you can keep the agent scoped to the data and actions it needs.
 
 > [!IMPORTANT]
-> FinOps SRE Agent is designed for least privilege. The template grants read, monitoring, Kusto viewer, and zone mapping permissions. It doesn't grant broad write access to Azure resources.
+> FinOps toolkit SRE Agent is designed for least privilege. The template grants read, monitoring, Kusto viewer, and zone mapping permissions. It doesn't grant broad write access to Azure resources.
 
 <br>
 
@@ -59,7 +59,7 @@ With this default scope, the managed identity can read Azure resource metadata, 
 
 ## Data Explorer permissions
 
-FinOps SRE Agent reads FinOps hub data through an Azure Data Explorer connector. When you provide the optional cluster name and cluster resource group parameters, the deployment assigns `AllDatabasesViewer` on the target Azure Data Explorer cluster to:
+FinOps toolkit SRE Agent reads FinOps hub data through an Azure Data Explorer connector. When you provide the optional cluster name and cluster resource group parameters, the deployment assigns `AllDatabasesViewer` on the target Azure Data Explorer cluster to:
 
 - The user-assigned managed identity.
 - The system-assigned managed identity.
@@ -73,7 +73,7 @@ This permission lets the agent query hub data, including cost, usage, commitment
 
 ## Connector permissions
 
-FinOps SRE Agent doesn't create Teams or Outlook notification connectors during `azd up`. You add them interactively in [sre.azure.com](https://sre.azure.com) after deployment.
+FinOps toolkit SRE Agent doesn't create Teams or Outlook notification connectors during `azd up`. You add them interactively in [sre.azure.com](https://sre.azure.com) after deployment.
 
 To configure a Teams or Outlook connector, the configuring user needs **Contributor** on the agent resource group, including these actions:
 
@@ -97,12 +97,12 @@ For Teams, the account that signs in must have access to the target channel and 
 
 Azure SRE Agent supports two run modes:
 
-| Mode | Security behavior | Use with FinOps SRE Agent |
+| Mode | Security behavior | Use with FinOps toolkit SRE Agent |
 |------|-------------------|---------------------------|
 | Review | The agent proposes Azure infrastructure write actions, and an SRE Agent Administrator approves or denies them | Best for production response plans and any workflow that might change resources |
 | Autonomous | The agent runs allowed actions without waiting for approval | Best for trusted recurring reports, health checks, and scheduled FinOps summaries |
 
-The FinOps SRE Agent template sets the agent action configuration to **Autonomous** so scheduled cost and capacity reports can run and post results without manual approval.
+The FinOps toolkit SRE Agent template sets the agent action configuration to **Autonomous** so scheduled cost and capacity reports can run and post results without manual approval.
 
 > [!IMPORTANT]
 > Run mode doesn't replace permissions. The agent can act only when its managed identity, connector, and data source permissions allow the action. Review mode adds an approval step for Azure infrastructure write actions, but other actions, such as querying data or posting to Teams, run based on available tools and permissions.
@@ -129,7 +129,7 @@ Connector setup can also cross identity boundaries. The Azure resource permissio
 
 ## Data flow
 
-FinOps SRE Agent reads operational and cost data from these sources:
+FinOps toolkit SRE Agent reads operational and cost data from these sources:
 
 - FinOps hub cost and usage data in Azure Data Explorer.
 - Azure resource metadata through Reader permissions.
@@ -199,8 +199,8 @@ Related products:
 
 Related solutions:
 
-- [Deploy and configure the FinOps SRE Agent](deploy.md)
-- [FinOps SRE Agent](overview.md)
-- [FinOps SRE Agent template reference](template.md)
+- [Deploy and configure the FinOps toolkit SRE Agent](deploy.md)
+- [FinOps toolkit SRE Agent](overview.md)
+- [FinOps toolkit SRE Agent template reference](template.md)
 
 <br>

@@ -10,6 +10,8 @@ spec:
     Reports Azure VM family quota usage for one or more regions in a subscription.
     The tool queries Azure Compute usages through ARM REST, calculates utilization
     percentages, and flags quota families that are at risk above 80% or 95% usage.
+    Errors from Azure stage, preview, canary, or EUAP locations are suppressed
+    from actionable failure summaries because those regions are expected noise.
   functionCode: |-
     def main(**kwargs):
         import requests
@@ -45,9 +47,26 @@ spec:
             "quotas": [],
             "warning_count": 0,
             "critical_count": 0,
+            "suppressed_error_count": 0,
         }
 
         errors = []
+
+        def is_expected_preview_region(region_name):
+            normalized = "".join(
+                character
+                for character in str(region_name or "").lower()
+                if character.isalnum()
+            )
+            expected_region_markers = ("stage", "staging", "preview", "canary", "euap")
+            return any(marker in normalized for marker in expected_region_markers)
+
+        def suppress_error(error, reason):
+            suppressed = dict(error)
+            suppressed["suppression_reason"] = reason
+            suppressed["suppressed_from_failure_summary"] = True
+            result["suppressed_error_count"] += 1
+            result.setdefault("suppressed_errors", []).append(suppressed)
 
         try:
             client_id = kwargs.get("client_id")
@@ -152,7 +171,14 @@ spec:
 
                     result["quotas"].append(quota)
             except Exception as exc:
-                errors.append({"location": region, "error": str(exc)})
+                error = {"location": region, "error": str(exc)}
+                if is_expected_preview_region(region):
+                    suppress_error(
+                        error,
+                        "Expected noise from Azure stage, preview, canary, or EUAP region; excluded from actionable VM quota failure summaries.",
+                    )
+                else:
+                    errors.append(error)
 
         if errors:
             result["errors"] = errors

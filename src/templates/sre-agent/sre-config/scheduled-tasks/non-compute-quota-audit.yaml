@@ -16,6 +16,9 @@ spec:
 
     Before starting, read all documents in the knowledge base. Pay special attention to prior non-compute quota findings, service limit assumptions, and known Resource Graph fallback caveats.
 
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
+
 
     Load your relevant capacity management skill. Note the `client_id` for Python tool authentication.
 
@@ -38,7 +41,7 @@ spec:
     ## 2. Collect quota usage
 
 
-    For each active subscription, run `non-compute-quotas` with `subscription_id`, optional `location`, and `client_id`. Capture service name, quota name, current count, limit, utilization percentage, count source, limit source, limit type, and any errors.
+    For each active subscription, run `non-compute-quotas` with `subscription_id`, optional `location`, and `client_id`. Use the tool''s normalized `quotas` array for tables and charts. If only legacy `services` records are available, normalize them with safe accessors before reporting: accept `service_name` or `service`, `quota_name` or `name`, `current_count` or `currentValue` or `current`, and default missing `location` to `subscription`. Capture service name, quota name, current count, limit, utilization percentage, count source, limit source, limit type, and any errors.
 
 
     ## 3. Separate reported and estimated limits
@@ -62,14 +65,13 @@ spec:
     ## Persistence
 
 
-    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results.
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
 
 
-    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit to git. Never save financial figures, cost amounts, or customer financial data to the knowledge base. Financial detail goes to Teams only.
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to Teams only.
 
 
     ## Visualizations
 
 
-    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a quota utilization by service chart and an at-risk quota count by subscription chart where the data supports it. Embed chart images inline in the Teams message alongside the text tables.'
-
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Build chart data from normalized quota rows and use `.get()`/safe-access patterns instead of indexing fields like `location` directly, because subscription-scoped non-compute quota rows may not be regional. Include at minimum a quota utilization by service chart and an at-risk quota count by subscription chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message alongside the text tables.'

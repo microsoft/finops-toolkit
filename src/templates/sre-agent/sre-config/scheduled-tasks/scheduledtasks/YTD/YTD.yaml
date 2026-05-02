@@ -1,10 +1,10 @@
-﻿api_version: azuresre.ai/v1
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: YTD
-  owner: 
-  version: 
-  tags: 
+  owner:
+  version:
+  tags:
 spec:
   name: YTD
   cron_expression: ''
@@ -16,6 +16,9 @@ spec:
 
 
     Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
 
 
     Load your finops-toolkit and azure-cost-management skills.
@@ -29,7 +32,7 @@ spec:
 
     ### 1.1 Verify Connectivity
 
-    Run `costs-enriched-base` with startDate=startofmonth(ago(1d)), endDate=startofmonth(now()). Confirm data freshness < 24 hours.
+    Run `data-freshness-check` with the FinOps Hub cluster URI and Hub database. Treat its direct REST `Costs()` latest data date as the authoritative freshness source and mark any conflicting stale-memory, raw-KQL, or ingestion timestamp conclusion as superseded and unsafe. Proceed if latest `Costs()` data is 3 days old or newer. Do not run `costs-enriched-base` for freshness checks or fiscal-period reports; use aggregated Kusto tools for complete-month reporting windows and reserve row-level detail for one-day drill-downs only.
 
 
     ### 1.2 Full Fiscal Year Trends
@@ -102,12 +105,12 @@ spec:
 
     ### 1.15 Commitment Transactions
 
-    Run `top-commitment-transactions` with N=20, fiscal-year date range. Track major RI/SP purchases.
+    Run `top-commitment-transactions` with N=20, fiscal-year date range. Track major RI/SP purchases. If it returns zero rows or `ZERO_ROWS_RETURNED`, immediately run `data-freshness-check` and report whether `Transactions()` has the `TRANSACTIONS_ZERO_ROWS` diagnostic. Do not conclude there were no commitment purchases until the export, ingestion, and stored-function diagnostic is clear.
 
 
     ### 1.16 Other Transactions
 
-    Run `top-other-transactions` with N=20, fiscal-year date range. Identify non-usage spend patterns.
+    Run `top-other-transactions` with N=20, fiscal-year date range. If it returns zero rows or `ZERO_ROWS_RETURNED`, immediately run `data-freshness-check` and report whether `Transactions()` has the `TRANSACTIONS_ZERO_ROWS` diagnostic. Do not conclude there were no non-usage spend patterns until the export, ingestion, and stored-function diagnostic is clear.
 
 
     **Checkpoint:** ALL data collected. Proceed to strategic analysis.
@@ -159,18 +162,18 @@ spec:
 
 
 
-    **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
+    **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
 
-    **Teams (financial results only):** Post the final report to our Teams channel. Include the fiscal year scorecard, forecast scenarios, and next-year planning recommendations. Do not post intermediate results — only the completed report.
+    **Teams (financial results only):** Post the final report to our Teams channel. Include the fiscal year scorecard, forecast scenarios, and next-year planning recommendations. Do not post intermediate results — only the completed report. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
 
 
     **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — tool errors encountered, workarounds discovered, data quality observations, query patterns that worked or failed. Never save financial figures, cost amounts, savings numbers, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
   description: ''
   agent: chief-financial-officer
   start_time: 2026-04-29T00:26:42.4342150Z
-  end_time: 
-  duration_hours: 
-  thread_id: 
-  max_executions: 
-  notification_channel: 
+  end_time:
+  duration_hours:
+  thread_id:
+  max_executions:
+  notification_channel:
   cron: 0 9 1 * *

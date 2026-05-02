@@ -1,10 +1,10 @@
-﻿api_version: azuresre.ai/v1
+api_version: azuresre.ai/v1
 kind: ScheduledTask
 metadata:
   name: CapacityQuarterlyStrategy
-  owner: 
-  version: 
-  tags: 
+  owner:
+  version:
+  tags:
 spec:
   name: CapacityQuarterlyStrategy
   cron_expression: ''
@@ -16,6 +16,9 @@ spec:
 
 
     Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
 
 
     Load your azure-capacity-management skill.
@@ -140,18 +143,18 @@ spec:
 
 
 
-    **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
+    **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
 
-    **Teams (strategy results only):** Post the final quarterly capacity strategy brief to our Teams channel. Include the maturity scorecard, commitment alignment matrix, quarterly roadmap, and key risks. Do not post intermediate results — only the completed strategy brief.
+    **Teams (strategy results only):** Post the final quarterly capacity strategy brief to our Teams channel. Include the maturity scorecard, commitment alignment matrix, quarterly roadmap, and key risks. Do not post intermediate results — only the completed strategy brief. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
 
 
     **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — maturity assessment methodology refinements, commitment alignment patterns, architecture observations, CLI workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.
   description: ''
   agent: azure-capacity-manager
   start_time: 2026-04-29T00:26:37.0762520Z
-  end_time: 
-  duration_hours: 
-  thread_id: 
-  max_executions: 
-  notification_channel: 
+  end_time:
+  duration_hours:
+  thread_id:
+  max_executions:
+  notification_channel:
   cron: 0 9 1 1,4,7,10 *

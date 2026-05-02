@@ -11,6 +11,8 @@ spec:
     The tool uses ARM provider usages APIs where Azure exposes service-specific
     usage and quota payloads, and only falls back to Azure Resource Graph counts
     with clearly marked estimated limits for services without a direct usages API.
+    Network Watcher 1/1 entries are returned as suppressed Azure defaults, not
+    actionable quota risk.
   functionCode: |-
     def main(**kwargs):
         import requests
@@ -24,9 +26,11 @@ spec:
         result = {
             "subscription_id": subscription_id,
             "services": [],
+            "quotas": [],
             "at_risk_count": 0,
             "api_reported_limit_count": 0,
             "estimated_limit_count": 0,
+            "suppressed_count": 0,
         }
 
         if not subscription_id:
@@ -87,18 +91,137 @@ spec:
             except (TypeError, ValueError):
                 return float(default)
 
+        def parse_number(value):
+            if value is None:
+                return None
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+
+        def safe_get(record, keys, default=None):
+            if isinstance(keys, str):
+                keys = [keys]
+
+            for key in keys:
+                if isinstance(record, dict):
+                    value = record.get(key)
+                    if value is not None:
+                        return value
+                else:
+                    value = getattr(record, key, None)
+                    if value is not None:
+                        return value
+
+            return default
+
+        def normalize_token(value):
+            return "".join(
+                character
+                for character in str(value or "").lower()
+                if character.isalnum()
+            )
+
         def normalize_name(name):
+            if name is None:
+                return "Unknown quota"
+
             if isinstance(name, dict):
                 return (
                     name.get("localizedValue")
                     or name.get("localized_value")
                     or name.get("value")
+                    or name.get("name")
                     or str(name)
                 )
 
             localized = getattr(name, "localized_value", None) or getattr(name, "localizedValue", None)
             value = getattr(name, "value", None)
             return localized or value or str(name)
+
+        def normalize_location(value):
+            if isinstance(value, (list, tuple, set)):
+                value = next((str(item).strip() for item in value if str(item).strip()), None)
+
+            if value is None or not str(value).strip():
+                return "subscription"
+
+            return str(value).strip()
+
+        def to_bool(value):
+            if isinstance(value, bool):
+                return value
+            if value is None:
+                return None
+            if isinstance(value, str):
+                return value.strip().lower() in ("1", "true", "yes")
+            return bool(value)
+
+        def normalize_quota_record(record, default_service_name=None, default_resource_type=None, default_location=None):
+            location_value = normalize_location(safe_get(
+                record,
+                ["location", "location_name", "region", "regionName", "region_name"],
+                default_location,
+            ))
+            current_raw = safe_get(
+                record,
+                ["current_count", "currentValue", "current_value", "current", "usage", "used"],
+            )
+            limit_raw = safe_get(record, ["limit", "quota", "quota_limit", "maximum"], 0)
+            current_number = parse_number(current_raw)
+            limit_number = to_number(limit_raw, 0)
+            utilization_pct = safe_get(
+                record,
+                ["utilization_pct", "utilizationPercent", "utilization_percent", "usage_pct", "percentUsed"],
+            )
+
+            if utilization_pct is None and current_number is not None and limit_number > 0:
+                utilization_pct = round((current_number / limit_number) * 100, 2)
+            elif utilization_pct is not None:
+                utilization_pct = parse_number(utilization_pct)
+
+            at_risk = to_bool(safe_get(record, ["at_risk", "is_at_risk", "atRisk"], None))
+            if at_risk is None:
+                at_risk = bool(utilization_pct is not None and utilization_pct >= 80)
+
+            current_count = None
+            if current_number is not None:
+                current_count = int(current_number) if current_number.is_integer() else current_number
+
+            service_name_value = normalize_name(safe_get(record, ["service_name", "service", "provider"], default_service_name))
+            quota_name_value = normalize_name(safe_get(record, ["quota_name", "quotaName", "name"], "Unknown quota"))
+            normalized = {
+                "subscription_id": subscription_id,
+                "service_name": service_name_value,
+                "service": service_name_value,
+                "resource_type": safe_get(record, ["resource_type", "resourceType", "type"], default_resource_type or "unknown"),
+                "quota_name": quota_name_value,
+                "name": quota_name_value,
+                "location": location_value,
+                "scope": safe_get(record, ["scope", "quota_scope"], "regional" if location_value != "subscription" else "subscription"),
+                "current_count": current_count,
+                "current": current_count,
+                "limit": int(limit_number) if limit_number.is_integer() else limit_number,
+                "utilization_pct": round(utilization_pct, 2) if utilization_pct is not None else None,
+                "at_risk": bool(at_risk),
+                "at_risk_80": bool(at_risk),
+                "at_risk_95": bool(utilization_pct is not None and utilization_pct >= 95),
+                "count_source": safe_get(record, "count_source"),
+                "limit_source": safe_get(record, "limit_source"),
+                "limit_type": safe_get(record, "limit_type"),
+                "source_endpoint": safe_get(record, "source_endpoint"),
+            }
+
+            limit_note = safe_get(record, "limit_note")
+            if limit_note:
+                normalized["limit_note"] = limit_note
+
+            suppression_reason = safe_get(record, "suppression_reason")
+            if suppression_reason:
+                normalized["suppressed_from_risk_summary"] = True
+                normalized["suppression_reason"] = suppression_reason
+
+            return normalized
 
         def request_arm_json(url, timeout=60):
             response = requests.get(url, headers=headers, timeout=timeout)
@@ -134,6 +257,15 @@ spec:
                 utilization_pct = round((current_number / limit_number) * 100, 2) if limit_number > 0 else None
                 at_risk = bool(utilization_pct is not None and utilization_pct >= 80)
 
+            suppressed_from_risk_summary = is_expected_network_watcher_default(
+                service_name,
+                quota_name,
+                current_count,
+                limit,
+            )
+            if suppressed_from_risk_summary:
+                at_risk = False
+
             item = {
                 "service_name": service_name,
                 "resource_type": resource_type,
@@ -146,12 +278,25 @@ spec:
                 "limit_source": limit_source,
                 "limit_type": limit_type,
                 "source_endpoint": source_endpoint,
+                "location": normalize_location(location_name),
+                "scope": "regional" if location_name else "subscription",
             }
 
             if location_name:
                 item["location"] = location_name
             if limit_note:
                 item["limit_note"] = limit_note
+            if suppressed_from_risk_summary:
+                item["suppressed_from_risk_summary"] = True
+                item["suppression_reason"] = "Network Watcher 1/1 is the Azure default of one instance per region per subscription; excluded from actionable quota risk summaries."
+                result["suppressed_count"] += 1
+
+            normalized_item = normalize_quota_record(
+                item,
+                default_service_name=service_name,
+                default_resource_type=resource_type,
+                default_location=location_name,
+            )
 
             if at_risk:
                 result["at_risk_count"] += 1
@@ -161,6 +306,15 @@ spec:
                 result["estimated_limit_count"] += 1
 
             result["services"].append(item)
+            result["quotas"].append(normalized_item)
+
+        def is_expected_network_watcher_default(service_name, quota_name, current_count, limit):
+            return (
+                normalize_token(service_name) == "network"
+                and normalize_token(quota_name) in ("networkwatcher", "networkwatchers")
+                and to_number(current_count, 0) == 1
+                and to_number(limit, 0) == 1
+            )
 
         def add_usage_payload(service_name, resource_type, payload, source_endpoint, location_name=None):
             for usage in payload.get("value", []):

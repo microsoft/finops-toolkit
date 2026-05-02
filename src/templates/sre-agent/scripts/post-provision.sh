@@ -257,16 +257,99 @@ apply_knowledge() {
   run_cmd srectl doc upload --file "$dir"
 }
 
+verify_knowledge_documents() {
+  local dir="$REPO_ROOT/sre-config/knowledge"
+  [ -d "$dir" ] || return 0
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    dry_run_log "Would verify uploaded knowledge documents with srectl doc get"
+    return 0
+  fi
+
+  local documents=''
+  local max_attempts=3
+  local attempt=1
+  while [ "$attempt" -le "$max_attempts" ]; do
+    documents="$(run_output_cmd srectl doc get 2>&1)" || fail "Failed to list uploaded knowledge documents with 'srectl doc get'."
+    if [ -n "$(printf '%s' "$documents" | tr -d '[:space:]')" ] \
+      && printf '%s\n' "$documents" | grep -F 'document-index.md' >/dev/null; then
+      return 0
+    fi
+
+    if [ "$attempt" -lt "$max_attempts" ]; then
+      sleep 5
+    fi
+    attempt=$((attempt + 1))
+  done
+
+  if [ -z "$(printf '%s' "$documents" | tr -d '[:space:]')" ]; then
+    fail "srectl doc get returned no uploaded knowledge documents after uploading sre-config/knowledge."
+  fi
+  fail "Uploaded knowledge document list did not include document-index.md."
+}
+
 # Apply scheduled tasks using srectl scheduledtask apply (idempotent upsert)
+scheduled_task_name() {
+  local file="$1"
+  awk -F: '
+    /^[[:space:]]*name:[[:space:]]*/ {
+      name=$2
+      sub(/^[[:space:]]*/, "", name)
+      sub(/[[:space:]]*$/, "", name)
+      gsub(/^["'\''"]|["'\''"]$/, "", name)
+      print name
+      exit
+    }
+  ' "$file"
+}
+
+scheduled_task_ids_by_name() {
+  local task_name="$1"
+  local scheduled_tasks="$2"
+  printf '%s\n' "$scheduled_tasks" | awk -v target="$task_name" '
+    /^\[[0-9]+\][[:space:]]+/ {
+      current=$0
+      sub(/^\[[0-9]+\][[:space:]]+/, "", current)
+      sub(/[[:space:]]+$/, "", current)
+      next
+    }
+    /^ID[[:space:]]*:/ && current == target {
+      id=$0
+      sub(/^ID[[:space:]]*:[[:space:]]*/, "", id)
+      if (id != "") {
+        print id
+      }
+    }
+  '
+}
+
 apply_scheduled_tasks() {
   local tasks_dir="$REPO_ROOT/sre-config/scheduled-tasks"
   [ -d "$tasks_dir" ] || return 0
+  local existing_tasks=''
+  if [ "${DRY_RUN:-0}" != "1" ]; then
+    existing_tasks="$(run_output_cmd srectl scheduledtask list --verbose)" || fail "Failed to list existing scheduled tasks."
+  fi
+
   for f in "$tasks_dir"/*.yaml "$tasks_dir"/*.yml; do
     [ -f "$f" ] || continue
+    local task_name
+    task_name="$(scheduled_task_name "$f")"
+    [ -n "$task_name" ] || fail "Scheduled task manifest $(basename "$f") is missing metadata.name/spec.name."
+
     if [ "${DRY_RUN:-0}" = "1" ]; then
+      dry_run_log "Would remove existing scheduled task(s) named: $task_name"
       dry_run_log "Would apply scheduled task: $(basename "$f")"
       continue
     fi
+
+    local existing_ids id
+    existing_ids="$(scheduled_task_ids_by_name "$task_name" "$existing_tasks")"
+    while IFS= read -r id; do
+      [ -n "$id" ] || continue
+      log "Removing existing scheduled task '$task_name' ($id) before applying managed definition..."
+      run_cmd srectl scheduledtask delete --id "$id" --quiet 2>&1 || fail "Failed to delete existing scheduled task $task_name ($id)."
+    done <<<"$existing_ids"
+
     log "Applying scheduled task: $(basename "$f")"
     run_cmd srectl scheduledtask apply --file "$f" --quiet 2>&1 || fail "Failed to apply scheduled task $(basename "$f")."
   done
@@ -389,6 +472,7 @@ main() {
   apply_agents
   apply_tools
   apply_knowledge
+  verify_knowledge_documents
   apply_scheduled_tasks
 
   write_success_marker

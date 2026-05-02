@@ -1,7 +1,7 @@
 // =============================================================================
 // SRE Agent user-assigned managed identity module
 // =============================================================================
-// Creates the single user-assigned managed identity used by the FinOps SRE Agent.
+// Creates the single user-assigned managed identity used by the FinOps toolkit SRE Agent.
 // =============================================================================
 
 @description('Required. Resource location.')

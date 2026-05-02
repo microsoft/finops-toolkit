@@ -1,19 +1,19 @@
 ---
-title: FinOps SRE Agent agents and skills
-description: Understand how FinOps SRE Agent uses specialist agents, tools, skills, and knowledge to automate FinOps and capacity management work.
+title: FinOps toolkit SRE Agent agents and skills
+description: Understand how FinOps toolkit SRE Agent uses specialist agents, tools, skills, and knowledge to automate FinOps and capacity management work.
 author: msbrett
 ms.author: brettwil
-ms.date: 04/29/2026
+ms.date: 05/02/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to understand how FinOps SRE Agent agents and skills work so that I can route work to the right specialist.
+#customer intent: As a FinOps practitioner, I want to understand how FinOps toolkit SRE Agent agents and skills work so that I can route work to the right specialist.
 ---
 
-# FinOps SRE Agent agents and skills
+# FinOps toolkit SRE Agent agents and skills
 
-FinOps SRE Agent uses a multi-agent architecture built on [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview). One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
+FinOps toolkit SRE Agent uses a multi-agent architecture built on [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview). One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
 
 The template configures 5 subagents, 3 skills, 33 tools (21 Kusto tools and 12 Python tools), and a FinOps hub connector. The orchestrator keeps the experience simple. The specialist agents keep answers grounded in the right domain.
 
@@ -46,6 +46,27 @@ When it's invoked:
 - A scheduled task needs recurring cost visibility, optimization review, AI cost analysis, or FinOps practice health checks.
 - The orchestrator needs a general FinOps owner before handing deeper Kusto or finance work to another specialist.
 
+Example prompts:
+
+- "Help me design a showback model for shared platform costs across engineering teams."
+- "Investigate why our AI costs increased this month and recommend the first three actions."
+- "Create a Crawl-Walk-Run plan for improving tagging, budgets, anomaly response, and optimization."
+- "Review our reservation and savings plan opportunities and explain which FinOps capabilities we should mature first."
+
+Expected output:
+
+- A practical FinOps recommendation with business context, maturity assumptions, trade-offs, and next steps.
+- Evidence-backed cost drivers, optimization opportunities, governance actions, and stakeholder guidance.
+- Clear separation between what the agent knows from tool evidence and what needs more data.
+
+Use this agent versus another:
+
+- Use `finops-practitioner` first when the question mixes cost analysis, FinOps process, governance, allocation, optimization, and stakeholder planning.
+- Use `ftk-database-query` instead when the main deliverable is a specific KQL query, schema explanation, or detailed Hub database result.
+- Use `chief-financial-officer` instead when the main deliverable is an executive finance narrative, budget decision, board-ready summary, or capital-allocation recommendation.
+- Use `azure-capacity-manager` instead when the constraint is quota, capacity reservation supply, region access, zones, or AKS capacity readiness.
+- Use `ftk-hubs-agent` instead when the work is deploying, upgrading, configuring, or troubleshooting a FinOps hub.
+
 <br>
 
 ## azure-capacity-manager
@@ -74,6 +95,27 @@ When it's invoked:
 - A user asks about quota, capacity reservations, region access, availability zones, AKS capacity, or capacity governance.
 - A scheduled capacity task checks daily quota usage, weekly supply readiness, monthly planning, or quarterly strategy.
 - Another agent needs capacity context before recommending commitments, scaling changes, or regional moves.
+
+Example prompts:
+
+- "Check whether we have enough quota and regional capacity for next month's AKS node pool expansion."
+- "Plan a capacity reservation strategy for a production workload that needs guaranteed VM supply in two regions."
+- "Compare our capacity reservation utilization with savings plan recommendations before we buy more commitments."
+- "Explain the zone mapping risks before we move this workload to a multi-zone architecture."
+
+Expected output:
+
+- A capacity-readiness assessment with quota, region, zone, reservation, and utilization findings.
+- Recommended capacity actions, such as quota requests, reservation group changes, region alternatives, or monitoring tasks.
+- Explicit distinction between capacity guarantees and pricing commitments so teams don't treat reservations, savings plans, and quota as interchangeable.
+
+Use this agent versus another:
+
+- Use `azure-capacity-manager` when supply availability is the main question: quota, capacity reservations, region access, zones, AKS node pools, or capacity governance.
+- Use `finops-practitioner` instead when the question is primarily about FinOps operating model, allocation, anomaly response, or broad cost optimization.
+- Use `chief-financial-officer` instead when capacity decisions need executive budget framing, investment trade-offs, or board-ready risk language.
+- Use `ftk-database-query` instead when you need exact Hub Kusto results about cost, utilization, recommendations, or pricing before making a capacity decision.
+- Use `ftk-hubs-agent` instead when the capacity issue is blocking a hub deployment, upgrade, or configuration workflow.
 
 <br>
 
@@ -105,6 +147,27 @@ When it's invoked:
 - A scheduled finance task prepares daily budget checks, weekly variance reviews, monthly forecasts, quarterly business reviews, or annual planning.
 - The `finops-practitioner` agent needs finance leadership for executive framing or prioritization.
 
+Example prompts:
+
+- "Summarize cloud spend performance for the CFO with risks, opportunities, and decisions needed this week."
+- "Explain the budget variance for the quarter and separate timing issues from structural run-rate changes."
+- "Create a board-ready narrative for our AI investment, including unit economics and governance risks."
+- "Prioritize these three optimization programs by financial impact, execution risk, and business value."
+
+Expected output:
+
+- An executive-ready finance view with quantified assumptions, variance explanations, risks, options, and recommended decisions.
+- Budget, forecast, portfolio, or investment guidance that connects cloud spend to business outcomes.
+- Clear caveats for missing evidence, confidence level, and follow-up data needed before committing to a decision.
+
+Use this agent versus another:
+
+- Use `chief-financial-officer` when the audience is executives, finance leaders, boards, or business owners making budget, forecast, risk, or investment decisions.
+- Use `finops-practitioner` instead when the work needs broader FinOps process guidance, practitioner playbooks, or operating-model design.
+- Use `ftk-database-query` instead when the deliverable is detailed KQL, data extraction, schema validation, pricing lookup, or recommendation analysis.
+- Use `azure-capacity-manager` instead when the core issue is capacity supply, quota, zones, reservation groups, or regional access.
+- Use `ftk-hubs-agent` instead when financial reporting is blocked by hub deployment, export, connectivity, version, or health issues.
+
 <br>
 
 ## ftk-database-query
@@ -117,7 +180,7 @@ What it does:
 
 - Uses the Hub database for analytics and avoids the Ingestion database for end-user analysis.
 - Starts with the query catalog and adapts the closest existing query when possible.
-- Builds custom analysis from `costs-enriched-base` when no catalog query fits.
+- Builds scoped custom drill-downs from `costs-enriched-base` when no catalog query fits and uses aggregate tools for full-month or scheduled reports.
 - Uses `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` for FOCUS-aligned analysis.
 - Explains filters, functions, metrics, missing data, and data freshness concerns.
 
@@ -132,6 +195,27 @@ When it's invoked:
 - A user asks for a KQL query, schema explanation, pricing lookup, recommendation analysis, transaction analysis, or cost drill-down.
 - A scheduled task needs exact FinOps hub data, a focused diagnostic, or FOCUS-aligned query execution.
 - Another agent needs live cost data or schema-aware analysis before making a recommendation.
+
+Example prompts:
+
+- "Write a FOCUS-aligned KQL query that shows month-over-month cost by service and billing account."
+- "Use the Hub database to find the top resources driving last week's cost anomaly."
+- "Explain which columns from `Costs()` I should use for amortized cost, list cost, and chargeback reporting."
+- "Compare prices for this SKU across regions and show the assumptions in the query."
+
+Expected output:
+
+- A query-first answer with the selected catalog query or custom KQL, filters, assumptions, and expected columns.
+- Data interpretation that explains schema choices, functions, time windows, aggregation grain, and freshness limitations.
+- Diagnostics for query failures or missing results, including what to validate in the Hub database or source exports.
+
+Use this agent versus another:
+
+- Use `ftk-database-query` when the question depends on exact FinOps hub data, KQL, schema details, pricing data, recommendations, or transaction records.
+- Use `finops-practitioner` instead when you need to turn query results into a broader FinOps plan, operating-model recommendation, or governance approach.
+- Use `chief-financial-officer` instead when data results need to become an executive budget, forecast, risk, or portfolio decision narrative.
+- Use `azure-capacity-manager` instead when the query is only supporting quota, capacity reservation, regional supply, zone, or AKS readiness decisions.
+- Use `ftk-hubs-agent` instead when the problem is that hub data is missing, stale, inaccessible, or caused by deployment or export health issues.
 
 <br>
 
@@ -153,12 +237,34 @@ Key tools it uses:
 
 - Knowledge search through `SearchMemory`
 - Azure CLI tools, such as `RunAzCliReadCommands`, `RunAzCliWriteCommands`, and `GetAzCliHelp`
+- Direct REST freshness checks through `data-freshness-check`, which treats `Costs()` as the source of truth for hub data freshness
 
 When it's invoked:
 
 - A user asks to deploy, upgrade, configure, maintain, or troubleshoot FinOps hubs.
 - A scheduled health task checks FinOps hub readiness, export freshness, version status, or connectivity.
 - Another agent needs hub health context before trusting query results or scheduled reports.
+
+Example prompts:
+
+- "Validate whether my environment is ready to deploy FinOps hubs and list any blocking prerequisites."
+- "Troubleshoot why my Cost Management exports are not showing up in the Hub database."
+- "Plan a safe FinOps hubs upgrade and include validation, what-if, and rollback checks."
+- "Check hub data freshness and explain whether reports should trust the current `Costs()` results."
+
+Expected output:
+
+- A deployment, upgrade, configuration, or troubleshooting plan that starts with validation and identifies blockers before changes.
+- Hub health findings for prerequisites, RBAC, providers, exports, connectivity, version status, and data freshness.
+- Recommended next actions, including safe validation commands, what-if checks, and escalation points when write operations are required.
+
+Use this agent versus another:
+
+- Use `ftk-hubs-agent` when the work changes or diagnoses the FinOps hub platform itself: deployment, upgrade, configuration, exports, connectivity, dashboards, or health.
+- Use `ftk-database-query` instead when the hub is healthy and the question is about KQL, schema, pricing, recommendations, transactions, or cost drill-downs.
+- Use `finops-practitioner` instead when hub data needs to become a FinOps process, optimization, allocation, governance, or anomaly response recommendation.
+- Use `chief-financial-officer` instead when hub findings need executive finance framing, budget guidance, or portfolio prioritization.
+- Use `azure-capacity-manager` instead when a deployment or scaling issue is primarily about Azure quota, capacity reservation supply, region access, or zones.
 
 <br>
 
@@ -203,7 +309,7 @@ FinOps hub query, reporting, and AI cost tasks load this skill so agents can use
 
 ## How agents, tools, skills, and knowledge work together
 
-FinOps SRE Agent combines four layers:
+FinOps toolkit SRE Agent combines four layers:
 
 1. **Agents** route the work to the right specialist.
 2. **Skills** load domain guidance and reference maps.
@@ -250,9 +356,9 @@ Related products:
 
 Related solutions:
 
-- [FinOps SRE Agent](overview.md)
-- [Deploy FinOps SRE Agent](deploy.md)
+- [FinOps toolkit SRE Agent](overview.md)
+- [Deploy FinOps toolkit SRE Agent](deploy.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps SRE Agent template reference](template.md)
+- [FinOps toolkit SRE Agent template reference](template.md)
 
 <br>

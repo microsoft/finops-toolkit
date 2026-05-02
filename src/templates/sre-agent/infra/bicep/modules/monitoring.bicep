@@ -2,7 +2,7 @@
 // SRE Agent monitoring module
 // =============================================================================
 // Creates the Log Analytics workspace and workspace-based Application Insights
-// component used to collect telemetry for the FinOps SRE Agent.
+// component used to collect telemetry for the FinOps toolkit SRE Agent.
 // =============================================================================
 
 @description('Required. Resource location.')

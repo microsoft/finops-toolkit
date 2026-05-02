@@ -7,7 +7,10 @@ spec:
   connector: finops-hub-kusto
   toolMode: Auto
   description: |-
-    Returns top non-usage commitment discount purchase transactions with useful reporting helper columns. Use it to inspect large Reserved Instance or Savings Plan purchases and related commitment transaction details. Available parameters: N, startDate, endDate.
+    Returns top non-usage commitment discount purchase transactions with useful reporting helper columns. Use it to inspect large Reserved Instance or Savings Plan purchases and related commitment transaction details. If the result is empty or ZERO_ROWS_RETURNED, run data-freshness-check before concluding there were no commitment purchases and surface any Transactions() export, ingestion, or stored-function diagnostic. Available parameters: N, startDate, endDate.
+
+    Output contract:
+    If the tool returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed but do not treat the analysis as fully healthy. Run data-freshness-check and inspect Transactions() row_count, schema_status, and diagnostic_code before stating there were no matching commitment purchases. If diagnostic_code is TRANSACTIONS_ZERO_ROWS, report an export / ingestion / stored-function action item and continue the report with that limitation.
   database: hub
   query: |-
     Costs()

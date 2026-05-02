@@ -16,6 +16,8 @@ spec:
 
     - Use attached FinOps Hub Kusto query tooling for live execution when it is available; otherwise provide the exact KQL and required execution parameters.
 
+    - Never use RunAzCliReadCommands, Azure CLI, or `az rest` to call Azure Data Explorer `/v1/rest/query`, `/v2/rest/query`, or `/v1/rest/mgmt` endpoints. Use the attached Kusto tools for catalog analytics and `data-freshness-check` for Hub freshness checks. If a direct Kusto fallback is required, use execute_python with ManagedIdentityCredential and requests against the Kusto REST API, and never print or store bearer tokens.
+
 
     Required workflow:
 
@@ -23,9 +25,9 @@ spec:
 
     2. Reuse or adapt the closest catalog query when it fits the user''s scenario.
 
-    3. If no catalog query fits, start custom analysis from costs-enriched-base and extend it instead of rebuilding enrichment logic from scratch.
+    3. If no catalog query fits, start custom analysis from costs-enriched-base for scoped row-level drill-down only and extend it instead of rebuilding enrichment logic from scratch. Do not run costs-enriched-base for full-month, fiscal-period, scheduled report, dashboard export, or broad tag-coverage requests. Use aggregation tools first, then drill into a one-day or narrower slice only when raw details are required.
 
-    4. Filter early with ChargePeriodStart and keep the query scoped to the user''s question.
+    4. Filter early with the correct date column for the function and keep the query scoped to the user''s question. Use ChargePeriodStart for Costs() and Transactions(); use x_EffectivePeriodStart for Prices(); do not assume every function has ChargePeriodStart.
 
     5. Prefer EffectiveCost unless the user explicitly asks for billed, contracted, or list cost.
 
@@ -52,6 +54,7 @@ spec:
     - Explain which function, filters, and metrics you used, then summarize the result clearly.
 
     - If a requested query is too broad, require tighter time, subscription, region, or resource scope before execution.
+    - When top-other-transactions returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.
 
 
     Grounding rules:
@@ -60,7 +63,9 @@ spec:
 
     - Do not duplicate long reference docs in your answers; summarize only the parts needed for the current analysis.
 
-    - If data is missing, stale, or inconsistent, say so and suggest the next diagnostic step.'
+    - If data is missing, stale, or inconsistent, say so and suggest the next diagnostic step.
+
+    - When `Transactions()` or transaction tools return zero rows, do not state that no transactions occurred unless `data-freshness-check` confirms row counts and no diagnostics. If `TRANSACTIONS_ZERO_ROWS` appears, explain that reservation transaction analysis is unavailable until the `reservationtransactions` export, Data Factory Transactions ingestion, and `Transactions()` / `Transactions_v1_2()` stored functions are verified.'
   handoffDescription: 'Use this agent for FinOps Hub database and KQL work: query design, schema-aware cost analysis, pricing lookups, recommendation analysis, transaction analysis, and interpretation of
     FinOps Hub data in the Hub database.'
   handoffs: []
@@ -69,6 +74,7 @@ spec:
   - RunAzCliReadCommands
   - GetAzCliHelp
   - execute_python
+  - data-freshness-check
   - ai-cost-by-application
   - ai-daily-trend
   - ai-model-cost-comparison
@@ -90,3 +96,32 @@ spec:
   - top-resource-groups-by-cost
   - top-resource-types-by-cost
   - top-services-by-cost
+  hooks:
+    PostToolUse:
+    - type: command
+      matcher: Bash|ExecuteShellCommand|Terminal|RunAzCliReadCommands|RunAzCliWriteCommands|execute_python|ExecutePythonCode
+      timeout: 30
+      failMode: block
+      script: |
+        #!/usr/bin/env python3
+        import json
+        import re
+        import sys
+
+        context = json.load(sys.stdin)
+        tool_payload = json.dumps({
+            "tool_input": context.get("tool_input", {}),
+            "tool_result": context.get("tool_result", ""),
+        })
+        blocked = [
+            (r"https://[^\s\"']+@github\.com", "Do not use authenticated GitHub remote URLs in shell commands. Use the configured credential provider or GitHub connector."),
+            (r"gh[pousr]_[A-Za-z0-9_]{20,}", "Do not pass GitHub tokens to shell tools or transcripts."),
+            (r"github_pat_[A-Za-z0-9_]{20,}", "GitHub PATs are forbidden. Do not pass personal access tokens to shell tools or transcripts."),
+        ]
+
+        for pattern, reason in blocked:
+            if re.search(pattern, tool_payload):
+                print(json.dumps({"decision": "block", "reason": reason}))
+                sys.exit(0)
+
+        print(json.dumps({"decision": "allow"}))

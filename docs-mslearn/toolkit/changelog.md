@@ -57,7 +57,7 @@ _Released April 2026_
   - Added 5 subagents (`finops-practitioner`, `azure-capacity-manager`, `chief-financial-officer`, `ftk-database-query`, `ftk-hubs-agent`), 3 skills, 21 Kusto tools, and 1 Kusto MCP connector.
   - Added 9 scheduled tasks (daily, weekly, monthly, and quarterly cadences) with Teams channel delivery.
   - Added 3 knowledge documents for agent onboarding, Teams notification patterns, and known issues.
-  - Added FinOps SRE Agent documentation pages for Microsoft Learn.
+  - Added FinOps toolkit SRE Agent documentation pages for Microsoft Learn.
 - **Changed**
   - Set agent action mode to Autonomous so scheduled tasks can deliver reports without human approval.
   - Switched scheduled task persistence from `srectl scheduledtask create` to `apply` for idempotent re-runs.

@@ -1,7 +1,7 @@
 // =============================================================================
 // FinOps toolkit SRE agent deployment
 // =============================================================================
-// Deploys the FinOps SRE Agent with optional FinOps hub co-deployment.
+// Deploys the FinOps toolkit SRE Agent with optional FinOps hub co-deployment.
 //
 // Three modes:
 //   1. Agent only:          omit finopsHubClusterUri and DEPLOY_FINOPS_HUB

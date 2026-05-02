@@ -1,8 +1,8 @@
-# FinOps SRE Agent UAT plan
+# FinOps toolkit SRE Agent UAT plan
 
 ## Problem statement
 
-Productize the FinOps SRE Agent as a trustworthy new FinOps Toolkit feature without relying on ad hoc live deployments. UAT must prove that the repo-defined feature surface is coherent, testable, and complete enough to ship as product: agents, tools, scheduled tasks, connector wiring, and lab-backed scenarios must all line up.
+Productize the FinOps toolkit SRE Agent as a trustworthy new FinOps Toolkit feature without relying on ad hoc live deployments. UAT must prove that the repo-defined feature surface is coherent, testable, and complete enough to ship as product: agents, tools, scheduled tasks, connector wiring, and lab-backed scenarios must all line up.
 
 ## Current baseline
 

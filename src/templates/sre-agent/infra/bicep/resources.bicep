@@ -1,7 +1,7 @@
 // =============================================================================
 // SRE Agent resource group orchestrator
 // =============================================================================
-// Wires the FinOps SRE Agent leaf modules together and surfaces outputs for the
+// Wires the FinOps toolkit SRE Agent leaf modules together and surfaces outputs for the
 // subscription-scoped deployment entry point.
 // =============================================================================
 

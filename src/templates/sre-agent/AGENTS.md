@@ -34,6 +34,12 @@ environments:
 
 See [README.md](README.md) for deployment instructions, architecture, and post-deploy verification.
 
+## Scheduled task Teams delivery
+
+Scheduled-task entrypoint agents that deliver results must have explicit access to the Teams connector tools: `PostTeamsMessage`, `ReplyToTeamsMessage`, and `GetTeamsMessages`. When a Teams connector/channel is configured, results must be delivered through that configured Teams channel. Failure to deliver through a configured Teams channel means the task/run fails; degraded local-output behavior is allowed only when no Teams connector/channel is configured.
+
+Check Teams capability exactly once per scheduled-task run and reuse that result for the run. Do not use repeated probing, retry loops, Microsoft Graph, Logic Apps `dynamicInvoke`, raw Teams webhooks, email, or other non-Teams-connector workarounds.
+
 ## Key references
 
 - [CATALOG.md](CATALOG.md) — Full scheduled task catalog with FinOps Framework alignment

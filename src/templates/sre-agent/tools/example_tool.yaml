@@ -1,0 +1,19 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgentTool
+metadata:
+  name: example_tool
+spec:
+  type: KustoTool
+  connector: example_connector
+  description: An example tool that demonstrates how to create tools for SRE agents.
+  database: example_database
+  mode: Query
+  query: |
+    MyTable
+    | where TimeGenerated > ago(1h)
+    | summarize count() by OperationName
+  parameters:
+    - name: timeRange
+      type: string
+      required: true
+      description: Time range for the query

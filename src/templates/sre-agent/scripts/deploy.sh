@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Packaged one-shot deployment wrapper for the FinOps SRE Agent template.
+# Packaged one-shot deployment wrapper for the FinOps toolkit SRE Agent template.
 # References:
 # - Azure Developer CLI environment workflow:
 #   https://learn.microsoft.com/azure/developer/azure-developer-cli/work-with-environments
@@ -463,7 +463,7 @@ fi
 
 azd env set "${env_args[@]}"
 
-log "Deploying FinOps SRE Agent with azd up..."
+log "Deploying FinOps toolkit SRE Agent with azd up..."
 clear_post_provision_marker
 azd up --environment "$ENV_NAME" --no-prompt
 

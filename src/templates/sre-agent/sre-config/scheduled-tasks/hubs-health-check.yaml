@@ -16,6 +16,9 @@ spec:
 
     Before starting any checks, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
 
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
+
     ## Python tools available for this task
 
     The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
@@ -26,10 +29,13 @@ spec:
     ## Step 1: Check the latest released FinOps hub version
 
 
-    Get the content from this file to determine the latest stable version of FinOps hubs: `https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/main/src/templates/finops-hub/modules/ftkver.txt`.
+    Get the content from this file to determine the latest stable version of FinOps hubs: `https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/main/src/templates/finops-hub/modules/fx/ftkver.txt`.
 
 
-    Get the content from this file to determine the latest development version of FinOps hubs: `https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/templates/finops-hub/modules/ftkver.txt`.
+    Get the content from this file to determine the latest development version of FinOps hubs: `https://raw.githubusercontent.com/microsoft/finops-toolkit/refs/heads/dev/src/templates/finops-hub/modules/fx/ftkver.txt`.
+
+
+    If either URL fails or returns empty content, do not infer the latest version. Report the version lookup as unavailable and continue with the remaining health checks.
 
 
     FinOps hubs use semantic versioning (SemVer) format for version numbers, which is `major.minor`, `major.minor.patch`, or `major.minor-prerelease`. If the version number has `-dev` at the end of it,
@@ -59,11 +65,16 @@ spec:
     ## Step 2: Check the latest data refresh/update date
 
 
-    Run `data-freshness-check` as the primary data staleness tool. If the last data refresh/update date is less than 24 hours ago, skip this step.
+    Run `data-freshness-check` as the authoritative data staleness tool. This tool checks actual data dates in the Hub database through direct Azure Data Explorer REST queries, not Kusto ingestion timestamps or stale memory. Treat `Costs()` as the primary freshness signal. If the latest cost data is 3 days old or newer, skip stale-data remediation because Azure cost data normally lags 24-48 hours. If stale-memory, raw-KQL, or ingestion timestamp conclusions conflict with `data-freshness-check`, mark those older conclusions as superseded and unsafe.
 
 
-    If the last data refresh/update date is more than 24 hours ago, inform the user that the data may be stale and they should check the Microsoft Cost Management exports and Azure Data Factory data ingestion
-    pipelines to ensure they are running without errors.
+    If the latest `Costs()` data is more than 3 days old, or if `Costs()` has no rows, inform the user that the data may be stale and they should check the Microsoft Cost Management exports and Azure Data Factory data ingestion pipelines to ensure they are running without errors.
+
+
+    If `Transactions()` returns zero rows, do not report a generic empty table or a healthy success. Report the `TRANSACTIONS_ZERO_ROWS` diagnostic from `data-freshness-check` and state that reservation transaction analysis is unavailable until the Cost Management `reservationtransactions` export, Azure Data Factory Transactions ingestion, and Hub `Transactions()` / `Transactions_v1_2()` stored-function behavior are verified. Empty `Transactions()` is not enough by itself to mark core `Costs()` freshness stale, but it is an action item.
+
+
+    Report empty `Prices()` or `Recommendations()` results as follow-up items to confirm whether those exports should be configured. Do not report the hub as stale solely because an optional function is empty.
 
 
     Give them a link to Microsoft Cost Management to check the exports: https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/exports
@@ -79,9 +90,9 @@ spec:
 
 
 
-    **Visualizations:** Include a trend chart of data freshness (hours since last update) if degradation is detected. Version status should be reported as a table. Skip charts if all checks pass.
+    **Visualizations:** Include a trend chart of data freshness (hours since last update) if degradation is detected. Version status should be reported as a table. Skip charts if all checks pass. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why.
 
-    **Teams (status results only):** Post the final health check results to our Teams channel. Include version status, data freshness status, and any action items. Do not post intermediate results — only the completed health check summary.
+    **Teams (status results only):** Post the final health check results to our Teams channel. Include version status, data freshness status, and any action items. Do not post intermediate results — only the completed health check summary. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
 
 
     **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — version drift patterns, data freshness trends, pipeline failure modes, troubleshooting steps that worked. Never save financial figures or customer financial data to the knowledge base. Financial detail goes to Teams only.'

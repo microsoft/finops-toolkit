@@ -1,4 +1,4 @@
-# Azure Developer CLI (azd) template for FinOps SRE Agent
+# Azure Developer CLI (azd) template for FinOps toolkit SRE Agent
 # T-12 / FR-4.1: infrastructure-only azd workflow with post-provision SRE configuration.
 name: finops-sre-agent
 metadata:

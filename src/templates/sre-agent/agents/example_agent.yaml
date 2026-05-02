@@ -1,0 +1,19 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgent
+metadata:
+  name: example_agent
+spec:
+  instructions: |
+    You are an example SRE agent designed to demonstrate the capabilities of the SREAgent system.
+    You can help with basic incident management and provide guidance on SRE best practices.
+    Always be helpful, professional, and focused on solving operational problems.
+  handoffDescription: Use this agent for general SRE tasks and as an example of agent configuration.
+  handoffs:
+    - meta_agent
+  tools:
+    - example_tool
+  allowParallelToolCalls: false
+  maxReflectionCount: 0
+  criticOnHandoff: false
+  customReflectionNote: ''
+  enableVanillaMode: true

@@ -7,39 +7,77 @@ spec:
   connector: ''
   toolMode: Auto
   description: |-
-    Checks FinOps Hub function data freshness in an Azure Data Explorer hub database.
-    The tool reports the latest data date, staleness in days, and whether each
-    function is stale using a 2-day threshold.
+    Checks FinOps Hub function data freshness in an Azure Data Explorer hub database
+    through direct Azure Data Explorer REST queries. This tool is authoritative for
+    hub data freshness. Stale memory notes, raw KQL rollups, and ingestion timestamp
+    checks are superseded when they conflict with this result.
+    The tool reports row counts, latest data dates, staleness in days, stored-function
+    schema status, and precise diagnostics for empty or stale datasets. Transactions()
+    zero rows are reported as a reservationtransactions export / ingestion / stored-function
+    issue, not as a generic empty result.
   functionCode: |-
     def main(**kwargs):
         from datetime import datetime, timezone
+        from urllib.parse import urlparse
 
         import requests
 
+        KUSTO_SCOPE = "https://api.kusto.windows.net/.default"
+        KUSTO_QUERY_PATH = "/v2/rest/query"
+        FRESHNESS_THRESHOLD_DAYS = 3
+
         cluster_uri = kwargs.get("cluster_uri")
-        database = kwargs.get("database") or "hub"
+        database = kwargs.get("database")
 
         result = {
             "cluster_uri": cluster_uri,
-            "database": database,
+            "database": database or "hub",
             "functions": [],
             "total_functions": 0,
             "stale_count": 0,
+            "empty_count": 0,
+            "error_count": 0,
+            "hub_data_stale": False,
+            "attention_required": False,
+            "status": "unknown",
+            "diagnostics": [],
             "freshest_function": None,
             "stalest_function": None,
+            "source_of_truth": {
+                "tool": "data-freshness-check",
+                "method": "direct_adx_rest_query",
+                "endpoint": KUSTO_QUERY_PATH,
+                "authoritative_function": "Costs()",
+                "freshness_threshold_days": FRESHNESS_THRESHOLD_DAYS,
+                "supersedes": [
+                    "stale memory conclusions",
+                    "raw KQL freshness rollups",
+                    "Kusto ingestion timestamp checks",
+                ],
+            },
         }
 
         if not cluster_uri:
             result["error"] = "cluster_uri is required"
             return result
 
-        cluster_uri = str(cluster_uri).strip().rstrip("/")
-        if not cluster_uri.startswith("https://"):
-            cluster_uri = f"https://{cluster_uri}"
+        raw_cluster_uri = str(cluster_uri).strip()
+        if not raw_cluster_uri.startswith(("https://", "http://")):
+            raw_cluster_uri = f"https://{raw_cluster_uri}"
+
+        parsed_cluster_uri = urlparse(raw_cluster_uri)
+        if parsed_cluster_uri.scheme != "https" or not parsed_cluster_uri.netloc:
+            result["error"] = "cluster_uri must be an HTTPS Azure Data Explorer cluster URI"
+            return result
+
+        path_database = parsed_cluster_uri.path.strip("/").split("/")[0] if parsed_cluster_uri.path.strip("/") else None
+        database = database or path_database or "hub"
+        cluster_uri = f"https://{parsed_cluster_uri.netloc}".rstrip("/")
         result["cluster_uri"] = cluster_uri
+        result["database"] = database
 
         def _to_utc(value):
-            if value is None:
+            if value is None or value == "":
                 return None
             if isinstance(value, datetime):
                 parsed = value
@@ -80,9 +118,31 @@ spec:
                     return row[index]
             return None
 
+        def _as_int(value):
+            if value is None or value == "":
+                return None
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return None
+
+        def _append_diagnostic(function_name, severity, code, message, recommended_actions=None, verification=None):
+            diagnostic = {
+                "function_name": function_name,
+                "severity": severity,
+                "code": code,
+                "message": message,
+            }
+            if recommended_actions:
+                diagnostic["recommended_actions"] = recommended_actions
+            if verification:
+                diagnostic["verification"] = verification
+            result["diagnostics"].append(diagnostic)
+            return diagnostic
+
         def _execute_kusto(csl):
             response = requests.post(
-                f"{cluster_uri}/v1/rest/query",
+                f"{cluster_uri}{KUSTO_QUERY_PATH}",
                 headers=headers,
                 json={"db": database, "csl": csl},
                 timeout=120,
@@ -98,10 +158,12 @@ spec:
             else:
                 from azure.identity import DefaultAzureCredential
                 credential = DefaultAzureCredential()
-            token = credential.get_token(f"{cluster_uri}/.default").token
+            token = credential.get_token(KUSTO_SCOPE).token
             headers = {
+                "Accept": "application/json",
                 "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
+                "Content-Type": "application/json; charset=utf-8",
+                "x-ms-app": "FinOpsSreAgentDataFreshnessCheck",
             }
         except Exception as exc:
             result["error"] = f"Failed to initialize Azure Data Explorer REST credential: {exc}"
@@ -109,63 +171,196 @@ spec:
 
         now = datetime.now(timezone.utc)
         errors = []
-        freshness_queries = [
-            (
-                "Costs()",
-                "Costs() | summarize LatestData=max(ChargePeriodStart) | project LatestData",
-                True,
-            ),
-            (
-                "Prices()",
-                "Prices() | summarize LatestData=max(ChargePeriodStart) | project LatestData",
-                True,
-            ),
-            (
-                "Recommendations()",
-                "Recommendations() | take 1",
-                False,
-            ),
-            (
-                "Transactions()",
-                "Transactions() | summarize LatestData=max(ChargePeriodStart) | project LatestData",
-                True,
-            ),
+        function_checks = [
+            {
+                "function_name": "Costs()",
+                "source_dataset": "Costs",
+                "expected_export_dataset": "focuscost",
+                "query": "Costs() | summarize RowCount=count(), LatestData=max(ChargePeriodStart) | project RowCount, LatestData",
+                "schema_query": "Costs() | getschema | summarize SchemaColumnCount=count()",
+                "freshness_column": "LatestData",
+                "required_for_hub_health": True,
+                "empty_code": "COSTS_ZERO_ROWS",
+                "stale_code": "COSTS_STALE",
+                "empty_message": "Costs() returned zero rows. This is a Hub data blocker, not a successful empty result.",
+                "empty_actions": [
+                    "Verify Cost Management cost exports are configured and have recent successful runs.",
+                    "Verify Azure Data Factory ingestion pipelines processed the Costs dataset successfully.",
+                    "Verify the Costs() stored function resolves against the current Hub schema.",
+                ],
+            },
+            {
+                "function_name": "Prices()",
+                "source_dataset": "Prices",
+                "expected_export_dataset": "pricesheet",
+                "query": "Prices() | summarize RowCount=count(), LatestData=max(x_EffectivePeriodStart) | project RowCount, LatestData",
+                "schema_query": "Prices() | getschema | summarize SchemaColumnCount=count()",
+                "freshness_column": "LatestData",
+                "required_for_hub_health": False,
+                "empty_code": "PRICES_ZERO_ROWS",
+                "stale_code": "PRICES_STALE",
+                "empty_message": "Prices() returned zero rows. Pricing analysis is unavailable until the pricesheet export and ingestion path are verified.",
+                "empty_actions": [
+                    "Verify Cost Management pricesheet exports are configured for supported billing scopes.",
+                    "Verify Azure Data Factory ingestion pipelines processed the Prices dataset successfully.",
+                    "Verify the Prices() stored function resolves against the current Hub schema.",
+                ],
+            },
+            {
+                "function_name": "Recommendations()",
+                "source_dataset": "Recommendations",
+                "expected_export_dataset": "reservationrecommendations",
+                "query": "Recommendations() | summarize RowCount=count() | project RowCount",
+                "schema_query": "Recommendations() | getschema | summarize SchemaColumnCount=count()",
+                "freshness_column": None,
+                "required_for_hub_health": False,
+                "empty_code": "RECOMMENDATIONS_ZERO_ROWS",
+                "stale_code": "RECOMMENDATIONS_STALE",
+                "empty_message": "Recommendations() returned zero rows. Recommendation analysis is unavailable until the reservation recommendations export and ingestion path are verified.",
+                "empty_actions": [
+                    "Verify Cost Management reservationrecommendations exports are configured for supported billing scopes.",
+                    "Verify Azure Data Factory ingestion pipelines processed the Recommendations dataset successfully.",
+                    "Verify the Recommendations() stored function resolves against the current Hub schema.",
+                ],
+            },
+            {
+                "function_name": "Transactions()",
+                "source_dataset": "Transactions",
+                "expected_export_dataset": "reservationtransactions",
+                "query": "Transactions() | extend _IngestionTime = todatetime(column_ifexists('x_IngestionTime', datetime(null))) | summarize RowCount=count(), LatestData=max(ChargePeriodStart), LatestIngestionTime=max(_IngestionTime) | project RowCount, LatestData, LatestIngestionTime",
+                "schema_query": "Transactions() | getschema | summarize SchemaColumnCount=count()",
+                "freshness_column": "LatestData",
+                "required_for_hub_health": False,
+                "empty_code": "TRANSACTIONS_ZERO_ROWS",
+                "stale_code": "TRANSACTIONS_STALE",
+                "empty_message": "Transactions() returned zero rows. The reservation transactions dataset is empty; do not report this as 'no transactions' until export, ingestion, and stored-function behavior are verified.",
+                "empty_actions": [
+                    "Verify Cost Management reservationtransactions exports are configured for supported EA or MCA billing scopes.",
+                    "Verify Azure Data Factory ingestion pipelines processed the Transactions dataset successfully.",
+                    "Verify the Transactions() stored function resolves to the current Transactions_v1_2() implementation.",
+                ],
+            },
         ]
 
-        for function_name, query, has_freshness_date in freshness_queries:
+        for check in function_checks:
+            function_name = check["function_name"]
             latest_data = None
+            latest_ingestion_time = None
             staleness_days = None
             is_stale = True
             has_data = False
+            row_count = None
+            schema_status = "not_checked"
+            schema_column_count = None
+            diagnostic_code = "OK"
+            diagnostic_message = None
 
             try:
-                freshness_payload = _execute_kusto(query)
+                schema_payload = _execute_kusto(check["schema_query"])
+                schema_rows, schema_columns = _table_rows(schema_payload)
+                if schema_rows:
+                    schema_column_count = _as_int(_row_value(schema_rows[0], schema_columns, "SchemaColumnCount", 0))
+                    schema_status = "ok" if schema_column_count and schema_column_count > 0 else "empty_schema"
+                else:
+                    schema_status = "no_schema_rows"
+            except Exception as exc:
+                schema_status = "error"
+                errors.append({"function_name": function_name, "phase": "schema", "error": str(exc)})
+                diagnostic = _append_diagnostic(
+                    function_name,
+                    "error",
+                    f"{function_name.strip('()').upper()}_SCHEMA_QUERY_FAILED",
+                    f"{function_name} schema verification failed. Verify the stored function exists and is compatible with this Hub version before treating the dataset as empty.",
+                    ["Check the Hub version and stored function deployment for this dataset."],
+                    ["Stored-function schema query failed."],
+                )
+                diagnostic_code = diagnostic["code"]
+                diagnostic_message = diagnostic["message"]
+
+            try:
+                freshness_payload = _execute_kusto(check["query"])
                 freshness_rows, freshness_columns = _table_rows(freshness_payload)
-                has_data = bool(freshness_rows)
-                if has_freshness_date:
+                if freshness_rows:
+                    row_count = _as_int(_row_value(freshness_rows[0], freshness_columns, "RowCount", 0))
+                has_data = row_count is not None and row_count > 0
+
+                if check["freshness_column"]:
                     if freshness_rows:
-                        raw_latest = _row_value(freshness_rows[0], freshness_columns, "LatestData", 0)
+                        raw_latest = _row_value(freshness_rows[0], freshness_columns, check["freshness_column"], 1)
                         latest_data = _to_utc(raw_latest)
+                        latest_ingestion_time = _to_utc(_row_value(freshness_rows[0], freshness_columns, "LatestIngestionTime", 2))
                         if latest_data is not None:
                             staleness_days = round((now - latest_data).total_seconds() / 86400, 2)
-                            is_stale = staleness_days > 2
+                    is_stale = not has_data or staleness_days is None or staleness_days > FRESHNESS_THRESHOLD_DAYS
                 else:
                     is_stale = not has_data
+
+                if not has_data:
+                    diagnostic = _append_diagnostic(
+                        function_name,
+                        "warning" if not check["required_for_hub_health"] else "error",
+                        check["empty_code"],
+                        check["empty_message"],
+                        check["empty_actions"],
+                        [
+                            f"{function_name} row count is zero.",
+                            f"{function_name} stored-function schema status: {schema_status}.",
+                        ],
+                    )
+                    diagnostic_code = diagnostic["code"]
+                    diagnostic_message = diagnostic["message"]
+                elif staleness_days is not None and staleness_days > FRESHNESS_THRESHOLD_DAYS:
+                    diagnostic = _append_diagnostic(
+                        function_name,
+                        "warning" if not check["required_for_hub_health"] else "error",
+                        check["stale_code"],
+                        f"{function_name} latest data is {staleness_days} days old, which exceeds the {FRESHNESS_THRESHOLD_DAYS}-day freshness threshold.",
+                        [
+                            f"Verify the {check['expected_export_dataset']} export is still running.",
+                            f"Verify Data Factory ingestion processed the {check['source_dataset']} dataset successfully.",
+                        ],
+                    )
+                    diagnostic_code = diagnostic["code"]
+                    diagnostic_message = diagnostic["message"]
             except Exception as exc:
-                errors.append({"function_name": function_name, "error": str(exc)})
+                errors.append({"function_name": function_name, "phase": "data", "error": str(exc)})
+                diagnostic = _append_diagnostic(
+                    function_name,
+                    "error",
+                    f"{function_name.strip('()').upper()}_QUERY_FAILED",
+                    f"{function_name} data query failed. Report this as a stored-function or schema error, not as an empty dataset.",
+                    ["Check the Hub version and stored function compatibility for this dataset."],
+                    ["Data query failed before row count could be verified."],
+                )
+                diagnostic_code = diagnostic["code"]
+                diagnostic_message = diagnostic["message"]
 
             result["functions"].append(
                 {
                     "function_name": function_name,
+                    "source_dataset": check["source_dataset"],
+                    "expected_export_dataset": check["expected_export_dataset"],
+                    "row_count": row_count,
                     "latest_data_date": _iso(latest_data),
+                    "latest_ingestion_time": _iso(latest_ingestion_time),
                     "staleness_days": staleness_days,
                     "is_stale": is_stale,
                     "has_data": has_data,
+                    "schema_status": schema_status,
+                    "schema_column_count": schema_column_count,
+                    "required_for_hub_health": check["required_for_hub_health"],
+                    "diagnostic_code": diagnostic_code,
+                    "diagnostic_message": diagnostic_message,
                 }
             )
 
+            if check["required_for_hub_health"]:
+                result["hub_data_stale"] = result["hub_data_stale"] or is_stale
+
         result["total_functions"] = len(result["functions"])
         result["stale_count"] = sum(1 for function in result["functions"] if function["is_stale"])
+        result["empty_count"] = sum(1 for function in result["functions"] if not function["has_data"])
+        result["error_count"] = len(errors)
 
         functions_with_data_dates = [
             function for function in result["functions"] if function["latest_data_date"] is not None
@@ -174,8 +369,32 @@ spec:
             result["freshest_function"] = min(functions_with_data_dates, key=lambda function: function["staleness_days"])
             result["stalest_function"] = max(functions_with_data_dates, key=lambda function: function["staleness_days"])
 
+        costs_function = next(
+            (function for function in result["functions"] if function["function_name"] == "Costs()"),
+            None,
+        )
+        if costs_function:
+            result["authoritative_freshness_signal"] = {
+                "function_name": "Costs()",
+                "latest_data_date": costs_function["latest_data_date"],
+                "staleness_days": costs_function["staleness_days"],
+                "is_stale": costs_function["is_stale"],
+                "has_data": costs_function["has_data"],
+                "row_count": costs_function["row_count"],
+            }
+
         if errors:
             result["errors"] = errors
+
+        result["attention_required"] = bool(result["diagnostics"])
+        if result["error_count"]:
+            result["status"] = "error"
+        elif result["hub_data_stale"]:
+            result["status"] = "hub_data_stale"
+        elif result["attention_required"]:
+            result["status"] = "attention_required"
+        else:
+            result["status"] = "healthy"
 
         return result
   timeoutSeconds: 300
@@ -192,7 +411,7 @@ spec:
       required: false
     - name: cluster_uri
       type: string
-      description: Azure Data Explorer cluster URI to query for ingestion freshness.
+      description: Azure Data Explorer cluster URI to query for data freshness.
       required: true
     - name: database
       type: string

@@ -1,6 +1,6 @@
 ---
-title: Manage FinOps SRE Agent knowledge and memory
-description: Learn how knowledge grounds FinOps SRE Agent responses in your team's context and how memory keeps operational learnings available across sessions and redeployments.
+title: Manage FinOps toolkit SRE Agent knowledge and memory
+description: Learn how knowledge grounds FinOps toolkit SRE Agent responses in your team's context and how memory keeps operational learnings available across sessions and redeployments.
 author: msbrett
 ms.author: brettwil
 ms.date: 04/29/2026
@@ -11,9 +11,9 @@ ms.reviewer: brettwil
 #customer intent: As a FinOps practitioner, I want to manage SRE agent knowledge and memory so that the agent can answer with my team's operational context.
 ---
 
-# Manage FinOps SRE Agent knowledge and memory
+# Manage FinOps toolkit SRE Agent knowledge and memory
 
-Knowledge grounds your FinOps SRE Agent in your team's context. It helps the agent answer with your runbooks, known issues, notification patterns, and deployment details instead of relying on general guidance alone.
+Knowledge grounds your FinOps toolkit SRE Agent in your team's context. It helps the agent answer with your runbooks, known issues, notification patterns, and deployment details instead of relying on general guidance alone.
 
 Use knowledge and memory together:
 
@@ -40,7 +40,7 @@ The [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/s
 
 ## Memory system
 
-Azure SRE Agent uses memory to carry context forward between threads. The FinOps SRE Agent uses these memory layers to improve recommendations over time.
+Azure SRE Agent uses memory to carry context forward between threads. The FinOps toolkit SRE Agent uses these memory layers to improve recommendations over time.
 
 ### Session insights
 
@@ -156,7 +156,7 @@ Related products:
 
 Related solutions:
 
-- [FinOps SRE Agent](overview.md)
+- [FinOps toolkit SRE Agent](overview.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
 

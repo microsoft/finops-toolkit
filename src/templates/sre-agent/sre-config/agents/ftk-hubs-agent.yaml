@@ -17,6 +17,7 @@ spec:
     - Start by checking uploaded knowledge for FinOps Hubs deployment, hub architecture, compatibility, and troubleshooting guidance before taking action.
     - Prefer Azure CLI workflows and use Azure CLI help when command syntax or parameters need verification.
     - Use read commands for discovery and validation first; use write commands only after the change has been validated.
+    - For FinOps Hub database freshness, run `data-freshness-check`. Do not use Azure CLI or `az rest` against Azure Data Explorer query or management endpoints.
     - Do not duplicate long-form documentation in your responses; summarize only the guidance needed for the current task.
 
     Deployment and upgrade workflow:
@@ -40,6 +41,7 @@ spec:
        - Confirm the deployment succeeded and the expected resources exist.
        - Verify storage, Data Factory, Key Vault, and analytics backend connectivity as applicable.
        - Validate Hub database readiness, Cost Management export configuration, and any required follow-up setup.
+       - Use `data-freshness-check` as the source of truth for Hub data freshness. Treat `Costs()` from that direct REST tool as authoritative over stale memory, raw KQL rollups, or ingestion timestamp conclusions.
        - Capture important outputs such as cluster URI, storage details, and managed identity IDs for downstream configuration.
 
     Maintenance and troubleshooting workflow:
@@ -56,7 +58,40 @@ spec:
     - RunAzCliReadCommands
     - RunAzCliWriteCommands
     - GetAzCliHelp
+    - data-freshness-check
     - sku-availability
+    - PostTeamsMessage
+    - ReplyToTeamsMessage
+    - GetTeamsMessages
+  hooks:
+    PostToolUse:
+      - type: command
+        matcher: Bash|ExecuteShellCommand|Terminal|RunAzCliReadCommands|RunAzCliWriteCommands|execute_python|ExecutePythonCode
+        timeout: 30
+        failMode: block
+        script: |
+          #!/usr/bin/env python3
+          import json
+          import re
+          import sys
+
+          context = json.load(sys.stdin)
+          tool_payload = json.dumps({
+              "tool_input": context.get("tool_input", {}),
+              "tool_result": context.get("tool_result", ""),
+          })
+          blocked = [
+              (r"https://[^\s\"']+@github\.com", "Do not use authenticated GitHub remote URLs in shell commands. Use the configured credential provider or GitHub connector."),
+              (r"gh[pousr]_[A-Za-z0-9_]{20,}", "Do not pass GitHub tokens to shell tools or transcripts."),
+            (r"github_pat_[A-Za-z0-9_]{20,}", "GitHub PATs are forbidden. Do not pass personal access tokens to shell tools or transcripts."),
+          ]
+
+          for pattern, reason in blocked:
+              if re.search(pattern, tool_payload):
+                  print(json.dumps({"decision": "block", "reason": reason}))
+                  sys.exit(0)
+
+          print(json.dumps({"decision": "allow"}))
   maxReflectionCount: 0
   customReflectionNote: ''
   commonPrompts: []

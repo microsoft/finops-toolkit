@@ -1,6 +1,6 @@
 ---
-title: FinOps SRE Agent template
-description: Review the FinOps SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
+title: FinOps toolkit SRE Agent template
+description: Review the FinOps toolkit SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
 author: msbrett
 ms.author: brettwil
 ms.date: 04/29/2026
@@ -8,12 +8,12 @@ ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps hub admin, I want to understand the FinOps SRE Agent template so that I can deploy and customize it safely.
+#customer intent: As a FinOps hub admin, I want to understand the FinOps toolkit SRE Agent template so that I can deploy and customize it safely.
 ---
 
-# FinOps SRE Agent template
+# FinOps toolkit SRE Agent template
 
-This reference summarizes the [FinOps SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent). Use it to review deployment prerequisites, Bicep parameters, Azure Developer CLI (`azd`) outputs, script options, and module structure before you deploy or customize the template.
+This reference summarizes the [FinOps toolkit SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent). Use it to review deployment prerequisites, Bicep parameters, Azure Developer CLI (`azd`) outputs, script options, and module structure before you deploy or customize the template.
 
 <br>
 
@@ -169,8 +169,8 @@ Related products:
 
 Related solutions:
 
-- [Deploy FinOps SRE Agent](deploy.md)
-- [FinOps SRE Agent](overview.md)
+- [Deploy FinOps toolkit SRE Agent](deploy.md)
+- [FinOps toolkit SRE Agent](overview.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

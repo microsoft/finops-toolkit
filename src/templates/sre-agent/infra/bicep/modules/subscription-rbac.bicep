@@ -4,7 +4,7 @@ targetScope = 'subscription'
 // SRE Agent subscription RBAC assignment module
 // =============================================================================
 // Assigns the minimum subscription-level Azure RBAC permissions required by the
-// FinOps SRE Agent managed identity. The live ftk-sre deployment assigns only
+// FinOps toolkit SRE Agent managed identity. The live ftk-sre deployment assigns only
 // Reader and Monitoring Contributor; broader reference-lab roles are intentionally
 // excluded because they are redundant or unused by this template.
 // =============================================================================

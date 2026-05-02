@@ -7,11 +7,16 @@ spec:
   connector: finops-hub-kusto
   toolMode: Auto
   description: |-
-    Returns an enriched, analytics-ready cost and usage dataset with toolkit metadata, savings calculations, commitment discount fields, resource helpers, and zero-cost reason enrichment. Use it as the broad base query for detailed FinOps analysis, dashboards, or custom filtering. Available parameters: startDate, endDate.
+    Returns an enriched, analytics-ready row-level cost and usage sample with toolkit metadata, savings calculations, commitment discount fields, resource helpers, and zero-cost reason enrichment. Use it only for narrow detail drill-down after an aggregate tool has identified the scope to inspect. Do not use it for full-month, fiscal-period, scheduled report, dashboard export, or tag-coverage rollup requests; use aggregation tools such as monthly-cost-trend, cost-by-financial-hierarchy, top-services-by-cost, top-resource-groups-by-cost, or top-resource-types-by-cost instead. The query rejects windows greater than one day to avoid Azure Data Explorer result truncation limits. Available parameters: startDate, endDate.
   database: hub
   query: |-
+    let _startDate = todatetime(##startDate##);
+    let _endDate = todatetime(##endDate##);
+    let _maxRawWindow = 1d;
     Costs()
-    | where ChargePeriodStart >= ##startDate## and ChargePeriodStart < ##endDate##
+    | where assert(_endDate > _startDate, 'costs-enriched-base requires endDate to be after startDate.')
+    | where assert(_endDate - _startDate <= _maxRawWindow, 'costs-enriched-base returns row-level detail and is limited to one day to avoid Azure Data Explorer result truncation. Use aggregated cost tools for full-month or scheduled reports.')
+    | where ChargePeriodStart >= _startDate and ChargePeriodStart < _endDate
     | as filteredCosts
     | extend x_ChargeMonth = startofmonth(ChargePeriodStart)
     | extend x_ReportingDate = startofmonth(ChargePeriodStart)
@@ -98,9 +103,9 @@ spec:
   parameters:
   - name: startDate
     type: string
-    description: "Start date for the enriched cost reporting window (e.g., startofmonth(ago(30d))). Default: startofmonth(ago(30d))"
+    description: "Start date for the enriched cost detail window (for example, ago(1d)). Must be less than one day before endDate. Use aggregate tools for monthly or scheduled reporting windows."
     required: true
   - name: endDate
     type: string
-    description: "End date for the enriched cost reporting window (e.g., startofmonth(now())). Default: startofmonth(now())"
+    description: "End date for the enriched cost detail window (for example, now()). Must be within one day of startDate. Use aggregate tools for monthly or scheduled reporting windows."
     required: true

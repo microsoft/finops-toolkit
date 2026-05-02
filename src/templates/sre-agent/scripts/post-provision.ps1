@@ -305,19 +305,102 @@ function Apply-Knowledge {
     if ($LASTEXITCODE -ne 0) { throw 'Failed to upload knowledge documents' }
 }
 
+function Test-KnowledgeDocuments {
+    $knowledgeDir = Join-Path $RepoRoot 'sre-config/knowledge'
+    if (-not (Test-Path $knowledgeDir)) { return }
+
+    if ($script:DryRun) {
+        Write-DryRun 'Would verify uploaded knowledge documents with srectl doc get'
+        return
+    }
+
+    $documents = ''
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        $documents = (& srectl doc get 2>&1) | Out-String
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to list uploaded knowledge documents with 'srectl doc get'."
+        }
+        if ($documents.Trim() -and $documents -match 'document-index\.md') {
+            return
+        }
+        if ($attempt -lt 3) {
+            Start-Sleep -Seconds 5
+        }
+    }
+
+    if (-not $documents.Trim()) {
+        throw 'srectl doc get returned no uploaded knowledge documents after uploading sre-config/knowledge.'
+    }
+    if ($documents -notmatch 'document-index\.md') {
+        throw 'Uploaded knowledge document list did not include document-index.md.'
+    }
+}
+
 function Apply-ScheduledTasks {
     $tasksDir = Join-Path $RepoRoot 'sre-config/scheduled-tasks'
     if (-not (Test-Path $tasksDir)) { return }
+
+    $existingTasks = ''
+    if (-not $script:DryRun) {
+        $existingTasks = (& srectl scheduledtask list --verbose 2>&1) | Out-String
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Failed to list existing scheduled tasks.'
+        }
+    }
+
     foreach ($f in Get-YamlFiles $tasksDir) {
+        $taskName = Get-ScheduledTaskName -File $f.FullName
+        if (-not $taskName) {
+            throw "Scheduled task manifest $($f.Name) is missing metadata.name/spec.name."
+        }
+
         if ($script:DryRun) {
+            Write-DryRun "Would remove existing scheduled task(s) named: $taskName"
             Write-DryRun "Would apply scheduled task: $($f.Name)"
             continue
+        }
+
+        foreach ($id in Get-ScheduledTaskIdsByName -ScheduledTasksText $existingTasks -Name $taskName) {
+            Write-Log "Removing existing scheduled task '$taskName' ($id) before applying managed definition..."
+            Invoke-SrectlOrDryRun scheduledtask delete --id $id --quiet 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to delete existing scheduled task $taskName ($id)."
+            }
         }
 
         Write-Log "Applying scheduled task: $($f.Name)"
         Invoke-SrectlOrDryRun scheduledtask apply --file $f.FullName --quiet 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to apply scheduled task $($f.Name)"
+        }
+    }
+}
+
+function Get-ScheduledTaskName {
+    param([string]$File)
+
+    foreach ($line in Get-Content -Path $File) {
+        if ($line -match '^\s*name:\s*(.+?)\s*$') {
+            return $Matches[1].Trim(' ', '"', "'")
+        }
+    }
+    return $null
+}
+
+function Get-ScheduledTaskIdsByName {
+    param(
+        [string]$ScheduledTasksText,
+        [string]$Name
+    )
+
+    $current = $null
+    foreach ($line in ($ScheduledTasksText -split "`r?`n")) {
+        if ($line -match '^\[\d+\]\s+(.+?)\s*$') {
+            $current = $Matches[1]
+            continue
+        }
+        if ($current -eq $Name -and $line -match '^ID\s*:\s*(.+?)\s*$') {
+            $Matches[1]
         }
     }
 }
@@ -355,6 +438,7 @@ try {
     Apply-Agents
     Apply-YamlDir (Join-Path $RepoRoot 'tools') 'tool'
     Apply-Knowledge
+    Test-KnowledgeDocuments
     Apply-ScheduledTasks
 
     Write-SuccessMarker

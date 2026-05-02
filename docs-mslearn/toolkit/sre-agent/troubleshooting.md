@@ -1,19 +1,19 @@
 ---
-title: Troubleshoot the FinOps SRE Agent
-description: Resolve common FinOps SRE Agent deployment, tenant, connector, data, and query issues.
+title: Troubleshoot the FinOps toolkit SRE Agent
+description: Resolve common FinOps toolkit SRE Agent deployment, tenant, connector, data, and query issues.
 author: msbrett
 ms.author: brettwil
-ms.date: 04/29/2026
+ms.date: 05/02/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to troubleshoot FinOps SRE Agent issues so that I can restore scheduled cost, capacity, and operations workflows.
+#customer intent: As a FinOps practitioner, I want to troubleshoot FinOps toolkit SRE Agent issues so that I can restore scheduled cost, capacity, and operations workflows.
 ---
 
-# Troubleshoot the FinOps SRE Agent
+# Troubleshoot the FinOps toolkit SRE Agent
 
-Use this guide when the FinOps SRE Agent deploys, but `srectl`, scheduled tasks, connectors, or data queries don't behave as expected. Start with tenant and deployment checks, then use the known issue sections to match the symptom, cause, and workaround.
+Use this guide when the FinOps toolkit SRE Agent deploys, but `srectl`, scheduled tasks, connectors, or data queries don't behave as expected. Start with tenant and deployment checks, then use the known issue sections to match the symptom, cause, and workaround.
 
 <br>
 
@@ -120,13 +120,13 @@ The following issues were observed during scheduled task testing. They don't alw
 
 **Symptom:** Reports show incomplete or missing recent cost data, and forecasts look distorted.
 
-**Cause:** The FinOps hub data pipeline or Cost Management export is stale, so the Azure Data Explorer cluster doesn't have current data.
+**Cause:** The FinOps hub data pipeline or Cost Management export may be stale, so the Azure Data Explorer cluster might not have current data. Older memory notes, raw KQL checks, or ingestion timestamp checks can also report stale data incorrectly after the pipeline has recovered.
 
 **Workaround:**
 
-- Let reports call out stale data clearly.
-- Run the hubs health check task to confirm freshness.
-- Check Cost Management exports in the Azure portal and pipeline runs in Azure Data Factory.
+- Run `data-freshness-check` or the hubs health check task to confirm freshness before escalating. Treat the direct REST `Costs()` result as the source of truth.
+- If `Costs()` is 3 days old or newer, mark conflicting stale-memory, raw-KQL, or ingestion timestamp conclusions as superseded and don't report the hub as stale.
+- If `Costs()` has no rows, has a query error, or is more than 3 days old, let reports call out stale data clearly and check Cost Management exports in the Azure portal and pipeline runs in Azure Data Factory.
 
 ### Resource Graph failures
 
@@ -237,8 +237,8 @@ Related products:
 
 Related solutions:
 
-- [Deploy FinOps SRE Agent](deploy.md)
+- [Deploy FinOps toolkit SRE Agent](deploy.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps SRE Agent template reference](template.md)
+- [FinOps toolkit SRE Agent template reference](template.md)
 
 <br>

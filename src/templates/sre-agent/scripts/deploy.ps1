@@ -1,4 +1,4 @@
-# Packaged one-shot deployment wrapper for the FinOps SRE Agent template.
+# Packaged one-shot deployment wrapper for the FinOps toolkit SRE Agent template.
 # References:
 # - Azure Developer CLI environment workflow:
 #   https://learn.microsoft.com/azure/developer/azure-developer-cli/work-with-environments
@@ -428,7 +428,7 @@ try {
     & azd @envArgs
     if ($LASTEXITCODE -ne 0) { Fail 'Failed to set azd environment values.' }
 
-    Write-Log 'Deploying FinOps SRE Agent with azd up...'
+    Write-Log 'Deploying FinOps toolkit SRE Agent with azd up...'
     Clear-PostProvisionMarker
     azd up --environment $Environment --no-prompt
     if ($LASTEXITCODE -ne 0) { Fail 'azd up failed.' }
