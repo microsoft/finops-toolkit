@@ -143,6 +143,53 @@ The unified `finops-toolkit-sre-agent-release-training.pptx` and the three split
 
 This is OFFICIAL MICROSOFT TRAINING. Speaker notes are rendered in PowerPoint and read by ElevenLabs for video voiceover.
 
+### Speaker note INTENT (added 2026-05-03)
+
+Speaker notes (cell 5) are the actual voiceover the audience hears while looking at the slide. They MUST add context the slide cannot carry — they MUST NOT paraphrase what is already on screen.
+
+The narration informs and helps. It does NOT prescribe. We are not telling the field rep what to do on Monday; we are explaining what they're looking at and why it matters in customer conversations.
+
+### Citation requirement (added 2026-05-03 — MANDATORY)
+
+Every speaker note MUST cite the specific MCAPS ask number(s) it addresses, drawn from `memory://work/mcaps/mcaps-internal-asks-finops-toolkit-azure-capacity-ai-cost-may-2026`.
+
+Format: append a final line to the cell-5 narration:
+```
+<br/><br/>Source: MCAPS ask #N — "verbatim ask theme from canonical table".
+```
+
+For multi-ask slides, list each: `Source: MCAPS asks #8, #13, #14 — "Quota ≠ Capacity", "Zonal capacity / AZ stockouts", "SKU availability / offer restrictions".`
+
+The citation is part of the rendered voiceover and ElevenLabs reads it aloud. This is non-negotiable: every claim about what customers ask, want, or care about must be traceable to a numbered ask in the canonical memory note.
+
+NO INVENTED CUSTOMER CONTEXT. If the canonical note doesn't say it, the voiceover doesn't claim it.
+
+### Three-paragraph shape (informational, not prescriptive)
+
+1. **The customer reality** — the verbatim or paraphrased ask from the canonical memory note. Cite the ask number(s).
+2. **What this gives you** — the operating insight the slide carries; how the artifact lands the answer in the customer's environment.
+3. **Where the boundary is** — what this does NOT do, who else owns the rest, what stays honest.
+
+Then the citation footer.
+
+### Humility (added 2026-05-03)
+
+NEVER overclaim. The agent does not "solve" or "answer" entire problem categories.
+
+Banned overclaims:
+- "This is the entire answer to X"
+- "This one task solves Y"
+- "All you need is..."
+- "Everything is in this one place"
+
+Use instead: "this gives you", "this surfaces", "this lands the verdict in...", "this becomes the evidence you walk into the conversation with".
+
+### Cell-5 capitalization (added 2026-05-03)
+
+When narrating an operator command in cell 5 (speaker notes / voiceover), capitalize the brand form because it's spoken aloud:
+- Cell 4 (slide content): lowercase `srectl` (it's the CLI command literal)
+- Cell 5 (voiceover narration): SRECTL (it's spoken)
+
 ### Headers (use these EXACTLY)
 - `## Why this matters`
 - `## Talk track`
@@ -157,6 +204,7 @@ This is OFFICIAL MICROSOFT TRAINING. Speaker notes are rendered in PowerPoint an
 - ALL CAPS (except established acronyms: AOAI, CRG, MCA, RI, SP, ESR, MACC, FOCUS, KQL, P&L)
 - Marketing fluff: "unleash", "transform", "supercharge", "revolutionize"
 - Cute or creative section names
+- **Research jargon (added 2026-05-03):** "corpus", "evidence pack", "ask cluster", "verbatim quote", "MCAPS ask #N". The audience is the field; talk in field language ("what customers told us", "the question you hear", "the deal-blocker").
 
 ### Required
 - Sentence case for ALL headings

@@ -130,7 +130,7 @@ def parse_v8():
     # Find ALL table header lines (V8 has 3 tables)
     table_starts = []
     for i, ln in enumerate(lines):
-        if ln.startswith("| # | Cluster | Title |") or ln.startswith("| # |Cluster|"):
+        if ln.startswith("| # | Cluster | Asks (verbatim) |") or ln.startswith("| # | Cluster | Title |") or ln.startswith("| # |Cluster|"):
             table_starts.append(i)
 
     if not table_starts:
@@ -147,7 +147,11 @@ def parse_v8():
             if not cells or len(cells) < 7:
                 i += 1
                 continue
-            num, stage, title, content, notes, layout, screens = cells[:7]
+            # Schema 8-column (with asks-verbatim) or legacy 7-column
+            if len(cells) >= 8:
+                num, stage, _asks_verbatim, title, content, notes, layout, screens = cells[:8]
+            else:
+                num, stage, title, content, notes, layout, screens = cells[:7]
             # Strip markdown from num field (drafter output may use **P1.2.A** bold)
             num = strip_md(num).strip()
             # Accept slide IDs like 0.1, P1.1.A, P2.3.B, H.1, Z.1, 1.99, 2.99, 2.0.1
