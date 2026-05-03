@@ -3,7 +3,7 @@ title: Deploy and configure the FinOps toolkit SRE Agent
 description: Deploy the FinOps toolkit SRE Agent template, connect it to FinOps hubs, and configure notifications for scheduled cost and capacity reports.
 author: msbrett
 ms.author: brettwil
-ms.date: 04/29/2026
+ms.date: 05/03/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -19,8 +19,8 @@ In this tutorial, you learn how to deploy the [FinOps toolkit SRE Agent](https:/
 
 <!-- prettier-ignore-start -->
 > [!div class="checklist"]
-> - Apply FinOps toolkit SRE Agent prerequisites. <!-- markdownlint-disable-line MD032 -->
-> - Deploy the FinOps toolkit SRE Agent with Azure Developer CLI.
+> - Apply the prerequisites. <!-- markdownlint-disable-line MD032 -->
+> - Deploy the agent with Azure Developer CLI.
 > - Verify the agent configuration.
 > - Configure Microsoft Teams and Outlook notifications.
 > - Validate post-provision configuration with dry-run mode.
@@ -160,7 +160,7 @@ Use dry-run mode when you change template configuration or want to confirm local
 
 ## Grant the ADX viewer role
 
-The FinOps toolkit SRE Agent can query your FinOps hub through the Kusto connector. To grant the agent's managed identity the `AllDatabasesViewer` role on your Azure Data Explorer (ADX) cluster, add the optional cluster parameters during deployment.
+The agent can query your FinOps hub through the Kusto connector. To grant the agent's managed identity the `AllDatabasesViewer` role on your Azure Data Explorer (ADX) cluster, add the optional cluster parameters during deployment.
 
 ### [Bash](#tab/bash)
 
@@ -244,7 +244,7 @@ Use `--destroy` or `-Destroy` to delete Azure resources and remove the local `az
 
 ## Supported regions
 
-The FinOps toolkit SRE Agent deployment supports these Azure regions:
+The agent supports deployment to these Azure regions:
 
 - `australiaeast`
 - `eastus2`

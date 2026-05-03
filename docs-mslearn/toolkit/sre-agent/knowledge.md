@@ -3,7 +3,7 @@ title: Manage FinOps toolkit SRE Agent knowledge and memory
 description: Learn how knowledge grounds FinOps toolkit SRE Agent responses in your team's context and how memory keeps operational learnings available across sessions and redeployments.
 author: msbrett
 ms.author: brettwil
-ms.date: 04/29/2026
+ms.date: 05/03/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # Manage FinOps toolkit SRE Agent knowledge and memory
 
-Knowledge grounds your FinOps toolkit SRE Agent in your team's context. It helps the agent answer with your runbooks, known issues, notification patterns, and deployment details instead of relying on general guidance alone.
+Knowledge grounds the agent in your team's context. It helps the agent answer with your runbooks, known issues, notification patterns, and deployment details instead of relying on general guidance alone.
 
 Use knowledge and memory together:
 
@@ -40,7 +40,7 @@ The [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/s
 
 ## Memory system
 
-Azure SRE Agent uses memory to carry context forward between threads. The FinOps toolkit SRE Agent uses these memory layers to improve recommendations over time.
+Azure SRE Agent uses memory to carry context forward between threads. The agent extends that with these memory layers to improve recommendations over time.
 
 ### Session insights
 

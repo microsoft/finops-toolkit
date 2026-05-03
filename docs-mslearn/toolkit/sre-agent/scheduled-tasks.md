@@ -3,7 +3,7 @@ title: FinOps toolkit SRE Agent scheduled tasks
 description: Learn how FinOps toolkit SRE Agent scheduled tasks automate daily, weekly, monthly, and quarterly FinOps operating rhythms.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/02/2026
+ms.date: 05/03/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # FinOps toolkit SRE Agent scheduled tasks
 
-FinOps toolkit SRE Agent scheduled tasks run recurring Azure SRE Agent workflows for the FinOps operating rhythm. They turn common reviews into autonomous checks that gather data, route work to the right specialist agent, generate charts where the data supports them, and post completed reports to Microsoft Teams when a Teams notification connector is configured.
+Scheduled tasks run recurring Azure SRE Agent workflows for the FinOps operating rhythm. They turn common reviews into autonomous checks that gather data, route work to the right specialist agent, generate charts where the data supports them, and post completed reports to Microsoft Teams when a Teams notification connector is configured.
 
 The template deploys 18 scheduled tasks from `src/templates/sre-agent/sre-config/scheduled-tasks/`. These tasks cover daily health checks, weekly optimization and capacity reviews, monthly planning and finance reports, and quarterly strategy.
 

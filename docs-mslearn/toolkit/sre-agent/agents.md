@@ -3,7 +3,7 @@ title: FinOps toolkit SRE Agent agents and skills
 description: Understand how FinOps toolkit SRE Agent uses specialist agents, tools, skills, and knowledge to automate FinOps and capacity management work.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/02/2026
+ms.date: 05/03/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,7 +13,7 @@ ms.reviewer: brettwil
 
 # FinOps toolkit SRE Agent agents and skills
 
-FinOps toolkit SRE Agent uses a multi-agent architecture built on [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview). One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
+The FinOps toolkit SRE Agent uses a multi-agent architecture built on [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview). One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
 
 The template configures 5 subagents, 3 skills, 33 tools (21 Kusto tools and 12 Python tools), and a FinOps hub connector. The orchestrator keeps the experience simple. The specialist agents keep answers grounded in the right domain.
 
@@ -309,7 +309,7 @@ FinOps hub query, reporting, and AI cost tasks load this skill so agents can use
 
 ## How agents, tools, skills, and knowledge work together
 
-FinOps toolkit SRE Agent combines four layers:
+The agent combines four layers:
 
 1. **Agents** route the work to the right specialist.
 2. **Skills** load domain guidance and reference maps.

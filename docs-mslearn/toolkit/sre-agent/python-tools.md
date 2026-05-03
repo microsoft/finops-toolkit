@@ -3,7 +3,7 @@ title: Python tools
 description: Review the Python tools included with the FinOps toolkit SRE Agent for Azure quota, capacity, budgets, anomaly alerts, Resource Graph, FinOps hub health, and Advisor suppressions.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/02/2026
+ms.date: 05/03/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit

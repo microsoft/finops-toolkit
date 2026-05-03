@@ -3,7 +3,7 @@ title: Get started with the SRE agent
 description: Learn what to do after deploying the FinOps toolkit SRE agent—first queries, scheduled tasks, and specialized subagents.
 author: flanakin
 ms.author: micflan
-ms.date: 05/02/2026
+ms.date: 05/03/2026
 ms.topic: quickstart
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -15,21 +15,21 @@ ms.reviewer: arclares
 
 You've deployed the [FinOps toolkit SRE agent](overview.md). Here's how to start using it after the [deployment workflow](deploy.md) finishes.
 
-The [deployment guide](deploy.md) covers how to deploy and configure the agent; this guide focuses on post-deployment prompts, [scheduled tasks](scheduled-tasks.md), [specialist agents](agents.md), and next-step customization.
+The [deployment guide](deploy.md) covers how to deploy and configure the agent. This guide focuses on what to do next: post-deployment prompts, [scheduled tasks](scheduled-tasks.md), [specialist agents](agents.md), and customization.
 
 <br>
 
 ## Talk to the agent
 
-The SRE agent responds to natural language questions about your Azure environment, and the [tool catalog](tools.md) describes how Kusto tools query [FinOps hubs](../hubs/finops-hubs-overview.md) data while Python tools call Azure APIs.
+The SRE agent responds to natural language questions about your Azure environment. The [tool catalog](tools.md) describes how Kusto tools query [FinOps hubs](../hubs/finops-hubs-overview.md) data, while Python tools call Azure APIs.
 
-Ask questions the same way you'd ask another FinOps or platform engineer; the [agent and skills reference](agents.md) explains how the orchestrator routes work to specialist agents that use tools, skills, and knowledge to ground recommendations.
+Ask questions the same way you'd ask another FinOps or platform engineer. The [agent and skills reference](agents.md) explains how the orchestrator routes work to specialist agents that use tools, skills, and knowledge to ground recommendations.
 
 <br>
 
 ## Automation map
 
-Use this structure-aligned map to connect each post-deployment activity to the agent, task, tool, output, and decision pattern documented in the [SRE agent overview](overview.md), [agents reference](agents.md), [tools reference](tools.md), and [scheduled tasks reference](scheduled-tasks.md).
+Use this map to connect each post-deployment activity to the agent, task, tool, output, and decision pattern. The [SRE agent overview](overview.md), [agents reference](agents.md), [tools reference](tools.md), and [scheduled tasks reference](scheduled-tasks.md) document the full catalog.
 
 | Capability | Agent | Tasks | Tools | Output | You decide |
 |------------|-------|-------|-------|--------|------------|
@@ -60,7 +60,9 @@ The agent runs [18 scheduled tasks](scheduled-tasks.md) on daily, weekly, monthl
 
 You don't need to trigger scheduled tasks because each task has a cron expression in its task definition, and [task details](scheduled-tasks.md#task-details) describe how reports are formatted for Microsoft Teams when notifications are configured.
 
-Customize the defaults before you rely on the automation in production by reviewing each scheduled task's `cron_expression` and prompt thresholds in the [task details](scheduled-tasks.md#task-details). Adjust schedules and thresholds to match your operating rhythm, time zone, reporting calendar, and risk tolerance; for example, move the month-over-month report to run after billing data settles, lower quota headroom thresholds for regions with known capacity pressure, or raise anomaly review thresholds for subscriptions with expected seasonal spikes as documented in the [customization options](scheduled-tasks.md#task-details).
+Customize the defaults before you rely on the automation in production. Review each scheduled task's `cron_expression` and prompt thresholds in the [task details](scheduled-tasks.md#task-details), then adjust schedules and thresholds to match your operating rhythm, time zone, reporting calendar, and risk tolerance.
+
+For example, move the month-over-month report to run after billing data settles. Lower quota headroom thresholds for regions with known capacity pressure. Raise anomaly review thresholds for subscriptions with expected seasonal spikes. The [customization options](scheduled-tasks.md#task-details) cover each task in detail.
 
 <br>
 
@@ -74,7 +76,7 @@ The SRE agent includes [5 specialized subagents](agents.md), and you can ask the
 - [`ftk-database-query`](agents.md#ftk-database-query) — direct Kusto queries, schema validation, pricing, recommendations, and transactions against FinOps hubs
 - [`ftk-hubs-agent`](agents.md#ftk-hubs-agent) — hub health, data freshness, exports, connectivity, deployment, and upgrade troubleshooting
 
-Use specialist names when you want a specific lens; for example, ask the [`chief-financial-officer`](agents.md#chief-financial-officer) agent to frame a commitment decision for leadership, or ask the [`ftk-database-query`](agents.md#ftk-database-query) agent to explain the KQL behind a cost trend.
+Use specialist names when you want a specific lens. For example, ask the [`chief-financial-officer`](agents.md#chief-financial-officer) agent to frame a commitment decision for leadership, or ask the [`ftk-database-query`](agents.md#ftk-database-query) agent to explain the KQL behind a cost trend.
 
 <br>
 

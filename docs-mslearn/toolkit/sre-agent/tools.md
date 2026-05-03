@@ -3,7 +3,7 @@ title: FinOps toolkit SRE Agent tools
 description: Review the Kusto and Python tools included with the FinOps toolkit SRE Agent for cost analysis, anomaly detection, rate optimization, capacity management, and operations.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/02/2026
+ms.date: 05/03/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -13,11 +13,11 @@ ms.reviewer: brettwil
 
 # FinOps toolkit SRE Agent tools
 
-The FinOps toolkit SRE Agent uses tools to ground agent responses in live Azure and FinOps hub data, with [Kusto tools](kusto-tools.md) querying the FinOps hub Azure Data Explorer database and [Python tools](python-tools.md) calling Azure APIs through the agent managed identity.
+The FinOps toolkit SRE Agent uses tools to ground agent responses in live Azure and FinOps hub data. [Kusto tools](kusto-tools.md) query the FinOps hub Azure Data Explorer database, and [Python tools](python-tools.md) call Azure APIs through the agent managed identity.
 
 Use this article as a catalog of the tools included with the template. For deeper implementation details, review the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
 
-The FinOps toolkit SRE Agent includes 33 tools: 21 Kusto query tools and 12 Python tools, as documented in the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
+The agent includes 33 tools: 21 Kusto query tools and 12 Python tools, as documented in the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
 
 > [!NOTE]
 > The agent list shows subagents that reference each tool in `sre-config/agents`. Tools marked "Not assigned" are included in the tool catalog, but aren't referenced by a subagent configuration. For agent roles and tool usage, see [agents and skills](agents.md).

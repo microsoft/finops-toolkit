@@ -3,7 +3,7 @@ title: FinOps toolkit SRE Agent template
 description: Review the FinOps toolkit SRE Agent deployment template, parameters, outputs, script flags, and Bicep module structure.
 author: msbrett
 ms.author: brettwil
-ms.date: 04/29/2026
+ms.date: 05/03/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
