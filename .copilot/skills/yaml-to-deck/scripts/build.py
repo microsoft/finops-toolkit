@@ -714,7 +714,8 @@ def render_ask_b(slide, row):
         ttf = ttb.text_frame
         ttf.word_wrap = True
         ttf.margin_left = ttf.margin_right = 0
-        ttf.margin_top = Inches(0.1)
+        ttf.margin_top = ttf.margin_bottom = 0
+        ttf.vertical_anchor = MSO_ANCHOR.MIDDLE
 
         bullets = row["bullets"][:5]
         for i, b in enumerate(bullets):
@@ -740,7 +741,8 @@ def render_ask_b(slide, row):
         ttf = ttb.text_frame
         ttf.word_wrap = True
         ttf.margin_left = ttf.margin_right = 0
-        ttf.margin_top = Inches(0.1)
+        ttf.margin_top = ttf.margin_bottom = 0
+        ttf.vertical_anchor = MSO_ANCHOR.MIDDLE
         for i, b in enumerate(row["bullets"][:8]):
             p = ttf.paragraphs[0] if i == 0 else ttf.add_paragraph()
             p.space_after = Pt(8)
