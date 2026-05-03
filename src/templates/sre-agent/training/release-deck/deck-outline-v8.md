@@ -15,6 +15,23 @@ created: '2026-05-02T23:36:00.0000000+00:00'
 modified: '2026-05-02T23:36:00.0000000+00:00'
 ---
 
+<!-- DECK-LABELS
+cover.built-by-prefix: Built by
+cover.partnership-prefix: In partnership with
+cover.subtitle-prefix: Subtitle
+cover.audience-prefix: Audience tag
+cover.cobrand-prefix: Co-brand
+ask.footer-prefix: Asks
+ask.footer-separator: , #
+ask.footer-first-mark: '#'
+ask-b.owners-header: Who owns this
+ask-c.monday-header: Monday move
+ask-c.code-marker-prefix: srectl
+index.entry-separator: ' · '
+index.ask-mark: '#'
+pptx.author: FinOps Toolkit community
+-->
+
 # [[FinOps toolkit SRE Agent]] release training deck outline (V8)
 
 > **Audience.** [[MCAPS]] worldwide — AE / SE / CSA / CSAM / partner architects. Includes the existing [[FinOps Toolkit]] community in MCAPS. **L300/L400 density.** Not a cold-pitch room.

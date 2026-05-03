@@ -146,3 +146,29 @@ Sections separated by `<br/><br/>` in the cell. Line breaks within sections use 
 
 ## LAST UPDATED
 2026-05-02 — initial creation after multiple "table is canonical" violations.
+
+## VOICE RULES (added 2026-05-02)
+
+This is OFFICIAL MICROSOFT TRAINING. Speaker notes are rendered in PowerPoint and read by ElevenLabs for video voiceover.
+
+### Headers (use these EXACTLY)
+- `## Why this matters`
+- `## Talk track`
+- `## Anchors`
+- `## References`
+
+### Banned
+- "GAF", "GAFA", or any acronym/slang headers
+- Profanity, slang, internal jargon
+- Hyperbole: "powerful", "seamless", "delightful", "just", "easy", "world-class", "best-in-class"
+- Exclamation points (extremely rare)
+- ALL CAPS (except established acronyms: AOAI, CRG, MCA, RI, SP, ESR, MACC, FOCUS, KQL, P&L)
+- Marketing fluff: "unleash", "transform", "supercharge", "revolutionize"
+- Cute or creative section names
+
+### Required
+- Sentence case for ALL headings
+- Active voice, second person ("you")
+- Plain language, explain terms on first use
+- Concrete numbers and tool names from evidence packs
+- Read like Microsoft Learn or Microsoft Docs
