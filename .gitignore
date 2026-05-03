@@ -409,3 +409,4 @@ src/templates/sre-agent/training/release-deck/assets/*.rasterized.png
 .playwright-mcp/
 cdp-fullpage*.png
 cdp-shot*.png
+src/templates/sre-agent/training/release-deck/finops-toolkit-sre-agent-release-training.rebuild-*.pptx

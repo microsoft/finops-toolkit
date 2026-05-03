@@ -373,9 +373,9 @@ def render_bullets(slide, row):
     body = get_placeholder(slide, 10)
     if body is not None:
         body.left = Inches(0.64)
-        body.top = Inches(1.2)
+        body.top = Inches(1.25)
         body.width = Inches(12.05)
-        body.height = Inches(5.7)
+        body.height = Inches(5.6)
     paras = [_format_bullet_with_tools(b, size=20) for b in row["bullets"]]
     _set_text_frame_with_runs(body, paras)
 
@@ -1515,7 +1515,7 @@ def render_footer_chip(slide, row):
     run.font.color.rgb = RGBColor.from_string(text_hex)
 
 
-def render_cluster_chyron(slide, row, top=Inches(1.05)):
+def render_cluster_chyron(slide, row, top=Inches(1.25)):
     """Render the cluster name as an uppercase blue chyron above body content.
 
     Matches the editorial signature established by render_ask_a:
@@ -1542,7 +1542,7 @@ def render_cluster_chyron(slide, row, top=Inches(1.05)):
     lr.font.color.rgb = RGBColor.from_string("0F6CBD")
 
 
-def render_accent_rule(slide, top=Inches(1.45), height=Inches(5.6)):
+def render_accent_rule(slide, top=Inches(1.85), height=Inches(5.6)):
     """Render the vertical blue accent rule on the left edge of the body content."""
     from pptx.enum.shapes import MSO_SHAPE
     margin_x = Inches(0.7)
@@ -1700,15 +1700,15 @@ def render_ask_b(slide, row):
         sp.getparent().remove(sp)
 
     # Cluster chyron + accent rule (matches ASK_A and ASK_C signature)
-    render_cluster_chyron(slide, row, top=Inches(1.05))
-    render_accent_rule(slide, top=Inches(1.45), height=Inches(5.4))
+    render_cluster_chyron(slide, row, top=Inches(1.25))
+    render_accent_rule(slide, top=Inches(1.85), height=Inches(5.4))
 
     sl_w = slide.part.package.presentation_part.presentation.slide_width
     sl_h = slide.part.package.presentation_part.presentation.slide_height
 
     # Layout geometry: text left (~38%), chart right (~58%)
-    content_top = Inches(1.45)
-    content_h = Inches(5.4)
+    content_top = Inches(1.85)
+    content_h = Inches(4.9)
 
     text_left = Inches(1.0)
     text_w = Inches(4.6)
@@ -1716,30 +1716,65 @@ def render_ask_b(slide, row):
     chart_left = text_left + text_w + Inches(0.3)
     chart_w = sl_w - chart_left - Inches(0.7)
 
-    # Answer text: bullets with tool-name bolding
-    ttb = slide.shapes.add_textbox(text_left, content_top, text_w, content_h)
-    ttf = ttb.text_frame
-    ttf.word_wrap = True
-    ttf.margin_left = ttf.margin_right = 0
-    ttf.margin_top = Inches(0.1)
+    # Determine layout strategy: chart, owner-card, or full-width text-only
+    assets = row.get("assets", {})
+    img_file = assets.get("image")
+    has_chart = False
 
-    bullets = row["bullets"][:5]
-    for i, b in enumerate(bullets):
-        p = ttf.paragraphs[0] if i == 0 else ttf.add_paragraph()
-        p.space_after = Pt(8)
-        para_data = _format_bullet_with_tools(b, size=14)
-        for r in list(p.runs):
-            r.text = ""
-        for run_data in para_data["runs"]:
-            run = p.add_run()
-            run.text = run_data.get("text", "") or ""
-            font = run.font
-            if run_data.get("size"):
-                font.size = Pt(run_data["size"])
-            if run_data.get("bold"):
-                font.bold = True
-            if run_data.get("color"):
-                font.color.rgb = RGBColor.from_string(run_data["color"])
+    # Pre-check: if no chart asset, decide whether right panel makes sense
+    owner_pattern = re.compile(r"(owns|owner|stays with|out of scope|not in this release|this release does not)", re.IGNORECASE)
+    owner_bullets = [b for b in row["bullets"] if owner_pattern.search(b)] if not img_file else []
+    needs_two_col = bool(img_file) or bool(owner_bullets)
+
+    if needs_two_col:
+        # Two-column layout: left text + right chart/card
+        ttb = slide.shapes.add_textbox(text_left, content_top, text_w, content_h)
+        ttf = ttb.text_frame
+        ttf.word_wrap = True
+        ttf.margin_left = ttf.margin_right = 0
+        ttf.margin_top = Inches(0.1)
+
+        bullets = row["bullets"][:5]
+        for i, b in enumerate(bullets):
+            p = ttf.paragraphs[0] if i == 0 else ttf.add_paragraph()
+            p.space_after = Pt(8)
+            para_data = _format_bullet_with_tools(b, size=14)
+            for r in list(p.runs):
+                r.text = ""
+            for run_data in para_data["runs"]:
+                run = p.add_run()
+                run.text = run_data.get("text", "") or ""
+                font = run.font
+                if run_data.get("size"):
+                    font.size = Pt(run_data["size"])
+                if run_data.get("bold"):
+                    font.bold = True
+                if run_data.get("color"):
+                    font.color.rgb = RGBColor.from_string(run_data["color"])
+    else:
+        # Full-width text — no left/right split
+        full_w = sl_w - text_left - Inches(0.7)
+        ttb = slide.shapes.add_textbox(text_left, content_top, full_w, content_h)
+        ttf = ttb.text_frame
+        ttf.word_wrap = True
+        ttf.margin_left = ttf.margin_right = 0
+        ttf.margin_top = Inches(0.1)
+        for i, b in enumerate(row["bullets"][:8]):
+            p = ttf.paragraphs[0] if i == 0 else ttf.add_paragraph()
+            p.space_after = Pt(8)
+            para_data = _format_bullet_with_tools(b, size=14)
+            for r in list(p.runs):
+                r.text = ""
+            for run_data in para_data["runs"]:
+                run = p.add_run()
+                run.text = run_data.get("text", "") or ""
+                font = run.font
+                if run_data.get("size"):
+                    font.size = Pt(run_data["size"])
+                if run_data.get("bold"):
+                    font.bold = True
+                if run_data.get("color"):
+                    font.color.rgb = RGBColor.from_string(run_data["color"])
 
     # Chart panel: subtle border around the image
     assets = row.get("assets", {})
@@ -1801,93 +1836,49 @@ def render_ask_b(slide, row):
         else:
             print(f"   ! ASK_B chart missing: {img_file}")
 
-    # If no chart, fill the right panel with overflow bullets in a styled card
-    if not has_chart:
-        # Find owner-attribution bullets (specific to honest/boundary slides)
-        owner_pattern = re.compile(r"(owns|owner|stays with|out of scope|not in this release|this release does not)", re.IGNORECASE)
-        owner_bullets = [b for b in row["bullets"] if owner_pattern.search(b)]
+    # If no chart but we have owner-attribution bullets, render them as a card on the right
+    if not has_chart and owner_bullets:
+        display_bullets = owner_bullets[:6]
+        # Card background
+        card = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                       chart_left - Inches(0.1),
+                                       content_top - Inches(0.05),
+                                       chart_w + Inches(0.2),
+                                       content_h + Inches(0.1))
+        card.fill.solid()
+        card.fill.fore_color.rgb = RGBColor.from_string("F4F6FB")
+        card.line.color.rgb = RGBColor.from_string("D2D2D7")
+        card.line.width = Pt(0.5)
+        card.shadow.inherit = False
 
-        # Only render the right panel if there are distinct owner bullets
-        # (otherwise we'd duplicate the left content — Tier 1G fix)
-        if owner_bullets and any(b not in row["bullets"][:5] for b in owner_bullets):
-            display_bullets = [b for b in owner_bullets if b not in row["bullets"][:5]][:6]
-        elif owner_bullets:
-            display_bullets = owner_bullets[:6]
-        else:
-            display_bullets = []
+        # Label
+        ltb = slide.shapes.add_textbox(chart_left + Inches(0.2),
+                                        content_top + Inches(0.2),
+                                        chart_w - Inches(0.4), Inches(0.4))
+        ltf = ltb.text_frame
+        ltf.margin_left = ltf.margin_right = 0
+        lp = ltf.paragraphs[0]
+        lr = lp.add_run()
+        lr.text = "WHO OWNS THIS"
+        lr.font.size = Pt(11)
+        lr.font.bold = True
+        lr.font.color.rgb = RGBColor.from_string("0F6CBD")
 
-        if display_bullets:
-            # Card background
-            card = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                                           chart_left - Inches(0.1),
-                                           content_top - Inches(0.05),
-                                           chart_w + Inches(0.2),
-                                           content_h + Inches(0.1))
-            card.fill.solid()
-            card.fill.fore_color.rgb = RGBColor.from_string("F4F6FB")
-            card.line.color.rgb = RGBColor.from_string("D2D2D7")
-            card.line.width = Pt(0.5)
-            card.shadow.inherit = False
-
-            # Label
-            ltb = slide.shapes.add_textbox(chart_left + Inches(0.2),
-                                            content_top + Inches(0.2),
-                                            chart_w - Inches(0.4), Inches(0.4))
-            ltf = ltb.text_frame
-            ltf.margin_left = ltf.margin_right = 0
-            lp = ltf.paragraphs[0]
-            lr = lp.add_run()
-            lr.text = "WHO OWNS THIS"
-            lr.font.size = Pt(11)
-            lr.font.bold = True
-            lr.font.color.rgb = RGBColor.from_string("0F6CBD")
-
-            otb = slide.shapes.add_textbox(chart_left + Inches(0.2),
-                                            content_top + Inches(0.7),
-                                            chart_w - Inches(0.4), content_h - Inches(0.9))
-            otf = otb.text_frame
-            otf.word_wrap = True
-            for i, b in enumerate(display_bullets):
-                p = otf.paragraphs[0] if i == 0 else otf.add_paragraph()
-                p.space_after = Pt(8)
-                para_data = _format_bullet_with_tools(b, size=13)
-                for r in list(p.runs):
-                    r.text = ""
-                for run_data in para_data["runs"]:
-                    run = p.add_run()
-                    run.text = run_data.get("text", "") or ""
-                    font = run.font
-                    if run_data.get("size"):
-                        font.size = Pt(run_data["size"])
-                    if run_data.get("bold"):
-                        font.bold = True
-                    if run_data.get("color"):
-                        font.color.rgb = RGBColor.from_string(run_data["color"])
-        else:
-            # No useful content for right panel — let left text use full width
-            # Re-render left text spanning the full content area
-            ttb_full = slide.shapes.add_textbox(text_left, content_top,
-                                                 sl_w - text_left - Inches(0.7), content_h)
-            tf2 = ttb_full.text_frame
-            tf2.word_wrap = True
-            tf2.margin_left = tf2.margin_right = 0
-            tf2.margin_top = Inches(0.1)
-            for i, b in enumerate(row["bullets"][:8]):
-                p = tf2.paragraphs[0] if i == 0 else tf2.add_paragraph()
-                p.space_after = Pt(8)
-                para_data = _format_bullet_with_tools(b, size=14)
-                for r in list(p.runs):
-                    r.text = ""
-                for run_data in para_data["runs"]:
-                    run = p.add_run()
-                    run.text = run_data.get("text", "") or ""
-                    font = run.font
-                    if run_data.get("size"):
-                        font.size = Pt(run_data["size"])
-                    if run_data.get("bold"):
-                        font.bold = True
-                    if run_data.get("color"):
-                        font.color.rgb = RGBColor.from_string(run_data["color"])
+        otb = slide.shapes.add_textbox(chart_left + Inches(0.2),
+                                        content_top + Inches(0.7),
+                                        chart_w - Inches(0.4), content_h - Inches(0.9))
+        otf = otb.text_frame
+        otf.word_wrap = True
+        for i, b in enumerate(display_bullets):
+            p = otf.paragraphs[0] if i == 0 else otf.add_paragraph()
+            p.space_after = Pt(8)
+            para_data = _format_bullet_with_tools(b, size=13)
+            for r in list(p.runs):
+                r.text = ""
+            for run_data in para_data["runs"]:
+                run = p.add_run()
+                run.text = run_data.get("text", "") or ""
+                font = run.font
                 if run_data.get("size"):
                     font.size = Pt(run_data["size"])
                 if run_data.get("bold"):
@@ -1977,7 +1968,7 @@ def render_ask_c(slide, row):
         sp.getparent().remove(sp)
 
     # Cluster chyron at top (matches ASK_A signature)
-    render_cluster_chyron(slide, row, top=Inches(1.05))
+    render_cluster_chyron(slide, row, top=Inches(1.25))
     # Note: accent rule is drawn AT END to match actual content height
 
     sl_w = slide.part.package.presentation_part.presentation.slide_width
@@ -2011,9 +2002,9 @@ def render_ask_c(slide, row):
         segments.append({"type": "code", "lines": code_buf})
 
     # Lay out segments top-to-bottom with proper spacing
-    y = Inches(1.45)
+    y = Inches(1.85)
     bottom_limit = sl_h - Inches(0.8)
-    gap = Inches(0.12)
+    gap = Inches(0.18)
 
     for seg in segments:
         if y >= bottom_limit:
@@ -2056,27 +2047,32 @@ def render_ask_c(slide, row):
             y += block_h + gap
 
         elif seg["type"] == "monday":
-            # Highlighted Monday-move callout — sized to fit single line
+            # Highlighted Monday-move callout — narrower, centered, sized to fit single line
             callout_h = Inches(0.45)
             if y + callout_h > bottom_limit:
                 callout_h = bottom_limit - y
 
+            # Make callout narrower than the full content width — feels less heavy
+            callout_w = min(content_w, Inches(8.5))
+            callout_x = content_left + (content_w - callout_w) // 2
+
             bg = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                                         content_left, y, content_w, callout_h)
+                                         callout_x, y, callout_w, callout_h)
             bg.fill.solid()
             bg.fill.fore_color.rgb = RGBColor.from_string("EAF3FB")
             bg.line.color.rgb = RGBColor.from_string("0F6CBD")
             bg.line.width = Pt(1.0)
             bg.shadow.inherit = False
 
-            tb = slide.shapes.add_textbox(content_left + Inches(0.25),
+            tb = slide.shapes.add_textbox(callout_x + Inches(0.25),
                                            y + Inches(0.05),
-                                           content_w - Inches(0.5),
+                                           callout_w - Inches(0.5),
                                            callout_h - Inches(0.1))
             tf = tb.text_frame
             tf.word_wrap = True
             tf.vertical_anchor = MSO_ANCHOR.MIDDLE
             p = tf.paragraphs[0]
+            p.alignment = PP_ALIGN.CENTER
             run = p.add_run()
             run.text = seg["text"]
             run.font.size = Pt(12)
@@ -2114,12 +2110,12 @@ def render_ask_c(slide, row):
                 if run_data.get("color"):
                     font.color.rgb = RGBColor.from_string(run_data["color"])
 
-            y += prose_h + Inches(0.05)
+            y += prose_h + Inches(0.18)
 
     # Draw accent rule sized to actual content height (Tier 1A fix)
     actual_content_h = y - Inches(1.45)
     rule_h = max(Inches(1.0), min(actual_content_h, Inches(5.4)))
-    render_accent_rule(slide, top=Inches(1.45), height=rule_h)
+    render_accent_rule(slide, top=Inches(1.85), height=rule_h)
 
     render_footer_chip(slide, row)
 
@@ -2334,9 +2330,46 @@ def main():
     prs.core_properties.author = "FinOps Toolkit community"
     prs.core_properties.last_modified_by = "FinOps Toolkit community"
 
-    prs.save(str(OUT))
-    print(f"\nWrote {OUT}")
-    print(f"Slides: {len(prs.slides)}")
+    # Safe save: detect PowerPoint lock file and use atomic write to avoid
+    # corrupting the file mid-read for any process holding it open.
+    out_dir = OUT.parent
+    out_name = OUT.name
+    lock_file = out_dir / f"~${out_name}"
+
+    if lock_file.exists():
+        # PowerPoint has the file open. Writing to OUT will desync its view
+        # and cause a "needs repair" prompt next time the user clicks anything.
+        # Refuse to overwrite — write to a sibling and tell the user.
+        import time
+        alt_name = OUT.stem + f".rebuild-{int(time.time())}.pptx"
+        alt_out = out_dir / alt_name
+        prs.save(str(alt_out))
+        print(f"\n⚠️  PowerPoint lock file detected ({lock_file.name})")
+        print(f"   {OUT.name} is currently open in PowerPoint.")
+        print(f"   To avoid corrupting your open copy, wrote rebuild to:")
+        print(f"   {alt_out}")
+        print(f"   Close PowerPoint and re-run, or open the new file directly.")
+        print(f"Slides: {len(prs.slides)}")
+        return
+
+    # Atomic write: temp file → fsync → rename. This guarantees readers
+    # never see a partially-written file.
+    import os, tempfile
+    tmp_fd, tmp_path = tempfile.mkstemp(suffix=".pptx", dir=str(out_dir))
+    os.close(tmp_fd)
+    try:
+        prs.save(tmp_path)
+        # Fsync to ensure bytes are on disk before rename
+        with open(tmp_path, "rb") as f:
+            os.fsync(f.fileno())
+        os.replace(tmp_path, str(OUT))
+        print(f"\nWrote {OUT}")
+        print(f"Slides: {len(prs.slides)}")
+    except Exception:
+        # Clean up the temp file on failure
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+        raise
 
 
 if __name__ == "__main__":
