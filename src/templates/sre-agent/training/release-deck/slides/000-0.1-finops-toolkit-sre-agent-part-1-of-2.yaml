@@ -3,7 +3,7 @@ order: 0
 cluster: Intro
 asks_verbatim: []
 title: FinOps toolkit SRE Agent — Part 1 of 2
-content: '• Subtitle: Manage your Azure estate — capacity and cost — through the conversations your customers are actually having.<br/>• Audience tag: FinOps Toolkit community in MCAPS, worldwide.<br/>• Co-brand: FinOps Toolkit + Azure SRE Agent product team.'
+content: '• Subtitle: Manage your Azure estate — capacity and cost — through the conversations your customers are actually having.<br/>• Audience tag: FinOps Toolkit community in MCAPS, worldwide.<br/>• Co-brand: FinOps Toolkit community + aka.ms/finops/toolkit'
 notes: The questions stalling your deals are repeatable. Quota that says yes but the deployment fails. Reservation bills nobody can reconcile. AI capacity requests denied without a clear reason. Discounts the CFO can't trust. Tagging that broke after the last acquisition.<br/><br/>The FinOps Toolkit SRE Agent answers most of these on a schedule, with evidence, in Teams.<br/><br/>Part one walks the questions you hear before signature. Part two covers the operating rhythm after. Part three names what this release does not own.
 layout:
   kind: TITLE

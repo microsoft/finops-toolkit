@@ -369,22 +369,27 @@ def render_title(slide, row):
         from pptx.enum.text import MSO_ANCHOR
         ltf.vertical_anchor = MSO_ANCHOR.MIDDLE
 
-        # Right mark
-        rtb = slide.shapes.add_textbox(sl_w // 2, strip_top, sl_w // 2 - Inches(0.7), strip_h)
-        rtf = rtb.text_frame
-        rtf.margin_left = rtf.margin_right = rtf.margin_top = rtf.margin_bottom = 0
-        rp = rtf.paragraphs[0]
-        rp.alignment = PP_ALIGN.RIGHT
-        rp_lbl = rp.add_run()
-        rp_lbl.text = LABELS["cover.partnership-prefix"] + "  "
-        rp_lbl.font.size = Pt(10)
-        rp_lbl.font.color.rgb = RGBColor.from_string("8FA0CC")
-        rp_run = rp.add_run()
-        rp_run.text = right_text
-        rp_run.font.size = Pt(15)
-        rp_run.font.bold = True
-        rp_run.font.color.rgb = RGBColor.from_string("FFFFFF")
-        rtf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        # Right mark — only if there's a real second attribution after " + "
+        if right_text:
+            # If right_text is a URL (aka.ms/..., http://, https://), drop the
+            # "In partnership with" prefix entirely — the URL stands on its own.
+            is_url = bool(re.match(r"^(https?://|aka\.ms/|www\.)", right_text, re.IGNORECASE))
+            rtb = slide.shapes.add_textbox(sl_w // 2, strip_top, sl_w // 2 - Inches(0.7), strip_h)
+            rtf = rtb.text_frame
+            rtf.margin_left = rtf.margin_right = rtf.margin_top = rtf.margin_bottom = 0
+            rp = rtf.paragraphs[0]
+            rp.alignment = PP_ALIGN.RIGHT
+            if not is_url:
+                rp_lbl = rp.add_run()
+                rp_lbl.text = LABELS["cover.partnership-prefix"] + "  "
+                rp_lbl.font.size = Pt(10)
+                rp_lbl.font.color.rgb = RGBColor.from_string("8FA0CC")
+            rp_run = rp.add_run()
+            rp_run.text = right_text
+            rp_run.font.size = Pt(15)
+            rp_run.font.bold = True
+            rp_run.font.color.rgb = RGBColor.from_string("FFFFFF")
+            rtf.vertical_anchor = MSO_ANCHOR.MIDDLE
 
 
 def render_bullets(slide, row):
