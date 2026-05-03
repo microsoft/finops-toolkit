@@ -1,0 +1,649 @@
+┌────────────────────────────────────────────────────┐
+│ User: Brett Wilson (100320020B868F43)              │
+│ Thread: 53f2354e-dde0-40f7-bc44-f8b363818a97       │
+└────────────────────────────────────────────────────┘
+
+SRE Agent (18:26:59)
+────────────────────
+  [SCHEDULED_TASK_EXECUTION]{"taskId":"233c28b6-a215-454a-92f4-f54da16547fe","taskName":"AlertCoverageAudit","description":"Monthly
+  audit of cost anomaly alert coverage across active subscriptions","cronExpression":"0 8 16 * *","agentPrompt":"#
+  Alert Coverage Audit\n\n## Phase 0: Preparation\n\nBefore starting, read all documents in the knowledge base. Pay
+  special attention to anomaly detection standards, monitoring ownership notes, and prior alert coverage
+  gaps.\n\nLoad your relevant FinOps practitioner skill. Note the \u0060client_id\u0060 for Python tool
+  authentication.\n\n## Python tools available\n\nPass \u0060client_id\u0060 as a parameter to each Python tool for
+  UAMI authentication.\n\n- \u0060resource-graph-query\u0060: Run with \u0060query\u0060, optional
+  \u0060subscription_ids\u0060, and \u0060client_id\u0060 to find active subscriptions, cost anomaly alerts, action
+  groups, alert rules, and monitoring metadata.\n\n## 1. Establish subscription inventory\n\nRun
+  \u0060resource-graph-query\u0060 to identify active subscriptions and ownership metadata. Exclude subscriptions
+  explicitly documented as out of scope.\n\n## 2. Find anomaly alert coverage\n\nRun \u0060resource-graph-query\u0060
+  to detect cost anomaly alerts, scheduled query rules, metric alerts, action groups, and any documented alerting
+  resources that implement cost anomaly detection.\n\n## 3. Identify missing anomaly detection\n\nCompare active
+  subscriptions with detected anomaly alert coverage. Flag subscriptions missing anomaly detection, subscriptions
+  with disabled or incomplete alerts, and subscriptions missing notification routing.\n\n## 4. Recommend
+  remediation\n\nRecommend alert deployment, action group updates, ownership remediation, or follow-up validation.
+  Prioritize production and business-critical subscriptions.\n\n## Report format\n\nProduce a markdown report with an
+  executive summary, an alert coverage table, a missing anomaly detection table, disabled or incomplete alert
+  findings, and recommended remediation actions.\n\n## Persistence\n\n**Teams (results only):** Post the final report
+  to our Teams channel. Do not post intermediate results.\n\n**Knowledge (#remember):** Save operational findings
+  using #remember for future reference. Do not commit to git. Never save financial figures, cost amounts, alert
+  threshold amounts, or customer financial data to the knowledge base. Financial detail goes to Teams only.\n\n##
+  Visualizations\n\nBefore posting, generate charts for key findings using matplotlib or seaborn via the code
+  interpreter. Include at minimum an anomaly alert coverage chart and a missing alert count by owner or environment
+  chart where the data supports it. Embed chart images inline in the Teams message alongside the text
+  tables.","agent":"finops-practitioner","executionTime":"2026-05-02T18:26:59.5977276Z","status":"Active","modelTier":null,"agentInstructions":"\u003Csystem_notice\u003EThis
+  is an AUTOMATED scheduled task execution triggered by infrastructure on cron schedule \u00270 8 16 * *\u0027. Do
+  NOT autonomously attempt to schedule future runs, set up monitoring loops, or create wait states - the
+  infrastructure handles recurring executions automatically. Simply execute the agentPrompt and complete your
+  response. However, if the user explicitly requests additional actions, you may fulfill those
+  requests.\u003C/system_notice\u003E"}[/SCHEDULED_TASK_EXECUTION]
+
+SRE Agent (18:27:06)
+────────────────────
+  **Executing Alert Coverage Audit**
+  
+  This is a scheduled task execution for an Alert Coverage Audit. Let me break down what I need to do:
+  
+  1. Read knowledge base documents
+  2. Load the FinOps practitioner skill
+  3. Establish subscription inventory using resource-graph-query
+  4. Find anomaly alert coverage
+  5. Identify missing anomaly detection
+  6. Recommend remediation
+  7. Generate visualizations
+  8. Post final report to Teams
+  9. Save operational findings to knowledge base
+  
+  Let me start by setting up the todo list and reading the existing knowledge base.
+
+SRE Agent (18:27:13)
+────────────────────
+  
+  
+  Reading existing knowledge base and loading the FinOps practitioner skill in parallel.
+
+SRE Agent (18:27:13)
+────────────────────
+  Read file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:27:19)
+────────────────────
+  **Evaluating finops-practitioner skill status**
+  
+  Knowledge base read complete. The finops-practitioner skill doesn't exist, but I have
+  `executing_code_and_shell_commands` and `azure-cost-management` skills available. Let me load the
+  executing_code_and_shell_commands skill for Python code execution (needed for resource-graph-query and chart
+  generation), and the azure-cost-management skill for FinOps context.
+  
+  The client_id for UAMI authentication is: `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`
+  
+  Let me update the todo list and load the needed skills.
+
+SRE Agent (18:27:23)
+────────────────────
+  Knowledge base reviewed — I have prior findings on hub architecture, data freshness, and operational patterns. Now
+  loading required skills for Python execution and cost management context.
+
+SRE Agent (18:27:29)
+────────────────────
+  **Auditing alert coverage**
+  
+  Skills loaded. Now let me proceed with the alert coverage audit. I need to:
+  
+  1. Establish subscription inventory using Azure Resource Graph
+  2. Find anomaly alert coverage
+  3. Compare and identify gaps
+  
+  Let me use the ExecutePythonCode tool to run resource graph queries. The client_id for UAMI authentication is
+  `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`.
+  
+  Let me start by querying for active subscriptions and then for alert resources in parallel.
+
+SRE Agent (18:27:39)
+────────────────────
+  Skill loaded. Now querying Azure Resource Graph for subscription inventory and alert coverage in parallel.
+
+SRE Agent (18:27:41)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:27:46)
+────────────────────
+  **Discovering active subscriptions**
+  
+  Good, I found 1 active subscription: Non-Prod-Workloads (cab7feeb-759d-478c-ade6-9326de0651ff). Now I need to query
+  for alert coverage - cost anomaly alerts, scheduled query rules, metric alerts, action groups, and any cost-related
+  alerting resources. Let me run multiple queries in parallel to get comprehensive alert coverage data.
+
+SRE Agent (18:27:58)
+────────────────────
+  Subscription inventory established — 1 active subscription found. Now querying for all alert-related resources
+  across that subscription.
+
+SRE Agent (18:27:59)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:28:03)
+────────────────────
+  **Fixing Resource Graph syntax**
+  
+  The query failed due to a syntax issue. Let me fix the Resource Graph query - the issue is likely with the `kind =
+  tostring(...)` syntax. In Resource Graph, you need to use `extend` for computed columns, not inline assignments in
+  `project`. Let me fix this and also query for cost anomaly alerts specifically using the Cost Management API.
+
+SRE Agent (18:28:11)
+────────────────────
+  Fixing the Resource Graph query syntax and also querying Cost Management alerts directly via REST API.
+
+SRE Agent (18:28:12)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:28:20)
+────────────────────
+  **Analyzing alert resource data**
+  
+  Good, I have initial alert resource data from Resource Graph. Now I need to also check for Cost Management-specific
+  anomaly alerts and budgets. Let me also query for cost anomaly alerts via the Cost Management scheduled actions API
+  and check budget alerts. Let me also look deeper into the action group configurations to understand notification
+  routing.
+  
+  The results so far show:
+  - 4 Failure Anomalies smart detector rules (App Insights, not cost-specific)
+  - 3 action groups (AGManager, AGOwner, Application Insights Smart Detection)
+  
+  
+  - 1 activity log alert (HealthAlerts)
+  
+  So there's no cost anomaly detection set up at all—no scheduled cost anomalies, no budgets, no scheduled query
+  rules, and no cost-related metric alerts. I should verify this by checking the Cost Management scheduled actions
+  API directly and looking for any budgets I might have missed.
+
+SRE Agent (18:28:36)
+────────────────────
+  Resource Graph returned 8 alert resources but none are cost-specific. Now querying Cost Management APIs directly
+  for anomaly alerts, budgets, and checking action group notification details.
+
+SRE Agent (18:28:39)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:28:54)
+────────────────────
+  **Analyzing alert coverage data**
+  
+  Good, I now have comprehensive alert coverage data. Let me also check for Azure Monitor cost anomaly alerts
+  specifically (the built-in Cost Management anomaly detection) and check the activity log alert details. Let me also
+  run the cost-anomaly-detection tool to see if there are any active anomalies to report.
+  
+  Let me summarize what I've found so far:
+  
+  **Subscription: Non-Prod-Workloads (cab7feeb-759d-478c-ade6-9326de0651ff)**
+  
+  **Alert Coverage:**
+  1. **Cost Management Scheduled Actions (Anomaly Alerts):** 0 — NO cost anomaly alerts configured
+  
+  
+  2. **Budgets:** 1 — FDPOAzureBudget ($12,000/mo) with 6 notification rules (4 actual, 2 forecast), all routing to
+  AGOwner
+  3. **Scheduled Query Rules:** 0 — No custom log-based cost alerts
+  4. **Smart Detector Alert Rules:** 4 — All are App Insights Failure Anomalies (not cost-related)
+  5. **Activity Log Alerts:** 1 — HealthAlerts (service health, not cost)
+  6. **Action Groups:** 3 — AGOwner (1 email), AGManager (2 emails), App Insights Smart Detection (ARM)
+  
+  The main issues I'm seeing are the lack of cost anomaly detection through Cost Management, budget alerts that only
+  notify a single owner without escalation to management, no KQL-based cost queries, and missing subscription-level
+  tags for ownership and environment tracking. I should move forward with the analysis and generate the
+  visualizations and report now that I have the full picture.
+
+SRE Agent (18:29:01)
+────────────────────
+  Comprehensive alert data collected. Let me also check for Cost Management anomaly alert views and then proceed to
+  analysis.
+
+SRE Agent (18:29:03)
+────────────────────
+  Python:
+  import requests
+  import json
+  from azure.identity import Mana… (exit 0)
+
+SRE Agent (18:29:10)
+────────────────────
+  **Detecting cost anomalies**
+  
+  Good, I now have all the alert coverage data. Let me also run the cost-anomaly-detection tool to check for any
+  recent anomalies, then compile the full analysis, generate charts, and post to Teams.
+  
+  Let me summarize findings so far:
+  
+  **Subscription: Non-Prod-Workloads (cab7feeb-759d-478c-ade6-9326de0651ff)**
+  
+  **Alert Coverage Summary:**
+  1. **Cost Anomaly Alerts (CM Scheduled Actions):** 0 — MISSING
+  
+  
+  2. **Budgets:** 1 — FDPOAzureBudget ($12K/mo) with 6 notifications across actual and forecast thresholds, all
+  routing to AGOwner
+  3. **Scheduled Query Rules:** 0 — No KQL-based cost alerts
+  4. **Smart Detector Rules:** 4 — All App Insights Failure Anomalies (not cost-related)
+  5. **Activity Log Alerts:** 1 — HealthAlerts (Service Health only) → AGOwner
+  6. **Action Groups:** 3 — AGOwner (1 email), AGManager (2 emails), App Insights Smart Detection (ARM roles)
+  
+  **Gaps:**
+  - NO cost anomaly detection alerts
+  - Budget alerts only route to AGOwner (single person), not AGManager
+  - No tags on subscription, missing owner/env metadata
+  - HealthAlerts limited to Service Health, no cost visibility
+  
+  Now I'm going to run the cost-anomaly-detection tool to identify any recent anomalies and then create
+  visualizations to show what's happening.
+
+SRE Agent (18:29:16)
+────────────────────
+  Alert coverage data collection complete. Now running the FinOps Hub anomaly detection to check for recent cost
+  anomalies, then generating the analysis and visualizations.
+
+SRE Agent (18:29:16)
+────────────────────
+  `cost-anomaly-detection`
+  
+  [Execute in
+  ADX](https://dataexplorer.azure.com/clusters/msbwtreyhub.westus/hub?query=H4sIAAAAAAAAA23PwWrDMAwG4LufQkd7ZGWlx9JTt%2fugD1Cc%2bE%2fjLbaCrS7ryMMPJ6UddCcbCX2%2f1EMoi01Cu%2bXlNnCUTtsT6w090ebFGbNVPYQQHe0o8qjNVu05S9ZGTTR2SKB9Z9MJ70ie3WEGa8gIRNKLv1oVoAzkcwg2%2bR%2fQq%2fX9pUgl%2fRz0W9uiEf%2bFUjNUX6j2UT%2fQFa1nKNhPPGckj0xl4rB8F%2btmG%2bL4z3pt4nA9XXi%2bLQsGWjs1Eb6lFGzkYPsrOdtHh4bDwBnHW1Pfo8tSQ%2bIPNPKYWP3ZsbrbaqKE6JBIfEDT2SS%2fXR7gVpUBAAA%3d)
+  
+  Executed query on cluster 'msbwtreyhub.westus.kusto.windows.net' in database 'hub':
+  <details><summary>View KQL Query</summary>
+  <pre>
+  let start = startofmonth(ago(3 * 30d));
+  let end = now();
+  Costs()
+  | where ChargePeriodStart between (start .. end)
+  | summarize DailyCost = sum(EffectiveCost) by bin(ChargePeriodStart, 1d)
+  | make-series CostSeries = sum(DailyCost) on ChargePeriodStart from start to end step 1d
+  | extend anomalies = series_decompose_anomalies(CostSeries)
+  | project ChargePeriodStart, CostSeries, anomalies
+  | render timechart
+  </pre>
+  
+  </details>
+  Rows: 1 Execution time: 0.381 secs
+
+SRE Agent (18:29:21)
+────────────────────
+  **Performing anomaly detection**
+  
+  Good, I have all the data I need. The anomaly detection shows stable costs around $1,340-$1,390/day with no
+  anomalies detected (all zeros) except the last 2 days showing -1 (which are expected due to incomplete billing data
+  as noted in the knowledge base).
+  
+  Let me now compile the full analysis, generate charts, and build the report. Let me update the todo and proceed
+  with visualization generation.
+
+SRE Agent (18:29:55)
+────────────────────
+  Anomaly detection confirms stable daily costs (~$1,340-$1,390) with no true anomalies in the last 90 days. The last
+  2 days show -1 (incomplete billing data, not real anomalies — consistent with prior knowledge base findings). Now
+  generating visualizations and compiling the report.
+
+SRE Agent (18:30:00)
+────────────────────
+  Python:
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.p… (exit 0)
+
+SRE Agent (18:30:46)
+────────────────────
+  
+  
+  Charts generated successfully. Now posting the final report to Teams with embedded visualizations.
+
+SRE Agent (18:30:51)
+────────────────────
+  **Completing remaining Teams tasks**
+  
+  The Teams report was posted successfully. Now I need to complete the remaining tasks:
+  1. Mark the Teams posting as completed
+  2. Save operational findings to the knowledge base
+
+SRE Agent (18:30:55)
+────────────────────
+  Teams report posted successfully. Now saving operational findings to the knowledge base.
+
+SRE Agent (18:30:55)
+────────────────────
+  Read file: memory: advisor-suppression-review-findings.md
+
+SRE Agent (18:31:02)
+────────────────────
+  **Saving operational findings**
+  
+  I need to complete the final task - saving operational findings to the knowledge base. Let me create the knowledge
+  base file with non-financial operational findings from this alert coverage audit.
+
+SRE Agent (18:31:30)
+────────────────────
+  Completing the final task — saving operational findings to the knowledge base.
+
+SRE Agent (18:31:30)
+────────────────────
+  Created file: memory: alert-coverage-audit-findings.md (92 lines)
+
+SRE Agent (18:31:46)
+────────────────────
+  
+  
+  The monthly Alert Coverage Audit has completed successfully. Here's the summary:
+  
+  **Scope:** 1 active subscription (Non-Prod-Workloads)
+  
+  **Key Findings (5 total):**
+  
+  | # | Finding | Severity |
+  |---|---------|----------|
+  | 1 | No cost anomaly detection alerts configured | **Critical** |
+  | 2 | Budget & health alerts route to single person (AGOwner) — AGManager exists but unused | **High** |
+  | 3 | No KQL-based cost alerts via FinOps Hub | **High** |
+  | 4 | Subscription missing owner/environment/team tags | Medium |
+  | 5 | Transactions() data gap persists (0 rows) | Medium |
+  
+  **What was done:**
+  - Queried Azure Resource Graph and Cost Management APIs for all alert-related resources
+  - Inventoried 8 alert resources: 4 App Insights smart detectors, 3 action groups, 1 activity log alert
+  - Confirmed 0 cost anomaly alerts and 0 scheduled query rules exist
+  - Ran FinOps Hub anomaly detection (90-day window) — 0 true anomalies, stable ~$1,340–$1,390/day
+  - Generated 3 visualization charts (coverage matrix, gap analysis, notification routing)
+  - Posted full report with tables and charts to Teams
+  - Saved operational findings to
+  [alert-coverage-audit-findings.md](/api/files/memories/synthesizedKnowledge/alert-coverage-audit-findings.md)
+
+Brett Wilson (20:32:28)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+SRE Agent (20:32:53)
+────────────────────
+  
+  
+  ```python
+  # chart-name: alert-coverage-matrix
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import matplotlib.patches as mpatches
+  
+  fig, ax = plt.subplots(figsize=(10, 5))
+  
+  alert_categories = ['Cost Anomaly\nDetection', 'Budget\nAlerts', 'Scheduled Query\nRules (KQL)', 'Service
+  Health\nAlerts', 'App Insights\nFailure Anomalies', 'Action Groups\nConfigured']
+  status = [0, 2, 0, 2, 2, 1]
+  colors_map = {0: '#DC3545', 1: '#FFC107', 2: '#28A745'}
+  labels_map = {0: 'MISSING', 1: 'PARTIAL', 2: 'COVERED'}
+  bar_colors = [colors_map[s] for s in status]
+  
+  bars = ax.barh(alert_categories, [1]*len(alert_categories), color=bar_colors, edgecolor='white', height=0.6)
+  
+  for i, (bar, s) in enumerate(zip(bars, status)):
+      ax.text(0.5, bar.get_y() + bar.get_height()/2, labels_map[s], ha='center', va='center', fontweight='bold',
+  fontsize=11, color='white' if s != 1 else '#333')
+  
+  ax.set_xlim(0, 1)
+  ax.set_xticks([])
+  ax.set_title('Cost Anomaly Alert Coverage — Non-Prod-Workloads', fontsize=14, fontweight='bold', pad=15)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  ax.spines['bottom'].set_visible(False)
+  
+  legend_patches = [mpatches.Patch(color='#28A745', label='Covered'), mpatches.Patch(color='#FFC107',
+  label='Partial'), mpatches.Patch(color='#DC3545', label='Missing')]
+  ax.legend(handles=legend_patches, loc='lower right', frameon=True, fontsize=10)
+  
+  plt.tight_layout()
+  plt.savefig('alert-coverage-matrix.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: alert-gap-analysis
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  fig2, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+  
+  severities = ['Critical', 'High', 'Medium']
+  counts = [1, 2, 2]
+  sev_colors = ['#DC3545', '#FD7E14', '#FFC107']
+  
+  bars2 = ax1.bar(severities, counts, color=sev_colors, edgecolor='white', width=0.5)
+  for bar, count in zip(bars2, counts):
+      ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05, str(count), ha='center', va='bottom',
+  fontweight='bold', fontsize=13)
+  
+  ax1.set_ylabel('Number of Findings', fontsize=11)
+  ax1.set_title('Alert Coverage Findings by Severity', fontsize=12, fontweight='bold')
+  ax1.set_ylim(0, max(counts) + 1)
+  ax1.spines['top'].set_visible(False)
+  ax1.spines['right'].set_visible(False)
+  
+  alert_types = ['Budget Alerts\n(6 rules)', 'Service Health\n(1 rule)', 'App Insights\n(4 rules)', 'Cost Anomaly\n(0
+  rules)', 'KQL Alerts\n(0 rules)']
+  alert_counts = [6, 1, 4, 0, 0]
+  pie_colors = ['#28A745', '#28A745', '#28A745', '#DC3545', '#DC3545']
+  
+  non_zero = [(t, c, col) for t, c, col in zip(alert_types, alert_counts, pie_colors) if c > 0]
+  zero_items = [(t, c) for t, c in zip(alert_types, alert_counts) if c == 0]
+  
+  if non_zero:
+      labels_nz, counts_nz, colors_nz = zip(*non_zero)
+      wedges, texts, autotexts = ax2.pie(counts_nz, labels=labels_nz, colors=colors_nz, autopct='%1.0f%%',
+  startangle=90, textprops={'fontsize': 9})
+      for t in autotexts:
+          t.set_fontweight('bold')
+          t.set_color('white')
+  
+  if zero_items:
+      missing_text = "Missing: " + ", ".join([t.replace('\n', ' ') for t, _ in zero_items])
+      ax2.text(0, -1.4, missing_text, ha='center', va='center', fontsize=9, color='#DC3545', fontweight='bold',
+  bbox=dict(boxstyle='round,pad=0.3', facecolor='#FFF3CD', edgecolor='#DC3545'))
+  
+  ax2.set_title('Alert Rule Distribution', fontsize=12, fontweight='bold')
+  
+  plt.tight_layout()
+  plt.savefig('alert-gap-analysis.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: notification-routing
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  fig3, ax3 = plt.subplots(figsize=(8, 4))
+  
+  routing_categories = ['Budget Alerts', 'Service Health', 'App Insights\nSmart Detection']
+  single_person = [1, 1, 0]
+  team_escalation = [0, 0, 1]
+  
+  x = np.arange(len(routing_categories))
+  width = 0.35
+  
+  bars_single = ax3.bar(x - width/2, single_person, width, label='Single Recipient (AGOwner)', color='#FFC107',
+  edgecolor='white')
+  bars_team = ax3.bar(x + width/2, team_escalation, width, label='Team/Role-Based (AGManager or RBAC)',
+  color='#28A745', edgecolor='white')
+  
+  ax3.set_ylabel('Alert Rule Count', fontsize=11)
+  ax3.set_title('Notification Routing — Single vs Team Coverage', fontsize=12, fontweight='bold')
+  ax3.set_xticks(x)
+  ax3.set_xticklabels(routing_categories, fontsize=10)
+  ax3.set_ylim(0, 2)
+  ax3.legend(loc='upper right', fontsize=9)
+  ax3.spines['top'].set_visible(False)
+  ax3.spines['right'].set_visible(False)
+  
+  ax3.annotate('Budget & Health alerts route\nto single person only — no escalation', xy=(0.5, 1), xytext=(1.5, 1.6),
+  arrowprops=dict(arrowstyle='->', color='#DC3545'), fontsize=9, color='#DC3545', fontweight='bold', ha='center')
+  
+  plt.tight_layout()
+  plt.savefig('notification-routing.svg', bbox_inches='tight')
+  plt.close()
+  ```
+
+Brett Wilson (23:27:46)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         SRE Agent (23:28:03)
+────────────────────
+  
+  
+  ```python
+  # chart-name: alert-coverage-matrix
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import matplotlib.patches as mpatches
+  
+  fig, ax = plt.subplots(figsize=(10, 5))
+  
+  alert_categories = ['Cost Anomaly\nDetection', 'Budget\nAlerts', 'Scheduled Query\nRules (KQL)', 'Service
+  Health\nAlerts', 'App Insights\nFailure Anomalies', 'Action Groups\nConfigured']
+  status = [0, 2, 0, 2, 2, 1]
+  colors_map = {0: '#DC3545', 1: '#FFC107', 2: '#28A745'}
+  labels_map = {0: 'MISSING', 1: 'PARTIAL', 2: 'COVERED'}
+  bar_colors = [colors_map[s] for s in status]
+  
+  bars = ax.barh(alert_categories, [1]*len(alert_categories), color=bar_colors, edgecolor='white', height=0.6)
+  
+  for i, (bar, s) in enumerate(zip(bars, status)):
+      ax.text(0.5, bar.get_y() + bar.get_height()/2, labels_map[s], ha='center', va='center', fontweight='bold',
+  fontsize=11, color='white' if s != 1 else '#333')
+  
+  ax.set_xlim(0, 1)
+  ax.set_xticks([])
+  ax.set_title('Cost Anomaly Alert Coverage — Non-Prod-Workloads', fontsize=14, fontweight='bold', pad=15)
+  ax.spines['top'].set_visible(False)
+  ax.spines['right'].set_visible(False)
+  ax.spines['bottom'].set_visible(False)
+  
+  legend_patches = [mpatches.Patch(color='#28A745', label='Covered'), mpatches.Patch(color='#FFC107',
+  label='Partial'), mpatches.Patch(color='#DC3545', label='Missing')]
+  ax.legend(handles=legend_patches, loc='lower right', frameon=True, fontsize=10)
+  
+  plt.tight_layout()
+  plt.savefig('alert-coverage-matrix.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: alert-gap-analysis
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  fig2, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+  
+  severities = ['Critical', 'High', 'Medium']
+  counts = [1, 2, 2]
+  sev_colors = ['#DC3545', '#FD7E14', '#FFC107']
+  
+  bars2 = ax1.bar(severities, counts, color=sev_colors, edgecolor='white', width=0.5)
+  for bar, count in zip(bars2, counts):
+      ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05, str(count), ha='center', va='bottom',
+  fontweight='bold', fontsize=13)
+  
+  ax1.set_ylabel('Number of Findings', fontsize=11)
+  ax1.set_title('Alert Coverage Findings by Severity', fontsize=12, fontweight='bold')
+  ax1.set_ylim(0, max(counts) + 1)
+  ax1.spines['top'].set_visible(False)
+  ax1.spines['right'].set_visible(False)
+  
+  alert_types = ['Budget Alerts\n(6 rules)', 'Service Health\n(1 rule)', 'App Insights\n(4 rules)', 'Cost Anomaly\n(0
+  rules)', 'KQL Alerts\n(0 rules)']
+  alert_counts = [6, 1, 4, 0, 0]
+  pie_colors = ['#28A745', '#28A745', '#28A745', '#DC3545', '#DC3545']
+  
+  non_zero = [(t, c, col) for t, c, col in zip(alert_types, alert_counts, pie_colors) if c > 0]
+  zero_items = [(t, c) for t, c in zip(alert_types, alert_counts) if c == 0]
+  
+  if non_zero:
+      labels_nz, counts_nz, colors_nz = zip(*non_zero)
+      wedges, texts, autotexts = ax2.pie(counts_nz, labels=labels_nz, colors=colors_nz, autopct='%1.0f%%',
+  startangle=90, textprops={'fontsize': 9})
+      for t in autotexts:
+          t.set_fontweight('bold')
+          t.set_color('white')
+  
+  if zero_items:
+      missing_text = "Missing: " + ", ".join([t.replace('\n', ' ') for t, _ in zero_items])
+      ax2.text(0, -1.4, missing_text, ha='center', va='center', fontsize=9, color='#DC3545', fontweight='bold',
+  bbox=dict(boxstyle='round,pad=0.3', facecolor='#FFF3CD', edgecolor='#DC3545'))
+  
+  ax2.set_title('Alert Rule Distribution', fontsize=12, fontweight='bold')
+  
+  plt.tight_layout()
+  plt.savefig('alert-gap-analysis.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: notification-routing
+  import matplotlib
+  matplotlib.use('Agg')
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  fig3, ax3 = plt.subplots(figsize=(8, 4))
+  
+  routing_categories = ['Budget Alerts', 'Service Health', 'App Insights\nSmart Detection']
+  single_person = [1, 1, 0]
+  team_escalation = [0, 0, 1]
+  
+  x = np.arange(len(routing_categories))
+  width = 0.35
+  
+  bars_single = ax3.bar(x - width/2, single_person, width, label='Single Recipient (AGOwner)', color='#FFC107',
+  edgecolor='white')
+  bars_team = ax3.bar(x + width/2, team_escalation, width, label='Team/Role-Based (AGManager or RBAC)',
+  color='#28A745', edgecolor='white')
+  
+  ax3.set_ylabel('Alert Rule Count', fontsize=11)
+  ax3.set_title('Notification Routing — Single vs Team Coverage', fontsize=12, fontweight='bold')
+  ax3.set_xticks(x)
+  ax3.set_xticklabels(routing_categories, fontsize=10)
+  ax3.set_ylim(0, 2)
+  ax3.legend(loc='upper right', fontsize=9)
+  ax3.spines['top'].set_visible(False)
+  ax3.spines['right'].set_visible(False)
+  
+  ax3.annotate('Budget & Health alerts route\nto single person only — no escalation', xy=(0.5, 1), xytext=(1.5, 1.6),
+  arrowprops=dict(arrowstyle='->', color='#DC3545'), fontsize=9, color='#DC3545', fontweight='bold', ha='center')
+  
+  plt.tight_layout()
+  plt.savefig('notification-routing.svg', bbox_inches='tight')
+  plt.close()
+  ```
+
