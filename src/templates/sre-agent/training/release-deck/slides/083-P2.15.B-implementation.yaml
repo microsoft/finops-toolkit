@@ -1,0 +1,21 @@
+id: P2.15.B
+order: 83
+cluster: FTK supportability — HONEST
+asks_verbatim:
+- num: 49
+  theme: Is FTK Microsoft-supported? Who do I call?
+- num: 50
+  theme: Positioning safety — will Microsoft pull this in 12 months?
+- num: 51
+  theme: Support escalation path — CSS punted, GitHub only
+title: Implementation
+content: '• The support model is community OSS plus GitHub Issues, with agent diagnostics such as `hubs-health-check` to tighten repro quality.<br/>• The model is not CSS case ownership for FTK, not an SLA, and not phone support for the toolkit itself.<br/>• Your partner or field engagement model still matters: use the diagnostics, document the issue, and route platform issues to the actual owning team when the gap is outside FTK.<br/>• Credibility comes from saying this early, not after the customer tries to open the wrong ticket.'
+notes: Open-source community. GitHub issues. The agent's diagnostics improve the reproduction quality of those issues.<br/><br/>The toolkit is MIT-licensed open source from Microsoft. The runtime it deploys onto is a paid Azure service. There is no CSS-backed product SLA for the toolkit itself. Field and partner sponsorship can help when a customer program needs coordination — but that is not a product contract.<br/><br/>State the model before the customer opens the wrong ticket.
+layout:
+  kind: ASK_B
+  addresses:
+  - 49
+  - 50
+  - 51
+  verdict: red
+screens: null

@@ -1,0 +1,20 @@
+id: H.5
+order: 90
+cluster: Honest
+asks_verbatim:
+- num: 42
+  theme: FinOps staffing ambiguity (who owns at customer?)
+- num: 67
+  theme: L100 / L300 enablement content for CSAs
+- num: 72
+  theme: Gov / DoD support boundary clarity
+- num: 65
+  theme: MACC visibility in Hub
+title: Enablement and governance — FinOps CoE + field
+content: '• Ask `#42`: practice enablement gaps stay with the FinOps CoE and field enablement owners.<br/>• Ask `#67`: maturity coaching and field readiness stay with the FinOps CoE and enablement leads.<br/>• Ask `#72` and `#73`: government and governance-specific policy asks stay with Gov and policy owners.<br/>• Ask `#65`: operating-governance accountability stays with the customer governance team and field program owners.<br/>• Field move: use the toolkit evidence in the meeting, then route policy and enablement asks to the right program owner.'
+notes: Practice enablement, maturity coaching, government policy, and operating-governance accountability sit with the FinOps CoE, field enablement leads, government and policy owners, and the customer's own governance team.<br/><br/>The toolkit brings evidence into those rooms.<br/><br/>It does not replace those owners.
+layout:
+  kind: BULLETS
+  addresses: []
+  verdict: null
+screens: null

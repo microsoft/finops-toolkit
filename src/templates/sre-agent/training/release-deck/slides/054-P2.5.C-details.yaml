@@ -1,0 +1,18 @@
+id: P2.5.C
+order: 54
+cluster: Daily cost-mover briefing
+asks_verbatim:
+- num: 36
+  theme: Post-M&A tagging chaos + allocation
+- num: 37
+  theme: 'Chargeback design: amortized vs billed'
+title: Details
+content: '• Task YAML: `sre-config/scheduled-tasks/mom-report.yaml`. Cron: `15 17 * * *`. Owner agent: `finops-practitioner`.<br/>• Query chain: `monthly-cost-trend` → `top-services-by-cost` → `top-resource-groups-by-cost` → `cost-anomaly-detection` → `savings-summary-report` → `commitment-discount-utilization` → `cost-forecasting-model` → `cost-by-region-trend`.<br/>• Delivery: `PostTeamsMessage` posts a card with chart, grade summary, forecast, and next actions when the Teams connector and tool assignment are configured.<br/>• Decision pattern to teach the customer: trend direction first, top movers second, anomalies third, savings and commitment context fourth, owner actions last.<br/>• Operator move: invoke the task on demand for the customer hub and use the card as the review agenda.'
+notes: This is a daily task at five-fifteen UTC, owned by the FinOps practitioner subagent.<br/><br/>Eight tools chain together — trend, services, resource groups, anomaly, savings, commitment, forecast, and region. It posts a card with the chart, the grade, the forecast, and the actions.<br/><br/>It becomes the agenda for allocation cleanup and chargeback design.
+layout:
+  kind: ASK_C
+  addresses:
+  - 36
+  - 37
+  verdict: green
+screens: null

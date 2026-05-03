@@ -1,0 +1,15 @@
+id: P1.4.A
+order: 13
+cluster: SGS capacity-blocked milestones
+asks_verbatim:
+- num: 15
+  theme: SGS capacity-blocked milestones (MACC risk)
+title: Ask
+content: • > "SGS capacity-blocked milestones."<br/>• > "Which milestone is blocked, and is MACC now at risk?"
+notes: When a milestone slips, the deal team needs to know whether capacity is the actual blocker or whether the next dependency lives somewhere else.<br/><br/>The quarterly strategy gives them that triage answer with evidence.<br/><br/>Green capacity moves the conversation forward. Yellow or red triggers a remediation plan.
+layout:
+  kind: ASK_A
+  addresses:
+  - 15
+  verdict: green
+screens: null

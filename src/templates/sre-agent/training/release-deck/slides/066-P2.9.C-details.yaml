@@ -1,0 +1,18 @@
+id: P2.9.C
+order: 66
+cluster: RI/SP math + portal reconciliation
+asks_verbatim:
+- num: 62
+  theme: RI / Savings Plans math in Hub (effective rate over time)
+- num: 63
+  theme: Portal reconciliation (Kusto vs portal numbers)
+title: Details
+content: '• Task YAML: `sre-config/scheduled-tasks/benefit-recommendation-review.yaml` (weekly, `0 8 * * 5`). Supporting task: `sre-config/scheduled-tasks/cost-optimization.yaml` (weekly, `0 8 * * 1`).<br/>• Owner agents: `chief-financial-officer` and `finops-practitioner` with handoff for executive framing.<br/>• Math pattern: current effective savings rate, commitment utilization, on-demand exposure, recommendation candidates, term length, break-even months, and forecast risk.<br/>• Reconciliation boundary: use `Transactions()` and commitment records for purchase-side proof; if `Transactions()` is empty in the customer''s hub, keep the reconciliation verdict yellow until the export gap is fixed.<br/>• Operator move: invoke the benefit review on demand and resolve any export gaps before scaling commitments.'
+notes: The benefit review runs weekly on Fridays. The cost optimization task supports it on Mondays.<br/><br/>The math pattern covers the savings rate, commitment utilization, on-demand exposure, candidates, term, break-even, and forecast risk. Use the Transactions function and commitment records for purchase-side proof.<br/><br/>If Transactions is empty, the reconciliation verdict stays yellow until the export gap is fixed.
+layout:
+  kind: ASK_C
+  addresses:
+  - 62
+  - 63
+  verdict: yellow
+screens: null

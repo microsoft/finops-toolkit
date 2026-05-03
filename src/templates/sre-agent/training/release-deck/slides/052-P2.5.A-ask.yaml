@@ -1,0 +1,18 @@
+id: P2.5.A
+order: 52
+cluster: Daily cost-mover briefing
+asks_verbatim:
+- num: 36
+  theme: Post-M&A tagging chaos + allocation
+- num: 37
+  theme: 'Chargeback design: amortized vs billed'
+title: Ask
+content: '&gt; "The org chart changed after M&amp;A."<br/>&gt; "Give me the daily cost movers and something I can use for showback."<br/>&gt; "Do not make me wait for month-end."'
+notes: After an acquisition, the org chart changed and finance cannot wait until month-end to see what moved.<br/><br/>The daily card gives them a working showback signal before the data is perfect.<br/><br/>Working signal beats perfect data when the close is already running.
+layout:
+  kind: ASK_A
+  addresses:
+  - 36
+  - 37
+  verdict: green
+screens: null

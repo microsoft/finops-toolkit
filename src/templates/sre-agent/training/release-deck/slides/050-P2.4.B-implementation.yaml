@@ -1,0 +1,18 @@
+id: P2.4.B
+order: 50
+cluster: AI model substitution + prompt economics
+asks_verbatim:
+- num: 29
+  theme: Model substitution for cost (route to cheaper)
+- num: 30
+  theme: Prompt optimization as cost lever (KV caching)
+title: Implementation
+content: '• The `ai-model-cost-comparison` tool ranks models in the customer estate by spend, token volume, and unit cost per direction (standard input, cached input, output).<br/>• `ai-token-usage-breakdown` shows the input-to-output ratio per model so the customer can spot oversized prompts producing short completions.<br/>• `ai-cost-by-application` attributes spend to applications or teams so substitution candidates can be validated by the actual workload owner.<br/>• Read the artifact as a substitution and prompt-economics catalog: a high input-to-output ratio plus a cheaper sibling model in the same family is a candidate for review.<br/>• The agent surfaces the lever; the application owner validates whether a model swap or prompt change is safe for the workload.'
+notes: The model comparison ranks models by spend, volume, and unit cost per direction.<br/><br/>The token breakdown shows the input-to-output ratio per model. A ratio above ten times is a reliable signal of oversized prompts producing short answers. Cost by application makes the substitution candidate concrete.<br/><br/>The owner validates safety, latency, and quality. Models used for classification or extraction naturally show high ratios — confirm the use case before recommending changes.
+layout:
+  kind: ASK_B
+  addresses:
+  - 29
+  - 30
+  verdict: yellow
+screens: 'assets: image=ai-model-comparison.svg'

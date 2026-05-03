@@ -126,13 +126,26 @@ cd renders && pdftoppm -png -r 300 finops-toolkit-sre-agent-release-training.pdf
 
 **To rebuild a part:**
 ```bash
-python3 build.py --part 1   # part 1 only
-python3 build.py --part 2   # part 2 only
-python3 build.py --part 3   # part 3 only
-python3 build.py            # unified deck (default)
+python3 build_yaml.py --part 1     # YAML pipeline (PRIMARY)
+python3 build_yaml.py --part 2
+python3 build_yaml.py --part 3
+python3 build_yaml.py              # unified deck (default)
 ```
 
-The unified `finops-toolkit-sre-agent-release-training.pptx` and the three split files all parse the SAME canonical `deck-outline-v8.md`. Edit the table; rebuild the parts.
+## CANONICAL SOURCE (updated 2026-05-03)
+
+**Primary canonical: `slides/*.yaml`** — one YAML file per slide (94 files, numbered `000-` through `093-`). Use `build_yaml.py` to render. This is now the source of truth for all editing.
+
+**Escape hatch: `deck-outline-v8.md`** — the original 8-column markdown table. Still parseable by `build.py` and produces layout-identical output. Kept for diff/audit purposes. **Do not edit both** — edits should go into the YAML files; the .md is frozen as a reference snapshot.
+
+**Migration history:**
+- `deck-outline-v8.md.bak-pre-yaml-migration-20260503-102134` — canonical state immediately before YAML migration
+- `slides/` — 94 YAML files generated 2026-05-03 from the .md
+
+Both pipelines accept `--part 1|2|3` and produce identical structural output (visual diff verified). YAML pipeline is preferred because:
+- One file per slide → diff-friendly, no pipe-delimiter drift risk
+- Proper schema with typed fields (asks_verbatim is a list of dicts, not pipe-separated strings)
+- Speaker notes live as multi-line YAML strings — easy to read and edit in isolation
 
 ---
 

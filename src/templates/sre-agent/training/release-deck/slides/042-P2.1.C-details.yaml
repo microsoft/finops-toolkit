@@ -1,0 +1,18 @@
+id: P2.1.C
+order: 42
+cluster: Capacity rhythm
+asks_verbatim:
+- num: 21
+  theme: Supply chain forecast depth (30/60/90/180 days?)
+- num: 24
+  theme: Proactive capacity monitoring (no real-time API)
+title: Details
+content: '• YAML paths and crons:<br/>```<br/>sre-config/scheduled-tasks/capacity-daily-monitor.yaml: 30 6 * * *<br/>sre-config/scheduled-tasks/capacity-weekly-supply-review.yaml: 0 8 * * 1<br/>sre-config/scheduled-tasks/capacity-monthly-planning.yaml: 0 9 1 * *<br/>sre-config/scheduled-tasks/capacity-quarterly-strategy.yaml: 0 9 1 1,4,7,10 *<br/>```<br/>• Runtime chain: daily health → weekly supply review → monthly planning → quarterly strategy, with quota, CRG, SKU, benefit, and freshness evidence carried forward.<br/>• Decision pattern to teach the customer:<br/>```<br/>Red daily signal: fix now.<br/>Weekly drift: plan supply or quota action.<br/>Monthly growth: schedule capacity and commitment review.<br/>Quarterly maturity gap: change the operating program.<br/>```<br/>• Operator move: invoke the relevant task on demand for the customer hub.'
+notes: There are four YAML files, four crons, and one owner agent.<br/><br/>A red signal on the daily check means fix it now. Drift on the weekly check means plan procurement. Growth on the monthly check means schedule action. A maturity gap on the quarterly check means change the operating model.<br/><br/>The cadence is the control system.
+layout:
+  kind: ASK_C
+  addresses:
+  - 21
+  - 24
+  verdict: green
+screens: null

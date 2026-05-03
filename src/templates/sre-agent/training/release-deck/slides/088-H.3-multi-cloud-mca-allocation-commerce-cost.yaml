@@ -1,0 +1,18 @@
+id: H.3
+order: 88
+cluster: Honest
+asks_verbatim:
+- num: 39
+  theme: Multi-cloud cost normalization (AWS / GCP / Oracle)
+- num: 40
+  theme: MCA transition disrupting allocation
+- num: 31
+  theme: GitHub Copilot UBB pricing shock
+title: Multi-cloud, MCA, allocation — Commerce + Cost Management
+content: '• Ask `#39`: multi-cloud cost normalization stays with the broader commerce and management platform stack, not this FTK release.<br/>• Ask `#40`: commerce and billing-model gaps across MCA constructs stay with Commerce and Cost Management owners.<br/>• Ask `#31`: allocation platform gaps beyond current tag and hierarchy evidence stay with Cost Management platform owners.<br/>• Field move: use FTK for Azure evidence, then route cross-cloud and commerce-model asks to the platform owner.'
+notes: Multi-cloud normalization, MCA platform semantics, GitHub Copilot usage-based billing, and broader allocation features live with Commerce and the Cost Management platform team.<br/><br/>Use this release for the Azure side.<br/><br/>Route cross-cloud and commerce-model questions to the platform owner.
+layout:
+  kind: BULLETS
+  addresses: []
+  verdict: null
+screens: null

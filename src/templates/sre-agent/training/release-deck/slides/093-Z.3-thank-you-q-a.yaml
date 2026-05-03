@@ -1,0 +1,12 @@
+id: Z.3
+order: 93
+cluster: Close
+asks_verbatim: []
+title: Thank you / Q&A
+content: 'Thank you.<br/>Feedback form: QR code or short link on the final render.<br/>Speaker contact: release enablement alias and follow-up Teams thread.'
+notes: Thanks for watching.<br/><br/>Use the feedback form on screen.<br/><br/>The release enablement alias is the fastest way to follow up.
+layout:
+  kind: TITLE
+  addresses: []
+  verdict: null
+screens: null

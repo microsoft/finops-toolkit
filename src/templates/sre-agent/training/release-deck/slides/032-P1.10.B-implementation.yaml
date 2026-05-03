@@ -1,0 +1,18 @@
+id: P1.10.B
+order: 32
+cluster: Sovereign / Gov cloud
+asks_verbatim:
+- num: 60
+  theme: Azure Gov / regulated cloud private endpoints
+- num: 72
+  theme: Gov / DoD support boundary clarity
+title: Implementation
+content: '• You can say what is validated today: standard-region support is eastus2, swedencentral, and australiaeast, and the agent can show regional SKU restriction patterns there.<br/>• You cannot claim Azure Gov or DoD validation from this deck, and private endpoints still depend on the target ADX cluster networking configuration.<br/>• Named tools: sku-availability, standard regions only.'
+notes: Three standard regions are validated — East US 2, Sweden Central, Australia East.<br/><br/>Inside those regions, the SKU evidence works. Outside them, the field needs the validated owner path.<br/><br/>Standard-region evidence is not sovereign attestation. Treat that line as non-negotiable.
+layout:
+  kind: ASK_B
+  addresses:
+  - 60
+  - 72
+  verdict: yellow
+screens: 'assets: image=sku-restrictions-by-region.svg'

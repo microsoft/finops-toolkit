@@ -1,0 +1,18 @@
+id: P2.5.B
+order: 53
+cluster: Daily cost-mover briefing
+asks_verbatim:
+- num: 36
+  theme: Post-M&A tagging chaos + allocation
+- num: 37
+  theme: 'Chargeback design: amortized vs billed'
+title: Implementation
+content: '• The `mom-report` task posts a daily Teams card with cost trend, top services, top resource groups, anomaly detection results, region trend, and forecast.<br/>• Named tools: `monthly-cost-trend`, `top-services-by-cost`, `top-resource-groups-by-cost`, `cost-anomaly-detection`, `cost-by-region-trend`, `cost-forecasting-model`, `commitment-discount-utilization`, `savings-summary-report`.<br/>• The card answers four questions in order: What moved? Which services drove it? Which resource groups did it land in? What does the next-90-day forecast look like?<br/>• Read the chart for trend direction first, then drill into services, regions, and resource groups for the mover.<br/>• The task is named `mom-report` for legacy reasons but runs on a daily cadence; the cron in the YAML controls frequency.'
+notes: Daily Teams card with cost trend, top services, top resource groups, anomalies, region trend, and forecast.<br/><br/>Four reads in order. What moved. Where. In which group. Where it is heading. Pattern triage filters out month-end batch billing spikes that look like anomalies but are not — the CFO does not get paged on the twenty-ninth for a true-up.<br/><br/>The cadence is daily even though the task name says month-over-month.
+layout:
+  kind: ASK_B
+  addresses:
+  - 36
+  - 37
+  verdict: green
+screens: 'assets: image=chart-monthly-cost-trend.svg'

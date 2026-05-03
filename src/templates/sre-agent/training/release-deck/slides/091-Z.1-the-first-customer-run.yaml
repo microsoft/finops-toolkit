@@ -1,0 +1,12 @@
+id: Z.1
+order: 91
+cluster: Close
+asks_verbatim: []
+title: The first customer run
+content: 'Pick one customer hub and invoke a single high-value scheduled task such as `capacity-daily-monitor`, `hubs-health-check`, or `mom-report`.<br/>Verify Teams delivery: confirm the Teams connector is configured and the scheduled-task agent has the Teams tools assigned, then check the card lands in the right channel.<br/>Read the card with the customer and agree on the first exception to fix.<br/>Book a finance review and walk the customer''s own YTD or month-over-month output (not a sample).'
+notes: Pick one customer hub.<br/><br/>Run one high-value task — capacity-daily-monitor, hubs-health-check, or mom-report. Verify Teams delivery. Read the card with the customer. Agree on the first exception to fix.<br/><br/>Book a finance review and walk the customer's actual numbers. Not a sample.
+layout:
+  kind: BULLETS
+  addresses: []
+  verdict: null
+screens: null

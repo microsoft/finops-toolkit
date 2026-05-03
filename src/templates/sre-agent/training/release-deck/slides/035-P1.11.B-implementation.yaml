@@ -1,0 +1,15 @@
+id: P1.11.B
+order: 35
+cluster: EA → MCA migration safety
+asks_verbatim:
+- num: 52
+  theme: EA → MCA migration safety with FTK
+title: Implementation
+content: '• The `hubs-health-check` and `data-freshness-check` tasks produce a Teams card with row counts, staleness, and trust verdicts for each Hub data function.<br/>• The `monitoring-scope-validation` task adds the export scope view: subscription coverage, resource group coverage, and rows missing `SubAccountId`.<br/>• The cards answer three questions in order: Are `Costs()`, `Prices()`, `Recommendations()`, and `Transactions()` fresh? Is the export scope what finance expects? Where are the gaps?<br/>• Read the trio as a post-cutover safety verdict you can hand to finance in minutes; remediation belongs to the export owner if the verdict is yellow or red.<br/>• The verdict is informational. The migration itself is owned by the customer''s commerce team and the Cost Management export owner.'
+notes: Three artifacts combine into a post-cutover safety verdict.<br/><br/>The hub health and freshness checks post row counts, staleness, and trust per data function. The scope check adds export coverage and the rows missing the sub-account identifier.<br/><br/>Three reads — fresh, scoped, gaps — and finance can decide whether to keep going or pause.
+layout:
+  kind: ASK_B
+  addresses:
+  - 52
+  verdict: yellow
+screens: 'assets: image=data-freshness.svg'

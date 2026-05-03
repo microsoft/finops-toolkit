@@ -1,0 +1,15 @@
+id: P1.9.C
+order: 30
+cluster: P1.9 Vendor displacement
+asks_verbatim:
+- num: 47
+  theme: 'Vendor displacement: CloudHealth / Apptio / Vantage / Spot'
+title: Details
+content: 'Operating catalog: `src/templates/sre-agent/CATALOG.md`.<br/>Runtime footprint: 18 scheduled tasks, 5 subagents, 3 skills, 33 tools (21 Kusto plus 12 Python), Teams delivery through `PostTeamsMessage` when the connector and tool assignment are configured.<br/>Example: `sre-config/scheduled-tasks/cost-optimization.yaml` runs weekly.<br/>Operator move: run one scheduled task and compare the output to a vendor renewal workflow requirement.<br/>Boundary: this is Azure-first operating coverage; multi-cloud normalization belongs to the cross-cloud platform owner.'
+notes: Open the catalog and pick one workflow that the third-party tool covers.<br/><br/>Run the matching scheduled task and compare the output. Whatever the in-tenant rhythm covers can come off the renewal scope. Whatever it doesn't, stays.<br/><br/>That's the diligence pattern. Lead with the four-word frame — autonomous, scheduled, in-tenant, in-Teams — and let the catalog do the rest.
+layout:
+  kind: ASK_C
+  addresses:
+  - 47
+  verdict: green
+screens: null

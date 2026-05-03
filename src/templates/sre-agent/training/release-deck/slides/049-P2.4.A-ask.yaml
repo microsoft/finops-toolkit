@@ -1,0 +1,18 @@
+id: P2.4.A
+order: 49
+cluster: AI model substitution + prompt economics
+asks_verbatim:
+- num: 29
+  theme: Model substitution for cost (route to cheaper)
+- num: 30
+  theme: Prompt optimization as cost lever (KV caching)
+title: Ask
+content: '&gt; "Which model should my customer keep?"<br/>&gt; "Which model should they stop paying for?"<br/>&gt; "Can prompt design move the bill?"'
+notes: The customer wants to know which model to keep, which to drop, and whether prompt design changes the bill.<br/><br/>The agent quantifies the lever. The application owner validates the change.<br/><br/>That split is what keeps optimization safe.
+layout:
+  kind: ASK_A
+  addresses:
+  - 29
+  - 30
+  verdict: yellow
+screens: null

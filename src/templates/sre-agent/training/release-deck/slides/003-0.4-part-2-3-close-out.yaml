@@ -1,0 +1,12 @@
+id: '0.4'
+order: 3
+cluster: Intro
+asks_verbatim: []
+title: Part 2 + 3 — close-out
+content: • P2.9 · yellow · RI/SP math + portal reconciliation · 62,63<br/>• P2.10 · yellow · Allocation hygiene + post-M&A · 36,38<br/>• P2.11 · green · FinOps Framework operationalization · 43,45<br/>• P2.12 · green · Dashboard adoption → Teams cadence · 70<br/>• P2.13 · green · Native CM gaps (what we exceed) · 48<br/>• P2.14 · green · Run-it-for-them ops model · 55<br/>• P2.15 · red · FTK supportability — HONEST · 49,50,51
+notes: These are the last seven operating clusters.<br/><br/>Reservation reconciliation. Allocation hygiene. Framework operationalization. Teams cadence. Native Cost Management gaps. The run-it-for-them ops model. Supportability.<br/><br/>Supportability sits at the end on purpose. Once the customer has seen the operating value, the conversation about what is supported lands without breaking trust.
+layout:
+  kind: INDEX
+  addresses: []
+  verdict: null
+screens: null

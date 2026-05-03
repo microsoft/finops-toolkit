@@ -1,0 +1,18 @@
+id: P1.3.B
+order: 11
+cluster: RI vs SP vs ODCR + sequencing
+asks_verbatim:
+- num: 17
+  theme: RI vs SP vs ODCR positioning
+- num: 18
+  theme: Commitment + capacity sequencing
+title: Implementation
+content: '• The `benefit-recommendation-review` task posts a Teams card with a ranked list of reservation and savings plan candidates, each annotated with SKU, region, term length, hourly commitment, projected monthly savings, and break-even months.<br/>• Named tools: `benefit-recommendations`, `reservation-recommendation-breakdown`, `commitment-discount-utilization`, `savings-summary-report`.<br/>• The card teaches sequencing: stable named workloads support reservation validation; flexible compute supports a savings plan path; supply-blocked workloads need a separate capacity motion before any commitment.<br/>• On-demand reservation capacity (ODCR) commercial terms are owned by the Azure capacity owner path, not by this agent.'
+notes: The card ranks every reservation and savings plan candidate.<br/><br/>SKU, region, term length, hourly commitment, projected monthly savings, break-even months. Each row carries its confidence — high-confidence buys above forty percent discount get called out separately so finance can act on those first.<br/><br/>The agent reconciles hub data against the live consumption API and labels both sources. No silent source-picking. ODCR commercial terms stay with the Azure capacity owner.
+layout:
+  kind: ASK_B
+  addresses:
+  - 17
+  - 18
+  verdict: yellow
+screens: 'assets: image=benefit-recommendation-charts.svg'

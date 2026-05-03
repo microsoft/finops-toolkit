@@ -1,0 +1,15 @@
+id: P2.3.B
+order: 47
+cluster: AI budget brake pedal
+asks_verbatim:
+- num: 27
+  theme: AI budget hard guardrails (brake pedal, not alerts)
+title: Implementation
+content: '• The `budget-coverage-audit` task posts a Teams card with the current budget inventory: subscription budgets, resource group budgets, alert thresholds, action group routing, policy enforcement, and ownership tag coverage.<br/>• Named tools: `budget-coverage-audit`, `alert-coverage-audit`, `RunAzCliReadCommands` for budget and policy inventory.<br/>• The card answers two questions: where do controls exist today, and where are they missing?<br/>• The toolkit can deploy missing controls through `deploy-budget`, `deploy-bulk-budgets`, `deploy-anomaly-alert`, and `deploy-bulk-anomaly-alerts`.<br/>• Boundary: the task improves warning, routing, and coverage. A hard kill switch for Azure OpenAI spend is not provided by this agent or by Azure Cost Management; that ask routes to platform and policy owners.'
+notes: The budget audit posts coverage by subscription, by resource group, alert thresholds, action group routing, policy enforcement, and ownership.<br/><br/>Two questions answered. Where do controls exist today. Where are they missing. The deploy tools fill the gaps.<br/><br/>The kill switch belongs to the platform owner.
+layout:
+  kind: ASK_B
+  addresses:
+  - 27
+  verdict: yellow
+screens: 'assets: image=budget-alert-config.svg'

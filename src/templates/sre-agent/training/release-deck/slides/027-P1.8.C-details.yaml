@@ -1,0 +1,15 @@
+id: P1.8.C
+order: 27
+cluster: P1.8 MACC discount verification
+asks_verbatim:
+- num: 35
+  theme: 'CFO: MACC discount verification'
+title: Details
+content: 'Task YAML: `sre-config/scheduled-tasks/cost-optimization.yaml`<br/>Cron: `0 8 * * 1`<br/>Owner agent: `finops-practitioner`, with handoff to `chief-financial-officer` for executive framing.<br/>Tool spine: `savings-summary-report` → `commitment-discount-utilization` → `benefit-recommendations` → `service-price-benchmarking`.<br/>Decision pattern to teach the customer: review current utilization first, then the ranked recommendations, then forecast risk, then workload persistence, before any purchase recommendation goes to finance.<br/>Operator move: `srectl scheduledtask invoke cost-optimization` runs the task on demand.'
+notes: This is a weekly task that runs on Mondays.<br/><br/>The tool spine runs savings, commitment utilization, ranked recommendations, and price benchmarking. The decision pattern reviews utilization first, then the ranked candidates, then forecast risk and workload persistence.<br/><br/>Finance approves the buys. The task surfaces the candidates.
+layout:
+  kind: ASK_C
+  addresses:
+  - 35
+  verdict: green
+screens: null

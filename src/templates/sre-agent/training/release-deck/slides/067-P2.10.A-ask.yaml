@@ -1,0 +1,18 @@
+id: P2.10.A
+order: 67
+cluster: Allocation hygiene + post-M&A
+asks_verbatim:
+- num: 36
+  theme: Post-M&A tagging chaos + allocation
+- num: 38
+  theme: Tagging inheritance workarounds (0% coverage)
+title: Ask
+content: '&gt; "The tags are broken after M&amp;A."<br/>&gt; "Can you tell me what we cannot allocate?"<br/>&gt; "Do not promise auto-remediation if it is not there."'
+notes: Tags break after acquisitions.<br/><br/>Customers want to know what they cannot allocate today. They do not want false promises about auto-remediation.<br/><br/>The agent measures the gap and routes the cleanup. The customer's governance team owns the repair.
+layout:
+  kind: ASK_A
+  addresses:
+  - 36
+  - 38
+  verdict: yellow
+screens: null

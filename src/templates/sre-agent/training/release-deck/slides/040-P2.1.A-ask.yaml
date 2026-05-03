@@ -1,0 +1,18 @@
+id: P2.1.A
+order: 40
+cluster: Capacity rhythm
+asks_verbatim:
+- num: 21
+  theme: Supply chain forecast depth (30/60/90/180 days?)
+- num: 24
+  theme: Proactive capacity monitoring (no real-time API)
+title: Ask
+content: • > "Supply chain forecast depth — 30, 60, 90, 180 days?"<br/>• > "Proactive capacity monitoring."<br/>• > "Do you find the problem before deployment fails?"
+notes: Customers ask whether the agent finds capacity problems before deployment fails.<br/><br/>Without a real-time API, the answer is rhythm. Daily, weekly, monthly, quarterly checks that catch drift early.<br/><br/>That cadence is what makes capacity management an operating motion instead of an emergency response.
+layout:
+  kind: ASK_A
+  addresses:
+  - 21
+  - 24
+  verdict: green
+screens: null

@@ -1,0 +1,15 @@
+id: P1.8.A
+order: 25
+cluster: P1.8 MACC discount verification
+asks_verbatim:
+- num: 35
+  theme: 'CFO: MACC discount verification'
+title: Ask
+content: “Show me that the MACC discount is actually burning the way finance expects.”<br/>CFO / finance buyer
+notes: The CFO wants proof the negotiated discounts are showing up in spend.<br/><br/>If the discount stack is not visible, finance trust drops fast. So does any future MACC negotiation.<br/><br/>Discount verification is a control, not a one-time chart.
+layout:
+  kind: ASK_A
+  addresses:
+  - 35
+  verdict: green
+screens: null

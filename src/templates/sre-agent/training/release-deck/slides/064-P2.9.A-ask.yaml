@@ -1,0 +1,18 @@
+id: P2.9.A
+order: 64
+cluster: RI/SP math + portal reconciliation
+asks_verbatim:
+- num: 62
+  theme: RI / Savings Plans math in Hub (effective rate over time)
+- num: 63
+  theme: Portal reconciliation (Kusto vs portal numbers)
+title: Ask
+content: '&gt; "Show me the RI and savings-plan math in the Hub."<br/>&gt; "Then show me why it does or does not match the portal."<br/>&gt; "Do not hand me two different stories."'
+notes: Finance wants the savings math from the hub and proof it ties out to the portal.<br/><br/>Two stories from one source breaks trust fast. The agent gives both — opportunity math and reconciliation — with a clear boundary when reconciliation cannot close.<br/><br/>That separation is the trust contract.
+layout:
+  kind: ASK_A
+  addresses:
+  - 62
+  - 63
+  verdict: yellow
+screens: null

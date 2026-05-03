@@ -1,0 +1,24 @@
+id: P1.7.A
+order: 22
+cluster: AOAI throttling/region/GA
+asks_verbatim:
+- num: 3
+  theme: AOAI PTU throttling confusion (TPM still applies)
+- num: 4
+  theme: AOAI model availability by region
+- num: 5
+  theme: AOAI production capacity GA expectations
+- num: 6
+  theme: AOAI TPM/RPM tier behavior
+title: Ask
+content: • > "AOAI PTU throttling confusion."<br/>• > "AOAI model availability by region."<br/>• > "AOAI production capacity GA expectations."<br/>• > "AOAI TPM/RPM tier behavior."
+notes: PTU throttling, model availability by region, GA timing, and tier behavior are owned by the Azure AI Foundry product group.<br/><br/>The agent does not have those signals. Saying so out loud earns trust before the customer asks the wrong question.<br/><br/>This is the honest red boundary.
+layout:
+  kind: ASK_A
+  addresses:
+  - 3
+  - 4
+  - 5
+  - 6
+  verdict: red
+screens: null

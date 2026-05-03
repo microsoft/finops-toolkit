@@ -1,0 +1,21 @@
+id: P2.8.A
+order: 61
+cluster: Hub freshness verdicts
+asks_verbatim:
+- num: 38
+  theme: Tagging inheritance workarounds (0% coverage)
+- num: 58
+  theme: Pipeline failures / stale data / msexports → ingestion
+- num: 66
+  theme: Finance trust / data credibility (60-day discrepancy)
+title: Ask
+content: '&gt; "Are the numbers fresh?"<br/>&gt; "Did the pipeline miss anything?"<br/>&gt; "Can finance trust this before the QBR starts?"'
+notes: Before a QBR, finance needs to know whether the hub data is current and complete.<br/><br/>A clean verdict before the meeting beats a manual reconciliation during it.<br/><br/>The agent produces that verdict daily.
+layout:
+  kind: ASK_A
+  addresses:
+  - 38
+  - 58
+  - 66
+  verdict: green
+screens: null

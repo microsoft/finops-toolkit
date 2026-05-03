@@ -1,0 +1,21 @@
+id: P2.15.C
+order: 84
+cluster: FTK supportability — HONEST
+asks_verbatim:
+- num: 49
+  theme: Is FTK Microsoft-supported? Who do I call?
+- num: 50
+  theme: Positioning safety — will Microsoft pull this in 12 months?
+- num: 51
+  theme: Support escalation path — CSS punted, GitHub only
+title: Details
+content: '• What it is: OSS community, GitHub Issues, reproducible evidence from scheduled tasks, and field or partner sponsorship when a customer program needs air cover.<br/>• What it is not: CSS ownership for FTK, an SLA, phone support, or a promise that Microsoft will absorb every toolkit issue as a product bug.<br/>• Best practice: run `hubs-health-check`, capture the failing task evidence, open the GitHub issue, then route true platform defects to the owning product team.<br/>• Monday move: standardize the issue template and attach diagnostics before escalation.'
+notes: When something breaks, run the hub health check first.<br/><br/>Capture the failing task evidence, then open the GitHub issue with the diagnostics attached. Route platform defects to the owning service team — with the same evidence package.<br/><br/>Standardize the issue template. Diagnostics before escalation, every time.
+layout:
+  kind: ASK_C
+  addresses:
+  - 49
+  - 50
+  - 51
+  verdict: red
+screens: null

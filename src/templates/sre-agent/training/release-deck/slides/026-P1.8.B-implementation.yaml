@@ -1,0 +1,15 @@
+id: P1.8.B
+order: 26
+cluster: P1.8 MACC discount verification
+asks_verbatim:
+- num: 35
+  theme: 'CFO: MACC discount verification'
+title: Implementation
+content: 'The `cost-optimization` task posts a Teams card with list cost, effective cost, total savings, effective savings rate, and the split between negotiated discount savings and commitment discount savings.<br/>Named tools: `savings-summary-report`, `commitment-discount-utilization`, `benefit-recommendations`, `service-price-benchmarking`.<br/>The card lets finance answer two questions in one place: are negotiated and commitment discounts applied correctly, and what is the next safe commitment to evaluate?<br/>Read effective savings rate (ESR) as the share of list cost removed by negotiated and commitment discounts; lower ESR with a high on-demand share signals commitment opportunity.<br/>Microsoft Azure Consumption Commitment (MACC) burn-down attribution beyond the Hub data belongs to the customer''s MACC commercial owner.'
+notes: The weekly card shows list cost versus effective cost, the savings rate, and the split between negotiated and commitment savings.<br/><br/>The real KPI is not how much was saved — it is how much commitment slack is left to capture. Coverage at sixty-three percent moving to seventy-five plus is the conversation.<br/><br/>MACC contract attribution beyond hub data sits with the commercial owner.
+layout:
+  kind: ASK_B
+  addresses:
+  - 35
+  verdict: green
+screens: 'assets: image=chart-commitment-savings.svg'

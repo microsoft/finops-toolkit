@@ -1,0 +1,21 @@
+id: P1.2.C
+order: 9
+cluster: CRG mechanics + idle billing waste
+asks_verbatim:
+- num: 9
+  theme: CRG mechanics + idle billing cost shock
+- num: 12
+  theme: CRG cross-subscription sharing (preview)
+- num: 19
+  theme: RI/SP + CRG double-billing risk
+title: Details
+content: '• YAML path: `sre-config/scheduled-tasks/capacity-monthly-planning.yaml`. Cron: `0 9 1 * *`. Owner agent: `azure-capacity-manager`.<br/>• Runtime sequence: `capacity-reservation-groups` → `vm-quota-usage` → `benefit-recommendations` → `commitment-discount-utilization` → `savings-summary-report`.<br/>• Decision pattern to teach the customer:<br/>```<br/>No CRGs deployed: there is no idle CRG waste; the discussion is commitment coverage.<br/>CRG utilization low: rightsize the reservation footprint.<br/>CRG without paired reservation or savings plan: compare price coverage paths.<br/>Cross-subscription sharing requested: call out the preview boundary.<br/>```<br/>• Operator move: `srectl scheduledtask invoke capacity-monthly-planning` runs the task on demand.'
+notes: The decision tree keeps the conversation in order.<br/><br/>If there are no groups, there's no idle waste — start with commitment coverage instead. If utilization is low, rightsize. If pairing is missing, compare the price paths.<br/><br/>Cross-subscription sharing is in preview, so call out that boundary when it comes up.
+layout:
+  kind: ASK_C
+  addresses:
+  - 9
+  - 12
+  - 19
+  verdict: green
+screens: null

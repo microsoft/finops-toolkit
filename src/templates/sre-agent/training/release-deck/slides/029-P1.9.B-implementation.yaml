@@ -1,0 +1,15 @@
+id: P1.9.B
+order: 29
+cluster: P1.9 Vendor displacement
+asks_verbatim:
+- num: 47
+  theme: 'Vendor displacement: CloudHealth / Apptio / Vantage / Spot'
+title: Implementation
+content: 'You contrast a licensed dashboard contract with an in-tenant operating rhythm.<br/>The FinOps toolkit SRE Agent template ships 5 specialist subagents, 3 skills, 33 tools (21 Kusto plus 12 Python), 18 scheduled tasks, a FinOps hub Kusto connector, and Teams delivery through `PostTeamsMessage`.<br/>The catalog covers reporting, forecasting, allocation, anomaly management, rate optimization, AI cost, and capacity operations.<br/>Read this as procurement diligence: a vendor renewal makes sense when the third-party tool covers workflows the FinOps toolkit SRE Agent does not, and changes when the in-tenant rhythm covers them.<br/>Multi-cloud normalization beyond Azure is partial; the toolkit is Azure-first today.'
+notes: The four structural moats — data sovereignty, customization without vendor roadmap, no vendor lock-in, and capacity management as a first-class peer to cost.<br/><br/>The estate financial data never leaves the customer tenant. Configuration is version-controlled YAML — pull requests, not feature requests. Open standards through and through. And no incumbent FinOps tool covers quota, capacity reservations, and zone mapping.<br/><br/>Multi-cloud normalization stays partial. Honest comparison wins more deals than overclaim.
+layout:
+  kind: ASK_B
+  addresses:
+  - 47
+  verdict: green
+screens: 'assets: image=chart-top-services.svg'

@@ -1,0 +1,21 @@
+id: P2.2.B
+order: 44
+cluster: P2.2 AOAI token attribution
+asks_verbatim:
+- num: 25
+  theme: AOAI token attribution per user / app / team
+- num: 26
+  theme: Token → dollar translation + reconciliation
+- num: 28
+  theme: Near-real-time AI cost observability
+title: Implementation
+content: 'The `ai-workload-cost-analysis` task delivers Azure OpenAI usage attribution: monthly spend, token volume, model mix, application owner mapping, and unit economics by model direction.<br/>Named tools: `ai-token-usage-breakdown`, `ai-model-cost-comparison`, `ai-cost-by-application`.<br/>The card shows tokens-to-dollars in one read so finance and engineering stay in the same conversation.<br/>Read by attribution first, then by model direction (input, cached input, output), then by application or team owner so missing attribution surfaces immediately.<br/>Near-real-time visibility is partial because the task is monthly; for daily AI cost movement, pair with the `mom-report` daily card.'
+notes: The AI workload report attributes spend to model, deployment, application, and team.<br/><br/>Cost shows by direction — input, cached input, output. Read attribution first, then direction, then owner. Missing tags surface immediately. When tags are absent, the agent infers portfolio groupings by resource group name pattern so reporting is not blocked.<br/><br/>Near-real-time visibility is bounded — the task is monthly. Pair with the daily cost-mover card for trend.
+layout:
+  kind: ASK_B
+  addresses:
+  - 25
+  - 26
+  - 28
+  verdict: yellow
+screens: 'assets: image=ai-mom-comparison.svg'

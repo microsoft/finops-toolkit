@@ -1,0 +1,15 @@
+id: P1.11.C
+order: 36
+cluster: EA → MCA migration safety
+asks_verbatim:
+- num: 52
+  theme: EA → MCA migration safety with FTK
+title: Details
+content: '• `hubs-health-check.yaml` — cron `0 6 * * *`.<br/>• `monitoring-scope-validation.yaml` — cron `0 9 * * 4`.<br/>• Checks: `Costs()`, `Prices()`, `Recommendations()`, `Transactions()`, hub version, subscription count, and empty `SubAccountId` rows.<br/>• Decision line: healthy freshness + expected scope = finance can keep reading; empty `Transactions()` or scope drift = investigate exports before reconciliation.<br/>• Monday move: `srectl scheduledtask invoke hubs-health-check`.'
+notes: There's a daily health check and a weekly scope validation. Both post to Teams when delivery is configured.<br/><br/>If the data is healthy and scoped, finance keeps reading. If Transactions is empty or the scope has drifted, investigate exports before reconciling.<br/><br/>The verdict is informational. Remediation belongs to the export owner.
+layout:
+  kind: ASK_C
+  addresses:
+  - 52
+  verdict: yellow
+screens: null

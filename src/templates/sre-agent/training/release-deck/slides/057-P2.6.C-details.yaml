@@ -1,0 +1,15 @@
+id: P2.6.C
+order: 57
+cluster: Anomaly detection chain
+asks_verbatim:
+- num: 41
+  theme: Cost reporting pipeline readiness
+title: Details
+content: '• Task YAML: `sre-config/scheduled-tasks/alert-coverage-audit.yaml`. Cron: `0 8 16 * *`. Owner agent: `finops-practitioner`.<br/>• Inputs: Azure Resource Graph for alert inventory, Cost Management alert configuration, FinOps hub anomaly checks, action group routing review.<br/>• Gap categories to teach the customer: missing cost anomaly alerts, missing scheduled query rules, weak action group routing, stale or incomplete Hub data, and ownership gaps.<br/>• Write path: deploy missing alerts through `deploy-anomaly-alert` and `deploy-bulk-anomaly-alerts` only after audit evidence lands and the operator approves the change in Review mode.<br/>• Operator move: invoke the audit on demand and remediate one approved gap at a time.'
+notes: This is a monthly audit on day sixteen.<br/><br/>The inputs come from Resource Graph, Cost Management, hub anomaly checks, and action group routing. There are five gap categories — missing alerts, missing query rules, weak routing, stale hub data, and ownership gaps.<br/><br/>The deploy tools require approval in Review mode for production-affecting changes.
+layout:
+  kind: ASK_C
+  addresses:
+  - 41
+  verdict: green
+screens: null

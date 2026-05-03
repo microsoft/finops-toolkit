@@ -1,0 +1,15 @@
+id: P2.3.A
+order: 46
+cluster: AI budget brake pedal
+asks_verbatim:
+- num: 27
+  theme: AI budget hard guardrails (brake pedal, not alerts)
+title: Ask
+content: '&gt; "Can I put a hard brake on AI spend?"<br/>&gt; "I do not want a dev project to run away for three days."<br/>&gt; "Alerts are not the same as a stop button."'
+notes: Customers ask for a hard stop on AI spend.<br/><br/>Alerts are not stops. The agent improves alerting and routing, but the kill switch is not built into Cost Management or this agent.<br/><br/>That answer protects trust later. Better to scope it now than be wrong on day thirty.
+layout:
+  kind: ASK_A
+  addresses:
+  - 27
+  verdict: yellow
+screens: null

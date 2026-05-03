@@ -1,0 +1,15 @@
+id: P1.5.C
+order: 18
+cluster: Customer refuses to change region
+asks_verbatim:
+- num: 20
+  theme: Customer refuses to change region
+title: Details
+content: '• YAML path: `sre-config/scheduled-tasks/sku-availability-audit.yaml`. Cron: `0 7 * * 3`. Owner agent: `azure-capacity-manager`.<br/>• Runtime sequence: `sku-availability` for compute → `sku-availability` with `resource_provider: kusto` for ADX → `vm-quota-usage` and `non-compute-quotas` to rule out adjacent blockers.<br/>• Decision pattern to teach the customer:<br/>```<br/>SKU unavailable: change SKU family first; test sibling SKUs in the same region.<br/>SKU available but quota tight: plan a quota request.<br/>SKU and quota both fail: open the region negotiation with evidence.<br/>Service-specific provider path differs: validate that service API separately.<br/>```<br/>• Operator move: `srectl scheduledtask invoke sku-availability-audit` runs the task on demand.'
+notes: This is a weekly audit, with four tools that cover compute SKUs, ADX SKUs, VM quota, and non-compute quota.<br/><br/>The decision pattern is direct. If a SKU is unavailable, test a sibling first. If a SKU is available but quota is tight, plan a request. If both fail, open the region negotiation with evidence in hand.<br/><br/>Service-specific provider paths get validated separately.
+layout:
+  kind: ASK_C
+  addresses:
+  - 20
+  verdict: yellow
+screens: null

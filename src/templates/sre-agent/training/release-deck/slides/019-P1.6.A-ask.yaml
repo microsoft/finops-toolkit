@@ -1,0 +1,21 @@
+id: P1.6.A
+order: 19
+cluster: AOAI quota + GPU + token forecasting
+asks_verbatim:
+- num: 1
+  theme: AOAI quota vs GPU hardware capacity — denied requests
+- num: 2
+  theme: AOAI PayGo → PTU transition timing + sizing
+- num: 7
+  theme: Forecasting AI / token-based workloads (non-VM)
+title: Ask
+content: • > "AOAI quota vs GPU hardware capacity — why was the request denied?"<br/>• > "AOAI PayGo to PTU transition timing + sizing."<br/>• > "Forecasting AI or token-based workloads."
+notes: AI deployments hit denials all the time.<br/><br/>Was it AOAI quota? GPU hardware? PTU sizing? Customers cannot tell, and the answer determines who fixes it.<br/><br/>The agent gives you cost shape, model mix, and attribution. PTU sizing and GPU capacity stay with Azure AI Foundry. That handoff is the slide.
+layout:
+  kind: ASK_A
+  addresses:
+  - 1
+  - 2
+  - 7
+  verdict: yellow
+screens: null

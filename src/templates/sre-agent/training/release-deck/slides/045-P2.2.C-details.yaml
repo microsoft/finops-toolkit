@@ -1,0 +1,21 @@
+id: P2.2.C
+order: 45
+cluster: P2.2 AOAI token attribution
+asks_verbatim:
+- num: 25
+  theme: AOAI token attribution per user / app / team
+- num: 26
+  theme: Token → dollar translation + reconciliation
+- num: 28
+  theme: Near-real-time AI cost observability
+title: Details
+content: 'Task YAML: `sre-config/scheduled-tasks/ai-workload-cost-analysis.yaml`. Cron: `0 10 1 * *`. Owner agent: `chief-financial-officer`.<br/>Tool spine: `ai-token-usage-breakdown` → `ai-model-cost-comparison` → `ai-daily-trend` → `ai-cost-by-application` → `RunAzCliReadCommands` for resource discovery.<br/>Operator checks: model mix, token direction, application attribution, and input-to-output ratio.<br/>Action boundary: the task identifies cost and prompt-economics candidates. It does not edit prompts, switch models, size PTU, or guarantee GPU capacity.<br/>Operator move: invoke the task on demand for the customer hub.'
+notes: This is a monthly task owned by the CFO subagent.<br/><br/>The tool spine runs the token breakdown, the model comparison, the daily trend, the application attribution, and then resource discovery. For pricing, the Azure pricing page is the source — pull current numbers for the customer's offer.<br/><br/>The task names the candidates. The owner makes the decision.
+layout:
+  kind: ASK_C
+  addresses:
+  - 25
+  - 26
+  - 28
+  verdict: yellow
+screens: null

@@ -1,0 +1,15 @@
+id: P2.3.C
+order: 48
+cluster: AI budget brake pedal
+asks_verbatim:
+- num: 27
+  theme: AI budget hard guardrails (brake pedal, not alerts)
+title: Details
+content: '• `budget-coverage-audit.yaml` — cron `0 8 15 * *`.<br/>• Current state from the audit: 1 subscription budget, 20 resource groups, 0 RG budgets, 32 policies, 0 budget-enforcement policy, 0 anomaly alerts.<br/>• Write tools: `deploy-budget`, `deploy-bulk-budgets`, `deploy-anomaly-alert`, `deploy-bulk-anomaly-alerts`.<br/>• Operator move: use budgets for thresholds and anomaly alerts for routing; do not describe either as a hard cap.<br/>• Monday move: `srectl scheduledtask invoke budget-coverage-audit`.'
+notes: This is a monthly audit on day fifteen.<br/><br/>The inputs cover budgets, alerts, policies, and tags. The write tools deploy the missing controls — with approval through Review mode for production-affecting changes.<br/><br/>Hard cap requests route to platform and policy owners. The agent improves coverage; it doesn't override governance.
+layout:
+  kind: ASK_C
+  addresses:
+  - 27
+  verdict: yellow
+screens: null

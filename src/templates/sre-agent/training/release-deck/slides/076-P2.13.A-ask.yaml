@@ -1,0 +1,15 @@
+id: P2.13.A
+order: 76
+cluster: Native CM gaps (what we exceed)
+asks_verbatim:
+- num: 48
+  theme: Azure CM native gaps (hourly visibility, anomaly)
+title: Ask
+content: '&gt; "Azure Cost Management already gives me budgets and charts."<br/>&gt; "What exactly do you add on top?"<br/>&gt; "Show me the gap, not the slogan."'
+notes: Customers ask why they need this if Azure Cost Management is right there.<br/><br/>Use native where it is enough. Use the agent where native is thin — the audit-and-deploy loop for anomaly coverage and Advisor governance.<br/><br/>That positioning earns trust faster than a dismissal of native tools.
+layout:
+  kind: ASK_A
+  addresses:
+  - 48
+  verdict: green
+screens: null

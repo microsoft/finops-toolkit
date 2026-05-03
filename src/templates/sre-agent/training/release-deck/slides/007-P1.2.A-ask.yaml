@@ -1,0 +1,21 @@
+id: P1.2.A
+order: 7
+cluster: CRG mechanics + idle billing waste
+asks_verbatim:
+- num: 9
+  theme: CRG mechanics + idle billing cost shock
+- num: 12
+  theme: CRG cross-subscription sharing (preview)
+- num: 19
+  theme: RI/SP + CRG double-billing risk
+title: Ask
+content: • > "CRG mechanics + idle billing cost shock."<br/>• > "CRG cross-subscription sharing preview."<br/>• > "RI/SP + CRG double-billing risk."
+notes: Reservation groups guarantee compute supply. Reservations and savings plans cut the price.<br/><br/>Customers conflate the two. They end up either paying for idle reserved capacity or assuming a discount they did not buy.<br/><br/>This is where you separate supply control from price control before the cost conversation starts.
+layout:
+  kind: ASK_A
+  addresses:
+  - 9
+  - 12
+  - 19
+  verdict: green
+screens: null

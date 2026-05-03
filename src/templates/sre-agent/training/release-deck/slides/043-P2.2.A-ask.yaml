@@ -1,0 +1,21 @@
+id: P2.2.A
+order: 43
+cluster: P2.2 AOAI token attribution
+asks_verbatim:
+- num: 25
+  theme: AOAI token attribution per user / app / team
+- num: 26
+  theme: Token → dollar translation + reconciliation
+- num: 28
+  theme: Near-real-time AI cost observability
+title: Ask
+content: “Show me who is burning AOAI tokens, what that means in dollars, and whether I can see it before month-end.”<br/>Finance and AI workload owner
+notes: Finance cannot manage AI spend if they cannot tell who is burning the tokens.<br/><br/>Customers want attribution by team and application, dollar translation, and visibility before month-end.<br/><br/>The agent gives them all three on a schedule.
+layout:
+  kind: ASK_A
+  addresses:
+  - 25
+  - 26
+  - 28
+  verdict: yellow
+screens: null
