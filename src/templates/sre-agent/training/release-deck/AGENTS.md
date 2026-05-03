@@ -26,21 +26,31 @@
 
 ```
 src/templates/sre-agent/training/release-deck/
-├── deck-outline-v8.md         # CANONICAL source of truth
-├── build.py                   # parser + renderer (94 slides → .pptx)
+│
+├── slides/                    # ★ PRIMARY canonical: 94 per-slide YAML files
+├── deck-outline-v8.md         # ★ ESCAPE HATCH canonical: legacy 8-column markdown table
+│
+├── build_yaml.py              # ★ PRIMARY build script (reads slides/*.yaml)
+├── build.py                   # ★ ESCAPE HATCH build script (reads .md table)
 ├── rubric.py                  # automated pixel-perfect checker
 ├── source-template.pptx       # branded Microsoft template (read-only input)
-├── finops-toolkit-sre-agent-release-training.pptx  # build artifact
-├── finops-toolkit-sre-agent-release-training.rebuild-*.pptx  # written when PPT open
-├── evidence/
-│   ├── INVENTORY.md
-│   ├── ASKS-COVERAGE.md
-│   └── tasks/                 # 18 task evidence packs (.md)
-├── charts/
-│   ├── MANIFEST.md
-│   └── svg/                   # 51 chart SVGs (rasterized to .png on demand)
-└── renders/                   # full-res PNG renders (gitignored)
+│
+├── finops-toolkit-sre-agent-release-training.pptx              # build artifact (unified, 94 slides)
+├── finops-toolkit-sre-agent-release-training-part1-deal-motion.pptx
+├── finops-toolkit-sre-agent-release-training-part2-operate-motion.pptx
+├── finops-toolkit-sre-agent-release-training-part3-honest-and-close.pptx
+├── finops-toolkit-sre-agent-release-training-v8-frozen.pptx    # frozen reference snapshot
+│
+├── evidence/                  # 18 task evidence packs (.md) + INVENTORY.md + ASKS-COVERAGE.md
+├── charts/                    # 51 chart SVGs (rasterized to .png on demand) + MANIFEST.md
+├── assets/                    # supporting images for slides
+├── renders/                   # full-res PNG renders + grids (build artifacts)
+│
+├── archive/                   # older versions: deck-outline.md, v6/v7, parse_v6.py, stale .pdf, etc.
+└── backups/                   # rollback safety nets: every .bak-* of deck-outline-v8.md
 ```
+
+**Reorganized 2026-05-03**: archive/ and backups/ subfolders created to keep the top level scannable. Build scripts unaffected.
 
 ---
 
