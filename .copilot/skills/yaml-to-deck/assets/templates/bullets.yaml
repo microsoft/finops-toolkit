@@ -1,0 +1,12 @@
+id: '2'
+order: 1
+cluster: overview
+asks_verbatim: []
+title: 'What you get'
+content: '• Single pane for quota, spend, and usage<br/>• Natural-language triage of capacity issues<br/>• Specialist subagents for each cloud surface<br/>• MCP-native — works in Copilot, Claude, and the CLI'
+notes: 'Three things stand out about the agent. It collapses what used to take three dashboards into one conversation. It speaks customer language, not Microsoft taxonomy. And it returns receipts — every claim cites the underlying KQL or REST call.<br/><br/>Customers tell us this is the first capacity tool they trust to run unattended.'
+layout:
+  kind: BULLETS
+  addresses: []
+  verdict: null
+screens: null

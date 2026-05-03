@@ -1,0 +1,12 @@
+id: '5'
+order: 4
+cluster: motion
+asks_verbatim: []
+title: 'Why this matters'
+content: 'Capacity teams stop chasing dashboards and start chasing outcomes.'
+notes: 'The shift this skill enables is from reactive triage to proactive forecasting. Reps walk into customer reviews with answers, not a list of open questions.'
+layout:
+  kind: CALLOUT
+  addresses: []
+  verdict: null
+screens: null

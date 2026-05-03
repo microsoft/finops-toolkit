@@ -1,0 +1,12 @@
+id: '1'
+order: 0
+cluster: overview
+asks_verbatim: []
+title: 'FinOps toolkit SRE Agent'
+content: '• AI-powered FinOps and capacity management<br/>• Built on Azure SRE Agent<br/>• Open source on GitHub'
+notes: 'Welcome. This deck walks through the FinOps toolkit SRE Agent — what it is, what you get, and how to deploy it for a customer.<br/><br/>It runs about ten minutes. Open the speaker notes pane to follow along.'
+layout:
+  kind: TITLE
+  addresses: []
+  verdict: null
+screens: null
