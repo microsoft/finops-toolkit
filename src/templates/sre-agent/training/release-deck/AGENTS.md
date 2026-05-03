@@ -114,33 +114,25 @@ cd renders && pdftoppm -png -r 300 finops-toolkit-sre-agent-release-training.pdf
 
 ## CURRENT WORK (update as scope changes)
 
-**Active scope:** Speaker notes rewrite for all 94 slides.
+**Active scope:** V8 deck FROZEN as of 2026-05-02. Three split decks built from the canonical outline.
 
-**Required note structure (per slide, in cell 5 of the table):**
+**Frozen artifacts (do not edit):**
+- `finops-toolkit-sre-agent-release-training-v8-frozen.pptx` — full 94-slide deck snapshot.
+
+**Split decks (built from the canonical outline via `--part`):**
+- `finops-toolkit-sre-agent-release-training-part1-deal-motion.pptx` — 36 slides (0.1, 0.2, P1.1-P1.11, 1.99).
+- `finops-toolkit-sre-agent-release-training-part2-operate-motion.pptx` — 48 slides (2.0.1, 2.0.2, P2.1-P2.15, 2.99).
+- `finops-toolkit-sre-agent-release-training-part3-honest-and-close.pptx` — 8 slides (H.1-H.5, Z.1-Z.3).
+
+**To rebuild a part:**
+```bash
+python3 build.py --part 1   # part 1 only
+python3 build.py --part 2   # part 2 only
+python3 build.py --part 3   # part 3 only
+python3 build.py            # unified deck (default)
 ```
-## Why you GAF
-<1-2 sentences — the field reader's stake on Monday>
 
-## Talk track
-<2-4 sentences — what to say while slide is on screen>
-
-## Anchors
-<1-2 sentences — named tools/tasks/asks/evidence cited>
-
-## References
-- memory://uri/of/source (concept)
-- Local: src/templates/sre-agent/training/release-deck/evidence/tasks/<task>.md
-- Concepts: [[Wikilinked]], [[Concepts]]
-```
-
-Sections separated by `<br/><br/>` in the cell. Line breaks within sections use `<br/>`.
-
-**Grounding contract:** Search `maenifold.memory` BEFORE writing each note. Read top hits via `ReadMemory`. If a fact isn't in memory or evidence, write "Unknown" — never fabricate.
-
-**Status:**
-- 0.1 ✅ done (committed in table)
-- 0.2, 0.3, 0.4 — in progress
-- All P1.x, P2.x, H.x, Z.x, 1.99, 2.0.1, 2.0.2, 2.99 — pending
+The unified `finops-toolkit-sre-agent-release-training.pptx` and the three split files all parse the SAME canonical `deck-outline-v8.md`. Edit the table; rebuild the parts.
 
 ---
 

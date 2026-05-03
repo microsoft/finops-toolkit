@@ -11,6 +11,7 @@ Pipeline:
   4. For each V6 row, add_slide(layout) and populate placeholders + notes
   5. Save
 """
+import argparse
 import json
 import re
 import sys
@@ -29,6 +30,21 @@ ASSETS = ROOT / "assets"
 OUT = ROOT / "finops-toolkit-sre-agent-release-training.pptx"
 V8 = ROOT / "deck-outline-v8.md"
 CHARTS = ROOT / "charts" / "svg"
+
+PART_FILTERS = {
+    "1": (
+        re.compile(r"^(0\.1|0\.2|P1\.\d+\.[ABC]|1\.99)$"),
+        "finops-toolkit-sre-agent-release-training-part1-deal-motion.pptx",
+    ),
+    "2": (
+        re.compile(r"^(2\.0\.1|2\.0\.2|P2\.\d+\.[ABC]|2\.99)$"),
+        "finops-toolkit-sre-agent-release-training-part2-operate-motion.pptx",
+    ),
+    "3": (
+        re.compile(r"^([HZ]\.\d+)$"),
+        "finops-toolkit-sre-agent-release-training-part3-honest-and-close.pptx",
+    ),
+}
 
 # ─── Layout names from the template ──────────────────────────
 LAYOUT_TITLE   = "Title Slide"
@@ -1201,8 +1217,26 @@ def delete_all_slides(prs):
 # ─── Main pipeline ───────────────────────────────────────────
 
 def main():
+    parser = argparse.ArgumentParser(description="Build V8 deck pptx from canonical outline.")
+    parser.add_argument(
+        "--part",
+        choices=["1", "2", "3", "all"],
+        default="all",
+        help="Build only the slides for one part (1=deal motion, 2=operate motion, 3=honest+close). Default 'all' produces the unified deck.",
+    )
+    args = parser.parse_args()
+
     rows = parse_v8()
     print(f"Parsed {len(rows)} V8 rows\n")
+
+    if args.part != "all":
+        pattern, out_name = PART_FILTERS[args.part]
+        before = len(rows)
+        rows = [r for r in rows if pattern.match(r["num"])]
+        print(f"Filtered to part {args.part}: {len(rows)} of {before} slides match {pattern.pattern}")
+        out_path = ROOT / out_name
+    else:
+        out_path = OUT
 
     prs = Presentation(str(SOURCE))
 
@@ -1238,20 +1272,20 @@ def main():
 
     # Safe save: detect PowerPoint lock file and use atomic write to avoid
     # corrupting the file mid-read for any process holding it open.
-    out_dir = OUT.parent
-    out_name = OUT.name
+    out_dir = out_path.parent
+    out_name = out_path.name
     lock_file = out_dir / f"~${out_name}"
 
     if lock_file.exists():
-        # PowerPoint has the file open. Writing to OUT will desync its view
+        # PowerPoint has the file open. Writing to out_path will desync its view
         # and cause a "needs repair" prompt next time the user clicks anything.
         # Refuse to overwrite — write to a sibling and tell the user.
         import time
-        alt_name = OUT.stem + f".rebuild-{int(time.time())}.pptx"
+        alt_name = out_path.stem + f".rebuild-{int(time.time())}.pptx"
         alt_out = out_dir / alt_name
         prs.save(str(alt_out))
         print(f"\n⚠️  PowerPoint lock file detected ({lock_file.name})")
-        print(f"   {OUT.name} is currently open in PowerPoint.")
+        print(f"   {out_path.name} is currently open in PowerPoint.")
         print(f"   To avoid corrupting your open copy, wrote rebuild to:")
         print(f"   {alt_out}")
         print(f"   Close PowerPoint and re-run, or open the new file directly.")
@@ -1268,8 +1302,8 @@ def main():
         # Fsync to ensure bytes are on disk before rename
         with open(tmp_path, "rb") as f:
             os.fsync(f.fileno())
-        os.replace(tmp_path, str(OUT))
-        print(f"\nWrote {OUT}")
+        os.replace(tmp_path, str(out_path))
+        print(f"\nWrote {out_path}")
         print(f"Slides: {len(prs.slides)}")
     except Exception:
         # Clean up the temp file on failure
