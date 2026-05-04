@@ -15,4 +15,4 @@ layout:
   - 60
   - 72
   verdict: yellow
-screens: 'assets: image=sku-restrictions-by-region.svg'
+screens: 'assets: image=placeholder.svg'  # was: sku-restrictions-by-region.svg

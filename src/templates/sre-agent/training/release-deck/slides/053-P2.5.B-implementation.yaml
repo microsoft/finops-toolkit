@@ -15,4 +15,4 @@ layout:
   - 36
   - 37
   verdict: green
-screens: 'assets: image=chart-monthly-cost-trend.svg'
+screens: 'assets: image=placeholder.svg'  # was: chart-monthly-cost-trend.svg

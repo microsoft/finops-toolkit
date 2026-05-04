@@ -12,4 +12,4 @@ layout:
   addresses:
   - 48
   verdict: green
-screens: 'assets: image=alert-gap-analysis.svg'
+screens: 'assets: image=placeholder.svg'  # was: alert-gap-analysis.svg

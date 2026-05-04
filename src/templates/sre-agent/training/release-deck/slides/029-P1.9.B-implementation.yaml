@@ -12,4 +12,4 @@ layout:
   addresses:
   - 47
   verdict: green
-screens: 'assets: image=chart-top-services.svg'
+screens: 'assets: image=placeholder.svg'  # was: chart-top-services.svg

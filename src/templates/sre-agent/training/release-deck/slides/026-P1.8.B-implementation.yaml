@@ -12,4 +12,4 @@ layout:
   addresses:
   - 35
   verdict: green
-screens: 'assets: image=chart-commitment-savings.svg'
+screens: 'assets: image=placeholder.svg'  # was: chart-commitment-savings.svg

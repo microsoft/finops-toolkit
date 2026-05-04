@@ -18,4 +18,4 @@ layout:
   - 33
   - 34
   verdict: yellow
-screens: 'assets: image=fy-cost-trend-forecast.svg'
+screens: 'assets: image=placeholder.svg'  # was: fy-cost-trend-forecast.svg

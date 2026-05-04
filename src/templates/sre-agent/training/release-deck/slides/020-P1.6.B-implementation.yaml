@@ -18,4 +18,4 @@ layout:
   - 2
   - 7
   verdict: yellow
-screens: 'assets: image=ai-daily-trend.svg'
+screens: 'assets: image=placeholder.svg'  # was: ai-daily-trend.svg

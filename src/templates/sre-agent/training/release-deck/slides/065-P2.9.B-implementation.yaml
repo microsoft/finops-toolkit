@@ -15,4 +15,4 @@ layout:
   - 62
   - 63
   verdict: yellow
-screens: 'assets: image=chart-commitment-savings.svg'
+screens: 'assets: image=placeholder.svg'  # was: chart-commitment-savings.svg

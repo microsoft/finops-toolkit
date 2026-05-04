@@ -18,4 +18,4 @@ layout:
   - 12
   - 19
   verdict: green
-screens: 'assets: image=chart3-governance-scorecard.svg'
+screens: 'assets: image=placeholder.svg'  # was: chart3-governance-scorecard.svg

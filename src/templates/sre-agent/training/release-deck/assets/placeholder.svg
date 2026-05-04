@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <rect x="0" y="0" width="1600" height="900" fill="#f3f2f1" stroke="#a19f9d" stroke-width="4" stroke-dasharray="24 16"/>
+  <g font-family="Segoe UI, Arial, sans-serif" text-anchor="middle" fill="#605e5c">
+    <text x="800" y="440" font-size="64" font-weight="600">Image placeholder</text>
+    <text x="800" y="510" font-size="32">supporting visual to be added before release</text>
+  </g>
+</svg>

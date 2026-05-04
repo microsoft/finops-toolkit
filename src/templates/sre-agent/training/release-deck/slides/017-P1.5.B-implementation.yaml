@@ -12,4 +12,4 @@ layout:
   addresses:
   - 20
   verdict: yellow
-screens: 'assets: image=adx-sku-availability.svg'
+screens: 'assets: image=placeholder.svg'  # was: adx-sku-availability.svg

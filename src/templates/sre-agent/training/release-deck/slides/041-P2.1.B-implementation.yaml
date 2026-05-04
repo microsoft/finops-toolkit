@@ -15,4 +15,4 @@ layout:
   - 21
   - 24
   verdict: green
-screens: 'assets: image=chart4-commitment-monthly.svg'
+screens: 'assets: image=placeholder.svg'  # was: chart4-commitment-monthly.svg

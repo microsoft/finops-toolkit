@@ -15,4 +15,4 @@ layout:
   - 17
   - 18
   verdict: yellow
-screens: 'assets: image=benefit-recommendation-charts.svg'
+screens: 'assets: image=placeholder.svg'  # was: benefit-recommendation-charts.svg

@@ -12,4 +12,4 @@ layout:
   addresses:
   - 15
   verdict: green
-screens: 'assets: image=quarterly-commitment-alignment.svg'
+screens: 'assets: image=placeholder.svg'  # was: quarterly-commitment-alignment.svg

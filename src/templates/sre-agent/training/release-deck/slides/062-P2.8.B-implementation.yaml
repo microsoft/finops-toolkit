@@ -18,4 +18,4 @@ layout:
   - 58
   - 66
   verdict: green
-screens: 'assets: image=data-freshness.svg'
+screens: 'assets: image=placeholder.svg'  # was: data-freshness.svg

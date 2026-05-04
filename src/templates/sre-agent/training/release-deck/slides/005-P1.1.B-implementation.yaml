@@ -24,4 +24,4 @@ layout:
   - 23
   - 24
   verdict: green
-screens: 'assets: image=capacity-health-overview.svg'
+screens: 'assets: image=placeholder.svg'  # was: capacity-health-overview.svg

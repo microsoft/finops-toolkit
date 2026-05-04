@@ -15,4 +15,4 @@ layout:
   - 36
   - 38
   verdict: yellow
-screens: 'assets: image=tag-coverage-audit.svg'
+screens: 'assets: image=placeholder.svg'  # was: tag-coverage-audit.svg

@@ -12,4 +12,4 @@ layout:
   addresses:
   - 41
   verdict: green
-screens: 'assets: image=alert-coverage-matrix.svg'
+screens: 'assets: image=placeholder.svg'  # was: alert-coverage-matrix.svg

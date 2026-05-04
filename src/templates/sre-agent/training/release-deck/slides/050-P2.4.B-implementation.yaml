@@ -15,4 +15,4 @@ layout:
   - 29
   - 30
   verdict: yellow
-screens: 'assets: image=ai-model-comparison.svg'
+screens: 'assets: image=placeholder.svg'  # was: ai-model-comparison.svg

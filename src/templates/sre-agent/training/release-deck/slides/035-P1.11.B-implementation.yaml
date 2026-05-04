@@ -12,4 +12,4 @@ layout:
   addresses:
   - 52
   verdict: yellow
-screens: 'assets: image=data-freshness.svg'
+screens: 'assets: image=placeholder.svg'  # was: data-freshness.svg

@@ -12,4 +12,4 @@ layout:
   addresses:
   - 55
   verdict: green
-screens: 'assets: image=quarterly-maturity-radar.svg'
+screens: 'assets: image=placeholder.svg'  # was: quarterly-maturity-radar.svg

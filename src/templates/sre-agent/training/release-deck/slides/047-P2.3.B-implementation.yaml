@@ -12,4 +12,4 @@ layout:
   addresses:
   - 27
   verdict: yellow
-screens: 'assets: image=budget-alert-config.svg'
+screens: 'assets: image=placeholder.svg'  # was: budget-alert-config.svg
