@@ -10,13 +10,13 @@
 
 2. **Edit the table directly.** Use `edit` tool with surgical `old_str`/`new_str` swaps on the row in `deck-outline-v8.md`. No intermediate formats.
 
-3. **No new scripts without explicit ask.** `build.py` exists. The pre-build linter lives in the `yaml-to-deck` skill at `~/.copilot/skills/yaml-to-deck/scripts/lint.py`. Don't invent `merge_notes.py`, `update_titles.py`, etc. If a transformation is one-shot, do it in a one-shot bash inline (no file).
+3. **No new scripts without explicit ask.** `build.py` and `rubric.py` exist. Don't invent `merge_notes.py`, `update_titles.py`, etc. If a transformation is one-shot, do it in a one-shot bash inline (no file).
 
 4. **Confidential = LOCAL ONLY.** Never push to remote. Local commits OK. Will be squashed/cleaned later. Lock-file detection in `build.py` writes a sibling rebuild file when PowerPoint is open.
 
-5. **Template fidelity = enforced by the `yaml-to-deck` skill linter.** Run `python3 ~/.copilot/skills/yaml-to-deck/scripts/lint.py slides/` before EVERY build. Zero ERRORs required — the build is blocked otherwise. The linter catches schema breaks, voice violations, MCAPS-citation gaps, AND **renderer-token violations** (missing ` ``` ` on ASK_C, missing pull-quote markers on ASK_A, missing right-column cue on ASK_B). The renderer-token rules exist because the renderer parses in-string markup tokens to produce visual elements — a missing token does NOT break the build, it silently strips the visual element. **This is the worst kind of bug because the deck still builds.**
+5. **Pixel-perfect = enforced by `rubric.py`.** Run after every build. 0 violations required. No vibes, no eyeballing thumbnails. Inspect individual full-res slides at 4001×2250.
 
-6. **Look before claiming.** Don't say "fixed" until I've actually viewed the rendered slide AND run the lint.
+6. **Look before claiming.** Don't say "fixed" until I've actually viewed the rendered slide AND run the rubric.
 
 7. **Pre-action alignment.** Restate user's literal request before acting. Don't broaden scope. Don't substitute approach.
 
@@ -32,7 +32,7 @@ src/templates/sre-agent/training/release-deck/
 │
 ├── build_yaml.py              # ★ PRIMARY build script (reads slides/*.yaml)
 ├── build.py                   # ★ ESCAPE HATCH build script (reads .md table)
-├── rubric.py                  # DELETED 2026-05-03 — pre-build linter is now in yaml-to-deck skill
+├── rubric.py                  # automated pixel-perfect checker
 ├── source-template.pptx       # branded Microsoft template (read-only input)
 │
 ├── finops-toolkit-sre-agent-release-training.pptx              # build artifact (unified, 94 slides)
@@ -83,11 +83,11 @@ cd /Users/brett/src/ftk/finops-toolkit/src/templates/sre-agent/training/release-
 # 1. Restore template (in case soffice consumed it from a prior run)
 cp "/Users/brett/.copilot/session-state/0e189977-66ef-4fc4-b1bc-632852bdca4c/files/finops-toolkit-sre-agent-release-training-v6.pptx" source-template.pptx
 
-# 2. MANDATORY: lint slide YAML — zero ERRORs required, build is blocked otherwise
-python3 ~/.copilot/skills/yaml-to-deck/scripts/lint.py slides/
+# 2. Build the .pptx from the table
+python3 build.py
 
-# 3. Build the .pptx from the YAML (only if lint passed)
-python3 build_yaml.py
+# 3. Run the pixel-perfect audit (must be 0/0)
+python3 rubric.py
 
 # 4. Render to PDF + PNGs for visual verification
 soffice --headless --convert-to pdf --outdir renders finops-toolkit-sre-agent-release-training.pptx
@@ -106,8 +106,8 @@ cd renders && pdftoppm -png -r 300 finops-toolkit-sre-agent-release-training.pdf
 | Writing a new helper script | Create `update_xxx.py` | Use bash inline or edit the canonical file |
 | Patching content in `build.py` | Add `_resolve_title` overrides | Edit the title cell in `deck-outline-v8.md` |
 | Pushing confidential material | `git push` | `git commit` only, locally |
-| Eyeballing thumbnails | Look at 600×450 grids | Run lint + view individual 4001×2250 PNGs |
-| "Looks great" without running lint | Declare done from vibes | Always run the yaml-to-deck lint first |
+| Eyeballing thumbnails | Look at 600×450 grids | Run `rubric.py` + view individual 4001×2250 PNGs |
+| "Looks great" without running rubric | Declare done from vibes | Always run `python3 rubric.py` first |
 | Overwriting open .pptx | `prs.save(OUT)` blindly | Lock-file detection (already in build.py) |
 
 ---

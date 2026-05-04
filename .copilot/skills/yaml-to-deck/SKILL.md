@@ -67,9 +67,29 @@ layout:
   addresses: []             # MCAPS ask numbers (V8 only); [] otherwise
   verdict: null             # green/yellow/red (V8 honest cluster only); null otherwise
 screens: null               # 'chart=foo.png' or 'image=bar.svg' or null
+memory_refs:                # OPTIONAL — research traceability (see below)
+  - uri: memory://work/...
+    concept: Concept Name
+    note: why this slide cites it
 ```
 
 `notes:` is the actual TTS voiceover, not a presenter prompt. Microsoft Voice rules apply — see `references/voice-spec.md`.
+
+### `memory_refs:` (optional, for research traceability)
+
+When a slide's content was enhanced from a maenifold memory note or WorkIQ research, embed the references in the YAML so future enhancements don't have to re-discover them. Format:
+
+```yaml
+memory_refs:
+  - uri: memory://work/mcaps/mcaps-internal-asks-finops-toolkit-azure-capacity-ai-cost-may-2026
+    concept: MCAPS asks
+    note: Source for asks_verbatim 8, 13, 14, 23, 24
+  - uri: memory://work/training/finops-sre-agent-highvalue-scenarios
+    concept: Quota Capacity Coverage
+    note: WorkIQ-grounded customer framings + key teaching points
+```
+
+Lint reads these but doesn't enforce them. They're durable breadcrumbs for the next editor.
 
 ## Layout kinds (canonical V8 renderer)
 
