@@ -127,7 +127,8 @@ Create exports for each scope you want to monitor:
 | Resource Group | `subscriptions/{subscription-id}/resourceGroups/{rg-name}` |
 
 **Supported Datasets:**
-- Cost and usage details (FOCUS) - `1.0`, `1.0r2`
+
+- Cost and usage details (FOCUS) - `1.0`, `1.0r2`, `1.2`, `1.2-preview` (Cost Management export versions). Hubs can also ingest `1.3` and `1.4-preview` if Cost Management ships those exports.
 - Price sheet - `2023-05-01` (required for missing prices)
 - Reservation details - `2023-03-01`
 - Reservation recommendations - `2023-05-01` (required for Rate optimization report)
