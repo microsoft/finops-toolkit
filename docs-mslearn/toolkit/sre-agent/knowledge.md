@@ -1,17 +1,17 @@
 ---
-title: Manage FinOps toolkit SRE Agent knowledge and memory
-description: Learn how knowledge grounds FinOps toolkit SRE Agent responses in your team's context and how memory keeps operational learnings available across sessions and redeployments.
+title: Manage knowledge and memory (Azure SRE Agent in the FinOps toolkit)
+description: Learn how knowledge grounds the FinOps toolkit's Azure SRE Agent in your team's context and how memory keeps operational learnings available across sessions and redeployments.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to manage SRE agent knowledge and memory so that the agent can answer with my team's operational context.
+#customer intent: As a FinOps practitioner, I want to manage knowledge and memory for Azure SRE Agent so that the agent can answer with my team's operational context.
 ---
 
-# Manage FinOps toolkit SRE Agent knowledge and memory
+# Manage knowledge and memory (Azure SRE Agent in the FinOps toolkit)
 
 Knowledge grounds the agent in your team's context. It helps the agent answer with your runbooks, known issues, notification patterns, and deployment details instead of relying on general guidance alone.
 
@@ -25,7 +25,7 @@ Use knowledge and memory together:
 
 ## Shipped knowledge docs
 
-The [SRE agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) includes three knowledge documents under `sre-config/knowledge/`. They are uploaded during post-provisioning so the agent can use them during onboarding and investigations.
+The [Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent) includes three knowledge documents under `sre-config/knowledge/`. They are uploaded during post-provisioning so the agent can use them during onboarding and investigations.
 
 | Knowledge doc | What it provides |
 |---|---|
@@ -156,7 +156,7 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit SRE Agent](overview.md)
+- [Azure SRE Agent in the FinOps toolkit](overview.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
 

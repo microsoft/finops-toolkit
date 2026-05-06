@@ -1,23 +1,23 @@
 ---
-title: FinOps toolkit SRE Agent tools
-description: Review the Kusto and Python tools included with the FinOps toolkit SRE Agent for cost analysis, anomaly detection, rate optimization, capacity management, and operations.
+title: Tools shipped for Azure SRE Agent in the FinOps toolkit
+description: Review the Kusto and Python tools the FinOps toolkit ships for Azure SRE Agent for cost analysis, anomaly detection, rate optimization, capacity management, and operations.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to understand which tools the FinOps toolkit SRE Agent includes so that I can choose the right agent workflow for cost, capacity, and operations analysis.
+#customer intent: As a FinOps practitioner, I want to understand which tools the FinOps toolkit ships for Azure SRE Agent so that I can choose the right agent workflow for cost, capacity, and operations analysis.
 ---
 
-# FinOps toolkit SRE Agent tools
+# Tools shipped for Azure SRE Agent in the FinOps toolkit
 
-The FinOps toolkit SRE Agent uses tools to ground agent responses in live Azure and FinOps hub data. [Kusto tools](kusto-tools.md) query the FinOps hub Azure Data Explorer database, and [Python tools](python-tools.md) call Azure APIs through the agent managed identity.
+The FinOps toolkit deployment configures Azure SRE Agent with tools that ground agent responses in live Azure and FinOps hub data. [Kusto tools](kusto-tools.md) query the FinOps hub Azure Data Explorer database, and [Python tools](python-tools.md) call Azure APIs through the agent's managed identity.
 
 Use this article as a catalog of the tools included with the template. For deeper implementation details, review the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
 
-The agent includes 33 tools: 21 Kusto query tools and 12 Python tools, as documented in the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
+The template configures 33 tools: 21 Kusto query tools and 12 Python tools, as documented in the [Kusto tools](kusto-tools.md) and [Python tools](python-tools.md) references.
 
 > [!NOTE]
 > The agent list shows subagents that reference each tool in `sre-config/agents`. Tools marked "Not assigned" are included in the tool catalog, but aren't referenced by a subagent configuration. For agent roles and tool usage, see [agents and skills](agents.md).
@@ -75,7 +75,7 @@ Rate optimization tools help agents review reservations, savings plans, pricing 
 
 | Tool | Type | Description | Agents |
 |------|------|-------------|--------|
-| `benefit-recommendations` | `Python` | Gets Azure Cost Management benefit recommendations for savings plans and reserved instances at a billing scope; see [benefit-recommendations](python-tools.md#benefit-recommendations). | Not assigned |
+| `benefit-recommendations` | `Python` | Gets Microsoft Cost Management benefit recommendations for savings plans and reserved instances at a billing scope; see [benefit-recommendations](python-tools.md#benefit-recommendations). | Not assigned |
 | `commitment-discount-utilization` | `Kusto` | Analyzes consumed core hours by commitment discount type, including on-demand usage, for a reporting window; see [commitment-discount-utilization](kusto-tools.md#commitment-discount-utilization). | `chief-financial-officer`, `finops-practitioner`, `ftk-database-query`, `azure-capacity-manager` |
 | `reservation-recommendation-breakdown` | `Kusto` | Analyzes reservation recommendations, savings, break-even dates, normalized sizes, scope, and term details; see [reservation-recommendation-breakdown](kusto-tools.md#reservation-recommendation-breakdown). | `chief-financial-officer`, `finops-practitioner`, `ftk-database-query`, `azure-capacity-manager` |
 | `savings-summary-report` | `Kusto` | Summarizes list cost, effective cost, negotiated savings, commitment savings, total savings, and savings rate; see [savings-summary-report](kusto-tools.md#savings-summary-report). | `chief-financial-officer`, `finops-practitioner`, `ftk-database-query`, `azure-capacity-manager` |
@@ -150,12 +150,12 @@ Related products:
 
 - [Azure SRE Agent](/azure/sre-agent/overview)
 - [Azure Data Explorer](/azure/data-explorer/)
-- [Azure Cost Management](/azure/cost-management-billing/costs/)
+- [Microsoft Cost Management](/azure/cost-management-billing/costs/)
 
 Related solutions:
 
-- [FinOps toolkit SRE Agent](overview.md)
-- [Deploy and configure the FinOps toolkit SRE Agent](deploy.md)
+- [Azure SRE Agent in the FinOps toolkit](overview.md)
+- [Deploy Azure SRE Agent with the FinOps toolkit](deploy.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

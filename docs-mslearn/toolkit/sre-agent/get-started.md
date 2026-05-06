@@ -1,19 +1,19 @@
 ---
-title: Get started with the SRE agent
-description: Learn what to do after deploying the FinOps toolkit SRE agent—first queries, scheduled tasks, and specialized subagents.
+title: Get started with the FinOps toolkit on Azure SRE Agent
+description: Learn what to do after deploying Azure SRE Agent with the FinOps toolkit — first queries, scheduled tasks, and specialized subagents.
 author: flanakin
 ms.author: micflan
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: quickstart
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: arclares
-# customer intent: As a FinOps practitioner, I want to know what to do after deploying the SRE agent so I can start getting value from it immediately.
+# customer intent: As a FinOps practitioner, I want to know what to do after deploying the FinOps toolkit's Azure SRE Agent so I can start getting value from it immediately.
 ---
 
-# Get started with the SRE agent
+# Get started with the FinOps toolkit on Azure SRE Agent
 
-You've deployed the [FinOps toolkit SRE agent](overview.md). Here's how to start using it after the [deployment workflow](deploy.md) finishes.
+You've deployed [Azure SRE Agent with the FinOps toolkit](overview.md). Here's how to start using it after the [deployment workflow](deploy.md) finishes.
 
 The [deployment guide](deploy.md) covers how to deploy and configure the agent. This guide focuses on what to do next: post-deployment prompts, [scheduled tasks](scheduled-tasks.md), [specialist agents](agents.md), and customization.
 
@@ -21,7 +21,7 @@ The [deployment guide](deploy.md) covers how to deploy and configure the agent. 
 
 ## Talk to the agent
 
-The SRE agent responds to natural language questions about your Azure environment. The [tool catalog](tools.md) describes how Kusto tools query [FinOps hubs](../hubs/finops-hubs-overview.md) data, while Python tools call Azure APIs.
+Azure SRE Agent responds to natural language questions about your Azure environment. The [tool catalog](tools.md) describes how Kusto tools query [FinOps hubs](../hubs/finops-hubs-overview.md) data, while Python tools call Azure APIs.
 
 Ask questions the same way you'd ask another FinOps or platform engineer. The [agent and skills reference](agents.md) explains how the orchestrator routes work to specialist agents that use tools, skills, and knowledge to ground recommendations.
 
@@ -29,7 +29,7 @@ Ask questions the same way you'd ask another FinOps or platform engineer. The [a
 
 ## Automation map
 
-Use this map to connect each post-deployment activity to the agent, task, tool, output, and decision pattern. The [SRE agent overview](overview.md), [agents reference](agents.md), [tools reference](tools.md), and [scheduled tasks reference](scheduled-tasks.md) document the full catalog.
+Use this map to connect each post-deployment activity to the agent, task, tool, output, and decision pattern. The [Azure SRE Agent overview](overview.md), [agents reference](agents.md), [tools reference](tools.md), and [scheduled tasks reference](scheduled-tasks.md) document the full catalog.
 
 | Capability | Agent | Tasks | Tools | Output | You decide |
 |------------|-------|-------|-------|--------|------------|
@@ -68,7 +68,7 @@ For example, move the month-over-month report to run after billing data settles.
 
 ## Build on the basics
 
-The SRE agent includes [5 specialized subagents](agents.md), and you can ask the orchestrator to route the work or mention the specialist when you know which domain you need.
+The agent includes [5 specialized subagents](agents.md), and you can ask the orchestrator to route the work or mention the specialist when you know which domain you need.
 
 - [`finops-practitioner`](agents.md#finops-practitioner) — cost analysis, optimization, budgets, alerts, and FinOps practice guidance
 - [`azure-capacity-manager`](agents.md#azure-capacity-manager) — quota, capacity reservations, SKU availability, and capacity governance
@@ -84,9 +84,9 @@ Use specialist names when you want a specific lens. For example, ask the [`chief
 
 Use these pages as your next steps:
 
-- [FinOps toolkit SRE Agent tools](tools.md)
-- [FinOps toolkit SRE Agent agents and skills](agents.md)
-- [FinOps toolkit SRE Agent scheduled tasks](scheduled-tasks.md)
+- [Tools shipped for Azure SRE Agent in the FinOps toolkit](tools.md)
+- [Specialist agents and skills](agents.md)
+- [Scheduled tasks (Azure SRE Agent in the FinOps toolkit)](scheduled-tasks.md)
 - [FinOps toolkit best practices](../../best-practices/library.md)
 
 <br>
@@ -121,14 +121,14 @@ Related products:
 
 - [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)
 - [Azure Data Explorer](/azure/data-explorer/)
-- [Azure Cost Management](/azure/cost-management-billing/costs/)
+- [Microsoft Cost Management](/azure/cost-management-billing/costs/)
 
 Related solutions:
 
-- [FinOps toolkit SRE Agent](overview.md)
-- [FinOps toolkit SRE Agent tools](tools.md)
-- [FinOps toolkit SRE Agent agents and skills](agents.md)
-- [FinOps toolkit SRE Agent scheduled tasks](scheduled-tasks.md)
+- [Azure SRE Agent in the FinOps toolkit](overview.md)
+- [Tools shipped for Azure SRE Agent in the FinOps toolkit](tools.md)
+- [Specialist agents and skills](agents.md)
+- [Scheduled tasks (Azure SRE Agent in the FinOps toolkit)](scheduled-tasks.md)
 - [FinOps toolkit best practices](../../best-practices/library.md)
 
 <br>

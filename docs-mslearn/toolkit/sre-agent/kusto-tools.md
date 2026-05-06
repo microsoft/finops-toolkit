@@ -1,23 +1,23 @@
 ---
 title: Kusto tools
-description: Review the FinOps hub Kusto tools included with the FinOps toolkit SRE Agent and learn when to use each tool for cost, commitment discount, anomaly, forecast, AI, and price analysis.
+description: Review the FinOps hub Kusto tools the FinOps toolkit ships for Azure SRE Agent and learn when to use each tool for cost, commitment discount, anomaly, forecast, AI, and price analysis.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to understand each FinOps toolkit SRE Agent Kusto tool so that I can choose the right query for cost and optimization analysis.
+#customer intent: As a FinOps practitioner, I want to understand each Kusto tool the FinOps toolkit ships for Azure SRE Agent so that I can choose the right query for cost and optimization analysis.
 ---
 
 # Kusto tools
 
-The FinOps toolkit SRE Agent includes 21 Kusto tools that query your FinOps hub Azure Data Explorer database through the `finops-hub-kusto` connector. Each tool is configured as a `KustoTool` and uses the FinOps hub query catalog to ground agent responses in cost, price, recommendation, transaction, and AI usage data. Tool source lives at [`src/templates/sre-agent/tools`](../../../src/templates/sre-agent/tools/).
+The FinOps toolkit deployment configures Azure SRE Agent with 21 Kusto tools that query your FinOps hub Azure Data Explorer database through the `finops-hub-kusto` connector. Each tool is configured as a `KustoTool` and uses the FinOps hub query catalog to ground agent responses in cost, price, recommendation, transaction, and AI usage data. Tool source lives at [`src/templates/sre-agent/tools`](../../../src/templates/sre-agent/tools/).
 
 This reference also calls out related optimization tools that appear in scheduled-task requirements when they affect the same analysis path. Those tools aren't Kusto tools unless explicitly marked as `KustoTool`.
 
-Use this reference when you want to understand which tool fits a prompt, scheduled task, or custom agent workflow. For a summary of all the agent's tools, see [FinOps toolkit SRE Agent tools](tools.md).
+Use this reference when you want to understand which tool fits a prompt, scheduled task, or custom agent workflow. For a summary of all the agent's tools, see [Tools shipped for Azure SRE Agent in the FinOps toolkit](tools.md).
 
 <br>
 
@@ -41,7 +41,7 @@ Use cost analysis tools to review cost and usage from different reporting angles
 
 Source YAML: [`costs-enriched-base.yaml`](../../../src/templates/sre-agent/tools/costs-enriched-base.yaml).
 
-Queries a guarded, enriched row-level cost and usage sample with tags, resource details, savings fields, commitment fields, and FinOps Toolkit metadata.
+Queries a guarded, enriched row-level cost and usage sample with tags, resource details, savings fields, commitment fields, and FinOps toolkit metadata.
 
 Use it only for narrow detail drill-downs after an aggregate result identifies the scope to inspect. The tool rejects windows greater than one day to avoid Azure Data Explorer result truncation. For full-month, fiscal-period, scheduled report, dashboard export, allocation, showback, chargeback, tag-coverage, or broad custom analysis, use aggregate tools first, such as `monthly-cost-trend`, `cost-by-financial-hierarchy`, `top-services-by-cost`, `top-resource-groups-by-cost`, or `top-resource-types-by-cost`.
 
@@ -179,7 +179,7 @@ Sample output shape: One row per reservation recommendation with fields such as 
 
 Source YAML: [`benefit-recommendations.yaml`](../../../src/templates/sre-agent/tools/benefit-recommendations.yaml).
 
-Gets Azure Cost Management benefit recommendations for savings plans and reserved instances at a billing scope.
+Gets Microsoft Cost Management benefit recommendations for savings plans and reserved instances at a billing scope.
 
 This is a related optimization tool, but it's a `PythonTool`, not a Kusto tool. Use it when the agent needs current Cost Management recommendation API results by billing scope, lookback period, and term. Use `reservation-recommendation-breakdown` when you need FinOps hub recommendation data from `Recommendations()`.
 
@@ -382,12 +382,12 @@ Related products:
 
 - [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)
 - [Azure Data Explorer](https://learn.microsoft.com/azure/data-explorer/)
-- [Azure Cost Management](/azure/cost-management-billing/costs/)
+- [Microsoft Cost Management](/azure/cost-management-billing/costs/)
 
 Related solutions:
 
-- [FinOps toolkit SRE Agent](overview.md)
-- [FinOps toolkit SRE Agent tools](tools.md)
+- [Azure SRE Agent in the FinOps toolkit](overview.md)
+- [Tools shipped for Azure SRE Agent in the FinOps toolkit](tools.md)
 - [Python tools](python-tools.md)
 
 <br>

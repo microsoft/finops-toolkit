@@ -1,19 +1,19 @@
 ---
 title: Python tools
-description: Review the Python tools included with the FinOps toolkit SRE Agent for Azure quota, capacity, budgets, anomaly alerts, Resource Graph, FinOps hub health, and Advisor suppressions.
+description: Review the Python tools the FinOps toolkit ships for Azure SRE Agent for Azure quota, capacity, budgets, anomaly alerts, Resource Graph, FinOps hub health, and Advisor suppressions.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to understand which Python tools the FinOps toolkit SRE Agent includes so that I can use the right Azure API-backed tool for capacity, cost governance, and operations work.
+#customer intent: As a FinOps practitioner, I want to understand which Python tools the FinOps toolkit ships for Azure SRE Agent so that I can use the right Azure API-backed tool for capacity, cost governance, and operations work.
 ---
 
 # Python tools
 
-The FinOps toolkit SRE Agent includes 12 Python tools that call Azure APIs directly through the agent managed identity. These tools complement the Kusto tools by checking Azure platform state, deploying Cost Management controls, and automating governance tasks that aren't stored in FinOps hub data.
+The FinOps toolkit deployment configures Azure SRE Agent with 12 Python tools that call Azure APIs through the agent's managed identity. These tools complement the Kusto tools by checking Azure platform state, deploying Cost Management controls, and automating governance tasks that aren't stored in FinOps hub data.
 
 Use Python tools when the agent needs live Azure Resource Manager, Resource Graph, Cost Management, Azure Data Explorer, or Advisor data instead of historical cost and usage data from the FinOps hub.
 
@@ -501,13 +501,13 @@ Related products:
 
 - [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview)
 - [Azure Resource Graph](/azure/governance/resource-graph/)
-- [Azure Cost Management](/azure/cost-management-billing/costs/)
+- [Microsoft Cost Management](/azure/cost-management-billing/costs/)
 - [Azure Advisor](/azure/advisor/)
 
 Related solutions:
 
-- [FinOps toolkit SRE Agent](overview.md)
-- [FinOps toolkit SRE Agent tools](tools.md)
-- [FinOps toolkit SRE Agent Kusto tools](kusto-tools.md)
+- [Azure SRE Agent in the FinOps toolkit](overview.md)
+- [Tools shipped for Azure SRE Agent in the FinOps toolkit](tools.md)
+- [Kusto tools](kusto-tools.md)
 
 <br>

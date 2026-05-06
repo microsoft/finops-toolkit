@@ -1,21 +1,21 @@
 ---
-title: Deploy and configure the FinOps toolkit SRE Agent
-description: Deploy the FinOps toolkit SRE Agent template, connect it to FinOps hubs, and configure notifications for scheduled cost and capacity reports.
+title: Deploy Azure SRE Agent with the FinOps toolkit
+description: Deploy the FinOps toolkit's Azure SRE Agent template, connect it to FinOps hubs, and configure notifications for scheduled cost and capacity reports.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: tutorial
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps hub admin, I want to deploy and configure the FinOps toolkit SRE Agent so that I can receive scheduled cost reports, anomaly detection, and capacity monitoring.
+#customer intent: As a FinOps hub admin, I want to deploy and configure the FinOps toolkit's Azure SRE Agent so that I can receive scheduled cost reports, anomaly detection, and capacity monitoring.
 ---
 
 <!-- markdownlint-disable heading-increment MD024 -->
 
-# Deploy and configure the FinOps toolkit SRE Agent
+# Deploy Azure SRE Agent with the FinOps toolkit
 
-In this tutorial, you learn how to deploy the [FinOps toolkit SRE Agent](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), connect it to a [FinOps hub](../hubs/finops-hubs-overview.md), and configure notifications for scheduled cost and capacity reports. This article helps you:
+In this tutorial, you learn how to deploy the [FinOps toolkit's Azure SRE Agent template](https://github.com/microsoft/finops-toolkit/tree/main/src/templates/sre-agent), connect it to a [FinOps hub](../hubs/finops-hubs-overview.md), and configure notifications for scheduled cost and capacity reports. This article helps you:
 
 <!-- prettier-ignore-start -->
 > [!div class="checklist"]
@@ -116,7 +116,7 @@ Scheduled tasks can send reports to Microsoft Teams and Outlook through Azure SR
 3. Sign in with your Microsoft 365 account.
 4. Paste the channel URL from **Get link to channel** in Teams.
 5. Select the agent's managed identity and save.
-6. Test from chat: `Post a test message to our Teams channel saying "FinOps toolkit SRE Agent connected."`
+6. Test from chat: `Post a test message to our Teams channel saying "Azure SRE Agent connected via the FinOps toolkit."`
 
 Use the built-in `PostTeamsMessage` tool from the [Teams notification guidance](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/sre-config/knowledge/teams-notification-guide.md). Don't call the Microsoft Graph API or the connection's `dynamicInvoke` endpoint directly because that path returns a 403 error for this connector configuration.
 
@@ -196,6 +196,8 @@ Use the deployment script to replace or destroy local `azd` environments and dep
 
 ### Replace an environment
 
+Use replace when the deployed environment is in a known-good state but you want to redeploy with current template defaults, fix a drifted resource, or apply parameter changes. Replace removes the existing Azure resources and the local `azd` environment, then deploys again with the same parameters.
+
 ### [Bash](#tab/bash)
 
 ```bash
@@ -219,6 +221,8 @@ pwsh ./scripts/deploy.ps1 `
 Use `--replace` or `-Replace` to delete Azure resources for the target environment, remove the local `azd` environment, and deploy again.
 
 ### Destroy an environment
+
+Use destroy when you want to tear down a deployment without redeploying, for example to clean up a test environment or release subscription quota. Destroy removes the Azure resources and the local `azd` environment without redeploying.
 
 ### [Bash](#tab/bash)
 

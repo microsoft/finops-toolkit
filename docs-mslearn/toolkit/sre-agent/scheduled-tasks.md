@@ -1,25 +1,27 @@
 ---
-title: FinOps toolkit SRE Agent scheduled tasks
-description: Learn how FinOps toolkit SRE Agent scheduled tasks automate daily, weekly, monthly, and quarterly FinOps operating rhythms.
+title: Scheduled tasks (Azure SRE Agent in the FinOps toolkit)
+description: Learn how the FinOps toolkit's scheduled tasks automate daily, weekly, monthly, and quarterly FinOps operating rhythms on Azure SRE Agent.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to understand the deployed FinOps toolkit SRE Agent scheduled tasks so that I can plan recurring cost, capacity, and finance reviews.
+#customer intent: As a FinOps practitioner, I want to understand the scheduled tasks the FinOps toolkit deploys to Azure SRE Agent so that I can plan recurring cost, capacity, and finance reviews.
 ---
 
-# FinOps toolkit SRE Agent scheduled tasks
+# Scheduled tasks (Azure SRE Agent in the FinOps toolkit)
 
-Scheduled tasks run recurring Azure SRE Agent workflows for the FinOps operating rhythm. They turn common reviews into autonomous checks that gather data, route work to the right specialist agent, generate charts where the data supports them, and post completed reports to Microsoft Teams when a Teams notification connector is configured.
+The FinOps toolkit ships scheduled tasks that run recurring FinOps operating-rhythm workflows on Azure SRE Agent. They turn common reviews into autonomous checks that gather data, route work to the right specialist agent, generate charts where the data supports them, and post completed reports to Microsoft Teams when a Teams notification connector is configured.
 
 The template deploys 18 scheduled tasks from `src/templates/sre-agent/sre-config/scheduled-tasks/`. These tasks cover daily health checks, weekly optimization and capacity reviews, monthly planning and finance reports, and quarterly strategy.
 
 <br>
 
 ## Daily tasks
+
+Daily tasks run every morning to validate FinOps hub health, monitor capacity supply chain signals, and analyze month-over-month cost movement. They keep cost and capacity surprises visible before each business day.
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
@@ -30,6 +32,8 @@ The template deploys 18 scheduled tasks from `src/templates/sre-agent/sre-config
 <br>
 
 ## Weekly tasks
+
+Weekly tasks summarize cost optimization, capacity supply chain, and benefit recommendation activity for the previous week. They give the team a recurring rhythm for deeper analysis without manual report requests.
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
@@ -45,6 +49,8 @@ The template deploys 18 scheduled tasks from `src/templates/sre-agent/sre-config
 
 ## Monthly tasks
 
+Monthly tasks run after billing data finalizes to produce year-to-date analysis, capacity planning forecasts, AI workload cost reviews, and audit reports for budget and alert coverage. Use them to anchor monthly business reviews.
+
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
 | `StoragePaasGrowthForecast` | `azure-capacity-manager` | Monthly on the 1st at 8:00 AM<br>`0 8 1 * *` | Monthly storage and PaaS quota growth forecast across active subscriptions |
@@ -58,6 +64,8 @@ The template deploys 18 scheduled tasks from `src/templates/sre-agent/sre-config
 <br>
 
 ## Quarterly tasks
+
+Quarterly tasks run at the start of each calendar quarter to summarize capacity supply chain maturity, commitment alignment, and architecture evolution. Use them to feed leadership reviews and the next quarter's planning cycle.
 
 | Task | Agent | Schedule | Description |
 |------|-------|----------|-------------|
@@ -207,13 +215,13 @@ The prompts also split what goes to Teams and what goes to the agent knowledge b
 - **Knowledge base** receives operational learnings only. Examples include tool errors, query patterns, API workarounds, pipeline failure modes, and troubleshooting steps that worked.
 - **Financial detail stays out of memory.** Prompts tell the agents not to save customer financial data, cost amounts, savings numbers, token costs, or similar financial details to the knowledge base.
 
-For connector setup, see [Deploy and configure the FinOps toolkit SRE Agent](deploy.md#configure-notifications).
+For connector setup, see [Deploy Azure SRE Agent with the FinOps toolkit](deploy.md#configure-notifications).
 
 <br>
 
 ## Roadmap
 
-The deployed template includes the 18 scheduled tasks listed on this page. The repository also includes a broader planned task roadmap in the [FinOps toolkit SRE Agent scheduled task catalog](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/CATALOG.md).
+The deployed template includes the 18 scheduled tasks listed on this page. The repository also includes a broader planned task roadmap in the [scheduled task catalog](https://github.com/microsoft/finops-toolkit/blob/main/src/templates/sre-agent/CATALOG.md).
 
 The catalog is a roadmap for future automation ideas. It includes more than 74 potential daily, weekly, monthly, quarterly, and annual tasks across FinOps, capacity management, FinOps for AI, governance, optimization, benchmarking, and executive reporting. Those catalog entries are planned ideas, not deployed scheduled tasks, unless they are listed in the deployed task catalog above.
 
@@ -254,8 +262,8 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit SRE Agent](overview.md)
-- [Deploy and configure the FinOps toolkit SRE Agent](deploy.md)
-- [FinOps toolkit SRE Agent template reference](template.md)
+- [Azure SRE Agent in the FinOps toolkit](overview.md)
+- [Deploy Azure SRE Agent with the FinOps toolkit](deploy.md)
+- [Azure SRE Agent template reference (FinOps toolkit)](template.md)
 
 <br>

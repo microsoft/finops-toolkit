@@ -1,17 +1,17 @@
 ---
-title: Troubleshoot the FinOps toolkit SRE Agent
-description: Resolve common FinOps toolkit SRE Agent deployment, tenant, connector, data, and query issues.
+title: Troubleshoot Azure SRE Agent deployments from the FinOps toolkit
+description: Resolve common deployment, tenant, connector, data, and query issues for Azure SRE Agent deployments from the FinOps toolkit.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to troubleshoot FinOps toolkit SRE Agent issues so that I can restore scheduled cost, capacity, and operations workflows.
+#customer intent: As a FinOps practitioner, I want to troubleshoot the FinOps toolkit's Azure SRE Agent deployment so that I can restore scheduled cost, capacity, and operations workflows.
 ---
 
-# Troubleshoot the FinOps toolkit SRE Agent
+# Troubleshoot Azure SRE Agent deployments from the FinOps toolkit
 
 Use this guide when the agent deploys, but `srectl`, scheduled tasks, connectors, or data queries don't behave as expected. Start with tenant and deployment checks, then use the known issue sections to match the symptom, cause, and workaround.
 
@@ -237,8 +237,8 @@ Related products:
 
 Related solutions:
 
-- [Deploy FinOps toolkit SRE Agent](deploy.md)
+- [Deploy Azure SRE Agent with the FinOps toolkit](deploy.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps toolkit SRE Agent template reference](template.md)
+- [Azure SRE Agent template reference (FinOps toolkit)](template.md)
 
 <br>

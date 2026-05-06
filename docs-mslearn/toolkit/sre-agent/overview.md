@@ -1,25 +1,25 @@
 ---
-title: FinOps toolkit SRE Agent
-description: Learn how FinOps toolkit SRE Agent automates FinOps and capacity management workflows with Azure SRE Agent.
+title: Azure SRE Agent in the FinOps toolkit
+description: Learn how the FinOps toolkit deploys Azure SRE Agent with FinOps and capacity management automation on top of FinOps hubs.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to understand what FinOps toolkit SRE Agent provides so that I can automate cost, capacity, and operations workflows.
+#customer intent: As a FinOps practitioner, I want to understand what the FinOps toolkit's Azure SRE Agent deployment provides so that I can automate cost, capacity, and operations workflows.
 ---
 
-# FinOps toolkit SRE Agent
+# Azure SRE Agent in the FinOps toolkit
 
-FinOps toolkit SRE Agent is AI-powered FinOps and capacity management automation built on [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview). It connects Azure SRE Agent to [FinOps hubs](../hubs/finops-hubs-overview.md), applies FinOps and capacity management agents, and schedules recurring analysis for cost visibility, optimization, forecasting, and capacity readiness. The agent focuses on three core design principles:
+The FinOps toolkit ships an Azure Developer CLI template that deploys [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) and configures it for FinOps and capacity management workflows on top of [FinOps hubs](../hubs/finops-hubs-overview.md). The deployment includes specialist subagents, FOCUS-aligned Kusto and Python tools, scheduled tasks, and grounded knowledge so the agent can investigate cost changes, monitor quota and capacity signals, prepare executive summaries, and deliver scheduled updates. The deployment focuses on three core design principles:
 
 - **Automate the rhythm**<br>_Run daily, weekly, monthly, and quarterly FinOps workflows without waiting for manual report requests._
 - **Ground every answer**<br>_Use FinOps hub data, FOCUS-aligned Kusto tools, and Azure platform context to keep recommendations tied to evidence._
 - **Act with experts**<br>_Route work to specialized FinOps, finance, capacity, database, and hubs agents instead of a single generic assistant._
 
-The agent helps teams move from dashboards and alerts to an operating model where agents investigate cost changes, monitor quota and capacity signals, prepare executive summaries, and deliver scheduled updates through Azure SRE Agent.
+The FinOps toolkit deployment helps teams move from dashboards and alerts to an operating model where the agent investigates cost changes, monitors quota and capacity signals, prepares executive summaries, and delivers scheduled updates through Azure SRE Agent.
 
 <!-- prettier-ignore-start -->
 > [!NOTE]
@@ -32,18 +32,18 @@ The agent helps teams move from dashboards and alerts to an operating model wher
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Deploy FinOps toolkit SRE Agent](deploy.md)
+> [Deploy Azure SRE Agent with the FinOps toolkit](deploy.md)
 <!-- prettier-ignore-end -->
 
 <br>
 
 ## What you get
 
-The FinOps toolkit SRE Agent template deploys and configures the following resources and Azure SRE Agent objects:
+The FinOps toolkit's Azure SRE Agent template deploys and configures these resources and Azure SRE Agent objects:
 
 | Component | Count | Description |
 |-----------|-------|-------------|
-| SRE agent | 1 | `Microsoft.App/agents` resource in autonomous mode |
+| Azure SRE Agent | 1 | `Microsoft.App/agents` resource in autonomous mode |
 | Managed identity | 1 | User-assigned managed identity for the agent |
 | Log Analytics | 1 | Workspace for agent telemetry |
 | Application Insights | 1 | Linked to Log Analytics for monitoring |
@@ -61,7 +61,7 @@ The FinOps toolkit SRE Agent template deploys and configures the following resou
 
 ## Architecture overview
 
-The FinOps toolkit SRE Agent uses Azure Developer CLI (`azd`) for deployment and `srectl` for Azure SRE Agent configuration. The deployment runs in this order:
+The FinOps toolkit deployment uses Azure Developer CLI (`azd`) for the Bicep template and `srectl` to configure Azure SRE Agent. The deployment runs in this order:
 
 1. `azd up` deploys the subscription-scoped Bicep template.
 2. Bicep creates the resource group, managed identity, monitoring resources, and Azure SRE Agent.
@@ -95,7 +95,7 @@ Deploy the agent when you have a FinOps hub with an Azure Data Explorer cluster 
 
 <!-- prettier-ignore-start -->
 > [!div class="nextstepaction"]
-> [Deploy FinOps toolkit SRE Agent](deploy.md)
+> [Deploy Azure SRE Agent with the FinOps toolkit](deploy.md)
 <!-- prettier-ignore-end -->
 
 <br>
@@ -135,8 +135,8 @@ Related products:
 
 Related solutions:
 
-- [Deploy FinOps toolkit SRE Agent](deploy.md)
+- [Deploy Azure SRE Agent with the FinOps toolkit](deploy.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps toolkit SRE Agent template reference](template.md)
+- [Azure SRE Agent template reference (FinOps toolkit)](template.md)
 
 <br>

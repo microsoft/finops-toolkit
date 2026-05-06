@@ -1,19 +1,19 @@
 ---
-title: FinOps toolkit SRE Agent agents and skills
-description: Understand how FinOps toolkit SRE Agent uses specialist agents, tools, skills, and knowledge to automate FinOps and capacity management work.
+title: Specialist agents and skills (Azure SRE Agent in the FinOps toolkit)
+description: Understand how the FinOps toolkit configures Azure SRE Agent with specialist agents, tools, skills, and knowledge to automate FinOps and capacity management work.
 author: msbrett
 ms.author: brettwil
-ms.date: 05/03/2026
+ms.date: 05/06/2026
 ms.topic: concept-article
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: brettwil
-#customer intent: As a FinOps practitioner, I want to understand how FinOps toolkit SRE Agent agents and skills work so that I can route work to the right specialist.
+#customer intent: As a FinOps practitioner, I want to understand how the FinOps toolkit's specialist agents and skills work so that I can route work to the right specialist.
 ---
 
-# FinOps toolkit SRE Agent agents and skills
+# Specialist agents and skills (Azure SRE Agent in the FinOps toolkit)
 
-The FinOps toolkit SRE Agent uses a multi-agent architecture built on [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview). One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
+The FinOps toolkit configures [Azure SRE Agent](https://learn.microsoft.com/azure/sre-agent/overview) with a multi-agent architecture. One orchestrator receives prompts and scheduled tasks, then delegates work to specialist subagents with focused FinOps, finance, capacity, database, and hub operations expertise.
 
 The template configures 5 subagents, 3 skills, 33 tools (21 Kusto tools and 12 Python tools), and a FinOps hub connector. The orchestrator keeps the experience simple. The specialist agents keep answers grounded in the right domain.
 
@@ -30,7 +30,7 @@ What it does:
 - Guides cost allocation, shared-cost strategy, showback, and chargeback.
 - Investigates cost anomalies and cost drivers.
 - Plans workload optimization, rate optimization, governance, and practice health improvements.
-- Translates FinOps concepts into practical Azure Cost Management and FinOps Toolkit steps.
+- Translates FinOps concepts into practical Microsoft Cost Management and FinOps toolkit steps.
 - Keeps recommendations maturity-aware across Crawl, Walk, and Run stages.
 
 Key tools it uses:
@@ -297,11 +297,11 @@ The `azure-capacity-manager` agent is instructed to load this skill before capac
 
 Provides Azure cost optimization and financial governance guidance. It covers Advisor recommendations, commitment discounts, budgets, exports, anomaly alerts, credits, Microsoft Azure Consumption Commitment tracking, orphaned resources, VM rightsizing, and Azure retail price lookup.
 
-FinOps and reporting scheduled tasks load this skill with the `finops-toolkit` skill when they need Azure Cost Management context beyond FinOps hub Kusto data.
+FinOps and reporting scheduled tasks load this skill with the `finops-toolkit` skill when they need Microsoft Cost Management context beyond FinOps hub Kusto data.
 
 ### finops-toolkit
 
-Provides FinOps Toolkit and FinOps hubs guidance. It maps tasks to the right references, explains Hub database functions, lists the Kusto query catalog, and covers hub deployment, upgrade, health checks, FOCUS mapping, Power BI, alerts, workbooks, and Toolkit PowerShell commands.
+Provides FinOps toolkit and FinOps hubs guidance. It maps tasks to the right references, explains Hub database functions, lists the Kusto query catalog, and covers hub deployment, upgrade, health checks, FOCUS mapping, Power BI, alerts, workbooks, and the FinOps toolkit for PowerShell.
 
 FinOps hub query, reporting, and AI cost tasks load this skill so agents can use the Hub database, `Costs()`, `Prices()`, `Recommendations()`, `Transactions()`, and the predefined Kusto query catalog correctly.
 
@@ -356,9 +356,9 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit SRE Agent](overview.md)
-- [Deploy FinOps toolkit SRE Agent](deploy.md)
+- [Azure SRE Agent in the FinOps toolkit](overview.md)
+- [Deploy Azure SRE Agent with the FinOps toolkit](deploy.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps toolkit SRE Agent template reference](template.md)
+- [Azure SRE Agent template reference (FinOps toolkit)](template.md)
 
 <br>
