@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 05/06/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -54,12 +54,16 @@ Note the use of "Data Explorer" covers both Azure Data Explorer and Microsoft Fa
 
 One of the goals of the FinOps hubs data model is to guarantee backwards compatibility. To support this, each FinOps hub release uses a specific schema version which aligns to a specific FOCUS version. The **schema version** defines the columns, data types, and allowed values in the tables and functions for each [managed dataset](#managed-datasets-in-finops-hubs).
 
+The hub schema version mirrors the FOCUS specification version it natively ingests. For example, `v1_2` ingests FOCUS 1.2 exports without transformation. Older data ingested under prior schema versions is automatically up-converted by the unversioned functions (`Costs()`, `Prices()`, etc.) so consumers always see the latest schema regardless of when the data was ingested.
+
 The following table indicates the schema version for each FinOps hub release and which FOCUS version they align to.
 
 | Release | Schema | FOCUS version |
 | ------- | ------ | ------------- |
 | 12+     | `v1_2` | 1.2           |
 | 0.7-11  | `v1_0` | 1.0           |
+
+When hub support ships ahead of a FOCUS specification ratifying or ahead of Cost Management exporting a version, the hub schema is labeled **preview**. Preview schemas may change without notice between releases. The unversioned functions remain pinned to the latest GA schema until the preview promotes to GA, ensuring production reports stay stable while early adopters validate the new version.
 
 <br>
 

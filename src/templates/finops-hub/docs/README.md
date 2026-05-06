@@ -17,8 +17,11 @@
 - Each versioned function unions data from versioned tables in the Ingestion database and transforms it to that FOCUS version for back compat.
 - Consumers should use the unversioned function for the latest and the versioned functions for back compat.
 
-To add a new FOCUS versions:
+To add a new FOCUS version:
 
+0. Confirm dependencies
+   1. Verify Microsoft Cost Management has shipped a matching FOCUS export dataset version. The hub depends on a `focuscost_X.Y.json` schema mapping file in [Microsoft.CostManagement/Exports/schemas](../modules/Microsoft.CostManagement/Exports/schemas/).
+   2. If the Cost Management export is not yet available, ship hub support as **preview** and call out the upstream dependency in the changelog and the [data model documentation](../../../../docs-mslearn/toolkit/hubs/data-model.md).
 1. Add schema mapping file
    1. Create new schema mapping file for the Cost Management export dataset version in the schemas folder
    2. Add file to file upload list in [storage.bicep](../modules/storage.bicep)
@@ -41,3 +44,26 @@ To add a new FOCUS versions:
    2. Update the KQL reports to use the new versioned functions
    3. Update the ADX dashboard to use the new versioned functions
    4. Update the FOCUS queries in the best practices library to use the new versioned functions
+5. Update open-data metadata
+   1. Drop a new `FocusCost_<version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/).
+   2. Mirror the schema details (columns, types, descriptions) from the matching Cost Management export schema so downstream consumers see consistent metadata.
+6. Update plugin skill files
+   1. Refresh the FOCUS schema and function references in the following files so plugin guidance does not go stale:
+      - [src/templates/agent-skills/finops-toolkit/references/finops-hubs.md](../../agent-skills/finops-toolkit/references/finops-hubs.md)
+      - [src/templates/agent-skills/finops-toolkit/references/finops-hubs-deployment.md](../../agent-skills/finops-toolkit/references/finops-hubs-deployment.md)
+      - [src/templates/agent-skills/azure-cost-management/references/azure-cost-exports.md](../../agent-skills/azure-cost-management/references/azure-cost-exports.md)
+      - [src/templates/claude-plugin/agents/ftk-database-query.md](../../claude-plugin/agents/ftk-database-query.md)
+      - [src/templates/claude-plugin/output-styles/ftk-output-style.md](../../claude-plugin/output-styles/ftk-output-style.md)
+7. Update changelog
+   1. Add an entry under the next version in [docs-mslearn/toolkit/changelog.md](../../../../docs-mslearn/toolkit/changelog.md) describing the new FOCUS version support and any preview status.
+
+### Handling multiple FOCUS versions in one cycle
+
+Occasionally, the toolkit needs to support two FOCUS versions in a single release &ndash; for example, a newly ratified version alongside a working draft of the next version. When that happens:
+
+- The older version follows the standard `_v1_X` naming and ships as generally available (GA).
+- The newer version uses the next `_v1_Y` suffix and is labeled **preview** in user-facing documentation, including [data-model.md](../../../../docs-mslearn/toolkit/hubs/data-model.md) and [changelog.md](../../../../docs-mslearn/toolkit/changelog.md).
+- Preview schemas may change without notice between releases. Treat them as opt-in for early adopters only.
+- The unversioned functions (`Costs()`, `Prices()`, etc.) alias to the latest **GA** schema, not the preview. The aliases promote to the newer version only after it transitions from preview to GA.
+
+This guarantees backwards compatibility for production consumers while still enabling early validation of the next FOCUS version.
