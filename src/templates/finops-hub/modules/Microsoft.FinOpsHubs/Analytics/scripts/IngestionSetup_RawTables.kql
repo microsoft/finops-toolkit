@@ -359,6 +359,11 @@
 
 // Costs_raw table -- Redefine all columns
 .alter table Costs_raw (
+    AllocatedMethodDetails:     string,    // FOCUS 1.3+ (JSON)
+    AllocatedMethodId:          string,    // FOCUS 1.3+
+    AllocatedResourceId:        string,    // FOCUS 1.3+
+    AllocatedResourceName:      string,    // FOCUS 1.3+
+    AllocatedTags:              string,    // FOCUS 1.3+ (JSON)
     AvailabilityZone:           string,    // FOCUS 0.5+
     BilledCost:                 real,      // FOCUS 0.5+
     BillingAccountId:           string,    // FOCUS 0.5+
@@ -385,9 +390,11 @@
     CommitmentDiscountUnit:     string,    // FOCUS 1.1+
     ConsumedQuantity:           real,      // FOCUS 1.0+
     ConsumedUnit:               string,    // FOCUS 1.0+
+    ContractApplied:            string,    // FOCUS 1.3+ (JSON)
     ContractedCost:             real,      // FOCUS 1.0+
     ContractedUnitPrice:        real,      // FOCUS 1.0+
     EffectiveCost:              real,      // FOCUS 1.0-preview+
+    HostProviderName:           string,    // FOCUS 1.3+
     InvoiceId:                  string,    // FOCUS 1.2+
     InvoiceIssuerName:          string,    // FOCUS 0.5+
     ListCost:                   real,      // FOCUS 1.0-preview+
@@ -406,6 +413,7 @@
     ResourceType:               string,    // FOCUS 1.0-preview+
     ServiceCategory:            string,    // FOCUS 0.5+
     ServiceName:                string,    // FOCUS 0.5+
+    ServiceProviderName:        string,    // FOCUS 1.3+
     ServiceSubcategory:         string,    // FOCUS 1.1+
     SkuId:                      string,    // FOCUS 1.0-preview+
     SkuMeter:                   string,    // FOCUS 1.1+
