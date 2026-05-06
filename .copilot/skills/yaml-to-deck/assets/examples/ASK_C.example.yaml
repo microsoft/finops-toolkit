@@ -1,0 +1,27 @@
+id: P1.1.C
+order: 6
+cluster: Quota ≠ Capacity
+asks_verbatim:
+- num: 8
+  theme: Quota ≠ Capacity — I have quota, why deploy fails?
+- num: 13
+  theme: Zonal capacity / AZ stockouts (East US, North Europe)
+- num: 14
+  theme: SKU availability / offer restrictions
+- num: 23
+  theme: CI/CD + capacity pre-flight checks
+- num: 24
+  theme: Proactive capacity monitoring (no real-time API)
+title: Details
+content: '• YAML path: `sre-config/scheduled-tasks/capacity-daily-monitor.yaml`. Cron: `30 6 * * *`. Owner agent: `azure-capacity-manager`.<br/>• Phase 1 — parallel ARM REST calls through the user-assigned managed identity:<br/>```<br/>vm-quota-usage(subscription_id, location)        → families >80% warn / >95% critical<br/>non-compute-quotas(subscription_id, location)    → Storage and Network families<br/>sku-availability(subscription_id, location, sku) → restrictionReasons[]<br/>capacity-reservation-groups(subscription_id, rg) → reserved versus allocated<br/>data-freshness-check(cluster_uri, database)      → hub data trustworthy?<br/>```<br/>• Phase 2 — the agent joins the results and applies the deploy-blocking rule:<br/>```<br/>quota_pct > 95 OR sku.restrictionReasons != [] OR crg.allocated > crg.reserved<br/>```<br/>• Delivery — `PostTeamsMessage` posts the verdict to the configured Teams channel. Operator move: `srectl scheduledtask invoke capacity-daily-monitor` runs the task on demand for the customer''s hub.'
+notes: This is one scheduled task that runs daily, with five tools executing in parallel through the managed identity.<br/><br/>The agent joins the results and applies a simple rule. Quota above critical, a SKU restriction present, or a reservation mismatch all mean capacity risk. Anything else means the workload is deployable.<br/><br/>You can run it on demand against any customer hub for a live first-meeting demo.
+layout:
+  kind: ASK_C
+  addresses:
+  - 8
+  - 13
+  - 14
+  - 23
+  - 24
+  verdict: green
+screens: null

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.38.33.27573",
+      "templateHash": "13596010692633732676"
+    }
+  },
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "Required. Name of the target Azure Data Explorer cluster."
+      }
+    },
+    "principalId": {
+      "type": "string",
+      "metadata": {
+        "description": "Required. Object (principal) ID of the SRE Agent managed identity to grant access to."
+      }
+    },
+    "principalTenantId": {
+      "type": "string",
+      "defaultValue": "[tenant().tenantId]",
+      "metadata": {
+        "description": "Optional. Microsoft Entra tenant ID for the SRE Agent managed identity."
+      }
+    }
+  },
+  "variables": {
+    "principalAssignmentName": "[guid(resourceId('Microsoft.Kusto/clusters', parameters('clusterName')), parameters('principalId'), parameters('principalTenantId'), 'AllDatabasesViewer')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Kusto/clusters/principalAssignments",
+      "apiVersion": "2024-04-13",
+      "name": "[format('{0}/{1}', parameters('clusterName'), variables('principalAssignmentName'))]",
+      "properties": {
+        "principalType": "App",
+        "principalId": "[parameters('principalId')]",
+        "tenantId": "[parameters('principalTenantId')]",
+        "role": "AllDatabasesViewer"
+      }
+    }
+  ],
+  "outputs": {
+    "clusterId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the target Azure Data Explorer cluster."
+      },
+      "value": "[resourceId('Microsoft.Kusto/clusters', parameters('clusterName'))]"
+    },
+    "principalAssignmentName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the cluster-level principal assignment."
+      },
+      "value": "[variables('principalAssignmentName')]"
+    },
+    "principalAssignmentId": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID of the cluster-level principal assignment."
+      },
+      "value": "[resourceId('Microsoft.Kusto/clusters/principalAssignments', parameters('clusterName'), variables('principalAssignmentName'))]"
+    }
+  }
+}

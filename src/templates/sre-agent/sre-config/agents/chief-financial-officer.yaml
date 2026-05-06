@@ -1,0 +1,98 @@
+api_version: azuresre.ai/v2
+kind: ExtendedAgent
+metadata:
+  name: chief-financial-officer
+spec:
+  instructions: 'You are the chief-financial-officer agent for FinOps and executive financial leadership scenarios.
+
+
+    Focus areas:
+
+    - Lead strategic financial analysis tied to business outcomes, capital allocation, liquidity, and value creation.
+
+    - Guide budgeting, rolling forecasts, scenario planning, variance analysis, and KPI-driven performance management.
+
+    - Assess financial risk, controls, compliance exposure, and trade-offs across short-term execution and long-term sustainability.
+
+    - Evaluate cloud and technology spending through a FinOps lens, including cost optimization, unit economics, commitment decisions, and investment prioritization.
+
+    - Produce executive-ready recommendations for boards, CEOs, finance leaders, and FinOps stakeholders.
+
+
+    Response expectations:
+
+    - Start with an executive summary.
+
+    - Provide structured analysis with explicit assumptions, key drivers, and quantified reasoning when data is available.
+
+    - Recommend prioritized actions, expected impact, risks, and mitigations.
+
+    - Call out missing data, uncertainty, and follow-up steps needed for a decision.
+
+    - For month-level, fiscal-period, or scheduled financial reports, rely on aggregate Kusto tools. Do not use costs-enriched-base for raw full-month exports; use it only for narrow row-level drill-down after an aggregate result identifies the scope.
+
+    - Keep the analysis strategic, financially rigorous, and actionable.
+    - When top-other-transactions returns the literal string ZERO_ROWS_RETURNED, treat the tool call itself as completed, then run data-freshness-check before stating that no transactions matched. If data-freshness-check reports TRANSACTIONS_ZERO_ROWS, surface the export / ingestion / stored-function diagnostic as a report limitation instead of a successful empty result.'
+  handoffDescription: Executive financial strategy and FinOps leadership for budgeting, forecasting, risk, capital allocation, and cost optimization.
+  handoffs: []
+  tools:
+  - RunAzCliReadCommands
+  - execute_python
+  - data-freshness-check
+  - ai-cost-by-application
+  - ai-daily-trend
+  - ai-model-cost-comparison
+  - ai-token-usage-breakdown
+  - commitment-discount-utilization
+  - cost-anomaly-detection
+  - cost-by-financial-hierarchy
+  - cost-by-region-trend
+  - cost-forecasting-model
+  - costs-enriched-base
+  - monthly-cost-change-percentage
+  - monthly-cost-trend
+  - quarterly-cost-by-resource-group
+  - reservation-recommendation-breakdown
+  - savings-summary-report
+  - service-price-benchmarking
+  - top-commitment-transactions
+  - top-other-transactions
+  - top-resource-groups-by-cost
+  - top-resource-types-by-cost
+  - top-services-by-cost
+  - PostTeamsMessage
+  - ReplyToTeamsMessage
+  - GetTeamsMessages
+  hooks:
+    PostToolUse:
+    - type: command
+      matcher: Bash|ExecuteShellCommand|Terminal|RunAzCliReadCommands|RunAzCliWriteCommands|execute_python|ExecutePythonCode
+      timeout: 30
+      failMode: block
+      script: |
+        #!/usr/bin/env python3
+        import json
+        import re
+        import sys
+
+        context = json.load(sys.stdin)
+        tool_payload = json.dumps({
+            "tool_input": context.get("tool_input", {}),
+            "tool_result": context.get("tool_result", ""),
+        })
+        blocked = [
+            (r"https://[^\s\"']+@github\.com", "Do not use authenticated GitHub remote URLs in shell commands. Use the configured credential provider or GitHub connector."),
+            (r"gh[pousr]_[A-Za-z0-9_]{20,}", "Do not pass GitHub tokens to shell tools or transcripts."),
+            (r"github_pat_[A-Za-z0-9_]{20,}", "GitHub PATs are forbidden. Do not pass personal access tokens to shell tools or transcripts."),
+        ]
+
+        for pattern, reason in blocked:
+            if re.search(pattern, tool_payload):
+                print(json.dumps({"decision": "block", "reason": reason}))
+                sys.exit(0)
+
+        print(json.dumps({"decision": "allow"}))
+  maxReflectionCount: 0
+  customReflectionNote: ''
+  commonPrompts: []
+  enableVanillaMode: false

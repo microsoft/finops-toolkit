@@ -1,0 +1,749 @@
+┌────────────────────────────────────────────────────┐
+│ User: Brett Wilson (100320020B868F43)              │
+│ Thread: 922a9bba-a4df-401e-9774-e62e98856f16       │
+└────────────────────────────────────────────────────┘
+
+SRE Agent (18:26:59)
+────────────────────
+  [SCHEDULED_TASK_EXECUTION]{"taskId":"bdd79d9f-b9f6-4e9d-87bd-4f8157d8f2ff","taskName":"StoragePaasGrowthForecast","description":"Monthly
+  storage and PaaS quota growth forecast across active subscriptions","cronExpression":"0 8 1 * *","agentPrompt":"#
+  Storage and PaaS Growth Forecast\n\n## Phase 0: Preparation\n\nBefore starting, read all documents in the knowledge
+  base. Pay special attention to prior non-compute quota notes, known service limit assumptions, and subscription
+  scope guidance.\n\nLoad your relevant capacity management skill. Note the \u0060client_id\u0060 for Python tool
+  authentication.\n\n## Python tools available\n\nPass \u0060client_id\u0060 as a parameter to each Python tool for
+  UAMI authentication.\n\n- \u0060resource-graph-query\u0060: Run with \u0060query\u0060 and optional
+  \u0060subscription_ids\u0060 to inventory storage accounts, network resources, App Service plans, SQL servers,
+  Service Bus namespaces, Key Vaults, and other PaaS resources.\n- \u0060non-compute-quotas\u0060: Run with
+  \u0060subscription_id\u0060 and optional \u0060location\u0060 to retrieve storage, network, and estimated PaaS
+  quota utilization.\n\n## 1. Establish scope\n\nUse \u0060resource-graph-query\u0060 to list active subscriptions
+  and count current storage and PaaS resources by type, region, and subscription. Identify resource types with
+  meaningful month-over-month growth or high operational importance.\n\n## 2. Collect current non-compute
+  quotas\n\nFor each active subscription, run \u0060non-compute-quotas\u0060 with \u0060subscription_id\u0060,
+  optional \u0060location\u0060, and \u0060client_id\u0060. Capture API-reported limits separately from estimated
+  limits and preserve limit source notes.\n\n## 3. Forecast growth\n\nCompare current resource counts and quota
+  utilization against prior #remember findings or prior monthly reports. Forecast expected utilization for the next
+  30, 60, and 90 days using observed growth where prior data exists.\n\n## 4. Flag subscriptions approaching
+  limits\n\nFlag subscriptions where storage, network, or PaaS quota utilization is at or above 80%, where estimated
+  limits are uncertain, or where growth trends indicate a likely limit breach before the next monthly cycle.\n\n##
+  Report format\n\nProduce a markdown report with an executive summary, a quota risk table by subscription and
+  service, a growth forecast table, explicit API-reported versus estimated limit notes, and recommended owner
+  actions.\n\n## Persistence\n\n**Teams (results only):** Post the final report to our Teams channel. Do not post
+  intermediate results.\n\n**Knowledge (#remember):** Save operational findings using #remember for future reference.
+  Do not commit to git. Never save financial figures, cost amounts, or customer financial data to the knowledge base.
+  Financial detail goes to Teams only.\n\n## Visualizations\n\nBefore posting, generate charts for key findings using
+  matplotlib or seaborn via the code interpreter. Include at minimum a 90-day forecast chart and a quota utilization
+  comparison chart where the data supports it. Embed chart images inline in the Teams message alongside the text
+  tables.","agent":"azure-capacity-manager","executionTime":"2026-05-02T18:26:59.6043240Z","status":"Active","modelTier":null,"agentInstructions":"\u003Csystem_notice\u003EThis
+  is an AUTOMATED scheduled task execution triggered by infrastructure on cron schedule \u00270 8 1 * *\u0027. Do NOT
+  autonomously attempt to schedule future runs, set up monitoring loops, or create wait states - the infrastructure
+  handles recurring executions automatically. Simply execute the agentPrompt and complete your response. However, if
+  the user explicitly requests additional actions, you may fulfill those
+  requests.\u003C/system_notice\u003E"}[/SCHEDULED_TASK_EXECUTION]
+
+SRE Agent (18:27:06)
+────────────────────
+  **Forecasting storage and PaaS growth**
+  
+  This is a scheduled task execution for a monthly storage and PaaS quota growth forecast. Let me follow the task
+  prompt step by step.
+  
+  Let me start by:
+  1. Reading the knowledge base documents
+  2. Loading the capacity management skill
+  3. Then proceeding through the phases
+  
+  Let me set up my todo list and begin.
+
+SRE Agent (18:27:14)
+────────────────────
+  
+  
+  Reading knowledge base and loading the capacity management skill.
+
+SRE Agent (18:27:14)
+────────────────────
+  Read file: memory: finops-hub-health-check-findings.md
+
+SRE Agent (18:27:22)
+────────────────────
+  **Thinking**
+  
+  Good, I've read the knowledge base and loaded the capacity management skill. Let me note the key details:
+  
+  - UAMI client_id: `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`
+  - Subscription: `cab7feeb-759d-478c-ade6-9326de0651ff`
+  - Key learning: Network Watchers show 100% (1/1) - exclude from at-risk reporting
+  - Non-compute quota entries may lack a `location` key - use `.get('location', 'unknown')`
+  
+  
+  - Now I'm updating my task list and moving forward to scope out the resources by doing an inventory and pulling in
+  the non-compute quota data.
+
+SRE Agent (18:27:27)
+────────────────────
+  Knowledge base loaded. Key prior findings noted: Network Watchers (1/1 per region) are false positives to exclude,
+  non-compute quota entries may lack `location` key, and UAMI client_id is `b95d2dfd-b3dc-4a2a-98e8-fc2342ea8ae9`.
+  Now establishing scope and collecting quotas in parallel.
+
+SRE Agent (18:27:33)
+────────────────────
+  **Inventorying resources and quotas**
+  
+  Let me proceed with establishing scope by inventorying resources and collecting non-compute quotas. I'll run both
+  in parallel since they're independent operations.
+  
+  Let me use the Resource Graph to inventory storage and PaaS resources, and also run non-compute-quotas for the
+  subscription.
+
+SRE Agent (18:27:33)
+────────────────────
+  Inventorying resources and collecting non-compute quotas in parallel.
+
+SRE Agent (18:27:33)
+────────────────────
+  
+
+SRE Agent (18:28:30)
+────────────────────
+  **Reviewing resource quotas**
+  
+  Good, I have the resource inventory and non-compute quotas data. Let me read the full non-compute quotas output to
+  parse the details, and then proceed with analysis.
+
+SRE Agent (18:28:30)
+────────────────────
+  Reading the full non-compute quotas output to extract at-risk items and utilization data.
+
+SRE Agent (18:28:30)
+────────────────────
+  Read file:
+  tmp/ToolOutputs/922a9bba-a4df-401e-9774-e62e98856f16_non-compute-quotas_toolu_01C3aBZBu4pDYkWu9ttzHJd9.json
+
+SRE Agent (18:28:35)
+────────────────────
+  **Parsing truncated file content**
+  
+  The file was truncated. Let me use a different approach - I'll parse the JSON using a terminal command to extract
+  the key data points I need: at-risk items, high utilization items, and summary statistics.
+
+SRE Agent (18:28:45)
+────────────────────
+  The full JSON is too large to read directly. Let me parse it with jq to extract the key metrics.
+
+SRE Agent (18:28:46)
+────────────────────
+  Terminal: cat
+  /home/appuser/sreagent/terminalRoot/tmp/ToolOutputs/922a9bba-a4df-401e-9774-e62e98856f16_non-compute-quotas_toolu_01C3aBZBu4pDYkWu9ttzHJd9.json
+  | python3 -c "
+  import json, sys
+  data = json.load(sys.stdin)
+  
+  # Summary stats
+  services = data['services']
+  at_risk = [s for s in services if s.get('at_risk')]
+  high_util = [s for s in services if s.get('utilization_pct', 0) >= 50]
+  api_reported = [s for s in services if s.get('limit_type') == 'api_reported']
+  estimated = [s for s in services if s.get('limit_type') != 'api_reported']
+  
+  print(f'Total quota entries: {len(services)}')
+  print(f'At-risk (>=80%): {data.get(\"at_risk_count\", len(at_risk))}')
+  print(f'API-reported limits: {data.get(\"api_reported_limit_count\", len(api_reported))}')
+  print(f'Estimated limits: {data.get(\"estimated_limit_count\", len(estimated))}')
+  print(f'Errors: {len(data.get(\"errors\", []))}')
+  print()
+  
+  # Show all at-risk items
+  print('=== AT-RISK ITEMS (>=80% utilization) ===')
+  for s in at_risk:
+      loc = s.get('location', 'unknown')
+      print(f'  {s[\"service_name\"]:15} | {s[\"quota_name\"]:40} | {loc:20} | {s[\"current_count\"]}/{s[\"limit\"]}
+  ({s[\"utilization_pct\"]:.1f}%) | limit_type={s[\"limit_type\"]}')
+  
+  print()
+  
+  # Show items with >0 utilization (active resources)
+  print('=== ACTIVE QUOTAS (>0% utilization, excluding Network Watchers) ===')
+  active = [s for s in services if s.get('utilization_pct', 0) > 0 and 'Network Watcher' not in s.get('quota_name',
+  '')]
+  active.sort(key=lambda x: x.get('utilization_pct', 0), reverse=True)
+  for s in active:
+      loc = s.get('location', 'unknown')
+      print(f'  {s[\"service_name\"]:15} | {s[\"quota_name\"]:40} | {loc:20} | {s[\"current_count\"]}/{s[\"limit\"]}
+  ({s[\"utilization_pct\"]:.1f}%) | {s[\"limit_type\"]}')
+  
+  print()
+  
+  # Show unique service names and count per service
+  from collections import Counter
+  svc_counts = Counter(s['service_name'] for s in services)
+  print('=== QUOTA ENTRIES BY SERVICE ===')
+  for svc, cnt in svc_counts.most_common():
+      print(f'  {svc}: {cnt} entries')
+  
+  print()
+  # Error summary
+  errors = data.get('errors', [])
+  if errors:
+      err_counts = Counter(e.get('service_name', 'unknown') for e in errors)
+      print('=== ERRORS BY SERVICE ===')
+      for svc, cnt in err_counts.most_common():
+          print(f'  {svc}: {cnt} errors')
+  "
+   (exit 1)
+
+SRE Agent (18:28:50)
+────────────────────
+  **Fixing NoneType comparison error**
+  
+  The previous command failed due to a NoneType comparison. Let me fix the Python script to handle None values
+  properly and re-run the parsing.
+
+SRE Agent (18:28:59)
+────────────────────
+  Fixing the None handling in the parser and re-running.
+
+SRE Agent (18:29:00)
+────────────────────
+  Terminal: cat
+  /home/appuser/sreagent/terminalRoot/tmp/ToolOutputs/922a9bba-a4df-401e-9774-e62e98856f16_non-compute-quotas_toolu_01C3aBZBu4pDYkWu9ttzHJd9.json
+  | python3 -c "
+  import json, sys
+  from collections import Counter
+  
+  data = json.load(sys.stdin)
+  services = data['services']
+  
+  # Summary stats
+  at_risk = [s for s in services if s.get('at_risk', False)]
+  high_util = [s for s in services if (s.get('utilization_pct') or 0) >= 50]
+  api_reported = [s for s in services if s.get('limit_type') == 'api_reported']
+  estimated = [s for s in services if s.get('limit_type') != 'api_reported']
+  
+  print(f'Total quota entries: {len(services)}')
+  print(f'At-risk (>=80%): {data.get(\"at_risk_count\", len(at_risk))}')
+  print(f'API-reported limits: {data.get(\"api_reported_limit_count\", len(api_reported))}')
+  print(f'Estimated limits: {data.get(\"estimated_limit_count\", len(estimated))}')
+  print(f'Errors: {len(data.get(\"errors\", []))}')
+  print()
+  
+  # Show all at-risk items
+  print('=== AT-RISK ITEMS (>=80% utilization) ===')
+  for s in at_risk:
+      loc = s.get('location', 'unknown')
+      util = s.get('utilization_pct') or 0
+      print(f'  {s[\"service_name\"]:15} | {s[\"quota_name\"]:40} | {loc:20} | {s[\"current_count\"]}/{s[\"limit\"]}
+  ({util:.1f}%) | limit_type={s.get(\"limit_type\",\"unknown\")}')
+  
+  print()
+  
+  # Show items with >0 utilization (active resources), excluding Network Watchers
+  print('=== ACTIVE QUOTAS (>0% utilization, excl. Network Watchers) ===')
+  active = [s for s in services if (s.get('utilization_pct') or 0) > 0 and 'Network Watcher' not in
+  s.get('quota_name', '')]
+  active.sort(key=lambda x: (x.get('utilization_pct') or 0), reverse=True)
+  for s in active:
+      loc = s.get('location', 'unknown')
+      util = s.get('utilization_pct') or 0
+      print(f'  {s[\"service_name\"]:15} | {s[\"quota_name\"]:40} | {loc:20} | {s[\"current_count\"]}/{s[\"limit\"]}
+  ({util:.1f}%) | {s.get(\"limit_type\",\"unknown\")}')
+  
+  print()
+  
+  # Unique service names and count per service
+  svc_counts = Counter(s['service_name'] for s in services)
+  print('=== QUOTA ENTRIES BY SERVICE ===')
+  for svc, cnt in svc_counts.most_common():
+      print(f'  {svc}: {cnt} entries')
+  
+  print()
+  errors = data.get('errors', [])
+  if errors:
+      err_counts = Counter(e.get('service_name', 'unknown') for e in errors)
+      print('=== ERRORS BY SERVICE ===')
+      for svc, cnt in err_counts.most_common():
+          print(f'  {svc}: {cnt} errors')
+      print()
+      # Show first 5 unique errors
+      seen = set()
+      print('=== SAMPLE ERRORS (first 5 unique) ===')
+      for e in errors:
+          key = (e.get('service_name'), e.get('error','')[:80])
+          if key not in seen:
+              seen.add(key)
+              print(f'  {e.get(\"service_name\",\"?\"):15} | {e.get(\"location\",\"?\"):15} |
+  {e.get(\"error\",\"?\")[:100]}')
+              if len(seen) >= 5:
+                  break
+  "
+   (exit 0)
+
+SRE Agent (18:29:18)
+────────────────────
+  **Summarizing resource inventory data**
+  
+  Good, I have the resource inventory and non-compute quota data. Let me summarize what I've found so far:
+  
+  **Resource Inventory (single subscription: cab7feeb-759d-478c-ade6-9326de0651ff):**
+  - Primary regions: westus, eastus2, with some resources in westus2, eastus, global
+  - Key PaaS resources:
+    - Storage accounts: 3 (westus) + 2 (eastus2) + 1 (westus2) = 6 total
+    - Kusto clusters: 2 (westus)
+    - Key Vault, Cognitive Services, Data Factory, Logic Apps, Search, CosmosDB, Event Grid, ML workspaces, and App
+  agents distributed across the regions, with Event Grid being the most prevalent at 6 instances total
+  - Network infrastructure shows 10 NSGs spread between westus and eastus2, plus 3 VNets, 4 private endpoints in
+  westus, and 3 public IPs
+  - Looking at the quota summary: 2846 total entries with only 7 at-risk quotas, all of which are Network Watchers
+  that are known false positives, plus 106 errors split between Storage and Network issues
+  - Across active quotas excluding Network Watchers, everything's running well below limits—storage accounts under
+  2%, NSGs under 1%, and other resources like Key Vault, route tables, and virtual network gateways all minimal
+  - Now I need to mark the inventory and non-compute quota steps as done, then forecast growth against prior data,
+  flag any at-risk subscriptions, and generate the charts for the report
+  - Since this is the first monthly run, I don't have historical quota data to compare against yet, so I'll establish
+  this as the baseline and note that future months will show the trend
+  - Let me load the charting capability and build out the visualizations for the report, then post everything to
+  Teams and save it to the knowledge base
+
+SRE Agent (18:29:23)
+────────────────────
+  Resource inventory and non-compute quotas collected. Key findings: single subscription, all 7 "at-risk" items are
+  Network Watchers (known false positives), all real quotas well under 2% utilization. Now generating the report and
+  charts.
+
+SRE Agent (18:29:28)
+────────────────────
+  **Completing growth forecast analysis**
+  
+  Let me continue with the scheduled task execution. I was in the middle of step 5 (forecast growth) and need to
+  complete steps 5-9. Let me load the executing_code skill to generate charts, then build the full report.
+  
+  Since this is the first monthly non-compute quota run, I'll establish the baseline. I need to:
+  1. Complete the growth forecast (baseline establishment)
+  2. Flag at-risk subscriptions
+  3. Generate visualizations
+  4. Post to Teams
+  5. Save to knowledge base
+  
+  Let me load the executing_code skill for chart generation and proceed.
+
+SRE Agent (18:29:29)
+────────────────────
+  Continuing the scheduled task. Loading the code execution skill for chart generation, then completing the forecast,
+  visualizations, and Teams report.
+
+SRE Agent (18:29:36)
+────────────────────
+  
+  
+  Uploading the non-compute quotas data to the code interpreter session, then generating the charts and building the
+  full report.
+
+SRE Agent (18:29:40)
+────────────────────
+  **Thinking**
+  
+  Let me continue with the scheduled task execution. I was in the middle of generating the report. I've already
+  uploaded the non-compute quotas data to the code interpreter session. Now I need to:
+  
+  1. Generate the visualizations (charts)
+  2. Build the full report
+  3. Post to Teams
+  4. Save findings to knowledge base
+  
+  Let me generate the charts first using the code interpreter, then compose and post the Teams message.
+
+SRE Agent (18:29:45)
+────────────────────
+  Generating the quota utilization and 90-day forecast charts from the uploaded data.
+
+SRE Agent (18:30:25)
+────────────────────
+  
+  
+  Continuing with chart generation. The non-compute quotas data is already uploaded to the code interpreter session.
+
+SRE Agent (18:30:31)
+────────────────────
+  Python:
+  import json
+  import matplotlib.pyplot as plt
+  import matplotl… (exit 0)
+
+SRE Agent (18:30:37)
+────────────────────
+  
+  
+  Charts generated successfully. Now posting the full report to Teams with embedded chart images.
+
+SRE Agent (18:30:42)
+────────────────────
+  **Posting scheduled report**
+  
+  I need to continue with the scheduled task. I was about to post the report to Teams (step 8) and then save findings
+  to the knowledge base (step 9). Let me compose and post the Teams message with the chart images embedded.
+
+SRE Agent (18:31:24)
+────────────────────
+  Posting the final report to Teams with embedded charts.
+
+SRE Agent (18:31:30)
+────────────────────
+  **Completing remaining tasks**
+  
+  The Teams report was posted successfully. Now I need to complete the remaining tasks:
+  1. Mark task 8 as completed (Teams post was successful)
+  2. Save findings to knowledge base (task 9)
+  
+  Let me finish up.
+
+SRE Agent (18:31:33)
+────────────────────
+  Teams report posted successfully. Now saving operational findings to the knowledge base.
+
+SRE Agent (18:31:39)
+────────────────────
+  **Saving operational findings**
+  
+  I need to complete the final task - saving operational findings to the knowledge base. Let me create/update the
+  knowledge base file with the non-compute quota baseline data from this run. I should NOT save any financial figures
+  - just operational findings about resource counts, quota utilization patterns, and technical notes.
+  
+  Let me first check if there's an existing file for non-compute quota findings.
+
+SRE Agent (18:32:07)
+────────────────────
+  Completing the final task — saving the baseline findings to the knowledge base.
+
+SRE Agent (18:32:07)
+────────────────────
+  Created file: memory: storage-paas-quota-baseline.md (87 lines)
+
+SRE Agent (18:32:21)
+────────────────────
+  
+  
+  The scheduled task **StoragePaasGrowthForecast** completed successfully. Here's the summary:
+  
+  **Results:**
+  - **Subscription scanned:** cab7feeb-759d-478c-ade6-9326de0651ff (single subscription)
+  - **2,846 quota entries** collected across all regions via ARM provider usages API
+  - **0 real at-risk items** — all non-compute quotas are below 2% utilization
+  - 7 Network Watcher entries at 100% excluded (known auto-provisioned false positives)
+  - 4 estimated limits noted (Key Vault, App Service, SQL, Service Bus — no API-reported limits available)
+  - 106 API errors from stage/preview regions — expected and non-actionable
+  
+  **Key resource counts:** 6 Storage Accounts, 2 Kusto Clusters, 3 Cognitive Services, 10 NSGs, 3 VNets — all well
+  within limits across westus and eastus2.
+  
+  **Deliverables:**
+  1. Full report with 3 charts posted to Teams (quota utilization, 90-day forecast, resource distribution)
+  2. Baseline data saved to
+  [storage-paas-quota-baseline.md](/api/files/memories/synthesizedKnowledge/storage-paas-quota-baseline.md) for
+  future month-over-month comparison
+  3. Next month's run will detect growth trends by comparing against this baseline
+
+Brett Wilson (20:32:28)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+SRE Agent (20:33:02)
+────────────────────
+  
+  
+  ```python
+  # chart-name: quota-utilization-comparison
+  import matplotlib.pyplot as plt
+  import matplotlib.ticker as mticker
+  import numpy as np
+  from matplotlib.patches import Patch
+  
+  labels = [
+      "Storage Accounts\n(westus)",
+      "Storage Accounts\n(eastus2)",
+      "Storage Accounts\n(westus2)",
+      "Public IP Addresses\n(westus)",
+      "Virtual Networks\n(westus)",
+      "Route Tables\n(westus)",
+      "NSGs\n(westus)",
+      "Virtual Networks\n(eastus2)",
+      "NSGs\n(eastus2)",
+      "Network Interfaces\n(westus)",
+      "Key Vault vaults estimated...\n(unknown)",
+      "Private Endpoints\n(westus)",
+  ]
+  utils = [1.2, 0.8, 0.4, 0.3, 0.2, 0.2, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0]
+  currents = [3, 2, 1, 3, 2, 2, 7, 1, 3, 12, 1, 4]
+  limits = [250, 250, 250, 1000, 1000, 1000, 5000, 1000, 5000, 65536, 5000, 65536]
+  limit_types = ["api_reported", "api_reported", "api_reported", "api_reported", "api_reported", "api_reported",
+  "api_reported", "api_reported", "api_reported", "api_reported", "estimated", "api_reported"]
+  
+  colors_bar = ['#2196F3' if lt == 'api_reported' else '#FF9800' for lt in limit_types]
+  
+  fig1, ax1 = plt.subplots(figsize=(10, max(6, len(labels) * 0.45)))
+  y_pos = np.arange(len(labels))
+  bars = ax1.barh(y_pos, utils, color=colors_bar, edgecolor='white', height=0.7)
+  
+  for i, (bar, curr, lim, util) in enumerate(zip(bars, currents, limits, utils)):
+      ax1.text(bar.get_width() + 0.1, bar.get_y() + bar.get_height()/2, f'{curr}/{lim} ({util:.1f}%)', va='center',
+  fontsize=8, color='#333')
+  
+  ax1.set_yticks(y_pos)
+  ax1.set_yticklabels(labels, fontsize=8)
+  ax1.set_xlabel('Utilization %', fontsize=10)
+  ax1.set_title('Non-Compute Quota Utilization — Active Resources\n(Subscription: cab7feeb…51ff | May 2026)',
+  fontsize=11, fontweight='bold')
+  ax1.set_xlim(0, max(utils) * 1.5 if utils else 10)
+  ax1.invert_yaxis()
+  ax1.axvline(x=80, color='red', linestyle='--', alpha=0.5, label='80% threshold')
+  
+  legend_elements = [Patch(facecolor='#2196F3', label='API-reported limit'), Patch(facecolor='#FF9800',
+  label='Estimated limit'), plt.Line2D([0], [0], color='red', linestyle='--', alpha=0.5, label='80% risk threshold')]
+  ax1.legend(handles=legend_elements, fontsize=8, loc='lower right')
+  
+  plt.tight_layout()
+  plt.savefig('quota-utilization-comparison.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: ninety-day-forecast
+  import matplotlib.pyplot as plt
+  import numpy as np
+  from datetime import datetime, timedelta
+  
+  today = datetime(2026, 5, 2)
+  
+  forecast_items = [
+      ("Network: Network Interfaces", 12, 65536, "westus"),
+      ("Network: NSGs", 10, 10000, "westus, eastus2"),
+      ("Storage: Storage Accounts", 6, 750, "westus, eastus2, westus2"),
+      ("Network: Private Endpoints", 4, 65536, "westus"),
+  ]
+  
+  fig2, axes = plt.subplots(2, 2, figsize=(12, 8))
+  axes = axes.flatten()
+  
+  for idx, (name, current, limit, locs) in enumerate(forecast_items):
+      ax = axes[idx]
+      baseline = np.full(91, current, dtype=float)
+      optimistic = np.array([current * (1 + 0.05 * d / 90) for d in range(91)])
+      pessimistic = np.array([current * (1 + 0.10 * d / 90) for d in range(91)])
+  
+      ax.fill_between(range(91), baseline, pessimistic, alpha=0.15, color='#FF5722', label='High growth (+10%)')
+      ax.fill_between(range(91), baseline, optimistic, alpha=0.15, color='#FF9800', label='Moderate growth (+5%)')
+      ax.plot(range(91), baseline, color='#2196F3', linewidth=2, label='Baseline (flat)')
+  
+      if limit > 0:
+          ax.axhline(y=limit, color='red', linestyle='--', alpha=0.4, linewidth=1)
+          ax.text(85, limit, f'Limit: {limit}', fontsize=7, color='red', ha='right', va='bottom')
+  
+      ax.set_xticks([0, 30, 60, 90])
+      ax.set_xticklabels(['Today', '+30d', '+60d', '+90d'], fontsize=8)
+      ax.set_title(f'{name}\n({locs})', fontsize=9, fontweight='bold')
+      ax.set_ylabel('Count', fontsize=8)
+      ax.legend(fontsize=6, loc='upper left')
+      ax.grid(True, alpha=0.2)
+  
+  fig2.suptitle('90-Day Non-Compute Resource Forecast — Baseline Establishment\n(May 2026 | First monthly run — no
+  prior data for trend)', fontsize=11, fontweight='bold')
+  plt.tight_layout(rect=[0, 0, 1, 0.93])
+  plt.savefig('ninety-day-forecast.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: resource-distribution
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  resource_data = {"Operations Mgmt Solutions": 11, "NSGs": 10, "Managed Identities": 11, "Storage Accounts": 6,
+  "Event Grid Topics": 6, "Workbooks": 6, "Log Analytics": 5, "Private DNS Zones": 5, "Private DNS Links": 5, "App
+  Insights": 4, "Private Endpoints": 4, "Network Interfaces": 4, "Alert Rules": 4, "Public IPs": 3, "Action Groups":
+  3, "Cognitive Services": 3, "Other": 30}
+  
+  region_data = {"westus": 55, "eastus2": 30, "global": 15, "westus2": 3, "eastus": 3, "other": 5}
+  
+  fig3, (ax3a, ax3b) = plt.subplots(1, 2, figsize=(14, 6))
+  
+  top_types = dict(sorted(resource_data.items(), key=lambda x: x[1], reverse=True)[:10])
+  colors_pie = plt.cm.Set3(np.linspace(0, 1, len(top_types)))
+  wedges, texts, autotexts = ax3a.pie(top_types.values(), labels=None, autopct='%1.0f%%', colors=colors_pie,
+  startangle=90, pctdistance=0.85)
+  ax3a.legend(top_types.keys(), loc='center left', bbox_to_anchor=(-0.3, 0.5), fontsize=8)
+  ax3a.set_title('Resource Distribution by Type', fontsize=10, fontweight='bold')
+  for t in autotexts:
+      t.set_fontsize(7)
+  
+  bars3 = ax3b.bar(region_data.keys(), region_data.values(), color='#4CAF50', edgecolor='white')
+  for bar, val in zip(bars3, region_data.values()):
+      ax3b.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5, str(val), ha='center', fontsize=9,
+  fontweight='bold')
+  ax3b.set_title('Resource Count by Region', fontsize=10, fontweight='bold')
+  ax3b.set_ylabel('Count', fontsize=9)
+  ax3b.grid(axis='y', alpha=0.2)
+  
+  fig3.suptitle('Azure Resource Estate Overview — cab7feeb…51ff\n(May 2, 2026)', fontsize=11, fontweight='bold')
+  plt.tight_layout(rect=[0, 0, 1, 0.92])
+  plt.savefig('resource-distribution.svg', bbox_inches='tight')
+  plt.close()
+  ```
+
+Brett Wilson (23:05:30)
+───────────────────────
+  visualizations pls
+
+SRE Agent (23:06:06)
+────────────────────
+  Python:
+  import matplotlib.pyplot as plt
+  import matplotlib.ticker as… (exit 0)
+
+SRE Agent (23:06:09)
+────────────────────
+  
+  
+  Here are the three charts from the run:
+  
+  **Quota Utilization Comparison:**
+  ![quota-utilization-comparison.png](/api/files/tmp/ThreadFiles/922a9bba-a4df-401e-9774-e62e98856f16/quota-utilization-comparison.png)
+  
+  **90-Day Forecast:**
+  ![ninety-day-forecast.png](/api/files/tmp/ThreadFiles/922a9bba-a4df-401e-9774-e62e98856f16/ninety-day-forecast.png)
+  
+  **Resource Distribution:**
+  ![resource-distribution.png](/api/files/tmp/ThreadFiles/922a9bba-a4df-401e-9774-e62e98856f16/resource-distribution.png)
+
+Brett Wilson (23:27:46)
+───────────────────────
+  Output the FULL Python matplotlib source code for every chart you generated in this run. Use real values from the
+  run. Wrap each in a separate ```python fenced block prefixed with a comment line "# chart-name: <slug>" identifying
+  the chart. Use plt.savefig with .svg extension and no display. Do not call any tools. Do not summarise. Just output
+  the code blocks back to back. Do not break any string literals across multiple lines.
+
+Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●● Processing ●●●                                                                                                                        Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●● Processing ●●●                                                                                                                        Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         Processing ●  Processing ●● Processing ●●●Processing ●  Processing ●●                                                                                                                         SRE Agent (23:28:06)
+────────────────────
+  
+  
+  ```python
+  # chart-name: quota-utilization-comparison
+  import matplotlib.pyplot as plt
+  import numpy as np
+  from matplotlib.patches import Patch
+  
+  labels = ["Storage Accounts\n(westus)", "Storage Accounts\n(eastus2)", "Storage Accounts\n(westus2)", "Public IP
+  Addresses\n(westus)", "Virtual Networks\n(westus)", "Route Tables\n(westus)", "NSGs\n(westus)", "Virtual
+  Networks\n(eastus2)", "NSGs\n(eastus2)", "Network Interfaces\n(westus)", "Key Vault vaults
+  estimated...\n(unknown)", "Private Endpoints\n(westus)"]
+  utils = [1.2, 0.8, 0.4, 0.3, 0.2, 0.2, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0]
+  currents = [3, 2, 1, 3, 2, 2, 7, 1, 3, 12, 1, 4]
+  limits = [250, 250, 250, 1000, 1000, 1000, 5000, 1000, 5000, 65536, 5000, 65536]
+  limit_types = ["api_reported", "api_reported", "api_reported", "api_reported", "api_reported", "api_reported",
+  "api_reported", "api_reported", "api_reported", "api_reported", "estimated", "api_reported"]
+  
+  colors_bar = ['#2196F3' if lt == 'api_reported' else '#FF9800' for lt in limit_types]
+  
+  fig1, ax1 = plt.subplots(figsize=(10, max(6, len(labels) * 0.45)))
+  y_pos = np.arange(len(labels))
+  bars = ax1.barh(y_pos, utils, color=colors_bar, edgecolor='white', height=0.7)
+  
+  for i, (bar, curr, lim, util) in enumerate(zip(bars, currents, limits, utils)):
+      ax1.text(bar.get_width() + 0.1, bar.get_y() + bar.get_height() / 2, f'{curr}/{lim} ({util:.1f}%)', va='center',
+  fontsize=8, color='#333')
+  
+  ax1.set_yticks(y_pos)
+  ax1.set_yticklabels(labels, fontsize=8)
+  ax1.set_xlabel('Utilization %', fontsize=10)
+  ax1.set_title('Non-Compute Quota Utilization — Active Resources\n(Subscription: cab7feeb…51ff | May 2026)',
+  fontsize=11, fontweight='bold')
+  ax1.set_xlim(0, max(utils) * 1.5 if utils else 10)
+  ax1.invert_yaxis()
+  ax1.axvline(x=80, color='red', linestyle='--', alpha=0.5, label='80% threshold')
+  
+  legend_elements = [Patch(facecolor='#2196F3', label='API-reported limit'), Patch(facecolor='#FF9800',
+  label='Estimated limit'), plt.Line2D([0], [0], color='red', linestyle='--', alpha=0.5, label='80% risk threshold')]
+  ax1.legend(handles=legend_elements, fontsize=8, loc='lower right')
+  
+  plt.tight_layout()
+  plt.savefig('quota-utilization-comparison.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: ninety-day-forecast
+  import matplotlib.pyplot as plt
+  import numpy as np
+  from datetime import datetime, timedelta
+  
+  forecast_items = [("Network: Network Interfaces", 12, 65536, "westus"), ("Network: NSGs", 10, 10000, "westus,
+  eastus2"), ("Storage: Storage Accounts", 6, 750, "westus, eastus2, westus2"), ("Network: Private Endpoints", 4,
+  65536, "westus")]
+  
+  fig2, axes = plt.subplots(2, 2, figsize=(12, 8))
+  axes = axes.flatten()
+  
+  for idx, (name, current, limit, locs) in enumerate(forecast_items):
+      ax = axes[idx]
+      baseline = np.full(91, current, dtype=float)
+      optimistic = np.array([current * (1 + 0.05 * d / 90) for d in range(91)])
+      pessimistic = np.array([current * (1 + 0.10 * d / 90) for d in range(91)])
+  
+      ax.fill_between(range(91), baseline, pessimistic, alpha=0.15, color='#FF5722', label='High growth (+10%)')
+      ax.fill_between(range(91), baseline, optimistic, alpha=0.15, color='#FF9800', label='Moderate growth (+5%)')
+      ax.plot(range(91), baseline, color='#2196F3', linewidth=2, label='Baseline (flat)')
+  
+      if limit > 0:
+          ax.axhline(y=limit, color='red', linestyle='--', alpha=0.4, linewidth=1)
+          ax.text(85, limit, f'Limit: {limit}', fontsize=7, color='red', ha='right', va='bottom')
+  
+      ax.set_xticks([0, 30, 60, 90])
+      ax.set_xticklabels(['Today', '+30d', '+60d', '+90d'], fontsize=8)
+      ax.set_title(f'{name}\n({locs})', fontsize=9, fontweight='bold')
+      ax.set_ylabel('Count', fontsize=8)
+      ax.legend(fontsize=6, loc='upper left')
+      ax.grid(True, alpha=0.2)
+  
+  fig2.suptitle('90-Day Non-Compute Resource Forecast — Baseline Establishment\n(May 2026 | First monthly run — no
+  prior data for trend)', fontsize=11, fontweight='bold')
+  plt.tight_layout(rect=[0, 0, 1, 0.93])
+  plt.savefig('ninety-day-forecast.svg', bbox_inches='tight')
+  plt.close()
+  ```
+  
+  ```python
+  # chart-name: resource-distribution
+  import matplotlib.pyplot as plt
+  import numpy as np
+  
+  resource_data = {"Operations Mgmt Solutions": 11, "NSGs": 10, "Managed Identities": 11, "Storage Accounts": 6,
+  "Event Grid Topics": 6, "Workbooks": 6, "Log Analytics": 5, "Private DNS Zones": 5, "Private DNS Links": 5, "App
+  Insights": 4, "Private Endpoints": 4, "Network Interfaces": 4, "Alert Rules": 4, "Public IPs": 3, "Action Groups":
+  3, "Cognitive Services": 3, "Other": 30}
+  region_data = {"westus": 55, "eastus2": 30, "global": 15, "westus2": 3, "eastus": 3, "other": 5}
+  
+  fig3, (ax3a, ax3b) = plt.subplots(1, 2, figsize=(14, 6))
+  
+  top_types = dict(sorted(resource_data.items(), key=lambda x: x[1], reverse=True)[:10])
+  colors_pie = plt.cm.Set3(np.linspace(0, 1, len(top_types)))
+  wedges, texts, autotexts = ax3a.pie(top_types.values(), labels=None, autopct='%1.0f%%', colors=colors_pie,
+  startangle=90, pctdistance=0.85)
+  ax3a.legend(top_types.keys(), loc='center left', bbox_to_anchor=(-0.3, 0.5), fontsize=8)
+  ax3a.set_title('Resource Distribution by Type', fontsize=10, fontweight='bold')
+  for t in autotexts:
+      t.set_fontsize(7)
+  
+  bars3 = ax3b.bar(region_data.keys(), region_data.values(), color='#4CAF50', edgecolor='white')
+  for bar, val in zip(bars3, region_data.values()):
+      ax3b.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5, str(val), ha='center', fontsize=9,
+  fontweight='bold')
+  ax3b.set_title('Resource Count by Region', fontsize=10, fontweight='bold')
+  ax3b.set_ylabel('Count', fontsize=9)
+  ax3b.grid(axis='y', alpha=0.2)
+  
+  fig3.suptitle('Azure Resource Estate Overview — cab7feeb…51ff\n(May 2, 2026)', fontsize=11, fontweight='bold')
+  plt.tight_layout(rect=[0, 0, 1, 0.92])
+  plt.savefig('resource-distribution.svg', bbox_inches='tight')
+  plt.close()
+  ```
+

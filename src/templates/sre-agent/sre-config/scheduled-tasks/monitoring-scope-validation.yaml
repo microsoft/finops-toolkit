@@ -1,0 +1,80 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: MonitoringScopeValidation
+spec:
+  name: MonitoringScopeValidation
+  description: Weekly validation that FinOps Hub monitoring covers all active subscriptions
+  cron_expression: 0 9 * * 4
+  agent_mode: autonomous
+  agent: ftk-hubs-agent
+  agent_prompt: '# Monitoring Scope Validation
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting, read all documents in the knowledge base. Pay special attention to FinOps Hub deployment notes, ADX cluster details, monitored scope decisions, and data freshness workarounds.
+
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
+
+
+    Load your relevant FinOps Hubs skill. Note the `client_id` for Python tool authentication.
+
+
+    ## Python tools available
+
+
+    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+
+
+    - `resource-graph-query`: Run with `query`, optional `subscription_ids`, and `client_id` to list active subscriptions and subscription metadata.
+
+    - `data-freshness-check`: Run with `cluster_uri`, optional `database`, and `client_id` to validate FinOps Hub function freshness and coverage signals.
+
+
+    ## 1. Establish active subscription inventory
+
+
+    Run `resource-graph-query` to list active subscriptions and key ownership or environment metadata. Exclude subscriptions documented as intentionally outside the Hub monitoring scope.
+
+
+    ## 2. Validate Hub data freshness
+
+
+    Run `data-freshness-check` with `cluster_uri`, optional `database`, and `client_id`. Capture latest data dates, staleness days, stale functions, missing functions, and query errors.
+
+
+    ## 3. Cross-reference monitoring coverage
+
+
+    Cross-reference Resource Graph subscription inventory with subscriptions represented in Hub data coverage notes or Hub query results. Identify active subscriptions with missing, stale, or ambiguous Hub coverage.
+
+
+    ## 4. Flag scope gaps
+
+
+    Flag any active subscription not covered by Hub monitoring, any stale Hub function, and any access or query failure that prevents confidence in coverage. Recommend export, scope, identity, or ingestion remediation.
+
+
+    ## Report format
+
+
+    Produce a markdown report with an executive summary, a subscription coverage table, a data freshness table, coverage gaps, errors, and recommended remediation actions.
+
+
+    ## Persistence
+
+
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
+
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to Teams only.
+
+
+    ## Visualizations
+
+
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum a monitored versus unmonitored subscription chart and a data staleness chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message alongside the text tables.'
+

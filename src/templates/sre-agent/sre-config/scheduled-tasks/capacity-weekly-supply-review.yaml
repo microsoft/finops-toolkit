@@ -1,0 +1,144 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: CapacityWeeklySupplyReview
+spec:
+  name: CapacityWeeklySupplyReview
+  description: Weekly capacity supply chain review — quota headroom, CRG cost optimization, SKU availability, benefit recommendations
+  cron_expression: 0 8 * * 1
+  agent_mode: autonomous
+  agent: azure-capacity-manager
+  agent_prompt: '# Weekly Capacity Supply Chain Review
+
+
+    ## Phase 0: Preparation
+
+
+    Before starting any analysis, read all documents in the knowledge base. Pay special attention to known-issues-and-workarounds.md and any prior run notes. Use what you learn to avoid repeating known errors and to build on previous findings.
+
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
+
+
+    Load your azure-capacity-management skill.
+
+
+    Weekly review covering Forecast, Procure, and Allocate steps of the capacity supply chain.
+
+    ## Python tools available for this task
+
+    The following Python tools provide real Azure data via ARM REST API. Always use these instead of `az` CLI commands when available. Pass `client_id` as a parameter to each tool for UAMI authentication.
+
+    - `vm-quota-usage`: Run with subscription_id and location to get VM family quota usage with at-risk thresholds
+    - `non-compute-quotas`: Run with subscription_id and location to get Storage and Network quota usage
+    - `capacity-reservation-groups`: Run with subscription_id and resource_group when scoped to list CRGs with instanceView utilization
+    - `sku-availability`: Run with subscription_id and location to get Compute SKU availability and restrictions by default. Use `resource_provider: kusto` with a planned Data Explorer SKU in `sku_filter` to preflight Azure Data Explorer / Kusto eligibility for FinOps Hub analytics deployments; never infer Kusto availability from Compute SKU results.
+    - `benefit-recommendations`: Run with billing_scope and lookback to get reservation and savings plan recommendations
+
+
+    ## 1. Quota Headroom Analysis
+
+
+    Run comprehensive quota analysis across all subscriptions using `vm-quota-usage` and `non-compute-quotas`:
+
+    - Aggregate quota usage by VM family across subscriptions
+
+    - Identify families with <20% headroom across the estate
+
+    - Check quota group balances — any group near its limit?
+
+    - Identify quota transfer opportunities between subscriptions
+
+    - Flag subscriptions not yet added to quota groups
+
+
+    Reference: `references/docs/operations/quota/README.md` and `references/docs/operations/quota-groups/README.md`
+
+
+    ## 2. CRG Cost-Waste Audit
+
+
+    Use `capacity-reservation-groups` for all capacity reservations:
+
+    - Calculate weekly cost of unused reserved capacity (reserved minus allocated × pay-as-you-go rate)
+
+    - Compare CRG cost against equivalent Azure Reservation or savings plan cost
+
+    - Identify CRGs that could be rightsized (reduce reservation quantity)
+
+    - Check for CRGs without matching Azure Reservations (paying both capacity guarantee AND full price)
+
+
+    Key distinction from skill: Capacity reservations guarantee supply. Azure Reservations reduce cost. Best practice is to pair both.
+
+
+    Reference: `references/docs/operations/capacity-reservations/README.md`
+
+
+    ## 3. SKU and Zone Availability Validation
+
+
+    Use `sku-availability` to validate SKU and zone availability for shared CRGs and upcoming deployments:
+
+    - Verify that planned SKUs are available in the required locations and zones
+
+    - Flag any SKU restrictions that could block planned scaling
+
+    - For FinOps Hub Data Explorer backend work, run `sku-availability` with `resource_provider: kusto` and the planned ADX SKU as `sku_filter`; treat `is_available: false` as a deploy or upgrade blocker.
+
+
+    Reference: Skill section on zone alignment and `references/docs/operations/capacity-planning/README.md`
+
+
+    ## 4. Benefit Recommendations
+
+
+    Run `benefit-recommendations` to get current RI/SP recommendations. Keep using `reservation-recommendation-breakdown` Kusto tool where Hub cost context is available.
+
+    Cross-reference with capacity reservation strategy:
+
+    - Do recommended reservations overlap with existing CRGs? (Good — pair pricing with capacity)
+
+    - Are there high-savings recommendations in regions without CRGs? (May need capacity too)
+
+
+    ## 5. Region and SKU Availability
+
+
+    Use `sku-availability` to check for any new region access or zonal enablement needs:
+
+    - Upcoming deployments that need new regions?
+
+    - SKU restrictions blocking planned scaling?
+
+
+    Reference: `references/docs/operations/capacity-planning/README.md`
+
+
+    ## Output
+
+
+    Produce a weekly capacity supply chain briefing with:
+
+    - Quota headroom scorecard (🔴🟡🟢 by VM family)
+
+    - CRG utilization and waste summary with dollar amounts
+
+    - Benefit recommendation highlights
+
+    - Action items for procurement team
+
+
+    Use #remember to note key supply chain findings. Use deep investigation if any quota is critically low.
+
+
+    ## Deliver
+
+
+
+    **Visualizations:** Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Include at minimum one trend chart and one comparison chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed the chart images inline in the Teams message alongside the text tables. Charts make the report immediately actionable for stakeholders who scan rather than read.
+
+    **Teams (capacity results only):** Post the final weekly capacity briefing to our Teams channel. Include the quota headroom scorecard, CRG waste summary, benefit recommendations, and procurement action items. Do not post intermediate results — only the completed briefing. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
+
+
+    **Knowledge base (operational learnings only):** Save any new operational insights to the knowledge base — quota API failures, SKU availability discoveries, CRG query patterns, Python tool workarounds. Never save financial figures, cost amounts, or any customer financial data to the knowledge base. Financial detail goes to Teams only.'

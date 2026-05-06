@@ -374,6 +374,7 @@ env/
 # AI
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+.mcp.json
 
 # Internal planning docs
 /TODO.md
@@ -383,3 +384,29 @@ env/
 
 # Auto-generated build artifacts
 src/templates/finops-hub-copilot-studio/knowledge/query-catalog.md
+.gate/
+
+# Gate pipeline files (runtime, not source)
+/todo/
+/done/
+
+# Ralph autonomous iteration loop
+/ralph.sh
+/ralph-meta.sh
+/ralph/
+
+# SRE agent training deck — local working artifacts
+src/templates/sre-agent/training/release-deck/renders/
+src/templates/sre-agent/training/release-deck/__pycache__/
+src/templates/sre-agent/training/release-deck/~$*.pptx
+src/templates/sre-agent/training/release-deck/finops-toolkit-sre-agent-release-training copy.pptx
+src/templates/sre-agent/training/release-deck/finops-toolkit-sre-agent-release-training.pdf
+src/templates/sre-agent/training/release-deck/qa4-*.jpg
+src/templates/sre-agent/training/release-deck/charts/svg/*.rasterized.png
+src/templates/sre-agent/training/release-deck/assets/*.rasterized.png
+
+# Working PNGs from playwright/CDP captures at repo root
+.playwright-mcp/
+cdp-fullpage*.png
+cdp-shot*.png
+src/templates/sre-agent/training/release-deck/finops-toolkit-sre-agent-release-training.rebuild-*.pptx
