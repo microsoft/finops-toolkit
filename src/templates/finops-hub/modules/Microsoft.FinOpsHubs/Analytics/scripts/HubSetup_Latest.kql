@@ -13,7 +13,7 @@
 with (docstring = 'Gets all commitment discount usage records with the latest supported version of the FOCUS schema.', folder = 'CommitmentDiscountUsage')
 CommitmentDiscountUsage()
 {
-    CommitmentDiscountUsage_v1_2()
+    CommitmentDiscountUsage_v1_3()
 }
 
 
@@ -21,7 +21,7 @@ CommitmentDiscountUsage()
 with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Costs')
 Costs()
 {
-    Costs_v1_2()
+    Costs_v1_3()
 }
 
 
@@ -29,7 +29,7 @@ Costs()
 with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Prices')
 Prices()
 {
-    Prices_v1_2()
+    Prices_v1_3()
 }
 
 
@@ -37,7 +37,7 @@ Prices()
 with (docstring = 'Gets all recommendations with the latest supported version of the FOCUS schema.', folder = 'Recommendations')
 Recommendations()
 {
-    Recommendations_v1_2()
+    Recommendations_v1_3()
 }
 
 
@@ -45,5 +45,5 @@ Recommendations()
 with (docstring = 'Gets all transactions with the latest supported version of the FOCUS schema.', folder = 'Transactions')
 Transactions()
 {
-    Transactions_v1_2()
+    Transactions_v1_3()
 }
