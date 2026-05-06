@@ -378,6 +378,8 @@ module ingestion_VersionedScripts '../../fx/hub-database.bicep' = if (useAzure) 
     scripts: {
       v1_0: loadTextContent('scripts/IngestionSetup_v1_0.kql')
       v1_2: loadTextContent('scripts/IngestionSetup_v1_2.kql')
+      v1_3: loadTextContent('scripts/IngestionSetup_v1_3.kql')
+      v1_4: loadTextContent('scripts/IngestionSetup_v1_4.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
@@ -413,6 +415,7 @@ module hub_VersionedScripts '../../fx/hub-database.bicep' = if (useAzure) {
     scripts: {
       v1_0: loadTextContent('scripts/HubSetup_v1_0.kql')
       v1_2: loadTextContent('scripts/HubSetup_v1_2.kql')
+      v1_3: loadTextContent('scripts/HubSetup_v1_3.kql')
     }
     continueOnErrors: continueOnErrors
     forceUpdateTag: forceUpdateTag
