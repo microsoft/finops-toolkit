@@ -1663,6 +1663,75 @@ CommitmentDiscountUsage_transform_v1_3()
 ```
 
 
+//===| Contract commitment |============================================================================================
+// Supported versions:
+// - FOCUS 1.3+ (no Cost Management export shipped yet; defines the schema in advance for forward compat)
+//======================================================================================================================
+
+// ContractCommitment_transform_v1_3 function
+.create-or-alter function
+with (docstring='All contract commitments aligned to FOCUS 1.3.', folder='Contract commitments')
+ContractCommitment_transform_v1_3()
+{
+    ContractCommitment_raw
+    | project
+        BillingCurrency,
+        ContractCommitmentCategory,
+        ContractCommitmentCost,
+        ContractCommitmentId,
+        ContractCommitmentPeriodEnd,
+        ContractCommitmentPeriodStart,
+        ContractCommitmentQuantity,
+        ContractCommitmentType,
+        ContractCommitmentUnit,
+        ContractId,
+        ContractPeriodEnd,
+        ContractPeriodStart,
+        InvoiceIssuerName,
+        PricingCurrency,
+        x_IngestionTime  = ingestion_time(),
+        x_SourceName     = coalesce(x_SourceName, ''),
+        x_SourceProvider = coalesce(x_SourceProvider, ''),
+        x_SourceType     = coalesce(x_SourceType, ''),
+        x_SourceVersion  = coalesce(x_SourceVersion, '')
+}
+
+// ContractCommitment_final_v1_3 table
+.create-merge table ContractCommitment_final_v1_3 (
+    BillingCurrency:               string,    // FOCUS 1.3+
+    ContractCommitmentCategory:    string,    // FOCUS 1.3+
+    ContractCommitmentCost:        real,      // FOCUS 1.3+
+    ContractCommitmentId:          string,    // FOCUS 1.3+
+    ContractCommitmentPeriodEnd:   datetime,  // FOCUS 1.3+
+    ContractCommitmentPeriodStart: datetime,  // FOCUS 1.3+
+    ContractCommitmentQuantity:    real,      // FOCUS 1.3+
+    ContractCommitmentType:        string,    // FOCUS 1.3+
+    ContractCommitmentUnit:        string,    // FOCUS 1.3+
+    ContractId:                    string,    // FOCUS 1.3+
+    ContractPeriodEnd:             datetime,  // FOCUS 1.3+
+    ContractPeriodStart:           datetime,  // FOCUS 1.3+
+    InvoiceIssuerName:             string,    // FOCUS 1.3+
+    PricingCurrency:               string,    // FOCUS 1.3+
+    x_IngestionTime:               datetime,  // Hubs add-on
+    x_SourceName:                  string,    // Hubs add-on
+    x_SourceProvider:              string,    // Hubs add-on
+    x_SourceType:                  string,    // Hubs add-on
+    x_SourceVersion:               string     // Hubs add-on
+)
+
+// Update policy for ContractCommitment_raw -> ContractCommitment_final_v1_3 table
+.alter table ContractCommitment_final_v1_3 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "ContractCommitment_raw",
+    "Query": "ContractCommitment_transform_v1_3()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
+
+
 //===| Recommendations |================================================================================================
 // Supported datasets/versions:
 // - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea

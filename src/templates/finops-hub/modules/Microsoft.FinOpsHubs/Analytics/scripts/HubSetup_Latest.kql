@@ -18,6 +18,14 @@ CommitmentDiscountUsage()
 
 
 .create-or-alter function
+with (docstring = 'Gets all contract commitments with the latest supported version of the FOCUS schema.', folder = 'ContractCommitment')
+ContractCommitment()
+{
+    ContractCommitment_v1_3()
+}
+
+
+.create-or-alter function
 with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Costs')
 Costs()
 {

@@ -335,6 +335,74 @@
 .alter table CommitmentDiscountUsage_raw policy streamingingestion disable
 
 
+//===| Contract commitment |============================================================================================
+// Supported versions:
+// - FOCUS 1.3+ (no Cost Management export shipped yet)
+//======================================================================================================================
+
+// ContractCommitment_raw table -- Create the table if it doesn't exist
+.create-merge table ContractCommitment_raw ( ignore: string )
+
+// ContractCommitment_raw table -- Remove all columns to allow changing column types
+.alter table ContractCommitment_raw ( ignore: string )
+
+// ContractCommitment_raw table -- Redefine all columns
+.alter table ContractCommitment_raw (
+    BillingCurrency:               string,    // FOCUS 1.3+
+    ContractCommitmentCategory:    string,    // FOCUS 1.3+
+    ContractCommitmentCost:        real,      // FOCUS 1.3+
+    ContractCommitmentId:          string,    // FOCUS 1.3+
+    ContractCommitmentPeriodEnd:   datetime,  // FOCUS 1.3+
+    ContractCommitmentPeriodStart: datetime,  // FOCUS 1.3+
+    ContractCommitmentQuantity:    real,      // FOCUS 1.3+
+    ContractCommitmentType:        string,    // FOCUS 1.3+
+    ContractCommitmentUnit:        string,    // FOCUS 1.3+
+    ContractId:                    string,    // FOCUS 1.3+
+    ContractPeriodEnd:             datetime,  // FOCUS 1.3+
+    ContractPeriodStart:           datetime,  // FOCUS 1.3+
+    InvoiceIssuerName:             string,    // FOCUS 1.3+
+    PricingCurrency:               string,    // FOCUS 1.3+
+    x_SourceName:                  string,    // Hubs v1_3+
+    x_SourceProvider:              string,    // Hubs v1_3+
+    x_SourceType:                  string,    // Hubs v1_3+
+    x_SourceVersion:               string     // Hubs v1_3+
+)
+
+// ContractCommitment_raw ingestion mapping
+.create-or-alter table ContractCommitment_raw ingestion parquet mapping "ContractCommitment_raw_mapping"
+```
+[
+    { "Column": "BillingCurrency",               "Properties": { "Field": "BillingCurrency" } },
+    { "Column": "ContractCommitmentCategory",    "Properties": { "Field": "ContractCommitmentCategory" } },
+    { "Column": "ContractCommitmentCost",        "Properties": { "Field": "ContractCommitmentCost" } },
+    { "Column": "ContractCommitmentId",          "Properties": { "Field": "ContractCommitmentId" } },
+    { "Column": "ContractCommitmentPeriodEnd",   "Properties": { "Field": "ContractCommitmentPeriodEnd" } },
+    { "Column": "ContractCommitmentPeriodStart", "Properties": { "Field": "ContractCommitmentPeriodStart" } },
+    { "Column": "ContractCommitmentQuantity",    "Properties": { "Field": "ContractCommitmentQuantity" } },
+    { "Column": "ContractCommitmentType",        "Properties": { "Field": "ContractCommitmentType" } },
+    { "Column": "ContractCommitmentUnit",        "Properties": { "Field": "ContractCommitmentUnit" } },
+    { "Column": "ContractId",                    "Properties": { "Field": "ContractId" } },
+    { "Column": "ContractPeriodEnd",             "Properties": { "Field": "ContractPeriodEnd" } },
+    { "Column": "ContractPeriodStart",           "Properties": { "Field": "ContractPeriodStart" } },
+    { "Column": "InvoiceIssuerName",             "Properties": { "Field": "InvoiceIssuerName" } },
+    { "Column": "PricingCurrency",               "Properties": { "Field": "PricingCurrency" } },
+    { "Column": "x_SourceName",                  "Properties": { "Field": "x_SourceName" } },
+    { "Column": "x_SourceProvider",              "Properties": { "Field": "x_SourceProvider" } },
+    { "Column": "x_SourceType",                  "Properties": { "Field": "x_SourceType" } },
+    { "Column": "x_SourceVersion",               "Properties": { "Field": "x_SourceVersion" } }
+]
+```
+
+// ContractCommitment_raw retention policy (clear historical data)
+.alter-merge table ContractCommitment_raw policy retention softdelete = 0d recoverability = disabled
+
+// ContractCommitment_raw retention policy (set the user-defined retention period)
+.alter-merge table ContractCommitment_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+
+// Disable ContractCommitment_raw streaming ingestion (required for Fabric)
+.alter table ContractCommitment_raw policy streamingingestion disable
+
+
 //===| Costs |==========================================================================================================
 // Supported versions:
 // - MS: 1.0, 1.0-preview(v1) -- See https://aka.ms/costmgmt/exports/focus

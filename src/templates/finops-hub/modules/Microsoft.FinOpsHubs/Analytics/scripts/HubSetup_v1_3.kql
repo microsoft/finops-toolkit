@@ -66,6 +66,15 @@ CommitmentDiscountUsage_v1_3()
 }
 
 
+// ContractCommitment_final_v1_3
+.create-or-alter function
+with (docstring = 'Gets all contract commitments aligned to FOCUS 1.3.', folder = 'ContractCommitment')
+ContractCommitment_v1_3()
+{
+    database('Ingestion').ContractCommitment_final_v1_3
+}
+
+
 // Costs_final_v1_3
 .create-or-alter function
 with (docstring = 'Gets all cost and usage records aligned to FOCUS 1.3.', folder = 'Costs')
