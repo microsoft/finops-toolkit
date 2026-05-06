@@ -47,16 +47,14 @@ To add a new FOCUS version:
 5. Update open-data metadata
    1. Drop a new `FocusCost_<version>.json` file into [src/open-data/dataset-metadata](../../../open-data/dataset-metadata/).
    2. Mirror the schema details (columns, types, descriptions) from the matching Cost Management export schema so downstream consumers see consistent metadata.
-6. Regenerate conformance reports
-   1. Run `pwsh src/scripts/Build-FocusConformance.ps1 -Branch <FOCUS spec branch>` to refresh [docs-mslearn/focus/conformance-full-report.md](../../../../docs-mslearn/focus/conformance-full-report.md) and [conformance-summary.md](../../../../docs-mslearn/focus/conformance-summary.md).
-7. Update plugin skill files
+6. Update plugin skill files
    1. Refresh the FOCUS schema and function references in the following files so plugin guidance does not go stale:
       - [src/templates/agent-skills/finops-toolkit/references/finops-hubs.md](../../agent-skills/finops-toolkit/references/finops-hubs.md)
       - [src/templates/agent-skills/finops-toolkit/references/finops-hubs-deployment.md](../../agent-skills/finops-toolkit/references/finops-hubs-deployment.md)
       - [src/templates/agent-skills/azure-cost-management/references/azure-cost-exports.md](../../agent-skills/azure-cost-management/references/azure-cost-exports.md)
       - [src/templates/claude-plugin/agents/ftk-database-query.md](../../claude-plugin/agents/ftk-database-query.md)
       - [src/templates/claude-plugin/output-styles/ftk-output-style.md](../../claude-plugin/output-styles/ftk-output-style.md)
-8. Update changelog
+7. Update changelog
    1. Add an entry under the next version in [docs-mslearn/toolkit/changelog.md](../../../../docs-mslearn/toolkit/changelog.md) describing the new FOCUS version support and any preview status.
 
 ### Handling multiple FOCUS versions in one cycle
