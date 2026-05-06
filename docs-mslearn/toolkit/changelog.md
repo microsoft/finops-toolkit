@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/29/2026
+ms.date: 05/06/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -31,6 +31,18 @@ The following section lists features and enhancements that are currently in deve
   - Added Claude Code plugin with skills for FinOps hubs and Azure Cost Management ([#2043](https://github.com/microsoft/finops-toolkit/pull/2043)).
   - Added 4 agents (CFO, FinOps practitioner, database query, hubs agent), 5 commands (`/ftk-hubs-connect`, `/ftk-hubs-healthCheck`, `/ftk-mom-report`, `/ftk-ytd-report`, `/ftk-cost-optimization`), and an output style.
   - Linked to the existing KQL query catalog in `src/queries/` from the plugin.
+- **Changed**
+  - Updated plugin skill files to reflect FOCUS 1.3 / 1.4-preview hub schemas, the new `ContractCommitment()` function, and the deprecation of `ProviderName` / `PublisherName` ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
+
+### FinOps hubs v15.0.0
+
+- **Added**
+  - Added FOCUS 1.3 hub schema (`v1_3`). New cost and usage columns: `AllocatedMethodId`, `AllocatedMethodDetails`, `AllocatedResourceId`, `AllocatedResourceName`, `AllocatedTags`, `ContractApplied`, `ServiceProviderName`, `HostProviderName`. New supplemental dataset: `ContractCommitment` ([#2120](https://github.com/microsoft/finops-toolkit/issues/2120)).
+  - Added FOCUS 1.4-preview hub schema (`v1_4`). Drops `ProviderName` and `PublisherName` from cost and usage. Expands `ContractCommitment` by 14 columns (`BenefitCategory`, `ContractCommitmentApplicability`, `Created`, `DiscountPercentage`, `DurationType`, `FulfillmentInterval`, `LastUpdated`, `LifecycleStatus`, `Model`, `OfferCategory`, `PaymentInterval`, `PaymentModel`, `PaymentUpfrontPercentage`, `PricingCurrencyContractCommitmentCost`). Marked **preview** because FOCUS 1.4 is still in working draft and may change before ratification.
+  - Added unversioned `ContractCommitment()` function aliasing to `ContractCommitment_v1_3()`.
+- **Changed**
+  - Retargeted unversioned `Costs()`, `Prices()`, `CommitmentDiscountUsage()`, `Recommendations()`, and `Transactions()` aliases to their `_v1_3` counterparts. Unversioned aliases stay pinned to the latest GA schema (v1_3) — `_v1_4` is opt-in only while in preview.
+  - Refreshed the canonical "add a new FOCUS version" procedure in [src/templates/finops-hub/docs/README.md](https://github.com/microsoft/finops-toolkit/tree/dev/src/templates/finops-hub/docs/README.md) with multi-version-cycle, plugin, and changelog steps.
 
 ### Bicep Registry module pending updates
 
