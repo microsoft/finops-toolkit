@@ -10,8 +10,8 @@ Load the `azure-sre-agent` skill at session start and after every compaction or 
 |-----------|-------|---------|
 | Subagents | 5 | `azure-capacity-manager`, `chief-financial-officer`, `finops-practitioner`, `ftk-database-query`, `ftk-hubs-agent` |
 | Skills | 3 | `azure-capacity-management`, `azure-cost-management`, `finops-toolkit` |
-| Tools | 33 | 21 Kusto (KQL against FinOps Hub) + 12 Python (ARM REST API via UAMI) |
-| Scheduled tasks | 18 | 9 core (daily/weekly/monthly/quarterly) + 9 capacity/governance |
+| Tools | 34 | 21 Kusto (KQL against FinOps Hub) + 13 Python (ARM REST API via UAMI) |
+| Scheduled tasks | 19 | 9 core (daily/weekly/monthly/quarterly) + 10 capacity/governance |
 | Connector | 1 | Kusto MCP → FinOps Hub ADX cluster |
 
 ## Connection details

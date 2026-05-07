@@ -129,6 +129,7 @@ Cron for all weekly capacity tasks: `0 8 * * 1`
 | Task | Agent | Capacity Capability | Tools | Deep Inv. | Maturity | Cron |
 |------|-------|---------------------|-------|-----------|----------|------|
 | Quota headroom report | `azure-capacity-manager` | Quota reporting | NEW TOOL NEEDED: `quota-usage-analysis`, `quota-usage-trend` | No | Ready | `0 8 * * 1` |
+| Database service quota audit | `azure-capacity-manager` | Quota monitoring | `db-service-quotas` | No | Implemented | `0 7 * * 3` |
 | CRG cost waste audit | `azure-capacity-manager` | Capacity cost optimization | NEW TOOL NEEDED: `crg-billing-waste` | No | Needs Kusto tool | `0 8 * * 1` |
 | Reservation utilization review | `azure-capacity-manager` | Rate optimization | `commitment-discount-utilization`; Reservation Utilization Alerts API | No | Ready | `0 8 * * 1` |
 | Quota group balance check | `azure-capacity-manager` | Quota group governance | NEW TOOL NEEDED: Quota Group REST wrapper | No | Ready | `0 8 * * 1` |
@@ -246,6 +247,7 @@ AI cost reporting should use standard FOCUS measures first, with FinOps Hub enri
 | Commitment expiry | `commitment-expiry-forecast` / `contract-status-summary` | KustoTool/PythonTool | Medium | Needed for FOCUS 1.3 contract commitment readiness. |
 | Carbon reporting | `carbon-footprint-report` | PythonTool/HttpClientTool | Medium | Requires Azure Carbon Optimization API integration. |
 | Quota analysis | `quota-usage-analysis`, `quota-usage-report` | PythonTool | High | Converts azcapman PowerShell logic to ARM REST calls. |
+| Database service quota analysis | `db-service-quotas` | PythonTool | Implemented | Implements SQL DB/MI, Cosmos DB, PostgreSQL Flex, and MySQL Flex quota and access coverage; source: https://github.com/naspinall-MS/az-quota-helper. |
 | Zone mapping | `zone-mapping-analysis` | PythonTool | High | Converts `Get-AzAvailabilityZoneMapping.ps1`. |
 | CRG utilization | `crg-utilization-trend`, `crg-billing-waste` | KustoTool/PythonTool | High | Requires CRG inventory plus instance-view utilization. |
 | Capacity forecasting | `capacity-forecast-demand` | KustoTool | High | Projects VM core demand by region/SKU family. |

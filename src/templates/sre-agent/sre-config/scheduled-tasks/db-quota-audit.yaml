@@ -1,0 +1,56 @@
+api_version: azuresre.ai/v1
+kind: ScheduledTask
+metadata:
+  name: DbQuotaAudit
+spec:
+  name: DbQuotaAudit
+  description: Weekly audit of database (SQL DB, SQL MI, Cosmos DB, PostgreSQL Flex, MySQL Flex) quota and region/AZ access risks
+  cron_expression: 0 7 * * 3
+  agent_mode: autonomous
+  agent: azure-capacity-manager
+  agent_prompt: |-
+    # Database Service Quota Audit
+
+    ## Phase 0: Preparation
+
+    Before starting, read all documents in the knowledge base. Pay special attention to prior database quota findings, service limit assumptions, regional access restrictions, and availability-zone access caveats.
+
+    Teams delivery guard: Check the available tools exactly once per run and remember whether `PostTeamsMessage` is present. Do not call `PostTeamsMessage`, Microsoft Graph, `dynamicInvoke`, raw webhooks, or connector APIs just to test availability. If no Teams connector/channel is configured and this once-per-run check does not find `PostTeamsMessage`, finish the report in the run output and do not retry or probe alternate delivery paths. When a Teams connector/channel is configured, Teams delivery is mandatory: complete the analysis, make one final delivery attempt through `PostTeamsMessage` to the configured Teams channel, and if configured Teams delivery fails, mark the task/run failed instead of degrading to local output or alternate delivery.
+
+    Load your relevant capacity management skill. Note the `client_id` for Python tool authentication.
+
+    ## Python tools available
+
+    Pass `client_id` as a parameter to each Python tool for UAMI authentication.
+
+    - `db-service-quotas`: Run with `subscription_id`, optional `location`, optional `services`, optional `include_capabilities`, and `client_id` to retrieve SQL DB, SQL MI, Cosmos DB, PostgreSQL Flex, and MySQL Flex quotas plus region/AZ access status.
+
+    ## 1. Establish subscription scope
+
+    Use documented active subscription scope from the knowledge base and prior reports. If scope is missing, clearly state the subscriptions that were available to the tool at runtime and any access gaps.
+
+    ## 2. Collect database quota and access usage
+
+    For each active subscription, run `db-service-quotas` with `subscription_id`, optional `location`, and `client_id`. Use the tool's normalized `quotas` and `region_access` arrays for tables and charts. Capture service name, scope, metric, current value, limit, available capacity, utilization percentage, unit, location, at-risk flags, source endpoint, access status, and any suppressed or unsuppressed errors.
+
+    ## 3. Separate API-reported and default soft limits
+
+    Separate API-reported quota limits from default soft limits. Treat Cosmos DB's default soft subscription account limit of 50 separately from provider-reported limits and label it clearly as a default soft limit.
+
+    ## 4. Flag quota and access risk
+
+    Flag database quotas at or above 80% utilization, highlight critical items above 95%, surface region access blocks where `access_allowed_for_region == false`, and surface AZ blocks separately from regular region access blocks. Group findings by service in the report so SQL DB, SQL MI, Cosmos DB, PostgreSQL Flex, and MySQL Flex risks are easy to triage.
+
+    ## Report format
+
+    Produce a markdown report with an executive summary, a database quota risk table grouped by service, an API-reported versus default soft limits table, a region access blocks table, an AZ access blocks table, errors and access gaps, and recommended mitigation actions.
+
+    ## Persistence
+
+    **Teams (results only):** Post the final report to our Teams channel. Do not post intermediate results. Use `PostTeamsMessage` only when the Teams delivery guard found it available once per run. If Teams delivery is unavailable, or if the single final `PostTeamsMessage` attempt fails because the connector/tool is missing or unauthorized, do not retry or probe alternate delivery paths; return the completed report in the run output with a note that Teams delivery was skipped.
+
+    **Knowledge (#remember):** Save operational findings using #remember for future reference. Do not commit task reports, financial figures, cost amounts, or customer financial data to git or the knowledge base. Financial detail goes to Teams only.
+
+    ## Visualizations
+
+    Before posting, generate charts for key findings using matplotlib or seaborn via the code interpreter. Build chart data from normalized quota rows and use `.get()`/safe-access patterns instead of indexing fields like `location` directly, because subscription-scoped database quota rows may not be regional. Include at minimum a quota utilization by service chart and an at-risk quota count by subscription chart where the data supports it. Verify each generated chart non-visually before embedding by checking the output file exists, has non-zero size, opens as an image, and reports expected dimensions and metadata through code interpreter filesystem or image-library checks. Do not use visual inspection as the verification gate; regenerate or omit any chart that fails these checks and state why. Embed chart images inline in the Teams message alongside the text tables.

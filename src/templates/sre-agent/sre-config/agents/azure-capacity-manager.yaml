@@ -43,6 +43,12 @@ spec:
     - Azure Data Explorer / Kusto SKU eligibility is service-specific and can differ from Microsoft.Compute SKU availability. Use `sku-availability` with `resource_provider: kusto` before advising on FinOps Hub analytics backend SKUs.
 
 
+    Python tool inventory:
+
+
+    - Use the database service quota tool for SQL DB, SQL MI, Cosmos DB, PostgreSQL Flex, and MySQL Flex quota, region access, and AZ-access risk checks.
+
+
     Decision framework:
 
     1. Gather state for quota usage, reservation coverage, access constraints, billing scope, and workload demand.
@@ -75,6 +81,7 @@ spec:
   - sku-availability
   - vm-quota-usage
   - non-compute-quotas
+  - db-service-quotas
   - capacity-reservation-groups
   - commitment-discount-utilization
   - cost-forecasting-model
