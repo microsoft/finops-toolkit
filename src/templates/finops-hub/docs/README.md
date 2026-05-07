@@ -20,8 +20,8 @@
 To add a new FOCUS version:
 
 0. Confirm dependencies
-   1. Verify Microsoft Cost Management has shipped a matching FOCUS export dataset version. The hub depends on a `focuscost_X.Y.json` schema mapping file in [Microsoft.CostManagement/Exports/schemas](../modules/Microsoft.CostManagement/Exports/schemas/).
-   2. If the Cost Management export is not yet available, ship hub support as **preview** and call out the upstream dependency in the changelog and the [data model documentation](../../../../docs-mslearn/toolkit/hubs/data-model.md).
+   1. Mark the hub schema as **preview** if the FOCUS specification is still working draft (not yet ratified). Preview schemas may change without notice between releases.
+   2. Check whether Microsoft Cost Management has shipped a matching FOCUS export dataset version. The hub depends on a `focuscost_X.Y.json` schema mapping file in [Microsoft.CostManagement/Exports/schemas](../modules/Microsoft.CostManagement/Exports/schemas/) when ingesting from Cost Management. If the export is not yet available, the hub schema can still ship as GA &mdash; the hub will ingest the new format as soon as the export ships. Note the gap in the changelog so adopters know what additional setup will be required.
 1. Add schema mapping file
    1. Create new schema mapping file for the Cost Management export dataset version in the schemas folder
    2. Add file to file upload list in [storage.bicep](../modules/storage.bicep)

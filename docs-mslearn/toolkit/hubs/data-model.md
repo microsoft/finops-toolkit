@@ -3,7 +3,7 @@ title: FinOps hubs data model
 description: Learn about the tables and functions available in FinOps hubs to build your own queries, reports, and dashboards.
 author: flanakin
 ms.author: micflan
-ms.date: 05/06/2026
+ms.date: 05/07/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -63,7 +63,9 @@ The following table indicates the schema version for each FinOps hub release and
 | 12+     | `v1_2` | 1.2           |
 | 0.7-11  | `v1_0` | 1.0           |
 
-When hub support ships ahead of a FOCUS specification ratifying or ahead of Cost Management exporting a version, the hub schema is labeled **preview**. Preview schemas may change without notice between releases. The unversioned functions remain pinned to the latest GA schema until the preview promotes to GA, ensuring production reports stay stable while early adopters validate the new version.
+When hub support ships ahead of FOCUS specification ratification, the hub schema is labeled **preview**. Preview schemas may change without notice between releases because the underlying spec is still working draft. The unversioned functions remain pinned to the latest GA schema until the preview promotes to GA, ensuring production reports stay stable while early adopters validate the new version.
+
+Cost Management export availability for a given FOCUS version is a separate concern. A hub schema can be GA even if Cost Management has not yet shipped a matching export; in that case, the hub is ready to ingest the new format as soon as the export ships. This is documented in the [hub upgrade procedure](https://github.com/microsoft/finops-toolkit/tree/dev/src/templates/finops-hub/docs/README.md) so adopters know which scenarios require additional setup once an export is available.
 
 <br>
 
