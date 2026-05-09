@@ -9,7 +9,7 @@
   },
   "access": {
     "accessLevel": "High",
-    "actionMode": "Automatic"
+    "actionMode": "Autonomous"
   },
   "upgradeChannel": "Preview",
   "defaultModelProvider": "Anthropic",

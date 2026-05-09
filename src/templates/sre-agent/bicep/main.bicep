@@ -41,8 +41,8 @@ param targetResourceGroups array = []
 @allowed(['High', 'Low'])
 param accessLevel string = 'Low'
 
-@description('Optional. Review = human approval before actions. Automatic = agent acts independently.')
-@allowed(['Review', 'Automatic'])
+@description('Optional. Review = human approval before actions. Autonomous = agent acts independently.')
+@allowed(['Review', 'Autonomous', 'ReadOnly'])
 param actionMode string = 'Review'
 
 @description('Optional. Upgrade channel for the agent runtime.')
