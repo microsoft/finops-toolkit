@@ -69,12 +69,17 @@ agent=json.loads(read(recipe/'agent.json'))
 conn_raw={'toggles':{},'connectors':[]}
 if (recipe/'connectors.json').exists(): conn_raw=resolve_env(json.loads(read(recipe/'connectors.json')))
 connectors=conn_raw if isinstance(conn_raw,list) else conn_raw.get('connectors',[])
-connectors=[c for c in connectors if c.get('properties',{}).get('dataSource','') and '${' not in c.get('properties',{}).get('dataSource','')]
+all_connectors=connectors if isinstance(connectors,list) else []
+dropped_unresolved={c.get('name','') for c in all_connectors if '${' in c.get('properties',{}).get('dataSource','')}
+connectors=[c for c in all_connectors if c.get('properties',{}).get('dataSource','') and '${' not in c.get('properties',{}).get('dataSource','')]
 ctog={} if isinstance(conn_raw,list) else conn_raw.get('toggles',{})
 knowledge=[]
 if (recipe/'knowledge').is_dir():
     for p in sorted((recipe/'knowledge').glob('*')):
         if p.is_file(): knowledge.append({'filename': p.name, 'mimeType': mimetypes.guess_type(p.name)[0] or 'text/plain', 'triggerIndexing': True, 'localPath': str(p.resolve())})
+all_tools=collect_yaml('tools')
+if dropped_unresolved:
+    print(f"Note: {len(dropped_unresolved)} connector(s) skipped (unresolved dataSource): {', '.join(sorted(dropped_unresolved))}. Tools deployed; connect Kusto later via --finops-hub-cluster-uri or the portal.", file=sys.stderr)
 params={'$schema':'https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#','contentVersion':'1.0.0.0','parameters':{
   'agentName': {'value': agent['identity']['agentName']},
   'agentResourceGroupName': {'value': agent['identity']['resourceGroup']},
@@ -102,7 +107,7 @@ params={'$schema':'https://schema.management.azure.com/schemas/2019-04-01/deploy
   'enableWebhookBridge': {'value': bool(agent.get('toggles',{}).get('enableWebhookBridge',False))},
   'webhookBridgeTriggerUrl': {'value': agent.get('toggles',{}).get('webhookBridgeTriggerUrl','')},
   'connectors': {'value': [c for c in connectors if c.get('properties',{}).get('dataConnectorType') not in ('Mcp','KnowledgeFile')]},
-  'tools': {'value': collect_yaml('tools')},
+  'tools': {'value': all_tools},
   'skills': {'value': collect_skills()},
   'subagents': {'value': collect_yaml('subagents')},
   'scheduledTasks': {'value': []}, 'incidentFilters': {'value': []}, 'commonPrompts': {'value': []}, 'pluginConfigs': {'value': []}

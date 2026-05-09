@@ -37,9 +37,9 @@ Examples:
   # Deploy for real:
   bash bin/deploy.sh recipes/finops-hub/ --execute
 
-  # Deploy with FinOps Hub connector:
+  # Deploy with FinOps Hub Kusto connector:
   bash bin/deploy.sh recipes/finops-hub/ --execute \\
-    --finops-hub-cluster-uri https://mycluster.eastus2.kusto.windows.net/hub
+   --finops-hub-cluster-uri https://mycluster.eastus2.kusto.windows.net
 EOF
   exit "${1:-0}"
 }
@@ -58,6 +58,17 @@ done
 
 [ -n "$RECIPE" ] || { echo "Error: recipe directory required." >&2; usage 1; }
 [ -d "$RECIPE" ] || { echo "Error: recipe directory not found: $RECIPE" >&2; exit 1; }
+
+# ─── validate + export FinOps Hub cluster URI ──────────────
+if [ -n "$FINOPS_HUB_CLUSTER_URI" ]; then
+  FINOPS_HUB_CLUSTER_URI="${FINOPS_HUB_CLUSTER_URI%/}"
+  [[ "$FINOPS_HUB_CLUSTER_URI" == https://* ]] || { echo "Error: --finops-hub-cluster-uri must use https:// — got: $FINOPS_HUB_CLUSTER_URI" >&2; exit 1; }
+  # Reject URIs with a path after the hostname (e.g. .../Hub) — database is set per-tool, not in the connector URI
+  _host="${FINOPS_HUB_CLUSTER_URI#https://}"
+  [[ "$_host" != */* ]] || { echo "Error: URI should be a cluster endpoint (e.g. https://mycluster.eastus2.kusto.windows.net) — do not include a database path." >&2; exit 1; }
+  [[ "$FINOPS_HUB_CLUSTER_URI" == *kusto.windows.net ]] || echo "Warning: URI doesn't match *.kusto.windows.net — $FINOPS_HUB_CLUSTER_URI" >&2
+  export FINOPS_HUB_CLUSTER_URI
+fi
 
 # ─── resolve subscription from current az context ──────────
 SUB="$(az account show --query id -o tsv)"
@@ -135,10 +146,6 @@ EXTRAS_ARGS=("$SUB" "$AGENT_RG" "$AGENT_NAME" "$EXTRAS_FILE")
 if [ "$MODE" = "dry-run" ]; then
   bash "$ROOT/bicep/apply-extras.sh" --dry-run "${EXTRAS_ARGS[@]}"
 else
-  # Export FinOps Hub cluster URI for apply-extras if provided
-  if [ -n "$FINOPS_HUB_CLUSTER_URI" ]; then
-    export FINOPS_HUB_CLUSTER_URI
-  fi
   bash "$ROOT/bicep/apply-extras.sh" "${EXTRAS_ARGS[@]}"
 fi
 

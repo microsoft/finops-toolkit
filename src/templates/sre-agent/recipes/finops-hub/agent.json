@@ -21,5 +21,8 @@
   },
   "toggles": {
     "enableWebhookBridge": false
+  },
+  "experimentalSettings": {
+    "EnableWorkspaceTools": true
   }
 }
