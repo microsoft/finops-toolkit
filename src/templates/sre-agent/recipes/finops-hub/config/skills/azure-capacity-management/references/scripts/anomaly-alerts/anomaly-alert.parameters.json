@@ -1,0 +1,15 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "emailRecipients": {
+            "value": [
+                "admin@company.com",
+                "finance@company.com"
+            ]
+        },
+        "notificationEmail": {
+            "value": "admin@company.com"
+        }
+    }
+}

@@ -1,0 +1,31 @@
+// ============================================================================
+// Query: Savings summary
+// Description:
+//   Summary of negotiated discount, commitment discount, and total savings with Effective Savings Rate (ESR).
+//   Useful for calculating savings and understanding the impact of discounts from rate optimization efforts on costs.
+// Author: FinOps toolkit
+// Parameters:
+//   startDate: Start date for the reporting period (e.g., startofmonth(ago(30d)))
+//   endDate: End date for the reporting period (e.g., startofmonth(now()))
+// Output:
+//   Reports cost, negotiated discount savings, commitment discount savings, total savings, and Effective Savings Rate.
+// Usage:
+//   Use this query to quantify negotiated discount savings, commitment discount savings, total savings, or Effective Savings Rate.
+// Last Tested: 2025-05-20
+// =========================================================================
+let startDate = startofmonth(ago(30d)); // Default: last month
+let endDate = startofmonth(now());
+Costs()
+| where ChargePeriodStart >= startDate and ChargePeriodStart < endDate
+| where not(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountCategory))  // x_AmortizationCategory != 'Principal'
+| extend x_NegotiatedDiscountSavings = iff(ListCost       < ContractedCost, decimal(0), ListCost - ContractedCost)
+| extend x_CommitmentDiscountSavings = iff(ContractedCost < EffectiveCost,  decimal(0), ContractedCost - EffectiveCost)
+| extend x_TotalSavings              = iff(ListCost       < EffectiveCost,  decimal(0), ListCost - EffectiveCost)
+| summarize
+    ListCost = todouble(sum(ListCost)),
+    EffectiveCost = todouble(sum(EffectiveCost)),
+    x_NegotiatedDiscountSavings = todouble(sum(x_NegotiatedDiscountSavings)),
+    x_CommitmentDiscountSavings = todouble(sum(x_CommitmentDiscountSavings)),
+    x_TotalSavings = todouble(sum(x_TotalSavings))
+    by BillingCurrency
+| extend x_EffectiveSavingsRate = iff(ListCost == 0, 0.0, x_TotalSavings / ListCost * 100.0)

@@ -305,3 +305,8 @@ The UAT effort is credible only if:
 
 - ⬜ Map azcapman labs into SRE-agent-backed scenarios
 - ⬜ Add prompts/tasks/tests for lab-derived scenarios
+
+
+## Canonical pattern adoption — 2026-05-08
+
+Adopted the `microsoft/sre-agent/sreagent-templates` recipe deployment pattern pinned to commit `8e231b008679a89f26934b24b792ad7c8aea8b08` (v1.0.0, 2026-05-07). The FinOps Toolkit SRE Agent now uses subscription-scope Bicep, a recipe layout under `recipes/finops-hub/`, direct `Microsoft.App/agents` sub-resources for subagents, skills, tools, connectors, and common prompts, and `bicep/apply-extras.sh` for scheduled tasks, knowledge upload, hooks, incident automation, and FinOps Hub ADX role assignment.

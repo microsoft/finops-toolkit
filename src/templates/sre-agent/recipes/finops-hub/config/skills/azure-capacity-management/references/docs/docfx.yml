@@ -1,0 +1,45 @@
+### YamlMime:DocFX
+metadata:
+- name: _appTitle
+  content: ISV Quota & Capacity Management
+- name: _appName
+  content: Azure ISV Documentation
+- name: _enableNewTab
+  content: true
+- name: _enableSearch
+  content: true
+
+build:
+  content:
+  - files:
+    - "**/*.md"
+    - "**/*.yml"
+    exclude:
+    - "_site/**"
+    - "obj/**"
+    src: .
+    dest: .
+  resource:
+  - files:
+    - "images/**"
+    - "**/*.png"
+    - "**/*.jpg"
+    - "**/*.jpeg"
+    - "**/*.gif"
+    - "**/*.svg"
+  overwrite:
+  - files:
+    - "apidoc/**.md"
+    exclude:
+    - "obj/**"
+    - "_site/**"
+  globalMetadata:
+    _appTitle: ISV Quota & Capacity Management
+    _appFooter: Copyright © 2024 Microsoft Corporation
+    _gitContribute:
+      repo: https://github.com/msbrett/azcapman
+      branch: main
+  template:
+  - default
+  - modern
+  dest: _site

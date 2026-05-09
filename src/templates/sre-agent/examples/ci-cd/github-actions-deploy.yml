@@ -1,0 +1,24 @@
+name: Deploy FinOps SRE Agent
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy FinOps SRE Agent
+        working-directory: src/templates/sre-agent
+        env:
+          FINOPS_HUB_CLUSTER_URI: ${{ secrets.FINOPS_HUB_CLUSTER_URI }}
+        run: bash bin/deploy.sh recipes/finops-hub --force

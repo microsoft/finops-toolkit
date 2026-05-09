@@ -1,0 +1,25 @@
+{
+  "identity": {
+    "agentName": "finops-sre-agent",
+    "resourceGroup": "rg-finops-sre-agent",
+    "location": "eastus2",
+    "targetResourceGroups": [
+      "rg-finops-sre-agent"
+    ]
+  },
+  "access": {
+    "accessLevel": "High",
+    "actionMode": "Automatic"
+  },
+  "upgradeChannel": "Preview",
+  "defaultModelProvider": "Anthropic",
+  "defaultModelName": "Automatic",
+  "monthlyAgentUnitLimit": 10000,
+  "tags": {
+    "finops-toolkit": "sre-agent",
+    "source": "microsoft-finops-toolkit"
+  },
+  "toggles": {
+    "enableWebhookBridge": false
+  }
+}
