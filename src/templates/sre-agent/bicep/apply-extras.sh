@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+# ─── parse --dry-run flag (must come before positional args) ──
+DRY_RUN=false
+if [ "${1:-}" = "--dry-run" ]; then DRY_RUN=true; shift; fi
+
 SUB="${1:?subscription id required}"; RG="${2:?resource group required}"; AGENT="${3:?agent name required}"; FILE="${4:?extras file required}"
 API_VERSION="2025-05-01-preview"
 ARM_BASE="https://management.azure.com/subscriptions/${SUB}/resourceGroups/${RG}/providers/Microsoft.App/agents/${AGENT}"
 ADX_ASSIGNMENT_POLL_ATTEMPTS=30; ADX_ASSIGNMENT_POLL_SECONDS=10
 fail(){ printf '[apply-extras] ERROR: %s\n' "$*" >&2; exit 1; }
 log(){ printf '[apply-extras] %s\n' "$*"; }
+dry(){ if [ "$DRY_RUN" = true ]; then log "[dry-run] would: $*"; return 0; else return 1; fi; }
 for cmd in az jq curl; do command -v "$cmd" >/dev/null 2>&1 || fail "Required command not found: $cmd"; done
 [ -f "$FILE" ] || fail "extras file not found: $FILE"
 AGENT_JSON="$(az rest -m GET --url "${ARM_BASE}?api-version=${API_VERSION}" -o json 2>/dev/null || echo '{}')"
@@ -20,12 +26,12 @@ _dp_token(){ az account get-access-token --resource https://azuresre.dev --query
 json_body_file(){ local name="$1"; local body="$2"; local path="${FILE}.work.${name}.json"; printf '%s' "$body" > "$path"; printf '%s' "$path"; }
 cleanup_work(){ rm -f "${FILE}".work.*.json 2>/dev/null || true; }
 trap cleanup_work EXIT
-arm_put_value(){ local type="$1" name="$2" spec="$3" encoded body path; encoded="$(printf '%s' "$spec" | base64 | tr -d '\n')"; body="{\"properties\":{\"value\":\"${encoded}\"}}"; path="$(json_body_file "${type}-${name}" "$body")"; log "ARM PUT ${type}/${name}"; az rest -m PUT --url "${ARM_BASE}/${type}/${name}?api-version=${API_VERSION}" --body "@${path}" --headers 'Content-Type=application/json' -o none; }
-arm_put_connector(){ local name="$1" body="$2" path; path="$(json_body_file "connector-${name}" "$body")"; log "ARM PUT connectors/${name}"; az rest -m PUT --url "${ARM_BASE}/connectors/${name}?api-version=${API_VERSION}" --body "@${path}" --headers 'Content-Type=application/json' -o none; }
+arm_put_value(){ local type="$1" name="$2" spec="$3" encoded body path; encoded="$(printf '%s' "$spec" | base64 | tr -d '\n')"; body="{\"properties\":{\"value\":\"${encoded}\"}}"; path="$(json_body_file "${type}-${name}" "$body")"; dry "ARM PUT ${type}/${name}" && return 0; log "ARM PUT ${type}/${name}"; az rest -m PUT --url "${ARM_BASE}/${type}/${name}?api-version=${API_VERSION}" --body "@${path}" --headers 'Content-Type=application/json' -o none; }
+arm_put_connector(){ local name="$1" body="$2" path; path="$(json_body_file "connector-${name}" "$body")"; dry "ARM PUT connectors/${name}" && return 0; log "ARM PUT connectors/${name}"; az rest -m PUT --url "${ARM_BASE}/connectors/${name}?api-version=${API_VERSION}" --body "@${path}" --headers 'Content-Type=application/json' -o none; }
 count="$(jq '.incidentPlatforms // [] | length' "$FILE")"
 if [ "$count" -gt 0 ]; then
   platform_type="$(jq -r '.incidentPlatforms[0].spec.platformType // .incidentPlatforms[0].spec.incidentPlatform // empty' "$FILE")"
-  if [ -n "$platform_type" ]; then body="$(jq -nc --arg t "$platform_type" '{properties:{incidentManagementConfiguration:{type:$t,connectionName:($t|ascii_downcase)}}}')"; log "ARM PATCH incident platform $platform_type"; az rest --method PATCH --url "${ARM_BASE}?api-version=${API_VERSION}" --body "$body" --output none; sleep 30; fi
+  if [ -n "$platform_type" ]; then body="$(jq -nc --arg t "$platform_type" '{properties:{incidentManagementConfiguration:{type:$t,connectionName:($t|ascii_downcase)}}}')"; if dry "ARM PATCH incident platform $platform_type"; then :; else log "ARM PATCH incident platform $platform_type"; az rest --method PATCH --url "${ARM_BASE}?api-version=${API_VERSION}" --body "$body" --output none; sleep 30; fi; fi
 fi
 count="$(jq '.incidentFilters // [] | length' "$FILE")"
 if [ "$count" -gt 0 ]; then
@@ -46,12 +52,12 @@ count="$(jq '(.connectors // []) | length' "$FILE")"
 if [ "$count" -gt 0 ]; then for i in $(seq 0 $((count - 1))); do name="$(jq -r --argjson i "$i" '.connectors[$i].name' "$FILE")"; body="$(jq -c --argjson i "$i" '{properties:.connectors[$i].properties}' "$FILE")"; arm_put_connector "$name" "$body"; done; fi
 count="$(jq '(.knowledge // []) | length' "$FILE")"
 if [ "$count" -gt 0 ]; then
-  if [ "$DP_TOKEN_AVAILABLE" = true ]; then token="$(_dp_token)"; url="${AGENT_ENDPOINT}/api/v1/AgentMemory/upload"; for i in $(seq 0 $((count - 1))); do fname="$(jq -r --argjson i "$i" '.knowledge[$i].filename' "$FILE")"; mime="$(jq -r --argjson i "$i" '.knowledge[$i].mimeType // "text/plain"' "$FILE")"; trig="$(jq -r --argjson i "$i" '.knowledge[$i].triggerIndexing // true' "$FILE")"; lpath="$(jq -r --argjson i "$i" '.knowledge[$i].localPath' "$FILE")"; [ -f "$lpath" ] || { log "Skipping missing knowledge file $lpath"; continue; }; log "Upload knowledge $fname"; curl -sS -f -X POST "${url}?triggerIndexing=${trig}" -H "Authorization: Bearer ${token}" -F "files=@${lpath};filename=${fname};type=${mime}" >/dev/null; done
+  if [ "$DP_TOKEN_AVAILABLE" = true ]; then token="$(_dp_token)"; url="${AGENT_ENDPOINT}/api/v1/AgentMemory/upload"; for i in $(seq 0 $((count - 1))); do fname="$(jq -r --argjson i "$i" '.knowledge[$i].filename' "$FILE")"; mime="$(jq -r --argjson i "$i" '.knowledge[$i].mimeType // "text/plain"' "$FILE")"; trig="$(jq -r --argjson i "$i" '.knowledge[$i].triggerIndexing // true' "$FILE")"; lpath="$(jq -r --argjson i "$i" '.knowledge[$i].localPath' "$FILE")"; [ -f "$lpath" ] || { log "Skipping missing knowledge file $lpath"; continue; }; if dry "upload knowledge $fname from $lpath"; then :; else log "Upload knowledge $fname"; curl -sS -f -X POST "${url}?triggerIndexing=${trig}" -H "Authorization: Bearer ${token}" -F "files=@${lpath};filename=${fname};type=${mime}" >/dev/null; fi; done
   else log "Data-plane token unavailable; skipped $count knowledge upload(s)."; fi
 fi
 count="$(jq '(.hooks // []) | length' "$FILE")"
 if [ "$count" -gt 0 ]; then
-  if [ "$DP_TOKEN_AVAILABLE" = true ]; then token="$(_dp_token)"; for i in $(seq 0 $((count - 1))); do name="$(jq -r --argjson i "$i" '.hooks[$i].metadata.name // .hooks[$i].name' "$FILE")"; props="$(jq -c --argjson i "$i" '.hooks[$i].spec // .hooks[$i].properties // {}' "$FILE")"; body="$(jq -nc --arg n "$name" --argjson p "$props" '{name:$n,type:"GlobalHook",tags:[],properties:$p}')"; log "PUT hook $name"; curl -sS -f -X PUT "${AGENT_ENDPOINT}/api/v2/extendedAgent/hooks/${name}" -H "Authorization: Bearer ${token}" -H 'Content-Type: application/json' --data "$body" >/dev/null; done
+  if [ "$DP_TOKEN_AVAILABLE" = true ]; then token="$(_dp_token)"; for i in $(seq 0 $((count - 1))); do name="$(jq -r --argjson i "$i" '.hooks[$i].metadata.name // .hooks[$i].name' "$FILE")"; props="$(jq -c --argjson i "$i" '.hooks[$i].spec // .hooks[$i].properties // {}' "$FILE")"; body="$(jq -nc --arg n "$name" --argjson p "$props" '{name:$n,type:"GlobalHook",tags:[],properties:$p}')"; if dry "PUT hook $name"; then :; else log "PUT hook $name"; curl -sS -f -X PUT "${AGENT_ENDPOINT}/api/v2/extendedAgent/hooks/${name}" -H "Authorization: Bearer ${token}" -H 'Content-Type: application/json' --data "$body" >/dev/null; fi; done
   else log "Data-plane token unavailable; skipped $count hook(s)."; fi
 fi
 resolve_finops_hub_cluster(){
@@ -65,7 +71,7 @@ resolve_finops_hub_cluster(){
 $resolved
 EOF_RESOLVED
 }
-put_kusto_assignment(){ local principal_id="$1" label="$2" name body path url; [ -n "$principal_id" ] || { log "Skipping ADX assignment for $label; no principal ID."; return 0; }; name="$(python3 -c 'import sys,uuid; print(uuid.uuid5(uuid.NAMESPACE_URL, sys.argv[1]+"/"+sys.argv[2]+"/AllDatabasesViewer"))' "$FINOPS_HUB_CLUSTER_RESOURCE_ID" "$principal_id")"; body="$(jq -nc --arg pid "$principal_id" --arg tid "$(az account show --query tenantId -o tsv)" '{properties:{principalType:"App",principalId:$pid,tenantId:$tid,role:"AllDatabasesViewer"}}')"; path="$(json_body_file "adx-${name}" "$body")"; url="https://management.azure.com${FINOPS_HUB_CLUSTER_RESOURCE_ID}/principalAssignments/${name}?api-version=2024-04-13"; log "PUT ADX AllDatabasesViewer for $label"; az rest -m PUT --url "$url" --body "@${path}" --headers 'Content-Type=application/json' -o none; }
-verify_kusto_assignment(){ local principal_id="$1" label="$2" n attempt; [ -n "$principal_id" ] || return 0; for attempt in $(seq 1 "$ADX_ASSIGNMENT_POLL_ATTEMPTS"); do n="$(az rest --method get --url "https://management.azure.com${FINOPS_HUB_CLUSTER_RESOURCE_ID}/principalAssignments?api-version=2024-04-13" --query "length(value[?properties.principalId=='${principal_id}' && properties.role=='AllDatabasesViewer'])" -o tsv 2>/dev/null || echo 0)"; [ "${n:-0}" != "0" ] && return 0; [ "$attempt" -lt "$ADX_ASSIGNMENT_POLL_ATTEMPTS" ] && sleep "$ADX_ASSIGNMENT_POLL_SECONDS"; done; fail "ADX AllDatabasesViewer assignment missing for $label."; }
+put_kusto_assignment(){ local principal_id="$1" label="$2" name body path url; [ -n "$principal_id" ] || { log "Skipping ADX assignment for $label; no principal ID."; return 0; }; name="$(python3 -c 'import sys,uuid; print(uuid.uuid5(uuid.NAMESPACE_URL, sys.argv[1]+"/"+sys.argv[2]+"/AllDatabasesViewer"))' "$FINOPS_HUB_CLUSTER_RESOURCE_ID" "$principal_id")"; body="$(jq -nc --arg pid "$principal_id" --arg tid "$(az account show --query tenantId -o tsv)" '{properties:{principalType:"App",principalId:$pid,tenantId:$tid,role:"AllDatabasesViewer"}}')"; path="$(json_body_file "adx-${name}" "$body")"; url="https://management.azure.com${FINOPS_HUB_CLUSTER_RESOURCE_ID}/principalAssignments/${name}?api-version=2024-04-13"; dry "PUT ADX AllDatabasesViewer for $label" && return 0; log "PUT ADX AllDatabasesViewer for $label"; az rest -m PUT --url "$url" --body "@${path}" --headers 'Content-Type=application/json' -o none; }
+verify_kusto_assignment(){ local principal_id="$1" label="$2" n attempt; [ -n "$principal_id" ] || return 0; dry "verify ADX assignment for $label" && return 0; for attempt in $(seq 1 "$ADX_ASSIGNMENT_POLL_ATTEMPTS"); do n="$(az rest --method get --url "https://management.azure.com${FINOPS_HUB_CLUSTER_RESOURCE_ID}/principalAssignments?api-version=2024-04-13" --query "length(value[?properties.principalId=='${principal_id}' && properties.role=='AllDatabasesViewer'])" -o tsv 2>/dev/null || echo 0)"; [ "${n:-0}" != "0" ] && return 0; [ "$attempt" -lt "$ADX_ASSIGNMENT_POLL_ATTEMPTS" ] && sleep "$ADX_ASSIGNMENT_POLL_SECONDS"; done; fail "ADX AllDatabasesViewer assignment missing for $label."; }
 if [ -n "${FINOPS_HUB_CLUSTER_URI:-}" ]; then resolve_finops_hub_cluster; put_kusto_assignment "$UAMI_PRINCIPAL_ID" 'user-assigned managed identity'; put_kusto_assignment "$SYSTEM_PRINCIPAL_ID" 'system-assigned managed identity'; verify_kusto_assignment "$UAMI_PRINCIPAL_ID" 'user-assigned managed identity'; verify_kusto_assignment "$SYSTEM_PRINCIPAL_ID" 'system-assigned managed identity'; fi
 log 'Extras applied.'

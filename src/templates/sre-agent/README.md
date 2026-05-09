@@ -42,9 +42,18 @@ az account show --query '{name:name,id:id}' -o table
 Deploy the packaged FinOps Hub recipe:
 
 ```bash
-bash bin/deploy.sh recipes/finops-hub/ \
+# Dry-run (default) — shows what would happen, no resources created:
+bash bin/deploy.sh recipes/finops-hub/
+
+# Deploy for real:
+bash bin/deploy.sh recipes/finops-hub/ --execute
+
+# Deploy with FinOps Hub connector:
+bash bin/deploy.sh recipes/finops-hub/ --execute \
   --finops-hub-cluster-uri https://<your-finops-hub-cluster>.<region>.kusto.windows.net/hub
 ```
+
+> **Dry-run is the default.** Pass `--execute` to actually deploy. Dry-run uses `az deployment sub what-if` for Bicep and prints planned data-plane operations without executing them.
 
 For agent-only deployment, omit `--finops-hub-cluster-uri`. The FinOps Hub Kusto connector is skipped until a hub URI is supplied.
 
