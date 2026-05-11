@@ -1,19 +1,19 @@
 ---
 title: Configure a FinOps hub agent in Microsoft Copilot Studio
 description: Learn how to create a FinOps hub AI agent in Microsoft Copilot Studio with the Kusto Query MCP Server.
-author: rkrummenacher
-ms.author: rkrummenacher
-ms.date: 04/02/2026
+author: MSBrett
+ms.author: brettwil
+ms.date: 05/11/2026
 ms.topic: how-to
 ms.service: finops
 ms.subservice: finops-toolkit
-ms.reviewer: micflan
+ms.reviewer: brettwil
 # customer intent: As a FinOps hub admin, I want to create a Copilot Studio agent that can query my FinOps hub data so that my team can ask cost questions in natural language.
 ---
 
 # Configure a FinOps hub agent in Microsoft Copilot Studio
 
-[Microsoft Copilot Studio](https://copilotstudio.microsoft.com) enables you to create AI agents that integrate with Microsoft 365 Copilot. This article describes how to create a FinOps hub agent in Copilot Studio that connects to your FinOps hub database via the Kusto Query MCP Server and answers cost questions by executing KQL queries.
+[Microsoft Copilot Studio](https://copilotstudio.microsoft.com) lets you create AI agents that integrate with Microsoft 365 Copilot. This article describes how to create a FinOps hub agent in Copilot Studio that connects to your FinOps hub database via the Kusto Query MCP Server. The agent answers cost questions by executing KQL queries.
 
 <br>
 
@@ -35,10 +35,12 @@ ms.reviewer: micflan
 
    > FinOps Hub Agent provides governed, real time insights from your FinOps Toolkit Hub database. It translates natural language questions into validated KQL queries and delivers structured analysis on cloud spend, commitments, savings plans, anomalies, and optimization opportunities.
 
-4. Under **Select your agent's model**, select **Claude Opus 4.6** or later.
+4. Under **Select your agent's model**, choose a model with deep reasoning capabilities. The agent instructions require multistep reasoning for KQL query generation and structured report formatting.
+
+   For available models, regional availability, and data residency considerations, see [Select a primary AI model for your agent](/microsoft-copilot-studio/authoring-select-agent-model). External models require tenant administrator approval; see [Choose an external model](/microsoft-copilot-studio/authoring-select-external-response-model).
 
    > [!NOTE]
-   > The agent instructions have been tested and validated with **Claude Opus 4.6**. Other models may produce lower-quality results, especially for complex KQL generation and structured report formatting.
+   > The agent instructions in this guide were tested with a deep reasoning model. General-category models might produce lower-quality results for complex KQL queries.
 
 5. Download the [Copilot Studio instructions for FinOps hubs](https://github.com/microsoft/finops-toolkit/releases/latest/download/finops-hub-copilot-studio.zip) and extract the contents.
 6. Open the `agent-instructions.md` file and update the **Environment** section with your cluster URI:
@@ -49,7 +51,7 @@ ms.reviewer: micflan
    ```
 
    > [!NOTE]
-   > Do not include `https://` in the cluster URI. Copilot Studio strips HTTP links from the Instructions field.
+   > Don't include `https://` in the cluster URI. Copilot Studio removes HTTP links from the Instructions field.
 
 7. In the **Instructions** section, select **Edit**, paste the full content of `agent-instructions.md`, and select **Save**.
 
@@ -97,9 +99,9 @@ Knowledge files give the agent reference information for constructing accurate K
 
    | File | Description |
    |------|-------------|
-   | `schema-reference.md` | Column reference for building KQL queries against Costs_v1_2(). Contains all column names, data types, usage notes, and edge cases like blank meter categories and BilledCost vs EffectiveCost divergence. Use to look up correct column names before writing queries. |
-   | `query-catalog.md` | Ready-to-use KQL query templates for FinOps analysis. Covers cost breakdowns by subscription/service/region, monthly trends, anomaly detection, forecasting, savings summary, commitment utilization, and reservation recommendations. Adapt these patterns to answer cost questions. |
-   | `weekly-report-guide.md` | Step-by-step workflow for producing structured weekly cost anomaly reports. Contains 7 KQL queries (totals, category summary, resource increases/decreases, commitment coverage drops, marketplace), post-processing rules for grouping and severity classification, and the final report structure. |
+   | `schema-reference.md` | Column reference for `Costs_v1_2()` including names, data types, usage notes, and edge cases. Use to look up correct column names before writing queries. |
+   | `query-catalog.md` | Ready-to-use KQL query templates for cost breakdowns, monthly trends, anomaly detection, forecasting, savings summary, and commitment utilization. |
+   | `weekly-report-guide.md` | Step-by-step workflow for producing structured weekly cost anomaly reports with seven KQL queries, post-processing rules, and the final report structure. |
 
 4. For each file, select it to open the details and enter the description from the table above in the **Description** field. These descriptions help the agent decide when to retrieve each file.
 5. Wait for all files to show a **Ready** status on the Knowledge tab. Processing may take a few minutes.
