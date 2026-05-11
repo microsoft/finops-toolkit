@@ -16,4 +16,4 @@ roles:
   finopsHubAdx:
     - name: AllDatabasesViewer
       providerRole: Microsoft.Kusto/clusters/principalAssignments
-      appliedBy: bicep/apply-extras.sh
+      appliedBy: bicep/agent-core.bicep

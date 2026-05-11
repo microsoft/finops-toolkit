@@ -14,7 +14,7 @@ Deploy and configure an Azure SRE Agent with FinOps Toolkit and Azure capacity-m
 | Skills | 3 | Azure capacity management, Azure cost management, and FinOps Toolkit |
 | Tools | 34 | Kusto and Python tools for FinOps and capacity analysis |
 | Scheduled tasks | 19 | Recurring FinOps, capacity, governance, and reporting tasks |
-| Connector | 1 | Optional FinOps Hub Kusto connector when a hub URI is supplied |
+| Connector | 1 | Optional FinOps Hub Kusto connector when `FINOPS_HUB_CLUSTER_URI` is provided |
 
 ## Prerequisites
 
@@ -24,6 +24,7 @@ Deploy and configure an Azure SRE Agent with FinOps Toolkit and Azure capacity-m
 - `curl`
 - Bash 3.2 or newer
 - `Microsoft.App` resource provider registered in the selected subscription
+- `srectl` (required only when using `--fallback-srectl`)
 
 Run:
 
@@ -42,27 +43,45 @@ az account show --query '{name:name,id:id}' -o table
 Deploy the packaged FinOps Hub recipe:
 
 ```bash
-# Dry-run (default) — shows what would happen, no resources created:
+# Deploy:
 bash bin/deploy.sh recipes/finops-hub/
 
-# Deploy for real:
-bash bin/deploy.sh recipes/finops-hub/ --execute
+# Dry-run assembly only (no ARM deployment):
+bash bin/deploy.sh recipes/finops-hub/ --dry-run
 
-# Deploy with FinOps Hub connector:
-bash bin/deploy.sh recipes/finops-hub/ --execute \
-  --finops-hub-cluster-uri https://<your-finops-hub-cluster>.<region>.kusto.windows.net/hub
+# ARM what-if validation:
+bash bin/deploy.sh recipes/finops-hub/ --what-if
 ```
 
-> **Dry-run is the default.** Pass `--execute` to actually deploy. Dry-run uses `az deployment sub what-if` for Bicep and prints planned data-plane operations without executing them.
+If your tenant blocks ARM extension child-resource writes, deploy in constrained mode:
 
-For agent-only deployment, omit `--finops-hub-cluster-uri`. The FinOps Hub Kusto connector is skipped until a hub URI is supplied.
+```bash
+bash bin/deploy.sh recipes/finops-hub/ --fallback-srectl
+```
+
+Constrained mode keeps core agent provisioning in Bicep, then hydrates tools/subagents/skills/scheduled tasks via `srectl`.
+
+To include the FinOps Hub Kusto connector, set `FINOPS_HUB_CLUSTER_URI` before deployment (or put it in `recipes/finops-hub/connectors.secrets.env`). The value must include the database path (`/hub`):
+
+```bash
+export FINOPS_HUB_CLUSTER_URI="https://<your-finops-hub-cluster>.<region>.kusto.windows.net/hub"
+bash bin/deploy.sh recipes/finops-hub/
+```
+
+When a system-identity Kusto connector is present, `deploy.sh` now enables a Bicep-managed ADX role assignment (`AllDatabasesViewer`) for the agent system identity. The script auto-discovers the cluster ARM resource ID from the connector host in the selected subscription. You can override discovery explicitly:
+
+```bash
+export FINOPS_HUB_CLUSTER_RESOURCE_ID="/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Kusto/clusters/<cluster>"
+```
+
+Use `--force` to redeploy when no changes are detected.
 
 The flow is:
 
 1. `bicep/assemble-agent.sh` reads `recipes/finops-hub/` and produces deployment parameters plus extras.
 2. `az deployment sub create` runs `bicep/main.bicep` at subscription scope. The Bicep file creates the resource group.
 3. Bicep declares `Microsoft.App/agents/{subagents,skills,tools,connectors,commonPrompts}` directly.
-4. `bicep/apply-extras.sh` applies scheduled tasks, optional incident automation, knowledge uploads, hooks, and FinOps Hub ADX `AllDatabasesViewer` assignments.
+4. `bicep/apply-extras.sh` applies data-plane extras (for example repos, hooks, knowledge, and auth wiring).
 
 ## Canonical pattern
 
@@ -92,4 +111,4 @@ examples/ci-cd/              CI/CD example
 bash bin/verify-agent.sh $(az account show --query id -o tsv) rg-finops-sre-agent finops-sre-agent --expected recipes/finops-hub
 ```
 
-If a FinOps Hub URI was supplied, confirm the ADX cluster has `AllDatabasesViewer` assignments for the agent identities.
+If a FinOps Hub URI was supplied, verify the `finops-hub-kusto` connector is healthy in `https://sre.azure.com`.

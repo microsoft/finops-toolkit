@@ -178,4 +178,5 @@ resource uamiAdminRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 output agentId string = sreAgent.id
 output agentDataPlaneUrl string = 'https://${agentName}.${location}.azuresre.ai'
 output managedIdentityId string = effectiveIdentityId
+output systemAssignedPrincipalId string = sreAgent.identity.principalId
 output lawId string = law.id

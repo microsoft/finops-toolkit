@@ -3,10 +3,6 @@
   "skills": 3,
   "tools": 34,
   "scheduledTasks": 19,
-  "connectors": 1,
-  "requiredConnectors": [
-    "finops-hub-kusto"
-  ],
   "requiredExperimentalSettings": {
     "EnableWorkspaceTools": true
   }

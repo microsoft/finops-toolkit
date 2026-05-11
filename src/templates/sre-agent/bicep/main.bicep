@@ -132,6 +132,12 @@ param incidentFilters array = []
 @description('Optional. Connector definitions for any kind not covered by toggles above (kusto, mcp, github, azuredevops, teams, outlook, servicenow, pagerduty, grafana) or to override a toggle-generated entry.')
 param connectors array = []
 
+@description('Optional. Enable Bicep-managed Kusto AllDatabasesViewer assignment for the agent system identity.')
+param enableFinopsHubKustoViewerRole bool = false
+
+@description('Optional. Resource ID of the FinOps Hub Azure Data Explorer cluster used by the Kusto connector.')
+param finopsHubKustoClusterResourceId string = ''
+
 @description('Optional. Hook definitions for any handler beyond the toggles above (additional PreToolUse/Start/Stop entries).')
 param hooks array = []
 
@@ -151,6 +157,10 @@ param pluginConfigs array = []
 
 var subscriptionId = subscription().subscriptionId
 var suffix = uniqueString(subscriptionId, agentResourceGroupName, agentName)
+var applyFinopsHubKustoViewerRole = enableFinopsHubKustoViewerRole && !empty(finopsHubKustoClusterResourceId)
+var finopsHubKustoClusterSubscriptionId = empty(finopsHubKustoClusterResourceId) ? '' : split(finopsHubKustoClusterResourceId, '/')[2]
+var finopsHubKustoClusterResourceGroupName = empty(finopsHubKustoClusterResourceId) ? '' : split(finopsHubKustoClusterResourceId, '/')[4]
+var finopsHubKustoClusterName = empty(finopsHubKustoClusterResourceId) ? '' : split(finopsHubKustoClusterResourceId, '/')[8]
 
 // Create the agent RG if it doesn't already exist (idempotent — ARM no-op if present).
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -176,6 +186,17 @@ module core './agent-core.bicep' = {
     tags: tags
     existingManagedIdentityId: existingManagedIdentityId
     existingAgentAppInsightsId: existingAgentAppInsightsId
+  }
+}
+
+module finopsHubKustoViewerRbac './kusto-viewer-rbac.bicep' = if (applyFinopsHubKustoViewerRole) {
+  name: 'kusto-rbac-${uniqueString(deployment().name)}'
+  scope: resourceGroup(finopsHubKustoClusterSubscriptionId, finopsHubKustoClusterResourceGroupName)
+  params: {
+    clusterName: finopsHubKustoClusterName
+    principalId: core.outputs.systemAssignedPrincipalId
+    principalTenantId: tenant().tenantId
+    principalAssignmentName: 'sre-agent-${uniqueString(subscriptionId, agentResourceGroupName, agentName, 'all-db-viewer')}'
   }
 }
 
