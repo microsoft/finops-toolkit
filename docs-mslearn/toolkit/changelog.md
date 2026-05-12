@@ -3,7 +3,7 @@ title: FinOps toolkit changelog
 description: Review the latest features and enhancements in the FinOps toolkit, including updates to FinOps hubs, Power BI reports, and more.
 author: MSBrett
 ms.author: brettwil
-ms.date: 04/29/2026
+ms.date: 05/12/2026
 ms.topic: reference
 ms.service: finops
 ms.subservice: finops-toolkit
@@ -1058,7 +1058,7 @@ _**Breaking change**_
     - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
     - Added param to specify subnet range of virtual network - minimum size = /26
   - Support for storage account infrastructure encryption.
-  - Published a [schema file](https://aka.ms/finops/hubs/settings-schema) for the hub settings.json file.
+  - Published a schema file for the hub settings.json file.
 - **Changed**
   - Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
     > [!IMPORTANT]

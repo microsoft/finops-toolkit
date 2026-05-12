@@ -102,6 +102,45 @@ BeforeDiscovery {
     $mslearnFiles = Get-MarkdownFiles $mslearnRoot $mslearnRoot
     $mslearnInternalLinks = Get-InternalMdLinks $mslearnFiles
     $mslearnUrls = Get-MarkdownUrls $mslearnFiles
+    $knownBrokenExternalUrls = @(
+        'https://azure.microsoft.com/products/managed-disks',
+        'https://www.finops.org/framework/capabilities/onboarding-workloads/',
+        'https://www.finops.org/framework/capabilities/benchmarking',
+        'https://aka.ms/finops/hubs/settings-schema'
+    )
+    $knownBrokenExternalUrlMatches = @()
+    foreach ($file in $mslearnFiles)
+    {
+        $cleanContent = Remove-HtmlComments $file.Content
+        foreach ($url in $knownBrokenExternalUrls)
+        {
+            $matches = [regex]::Matches($cleanContent, [regex]::Escape($url))
+            foreach ($match in $matches)
+            {
+                $knownBrokenExternalUrlMatches += @{
+                    SourceFile = $file.FullName
+                    SourceRel  = $file.RelativePath
+                    Url        = $url
+                    LineNumber = ($cleanContent.Substring(0, $match.Index) -split "`n").Count
+                }
+            }
+        }
+    }
+    $incompleteExternalUrlMatches = @()
+    foreach ($file in $mslearnFiles)
+    {
+        $cleanContent = Remove-HtmlComments $file.Content
+        $matches = [regex]::Matches($cleanContent, 'https://ccmstorageprod(?!\.)')
+        foreach ($match in $matches)
+        {
+            $incompleteExternalUrlMatches += @{
+                SourceFile = $file.FullName
+                SourceRel  = $file.RelativePath
+                Url        = $match.Value
+                LineNumber = ($cleanContent.Substring(0, $match.Index) -split "`n").Count
+            }
+        }
+    }
     #endregion
 
     #region docs (Jekyll site)
@@ -256,6 +295,20 @@ Describe 'Documentation links' {
 
         It 'Should not contain language locale in URL: <SourceRel>:<LineNumber> <Url>' -ForEach ($mslearnUrls | Where-Object { $_.Url -match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' }) {
             $Url | Should -Not -Match 'learn\.microsoft\.com/[a-z]{2}-[a-z]{2}/' -Because "MS Learn links should not include language locale segments like /en-us/ (${SourceRel}:${LineNumber})"
+        }
+    }
+
+    Context 'docs-mslearn: No known broken external URLs' {
+
+        It 'Should not contain known broken external URLs' {
+            $knownBrokenExternalUrlMatches | Should -BeNullOrEmpty -Because 'known broken external URLs should not appear in docs-mslearn content'
+        }
+    }
+
+    Context 'docs-mslearn: No incomplete placeholder external URLs' {
+
+        It 'Should not contain incomplete placeholder URLs' {
+            $incompleteExternalUrlMatches | Should -BeNullOrEmpty -Because 'incomplete placeholder URLs should not appear in docs-mslearn content'
         }
     }
 
