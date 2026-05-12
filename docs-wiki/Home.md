@@ -168,7 +168,7 @@ Please do the following before submitting a pull request:
 
 4. Only address 1 issue per pull request and [link the issue in the pull request](https://github.com/blog/957-introducing-issue-mentions).
 5. Be sure to follow our [coding guidelines](./Coding-guidelines.md) and keep code changes as small as possible.
-6. Validate changes by running locally and running [[unit tests]].
+6. Validate changes by running locally and running [[unit tests|Build and test]].
 7. Enable the checkbox to [allow maintainer edits](https://docs.github.com/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so the branch can be updated for a merge.
 8. Do all of the above before publishing your PR. You are welcome to create a draft PR to share and discuss ideas, but only publish when all code is committed, tested, and ready for review.
 9. If you are working with others (especially internal teams), have 2 of your peers review your PRs. This will ensure a quicker turnaround as it is more likely that issues will be addressed before we review the PR.

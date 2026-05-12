@@ -33,10 +33,10 @@ You may see this error when using [Add-FinOpsServicePrincipal](../powershell/cos
 
 **Mitigation**:
 
-1. Confirm you are using the service principal object ID from **Enterprise applications** in the Azure portal, not the application object ID from **App registrations**. See [Assign roles to EA service principals](https://learn.microsoft.com/azure/cost-management-billing/manage/assign-roles-azure-service-principals).
-2. Confirm your account has the **Enrollment writer** role in your Enterprise Agreement. See [Understand EA administrative roles](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles).
+1. Confirm you are using the service principal object ID from **Enterprise applications** in the Azure portal, not the application object ID from **App registrations**. See [Assign roles to EA service principals](/azure/cost-management-billing/manage/assign-roles-azure-service-principals).
+2. Confirm your account has the **Enrollment writer** role in your Enterprise Agreement. See [Understand EA administrative roles](/azure/cost-management-billing/manage/understand-ea-roles).
 3. Confirm the billing account ID matches your EA enrollment number exactly.
-4. If the error persists, try assigning the role directly through the [Billing Role Assignments REST API](https://learn.microsoft.com/rest/api/billing/2019-10-01-preview/role-assignments/put) using the **Try it** feature.
+4. If the error persists, try assigning the role directly through the [Billing Role Assignments REST API](/rest/api/billing/2019-10-01-preview/role-assignments/put) using the **Try it** feature.
 
 If this is not an EA enrollment scenario, see [Access to the resource is forbidden](#access-to-the-resource-is-forbidden).
 

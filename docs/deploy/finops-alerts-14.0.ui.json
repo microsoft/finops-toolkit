@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "config": {
+      "basics": {
+        "description": "FinOps alerts is an Azure Logic Apps-based automated detection system that identifies idle resources across selected subscriptions on a configurable schedule and sends notifications to admins to investigate and take action",
+        "location": {
+          "label": "Location",
+          "toolTip": "Location of logic app must be in the same region as the resource group.",
+          "resourceTypes": [
+            "Microsoft.Logic/workflows",
+            "Microsoft.Web/connections"
+          ]
+        }
+      }
+    },
+    "basics": [
+    {
+      "name": "finopsalertsName",
+      "type": "Microsoft.Common.TextBox",
+      "label": "FinOps alerts name",
+      "defaultValue": "finops-alerts",
+      "toolTip": "Name of the FinOps alerts instance.",
+      "constraints": {
+        "required": true,
+        "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]$",
+        "validationMessage": "Name must be between 3 and 63 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
+      },
+      "visible": true
+    },
+    {
+      "name": "connectionsName",
+      "type": "Microsoft.Common.TextBox",
+      "label": "Connection name",
+      "defaultValue": "finops-alerts-connection",
+      "toolTip": "Name of the API connection.",
+      "constraints": {
+        "required": true,
+        "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]$",
+        "validationMessage": "Name must be between 3 and 63 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
+      },
+      "visible": true
+    }
+   ],
+    "steps": [{
+      "name": "tags",
+      "label": "Tags",
+      "elements": [
+        {
+          "name": "tagsByResource",
+          "label": "Tags",
+          "toolTip": "Tags to apply to resources.",
+          "type": "Microsoft.Common.TagsByResource",
+          "resources": [
+            "Microsoft.Logic/workflows",
+            "Microsoft.Web/connections"
+          ]
+        }
+      ]
+    }],
+    "outputs": {
+    "hubName": "[basics('finopsalertsName')]",
+    "location": "[location()]",
+    "tagsByResource": "[steps('tags').tagsByResource]"},
+    "resourceTypes": [
+      "Microsoft.Logic/workflows",
+      "Microsoft.Web/connections"
+    ]
+  }
+}

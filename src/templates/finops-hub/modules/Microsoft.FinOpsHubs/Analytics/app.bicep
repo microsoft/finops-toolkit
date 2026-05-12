@@ -552,7 +552,7 @@ resource dataFactoryVNet 'Microsoft.DataFactory/factories/managedVirtualNetworks
       #disable-next-line BCP318 // Null safety warning for conditional resource access // Null safety warning for conditional resource access // Null safety warning for conditional resource access
       privateLinkResourceId: cluster.id
       fqdns: [
-        'https://${replace(clusterName, '_', '-')}.${app.hub.location}.${dataExplorerDnsSuffix}'
+        'https://${cluster.name}.${app.hub.location}.${dataExplorerDnsSuffix}'
       ]
     }
   }

@@ -91,8 +91,8 @@ The FinOps hubs database is designed to support advanced cost and usage analytic
 
 ## Query Best Practices
 
-- **Start with the CostsPlus Query:**  
-  Use the provided CostsPlus query as your base for any cost or usage analytics. This ensures you benefit from the latest schema, enrichment logic, and FinOps best practices.
+- **Start with the [`costs-enriched-base`](./catalog/costs-enriched-base.kql) query:**
+  Use this query as your base for any cost or usage analytics. It provides the full enrichment and savings logic for all cost columns and is the recommended foundation for custom analytics and reporting.
 
 - **Use KQL (Kusto Query Language):**  
   All queries should be written in KQL for compatibility with Azure Data Explorer.

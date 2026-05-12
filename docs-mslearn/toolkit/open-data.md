@@ -4,7 +4,7 @@ description: Use open data to normalize and enhance your FinOps reporting, ensur
 ms.topic: concept-article
 author: flanakin
 ms.author: micflan
-ms.date: 04/01/2026
+ms.date: 04/04/2026
 ms.service: finops
 ms.subservice: finops-toolkit
 ms.reviewer: micflan
@@ -155,7 +155,7 @@ Most mappings can rely on resource type alone. In a future update, we will merge
 
 ## Commitment discount eligibility
 
-Azure meters can be eligible for commitment-based discounts such as reservations and savings plans. The commitment discount eligibility file provides a pre-computed lookup of which meters are eligible for each type, sourced from the [Azure Retail Prices API](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices).
+Azure meters can be eligible for commitment-based discounts such as reservations and savings plans. The commitment discount eligibility file provides a pre-computed lookup of which meters are eligible for each type, sourced from the [Azure Retail Prices API](/rest/api/cost-management/retail-prices/azure-retail-prices).
 
 Sample data:
 
