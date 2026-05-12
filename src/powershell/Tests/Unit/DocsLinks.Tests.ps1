@@ -124,6 +124,7 @@ BeforeDiscovery {
                     SourceFile = $file.FullName
                     SourceRel  = $file.RelativePath
                     Url        = $url
+                    Pattern    = "^$([regex]::Escape($url))$"
                     LineNumber = ($cleanContent.Substring(0, $match.Index) -split "`n").Count
                 }
             }
@@ -136,6 +137,7 @@ BeforeDiscovery {
                 SourceFile = $file.FullName
                 SourceRel  = $file.RelativePath
                 Url        = $match.Value
+                Pattern    = $incompletePlaceholderUrlPattern
                 LineNumber = ($cleanContent.Substring(0, $match.Index) -split "`n").Count
             }
         }
@@ -300,14 +302,14 @@ Describe 'Documentation links' {
     Context 'docs-mslearn: No known broken external URLs' {
 
         It 'Should not contain known broken external URL: <SourceRel>:<LineNumber> <Url>' -ForEach $knownBrokenExternalUrlMatches {
-            $Url | Should -Not -Match '^(https://azure.microsoft.com/products/managed-disks|https://www.finops.org/framework/capabilities/onboarding-workloads/|https://www.finops.org/framework/capabilities/benchmarking|https://aka.ms/finops/hubs/settings-schema)$' -Because "known broken external URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+            $Url | Should -Not -Match $Pattern -Because "known broken external URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
         }
     }
 
     Context 'docs-mslearn: No incomplete placeholder external URLs' {
 
         It 'Should not contain incomplete placeholder URL: <SourceRel>:<LineNumber> <Url>' -ForEach $incompleteExternalUrlMatches {
-            $Url | Should -Not -Match '^https://ccmstorageprod(?!\.)' -Because "incomplete placeholder URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
+            $Url | Should -Not -Match $Pattern -Because "incomplete placeholder URLs should not appear in docs-mslearn content (${SourceRel}:${LineNumber})"
         }
     }
 
