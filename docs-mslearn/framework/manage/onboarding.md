@@ -73,7 +73,7 @@ Document your onboarding process. Using existing tools and processes where avail
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the Onboarding workloads capability article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, refer to the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 

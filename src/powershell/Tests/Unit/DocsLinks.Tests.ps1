@@ -108,14 +108,17 @@ BeforeDiscovery {
         'https://www.finops.org/framework/capabilities/benchmarking',
         'https://aka.ms/finops/hubs/settings-schema'
     )
+    # Match incomplete ccmstorageprod URLs (no domain suffix), while allowing valid hosts like ccmstorageprod.blob.core.windows.net.
+    $incompletePlaceholderUrlPattern = 'https://ccmstorageprod(?!\.)'
     $knownBrokenExternalUrlMatches = @()
+    $incompleteExternalUrlMatches = @()
     foreach ($file in $mslearnFiles)
     {
         $cleanContent = Remove-HtmlComments $file.Content
         foreach ($url in $knownBrokenExternalUrls)
         {
-            $matches = [regex]::Matches($cleanContent, [regex]::Escape($url))
-            foreach ($match in $matches)
+            $urlMatches = [regex]::Matches($cleanContent, [regex]::Escape($url))
+            foreach ($match in $urlMatches)
             {
                 $knownBrokenExternalUrlMatches += @{
                     SourceFile = $file.FullName
@@ -125,13 +128,9 @@ BeforeDiscovery {
                 }
             }
         }
-    }
-    $incompleteExternalUrlMatches = @()
-    foreach ($file in $mslearnFiles)
-    {
-        $cleanContent = Remove-HtmlComments $file.Content
-        $matches = [regex]::Matches($cleanContent, 'https://ccmstorageprod(?!\.)')
-        foreach ($match in $matches)
+
+        $placeholderMatches = [regex]::Matches($cleanContent, $incompletePlaceholderUrlPattern)
+        foreach ($match in $placeholderMatches)
         {
             $incompleteExternalUrlMatches += @{
                 SourceFile = $file.FullName
