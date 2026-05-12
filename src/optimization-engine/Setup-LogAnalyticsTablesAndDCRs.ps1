@@ -924,6 +924,29 @@ foreach ($suffix in $tableSchemas.Keys)
         $columns += @{ name = $col.name; type = $col.type }
     }
 
+    # Build source stream columns from table schema columns by removing the legacy type suffix
+    # (_s, _g, _t, _d, _b). This keeps table column names backward-compatible while accepting
+    # CSV/source payload fields without suffixes.
+    $sourceColumnsByName = [ordered]@{}
+    $destinationToSource = @{}
+    foreach ($col in $tableSchemas[$suffix])
+    {
+        $sourceName = $col.name
+        if ($sourceName -match '^(.*)_[sgtdb]$')
+        {
+            $sourceName = $Matches[1]
+        }
+
+        if (-not $sourceColumnsByName.Contains($sourceName))
+        {
+            $sourceColumnsByName[$sourceName] = @{ name = $sourceName; type = $col.type }
+        }
+
+        $destinationToSource[$col.name] = $sourceName
+    }
+
+    $sourceColumns = @($sourceColumnsByName.Values)
+
     $tablePayload = @{
         properties = @{
             schema = @{
@@ -954,22 +977,37 @@ foreach ($suffix in $tableSchemas.Keys)
         Write-Host "    Migration completed for $tableName." -ForegroundColor Gray
     }
 
-    # Build the DCR transform KQL. DCR stream declarations do not support the 'guid' type,
-    # so _g columns are declared as 'string' in the stream. For existing tables whose _g columns
-    # are already typed as Guid (created by the legacy Data Collector API), we must cast each
-    # such column back to guid inside the transform so the output matches the table schema.
-    # For new tables (where we create the schema with 'string' for _g columns) no casting is needed.
-    $transformKql = "source"
+    # Build the DCR transform KQL.
+    # Stream declarations use unsuffixed source fields, while output maps to suffixed table columns.
+    # For existing tables whose _g columns are already typed as Guid (created by the legacy Data
+    # Collector API), cast those specific outputs with toguid() so the transformed output matches
+    # the existing table schema.
+    $guidColumnNames = @()
     if ($null -ne $existingTable)
     {
         $guidColumns = @($existingTable.Schema.Columns | Where-Object { $_.Type -eq "Guid" -and $_.Name -in $columns.name })
         if ($guidColumns.Count -gt 0)
         {
-            $extends = ($guidColumns | ForEach-Object { "$($_.Name) = toguid($($_.Name))" }) -join ", "
-            $transformKql = "source | extend $extends"
+            $guidColumnNames = @($guidColumns | ForEach-Object { $_.Name })
             Write-Host "    Existing guid columns detected ($($guidColumns.Count)). Using toguid() transform." -ForegroundColor Gray
         }
     }
+
+    $projectExpressions = @()
+    foreach ($col in $columns)
+    {
+        $destinationName = $col.name
+        $sourceName = $destinationToSource[$destinationName]
+        if ($destinationName -in $guidColumnNames)
+        {
+            $projectExpressions += "$destinationName = toguid($sourceName)"
+        }
+        else
+        {
+            $projectExpressions += "$destinationName = $sourceName"
+        }
+    }
+    $transformKql = "source | project " + ($projectExpressions -join ", ")
 
     # Only create/update the table schema for new (non-existing) tables.
     # Existing tables preserve their schema to avoid column type conflicts
@@ -1000,7 +1038,7 @@ foreach ($suffix in $tableSchemas.Keys)
             dataCollectionEndpointId = $dceResourceId
             streamDeclarations       = @{
                 $streamName = @{
-                    columns = $columns
+                    columns = $sourceColumns
                 }
             }
             destinations             = @{
